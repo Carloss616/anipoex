@@ -8,7 +8,9 @@
     "scheme": "anipoex",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anipoex.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +19,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anipoex.app"
     },
     "web": {
       "output": "static",
