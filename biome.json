@@ -27,6 +27,19 @@
       "preset": "recommended",
       "a11y": {
         "noSvgWithoutTitle": "off"
+      },
+      "nursery": {
+        "useSortedClasses": "warn"
+      },
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "heroui-native": "Import scoped: heroui-native/<component>"
+            }
+          }
+        }
       }
     }
   },

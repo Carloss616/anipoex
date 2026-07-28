@@ -1,0 +1,125 @@
+import Lucide from "@react-native-vector-icons/lucide";
+import { usePathname } from "expo-router";
+import {
+  TabList,
+  type TabListProps,
+  TabSlot as TabSlotBase,
+  Tabs,
+  TabTrigger,
+  type TabTriggerSlotProps,
+} from "expo-router/ui";
+import { useThemeColor } from "heroui-native/hooks";
+import { Surface } from "heroui-native/surface";
+import { Tabs as HeroTabs } from "heroui-native/tabs";
+import type { ComponentProps } from "react";
+import { View } from "react-native";
+import { withUniwind } from "uniwind";
+import { noop } from "@/utils/utils";
+import { ThemeToggle } from "../theme-toggle";
+
+const TabSlot = withUniwind(TabSlotBase);
+
+type LucideIconProps = ComponentProps<typeof Lucide>["name"];
+type Route = {
+  name: string;
+  href: string;
+  label: string;
+  icon: {
+    default: LucideIconProps;
+    selected: LucideIconProps;
+  };
+};
+
+const ROUTES = [
+  {
+    name: "home",
+    href: "/",
+    label: "Home",
+    icon: { default: "house", selected: "house-heart" },
+  },
+  {
+    name: "manga",
+    href: "/manga",
+    label: "Manga",
+    icon: { default: "book-open", selected: "book-open-text" },
+  },
+] as const satisfies Route[];
+
+export function AppTabs() {
+  const pathname = usePathname();
+  const value =
+    ROUTES.find(({ href }) => href !== "/" && pathname.startsWith(href))
+      ?.href ?? "/";
+
+  return (
+    <HeroTabs value={value} onValueChange={noop} className="flex-1">
+      <Tabs>
+        <TabSlot className="flex-1" />
+        <TabList asChild>
+          <HeroTabList>
+            {ROUTES.map((item) => (
+              <TabTrigger
+                key={item.name}
+                name={item.name}
+                href={item.href}
+                asChild
+              >
+                <TabButton item={item}>{item.label}</TabButton>
+              </TabTrigger>
+            ))}
+          </HeroTabList>
+        </TabList>
+      </Tabs>
+    </HeroTabs>
+  );
+}
+
+function TabButton({
+  item,
+  isFocused,
+  children,
+  ...props
+}: TabTriggerSlotProps & { item: Route }) {
+  const [accent, muted] = useThemeColor(["accent", "muted"]);
+
+  return (
+    <HeroTabs.Trigger value={item.href} {...props}>
+      {({ isSelected }) => (
+        <>
+          <Lucide
+            size={18}
+            name={isSelected ? item.icon.selected : item.icon.default}
+            color={isSelected ? accent : muted}
+          />
+          <HeroTabs.Label className={isSelected ? "text-accent" : "text-muted"}>
+            {children}
+          </HeroTabs.Label>
+        </>
+      )}
+    </HeroTabs.Trigger>
+  );
+}
+
+function HeroTabList({ children, className, ...props }: TabListProps) {
+  return (
+    <View
+      {...props}
+      className="justify-center! absolute bottom-0 w-full items-center p-4"
+    >
+      <Surface
+        variant="tertiary"
+        className="flex-row items-center gap-2 rounded-full p-2"
+      >
+        {/* TabTriggers must stay direct children of TabList, so the list lives here. */}
+        <HeroTabs.List>
+          <HeroTabs.ScrollView scrollAlign="center">
+            <HeroTabs.Indicator />
+            {children}
+          </HeroTabs.ScrollView>
+        </HeroTabs.List>
+
+        <ThemeToggle />
+      </Surface>
+    </View>
+  );
+}

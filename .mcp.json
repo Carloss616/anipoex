@@ -3,6 +3,10 @@
     "heroui-native": {
       "command": "bunx",
       "args": ["-y", "@heroui/native-mcp@latest"]
+    },
+    "uniwind": {
+      "type": "http",
+      "url": "https://docs.uniwind.dev/mcp"
     }
   }
 }

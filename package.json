@@ -3,13 +3,17 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
+    "@expo/material-symbols": "^0.1.1",
     "@expo/ui": "~57.0.7",
+    "@react-native-vector-icons/lucide": "^13.1.2",
+    "@shopify/flash-list": "^2.3.2",
     "expo": "~57.0.8",
     "expo-constants": "~57.0.7",
     "expo-device": "~57.0.1",
     "expo-font": "~57.0.1",
     "expo-glass-effect": "~57.0.1",
     "expo-image": "~57.0.1",
+    "expo-linear-gradient": "~57.0.1",
     "expo-linking": "~57.0.4",
     "expo-router": "~57.0.8",
     "expo-splash-screen": "~57.0.5",
@@ -39,13 +43,13 @@
     "typescript": "^7.0.2"
   },
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "prebuild": "expo prebuild --clean",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web",
+    "web": "expo start --dev-client --web",
     "check": "biome check",
-    "check:fix": "biome check --write",
+    "check:fix": "biome check --write --unsafe",
     "typecheck": "tsc --noEmit"
   },
   "private": true

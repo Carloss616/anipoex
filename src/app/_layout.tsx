@@ -1,23 +1,48 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { HeroUINativeProvider } from "heroui-native";
-import { useColorScheme } from "react-native";
+import { useThemeColor } from "heroui-native/hooks";
+import { HeroUINativeProvider } from "heroui-native/provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
+import { useUniwind } from "uniwind";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import AppTabs from "@/components/app-tabs";
+import { AppTabs } from "@/components/app";
 import "@/global.css";
+import "@/utils/focus-modality";
 
 SplashScreen.preventAutoHideAsync();
 
+// mobile only
+function useNavigationTheme() {
+  const { theme } = useUniwind();
+  const [accent, background, surface, foreground, border, danger] =
+    useThemeColor([
+      "accent",
+      "background",
+      "surface",
+      "foreground",
+      "border",
+      "danger",
+    ]);
+  const base = theme === "dark" ? DarkTheme : DefaultTheme;
+  return {
+    ...base,
+    colors: {
+      primary: accent,
+      background,
+      card: surface,
+      text: foreground,
+      border,
+      notification: danger,
+    },
+  };
+}
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const theme = useNavigationTheme();
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView className="web:bg-background">
       <HeroUINativeProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
+        <ThemeProvider value={theme}>
           <AnimatedSplashOverlay />
           <AppTabs />
         </ThemeProvider>
