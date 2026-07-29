@@ -36,13 +36,34 @@
           "level": "error",
           "options": {
             "paths": {
-              "heroui-native": "Import scoped: heroui-native/<component>"
+              "heroui-native": "Import scoped: heroui-native/<component>",
+              "heroui-native/pressable-feedback": "Import from @/components/ui/pressable-feedback",
+              "heroui-native/chip": "Import from @/components/ui/chip"
             }
           }
         }
       }
     }
   },
+  "overrides": [
+    {
+      "includes": ["src/components/ui/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "heroui-native": "Import scoped: heroui-native/<component>"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double"

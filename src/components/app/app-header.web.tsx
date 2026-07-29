@@ -118,7 +118,7 @@ export function AppHeader({
     <View
       style={options.headerStyle}
       className={cn(
-        "gap-3 border-border bg-background px-gutter py-6 backdrop-blur-xl",
+        "gap-3 px-gutter py-6 backdrop-blur-xl",
         options.headerShadowVisible && "border-b",
         options.headerTransparent && "absolute inset-x-0 top-0 z-10",
       )}

@@ -64,10 +64,7 @@ export function MangaList() {
           <Link href={`/manga/${item.id}`} asChild>
             <Link.Trigger>
               <PressableFeedback className="overflow-visible">
-                <Card
-                  variant="secondary"
-                  className="aspect-2/3 w-full justify-end p-0"
-                >
+                <Card className="aspect-2/3 w-full justify-end p-0">
                   <View
                     style={StyleSheet.absoluteFill}
                     className="items-center justify-center"
