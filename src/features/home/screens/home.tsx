@@ -3,12 +3,12 @@ import { Card } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
 import { Slider } from "heroui-native/slider";
 import { Surface } from "heroui-native/surface";
-import { Typography } from "heroui-native/text";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { AppScrollView, AppScrollViewX } from "@/components/app";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Chip } from "@/components/ui/chip";
+import { Typography } from "@/components/ui/typography";
 
 // ponytail: static seed data — swap for the API once there is one
 const FILTERS = ["Todo", "Anime", "Manga"] as const;
@@ -60,7 +60,7 @@ export function Home() {
 
   return (
     <AppScrollView contentContainerClassName="pt-6">
-      <View className="mb-6 flex-row items-center justify-between gap-3">
+      <View className="mb-3 flex-row items-center justify-between gap-3">
         <View>
           <Typography className="font-semibold text-3xl text-foreground">
             Anipoex
@@ -72,12 +72,15 @@ export function Home() {
         <ThemeToggle />
       </View>
 
-      <AppScrollViewX wrapperClassName="mb-6" contentContainerClassName="gap-3">
+      <AppScrollViewX
+        wrapperClassName="mb-3"
+        contentContainerClassName="gap-3 my-3"
+      >
         {FILTERS.map((f) => (
           <Chip
             key={f}
-            variant={"soft"}
-            color={filter === f ? "accent" : "default"}
+            variant="secondary"
+            selected={filter === f}
             onPress={() => setFilter(f)}
           >
             <Chip.Label>{f}</Chip.Label>

@@ -1,15 +1,15 @@
 import Lucide from "@react-native-vector-icons/lucide";
 import { Link, Stack } from "expo-router";
-import { Button } from "heroui-native/button";
 import { Card } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
-import { Typography } from "heroui-native/text";
 import { useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { AppFlashList, AppScrollViewX } from "@/components/app";
 import { EmptyState } from "@/components/empty-state";
+import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { PressableFeedback } from "@/components/ui/pressable-feedback";
+import { Typography } from "@/components/ui/typography";
 import { GENRES, MANGA } from "../mocks";
 
 export function MangaList() {
@@ -44,21 +44,24 @@ export function MangaList() {
         keyExtractor={(item) => item.id}
         gap={3}
         ListHeaderComponent={
-          <AppScrollViewX
-            contentContainerClassName="gap-3"
-            wrapperClassName="mb-6"
-          >
-            {GENRES.map((g) => (
-              <Chip
-                key={g}
-                variant="soft"
-                color={genre === g ? "accent" : "default"}
-                onPress={() => setGenre(g)}
-              >
-                <Chip.Label>{g}</Chip.Label>
-              </Chip>
-            ))}
-          </AppScrollViewX>
+          <>
+            <Typography.Heading type="h5">Genres</Typography.Heading>
+            <AppScrollViewX
+              wrapperClassName="mb-3"
+              contentContainerClassName="gap-3 my-3"
+            >
+              {GENRES.map((g) => (
+                <Chip
+                  key={g}
+                  variant="secondary"
+                  selected={genre === g}
+                  onPress={() => setGenre(g)}
+                >
+                  <Chip.Label>{g}</Chip.Label>
+                </Chip>
+              ))}
+            </AppScrollViewX>
+          </>
         }
         renderItem={({ item }) => (
           <Link href={`/manga/${item.id}`} asChild>

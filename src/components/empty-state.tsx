@@ -1,7 +1,7 @@
-import { Typography } from "heroui-native/text";
 import { cn } from "heroui-native/utils";
 import { useState } from "react";
 import { View } from "react-native";
+import { Typography } from "@/components/ui/typography";
 
 // https://github.com/mihonapp/mihon/blob/main/presentation-core/src/main/java/tachiyomi/presentation/core/screens/EmptyScreen.kt
 const FACES = [

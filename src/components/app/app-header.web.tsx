@@ -1,11 +1,9 @@
 import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
-import { Button } from "heroui-native/button";
 import { CloseButton } from "heroui-native/close-button";
 import { useThemeColor } from "heroui-native/hooks";
 import { SearchField } from "heroui-native/search-field";
-import { Typography } from "heroui-native/text";
 import { cn } from "heroui-native/utils";
 import { useState } from "react";
 import {
@@ -14,6 +12,8 @@ import {
   type TextStyle,
   View,
 } from "react-native";
+import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/ui/typography";
 
 type SearchBarOptions = NonNullable<
   NativeStackHeaderProps["options"]["headerSearchBarOptions"]

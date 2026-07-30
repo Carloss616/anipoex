@@ -36,9 +36,15 @@
           "level": "error",
           "options": {
             "paths": {
+              "@expo/ui": {
+                "importNames": ["Host", "Icon"],
+                "message": "Import from @/components/ui/<component>"
+              },
               "heroui-native": "Import scoped: heroui-native/<component>",
               "heroui-native/pressable-feedback": "Import from @/components/ui/pressable-feedback",
-              "heroui-native/chip": "Import from @/components/ui/chip"
+              "heroui-native/button": "Import from @/components/ui/button",
+              "heroui-native/chip": "Import from @/components/ui/chip",
+              "heroui-native/text": "Import from @/components/ui/typography"
             }
           }
         }

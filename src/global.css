@@ -170,3 +170,16 @@
     --field-radius: 0.75rem;
   }
 }
+
+@layer theme {
+  @variant light {
+    /* heroui-native's Button feeds this through colorKit, which only parses
+       hex/rgb/hsl — so it can't read theme.css's oklab color-mix. Precomputed
+       equivalent of `color-mix(in oklab, --default 96%, --default-foreground 4%)`. */
+    --color-default-hover: rgb(226, 225, 226);
+  }
+  @variant dark {
+    /* See the light variant: colorKit can't parse oklab color-mix. */
+    --color-default-hover: rgb(47, 46, 47);
+  }
+}

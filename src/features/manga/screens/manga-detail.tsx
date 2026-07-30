@@ -1,62 +1,99 @@
-import { Lucide } from "@react-native-vector-icons/lucide";
+import {
+  Column as ColumnBase,
+  Row as RowBase,
+  ScrollView as ScrollViewBase,
+  Spacer,
+} from "@expo/ui";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
-import { Button } from "heroui-native/button";
-import { Card } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
-import { Separator } from "heroui-native/separator";
-import { Slider } from "heroui-native/slider";
-import { Surface } from "heroui-native/surface";
-import { Typography } from "heroui-native/text";
 import { cn } from "heroui-native/utils";
-import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { AppScrollView } from "@/components/app";
+import { Fragment, useState } from "react";
+import { withUniwind } from "uniwind";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
-import { PressableFeedback } from "@/components/ui/pressable-feedback";
+import { Host } from "@/components/ui/host";
+import { Icon } from "@/components/ui/icon";
+import { Progress } from "@/components/ui/progress";
+import { Typography } from "@/components/ui/typography";
+import { noop } from "@/utils/utils";
 import { CHAPTERS, MANGA_DETAIL, STATS } from "../mocks";
 
-function Cover({ className }: { className?: string }) {
+const ScrollView = withUniwind(ScrollViewBase);
+const Column = withUniwind(ColumnBase, {
+  style: {
+    fromClassName: "className",
+  },
+  spacing: {
+    fromClassName: "className",
+    styleProperty: "gap",
+  },
+});
+const Row = withUniwind(RowBase, {
+  style: {
+    fromClassName: "className",
+  },
+  spacing: {
+    fromClassName: "className",
+    styleProperty: "gap",
+  },
+});
+
+function Cover() {
   const mutedColor = useThemeColor("muted");
   return (
-    <Card className={cn("aspect-2/3 p-0", className)}>
-      <View
-        style={StyleSheet.absoluteFill}
-        className="items-center justify-center"
-      >
-        <Lucide name="book-open" size={22} color={mutedColor} />
-      </View>
+    <Card className="aspect-2/3 w-30 p-0 md:w-36">
+      <Card.Body className="web:flex-1 items-center justify-center">
+        <Icon
+          name={Icon.select({
+            ios: "book",
+            android: require("@expo/material-symbols/book_5.xml"),
+            web: "book-open",
+          })}
+          size={22}
+          color={mutedColor}
+        />
+      </Card.Body>
     </Card>
   );
 }
 
-function Meta({ className }: { className?: string }) {
+function Meta() {
   const isPreview = useIsPreview();
   const mutedColor = useThemeColor("muted");
+
   return (
-    <View className={cn("gap-2", className)}>
+    <Column className="gap-2" alignment="center">
       <Typography.Heading type="h3" className={cn(!isPreview && "hidden")}>
         {MANGA_DETAIL.title}
       </Typography.Heading>
-      <Typography.Paragraph type="body-sm" className="text-muted">
+      <Typography.Paragraph type="body-sm" color="muted">
         {MANGA_DETAIL.author}
       </Typography.Paragraph>
-      <View className="flex-row items-center gap-1">
-        <Lucide name="star" size={13} color={mutedColor} />
-        <Typography.Paragraph type="body-sm" className="text-muted">
+      <Row className="web:self-auto! gap-1" alignment="center">
+        <Icon
+          name={Icon.select({
+            ios: "star",
+            android: require("@expo/material-symbols/star.xml"),
+            web: "star",
+          })}
+          size={13}
+          color={mutedColor}
+        />
+        <Typography.Paragraph type="body-sm" color="muted">
           {MANGA_DETAIL.score} · {MANGA_DETAIL.year} · {MANGA_DETAIL.status}
         </Typography.Paragraph>
-      </View>
-      <View className="flex-row flex-wrap gap-2 pt-1">
+      </Row>
+      <Row className="web:self-auto! gap-2">
         {MANGA_DETAIL.genres.map((g) => (
-          <Chip key={g} variant="tertiary" size="sm">
+          <Chip key={g} variant="secondary" size="sm">
             <Chip.Label>{g}</Chip.Label>
           </Chip>
         ))}
-      </View>
-    </View>
+      </Row>
+    </Column>
   );
 }
-
 function Actions({
   saved,
   onToggle,
@@ -64,101 +101,147 @@ function Actions({
   saved: boolean;
   onToggle: () => void;
 }) {
-  const mutedColor = useThemeColor("muted");
   return (
-    <View className="flex-row items-center gap-3">
+    <Row className="gap-3" alignment="center">
       <Button className="flex-1">
-        <Lucide name="book-open" size={16} color="white" />
-        <Button.Label>Continuar {MANGA_DETAIL.lastRead}</Button.Label>
-      </Button>
-      <Button isIconOnly variant="tertiary" onPress={onToggle}>
-        <Lucide
-          name={saved ? "bookmark-check" : "bookmark"}
+        <Icon
+          name={Icon.select({
+            ios: "play",
+            android: require("@expo/material-symbols/play_arrow.xml"),
+            web: "play",
+          })}
           size={18}
-          color={mutedColor}
+          className="android:light:text-white text-accent-foreground"
+        />
+        <Button.Label>Continue {MANGA_DETAIL.lastRead}</Button.Label>
+      </Button>
+      <Button
+        isIconOnly
+        variant={saved ? "secondary" : "outline"}
+        onPress={onToggle}
+      >
+        <Icon
+          name={Icon.select({
+            ios: saved ? "bookmark.fill" : "bookmark",
+            android: saved
+              ? require("@expo/material-symbols/bookmark_check.xml")
+              : require("@expo/material-symbols/bookmark.xml"),
+            web: saved ? "bookmark-check" : "bookmark",
+          })}
+          size={24}
+          className="text-muted"
         />
       </Button>
-    </View>
+    </Row>
   );
 }
 
-function Progress() {
+function ProgressIndicator() {
   return (
-    <View className="gap-2">
-      <View className="flex-row justify-between">
-        <Text className="text-muted text-xs">Progreso</Text>
-        <Text className="text-muted text-xs">
+    <Column className="gap-1">
+      <Row className="gap-2">
+        <Typography.Paragraph type="body-xs" color="muted">
+          Progress
+        </Typography.Paragraph>
+        <Spacer flexible />
+        <Typography.Paragraph type="body-xs" color="muted">
           {Math.round(MANGA_DETAIL.progress * 100)}%
-        </Text>
-      </View>
-      <Slider value={MANGA_DETAIL.progress * 100}>
+        </Typography.Paragraph>
+      </Row>
+      <Progress value={MANGA_DETAIL.progress} />
+      {/* <Slider value={MANGA_DETAIL.progress * 100}>
         <Slider.Track className="h-1">
           <Slider.Fill />
         </Slider.Track>
-      </Slider>
-    </View>
+      </Slider> */}
+    </Column>
   );
 }
 
 function Synopsis() {
   return (
-    <Text className="max-w-2xl text-muted text-sm leading-5">
+    <Typography.Paragraph numberOfLines={3} color="muted">
       {MANGA_DETAIL.synopsis}
-    </Text>
+    </Typography.Paragraph>
   );
 }
 
+/**
+ * `Spacer flexible` instead of `flex-1` on each item: `UniversalStyle` has no
+ * flex, so the slack is distributed by spacers rather than by the children.
+ */
 function Stats() {
   return (
-    <Surface variant="secondary" className="flex-row p-4">
-      {STATS.map((s, i) => (
-        <View key={s.label} className="flex-1 flex-row items-center">
-          {i > 0 && <Separator orientation="vertical" className="h-8" />}
-          <View className="flex-1 items-center gap-0.5">
-            <Text className="font-semibold text-base text-foreground">
-              {s.value}
-            </Text>
-            <Text className="text-muted text-xs">{s.label}</Text>
-          </View>
-        </View>
-      ))}
-    </Surface>
+    <Card variant="tertiary" className="web:w-full">
+      <Row alignment="center">
+        {STATS.map((s, i) => (
+          <Fragment key={s.label}>
+            {i > 0 && (
+              <>
+                <Spacer flexible />
+                <Column className="h-8 w-px bg-separator" />
+                <Spacer flexible />
+              </>
+            )}
+            <Column className="gap-0.5" alignment="center">
+              <Typography.Paragraph className="font-semibold">
+                {s.value}
+              </Typography.Paragraph>
+              <Typography.Paragraph type="body-xs" color="muted">
+                {s.label}
+              </Typography.Paragraph>
+            </Column>
+          </Fragment>
+        ))}
+      </Row>
+    </Card>
   );
 }
 
-/** Wrap + fractional widths instead of gap math: RN has no CSS grid and no `calc(% - px)`. */
 function Chapters() {
   const mutedColor = useThemeColor("muted");
   return (
-    <View className="-m-1.5 flex-row flex-wrap">
+    <Column className="gap-3">
       {CHAPTERS.map((c) => (
-        <View key={c.id} className="w-full p-1.5 md:w-1/2 xl:w-1/3">
-          <PressableFeedback className="overflow-visible">
-            <Surface
-              variant="secondary"
-              className="flex-row items-center gap-3 p-3"
-            >
-              <View className="flex-1 gap-0.5">
-                <Text
-                  numberOfLines={1}
-                  className={
-                    c.read
-                      ? "font-medium text-muted"
-                      : "font-medium text-foreground"
-                  }
-                >
-                  {c.title}
-                </Text>
-                <Text className="text-muted text-xs">{c.date}</Text>
-              </View>
-              {c.read && <Lucide name="check" size={14} color={mutedColor} />}
-              <Lucide name="chevron-right" size={16} color={mutedColor} />
-              <PressableFeedback.Highlight />
-            </Surface>
-          </PressableFeedback>
-        </View>
+        <Card key={c.id} className="p-3" onPress={noop}>
+          <Row className="gap-3" alignment="center">
+            <Column className="gap-0.5">
+              <Typography.Paragraph
+                numberOfLines={1}
+                color={c.read ? "muted" : "default"}
+                className="font-medium"
+              >
+                {c.title}
+              </Typography.Paragraph>
+              <Typography.Paragraph type="body-xs" color="muted">
+                {c.date}
+              </Typography.Paragraph>
+            </Column>
+            <Spacer flexible />
+            {c.read && (
+              <Icon
+                name={Icon.select({
+                  ios: "checkmark",
+                  android: require("@expo/material-symbols/check.xml"),
+                  web: "check",
+                })}
+                size={14}
+                color={mutedColor}
+              />
+            )}
+            <Icon
+              name={Icon.select({
+                ios: "chevron.right",
+                android: require("@expo/material-symbols/chevron_right.xml"),
+                web: "chevron-right",
+              })}
+              size={16}
+              color={mutedColor}
+            />
+          </Row>
+        </Card>
       ))}
-    </View>
+    </Column>
   );
 }
 
@@ -170,32 +253,58 @@ export function MangaDetail() {
   return (
     <>
       <Stack.Title large>{MANGA_DETAIL.title}</Stack.Title>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Menu
+          icon={Icon.select({
+            ios: "ellipsis",
+            android: require("@expo/material-symbols/more_vert.xml"),
+          })}
+        >
+          <Stack.Toolbar.MenuAction
+            icon={Icon.select({
+              ios: "square.and.arrow.up",
+              android: require("@expo/material-symbols/share.xml"),
+            })}
+          >
+            Share
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            icon={Icon.select({
+              ios: "arrow.down.circle",
+              android: require("@expo/material-symbols/download.xml"),
+            })}
+          >
+            Download
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
 
-      <AppScrollView
-        contentContainerClassName={cn(isPreview && "ios:bg-background")}
+      <Host
+        className={cn("flex-1", isPreview && "ios:bg-background")}
       >
-        <View className="gap-6 lg:flex-row lg:gap-8">
-          <View className="gap-6 lg:w-80">
-            <View className="flex-row gap-4 md:gap-6 lg:flex-col lg:gap-5">
-              <Cover className="w-30 md:w-36 lg:w-full" />
-              <Meta className="flex-1 lg:flex-none" />
-            </View>
+        <ScrollView>
+          <Column className="gap-6 px-gutter py-gutter">
+            <Column className="gap-6" alignment="center">
+              <Cover />
+              <Meta />
+              <Synopsis />
+            </Column>
 
-            <Synopsis />
-          </View>
-
-          <View className="gap-6 lg:flex-1">
-            <Actions saved={saved} onToggle={() => setSaved((s) => !s)} />
-            <Progress />
-            <Stats />
-            <View className="gap-3">
-              <Text className="font-semibold text-foreground">Capítulos</Text>
+            <Column className="gap-6">
+              <Actions saved={saved} onToggle={() => setSaved((s) => !s)} />
+              <ProgressIndicator />
+              <Stats />
+              <Typography.Paragraph className="font-semibold">
+                Chapters
+              </Typography.Paragraph>
               <Chapters />
-            </View>
-            <Text className="text-muted text-xs">ID: {id}</Text>
-          </View>
-        </View>
-      </AppScrollView>
+              <Typography.Paragraph type="body-xs" color="muted">
+                ID: {id}
+              </Typography.Paragraph>
+            </Column>
+          </Column>
+        </ScrollView>
+      </Host>
     </>
   );
 }

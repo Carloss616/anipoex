@@ -1,78 +1,72 @@
-import { Button, Host } from "@expo/ui/swift-ui";
+import { Button } from "@expo/ui/swift-ui";
 import {
   buttonBorderShape,
   buttonStyle,
   controlSize,
-  disabled as disabledModifier,
+  disabled,
+  tint,
 } from "@expo/ui/swift-ui/modifiers";
-import type {
-  ChipLabelProps,
-  ChipProps,
-  ChipSize,
-  ChipVariant,
-} from "heroui-native/chip";
 import { useThemeColor } from "heroui-native/hooks";
-import { Uniwind } from "uniwind";
 import { textOf } from "@/utils/utils";
+import type { ChipLabelProps, ChipProps, ChipSize, ChipVariant } from "./chip";
+import { Host, useIsInsideHost } from "./host";
 
 type ControlSize = Parameters<typeof controlSize>[0];
 type ButtonStyle = Parameters<typeof buttonStyle>[0];
 
 const SIZES = {
-  sm: "small",
-  md: "regular",
-  lg: "large",
+  sm: "mini",
+  md: "small",
+  lg: "regular",
 } as const satisfies Record<ChipSize, ControlSize>;
 
-const STYLES = {
+const VARIANTS = {
   primary: "glassProminent",
   secondary: "glass",
   tertiary: "borderless",
   soft: "bordered",
 } as const satisfies Record<ChipVariant, ButtonStyle>;
 
-function useColors(
-  color: ChipProps["color"] = "default",
-  variant: ChipProps["variant"] = "secondary",
-) {
-  const tintColor = useThemeColor(color);
-
-  if (color === "default") {
-    if (variant === "secondary") return undefined;
-    if (variant === "tertiary" || variant === "soft")
-      return Uniwind.getCSSVariable("--color-foreground") as string;
-  }
-  return tintColor;
-}
+const SELECTED_VARIANTS = {
+  primary: "glassProminent",
+  secondary: "glassProminent",
+  tertiary: "glass",
+  soft: "glassProminent",
+} as const satisfies Record<ChipVariant, ButtonStyle>;
 
 export function Chip({
   children,
   size = "sm",
   variant = "primary",
   color = "accent",
-  disabled,
+  selected = false,
+  disabled: isDisabled = false,
   onPress,
+  testID,
 }: ChipProps) {
-  const seedColor = useColors(color, variant);
+  const tintColor = useThemeColor(color === "default" ? "accent" : color);
+  const isInsideHost = useIsInsideHost();
 
-  return (
-    <Host seedColor={seedColor} matchContents>
-      <Button
-        label={textOf(children)}
-        onPress={onPress as (() => void) | undefined}
-        modifiers={[
-          buttonStyle(STYLES[variant]),
-          buttonBorderShape("capsule"),
-          controlSize(SIZES[size]),
-          // tint(tintColor),
-          disabledModifier(!!disabled),
-        ]}
-      />
-    </Host>
+  const button = (
+    <Button
+      label={textOf(children)}
+      onPress={onPress as (() => void) | undefined}
+      modifiers={[
+        buttonStyle(selected ? SELECTED_VARIANTS[variant] : VARIANTS[variant]),
+        buttonBorderShape("capsule"),
+        controlSize(SIZES[size]),
+        disabled(!!isDisabled),
+        tint(tintColor),
+      ]}
+      testID={testID as string | undefined}
+      role={color === "danger" ? "destructive" : undefined}
+    />
   );
+
+  return isInsideHost ? button : <Host matchContents>{button}</Host>;
 }
 
-function ChipLabel(_props: ChipLabelProps) {
+function ChipLabel(_: ChipLabelProps) {
   return null;
 }
 

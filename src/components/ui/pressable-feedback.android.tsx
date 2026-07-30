@@ -30,15 +30,15 @@ export function PressableFeedback({
   );
 }
 
-function PressableFeedbackHighlight(_props: PressableFeedbackHighlightProps) {
+function PressableFeedbackHighlight(_: PressableFeedbackHighlightProps) {
   return null;
 }
 
-function PressableFeedbackRipple(_props: PressableFeedbackRippleProps) {
+function PressableFeedbackRipple(_: PressableFeedbackRippleProps) {
   return null;
 }
 
-function PressableFeedbackScale(_props: PressableFeedbackScaleProps) {
+function PressableFeedbackScale(_: PressableFeedbackScaleProps) {
   return null;
 }
 
