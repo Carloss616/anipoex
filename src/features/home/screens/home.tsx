@@ -1,14 +1,16 @@
 import { Lucide } from "@react-native-vector-icons/lucide";
-import { Card } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
-import { Slider } from "heroui-native/slider";
 import { Surface } from "heroui-native/surface";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { AppScrollView, AppScrollViewX } from "@/components/app";
+import { ScrollViewV0, ScrollViewX } from "@/components/layout/scroll-view";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
+import { Icon } from "@/components/ui/icon";
+import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
+import { noop } from "@/utils/utils";
 
 // ponytail: static seed data — swap for the API once there is one
 const FILTERS = ["Todo", "Anime", "Manga"] as const;
@@ -59,7 +61,7 @@ export function Home() {
   );
 
   return (
-    <AppScrollView contentContainerClassName="pt-6">
+    <ScrollViewV0 contentContainerClassName="pt-6">
       <View className="mb-3 flex-row items-center justify-between gap-3">
         <View>
           <Typography className="font-semibold text-3xl text-foreground">
@@ -72,7 +74,7 @@ export function Home() {
         <ThemeToggle />
       </View>
 
-      <AppScrollViewX
+      <ScrollViewX
         wrapperClassName="mb-3"
         contentContainerClassName="gap-3 my-3"
       >
@@ -86,38 +88,45 @@ export function Home() {
             <Chip.Label>{f}</Chip.Label>
           </Chip>
         ))}
-      </AppScrollViewX>
+      </ScrollViewX>
 
-      <AppScrollViewX
+      <ScrollViewX
         header={<Typography.Heading type="h4">Continue</Typography.Heading>}
         wrapperClassName="mb-3"
         contentContainerClassName="gap-3 my-3"
       >
         {CONTINUE.map((item) => (
-          <Pressable key={item.id}>
-            <Card variant="secondary" className="w-40 p-0">
-              <View className="h-52 w-full items-center justify-center bg-surface-tertiary">
-                <Lucide name="play" size={22} color={mutedColor} />
-              </View>
-              <Card.Header className="p-3 pb-1">
-                <Card.Title numberOfLines={1} className="text-sm">
-                  {item.title}
-                </Card.Title>
-                <Card.Description className="text-xs">
-                  {item.meta}
-                </Card.Description>
-              </Card.Header>
-              <Card.Footer>
-                <Slider value={item.progress * 100}>
-                  <Slider.Track className="h-1">
-                    <Slider.Fill />
-                  </Slider.Track>
-                </Slider>
-              </Card.Footer>
-            </Card>
-          </Pressable>
+          <Card
+            key={item.id}
+            variant="secondary"
+            className="w-40 p-0"
+            onPress={noop}
+          >
+            <Card.Body className="h-52 w-full items-center justify-center bg-surface-tertiary">
+              <Icon
+                name={Icon.select({
+                  ios: "play.fill",
+                  android: require("@expo/material-symbols/play_arrow.xml"),
+                  web: "play",
+                })}
+                size={22}
+                className="text-muted"
+              />
+            </Card.Body>
+            <Card.Header className="p-3 pb-1">
+              <Card.Title numberOfLines={1} className="text-sm">
+                {item.title}
+              </Card.Title>
+              <Card.Description className="text-xs">
+                {item.meta}
+              </Card.Description>
+            </Card.Header>
+            <Card.Footer>
+              <Progress value={item.progress} />
+            </Card.Footer>
+          </Card>
         ))}
-      </AppScrollViewX>
+      </ScrollViewX>
 
       <View className="gap-3">
         <Typography.Heading type="h4">Tendencias</Typography.Heading>
@@ -152,6 +161,6 @@ export function Home() {
           ))}
         </View>
       </View>
-    </AppScrollView>
+    </ScrollViewV0>
   );
 }

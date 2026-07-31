@@ -1,14 +1,11 @@
-import {
-  Column as ColumnBase,
-  Row as RowBase,
-  ScrollView as ScrollViewBase,
-  Spacer,
-} from "@expo/ui";
+import { Spacer } from "@expo/ui";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
 import { useThemeColor } from "heroui-native/hooks";
 import { cn } from "heroui-native/utils";
 import { Fragment, useState } from "react";
-import { withUniwind } from "uniwind";
+import { Column } from "@/components/layout/column";
+import { Row } from "@/components/layout/row";
+import { ScrollView } from "@/components/layout/scroll-view";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
@@ -18,26 +15,6 @@ import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
 import { noop } from "@/utils/utils";
 import { CHAPTERS, MANGA_DETAIL, STATS } from "../mocks";
-
-const ScrollView = withUniwind(ScrollViewBase);
-const Column = withUniwind(ColumnBase, {
-  style: {
-    fromClassName: "className",
-  },
-  spacing: {
-    fromClassName: "className",
-    styleProperty: "gap",
-  },
-});
-const Row = withUniwind(RowBase, {
-  style: {
-    fromClassName: "className",
-  },
-  spacing: {
-    fromClassName: "className",
-    styleProperty: "gap",
-  },
-});
 
 function Cover() {
   const mutedColor = useThemeColor("muted");
@@ -201,7 +178,7 @@ function Stats() {
 function Chapters() {
   const mutedColor = useThemeColor("muted");
   return (
-    <Column className="gap-3">
+    <Column className="web:items-stretch! gap-3">
       {CHAPTERS.map((c) => (
         <Card key={c.id} className="p-3" onPress={noop}>
           <Row className="gap-3" alignment="center">
@@ -279,9 +256,7 @@ export function MangaDetail() {
         </Stack.Toolbar.Menu>
       </Stack.Toolbar>
 
-      <Host
-        className={cn("flex-1", isPreview && "ios:bg-background")}
-      >
+      <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
         <ScrollView>
           <Column className="gap-6 px-gutter py-gutter">
             <Column className="gap-6" alignment="center">
