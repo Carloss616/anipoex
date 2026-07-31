@@ -2,8 +2,10 @@ import { Text } from "@expo/ui/swift-ui";
 import {
   background,
   cornerRadius,
+  fixedSize,
   font,
   foregroundStyle,
+  frame,
   kerning,
   lineLimit,
   multilineTextAlignment,
@@ -68,6 +70,17 @@ const RN_WEIGHT: Record<string, FontWeight> = {
   bold: "bold",
 };
 
+/** Stands in for `.infinity`, which doesn't survive the props bridge. */
+const FILL = 100_000;
+
+/** A `text-*` class lands in the style, where it outranks the `align` prop. */
+const STYLE_ALIGN: Record<string, TypographyAlign> = {
+  left: "start",
+  right: "end",
+  center: "center",
+  justify: "justify",
+};
+
 // `leading`/`trailing` are already RTL-aware; SwiftUI has no justified alignment.
 const ALIGN = {
   start: "leading",
@@ -102,9 +115,12 @@ function TypographyRootBase({
     fontWeight,
     fontFamily,
     letterSpacing,
+    textAlign,
   } = StyleSheet.flatten(style as StyleProp<RNTextStyle>) ?? {};
-  
+
   if (display === "none") return null;
+
+  const alignment = ALIGN[STYLE_ALIGN[textAlign as string] ?? align];
 
   const isCode = type === "code";
   const isHeading = type.startsWith("h");
@@ -127,7 +143,18 @@ function TypographyRootBase({
         foregroundStyle(
           (styleColor as string) ?? (color === "muted" ? muted : foreground),
         ),
-        multilineTextAlignment(ALIGN[align]),
+        multilineTextAlignment(alignment),
+        // A `Text` given a tight height proposal truncates instead of wrapping,
+        // and breaks mid-word on the way there. `fixedSize` vertically makes it
+        // ask for every line it needs, while the width stays negotiable.
+        ...(lines === 1
+          ? []
+          : [fixedSize({ horizontal: false, vertical: true })]),
+        // A SwiftUI `Text` hugs its content, so alignment alone still reads as
+        // left-aligned inside a wider parent — the frame is the room to move in.
+        ...(alignment === "leading"
+          ? []
+          : [frame({ maxWidth: FILL, alignment })]),
         ...(letterSpacing == null ? [] : [kerning(letterSpacing)]),
         ...(lines == null ? [] : [lineLimit(lines)]),
         ...(onPress == null ? [] : [onTapGesture(onPress as () => void)]),

@@ -1,4 +1,4 @@
-import { Spacer, VStack } from "@expo/ui/swift-ui";
+import { Spacer, VStack, ZStack } from "@expo/ui/swift-ui";
 import {
   aspectRatio,
   background,
@@ -17,10 +17,11 @@ import type {
 } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
 import type { SurfaceVariant } from "heroui-native/surface";
+import { Children, isValidElement, type ReactNode } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { dp, omitUndefined } from "@/utils/utils";
-import type { CardProps } from "./card";
+import type { CardBackgroundProps, CardProps } from "./card";
 import { Host, useIsInsideHost } from "./host";
 import { Typography } from "./typography";
 
@@ -108,16 +109,17 @@ function resolveStyle(
   const boxHeight =
     styleHeight ?? (ratio && styleWidth ? styleWidth / ratio : undefined);
 
-  const box = omitUndefined({
-    width: boxWidth,
-    height: boxHeight,
+  const fixed = omitUndefined({ width: boxWidth, height: boxHeight });
+  const bounds = omitUndefined({
     minWidth: dp(flat.minWidth),
-    // Like a React Native `View`, a card and its sections span the width they
-    // are offered unless an explicit one is set — Compose's `fillMaxWidth`.
+    // Like a React Native `View`, a card and its sections span what they are
+    // offered unless an explicit size is set — `100%` asks for exactly that.
     maxWidth: dp(flat.maxWidth) ?? (boxWidth === undefined ? FILL : undefined),
     minHeight: dp(flat.minHeight),
-    maxHeight: dp(flat.maxHeight),
+    maxHeight:
+      dp(flat.maxHeight) ?? (flat.height === "100%" ? FILL : undefined),
   });
+  const alignment = frameAlignment(alignY, alignX);
 
   return {
     spacing: dp(flat.gap ?? flat.rowGap) ?? SPACING,
@@ -133,14 +135,33 @@ function resolveStyle(
     /** Innermost first: pad, then size, then constrain the ratio. */
     modifiers: [
       ...(Object.keys(insets).length ? [padding(insets)] : []),
-      ...(Object.keys(box).length
-        ? [frame({ ...box, alignment: frameAlignment(alignY, alignX) })]
-        : []),
+      // Native `frame` takes SwiftUI's `width:height:` overload as soon as one
+      // side is fixed, dropping the min/max — so the bounds get their own frame
+      // underneath. Without it a fixed-height section hugs its content width.
+      ...(Object.keys(bounds).length ? [frame({ ...bounds, alignment })] : []),
+      ...(Object.keys(fixed).length ? [frame({ ...fixed, alignment })] : []),
       ...(ratio && !boxWidth && !boxHeight
         ? [aspectRatio({ ratio, contentMode: "fit" })]
         : []),
     ],
   };
+}
+
+/**
+ * SwiftUI stacks with a `ZStack`, so the layer itself is just a passthrough —
+ * `CardRootBase` pulls it out of the flow and puts it behind the sections.
+ */
+function CardBackground({ children }: CardBackgroundProps) {
+  return <>{children}</>;
+}
+
+/** Splits the background layers out of the sections that stack on top. */
+function partition(children: ReactNode) {
+  const kids = Children.toArray(children);
+  const isLayer = (kid: ReactNode) =>
+    isValidElement(kid) && kid.type === CardBackground;
+
+  return [kids.filter(isLayer), kids.filter((kid) => !isLayer(kid))] as const;
 }
 
 /**
@@ -153,6 +174,7 @@ function CardRootBase({
   variant = "default",
   onPress,
   style,
+  host = { matchContents: true },
 }: CardProps) {
   const isInsideHost = useIsInsideHost();
   const [surface, surfaceSecondary, surfaceTertiary] = useThemeColor([
@@ -179,44 +201,66 @@ function CardRootBase({
   const surfaceFill = fill ?? backgrounds[variant];
   // `padding` is modifiers[0], so the fill lands outside it and covers the card.
   const [inset, ...rest] = modifiers;
+  const [layers, sections] = partition(children);
 
-  const card = (
+  const skin = [
+    ...(surfaceFill
+      ? [background(surfaceFill)]
+      : [
+          glassEffect({
+            glass: { variant: "regular" },
+            shape: "roundedRectangle",
+            cornerRadius: radius,
+          }),
+        ]),
+    clipShape("roundedRectangle", radius),
+    ...rest,
+    // After `clipShape`, so the tap area matches the rounded silhouette.
+    ...(onPress ? [onTapGesture(onPress)] : []),
+  ];
+
+  const flow = (
     <VStack
       alignment={alignment}
       spacing={spacing}
-      modifiers={[
-        inset,
-        ...(surfaceFill
-          ? [background(surfaceFill)]
-          : [
-              glassEffect({
-                glass: { variant: "regular" },
-                shape: "roundedRectangle",
-                cornerRadius: radius,
-              }),
-            ]),
-        clipShape("roundedRectangle", radius),
-        ...rest,
-        // After `clipShape`, so the tap area matches the rounded silhouette.
-        ...(onPress ? [onTapGesture(onPress)] : []),
-      ]}
+      modifiers={
+        // With layers underneath the stack owns the surface, and the sections
+        // only pad themselves — but they still have to span it.
+        layers.length
+          ? [inset, frame({ maxWidth: FILL, maxHeight: FILL, alignment })]
+          : [inset, ...skin]
+      }
     >
       {spacers.leading && <Spacer />}
-      {children}
+      {sections}
       {spacers.trailing && <Spacer />}
     </VStack>
   );
 
-  return isInsideHost ? card : <Host matchContents>{card}</Host>;
+  const card = layers.length ? (
+    <ZStack modifiers={skin}>
+      {layers}
+      {flow}
+    </ZStack>
+  ) : (
+    flow
+  );
+
+  return isInsideHost ? card : <Host {...host}>{card}</Host>;
 }
 
 const CardRoot = withUniwind(CardRootBase);
 
 function CardSection({ children, style }: CardHeaderProps | CardFooterProps) {
-  const { spacing, alignment, spacers, modifiers } = resolveStyle(style);
+  const { spacing, fill, alignment, spacers, modifiers } = resolveStyle(style);
 
   return (
-    <VStack alignment={alignment} spacing={spacing} modifiers={modifiers}>
+    <VStack
+      alignment={alignment}
+      spacing={spacing}
+      // Outside the frame modifiers, so the fill covers the whole section.
+      modifiers={[...modifiers, ...(fill ? [background(fill)] : [])]}
+    >
       {spacers.leading && <Spacer />}
       {children}
       {spacers.trailing && <Spacer />}
@@ -229,12 +273,16 @@ const CardFooter = withUniwind(CardSection);
 
 /** The body's `flex-1`: its `Spacer` eats the slack down to the footer. */
 function CardBodyBase({ children, style }: CardBodyProps) {
-  const { spacing, alignment, spacers, modifiers } = resolveStyle(style, {
+  const { spacing, fill, alignment, spacers, modifiers } = resolveStyle(style, {
     fillHeight: true,
   });
 
   return (
-    <VStack alignment={alignment} spacing={spacing} modifiers={modifiers}>
+    <VStack
+      alignment={alignment}
+      spacing={spacing}
+      modifiers={[...modifiers, ...(fill ? [background(fill)] : [])]}
+    >
       {spacers.leading && <Spacer />}
       {children}
       {spacers.trailing && <Spacer />}
@@ -244,32 +292,24 @@ function CardBodyBase({ children, style }: CardBodyProps) {
 
 const CardBody = withUniwind(CardBodyBase);
 
-function CardTitle({ children, numberOfLines, ...props }: CardTitleProps) {
+function CardTitle({ children, ...props }: CardTitleProps) {
   return (
-    <Typography
-      type="h5"
-      weight="medium"
-      numberOfLines={numberOfLines}
-      {...props}
-    >
+    <Typography type="h5" weight="medium" {...props}>
       {children}
     </Typography>
   );
 }
 
-function CardDescription({
-  children,
-  numberOfLines,
-  ...props
-}: CardDescriptionProps) {
+function CardDescription({ children, ...props }: CardDescriptionProps) {
   return (
-    <Typography color="muted" numberOfLines={numberOfLines} {...props}>
+    <Typography color="muted" {...props}>
       {children}
     </Typography>
   );
 }
 
 export const Card = Object.assign(CardRoot, {
+  Background: CardBackground,
   Header: CardHeader,
   Body: CardBody,
   Footer: CardFooter,

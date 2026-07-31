@@ -3,6 +3,7 @@ import {
   background,
   clickable,
   clip,
+  fillMaxWidth,
   padding,
   Shapes,
   testID as testIDModifier,
@@ -54,6 +55,14 @@ const WEIGHT = {
   bold: "700",
 } as const satisfies Record<TypographyWeight, TextFontWeight>;
 
+/** A `text-*` class lands in the style, where it outranks the `align` prop. */
+const STYLE_ALIGN: Record<string, TypographyAlign> = {
+  left: "start",
+  right: "end",
+  center: "center",
+  justify: "justify",
+};
+
 const ALIGN = {
   start: "start",
   center: "center",
@@ -88,9 +97,12 @@ function TypographyRootBase({
     fontFamily,
     lineHeight,
     letterSpacing,
+    textAlign,
   } = StyleSheet.flatten(style as StyleProp<RNTextStyle>) ?? {};
-  
+
   if (display === "none") return null;
+
+  const alignment = STYLE_ALIGN[textAlign as string] ?? align;
 
   const isCode = type === "code";
   const isHeading = type.startsWith("h");
@@ -104,7 +116,7 @@ function TypographyRootBase({
       style={{
         // The preset is the base; everything below overrides just that key.
         typography: TYPOGRAPHY[type],
-        textAlign: ALIGN[align],
+        textAlign: ALIGN[alignment],
         // Compose wants '600', uniwind resolves `font-semibold` to 600.
         fontWeight:
           fontWeight == null
@@ -116,6 +128,9 @@ function TypographyRootBase({
         letterSpacing,
       }}
       modifiers={[
+        // Compose `Text` wraps its content, so a centered alignment needs the
+        // full width to center within.
+        ...(alignment === "start" ? [] : [fillMaxWidth()]),
         ...(testID ? [testIDModifier(testID)] : []),
         ...(onPress ? [clickable(onPress as () => void)] : []),
         ...(isCode

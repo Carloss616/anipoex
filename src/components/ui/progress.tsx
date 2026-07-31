@@ -1,7 +1,7 @@
 import { useThemeColor } from "heroui-native/hooks";
 import { cn } from "heroui-native/utils";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { type StyleProp, View, type ViewStyle } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -15,14 +15,16 @@ export interface ProgressProps {
   value?: number | null;
   className?: string;
   testID?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
-export function Progress({ value, className, testID }: ProgressProps) {
+export function Progress({ value, style, className, testID }: ProgressProps) {
   const accent = useThemeColor("accent");
   const percent = value == null ? null : Math.min(Math.max(value, 0), 1) * 100;
 
   return (
     <View
+      style={style}
       className={cn(
         "h-1.5 w-full overflow-hidden rounded-full bg-default",
         className,

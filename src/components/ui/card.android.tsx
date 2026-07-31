@@ -1,4 +1,5 @@
 import {
+  Box,
   Column,
   Shape,
   Surface,
@@ -24,10 +25,11 @@ import type {
 } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
 import type { SurfaceVariant } from "heroui-native/surface";
+import { Children, isValidElement, type ReactNode } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { dp } from "@/utils/utils";
-import type { CardProps } from "./card";
+import type { CardBackgroundProps, CardProps } from "./card";
 import { Host, useIsInsideHost } from "./host";
 import { Typography } from "./typography";
 
@@ -98,6 +100,8 @@ function resolveStyle(
     radius: dp(flat.borderRadius),
     fill: flat.backgroundColor as string | undefined,
     alignment: alignX,
+    /** An explicit height rules out `weight`, which measures against slack. */
+    sized: boxHeight !== undefined,
     // `spacedBy` and an alignment are the same slot here — an explicit
     // `justify-*` wins and the gap goes with it.
     arrangement: alignY ?? { spacedBy: spacing },
@@ -106,7 +110,7 @@ function resolveStyle(
       boxWidth === undefined ? fillMaxWidth() : width(boxWidth),
       ...(boxHeight !== undefined
         ? [height(boxHeight)]
-        : grows || alignY
+        : grows || alignY || flat.height === "100%"
           ? [fillMaxHeight()]
           : []),
       padding(
@@ -119,11 +123,29 @@ function resolveStyle(
   };
 }
 
+/**
+ * Compose stacks with a `Box`, so the layer itself is just a passthrough —
+ * `CardRootBase` pulls it out of the flow and puts it behind the sections.
+ */
+function CardBackground({ children }: CardBackgroundProps) {
+  return <>{children}</>;
+}
+
+/** Splits the background layers out of the sections that stack on top. */
+function partition(children: ReactNode) {
+  const kids = Children.toArray(children);
+  const isLayer = (kid: ReactNode) =>
+    isValidElement(kid) && kid.type === CardBackground;
+
+  return [kids.filter(isLayer), kids.filter((kid) => !isLayer(kid))] as const;
+}
+
 function CardRootBase({
   children,
   variant = "default",
   onPress,
   style,
+  host = { matchContents: true },
 }: CardProps) {
   const isInsideHost = useIsInsideHost();
   const accent = useThemeColor("accent");
@@ -135,6 +157,10 @@ function CardRootBase({
     arrangement,
     modifiers,
   } = resolveStyle(style, { padding: PADDING });
+  const [layers, sections] = partition(children);
+  // `padding` is the last modifier, so the sizing in front of it bounds the box.
+  const sizing = modifiers.slice(0, -1);
+  const inset = modifiers[modifiers.length - 1];
 
   const backgrounds = {
     default: m3.surfaceContainerHighest,
@@ -165,17 +191,32 @@ function CardRootBase({
       }
       onClick={onPress}
     >
-      <Column
-        modifiers={modifiers}
-        horizontalAlignment={alignment}
-        verticalArrangement={arrangement}
-      >
-        {children}
-      </Column>
+      {layers.length ? (
+        // The box sizes the card and the column fills it, so the layers sit
+        // behind the sections rather than pushing them around.
+        <Box modifiers={sizing} contentAlignment="center">
+          {layers}
+          <Column
+            modifiers={[fillMaxWidth(), fillMaxHeight(), inset]}
+            horizontalAlignment={alignment}
+            verticalArrangement={arrangement}
+          >
+            {sections}
+          </Column>
+        </Box>
+      ) : (
+        <Column
+          modifiers={modifiers}
+          horizontalAlignment={alignment}
+          verticalArrangement={arrangement}
+        >
+          {sections}
+        </Column>
+      )}
     </Surface>
   );
 
-  return isInsideHost ? card : <Host matchContents>{card}</Host>;
+  return isInsideHost ? card : <Host {...host}>{card}</Host>;
 }
 
 const CardRoot = withUniwind(CardRootBase);
@@ -204,13 +245,20 @@ const CardFooter = withUniwind(CardSection);
 
 /** `weight(1)` is Compose's `flex-1`: it claims the slack down to the footer. */
 function CardBodyBase({ children, style }: CardBodyProps) {
-  const { alignment, arrangement, modifiers } = resolveStyle(style, {
-    stretch: true,
-  });
+  const { fill, sized, alignment, arrangement, modifiers } = resolveStyle(
+    style,
+    { stretch: true },
+  );
 
   return (
     <Column
-      modifiers={[weight(1), ...modifiers]}
+      // A wrap-content card has no slack, so `weight(1)` would collapse a body
+      // with an explicit height to nothing — the height is what it asked for.
+      modifiers={[
+        ...(sized ? [] : [weight(1)]),
+        ...(fill === undefined ? [] : [background(fill)]),
+        ...modifiers,
+      ]}
       horizontalAlignment={alignment}
       verticalArrangement={arrangement}
     >
@@ -221,32 +269,24 @@ function CardBodyBase({ children, style }: CardBodyProps) {
 
 const CardBody = withUniwind(CardBodyBase);
 
-function CardTitle({ children, numberOfLines, ...props }: CardTitleProps) {
+function CardTitle({ children, ...props }: CardTitleProps) {
   return (
-    <Typography
-      type="h5"
-      weight="medium"
-      numberOfLines={numberOfLines}
-      {...props}
-    >
+    <Typography type="h5" weight="medium" {...props}>
       {children}
     </Typography>
   );
 }
 
-function CardDescription({
-  children,
-  numberOfLines,
-  ...props
-}: CardDescriptionProps) {
+function CardDescription({ children, ...props }: CardDescriptionProps) {
   return (
-    <Typography color="muted" numberOfLines={numberOfLines} {...props}>
+    <Typography color="muted" {...props}>
       {children}
     </Typography>
   );
 }
 
 export const Card = Object.assign(CardRoot, {
+  Background: CardBackground,
   Header: CardHeader,
   Body: CardBody,
   Footer: CardFooter,
