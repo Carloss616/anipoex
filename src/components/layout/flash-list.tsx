@@ -13,9 +13,9 @@ import { withUniwind } from "uniwind";
 import { resolveSpacing } from "@/utils/resolveSpacing";
 
 // cast to keep the <T> generic that withUniwind flattens
-const FlashList = withUniwind(FlashListBase) as typeof FlashListBase;
+const FlashListStyled = withUniwind(FlashListBase) as typeof FlashListBase;
 
-export function AppFlashList<T>({
+export function FlashList<T>({
   style,
   contentContainerClassName,
   ListHeaderComponentStyle,
@@ -45,7 +45,7 @@ export function AppFlashList<T>({
   };
 
   return (
-    <FlashList
+    <FlashListStyled
       data-gap={gap}
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}

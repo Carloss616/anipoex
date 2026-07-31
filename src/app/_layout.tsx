@@ -5,7 +5,7 @@ import { HeroUINativeProvider } from "heroui-native/provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useUniwind } from "uniwind";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import { AppTabs } from "@/components/app";
+import { Tabs } from "@/components/layout/tabs";
 import "@/global.css";
 import "@/utils/focus-modality";
 
@@ -44,7 +44,7 @@ export default function RootLayout() {
       <HeroUINativeProvider>
         <ThemeProvider value={theme}>
           <AnimatedSplashOverlay />
-          <AppTabs />
+          <Tabs />
         </ThemeProvider>
       </HeroUINativeProvider>
     </GestureHandlerRootView>

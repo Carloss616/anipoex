@@ -1,7 +1,7 @@
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native/hooks";
 
-export function AppTabs() {
+export function Tabs() {
   const [accentSoftForeground, accentSoft, accent, surfaceSecondary, muted] =
     useThemeColor([
       "accent-soft-foreground",

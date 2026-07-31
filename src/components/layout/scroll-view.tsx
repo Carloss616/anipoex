@@ -1,12 +1,21 @@
+import { ScrollView as ScrollViewBase } from "@expo/ui";
 import { cn } from "heroui-native/utils";
-import { ScrollView, type ScrollViewProps, View } from "react-native";
+import {
+  ScrollView as RNScrollView,
+  type ScrollViewProps,
+  View,
+} from "react-native";
+import { withUniwind } from "uniwind";
 
-export function AppScrollView({
+export const ScrollView = withUniwind(ScrollViewBase);
+
+// TODO: remove a use @expo/ui ScrollView
+export function ScrollViewV0({
   contentContainerClassName,
   ...props
 }: ScrollViewProps) {
   return (
-    <ScrollView
+    <RNScrollView
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
       contentContainerClassName={cn(
@@ -18,7 +27,8 @@ export function AppScrollView({
   );
 }
 
-export function AppScrollViewX({
+// TODO: remove a use @expo/ui ScrollView
+export function ScrollViewX({
   header,
   footer,
   wrapperClassName,
@@ -33,7 +43,7 @@ export function AppScrollViewX({
   return (
     <View className={cn("-mx-gutter", wrapperClassName)}>
       {header && <View className="px-gutter">{header}</View>}
-      <ScrollView
+      <RNScrollView
         horizontal
         contentInsetAdjustmentBehavior="automatic"
         showsHorizontalScrollIndicator={false}

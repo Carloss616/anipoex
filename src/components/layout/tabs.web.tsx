@@ -4,7 +4,7 @@ import {
   TabList,
   type TabListProps,
   TabSlot as TabSlotBase,
-  Tabs,
+  Tabs as TabsBase,
   TabTrigger,
   type TabTriggerSlotProps,
 } from "expo-router/ui";
@@ -45,7 +45,7 @@ const ROUTES = [
   },
 ] as const satisfies Route[];
 
-export function AppTabs() {
+export function Tabs() {
   const pathname = usePathname();
   const value =
     ROUTES.find(({ href }) => href !== "/" && pathname.startsWith(href))
@@ -53,7 +53,7 @@ export function AppTabs() {
 
   return (
     <HeroTabs value={value} onValueChange={noop} className="flex-1">
-      <Tabs>
+      <TabsBase>
         <TabSlot className="flex-1" />
         <TabList asChild>
           <HeroTabList>
@@ -69,7 +69,7 @@ export function AppTabs() {
             ))}
           </HeroTabList>
         </TabList>
-      </Tabs>
+      </TabsBase>
     </HeroTabs>
   );
 }

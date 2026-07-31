@@ -35,15 +35,9 @@ const textEvent = (text: string) =>
     NonNullable<SearchBarOptions["onChangeText"]>
   >[0];
 
-export const appHeader = (props: NativeStackHeaderProps) => (
-  <AppHeader {...props} />
-);
+export const header = (props: NativeStackHeaderProps) => <Header {...props} />;
 
-export function AppHeader({
-  options,
-  back,
-  navigation,
-}: NativeStackHeaderProps) {
+export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const mutedColor = useThemeColor("muted");
