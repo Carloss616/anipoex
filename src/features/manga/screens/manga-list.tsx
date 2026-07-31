@@ -82,10 +82,10 @@ export function MangaList() {
                     className="text-muted/20"
                   />
                 </Card.Background>
-                <Scrim className="p-2">
+                <Scrim className="p-2 pt-12">
                   <Card.Description
                     numberOfLines={1}
-                    className="text-center text-gray-200 text-shadow-[0_1px_3px_#000000b3] text-xs"
+                    className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"
                   >
                     {item.year}
                   </Card.Description>
@@ -111,21 +111,14 @@ export function MangaList() {
         )}
         ListEmptyComponent={
           <EmptyState
+            host={{
+              className: "flex-1 web:justify-center",
+            }}
             title="Nothing here"
             description={
-              query ? (
-                <>
-                  We couldn't find any manga for{" "}
-                  <Typography.Code className="text-xs">{query}</Typography.Code>
-                  .
-                </>
-              ) : (
-                <>
-                  No manga in{" "}
-                  <Typography.Code className="text-xs">{genre}</Typography.Code>{" "}
-                  yet.
-                </>
-              )
+              query
+                ? `We couldn't find any manga for “${query}”.`
+                : `No manga in “${genre}” yet.`
             }
           >
             {genre !== "Todo" && (

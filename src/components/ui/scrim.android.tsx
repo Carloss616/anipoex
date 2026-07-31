@@ -20,7 +20,7 @@ const STOPS = [0, 0.024, 0.1, 0.22, 0.38, 0.6];
  * every gesture handed to it. So the ramp is stacked bands; over the height of
  * a caption each one is a fraction of a dp and the steps disappear.
  */
-const BANDS = 48;
+const BANDS = 6;
 
 const alphaAt = (band: number) => {
   const t = (band / (BANDS - 1)) * (STOPS.length - 1);
