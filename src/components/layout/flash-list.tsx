@@ -15,6 +15,7 @@ import { resolveSpacing } from "@/utils/resolveSpacing";
 // cast to keep the <T> generic that withUniwind flattens
 const FlashListStyled = withUniwind(FlashListBase) as typeof FlashListBase;
 
+// TODO: evaluate migrate to https://github.com/LegendApp/legend-list
 export function FlashList<T>({
   style,
   contentContainerClassName,
@@ -46,7 +47,6 @@ export function FlashList<T>({
 
   return (
     <FlashListStyled
-      data-gap={gap}
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
       style={[

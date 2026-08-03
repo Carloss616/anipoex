@@ -25,6 +25,11 @@ export function Tabs() {
       minimizeBehavior="onScrollDown"
       sidebarAdaptable
     >
+      {/* <NativeTabs.BottomAccessory>
+        <Host matchContents>
+          <TextInput placeholder="Search..." />
+        </Host>
+      </NativeTabs.BottomAccessory> */}
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

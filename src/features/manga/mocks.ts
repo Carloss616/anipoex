@@ -1,4 +1,3 @@
-// ponytail: static seed data — delete this file when the API lands
 export const GENRES = [
   "Todo",
   "Acción",
@@ -513,6 +512,21 @@ export const MANGA = [
     chapters: 155,
   },
 ];
+
+export type MangaEntry = (typeof MANGA)[number];
+
+const LIST_NAMES = [
+  "Reading",
+  "Plan to read",
+  "Completed",
+  "Paused",
+  "Dropped",
+] as const;
+
+export const MANGA_LISTS = LIST_NAMES.map((name, i) => ({
+  name,
+  entries: MANGA.filter((_, j) => j % LIST_NAMES.length === i),
+}));
 
 export const MANGA_DETAIL = {
   title: "Berserk",

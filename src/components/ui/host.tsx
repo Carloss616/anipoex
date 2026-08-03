@@ -3,9 +3,7 @@ import { useThemeColor } from "heroui-native/hooks";
 import { createContext, useContext } from "react";
 import { useUniwind, withUniwind } from "uniwind";
 
-export type * from "@expo/ui";
-
-const HostRoot = withUniwind(HostBase);
+export const HostRoot = withUniwind(HostBase);
 const HostContext = createContext(false);
 
 /**
@@ -24,7 +22,7 @@ export function Host(props: React.ComponentProps<typeof HostRoot>) {
 
   return (
     <HostContext.Provider value={true}>
-      <HostRoot seedColor={accent} colorScheme={theme} {...props} />
+      <HostRoot seedColorClassName={accent} colorScheme={theme} {...props} />
     </HostContext.Provider>
   );
 }
