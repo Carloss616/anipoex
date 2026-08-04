@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
-import { resolveSpacing } from "@/utils/resolveSpacing";
+import { resolveSpacing } from "@/utils/resolve-spacing";
 
 const LegendListRoot = withUniwind(AnimatedLegendList);
 
