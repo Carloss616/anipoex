@@ -49,6 +49,7 @@
               "heroui-native/button": "Import from @/components/ui/button",
               "heroui-native/card": "Import from @/components/ui/card",
               "heroui-native/chip": "Import from @/components/ui/chip",
+              "heroui-native/close-button": "Import from @/components/ui/close-button",
               "heroui-native/text": "Import from @/components/ui/typography"
             }
           }
