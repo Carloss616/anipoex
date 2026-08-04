@@ -5,10 +5,11 @@ import { CloseButton } from "heroui-native/close-button";
 import { useThemeColor } from "heroui-native/hooks";
 import { SearchField } from "heroui-native/search-field";
 import { cn } from "heroui-native/utils";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   type InputModeOptions,
   type StyleProp,
+  type TextInput,
   type TextStyle,
   View,
 } from "react-native";
@@ -29,6 +30,9 @@ const INPUT_MODE: Record<
   email: "email",
 } as const;
 
+const TRANSITION = "duration-300 ease-out";
+const DURATION_MS = 300;
+
 // The native search bar reports through events, so mirror that shape here.
 const textEvent = (text: string) =>
   ({ nativeEvent: { text } }) as Parameters<
@@ -40,6 +44,8 @@ export const header = (props: NativeStackHeaderProps) => <Header {...props} />;
 export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const inputRef = useRef<TextInput>(null);
   const mutedColor = useThemeColor("muted");
 
   const search = options.headerSearchBarOptions;
@@ -51,8 +57,9 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const isMinimalBack = options.headerBackButtonDisplayMode === "minimal";
   const isStacked = search?.placement === "stacked";
   // A custom headerTitle owns its own sizing, so `large` only applies to plain titles.
+  const canBeLarge = typeof options.headerTitle !== "function";
   const isLarge =
-    !!options.headerLargeTitle && typeof options.headerTitle !== "function";
+    (options.headerLargeTitle || options.headerLargeTitleEnabled) && canBeLarge;
 
   const emit = (text: string) => {
     setQuery(text);
@@ -60,18 +67,35 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   };
 
   const closeSearch = () => {
+    inputRef.current?.blur();
     emit("");
     setIsSearching(false);
     search?.onCancelButtonPress?.(textEvent(""));
     search?.onClose?.();
   };
 
+  const openSearch = () => {
+    setIsSearching(true);
+    search?.onOpen?.();
+  };
+
+  useEffect(() => {
+    if (!isSearching) return setIsExpanded(false);
+    inputRef.current?.focus();
+    const timer = setTimeout(() => setIsExpanded(true), DURATION_MS);
+
+    return () => clearTimeout(timer);
+  }, [isSearching]);
+
   const searchField = search && (
-    <SearchField value={query} onChange={emit} className="flex-1">
+    <SearchField value={query} onChange={emit} className="min-w-0 flex-1">
       <SearchField.Group>
         <SearchField.SearchIcon />
         <SearchField.Input
-          autoFocus={search.autoFocus ?? !isStacked}
+          ref={inputRef}
+          // The inline field never unmounts (it has to animate its width both
+          // ways), so opening it focuses by hand instead of on mount.
+          autoFocus={isStacked && search.autoFocus}
           placeholder={search.placeholder}
           autoCapitalize={
             search.autoCapitalize === "systemDefault"
@@ -112,7 +136,9 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     <View
       style={options.headerStyle}
       className={cn(
-        "gap-3 px-gutter py-6 backdrop-blur-xl",
+        "gutters px-gx backdrop-blur-xl transition-[padding]",
+        TRANSITION,
+        isLarge ? "pt-0 pb-6" : "py-3",
         options.headerShadowVisible && "border-b",
         options.headerTransparent && "absolute inset-x-0 top-0 z-10",
       )}
@@ -134,13 +160,39 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
 
         {options.headerLeft?.({ tintColor, canGoBack: !!back })}
 
-        {isSearching && !isStacked ? (
-          searchField
-        ) : isLarge ? (
-          <View className="flex-1" />
-        ) : (
-          titleNode
-        )}
+        {/* The field is laid over the title rather than next to it: no gap to
+            collapse, so it can grow straight out of nothing. */}
+        <View className="relative flex-1 flex-row items-center">
+          <View
+            aria-hidden={isLarge || isSearching}
+            className={cn(
+              "flex-1 flex-row items-center transition-opacity",
+              TRANSITION,
+              (isLarge || isSearching) && "opacity-0",
+            )}
+          >
+            {titleNode}
+          </View>
+
+          {search && !isStacked && (
+            // `visibility` transitions stepwise: the field stays visible for the
+            // whole shrink, then drops out of hit-testing and the tab order.
+            <View
+              className={cn(
+                // Centred instead of stretched: at the row's full height the clip
+                // box is taller than the field, which reads as a crop.
+                "absolute top-1/2 right-0 -translate-y-1/2 flex-row items-center transition-[width,opacity,visibility]",
+                TRANSITION,
+                isSearching
+                  ? "visible w-full opacity-100"
+                  : "invisible w-0 opacity-0",
+                isExpanded ? "overflow-visible" : "overflow-hidden",
+              )}
+            >
+              {searchField}
+            </View>
+          )}
+        </View>
 
         {search &&
           !isStacked &&
@@ -154,10 +206,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           ) : (
             <CloseButton
               className="h-10"
-              onPress={() => {
-                setIsSearching(true);
-                search.onOpen?.();
-              }}
+              onPress={openSearch}
               accessibilityLabel={search.placeholder ?? "Search"}
             >
               <Lucide name="search" size={18} color={iconColor} />
@@ -167,21 +216,35 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         {options.headerRight?.({ tintColor, canGoBack: !!back })}
       </View>
 
-      {isLarge && (
-        <Typography.Heading
-          type="h1"
-          numberOfLines={1}
-          style={[
-            { color: tintColor },
-            options.headerLargeTitleStyle as StyleProp<TextStyle>,
-          ]}
-          className={cn(options.headerTitleAlign === "center" && "text-center")}
+      {/* Stays mounted and clipped so the row can grow open instead of popping
+          in. max-h is the animatable stand-in for the h1's auto height. */}
+      {canBeLarge && (
+        <View
+          aria-hidden={!isLarge}
+          className={cn(
+            "overflow-hidden transition-[max-height,opacity]",
+            TRANSITION,
+            isLarge ? "max-h-16 opacity-100" : "max-h-0 opacity-0",
+          )}
         >
-          {title}
-        </Typography.Heading>
+          <Typography.Heading
+            type="h1"
+            numberOfLines={1}
+            style={[
+              { color: tintColor },
+              options.headerLargeTitleStyle as StyleProp<TextStyle>,
+            ]}
+            className={cn(
+              "pt-3",
+              options.headerTitleAlign === "center" && "text-center",
+            )}
+          >
+            {title}
+          </Typography.Heading>
+        </View>
       )}
 
-      {isStacked && <View className="flex-row">{searchField}</View>}
+      {isStacked && <View className="mt-3 flex-row">{searchField}</View>}
     </View>
   );
 }

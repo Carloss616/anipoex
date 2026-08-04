@@ -66,4 +66,10 @@ function ScrimBase({ children, style }: ScrimProps) {
   );
 }
 
+/**
+ * iOS Scrim: same props as [the web one](./scrim.tsx), drawn as a gradient
+ * `Rectangle` behind a SwiftUI `ZStack` of content.
+ *
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/zstack/
+ */
 export const Scrim = withUniwind(ScrimBase);

@@ -71,4 +71,10 @@ function ScrimBase({ children, style }: ScrimProps) {
   );
 }
 
+/**
+ * Android Scrim: same props as [the web one](./scrim.tsx), drawn as a band ramp
+ * behind a Jetpack Compose `Box` of content.
+ *
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/box/
+ */
 export const Scrim = withUniwind(ScrimBase);

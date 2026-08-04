@@ -27,6 +27,7 @@ import {
   useContext,
   useId,
 } from "react";
+import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
 import { Host, useIsInsideHost } from "./host";
 
@@ -153,17 +154,25 @@ function ButtonRoot({
 
 function ButtonLabel({ children, numberOfLines }: ButtonLabelProps) {
   const { size } = useButton();
+  const fontFamily = useFontFamily("normal");
 
   return (
     <Text
       maxLines={numberOfLines}
-      style={{ typography: LABEL_SIZES[size], fontWeight: "500" }}
+      style={{ typography: LABEL_SIZES[size], fontFamily }}
     >
       {textOf(children)}
     </Text>
   );
 }
 
+/**
+ * Android Button: same props as `heroui-native`'s, rendered as the Jetpack
+ * Compose `Button` family — one Material 3 button per variant.
+ *
+ * @see https://heroui.com/docs/native/components/button
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/button/
+ */
 export const Button = Object.assign(ButtonRoot, {
   Label: ButtonLabel,
 });

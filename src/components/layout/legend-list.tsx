@@ -1,18 +1,20 @@
+import type { LegendListRenderItemProps } from "@legendapp/list/react-native";
 import {
-  LegendList as LegendListBase,
-  type LegendListProps,
-  type LegendListRenderItemProps,
-} from "@legendapp/list/react-native";
+  AnimatedLegendList,
+  type AnimatedLegendListProps,
+} from "@legendapp/list/reanimated";
 import { cn } from "heroui-native/utils";
+import { useMemo } from "react";
 import { View } from "react-native";
+import { LinearTransition } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 import { resolveSpacing } from "@/utils/resolveSpacing";
 
-const LegendListRoot = withUniwind(LegendListBase);
+const LegendListRoot = withUniwind(AnimatedLegendList);
 
 type UniwindClassNameProps = Omit<
   React.ComponentProps<typeof LegendListRoot>,
-  keyof LegendListProps
+  keyof AnimatedLegendListProps<unknown>
 >;
 
 export function LegendList<T>({
@@ -21,24 +23,31 @@ export function LegendList<T>({
   ListHeaderComponentStyle,
   ListFooterComponentStyle,
   renderItem,
+  extraData,
+  // consumed here, never forwarded: LegendList's own gap handling is web-only,
+  // and letting it through would stack a second gap on top of the padding below
+  columnWrapperStyle,
   ...props
-}: LegendListProps<T> & UniwindClassNameProps) {
+}: AnimatedLegendListProps<T> & UniwindClassNameProps) {
   const gap =
-    props.columnWrapperStyle?.gap ??
-    props.columnWrapperStyle?.rowGap ??
-    props.columnWrapperStyle?.columnGap ??
+    columnWrapperStyle?.gap ??
+    columnWrapperStyle?.rowGap ??
+    columnWrapperStyle?.columnGap ??
     0;
   const halfGap = gap / 2;
 
+  // cells memoize on `[key, item, extraData]`, so a filtered list keeps stale
+  // `index`es — and the padding below reads `index`. fold the length in.
+  const itemExtraData = useMemo(
+    () => ({ dataLength: props.data?.length, extraData }),
+    [props.data?.length, extraData],
+  );
+
   const getPaddingStyles = (index: number) => {
     if (!halfGap) return {};
-    const cols = props.numColumns ?? 1;
-    const row = Math.floor(index / cols);
-    const lastRow = Math.floor(((props.data?.length ?? 1) - 1) / cols);
     return {
-      paddingTop: row === 0 ? 0 : resolveSpacing(halfGap),
-      paddingBottom: row === lastRow ? 0 : resolveSpacing(halfGap),
       paddingHorizontal: resolveSpacing(halfGap),
+      paddingTop: index < (props.numColumns ?? 1) ? 0 : resolveSpacing(gap),
     };
   };
 
@@ -46,12 +55,12 @@ export function LegendList<T>({
     <LegendListRoot
       style={[
         halfGap ? { marginHorizontal: resolveSpacing(-halfGap) } : {},
+        // a hidden screen measures 0 wide, so LegendList auto-sizes the list to
+        // its widest item. this undoes that — our style wins over its own.
+        { width: "auto" },
         style,
       ]}
-      contentContainerClassName={cn(
-        "grow",
-        contentContainerClassName,
-      )}
+      contentContainerClassName={cn("grow", contentContainerClassName)}
       ListHeaderComponentStyle={[
         halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
         ListHeaderComponentStyle,
@@ -62,17 +71,18 @@ export function LegendList<T>({
       ]}
       renderItem={(props) => {
         if (!renderItem) return null;
-        const paddingStyles = getPaddingStyles(props.index);
 
         return (
-          <View style={paddingStyles}>
+          <View data-index={props.index} style={getPaddingStyles(props.index)}>
             {renderItem(
               props as LegendListRenderItemProps<T, string | undefined>,
             )}
           </View>
         );
       }}
-      {...(props as LegendListProps)}
+      extraData={itemExtraData}
+      itemLayoutAnimation={LinearTransition}
+      {...(props as AnimatedLegendListProps<unknown>)}
     />
   );
 }

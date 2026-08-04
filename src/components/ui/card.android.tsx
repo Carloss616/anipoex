@@ -147,9 +147,9 @@ function CardRootBase({
   style,
   host = { matchContents: true },
 }: CardProps) {
-  const isInsideHost = useIsInsideHost();
   const accent = useThemeColor("accent");
   const m3 = useMaterialColors({ seedColor: accent });
+  const isInsideHost = useIsInsideHost();
   const {
     radius = RADIUS,
     fill,
@@ -175,6 +175,7 @@ function CardRootBase({
   const card = (
     <Surface
       color={fill ?? backgrounds[variant]}
+      contentColor={m3.onSurface}
       shadowElevation={ELEVATION[variant]}
       shape={Shape.RoundedCorner({
         cornerRadii: {
@@ -285,6 +286,13 @@ function CardDescription({ children, ...props }: CardDescriptionProps) {
   );
 }
 
+/**
+ * Android Card: same props as `heroui-native`'s, rendered as a Jetpack Compose
+ * `Surface` wrapping a `Column` of sections.
+ *
+ * @see https://heroui.com/docs/native/components/card
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/surface/
+ */
 export const Card = Object.assign(CardRoot, {
   Background: CardBackground,
   Header: CardHeader,

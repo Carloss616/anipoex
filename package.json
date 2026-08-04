@@ -3,11 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2",
     "@expo/material-symbols": "^0.1.1",
     "@expo/ui": "~57.0.8",
     "@legendapp/list": "^3.3.3",
     "@react-native-vector-icons/lucide": "^13.1.2",
-    "@shopify/flash-list": "^2.3.2",
     "expo": "~57.0.9",
     "expo-constants": "~57.0.8",
     "expo-device": "~57.0.1",

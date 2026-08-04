@@ -27,10 +27,10 @@ const VARIANTS = {
   primary: "glassProminent",
   secondary: "glass",
   tertiary: "glass",
-  outline: "bordered",
+  outline: "glass",
   ghost: "borderless",
-  danger: "borderedProminent",
-  "danger-soft": "bordered",
+  danger: "glassProminent",
+  "danger-soft": "glass",
 } as const satisfies Record<ButtonVariant, ButtonStyle>;
 
 const SIZES = {
@@ -62,10 +62,8 @@ function ButtonRoot({
   testID,
 }: ButtonRootProps) {
   const isInsideHost = useIsInsideHost();
-  const [danger, _dangerSoft] = useThemeColor(["danger", "danger-soft"]);
+  const danger = useThemeColor("danger");
 
-  // The Host's seedColor becomes a SwiftUI `.tint`, and an explicit tint beats
-  // whatever color `role: destructive` would have picked — so re-tint here.
   const dangerTint =
     variant === "danger" || variant === "danger-soft" ? danger : null;
 
@@ -94,11 +92,16 @@ function ButtonRoot({
   return isInsideHost ? button : <Host matchContents>{button}</Host>;
 }
 
-// ponytail: markers only — ButtonRoot reads their props, they never render.
 function ButtonLabel(_: ButtonLabelProps) {
   return null;
 }
 
+/**
+ * iOS Button: same props as `heroui-native`'s, rendered as a SwiftUI `Button`.
+ *
+ * @see https://heroui.com/docs/native/components/button
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/button/
+ */
 export const Button = Object.assign(ButtonRoot, {
   Label: ButtonLabel,
 });

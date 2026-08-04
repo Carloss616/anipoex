@@ -28,4 +28,10 @@ function ProgressBase({ value, style, testID }: ProgressProps) {
   return isInsideHost ? progress : <Host matchContents>{progress}</Host>;
 }
 
+/**
+ * Android Progress: same props as [the web one](./progress.tsx), rendered as
+ * M3's `LinearWavyProgressIndicator`.
+ *
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/progress/
+ */
 export const Progress = withUniwind(ProgressBase);

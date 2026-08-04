@@ -4,6 +4,7 @@ import type {
   Route,
   SceneRendererProps,
 } from "react-native-tab-view";
+import { PressableFeedback } from "../ui/pressable-feedback";
 
 export function TabBar<T extends Route>({
   navigationState: { index, routes },
@@ -11,12 +12,24 @@ export function TabBar<T extends Route>({
 }: SceneRendererProps & { navigationState: NavigationState<T> }) {
   return (
     <Tabs value={routes[index].key} onValueChange={jumpTo} variant="secondary">
-      <Tabs.List>
-        <Tabs.ScrollView scrollAlign="center" className="gutters px-safe-offset-gx">
+      <Tabs.List className="w-full">
+        <Tabs.ScrollView
+          scrollAlign="center"
+          className="-mx-3"
+          contentContainerClassName="gutters px-safe-offset-gx"
+        >
           <Tabs.Indicator />
           {routes.map((r) => (
-            <Tabs.Trigger key={r.key} value={r.key}>
-              <Tabs.Label>{r.title}</Tabs.Label>
+            <Tabs.Trigger
+              key={r.key}
+              value={r.key}
+              className="rounded-full"
+              asChild
+            >
+              <PressableFeedback>
+                <Tabs.Label>{r.title}</Tabs.Label>
+                <PressableFeedback.Highlight />
+              </PressableFeedback>
             </Tabs.Trigger>
           ))}
         </Tabs.ScrollView>

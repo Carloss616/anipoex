@@ -12,9 +12,9 @@ import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Scrim } from "@/components/ui/scrim";
-import { GENRES, type MangaEntry } from "../mocks";
+import { GENRES, type MangaEntry } from "../../mocks";
 
-export function MangaList({
+export function MangaListScene({
   entries,
   query = "",
 }: {
@@ -40,13 +40,13 @@ export function MangaList({
       numColumns={numColumns}
       keyExtractor={(item) => item.id}
       columnWrapperStyle={{ gap: 2 }}
-      contentContainerClassName="gutters px-safe-offset-gx pt-gt pb-safe-offset-gb"
+      contentContainerClassName="gutters px-safe-offset-gx pb-safe-offset-gb"
       ListHeaderComponentClassName="gutters mx-bleed-safe-gx"
       ListHeaderComponent={
         <Host matchContents={{ vertical: true }} className="w-full">
-          <Column className="pb-3">
-            <ScrollView direction="horizontal">
-              <Row className="gutters gap-3 px-gx py-3">
+          <Column>
+            <ScrollView direction="horizontal" showsIndicators={false}>
+              <Row className="gutters gap-3 android:px-safe-offset-gx px-gx py-6">
                 {GENRES.map((g) => (
                   <Chip
                     key={g}
@@ -62,7 +62,7 @@ export function MangaList({
           </Column>
         </Host>
       }
-      renderItem={({ item }) => (
+      renderItem={({ index, item }) => (
         <Link href={`/manga/${item.id}`} asChild>
           <Link.Trigger>
             <Card
@@ -88,7 +88,7 @@ export function MangaList({
                   numberOfLines={1}
                   className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"
                 >
-                  {item.year}
+                  {item.year} - {index}
                 </Card.Description>
                 <Card.Title
                   numberOfLines={2}

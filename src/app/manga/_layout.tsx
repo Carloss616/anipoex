@@ -14,6 +14,7 @@ export default function Layout() {
           header,
           headerBlurEffect: "systemChromeMaterial",
           headerShadowVisible: false,
+          headerStyle: { backgroundColor: "transparent" },
           headerLargeStyle: { backgroundColor: "transparent" },
           headerBackButtonDisplayMode: "minimal",
         }}

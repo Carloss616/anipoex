@@ -1,4 +1,8 @@
-import { Text, type TextProps } from "@expo/ui/jetpack-compose";
+import {
+  Text,
+  type TextProps,
+  useMaterialColors,
+} from "@expo/ui/jetpack-compose";
 import {
   background,
   clickable,
@@ -24,11 +28,11 @@ import {
   StyleSheet,
 } from "react-native";
 import { withUniwind } from "uniwind";
+import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
 import { Host, useIsInsideHost } from "./host";
 
 type ComposeTextStyle = NonNullable<TextProps["style"]>;
-type TextFontWeight = NonNullable<ComposeTextStyle["fontWeight"]>;
 type TypographyStyle = NonNullable<ComposeTextStyle["typography"]>;
 
 /**
@@ -48,12 +52,19 @@ const TYPOGRAPHY = {
   code: "bodyMedium",
 } as const satisfies Record<TypographyType, TypographyStyle>;
 
-const WEIGHT = {
-  normal: "400",
-  medium: "500",
-  semibold: "600",
-  bold: "700",
-} as const satisfies Record<TypographyWeight, TextFontWeight>;
+/** Each M3 role's own weight. */
+const PRESET_WEIGHT = {
+  h1: "normal",
+  h2: "normal",
+  h3: "normal",
+  h4: "normal",
+  h5: "medium",
+  h6: "medium",
+  body: "normal",
+  "body-sm": "normal",
+  "body-xs": "normal",
+  code: "normal",
+} as const satisfies Record<TypographyType, TypographyWeight>;
 
 /** A `text-*` class lands in the style, where it outranks the `align` prop. */
 const STYLE_ALIGN: Record<string, TypographyAlign> = {
@@ -82,11 +93,8 @@ function TypographyRootBase({
   onPress,
   testID,
 }: TypographyRootProps) {
-  const [foreground, muted, defaultColor] = useThemeColor([
-    "foreground",
-    "muted",
-    "default",
-  ]);
+  const accent = useThemeColor("accent");
+  const m3 = useMaterialColors({ seedColor: accent });
   const isInsideHost = useIsInsideHost();
 
   const {
@@ -100,29 +108,29 @@ function TypographyRootBase({
     textAlign,
   } = StyleSheet.flatten(style as StyleProp<RNTextStyle>) ?? {};
 
+  const isCode = type === "code";
+  const themeFamily = useFontFamily(
+    fontWeight ?? weight ?? PRESET_WEIGHT[type],
+  );
+
   if (display === "none") return null;
 
   const alignment = STYLE_ALIGN[textAlign as string] ?? align;
-
-  const isCode = type === "code";
-  const isHeading = type.startsWith("h");
   const lines = numberOfLines ?? (truncate ? 1 : undefined);
 
   const content = (
     <Text
-      color={(styleColor as string) ?? (color === "muted" ? muted : foreground)}
+      color={
+        (styleColor as string) ??
+        (color === "muted" ? m3.onSurfaceVariant : m3.onSurface)
+      }
       maxLines={lines}
       overflow={lines == null ? undefined : "ellipsis"}
       style={{
         // The preset is the base; everything below overrides just that key.
         typography: TYPOGRAPHY[type],
         textAlign: ALIGN[alignment],
-        // Compose wants '600', uniwind resolves `font-semibold` to 600.
-        fontWeight:
-          fontWeight == null
-            ? WEIGHT[weight ?? (isHeading ? "semibold" : "normal")]
-            : (String(fontWeight) as TextFontWeight),
-        fontFamily: isCode ? "monospace" : fontFamily,
+        fontFamily: isCode ? "monospace" : (fontFamily ?? themeFamily),
         fontSize,
         lineHeight,
         letterSpacing,
@@ -136,7 +144,7 @@ function TypographyRootBase({
         ...(isCode
           ? [
               clip(Shapes.RoundedCorner(6)),
-              background(defaultColor),
+              background(m3.surfaceContainerLow),
               padding(6, 2, 6, 2),
             ]
           : []),

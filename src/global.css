@@ -16,6 +16,14 @@
 /* Path to the heroui-native lib inside node_modules relative to global.css */
 @source "../node_modules/heroui-native/lib";
 
+/* `static` so @/hooks/use-font reads all four, className or not. */
+@theme static {
+  --font-normal: "Inter_400Regular";
+  --font-medium: "Inter_500Medium";
+  --font-semibold: "Inter_600SemiBold";
+  --font-bold: "Inter_700Bold";
+}
+
 @theme {
   --spacing-gx: calc(var(--spacing) * 4);
   --spacing-gt: calc(var(--spacing) * 4);
@@ -23,24 +31,49 @@
 }
 
 @utility gutters {
-  @variant ios     { --spacing-gt: calc(var(--spacing) * 2); }
-  @variant android { --spacing-gt: calc(var(--spacing) * 6); }
+  @variant ios {
+    --spacing-gt: calc(var(--spacing) * 2);
+  }
+  @variant android {
+    --spacing-gt: calc(var(--spacing) * 6);
+  }
   @variant web {
-    --spacing-gt: 0;
     --spacing-gb: calc(var(--spacing) * 22.5);
-    @variant sm  { --spacing-gx: calc(var(--spacing) * 5); }
-    @variant md  { --spacing-gx: calc(var(--spacing) * 6); }
-    @variant lg  { --spacing-gx: calc(var(--spacing) * 10); }
-    @variant xl  { --spacing-gx: calc(var(--spacing) * 12); }
-    @variant 2xl { --spacing-gx: calc(var(--spacing) * 16); }
+    @variant sm {
+      --spacing-gx: calc(var(--spacing) * 5);
+    }
+    @variant md {
+      --spacing-gx: calc(var(--spacing) * 6);
+    }
+    @variant lg {
+      --spacing-gx: calc(var(--spacing) * 10);
+    }
+    @variant xl {
+      --spacing-gx: calc(var(--spacing) * 12);
+    }
+    @variant 2xl {
+      --spacing-gx: calc(var(--spacing) * 16);
+    }
   }
 }
 
 @utility mx-bleed-safe-* {
-  margin-left: calc((env(safe-area-inset-left) + --spacing(--value(integer))) * -1);
-  margin-left: calc((env(safe-area-inset-left) + --value([length], --spacing-*)) * -1);
-  margin-right: calc((env(safe-area-inset-right) + --spacing(--value(integer))) * -1);
-  margin-right: calc((env(safe-area-inset-right) + --value([length], --spacing-*)) * -1);
+  margin-left: calc(
+    (env(safe-area-inset-left) + --spacing(--value(integer))) *
+    -1
+  );
+  margin-left: calc(
+    (env(safe-area-inset-left) + --value([length], --spacing-*)) *
+    -1
+  );
+  margin-right: calc(
+    (env(safe-area-inset-right) + --spacing(--value(integer))) *
+    -1
+  );
+  margin-right: calc(
+    (env(safe-area-inset-right) + --value([length], --spacing-*)) *
+    -1
+  );
 }
 
 /* Scrim for text over cover art: alpha = 0.6·p², since a linear ramp Mach-bands where it hits 0. */
@@ -57,9 +90,8 @@
 }
 
 @layer base {
-  /* RN Web renders TextInput as <input>/<textarea>. Hide the UA focus ring only for
-     pointer focus — keyboard focus keeps it. `:focus-visible` can't express this:
-     browsers always match it on text fields. Flag set by @/utils/focus-modality. */
+  /* Drop the focus ring on pointer focus only; `:focus-visible` can't say that
+     on text fields. Flag from @/utils/focus-modality. */
   [data-focus-modality="pointer"] input:focus,
   [data-focus-modality="pointer"] textarea:focus {
     outline-style: none;
@@ -67,4 +99,3 @@
     border-color: var(--color-focus);
   }
 }
-

@@ -28,11 +28,11 @@ import {
   StyleSheet,
 } from "react-native";
 import { withUniwind } from "uniwind";
+import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
 import { Host, useIsInsideHost } from "./host";
 
 type FontParams = Parameters<typeof font>[0];
-type FontWeight = NonNullable<FontParams["weight"]>;
 
 /** SwiftUI text styles — the iOS preset ramp, so text follows Dynamic Type. */
 const TEXT_STYLE = {
@@ -48,27 +48,33 @@ const TEXT_STYLE = {
   code: "body",
 } as const satisfies Record<TypographyType, FontParams["textStyle"]>;
 
-const WEIGHT = {
-  normal: "regular",
-  medium: "medium",
-  semibold: "semibold",
-  bold: "bold",
-} as const satisfies Record<TypographyWeight, FontWeight>;
+/** Preset point sizes: given a `family`, `font()` falls back to `size ?? 17`. */
+const TEXT_SIZE = {
+  h1: 34,
+  h2: 28,
+  h3: 22,
+  h4: 20,
+  h5: 17,
+  h6: 15,
+  body: 17,
+  "body-sm": 15,
+  "body-xs": 13,
+  code: 17,
+} as const satisfies Record<TypographyType, number>;
 
-/** RN weights, including the numbers uniwind resolves `font-semibold` & co. to. */
-const RN_WEIGHT: Record<string, FontWeight> = {
-  "100": "ultraLight",
-  "200": "thin",
-  "300": "light",
-  "400": "regular",
-  "500": "medium",
-  "600": "semibold",
-  "700": "bold",
-  "800": "heavy",
-  "900": "black",
-  normal: "regular",
-  bold: "bold",
-};
+/** Each preset's own weight — `headline` is the only one iOS ships semibold. */
+const PRESET_WEIGHT = {
+  h1: "normal",
+  h2: "normal",
+  h3: "normal",
+  h4: "normal",
+  h5: "semibold",
+  h6: "normal",
+  body: "normal",
+  "body-sm": "normal",
+  "body-xs": "normal",
+  code: "normal",
+} as const satisfies Record<TypographyType, TypographyWeight>;
 
 /** Stands in for `.infinity`, which doesn't survive the props bridge. */
 const FILL = 100_000;
@@ -118,12 +124,14 @@ function TypographyRootBase({
     textAlign,
   } = StyleSheet.flatten(style as StyleProp<RNTextStyle>) ?? {};
 
+  const isCode = type === "code";
+  const themeFamily = useFontFamily(
+    fontWeight ?? weight ?? PRESET_WEIGHT[type],
+  );
+
   if (display === "none") return null;
 
   const alignment = ALIGN[STYLE_ALIGN[textAlign as string] ?? align];
-
-  const isCode = type === "code";
-  const isHeading = type.startsWith("h");
   const lines = numberOfLines ?? (truncate ? 1 : undefined);
 
   const content = (
@@ -131,27 +139,22 @@ function TypographyRootBase({
       testID={testID}
       modifiers={[
         font({
-          // An explicit size opts out of the preset — Dynamic Type can't scale a fixed size.
-          textStyle: fontSize == null ? TEXT_STYLE[type] : undefined,
-          size: fontSize,
-          family: fontFamily,
-          weight:
-            RN_WEIGHT[String(fontWeight)] ??
-            WEIGHT[weight ?? (isHeading ? "semibold" : "normal")],
+          // With a family, textStyle is just the Dynamic Type reference.
+          textStyle: TEXT_STYLE[type],
+          size: fontSize ?? TEXT_SIZE[type],
+          // No `weight` alongside it, or SwiftUI bolds an already-bold face.
+          family: fontFamily ?? themeFamily,
           design: isCode ? "monospaced" : undefined,
         }),
         foregroundStyle(
           (styleColor as string) ?? (color === "muted" ? muted : foreground),
         ),
         multilineTextAlignment(alignment),
-        // A `Text` given a tight height proposal truncates instead of wrapping,
-        // and breaks mid-word on the way there. `fixedSize` vertically makes it
-        // ask for every line it needs, while the width stays negotiable.
+        // A tight height proposal truncates mid-word; the width stays negotiable.
         ...(lines === 1
           ? []
           : [fixedSize({ horizontal: false, vertical: true })]),
-        // A SwiftUI `Text` hugs its content, so alignment alone still reads as
-        // left-aligned inside a wider parent — the frame is the room to move in.
+        // A `Text` hugs its content: alignment needs a frame to move in.
         ...(alignment === "leading"
           ? []
           : [frame({ maxWidth: FILL, alignment })]),

@@ -6,6 +6,7 @@ import {
   useMaterialColors,
 } from "@expo/ui/jetpack-compose";
 import { useThemeColor } from "heroui-native/hooks";
+import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
 import type { ChipColor, ChipLabelProps, ChipProps } from "./chip";
 import { Host, useIsInsideHost } from "./host";
@@ -26,6 +27,13 @@ function useColors(color: ChipColor) {
   return { colors, border };
 }
 
+/**
+ * Android Chip: same props as `heroui-native`'s, rendered as a Jetpack Compose
+ * `FilterChip` — the M3 chip that carries a selected state.
+ *
+ * @see https://heroui.com/docs/native/components/chip
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/chip/
+ */
 export function Chip({
   children,
   selected = false,
@@ -35,6 +43,7 @@ export function Chip({
 }: ChipProps) {
   const { colors, border } = useColors(color);
   const isInsideHost = useIsInsideHost();
+  const fontFamily = useFontFamily("normal");
 
   const chip = (
     <FilterChip
@@ -45,7 +54,7 @@ export function Chip({
       border={border}
     >
       <FilterChip.Label>
-        <Text>{textOf(children)}</Text>
+        <Text style={{ fontFamily }}>{textOf(children)}</Text>
       </FilterChip.Label>
     </FilterChip>
   );

@@ -1,35 +1,11 @@
 import { NativeTabs } from "expo-router/unstable-native-tabs";
-import { useThemeColor } from "heroui-native/hooks";
+import { useNativeTabsTheme } from "@/hooks/use-theme";
 
 export function Tabs() {
-  const [accentSoftForeground, accentSoft, accent, surfaceSecondary, muted] =
-    useThemeColor([
-      "accent-soft-foreground",
-      "accent-soft",
-      "accent",
-      "background-secondary",
-      "muted",
-    ]);
+  const tabTheme = useNativeTabsTheme();
 
   return (
-    <NativeTabs
-      tintColor={accent}
-      backgroundColor={surfaceSecondary}
-      indicatorColor={accentSoft}
-      rippleColor={accentSoft}
-      labelStyle={{
-        default: { color: muted },
-        selected: { color: accentSoftForeground },
-      }}
-      iconColor={{ default: muted, selected: accentSoftForeground }}
-      minimizeBehavior="onScrollDown"
-      sidebarAdaptable
-    >
-      {/* <NativeTabs.BottomAccessory>
-        <Host matchContents>
-          <TextInput placeholder="Search..." />
-        </Host>
-      </NativeTabs.BottomAccessory> */}
+    <NativeTabs {...tabTheme} minimizeBehavior="onScrollDown" sidebarAdaptable>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

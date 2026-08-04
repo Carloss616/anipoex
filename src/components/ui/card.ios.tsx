@@ -308,6 +308,13 @@ function CardDescription({ children, ...props }: CardDescriptionProps) {
   );
 }
 
+/**
+ * iOS Card: same props as `heroui-native`'s, rendered as a SwiftUI `VStack` of
+ * sections — a `ZStack` once a `Card.Background` layer is in play.
+ *
+ * @see https://heroui.com/docs/native/components/card
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/zstack/
+ */
 export const Card = Object.assign(CardRoot, {
   Background: CardBackground,
   Header: CardHeader,

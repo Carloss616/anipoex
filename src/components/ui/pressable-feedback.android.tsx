@@ -4,28 +4,40 @@ import type {
   PressableFeedbackRippleProps,
   PressableFeedbackScaleProps,
 } from "heroui-native/pressable-feedback";
-import { Children } from "react";
 import {
-  TouchableNativeFeedback as TouchableNativeFeedbackBase,
+  type StyleProp,
+  TouchableNativeFeedback,
   type TouchableNativeFeedbackProps,
   View,
+  type ViewStyle,
 } from "react-native";
-import { withUniwind } from "uniwind";
+import { useUniwind } from "uniwind";
 
-const TouchableNativeFeedback = withUniwind(TouchableNativeFeedbackBase);
-
+/**
+ * Android PressableFeedback: same props as `heroui-native`'s, backed by
+ * `TouchableNativeFeedback` so a press draws the platform ripple instead. The
+ * `Highlight`/`Ripple`/`Scale` children are inert — the ripple is the feedback.
+ *
+ * @see https://heroui.com/docs/native/components/pressable-feedback
+ * @see https://reactnative.dev/docs/touchablenativefeedback
+ */
 export function PressableFeedback({
   children,
   className,
+  style,
   ...props
 }: PressableFeedbackProps) {
+  const { theme } = useUniwind();
+
   return (
     <TouchableNativeFeedback
-      {...(props as TouchableNativeFeedbackProps)}
-      className={className}
+      key={theme}
       useForeground
+      {...(props as TouchableNativeFeedbackProps)}
     >
-      {Children.count(children) === 1 ? children : <View>{children}</View>}
+      <View className={className} style={style as StyleProp<ViewStyle>}>
+        {children}
+      </View>
     </TouchableNativeFeedback>
   );
 }

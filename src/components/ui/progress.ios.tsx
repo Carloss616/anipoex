@@ -35,4 +35,10 @@ function ProgressBase({ value, style, testID }: ProgressProps) {
   return isInsideHost ? progress : <Host className="w-full">{progress}</Host>;
 }
 
+/**
+ * iOS Progress: same props as [the web one](./progress.tsx), rendered as a
+ * linear SwiftUI `ProgressView`.
+ *
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/progressview/
+ */
 export const Progress = withUniwind(ProgressBase);

@@ -24,7 +24,7 @@ const VARIANTS = {
   primary: "glassProminent",
   secondary: "glass",
   tertiary: "borderless",
-  soft: "bordered",
+  soft: "glass",
 } as const satisfies Record<ChipVariant, ButtonStyle>;
 
 const SELECTED_VARIANTS = {
@@ -34,6 +34,13 @@ const SELECTED_VARIANTS = {
   soft: "glassProminent",
 } as const satisfies Record<ChipVariant, ButtonStyle>;
 
+/**
+ * iOS Chip: same props as `heroui-native`'s, rendered as a capsule SwiftUI
+ * `Button` — iOS has no chip of its own.
+ *
+ * @see https://heroui.com/docs/native/components/chip
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/button/
+ */
 export function Chip({
   children,
   size = "sm",
