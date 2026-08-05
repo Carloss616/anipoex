@@ -2,8 +2,6 @@ import { useMaterialColors } from "@expo/ui/jetpack-compose";
 import type { StackSearchBarProps, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native/hooks";
-import { useEffect } from "react";
-import { Appearance } from "react-native";
 import { useUniwind } from "uniwind";
 import { useFontFamily, useNavigationFonts } from "./use-font";
 
@@ -33,10 +31,6 @@ export function useNavigationTheme(): Theme {
   const accent = useThemeColor("accent");
   const m3 = useMaterialColors({ seedColor: accent, colorScheme: theme });
   const fonts = useNavigationFonts();
-
-  useEffect(() => {
-    Appearance.setColorScheme(theme);
-  }, [theme]);
 
   return {
     dark: theme === "dark",
