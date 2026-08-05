@@ -2,7 +2,6 @@ import { Spacer, VStack, ZStack } from "@expo/ui/swift-ui";
 import {
   aspectRatio,
   background,
-  clipShape,
   frame,
   glassEffect,
   onTapGesture,
@@ -204,18 +203,30 @@ function CardRootBase({
   const [layers, sections] = partition(children);
 
   const skin = [
+    glassEffect({
+      glass: { variant: "regular", interactive: !!onPress },
+      shape: "roundedRectangle",
+      cornerRadius: radius,
+    }),
     ...(surfaceFill
-      ? [background(surfaceFill)]
-      : [
-          glassEffect({
-            glass: { variant: "regular" },
-            shape: "roundedRectangle",
-            cornerRadius: radius,
-          }),
-        ]),
-    clipShape("roundedRectangle", radius),
+      ? [
+          background(
+            surfaceFill,
+            radius
+              ? {
+                  cornerRadius: radius,
+                  roundedCornerStyle: "circular",
+                  cornerSize: {
+                    width: radius,
+                    height: radius,
+                  },
+                  shape: "roundedRectangle",
+                }
+              : undefined,
+          ),
+        ]
+      : []),
     ...rest,
-    // After `clipShape`, so the tap area matches the rounded silhouette.
     ...(onPress ? [onTapGesture(onPress)] : []),
   ];
 

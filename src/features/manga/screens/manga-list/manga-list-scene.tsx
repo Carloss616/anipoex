@@ -83,7 +83,7 @@ export function MangaListScene({
                   className="text-muted/20"
                 />
               </Card.Background>
-              <Scrim className="p-2 pt-12">
+              <Scrim className="ios:rounded-3xl p-2 pt-12">
                 <Card.Description
                   numberOfLines={1}
                   className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"

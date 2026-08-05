@@ -1,5 +1,6 @@
 import { Rectangle, VStack, ZStack } from "@expo/ui/swift-ui";
 import {
+  clipShape,
   fixedSize,
   foregroundStyle,
   frame,
@@ -35,6 +36,7 @@ function ScrimBase({ children, style }: ScrimProps) {
     leading: dp(flat.paddingLeft ?? flat.paddingStart),
     trailing: dp(flat.paddingRight ?? flat.paddingEnd),
   });
+  const radius = dp(flat.borderRadius);
 
   return (
     // A `Rectangle` takes every point it is offered, so without `fixedSize` the
@@ -51,6 +53,7 @@ function ScrimBase({ children, style }: ScrimProps) {
             startPoint: { x: 0.5, y: 0 },
             endPoint: { x: 0.5, y: 1 },
           }),
+          ...(radius ? [clipShape("roundedRectangle", radius)] : []),
         ]}
       />
       <VStack
