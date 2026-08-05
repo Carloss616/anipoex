@@ -1,5 +1,4 @@
 import { Host as HostBase } from "@expo/ui";
-import { useThemeColor } from "heroui-native/hooks";
 import { createContext, useContext } from "react";
 import { useUniwind, withUniwind } from "uniwind";
 
@@ -18,11 +17,14 @@ export function useIsInsideHost() {
 /** `@expo/ui`'s Host, tracked so our components know not to add another one. */
 export function Host(props: React.ComponentProps<typeof HostRoot>) {
   const { theme } = useUniwind();
-  const accent = useThemeColor("accent");
 
   return (
     <HostContext.Provider value={true}>
-      <HostRoot seedColorClassName={accent} colorScheme={theme} {...props} />
+      <HostRoot
+        seedColorClassName="accent-accent"
+        colorScheme={theme}
+        {...props}
+      />
     </HostContext.Provider>
   );
 }
