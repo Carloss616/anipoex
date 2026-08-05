@@ -36,7 +36,8 @@
           "imageWidth": 76
         }
       ],
-      "@react-native-vector-icons/lucide"
+      "@react-native-vector-icons/lucide",
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,
