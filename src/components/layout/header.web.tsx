@@ -138,7 +138,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       className={cn(
         "gutters px-gx backdrop-blur-xl transition-[padding]",
         TRANSITION,
-        isLarge ? "pt-0 pb-6" : "py-3",
+        isLarge ? "pt-3 pb-6" : "py-3",
         options.headerShadowVisible && "border-b",
         options.headerTransparent && "absolute inset-x-0 top-0 z-10",
       )}

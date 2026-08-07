@@ -32,13 +32,13 @@ export function MangaList() {
     <>
       <Stack.Title large={large}>Manga</Stack.Title>
       <Stack.SearchBar
-        {...searchBarTheme}
         placeholder="Search..."
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
         onChangeText={(e) => setQuery(e.nativeEvent.text)}
         onCancelButtonPress={() => setQuery("")}
         shouldShowHintSearchIcon={false}
+        {...searchBarTheme}
       />
 
       <TabView

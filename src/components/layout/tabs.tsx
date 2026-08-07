@@ -5,7 +5,7 @@ export function Tabs() {
   const tabTheme = useNativeTabsTheme();
 
   return (
-    <NativeTabs {...tabTheme} minimizeBehavior="onScrollDown" sidebarAdaptable>
+    <NativeTabs minimizeBehavior="onScrollDown" sidebarAdaptable {...tabTheme}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
