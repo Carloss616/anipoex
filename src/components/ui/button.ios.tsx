@@ -27,7 +27,7 @@ import { Children, createContext, isValidElement, useContext } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { dp, omitUndefined, textOf } from "@/utils/utils";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 import { Icon } from "./icon";
 import { Typography, type TypographyParagraphProps } from "./typography";
 
@@ -133,7 +133,6 @@ function ButtonRoot({
   testID,
   style,
 }: ButtonRootProps) {
-  const isInsideHost = useIsInsideHost();
   const danger = useThemeColor("danger");
 
   const box = resolveStyle(style as StyleProp<ViewStyle>);
@@ -141,34 +140,6 @@ function ButtonRoot({
     variant === "danger" || variant === "danger-soft" ? danger : null;
 
   const isSimple = isSimpleLabel(children);
-
-  const button = (
-    <ButtonBase
-      label={isSimple ? textOf(children) : undefined}
-      systemImage={isSimple ? systemImageOf(children) : undefined}
-      modifiers={[
-        buttonStyle(VARIANTS[variant]),
-        controlSize(SIZES[size]),
-        labelStyle(isIconOnly ? "iconOnly" : "automatic"),
-        buttonBorderShape(isIconOnly ? "circle" : "automatic"),
-        disabled(!!isDisabled),
-        ...(dangerTint ? [tint(dangerTint)] : []),
-      ]}
-      onPress={onPress as (() => void) | undefined}
-      testID={testID as string | undefined}
-      role={
-        variant === "danger" || variant === "danger-soft"
-          ? "destructive"
-          : undefined
-      }
-    >
-      {isSimple ? undefined : (
-        <HStack spacing={SPACING[size]} alignment="center" modifiers={box}>
-          {children}
-        </HStack>
-      )}
-    </ButtonBase>
-  );
 
   return (
     <ButtonContext.Provider
@@ -178,7 +149,33 @@ function ButtonRoot({
         isDisabled,
       }}
     >
-      {isInsideHost ? button : <Host matchContents>{button}</Host>}
+      <EnsureHost matchContents>
+        <ButtonBase
+          label={isSimple ? textOf(children) : undefined}
+          systemImage={isSimple ? systemImageOf(children) : undefined}
+          modifiers={[
+            buttonStyle(VARIANTS[variant]),
+            controlSize(SIZES[size]),
+            labelStyle(isIconOnly ? "iconOnly" : "automatic"),
+            buttonBorderShape(isIconOnly ? "circle" : "automatic"),
+            disabled(!!isDisabled),
+            ...(dangerTint ? [tint(dangerTint)] : []),
+          ]}
+          onPress={onPress as (() => void) | undefined}
+          testID={testID as string | undefined}
+          role={
+            variant === "danger" || variant === "danger-soft"
+              ? "destructive"
+              : undefined
+          }
+        >
+          {isSimple ? undefined : (
+            <HStack spacing={SPACING[size]} alignment="center" modifiers={box}>
+              {children}
+            </HStack>
+          )}
+        </ButtonBase>
+      </EnsureHost>
     </ButtonContext.Provider>
   );
 }

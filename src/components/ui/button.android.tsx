@@ -29,7 +29,7 @@ import {
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { dp, omitUndefined, textOf } from "@/utils/utils";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 import { Typography, type TypographyParagraphProps } from "./typography";
 
 const VARIANTS = {
@@ -111,7 +111,6 @@ function ButtonRoot({
   style,
 }: ButtonRootProps) {
   const id = useId();
-  const isInsideHost = useIsInsideHost();
   const [danger, dangerForeground, dangerSoft, dangerSoftForeground] =
     useThemeColor([
       "danger",
@@ -136,38 +135,6 @@ function ButtonRoot({
     ),
   );
 
-  const button = (
-    <ButtonComponent
-      enabled={!isDisabled}
-      modifiers={[
-        ...(box.hugs ? [] : [height(box.height ?? buttonHeight)]),
-        ...(isIconOnly || box.width !== undefined
-          ? [width(box.width ?? buttonHeight)]
-          : []),
-      ]}
-      {...(isIconOnly ? {} : { contentPadding: box.contentPadding })}
-      onClick={onPress as (() => void) | undefined}
-      colors={
-        variant === "danger"
-          ? { containerColor: danger, contentColor: dangerForeground }
-          : variant === "danger-soft"
-            ? { containerColor: dangerSoft, contentColor: dangerSoftForeground }
-            : undefined
-      }
-    >
-      {isIconOnly ? (
-        content
-      ) : (
-        <Row
-          horizontalArrangement={{ spacedBy: spacing }}
-          horizontalAlignment="center"
-        >
-          {content}
-        </Row>
-      )}
-    </ButtonComponent>
-  );
-
   return (
     <ButtonContext.Provider
       value={{
@@ -176,7 +143,40 @@ function ButtonRoot({
         isDisabled,
       }}
     >
-      {isInsideHost ? button : <Host matchContents>{button}</Host>}
+      <EnsureHost matchContents>
+        <ButtonComponent
+          enabled={!isDisabled}
+          modifiers={[
+            ...(box.hugs ? [] : [height(box.height ?? buttonHeight)]),
+            ...(isIconOnly || box.width !== undefined
+              ? [width(box.width ?? buttonHeight)]
+              : []),
+          ]}
+          {...(isIconOnly ? {} : { contentPadding: box.contentPadding })}
+          onClick={onPress as (() => void) | undefined}
+          colors={
+            variant === "danger"
+              ? { containerColor: danger, contentColor: dangerForeground }
+              : variant === "danger-soft"
+                ? {
+                    containerColor: dangerSoft,
+                    contentColor: dangerSoftForeground,
+                  }
+                : undefined
+          }
+        >
+          {isIconOnly ? (
+            content
+          ) : (
+            <Row
+              horizontalArrangement={{ spacedBy: spacing }}
+              horizontalAlignment="center"
+            >
+              {content}
+            </Row>
+          )}
+        </ButtonComponent>
+      </EnsureHost>
     </ButtonContext.Provider>
   );
 }

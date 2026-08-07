@@ -30,7 +30,7 @@ import {
 import { withUniwind } from "uniwind";
 import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 
 type FontParams = Parameters<typeof font>[0];
 
@@ -108,7 +108,6 @@ function TypographyRootBase({
   testID,
 }: TypographyRootProps) {
   const defaultColor = useThemeColor("default");
-  const isInsideHost = useIsInsideHost();
 
   const {
     display,
@@ -130,51 +129,51 @@ function TypographyRootBase({
   const alignment = ALIGN[STYLE_ALIGN[textAlign as string] ?? align];
   const lines = numberOfLines ?? (truncate ? 1 : undefined);
 
-  const content = (
-    <Text
-      testID={testID}
-      modifiers={[
-        font({
-          textStyle: TEXT_STYLE[type],
-          size: fontSize ?? TEXT_SIZE[type],
-          family: fontFamily ?? themeFamily,
-          design: isCode ? "monospaced" : undefined,
-        }),
-        ...(styleColor === "inherit"
-          ? []
-          : [
-              foregroundStyle(
-                (styleColor as string) ??
-                  (color === "muted" ? "secondary" : "primary"),
-              ),
-            ]),
-        multilineTextAlignment(alignment),
-        // A tight height proposal truncates mid-word; the width stays negotiable
-        // — except for a code chip, a short token that must never wrap.
-        ...(lines === 1
-          ? []
-          : [fixedSize({ horizontal: isCode, vertical: true })]),
-        // A `Text` hugs its content: alignment needs a frame to move in.
-        ...(alignment === "leading"
-          ? []
-          : [frame({ maxWidth: FILL, alignment })]),
-        ...(letterSpacing == null ? [] : [kerning(letterSpacing)]),
-        ...(lines == null ? [] : [lineLimit(lines)]),
-        ...(onPress == null ? [] : [onTapGesture(onPress as () => void)]),
-        ...(isCode
-          ? [
-              padding({ horizontal: 6, vertical: 2 }),
-              background(defaultColor),
-              cornerRadius(6),
-            ]
-          : []),
-      ]}
-    >
-      {textOf(children)}
-    </Text>
+  return (
+    <EnsureHost matchContents>
+      <Text
+        testID={testID}
+        modifiers={[
+          font({
+            textStyle: TEXT_STYLE[type],
+            size: fontSize ?? TEXT_SIZE[type],
+            family: fontFamily ?? themeFamily,
+            design: isCode ? "monospaced" : undefined,
+          }),
+          ...(styleColor === "inherit"
+            ? []
+            : [
+                foregroundStyle(
+                  (styleColor as string) ??
+                    (color === "muted" ? "secondary" : "primary"),
+                ),
+              ]),
+          multilineTextAlignment(alignment),
+          // A tight height truncates mid-word; only a code chip also refuses
+          // to give up width, since it must never wrap.
+          ...(lines === 1
+            ? []
+            : [fixedSize({ horizontal: isCode, vertical: true })]),
+          // A `Text` hugs its content: alignment needs a frame to move in.
+          ...(alignment === "leading"
+            ? []
+            : [frame({ maxWidth: FILL, alignment })]),
+          ...(letterSpacing == null ? [] : [kerning(letterSpacing)]),
+          ...(lines == null ? [] : [lineLimit(lines)]),
+          ...(onPress == null ? [] : [onTapGesture(onPress as () => void)]),
+          ...(isCode
+            ? [
+                padding({ horizontal: 6, vertical: 2 }),
+                background(defaultColor),
+                cornerRadius(6),
+              ]
+            : []),
+        ]}
+      >
+        {textOf(children)}
+      </Text>
+    </EnsureHost>
   );
-
-  return isInsideHost ? content : <Host matchContents>{content}</Host>;
 }
 
 const TypographyRoot = withUniwind(TypographyRootBase);

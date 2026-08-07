@@ -5,7 +5,7 @@ import {
 import { testID as testIDModifier } from "@expo/ui/jetpack-compose/modifiers";
 import { useThemeColor } from "heroui-native/hooks";
 import type { BadgeColor, BadgeProps } from "./badge";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 import { Typography } from "./typography";
 
 /** Seeds an M3 scheme off the semantic color, so it harmonizes with the theme. */
@@ -27,21 +27,20 @@ function useColors(color: BadgeColor) {
  */
 export function Badge({ children, color = "default", testID }: BadgeProps) {
   const { container, content } = useColors(color);
-  const isInsideHost = useIsInsideHost();
 
-  const badge = (
-    <BadgeView
-      containerColor={container}
-      contentColor={content}
-      modifiers={testID ? [testIDModifier(testID)] : []}
-    >
-      {children == null ? null : (
-        <Typography type="body-xs" weight="medium" style={{ color: content }}>
-          {children}
-        </Typography>
-      )}
-    </BadgeView>
+  return (
+    <EnsureHost matchContents>
+      <BadgeView
+        containerColor={container}
+        contentColor={content}
+        modifiers={testID ? [testIDModifier(testID)] : []}
+      >
+        {children == null ? null : (
+          <Typography type="body-xs" weight="medium" style={{ color: content }}>
+            {children}
+          </Typography>
+        )}
+      </BadgeView>
+    </EnsureHost>
   );
-
-  return isInsideHost ? badge : <Host matchContents>{badge}</Host>;
 }

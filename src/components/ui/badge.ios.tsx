@@ -8,7 +8,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useThemeColor } from "heroui-native/hooks";
 import type { BadgeProps } from "./badge";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 import { Typography } from "./typography";
 
 /** Matches the `size-2` dot the shared Badge draws. */
@@ -22,30 +22,29 @@ const DOT = 8;
  */
 export function Badge({ children, color = "default", testID }: BadgeProps) {
   const [container, content] = useThemeColor([color, `${color}-foreground`]);
-  const isInsideHost = useIsInsideHost();
-
-  const badge =
-    children == null ? (
-      <Circle
-        testID={testID}
-        modifiers={[
-          frame({ width: DOT, height: DOT }),
-          foregroundStyle(container),
-        ]}
-      />
-    ) : (
-      <HStack
-        testID={testID}
-        modifiers={[
-          padding({ horizontal: 6, vertical: 2 }),
-          background(container, shapes.capsule()),
-        ]}
-      >
-        <Typography type="body-xs" weight="medium" style={{ color: content }}>
-          {children}
-        </Typography>
-      </HStack>
-    );
-
-  return isInsideHost ? badge : <Host matchContents>{badge}</Host>;
+  return (
+    <EnsureHost matchContents>
+      {children == null ? (
+        <Circle
+          testID={testID}
+          modifiers={[
+            frame({ width: DOT, height: DOT }),
+            foregroundStyle(container),
+          ]}
+        />
+      ) : (
+        <HStack
+          testID={testID}
+          modifiers={[
+            padding({ horizontal: 6, vertical: 2 }),
+            background(container, shapes.capsule()),
+          ]}
+        >
+          <Typography type="body-xs" weight="medium" style={{ color: content }}>
+            {children}
+          </Typography>
+        </HStack>
+      )}
+    </EnsureHost>
+  );
 }

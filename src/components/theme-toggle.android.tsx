@@ -1,4 +1,4 @@
-import BrightnessAutoIcon from "@expo/material-symbols/brightness_auto.xml";
+import Brightness4Icon from "@expo/material-symbols/brightness_4.xml";
 import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
 import LightModeIcon from "@expo/material-symbols/light_mode.xml";
 import { Box, useMaterialColors } from "@expo/ui/jetpack-compose";
@@ -10,7 +10,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useThemeColor } from "heroui-native/hooks";
 import { Uniwind, useUniwind } from "uniwind";
-import { Host } from "@/components/ui/host";
+import { EnsureHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 
 /**
@@ -27,7 +27,7 @@ export function ThemeToggle() {
   const isLight = theme === "light";
 
   return (
-    <Host matchContents>
+    <EnsureHost matchContents>
       <Box
         contentAlignment="center"
         modifiers={[
@@ -43,7 +43,7 @@ export function ThemeToggle() {
         <Icon
           name={
             hasAdaptiveThemes
-              ? BrightnessAutoIcon
+              ? Brightness4Icon
               : isLight
                 ? LightModeIcon
                 : DarkModeIcon
@@ -52,6 +52,6 @@ export function ThemeToggle() {
           color={m3.onSecondaryContainer}
         />
       </Box>
-    </Host>
+    </EnsureHost>
   );
 }

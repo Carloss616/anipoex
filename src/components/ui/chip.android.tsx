@@ -9,7 +9,7 @@ import { useThemeColor } from "heroui-native/hooks";
 import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
 import type { ChipColor, ChipLabelProps, ChipProps } from "./chip";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 
 function useColors(color: ChipColor) {
   const seedColor = useThemeColor(color === "default" ? "accent" : color);
@@ -42,24 +42,23 @@ export function Chip({
   onPress,
 }: ChipProps) {
   const { colors, border } = useColors(color);
-  const isInsideHost = useIsInsideHost();
   const fontFamily = useFontFamily("normal");
 
-  const chip = (
-    <FilterChip
-      selected={selected}
-      enabled={!isDisabled}
-      onClick={onPress as (() => void) | undefined}
-      colors={colors}
-      border={border}
-    >
-      <FilterChip.Label>
-        <Text style={{ fontFamily }}>{textOf(children)}</Text>
-      </FilterChip.Label>
-    </FilterChip>
+  return (
+    <EnsureHost matchContents>
+      <FilterChip
+        selected={selected}
+        enabled={!isDisabled}
+        onClick={onPress as (() => void) | undefined}
+        colors={colors}
+        border={border}
+      >
+        <FilterChip.Label>
+          <Text style={{ fontFamily }}>{textOf(children)}</Text>
+        </FilterChip.Label>
+      </FilterChip>
+    </EnsureHost>
   );
-
-  return isInsideHost ? chip : <Host matchContents>{chip}</Host>;
 }
 
 function ChipLabel(_: ChipLabelProps) {

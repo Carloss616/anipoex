@@ -8,7 +8,7 @@ import {
 import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
 import { dp } from "@/utils/utils";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 import type { SeparatorProps } from "./separator";
 
 /** heroui's `thick` rule, in dp. */
@@ -21,7 +21,6 @@ function SeparatorBase({
   style,
   testID,
 }: SeparatorProps) {
-  const isInsideHost = useIsInsideHost();
   const vertical = orientation === "vertical";
   const size =
     thickness ?? (variant === "thick" ? THICK : StyleSheet.hairlineWidth);
@@ -37,22 +36,18 @@ function SeparatorBase({
     ...(testID ? [testIDModifier(testID)] : []),
   ];
 
-  const divider = vertical ? (
-    <VerticalDivider thickness={size} modifiers={modifiers} />
-  ) : (
-    <HorizontalDivider thickness={size} modifiers={modifiers} />
-  );
-
-  if (isInsideHost) return divider;
-
   return (
-    <Host
+    <EnsureHost
       // Fill along the run, hug the rule across it.
       matchContents={{ vertical: !vertical, horizontal: vertical }}
       className={vertical ? "h-full" : "w-full"}
     >
-      {divider}
-    </Host>
+      {vertical ? (
+        <VerticalDivider thickness={size} modifiers={modifiers} />
+      ) : (
+        <HorizontalDivider thickness={size} modifiers={modifiers} />
+      )}
+    </EnsureHost>
   );
 }
 

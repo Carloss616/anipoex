@@ -1,43 +1,26 @@
 import { Divider, HStack } from "@expo/ui/swift-ui";
-import { Separator as SeparatorView } from "heroui-native/separator";
 import { withUniwind } from "uniwind";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 import type { SeparatorProps } from "./separator";
 
-function SeparatorBase(props: SeparatorProps) {
-  const {
-    orientation = "horizontal",
-    variant = "thin",
-    thickness,
-    testID,
-  } = props;
-  const isInsideHost = useIsInsideHost();
+function SeparatorBase({ orientation = "horizontal", testID }: SeparatorProps) {
   const vertical = orientation === "vertical";
 
-  // A bare `Divider` draws across; only an HStack stands it on its side.
-  const divider = vertical ? (
-    <HStack>
-      <Divider testID={testID} />
-    </HStack>
-  ) : (
-    <Divider testID={testID} />
-  );
-
-  if (isInsideHost) return divider;
-
-  // SwiftUI's `Divider` is the system hairline and nothing else, so a thick
-  // rule falls back to the shared View.
-  if (variant === "thick" || thickness !== undefined)
-    return <SeparatorView {...props} />;
-
   return (
-    <Host
+    <EnsureHost
       // Fill along the run, hug the hairline across it.
       matchContents={{ vertical: !vertical, horizontal: vertical }}
       className={vertical ? "h-full" : "w-full"}
     >
-      {divider}
-    </Host>
+      {/* A bare `Divider` draws across; only an HStack stands it on its side. */}
+      {vertical ? (
+        <HStack>
+          <Divider testID={testID} />
+        </HStack>
+      ) : (
+        <Divider testID={testID} />
+      )}
+    </EnsureHost>
   );
 }
 

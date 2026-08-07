@@ -1,6 +1,6 @@
 import { Icon as IconBase, type IconProps } from "@expo/ui";
 import { withUniwind } from "uniwind";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 
 export type { IconName, IconProps, IconSelectSpec } from "@expo/ui";
 
@@ -10,10 +10,11 @@ export type { IconName, IconProps, IconSelectSpec } from "@expo/ui";
  * Compose/SwiftUI composition boundary.
  */
 function IconRootBase(props: IconProps) {
-  const isInsideHost = useIsInsideHost();
-  const icon = <IconBase {...props} />;
-
-  return isInsideHost ? icon : <Host matchContents>{icon}</Host>;
+  return (
+    <EnsureHost matchContents>
+      <IconBase {...props} />
+    </EnsureHost>
+  );
 }
 
 const IconRoot = withUniwind(IconRootBase);

@@ -26,7 +26,7 @@ import { DownloadButton } from "./components/download-button";
  * out. A `web:` variant can't do it — Uniwind resolves `accent-*` against a
  * detached DOM node, where the platform variant never matches.
  */
-const WEB_ICON_COLOR = Platform.OS === "web" ? "accent-foreground" : undefined;
+const WEB_ICON_COLOR = Platform.OS === "web" ? "accent-accent" : undefined;
 
 function Meta({ className }: { className: string }) {
   const isPreview = useIsPreview();

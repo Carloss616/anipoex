@@ -11,7 +11,7 @@ import { useThemeColor } from "heroui-native/hooks";
 import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
 import type { ChipLabelProps, ChipProps, ChipSize, ChipVariant } from "./chip";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 
 type ControlSize = Parameters<typeof controlSize>[0];
 type ButtonStyle = Parameters<typeof buttonStyle>[0];
@@ -60,31 +60,32 @@ export function Chip({
   testID,
 }: ChipProps) {
   const tintColor = useThemeColor(color === "default" ? "accent" : color);
-  const isInsideHost = useIsInsideHost();
   const themeFamily = useFontFamily("normal");
 
-  const button = (
-    <Button
-      label={textOf(children)}
-      onPress={onPress as (() => void) | undefined}
-      modifiers={[
-        buttonStyle(selected ? SELECTED_VARIANTS[variant] : VARIANTS[variant]),
-        buttonBorderShape("capsule"),
-        controlSize(SIZES[size]),
-        disabled(!!isDisabled),
-        tint(tintColor),
-        font({
-          textStyle: "caption",
-          size: FONT_SIZES[size],
-          family: themeFamily,
-        }),
-      ]}
-      testID={testID as string | undefined}
-      role={color === "danger" ? "destructive" : undefined}
-    />
+  return (
+    <EnsureHost matchContents>
+      <Button
+        label={textOf(children)}
+        onPress={onPress as (() => void) | undefined}
+        modifiers={[
+          buttonStyle(
+            selected ? SELECTED_VARIANTS[variant] : VARIANTS[variant],
+          ),
+          buttonBorderShape("capsule"),
+          controlSize(SIZES[size]),
+          disabled(!!isDisabled),
+          tint(tintColor),
+          font({
+            textStyle: "caption",
+            size: FONT_SIZES[size],
+            family: themeFamily,
+          }),
+        ]}
+        testID={testID as string | undefined}
+        role={color === "danger" ? "destructive" : undefined}
+      />
+    </EnsureHost>
   );
-
-  return isInsideHost ? button : <Host matchContents>{button}</Host>;
 }
 
 function ChipLabel(_: ChipLabelProps) {

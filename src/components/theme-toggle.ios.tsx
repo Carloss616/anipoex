@@ -9,7 +9,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useThemeColor } from "heroui-native/hooks";
 import { Uniwind, useUniwind } from "uniwind";
-import { Host } from "@/components/ui/host";
+import { EnsureHost } from "@/components/ui/host";
 
 /**
  * Tap flips light/dark; long press hands the theme back to the system.
@@ -23,7 +23,7 @@ export function ThemeToggle() {
   const isLight = theme === "light";
 
   return (
-    <Host matchContents>
+    <EnsureHost matchContents>
       <Image
         systemName={
           hasAdaptiveThemes
@@ -45,6 +45,6 @@ export function ThemeToggle() {
           onLongPressGesture(() => Uniwind.setTheme("system")),
         ]}
       />
-    </Host>
+    </EnsureHost>
   );
 }

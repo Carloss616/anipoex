@@ -30,7 +30,7 @@ import {
 import { withUniwind } from "uniwind";
 import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
-import { Host, useIsInsideHost } from "./host";
+import { EnsureHost } from "./host";
 
 type ComposeTextStyle = NonNullable<TextProps["style"]>;
 type TypographyStyle = NonNullable<ComposeTextStyle["typography"]>;
@@ -95,7 +95,6 @@ function TypographyRootBase({
 }: TypographyRootProps) {
   const accent = useThemeColor("accent");
   const m3 = useMaterialColors({ seedColor: accent });
-  const isInsideHost = useIsInsideHost();
 
   const {
     display,
@@ -118,45 +117,45 @@ function TypographyRootBase({
   const alignment = STYLE_ALIGN[textAlign as string] ?? align;
   const lines = numberOfLines ?? (truncate ? 1 : undefined);
 
-  const content = (
-    <Text
-      color={
-        styleColor === "inherit"
-          ? undefined
-          : ((styleColor as string) ??
-            (color === "muted" ? m3.onSurfaceVariant : m3.onSurface))
-      }
-      maxLines={lines}
-      overflow={lines == null ? undefined : "ellipsis"}
-      style={{
-        // The preset is the base; everything below overrides just that key.
-        typography: TYPOGRAPHY[type],
-        textAlign: ALIGN[alignment],
-        fontFamily: isCode ? "monospace" : (fontFamily ?? themeFamily),
-        fontSize,
-        lineHeight,
-        letterSpacing,
-      }}
-      modifiers={[
-        // Compose `Text` wraps its content, so a centered alignment needs the
-        // full width to center within.
-        ...(alignment === "start" ? [] : [fillMaxWidth()]),
-        ...(testID ? [testIDModifier(testID)] : []),
-        ...(onPress ? [clickable(onPress as () => void)] : []),
-        ...(isCode
-          ? [
-              clip(Shapes.RoundedCorner(6)),
-              background(m3.surfaceContainer),
-              padding(6, 2, 6, 2),
-            ]
-          : []),
-      ]}
-    >
-      {textOf(children)}
-    </Text>
+  return (
+    <EnsureHost matchContents>
+      <Text
+        color={
+          styleColor === "inherit"
+            ? undefined
+            : ((styleColor as string) ??
+              (color === "muted" ? m3.onSurfaceVariant : m3.onSurface))
+        }
+        maxLines={lines}
+        overflow={lines == null ? undefined : "ellipsis"}
+        style={{
+          // The preset is the base; everything below overrides just that key.
+          typography: TYPOGRAPHY[type],
+          textAlign: ALIGN[alignment],
+          fontFamily: isCode ? "monospace" : (fontFamily ?? themeFamily),
+          fontSize,
+          lineHeight,
+          letterSpacing,
+        }}
+        modifiers={[
+          // Compose `Text` wraps its content, so a centered alignment needs the
+          // full width to center within.
+          ...(alignment === "start" ? [] : [fillMaxWidth()]),
+          ...(testID ? [testIDModifier(testID)] : []),
+          ...(onPress ? [clickable(onPress as () => void)] : []),
+          ...(isCode
+            ? [
+                clip(Shapes.RoundedCorner(6)),
+                background(m3.surfaceContainer),
+                padding(6, 2, 6, 2),
+              ]
+            : []),
+        ]}
+      >
+        {textOf(children)}
+      </Text>
+    </EnsureHost>
   );
-
-  return isInsideHost ? content : <Host matchContents>{content}</Host>;
 }
 
 const TypographyRoot = withUniwind(TypographyRootBase);
