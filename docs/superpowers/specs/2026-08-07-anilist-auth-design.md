@@ -23,6 +23,8 @@ The dependency earns its place when a second tracker arrives. MyAnimeList mandat
 Every tracker hides behind one signature. This, not the library choice, is what makes a later migration cheap.
 
 ```ts
+type User = { id: number; name: string; avatarUrl: string | null }
+
 type Tracker = {
   id: 'anilist'
   authorize(): Promise<{ accessToken: string } | null>  // null = user cancelled
@@ -30,15 +32,29 @@ type Tracker = {
 }
 ```
 
+`User` is normalized, not AniList's raw shape — `avatarUrl` flattens `avatar { large }`. MyAnimeList returns a different shape for the same three fields, and normalizing at the edge is what keeps the seam meaningful.
+
 Swapping AniList's implementation later means rewriting one function body. `session$`, the screens, and every query stay untouched.
 
-Only AniList is implemented. No registry, no provider switch, no second implementation — those arrive with the second tracker, which will reveal the real boundary. See [use-manga-lists.ts](../../../src/features/manga/use-manga-lists.ts) for the same pattern already in place.
+Only AniList is implemented. No registry, no provider switch, no second implementation — those arrive with the second tracker, which will reveal the real boundary. The same pattern is already in place for manga lists (`use-manga-lists.ts`, moved to `features/manga/hooks/` — see below).
 
 ## Prerequisite
 
 Register the app at `anilist.co/settings/developer` with Redirect URL exactly `anipoex://auth`. Put the resulting client ID in `.env.local` (already gitignored) as `EXPO_PUBLIC_ANILIST_CLIENT_ID`.
 
 An OAuth `client_id` for a public client is not a secret, and `EXPO_PUBLIC_` values are inlined into the bundle regardless. `.env.local` is used so each developer can point at their own registration, not to hide the value.
+
+## Dependencies
+
+Three added. `expo-web-browser` and `expo-linking` are already installed, and `scheme: "anipoex"` is already set in [app.json](../../../app.json) — the redirect URI needs no native change.
+
+| Package | For |
+| --- | --- |
+| `expo-secure-store` | The access token. |
+| `@legendapp/state` | The session observable. Note this is *not* `@legendapp/list`, which is already installed and is the virtualized list — different library. |
+| `react-native-mmkv` | Backing store for Legend State persistence. |
+
+All three need a native rebuild (`bun run prebuild` then `bun run ios` / `android`) — a Metro reload will not pick them up.
 
 ## Files
 
@@ -47,20 +63,28 @@ Follows [app-structure.md](../../app-structure.md).
 ```
 src/
 ├── state/
-│   └── session.ts              # NEW global folder — observable session$
+│   └── session.ts                  # NEW global folder — observable session$
 ├── features/auth/
-│   ├── tracker.ts              # type Tracker
-│   ├── anilist.ts              # authorize · fetchViewer
-│   ├── parse-fragment.ts       # pure, zero imports
-│   ├── parse-fragment.test.ts  # bun test
+│   ├── anilist.ts                  # authorize · fetchViewer
+│   ├── types/
+│   │   └── tracker.ts              # type Tracker
+│   ├── utils/
+│   │   ├── parse-fragment.ts       # pure, zero imports
+│   │   └── parse-fragment.test.ts  # bun test
 │   └── screens/sign-in/
 │       ├── sign-in.tsx
 │       └── index.ts
 └── app/
-    └── sign-in.tsx             # route wrapper (thin)
+    └── sign-in.tsx                 # route wrapper (thin)
 ```
 
 `state/` is a new global folder, sibling to `features/`. Session does not live in `features/auth/` because manga will read it to authenticate its queries, and the convention sends anything shared by two or more features to the root of `src/`.
+
+### Aligning `features/manga/`
+
+`features/manga/` currently keeps `use-manga-lists.ts` loose at its root despite being a hook. It moves to `features/manga/hooks/` so both features read the same way, in a **separate commit** before the auth work — it is a rename, and mixing it into the feature commits obscures both.
+
+`mocks.ts` stays at the feature root. It is scheduled for deletion the moment `MediaListCollection` lands, and giving a folder to a file with a known expiry date is work thrown away.
 
 ## Storage
 
@@ -113,7 +137,7 @@ AniList tokens are JWTs valid for one year, and there are no refresh tokens. The
 
 `parseFragment` is the only non-trivial pure logic, and the one thing unit-tested: valid fragment, missing `access_token`, empty fragment, extra parameters alongside the token.
 
-It lives in its own module with zero imports so `bun test` runs it as-is. The repo has no test runner, and adding `jest-expo` to cover one pure function is not worth it — but that only holds while the function stays import-free, which is why it is not folded into `anilist.ts` (which imports `expo-web-browser` and would drag in the whole React Native resolution stack). Add `"test": "bun test"` to `package.json`.
+It lives in `utils/parse-fragment.ts` with zero imports so `bun test` runs it as-is. The repo has no test runner, and adding `jest-expo` to cover one pure function is not worth it — but that only holds while the function stays import-free, which is why it is not folded into `anilist.ts` (which imports `expo-web-browser` and would drag in the whole React Native resolution stack). Add `"test": "bun test"` to `package.json`.
 
 The rest requires a device and is verified by hand against the numbered flow above — specifically that step 7 survives a full app kill, and that logout returns to a state where step 1 works again without reinstalling.
 
