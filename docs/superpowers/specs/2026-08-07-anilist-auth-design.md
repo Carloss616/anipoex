@@ -65,9 +65,10 @@ src/
 ├── state/
 │   └── session.ts                  # NEW global folder — observable session$
 ├── features/auth/
-│   ├── anilist.ts                  # authorize · fetchViewer
+│   ├── trackers/
+│   │   └── anilist.ts              # authorize · fetchViewer
 │   ├── types/
-│   │   └── tracker.ts              # type Tracker
+│   │   └── tracker.ts              # type Tracker · type User
 │   ├── utils/
 │   │   ├── parse-fragment.ts       # pure, zero imports
 │   │   └── parse-fragment.test.ts  # bun test
@@ -77,6 +78,8 @@ src/
 └── app/
     └── sign-in.tsx                 # route wrapper (thin)
 ```
+
+`trackers/` holds one file today and is the one folder here guaranteed to grow — `mal.ts` and any provider after it land beside `anilist.ts`, each implementing `Tracker`. It is deliberately not called `providers/`: that name already means React context providers in this repo, and reusing it for OAuth adapters would give two unrelated concepts the same label.
 
 `state/` is a new global folder, sibling to `features/`. Session does not live in `features/auth/` because manga will read it to authenticate its queries, and the convention sends anything shared by two or more features to the root of `src/`.
 
@@ -137,7 +140,7 @@ AniList tokens are JWTs valid for one year, and there are no refresh tokens. The
 
 `parseFragment` is the only non-trivial pure logic, and the one thing unit-tested: valid fragment, missing `access_token`, empty fragment, extra parameters alongside the token.
 
-It lives in `utils/parse-fragment.ts` with zero imports so `bun test` runs it as-is. The repo has no test runner, and adding `jest-expo` to cover one pure function is not worth it — but that only holds while the function stays import-free, which is why it is not folded into `anilist.ts` (which imports `expo-web-browser` and would drag in the whole React Native resolution stack). Add `"test": "bun test"` to `package.json`.
+It lives in `utils/parse-fragment.ts` with zero imports so `bun test` runs it as-is. The repo has no test runner, and adding `jest-expo` to cover one pure function is not worth it — but that only holds while the function stays import-free, which is why it is not folded into `trackers/anilist.ts` (which imports `expo-web-browser` and would drag in the whole React Native resolution stack). Add `"test": "bun test"` to `package.json`.
 
 The rest requires a device and is verified by hand against the numbered flow above — specifically that step 7 survives a full app kill, and that logout returns to a state where step 1 works again without reinstalling.
 
