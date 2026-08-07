@@ -1,4 +1,4 @@
-import { MANGA_LISTS } from "./mocks";
+import { MANGA_LISTS } from "../mocks";
 
 // ponytail: the seam for AniList's MediaListCollection — swap the mock for the
 // query here and the screen stays untouched. Returns lists + entries in one go,

@@ -5,7 +5,7 @@ import { Platform, useWindowDimensions } from "react-native";
 import { TabView } from "react-native-tab-view";
 import { TabBar } from "@/components/layout/tab-bar";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
-import { useMangaLists } from "../../use-manga-lists";
+import { useMangaLists } from "../../hooks/use-manga-lists";
 import { ListScene } from "./components/list-scene";
 
 export function MangaList() {
