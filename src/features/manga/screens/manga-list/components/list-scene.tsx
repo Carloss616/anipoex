@@ -8,10 +8,10 @@ import { ScrollView } from "@/components/layout/scroll-view";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
-import { MangaCard } from "../../components/manga-card";
-import { GENRES, type MangaEntry } from "../../mocks";
+import { MangaCard } from "../../../components/manga-card";
+import { GENRES, type MangaEntry } from "../../../mocks";
 
-export function MangaListScene({
+export function ListScene({
   entries,
   query = "",
 }: {

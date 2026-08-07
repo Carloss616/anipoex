@@ -6,7 +6,7 @@ import { TabView } from "react-native-tab-view";
 import { TabBar } from "@/components/layout/tab-bar";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { useMangaLists } from "../../use-manga-lists";
-import { MangaListScene } from "./manga-list-scene";
+import { ListScene } from "./components/list-scene";
 
 export function MangaList() {
   const router = useRouter();
@@ -45,7 +45,7 @@ export function MangaList() {
         navigationState={{ index, routes }}
         onIndexChange={(i) => router.setParams({ list: routes[i].key })}
         renderScene={({ route }) => (
-          <MangaListScene
+          <ListScene
             entries={lists.find((l) => l.name === route.key)?.entries ?? []}
             query={query}
           />
