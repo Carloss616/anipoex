@@ -1,14 +1,14 @@
-import { Rectangle, VStack, ZStack } from "@expo/ui/swift-ui";
+import { Rectangle, ZStack } from "@expo/ui/swift-ui";
 import {
   clipShape,
   fixedSize,
   foregroundStyle,
   frame,
-  padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
-import { dp, omitUndefined } from "@/utils/utils";
+import { dp } from "@/utils/utils";
+import { Column } from "../layout/column";
 import type { ScrimProps } from "./scrim";
 
 /** `global.css`'s `scrim` stops, top to bottom. Alpha goes last, as in RN. */
@@ -26,16 +26,6 @@ const FILL = 100_000;
 
 function ScrimBase({ children, style }: ScrimProps) {
   const flat = StyleSheet.flatten(style) ?? {};
-
-  const insets = omitUndefined({
-    all: dp(flat.padding),
-    horizontal: dp(flat.paddingHorizontal),
-    vertical: dp(flat.paddingVertical),
-    top: dp(flat.paddingTop),
-    bottom: dp(flat.paddingBottom),
-    leading: dp(flat.paddingLeft ?? flat.paddingStart),
-    trailing: dp(flat.paddingRight ?? flat.paddingEnd),
-  });
   const radius = dp(flat.borderRadius);
 
   return (
@@ -43,7 +33,10 @@ function ScrimBase({ children, style }: ScrimProps) {
     // wash would claim the space its content leaves behind.
     <ZStack
       alignment="bottom"
-      modifiers={[fixedSize({ horizontal: false, vertical: true })]}
+      modifiers={[
+        fixedSize({ horizontal: false, vertical: true }),
+        ...(radius ? [clipShape("roundedRectangle", radius)] : []),
+      ]}
     >
       <Rectangle
         modifiers={[
@@ -53,18 +46,11 @@ function ScrimBase({ children, style }: ScrimProps) {
             startPoint: { x: 0.5, y: 0 },
             endPoint: { x: 0.5, y: 1 },
           }),
-          ...(radius ? [clipShape("roundedRectangle", radius)] : []),
         ]}
       />
-      <VStack
-        spacing={dp(flat.gap ?? flat.rowGap) ?? 8}
-        modifiers={[
-          ...(Object.keys(insets).length ? [padding(insets)] : []),
-          frame({ maxWidth: FILL }),
-        ]}
-      >
+      <Column modifiers={[frame({ maxWidth: FILL })]} style={flat}>
         {children}
-      </VStack>
+      </Column>
     </ZStack>
   );
 }

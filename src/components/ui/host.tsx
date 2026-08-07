@@ -1,7 +1,8 @@
-import { Host as HostBase } from "@expo/ui";
+import { Host as HostBase, RNHostView as RNHostViewBase } from "@expo/ui";
 import { createContext, useContext } from "react";
 import { useUniwind, withUniwind } from "uniwind";
 
+export const RNHostView = withUniwind(RNHostViewBase);
 export const HostRoot = withUniwind(HostBase);
 const HostContext = createContext(false);
 
@@ -27,4 +28,15 @@ export function Host(props: React.ComponentProps<typeof HostRoot>) {
       />
     </HostContext.Provider>
   );
+}
+
+/** Ensures there's exactly one native Host boundary in the tree. */
+export function EnsureHost(props: React.ComponentProps<typeof HostRoot>) {
+  const isInsideHost = useIsInsideHost();
+
+  if (isInsideHost) {
+    return <>{props.children}</>;
+  }
+
+  return <Host {...props} />;
 }
