@@ -55,6 +55,7 @@
               "heroui-native/button": "Import from @/components/ui/button",
               "heroui-native/chip": "Import from @/components/ui/chip",
               "heroui-native/close-button": "Import from @/components/ui/close-button",
+              "heroui-native/separator": "Import from @/components/ui/separator",
               "heroui-native/text": "Import from @/components/ui/typography"
             }
           }

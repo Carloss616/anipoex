@@ -1,4 +1,4 @@
-import { MangaList } from "@/features/manga/screens/manga-list/manga-list";
+import { MangaList } from "@/features/manga/screens/manga-list";
 
 export default function MangaScreen() {
   return <MangaList />;

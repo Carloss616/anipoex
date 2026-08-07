@@ -18,23 +18,27 @@ anipoex/
 │   │           ├── <screen>/
 │   │           │   ├── components/  # only used in this screen
 │   │           │   ├── hooks/       # only used in this screen
+│   │           │   ├── constants.ts # only used in this screen
 │   │           │   ├── <screen>.tsx
-│   │           │   └── index.tsx    # export * from './<screen>'
+│   │           │   └── index.ts     # export * from './<screen>'
 │   │           └── home.tsx         # simple screen — single file, no folder
 │   │
 │   ├── components/                  # global — reused across features
-│   │   ├── <component>/             # complex component with internal parts
+│   │   ├── ui/                      # design system (button, icon, typography…)
+│   │   ├── layout/                  # structure (row, column, header, tabs…)
+│   │   ├── <component>/             # complex or multi-platform component
 │   │   │   ├── components/          # only used by this component
 │   │   │   ├── <component>.tsx
-│   │   │   └── index.tsx            # export * from './<component>'
-│   │   ├── button.tsx               # simple component — single file, no folder
+│   │   │   └── index.ts             # export * from './<component>'
+│   │   ├── empty-state.tsx          # simple component — single file, no folder
 │   │   └── ...
 │   ├── hooks/                       # global hooks
 │   ├── providers/                   # global providers
-│   ├── constants/                   # global constants (theme, config)
 │   └── utils/                       # global helpers
 └── assets/                          # images, fonts, icons (@/assets/*)
 ```
+
+Constants live next to what uses them (`constants.ts` inside the screen or component folder), not in a global `constants/`.
 
 Global resources (`components/`, `hooks/`, `providers/`, `constants/`, `utils/`) sit at the **root of `src/`**, as siblings of `features/` — there is no `shared/` wrapper. Anything reused by two or more features lives here; anything tied to one feature lives under `src/features/<feature>/`.
 
@@ -53,30 +57,25 @@ anime/
         │   └── use-anime.ts
         ├── components/              # private sub-components
         │   └── episode-list.tsx
-        └── index.tsx                # export * from './anime-detail'
+        └── index.ts                 # export * from './anime-detail'
 ```
 
 ## Route files (`src/app/`)
 
-Route files are **thin wrappers** — they import the screen from `src/features/` and handle only route-level concerns (`Stack.Screen` options: title, presentation). All business logic lives in the feature screen.
+Route files are **thin wrappers** — they only import the screen from `src/features/` and render it. All logic lives in the feature screen.
 
 ```tsx
-// src/app/(app)/anime/[id].tsx
-import { Stack } from 'expo-router'
+// src/app/anime/[id].tsx
 import { AnimeDetail } from '@/features/anime/screens/anime-detail'
 
 export default function AnimeDetailScreen() {
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Anime' }} />
-      <AnimeDetail />
-    </>
-  )
+  return <AnimeDetail />
 }
 ```
 
 - Function name is `PascalCase` + `Screen` suffix (`AnimeDetailScreen`, `HomeScreen`).
-- `Stack.Screen` options belong here, not in the feature screen.
+- Per-screen navigation UI (`Stack.Title`, `Stack.Toolbar`, search bar) lives **in the feature screen** — the v57 declarative API renders it from there, next to the state it reads.
+- Options shared by every route in a stack (header, presentation defaults) go in the route's `_layout.tsx`.
 
 ## Rules
 
@@ -84,12 +83,12 @@ export default function AnimeDetailScreen() {
 
 - **kebab-case** for every folder and file inside `src/` (files, hooks, components alike).
 - Route files follow Expo Router conventions (`_layout.tsx`, `[id].tsx`, `(group)/`).
-- Platform-specific files use a suffix before the extension: `app-tabs.tsx`, `app-tabs.web.tsx`.
+- Platform-specific files use a suffix before the extension: `.ios`, `.android`, `.native` (iOS + Android), `.web`.
 
-### Barrel exports (`index.tsx`)
+### Barrel exports (`index.ts`)
 
-- Every folder-based component/screen **must** have an `index.tsx` re-exporting the main file.
-- Re-export the file **without** a platform suffix: `export * from './app-tabs'` (Metro/webpack resolve `app-tabs.web.tsx` automatically).
+- Every folder-based component/screen **must** have an `index.ts` re-exporting the main file.
+- Re-export the file **without** a platform suffix: `export * from './tabs'` (Metro resolves `tabs.web.tsx` automatically).
 
 ### Scope of internal folders
 
@@ -105,20 +104,14 @@ export default function AnimeDetailScreen() {
 
 ### Platform-specific files
 
-When a component needs separate web/native implementations, wrap it in its own folder. The **default file** (`<component>.tsx`) is the native implementation and exports the shared props type; platform files import those props.
+Any module (component, hook, util) with more than one platform implementation **must** live in its own kebab-case folder with an `index.ts` — no flat `foo.tsx` + `foo.web.tsx` pairs at the parent level. The **default file** (`<name>.tsx`) is the fallback implementation and owns the shared props/types; platform files import them from it.
 
 ```
 chart/
-├── chart.tsx           # default (native) — exports ChartProps type
-├── chart.web.tsx       # web override — imports ChartProps from './chart'
-└── index.tsx           # export * from './chart'
+├── chart.tsx           # default (also web) — exports ChartProps type
+├── chart.ios.tsx       # iOS override — imports ChartProps from './chart'
+├── chart.android.tsx   # Android override
+└── index.ts            # export * from './chart'
 ```
 
-For simple cases (no shared props), a flat layout is fine:
-
-```
-app-tabs.tsx            # default / web
-app-tabs.web.tsx        # web override
-```
-
-Metro and webpack resolve the correct file at build time. `index.tsx` always points to the unsuffixed file.
+Metro resolves the correct file at build time; `index.ts` always points to the unsuffixed one. Consumers import the folder (`@/components/ui/chart`) and never a platform file directly.
