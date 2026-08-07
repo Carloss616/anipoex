@@ -4,9 +4,11 @@ import {
   buttonStyle,
   controlSize,
   disabled,
+  font,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
 import { useThemeColor } from "heroui-native/hooks";
+import { useFontFamily } from "@/hooks/use-font";
 import { textOf } from "@/utils/utils";
 import type { ChipLabelProps, ChipProps, ChipSize, ChipVariant } from "./chip";
 import { Host, useIsInsideHost } from "./host";
@@ -19,6 +21,12 @@ const SIZES = {
   md: "small",
   lg: "regular",
 } as const satisfies Record<ChipSize, ControlSize>;
+
+const FONT_SIZES = {
+  sm: 13,
+  md: 14,
+  lg: 15,
+} as const satisfies Record<ChipSize, number>;
 
 const VARIANTS = {
   primary: "glassProminent",
@@ -53,6 +61,7 @@ export function Chip({
 }: ChipProps) {
   const tintColor = useThemeColor(color === "default" ? "accent" : color);
   const isInsideHost = useIsInsideHost();
+  const themeFamily = useFontFamily("normal");
 
   const button = (
     <Button
@@ -64,6 +73,11 @@ export function Chip({
         controlSize(SIZES[size]),
         disabled(!!isDisabled),
         tint(tintColor),
+        font({
+          textStyle: "caption",
+          size: FONT_SIZES[size],
+          family: themeFamily,
+        }),
       ]}
       testID={testID as string | undefined}
       role={color === "danger" ? "destructive" : undefined}

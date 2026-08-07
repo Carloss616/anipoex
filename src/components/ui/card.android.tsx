@@ -25,7 +25,13 @@ import type {
 } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
 import type { SurfaceVariant } from "heroui-native/surface";
-import { Children, isValidElement, type ReactNode } from "react";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  type ReactNode,
+  use,
+} from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { dp } from "@/utils/utils";
@@ -45,6 +51,13 @@ const ELEVATION = {
   tertiary: 0,
   transparent: 0,
 } as const satisfies Record<SurfaceVariant, number>;
+
+/**
+ * A weighted child claims the column's slack, and a wrap-content card has none
+ * — `weight(1)` would measure the body to zero. Only a card with a height gives
+ * the body something to claim.
+ */
+const CardHasHeight = createContext(false);
 
 type ColumnProps = React.ComponentProps<typeof Column>;
 type HorizontalAlignment = NonNullable<ColumnProps["horizontalAlignment"]>;
@@ -107,7 +120,9 @@ function resolveStyle(
     arrangement: alignY ?? { spacedBy: spacing },
     /** Sizing before padding, so the padding stays inside the given box. */
     modifiers: [
-      boxWidth === undefined ? fillMaxWidth() : width(boxWidth),
+      ...(flat.width === "auto"
+        ? []
+        : [boxWidth === undefined ? fillMaxWidth() : width(boxWidth)]),
       ...(boxHeight !== undefined
         ? [height(boxHeight)]
         : grows || alignY || flat.height === "100%"
@@ -156,6 +171,7 @@ function CardRootBase({
     alignment,
     arrangement,
     modifiers,
+    sized,
   } = resolveStyle(style, { padding: PADDING });
   const [layers, sections] = partition(children);
   // `padding` is the last modifier, so the sizing in front of it bounds the box.
@@ -217,7 +233,11 @@ function CardRootBase({
     </Surface>
   );
 
-  return isInsideHost ? card : <Host {...host}>{card}</Host>;
+  return (
+    <CardHasHeight value={sized}>
+      {isInsideHost ? card : <Host {...host}>{card}</Host>}
+    </CardHasHeight>
+  );
 }
 
 const CardRoot = withUniwind(CardRootBase);
@@ -250,13 +270,14 @@ function CardBodyBase({ children, style }: CardBodyProps) {
     style,
     { stretch: true },
   );
+  const hasSlack = use(CardHasHeight);
 
   return (
     <Column
-      // A wrap-content card has no slack, so `weight(1)` would collapse a body
-      // with an explicit height to nothing — the height is what it asked for.
+      // A body with its own height already asked for one, and a wrap-content
+      // card has no slack to claim — both would collapse under `weight(1)`.
       modifiers={[
-        ...(sized ? [] : [weight(1)]),
+        ...(sized || !hasSlack ? [] : [weight(1)]),
         ...(fill === undefined ? [] : [background(fill)]),
         ...modifiers,
       ]}
@@ -280,7 +301,7 @@ function CardTitle({ children, ...props }: CardTitleProps) {
 
 function CardDescription({ children, ...props }: CardDescriptionProps) {
   return (
-    <Typography color="muted" {...props}>
+    <Typography type="body-sm" color="muted" {...props}>
       {children}
     </Typography>
   );

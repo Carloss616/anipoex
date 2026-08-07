@@ -16,7 +16,13 @@ import type {
 } from "heroui-native/card";
 import { useThemeColor } from "heroui-native/hooks";
 import type { SurfaceVariant } from "heroui-native/surface";
-import { Children, isValidElement, type ReactNode } from "react";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  type ReactNode,
+  use,
+} from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { dp, omitUndefined } from "@/utils/utils";
@@ -35,6 +41,13 @@ const SPACING = 8;
  * unlike `Infinity` it survives the props bridge.
  */
 const FILL = 100_000;
+
+/**
+ * A body's trailing `Spacer` absorbs the card's slack, and a wrap-content card
+ * has none — the stack's spacing in front of it would just hang off the bottom.
+ * Only a card with a height gives the body something to absorb.
+ */
+const CardHasHeight = createContext(false);
 
 const ALIGN_X = {
   "flex-start": "leading",
@@ -123,6 +136,8 @@ function resolveStyle(
   return {
     spacing: dp(flat.gap ?? flat.rowGap) ?? SPACING,
     radius: dp(flat.borderRadius),
+    /** Whether the box was given a height, rather than taking its content's. */
+    sized: boxHeight !== undefined,
     fill: flat.backgroundColor as string | undefined,
     alignment: alignX ?? "leading",
     // A `Spacer` absorbs leftover height; `maxHeight` would *demand* it and
@@ -188,13 +203,14 @@ function CardRootBase({
     alignment,
     spacers,
     modifiers,
+    sized,
   } = resolveStyle(style, { padding: PADDING });
 
   const backgrounds = {
     default: surface,
     secondary: surfaceSecondary,
     tertiary: surfaceTertiary,
-    transparent: null,
+    transparent: "transparent",
   } satisfies Record<SurfaceVariant, string | null>;
 
   const surfaceFill = fill ?? backgrounds[variant];
@@ -204,28 +220,10 @@ function CardRootBase({
 
   const skin = [
     glassEffect({
-      glass: { variant: "regular", interactive: !!onPress },
+      glass: { variant: "regular", interactive: !!onPress, tint: surfaceFill },
       shape: "roundedRectangle",
       cornerRadius: radius,
     }),
-    ...(surfaceFill
-      ? [
-          background(
-            surfaceFill,
-            radius
-              ? {
-                  cornerRadius: radius,
-                  roundedCornerStyle: "circular",
-                  cornerSize: {
-                    width: radius,
-                    height: radius,
-                  },
-                  shape: "roundedRectangle",
-                }
-              : undefined,
-          ),
-        ]
-      : []),
     ...rest,
     ...(onPress ? [onTapGesture(onPress)] : []),
   ];
@@ -257,7 +255,11 @@ function CardRootBase({
     flow
   );
 
-  return isInsideHost ? card : <Host {...host}>{card}</Host>;
+  return (
+    <CardHasHeight value={sized}>
+      {isInsideHost ? card : <Host {...host}>{card}</Host>}
+    </CardHasHeight>
+  );
 }
 
 const CardRoot = withUniwind(CardRootBase);
@@ -285,7 +287,7 @@ const CardFooter = withUniwind(CardSection);
 /** The body's `flex-1`: its `Spacer` eats the slack down to the footer. */
 function CardBodyBase({ children, style }: CardBodyProps) {
   const { spacing, fill, alignment, spacers, modifiers } = resolveStyle(style, {
-    fillHeight: true,
+    fillHeight: use(CardHasHeight),
   });
 
   return (
@@ -313,7 +315,7 @@ function CardTitle({ children, ...props }: CardTitleProps) {
 
 function CardDescription({ children, ...props }: CardDescriptionProps) {
   return (
-    <Typography color="muted" {...props}>
+    <Typography type="body-sm" color="muted" {...props}>
       {children}
     </Typography>
   );

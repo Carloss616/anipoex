@@ -121,8 +121,10 @@ function TypographyRootBase({
   const content = (
     <Text
       color={
-        (styleColor as string) ??
-        (color === "muted" ? m3.onSurfaceVariant : m3.onSurface)
+        styleColor === "inherit"
+          ? undefined
+          : ((styleColor as string) ??
+            (color === "muted" ? m3.onSurfaceVariant : m3.onSurface))
       }
       maxLines={lines}
       overflow={lines == null ? undefined : "ellipsis"}
@@ -144,7 +146,7 @@ function TypographyRootBase({
         ...(isCode
           ? [
               clip(Shapes.RoundedCorner(6)),
-              background(m3.surfaceContainerLow),
+              background(m3.surfaceContainer),
               padding(6, 2, 6, 2),
             ]
           : []),

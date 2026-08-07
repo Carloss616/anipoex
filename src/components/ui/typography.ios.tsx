@@ -107,11 +107,7 @@ function TypographyRootBase({
   onPress,
   testID,
 }: TypographyRootProps) {
-  const [foreground, muted, defaultColor] = useThemeColor([
-    "foreground",
-    "muted",
-    "default",
-  ]);
+  const defaultColor = useThemeColor("default");
   const isInsideHost = useIsInsideHost();
 
   const {
@@ -139,21 +135,25 @@ function TypographyRootBase({
       testID={testID}
       modifiers={[
         font({
-          // With a family, textStyle is just the Dynamic Type reference.
           textStyle: TEXT_STYLE[type],
           size: fontSize ?? TEXT_SIZE[type],
-          // No `weight` alongside it, or SwiftUI bolds an already-bold face.
           family: fontFamily ?? themeFamily,
           design: isCode ? "monospaced" : undefined,
         }),
-        foregroundStyle(
-          (styleColor as string) ?? (color === "muted" ? muted : foreground),
-        ),
+        ...(styleColor === "inherit"
+          ? []
+          : [
+              foregroundStyle(
+                (styleColor as string) ??
+                  (color === "muted" ? "secondary" : "primary"),
+              ),
+            ]),
         multilineTextAlignment(alignment),
-        // A tight height proposal truncates mid-word; the width stays negotiable.
+        // A tight height proposal truncates mid-word; the width stays negotiable
+        // — except for a code chip, a short token that must never wrap.
         ...(lines === 1
           ? []
-          : [fixedSize({ horizontal: false, vertical: true })]),
+          : [fixedSize({ horizontal: isCode, vertical: true })]),
         // A `Text` hugs its content: alignment needs a frame to move in.
         ...(alignment === "leading"
           ? []

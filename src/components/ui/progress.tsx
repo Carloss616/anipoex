@@ -26,7 +26,7 @@ export function Progress({ value, style, className, testID }: ProgressProps) {
     <View
       style={style}
       className={cn(
-        "h-1.5 w-full overflow-hidden rounded-full bg-default",
+        "h-1.5 w-full overflow-hidden rounded-full bg-accent-soft",
         className,
       )}
       testID={testID}

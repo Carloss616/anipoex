@@ -7,9 +7,7 @@ import {
   OutlinedButton,
   OutlinedIconButton,
   Row,
-  Text,
   TextButton,
-  type TextProps,
 } from "@expo/ui/jetpack-compose";
 import { height, width } from "@expo/ui/jetpack-compose/modifiers";
 import type {
@@ -20,6 +18,7 @@ import type {
   ButtonVariant,
 } from "heroui-native/button";
 import { useThemeColor } from "heroui-native/hooks";
+import { cn } from "heroui-native/utils";
 import {
   Children,
   createContext,
@@ -27,13 +26,11 @@ import {
   useContext,
   useId,
 } from "react";
-import { useFontFamily } from "@/hooks/use-font";
-import { textOf } from "@/utils/utils";
+import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
+import { withUniwind } from "uniwind";
+import { dp, omitUndefined, textOf } from "@/utils/utils";
 import { Host, useIsInsideHost } from "./host";
-
-type TypographyStyle = NonNullable<
-  NonNullable<TextProps["style"]>["typography"]
->;
+import { Typography, type TypographyParagraphProps } from "./typography";
 
 const VARIANTS = {
   primary: ButtonBase,
@@ -62,10 +59,10 @@ const SIZES = {
 } as const satisfies Record<ButtonSize, { height: number; spacing: number }>;
 
 const LABEL_SIZES = {
-  sm: "bodySmall",
-  md: "bodyMedium",
-  lg: "bodyLarge",
-} as const satisfies Record<ButtonSize, TypographyStyle>;
+  sm: "body-xs",
+  md: "body-sm",
+  lg: "body",
+} as const satisfies Record<ButtonSize, TypographyParagraphProps["type"]>;
 
 const ButtonContext = createContext<ButtonContextValue | null>(null);
 
@@ -77,6 +74,33 @@ export function useButton() {
   return context;
 }
 
+/**
+ * The size preset fixes the button's height; `h-auto` hands it back to the
+ * content, and the padding classes become Material's `contentPadding` — a
+ * padding modifier would inset the container itself instead of its content.
+ */
+function resolveStyle(style: StyleProp<ViewStyle>) {
+  const flat = StyleSheet.flatten(style) ?? {};
+
+  const all = dp(flat.padding);
+  const horizontal = dp(flat.paddingHorizontal) ?? all;
+  const vertical = dp(flat.paddingVertical) ?? all;
+
+  const insets = omitUndefined({
+    start: dp(flat.paddingLeft ?? flat.paddingStart) ?? horizontal,
+    top: dp(flat.paddingTop) ?? vertical,
+    end: dp(flat.paddingRight ?? flat.paddingEnd) ?? horizontal,
+    bottom: dp(flat.paddingBottom) ?? vertical,
+  });
+
+  return {
+    hugs: flat.height === "auto",
+    height: dp(flat.height),
+    width: dp(flat.width),
+    contentPadding: Object.keys(insets).length ? insets : undefined,
+  };
+}
+
 function ButtonRoot({
   children,
   variant = "primary",
@@ -84,6 +108,7 @@ function ButtonRoot({
   isIconOnly = false,
   isDisabled = false,
   onPress,
+  style,
 }: ButtonRootProps) {
   const id = useId();
   const isInsideHost = useIsInsideHost();
@@ -96,6 +121,7 @@ function ButtonRoot({
     ]);
 
   const { spacing, height: buttonHeight } = SIZES[size];
+  const box = resolveStyle(style as StyleProp<ViewStyle>);
   const ButtonComponent = isIconOnly
     ? ICON_VARIANTS[variant]
     : VARIANTS[variant];
@@ -114,9 +140,12 @@ function ButtonRoot({
     <ButtonComponent
       enabled={!isDisabled}
       modifiers={[
-        height(buttonHeight),
-        ...(isIconOnly ? [width(buttonHeight)] : []),
+        ...(box.hugs ? [] : [height(box.height ?? buttonHeight)]),
+        ...(isIconOnly || box.width !== undefined
+          ? [width(box.width ?? buttonHeight)]
+          : []),
       ]}
+      {...(isIconOnly ? {} : { contentPadding: box.contentPadding })}
       onClick={onPress as (() => void) | undefined}
       colors={
         variant === "danger"
@@ -152,17 +181,17 @@ function ButtonRoot({
   );
 }
 
-function ButtonLabel({ children, numberOfLines }: ButtonLabelProps) {
+function ButtonLabel({ children, className, ...props }: ButtonLabelProps) {
   const { size } = useButton();
-  const fontFamily = useFontFamily("normal");
 
   return (
-    <Text
-      maxLines={numberOfLines}
-      style={{ typography: LABEL_SIZES[size], fontFamily }}
+    <Typography
+      type={LABEL_SIZES[size]}
+      className={cn("text-inherit", className)}
+      {...props}
     >
       {textOf(children)}
-    </Text>
+    </Typography>
   );
 }
 
@@ -173,6 +202,6 @@ function ButtonLabel({ children, numberOfLines }: ButtonLabelProps) {
  * @see https://heroui.com/docs/native/components/button
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/button/
  */
-export const Button = Object.assign(ButtonRoot, {
+export const Button = Object.assign(withUniwind(ButtonRoot), {
   Label: ButtonLabel,
 });

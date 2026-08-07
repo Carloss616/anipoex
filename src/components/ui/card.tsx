@@ -34,12 +34,12 @@ function CardRoot({ children, onPress, ...props }: CardProps) {
   if (!onPress) return <CardBase {...props}>{children}</CardBase>;
 
   return (
-    <PressableFeedback onPress={onPress} className="overflow-visible">
-      <CardBase {...props}>
+    <CardBase asChild {...props}>
+      <PressableFeedback>
         {children}
         <PressableFeedback.Highlight />
-      </CardBase>
-    </PressableFeedback>
+      </PressableFeedback>
+    </CardBase>
   );
 }
 
