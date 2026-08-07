@@ -36,15 +36,7 @@ function IconRootBase({ name, ...props }: IconProps) {
   );
 }
 
-const IconRoot = withUniwind(IconRootBase, {
-  style: {
-    fromClassName: "className",
-  },
-  color: {
-    fromClassName: "className",
-    styleProperty: "color",
-  },
-});
+const IconRoot = withUniwind(IconRootBase);
 
 export interface IconSelectSpec extends IconBaseSelectSpec {
   web?: LucideName;

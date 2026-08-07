@@ -16,15 +16,7 @@ function IconRootBase(props: IconProps) {
   return isInsideHost ? icon : <Host matchContents>{icon}</Host>;
 }
 
-const IconRoot = withUniwind(IconRootBase, {
-  style: {
-    fromClassName: "className",
-  },
-  color: {
-    fromClassName: "className",
-    styleProperty: "color",
-  },
-});
+const IconRoot = withUniwind(IconRootBase);
 
 export const Icon = Object.assign(IconRoot, {
   select: IconBase.select,

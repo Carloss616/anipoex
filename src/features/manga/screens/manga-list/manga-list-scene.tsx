@@ -2,7 +2,6 @@ import { Link } from "expo-router";
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { EmptyState } from "@/components/empty-state";
-import { Column } from "@/components/layout/column";
 import { LegendList } from "@/components/layout/legend-list";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
@@ -44,22 +43,20 @@ export function MangaListScene({
       ListHeaderComponentClassName="gutters mx-bleed-safe-gx"
       ListHeaderComponent={
         <Host matchContents={{ vertical: true }} className="w-full">
-          <Column>
-            <ScrollView direction="horizontal" showsIndicators={false}>
-              <Row className="gutters gap-3 android:px-safe-offset-gx px-gx py-6">
-                {GENRES.map((g) => (
-                  <Chip
-                    key={g}
-                    variant="secondary"
-                    selected={genre === g}
-                    onPress={() => setGenre(g)}
-                  >
-                    <Chip.Label>{g}</Chip.Label>
-                  </Chip>
-                ))}
-              </Row>
-            </ScrollView>
-          </Column>
+          <ScrollView direction="horizontal" showsIndicators={false}>
+            <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
+              {GENRES.map((g) => (
+                <Chip
+                  key={g}
+                  variant="secondary"
+                  selected={genre === g}
+                  onPress={() => setGenre(g)}
+                >
+                  <Chip.Label>{g}</Chip.Label>
+                </Chip>
+              ))}
+            </Row>
+          </ScrollView>
         </Host>
       }
       renderItem={({ index, item }) => (
@@ -80,7 +77,7 @@ export function MangaListScene({
                     web: "book-open",
                   })}
                   size={22}
-                  className="text-muted/20"
+                  colorClassName="accent-muted/20"
                 />
               </Card.Background>
               <Scrim className="ios:rounded-3xl p-2 pt-12">

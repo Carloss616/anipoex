@@ -110,7 +110,7 @@ export function Home() {
                   web: "play",
                 })}
                 size={22}
-                className="text-muted"
+                colorClassName="accent-muted"
               />
             </Card.Body>
             <Card.Header className="p-3 pb-1">
