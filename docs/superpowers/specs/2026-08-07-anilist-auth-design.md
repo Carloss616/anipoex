@@ -40,7 +40,9 @@ Only AniList is implemented. No registry, no provider switch, no second implemen
 
 ## Prerequisite
 
-Register the app at `anilist.co/settings/developer` with Redirect URL exactly `anipoex://auth`. Put the resulting client ID in `.env.local` (already gitignored) as `EXPO_PUBLIC_ANILIST_CLIENT_ID`.
+Register the app at `anilist.co/settings/developer` with Redirect URL exactly `anipoex://auth`. Put the resulting client ID in `.env.local` (already gitignored) as `EXPO_PUBLIC_ANILIST_CLIENT_ID_NATIVE`.
+
+Web was added after this spec: AniList allows one Redirect URL per application, so web is a second registration pointing at `<origin>/auth`, with its client ID in `EXPO_PUBLIC_ANILIST_CLIENT_ID_WEB`.
 
 An OAuth `client_id` for a public client is not a secret, and `EXPO_PUBLIC_` values are inlined into the bundle regardless. `.env.local` is used so each developer can point at their own registration, not to hide the value.
 
