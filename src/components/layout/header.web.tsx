@@ -119,7 +119,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         {options.headerTitle({ children: title, tintColor })}
       </View>
     ) : (
-      <Typography.Heading
+      <Typography
         type="h2"
         numberOfLines={1}
         style={[{ color: tintColor }, options.headerTitleStyle]}
@@ -129,7 +129,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         )}
       >
         {title}
-      </Typography.Heading>
+      </Typography>
     );
 
   return (
@@ -227,7 +227,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             isLarge ? "max-h-16 opacity-100" : "max-h-0 opacity-0",
           )}
         >
-          <Typography.Heading
+          <Typography
             type="h1"
             numberOfLines={1}
             style={[
@@ -240,7 +240,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             )}
           >
             {title}
-          </Typography.Heading>
+          </Typography>
         </View>
       )}
 

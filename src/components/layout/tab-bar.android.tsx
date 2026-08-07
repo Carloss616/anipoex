@@ -4,12 +4,17 @@ import {
 } from "@expo/ui/jetpack-compose";
 import { useThemeColor } from "heroui-native/hooks";
 import { Tabs, useTabsTrigger } from "heroui-native/tabs";
+import {
+  TouchableNativeFeedback,
+  type TouchableNativeFeedbackProps,
+  View,
+} from "react-native";
 import type {
   NavigationState,
   Route,
   SceneRendererProps,
 } from "react-native-tab-view";
-import { PressableFeedback } from "../ui/pressable-feedback";
+import { useUniwind } from "uniwind";
 
 export function TabBar<T extends Route>({
   navigationState: { index, routes },
@@ -32,9 +37,7 @@ export function TabBar<T extends Route>({
           <Tabs.Indicator style={{ borderColor: m3.primary }} />
           {routes.map((r) => (
             <Tabs.Trigger key={r.key} value={r.key} asChild>
-              <PressableFeedback>
-                <TabLabel m3={m3}>{r.title}</TabLabel>
-              </PressableFeedback>
+              <TabTrigger m3={m3}>{r.title}</TabTrigger>
             </Tabs.Trigger>
           ))}
         </Tabs.ScrollView>
@@ -43,19 +46,28 @@ export function TabBar<T extends Route>({
   );
 }
 
-function TabLabel({
+function TabTrigger({
   m3,
+  style,
+  className,
   children,
-}: React.PropsWithChildren<{ m3: MaterialColors }>) {
+  ...props
+}: TouchableNativeFeedbackProps & { m3: MaterialColors }) {
+  const { theme } = useUniwind();
   const { isSelected } = useTabsTrigger();
 
   return (
-    <Tabs.Label
-      style={{
-        color: isSelected ? m3.onSurface : m3.onSurfaceVariant,
-      }}
-    >
-      {children}
-    </Tabs.Label>
+    // key is to force re-render when theme changes, so ripple color is correct
+    <TouchableNativeFeedback key={theme} {...props}>
+      <View className={className} style={style}>
+        <Tabs.Label
+          style={{
+            color: isSelected ? m3.primary : m3.onSurfaceVariant,
+          }}
+        >
+          {children}
+        </Tabs.Label>
+      </View>
+    </TouchableNativeFeedback>
   );
 }

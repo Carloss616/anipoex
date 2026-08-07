@@ -37,7 +37,14 @@
           "options": {
             "paths": {
               "@expo/ui": {
-                "importNames": ["Column", "Host", "Icon", "Row", "ScrollView"],
+                "importNames": [
+                  "Column",
+                  "Host",
+                  "RNHostView",
+                  "Icon",
+                  "Row",
+                  "ScrollView"
+                ],
                 "message": "Import from @/components/layout/<component> (Column, Row, ScrollView) or @/components/ui/<component>"
               },
               "react-native": {
@@ -45,9 +52,7 @@
                 "message": "Import from @/components/layout/scroll-view"
               },
               "heroui-native": "Import scoped: heroui-native/<component>",
-              "heroui-native/pressable-feedback": "Import from @/components/ui/pressable-feedback",
               "heroui-native/button": "Import from @/components/ui/button",
-              "heroui-native/card": "Import from @/components/ui/card",
               "heroui-native/chip": "Import from @/components/ui/chip",
               "heroui-native/close-button": "Import from @/components/ui/close-button",
               "heroui-native/text": "Import from @/components/ui/typography"

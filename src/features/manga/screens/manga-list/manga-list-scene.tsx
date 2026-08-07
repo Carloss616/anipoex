@@ -6,11 +6,9 @@ import { LegendList } from "@/components/layout/legend-list";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
-import { Icon } from "@/components/ui/icon";
-import { Scrim } from "@/components/ui/scrim";
+import { MangaCard } from "../../components/manga-card";
 import { GENRES, type MangaEntry } from "../../mocks";
 
 export function MangaListScene({
@@ -59,42 +57,14 @@ export function MangaListScene({
           </ScrollView>
         </Host>
       }
-      renderItem={({ index, item }) => (
+      renderItem={({ item }) => (
         <Link href={`/manga/${item.id}`} asChild>
           <Link.Trigger>
-            <Card
-              className="web:aspect-2/3 justify-end p-0"
-              host={{
-                className: "aspect-2/3 w-full",
-                ignoreSafeArea: "all",
-              }}
-            >
-              <Card.Background className="items-center justify-center">
-                <Icon
-                  name={Icon.select({
-                    ios: "book",
-                    android: require("@expo/material-symbols/book_5.xml"),
-                    web: "book-open",
-                  })}
-                  size={22}
-                  colorClassName="accent-muted/20"
-                />
-              </Card.Background>
-              <Scrim className="ios:rounded-3xl p-2 pt-12">
-                <Card.Description
-                  numberOfLines={1}
-                  className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"
-                >
-                  {item.year} - {index}
-                </Card.Description>
-                <Card.Title
-                  numberOfLines={2}
-                  className="text-center text-shadow-[0_1px_3px_#000000b3] text-sm text-white"
-                >
-                  {item.title}
-                </Card.Title>
-              </Scrim>
-            </Card>
+            <MangaCard
+              cover="https://picsum.photos/seed/696/3000/2000"
+              title={item.title}
+              year={item.year}
+            />
           </Link.Trigger>
           <Link.Preview />
           <Link.Menu>
@@ -109,9 +79,6 @@ export function MangaListScene({
       )}
       ListEmptyComponent={
         <EmptyState
-          host={{
-            className: "flex-1 web:justify-center",
-          }}
           title="Nothing here"
           description={
             query

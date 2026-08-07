@@ -1,4 +1,4 @@
-import { RNHostView, Spacer } from "@expo/ui";
+import { Spacer } from "@expo/ui";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
 import { cn } from "heroui-native/utils";
 import { useState } from "react";
@@ -8,45 +8,34 @@ import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
-import { Host } from "@/components/ui/host";
+import { Host, RNHostView } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/ui/typography";
 import { useStackToolbarTheme } from "@/hooks/use-theme";
 import { noop } from "@/utils/utils";
+import { MangaCard } from "../../components/manga-card";
 import { CHAPTERS, MANGA_DETAIL } from "../../mocks";
 import { Chapters } from "./components/chapters";
 import { DownloadButton } from "./components/download-button";
 
-function Cover() {
-  return (
-    <Card className="aspect-2/3 w-36 p-0">
-      <Card.Body className="web:flex-1 items-center justify-center">
-        <Icon
-          name={Icon.select({
-            ios: "book",
-            android: require("@expo/material-symbols/book_5.xml"),
-            web: "book-open",
-          })}
-          size={22}
-          colorClassName="accent-muted"
-        />
-      </Card.Body>
-    </Card>
-  );
-}
+/**
+ * Native buttons tint their own icons; on web the Icon needs the color spelled
+ * out. A `web:` variant can't do it — Uniwind resolves `accent-*` against a
+ * detached DOM node, where the platform variant never matches.
+ */
+const WEB_ICON_COLOR = Platform.OS === "web" ? "accent-foreground" : undefined;
 
 function Meta({ className }: { className: string }) {
   const isPreview = useIsPreview();
 
   return (
     <Column className={cn("gap-2", className)} alignment="start">
-      <Typography.Heading type="h3" className={cn(!isPreview && "hidden")}>
+      <Typography type="h3" className={cn(!isPreview && "hidden")}>
         {MANGA_DETAIL.title}
-      </Typography.Heading>
+      </Typography>
       <Row className="gap-1" alignment="center">
         <Icon
           name={Icon.select({
@@ -57,9 +46,9 @@ function Meta({ className }: { className: string }) {
           size={12}
           colorClassName="accent-muted"
         />
-        <Typography.Paragraph type="body-sm" color="muted">
+        <Typography type="body-sm" color="muted">
           {MANGA_DETAIL.author}
-        </Typography.Paragraph>
+        </Typography>
       </Row>
       <Row className="gap-1" alignment="center">
         <Icon
@@ -71,9 +60,9 @@ function Meta({ className }: { className: string }) {
           size={12}
           colorClassName="accent-muted"
         />
-        <Typography.Paragraph type="body-sm" color="muted">
+        <Typography type="body-sm" color="muted">
           {MANGA_DETAIL.status}
-        </Typography.Paragraph>
+        </Typography>
       </Row>
       <Row className="gap-1" alignment="center">
         <Icon
@@ -85,9 +74,9 @@ function Meta({ className }: { className: string }) {
           size={12}
           colorClassName="accent-muted"
         />
-        <Typography.Paragraph type="body-sm" color="muted">
+        <Typography type="body-sm" color="muted">
           {MANGA_DETAIL.year}
-        </Typography.Paragraph>
+        </Typography>
       </Row>
       <Row className="gap-1" alignment="center">
         <Icon
@@ -99,9 +88,9 @@ function Meta({ className }: { className: string }) {
           size={12}
           colorClassName="accent-muted"
         />
-        <Typography.Paragraph type="body-sm" color="muted">
+        <Typography type="body-sm" color="muted">
           {MANGA_DETAIL.score}
-        </Typography.Paragraph>
+        </Typography>
       </Row>
     </Column>
   );
@@ -135,7 +124,7 @@ function Tracking() {
               web: "chevron-right",
             })}
             size={18}
-            colorClassName="web:accent-accent"
+            colorClassName={WEB_ICON_COLOR}
           />
         </Row>
         <Progress value={0.35} />
@@ -147,13 +136,13 @@ function Tracking() {
 function Synopsis() {
   const [collapse, setCollapse] = useState(false);
   return (
-    <Typography.Paragraph
+    <Typography
       numberOfLines={collapse ? undefined : 2}
       color="muted"
       onPress={() => setCollapse((c) => !c)}
     >
       {MANGA_DETAIL.synopsis}
-    </Typography.Paragraph>
+    </Typography>
   );
 }
 
@@ -169,7 +158,7 @@ function Actions() {
               web: "book-open",
             })}
             size={18}
-            colorClassName="web:accent-accent"
+            colorClassName={WEB_ICON_COLOR}
           />
           <Button.Label className="ios:text-foreground">Source</Button.Label>
         </Column>
@@ -186,7 +175,7 @@ function Actions() {
               web: "hourglass",
             })}
             size={18}
-            colorClassName="web:accent-accent"
+            colorClassName={WEB_ICON_COLOR}
           />
           <Button.Label className="ios:text-foreground">4 days</Button.Label>
         </Column>
@@ -203,7 +192,7 @@ function Actions() {
               web: "globe",
             })}
             size={18}
-            colorClassName="web:accent-accent"
+            colorClassName={WEB_ICON_COLOR}
           />
           <Button.Label className="ios:text-foreground">Website</Button.Label>
         </Column>
@@ -253,7 +242,10 @@ export function MangaDetail() {
           <Column className="gutters pt-gt pb-gb">
             <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
               <Row className="gap-4" alignment="center">
-                <Cover />
+                <MangaCard
+                  cover="https://picsum.photos/seed/696/3000/2000"
+                  className="w-36"
+                />
                 <Meta className="web:self-auto!" />
               </Row>
 

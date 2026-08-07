@@ -44,7 +44,13 @@ export interface IconSelectSpec extends IconBaseSelectSpec {
 
 const select = <T extends IconSelectSpec = IconSelectSpec>(spec: T) => {
   return spec.web as {
-    [K in keyof T]: T[K] extends Promise<infer _> ? ImageSourcePropType : T[K];
+    // `require()` returns `any`, which distributes to both branches and
+    // collapses the whole union to `any`; `0 extends 1 & V` catches it first.
+    [K in keyof T]: 0 extends 1 & T[K]
+      ? ImageSourcePropType
+      : T[K] extends Promise<unknown>
+        ? ImageSourcePropType
+        : T[K];
   }[keyof T];
 };
 

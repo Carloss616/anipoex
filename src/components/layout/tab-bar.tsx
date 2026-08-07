@@ -1,10 +1,10 @@
+import { PressableFeedback } from "heroui-native/pressable-feedback";
 import { Tabs } from "heroui-native/tabs";
 import type {
   NavigationState,
   Route,
   SceneRendererProps,
 } from "react-native-tab-view";
-import { PressableFeedback } from "../ui/pressable-feedback";
 
 export function TabBar<T extends Route>({
   navigationState: { index, routes },
