@@ -547,9 +547,3 @@ export const CHAPTERS = Array.from({ length: 8 }, (_, i) => ({
   date: "12 sep 2025",
   read: i > 4,
 }));
-
-export const STATS = [
-  { label: "Capítulos", value: "374" },
-  { label: "Volúmenes", value: "42" },
-  { label: "Puntuación", value: "9.4" },
-];

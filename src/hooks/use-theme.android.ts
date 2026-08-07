@@ -1,5 +1,9 @@
 import { useMaterialColors } from "@expo/ui/jetpack-compose";
-import type { StackSearchBarProps, Theme } from "expo-router";
+import type {
+  StackSearchBarProps,
+  StackToolbarProps,
+  Theme,
+} from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native/hooks";
 import { useUniwind } from "uniwind";
@@ -54,5 +58,15 @@ export function useStackSearchBarTheme(): StackSearchBarProps {
     textColor: m3.onSurface,
     hintTextColor: m3.onSurfaceVariant,
     headerIconColor: m3.onSurface,
+  };
+}
+
+export function useStackToolbarTheme(): StackToolbarProps {
+  const accent = useThemeColor("accent");
+  const m3 = useMaterialColors({ seedColor: accent });
+
+  return {
+    backgroundColor: m3.surfaceContainerLow,
+    tintColor: m3.onSurface,
   };
 }

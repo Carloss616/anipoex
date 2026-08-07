@@ -1,4 +1,8 @@
-import type { StackSearchBarProps, Theme } from "expo-router";
+import type {
+  StackSearchBarProps,
+  StackToolbarProps,
+  Theme,
+} from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native/hooks";
 import { useUniwind } from "uniwind";
@@ -56,5 +60,9 @@ export function useNavigationTheme(): Theme {
 }
 
 export function useStackSearchBarTheme(): StackSearchBarProps {
+  return {};
+}
+
+export function useStackToolbarTheme(): StackToolbarProps {
   return {};
 }
