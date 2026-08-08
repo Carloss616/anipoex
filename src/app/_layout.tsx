@@ -5,12 +5,14 @@ import {
   Inter_700Bold,
   useFonts,
 } from "@expo-google-fonts/inter";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { HeroUINativeProvider } from "heroui-native/provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { Tabs } from "@/components/layout/tabs";
+import { persistOptions, queryClient } from "@/utils/query-client";
 import "@/global.css";
 import "@/utils/focus-modality";
 import { StatusBar } from "expo-status-bar";
@@ -31,13 +33,19 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView className="web:bg-background">
-      <HeroUINativeProvider>
-        <ThemeProvider value={theme}>
-          <AnimatedSplashOverlay />
-          <Tabs />
-          <StatusBar style={theme.dark ? "light" : "dark"} />
-        </ThemeProvider>
-      </HeroUINativeProvider>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={persistOptions}
+        onSuccess={() => queryClient.resumePausedMutations()}
+      >
+        <HeroUINativeProvider>
+          <ThemeProvider value={theme}>
+            <AnimatedSplashOverlay />
+            <Tabs />
+            <StatusBar style={theme.dark ? "light" : "dark"} />
+          </ThemeProvider>
+        </HeroUINativeProvider>
+      </PersistQueryClientProvider>
     </GestureHandlerRootView>
   );
 }

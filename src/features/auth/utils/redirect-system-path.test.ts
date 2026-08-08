@@ -37,6 +37,10 @@ test("does not swallow routes that merely start with auth", () => {
   );
 });
 
+test("does not depend on the app scheme", () => {
+  expect(redirectSystemPath({ path: "renamed-app://auth" })).toBe("/");
+});
+
 test("passes the root path through untouched", () => {
   expect(redirectSystemPath({ path: "anipoex://" })).toBe("anipoex://");
 });

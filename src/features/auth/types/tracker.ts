@@ -9,7 +9,7 @@ export type Tracker = {
   id: "anilist";
   /** Resolves to null when the user cancels — that is not an error. */
   authorize(): Promise<{ accessToken: string } | null>;
-  fetchViewer(token: string): Promise<User>;
+  fetchViewer(): Promise<User>;
 };
 
 /**

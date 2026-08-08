@@ -80,6 +80,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["src/graphql/**", "src/**/*.generated.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
     }
   ],
   "javascript": {

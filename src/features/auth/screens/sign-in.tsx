@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
 import { Typography } from "@/components/ui/typography";
 import { setToken, setUser } from "@/state/session";
-import { anilist } from "../../trackers/anilist";
+import { anilist } from "../trackers/anilist";
 
 export function SignIn() {
   const [isBusy, setIsBusy] = useState(false);
@@ -19,9 +19,10 @@ export function SignIn() {
       await setToken(result.accessToken);
 
       try {
-        const user = await anilist.fetchViewer(result.accessToken);
+        const user = await anilist.fetchViewer();
         setUser(user);
       } catch (cause) {
+        // TODO: implement toast
         console.warn(
           "[sign-in] fetchViewer failed after token was persisted",
           cause instanceof Error ? cause.message : cause,
