@@ -10,7 +10,10 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       networkMode: "offlineFirst",
-      staleTime: 5 * 60_000,
+      // Infinity: the persisted cache wins on mount; refreshing is explicit.
+      staleTime: Infinity,
+      // Web-only refetch: native never hooks AppState into the focusManager.
+      refetchOnWindowFocus: false,
       // Infinity: only in-memory queries get saved; 5min GC would drop them.
       gcTime: Infinity,
       retry: 1,
