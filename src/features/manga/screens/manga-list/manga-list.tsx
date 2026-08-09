@@ -1,27 +1,34 @@
+import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useRef } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 import { TabView } from "react-native-tab-view";
 import { TabBar } from "@/components/layout/tab-bar";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
-import { useMangaLists } from "../../hooks/use-manga-lists";
 import { ListScene } from "./components/list-scene";
+import { MANGA_STATUSES } from "./constants";
 
 export function MangaList() {
   const router = useRouter();
   const headerHeight = useHeaderHeight();
   const { height, width } = useWindowDimensions();
   const { list } = useLocalSearchParams<{ list?: string }>();
-  const [query, setQuery] = useState("");
+  const query$ = useObservable("");
   const searchBarTheme = useStackSearchBarTheme();
   const large = height > 640;
 
-  const lists = useMangaLists();
+  const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const setQuery = (text: string) => {
+    clearTimeout(debounce.current);
+    debounce.current = setTimeout(() => query$.set(text), 150);
+  };
+
   const routes = useMemo(
-    () => lists.map((l) => ({ key: l.name, title: l.name })),
-    [lists],
+    () => MANGA_STATUSES.map((s) => ({ key: s.status, title: s.title })),
+    [],
   );
+
   // the URL is the source of truth, so a deep link lands on the right tab
   const index = Math.max(
     0,
@@ -45,10 +52,7 @@ export function MangaList() {
         navigationState={{ index, routes }}
         onIndexChange={(i) => router.setParams({ list: routes[i].key })}
         renderScene={({ route }) => (
-          <ListScene
-            entries={lists.find((l) => l.name === route.key)?.entries ?? []}
-            query={query}
-          />
+          <ListScene status={route.key} query$={query$} />
         )}
         renderTabBar={(props) => <TabBar {...props} />}
         initialLayout={{ width }}

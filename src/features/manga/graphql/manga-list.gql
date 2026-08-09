@@ -1,0 +1,30 @@
+query MangaList($userId: Int!, $status: MediaListStatus!) {
+  MediaListCollection(
+    userId: $userId
+    type: MANGA
+    status: $status
+    forceSingleCompletedList: true
+  ) {
+    lists {
+      entries {
+        id
+        progress
+        score
+        media {
+          id
+          title {
+            userPreferred
+          }
+          coverImage {
+            large
+          }
+          startDate {
+            year
+          }
+          genres
+          chapters
+        }
+      }
+    }
+  }
+}

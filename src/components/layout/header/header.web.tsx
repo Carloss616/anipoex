@@ -1,3 +1,4 @@
+import { Memo, useObservable } from "@legendapp/state/react";
 import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
@@ -42,7 +43,7 @@ const textEvent = (text: string) =>
 export const header = (props: NativeStackHeaderProps) => <Header {...props} />;
 
 export function Header({ options, back, navigation }: NativeStackHeaderProps) {
-  const [query, setQuery] = useState("");
+  const query$ = useObservable("");
   const [isSearching, setIsSearching] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -62,7 +63,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     (options.headerLargeTitle || options.headerLargeTitleEnabled) && canBeLarge;
 
   const emit = (text: string) => {
-    setQuery(text);
+    query$.set(text);
     search?.onChangeText?.(textEvent(text));
   };
 
@@ -87,30 +88,42 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     return () => clearTimeout(timer);
   }, [isSearching]);
 
+  // SearchField is controlled (its ClearButton keys off the value), so it has to
+  // re-render per keystroke — Memo re-renders just this subtree, not the header.
   const searchField = search && (
-    <SearchField value={query} onChange={emit} className="min-w-0 flex-1">
-      <SearchField.Group>
-        <SearchField.SearchIcon />
-        <SearchField.Input
-          ref={inputRef}
-          // The inline field never unmounts (it has to animate its width both
-          // ways), so opening it focuses by hand instead of on mount.
-          autoFocus={isStacked && search.autoFocus}
-          placeholder={search.placeholder}
-          autoCapitalize={
-            search.autoCapitalize === "systemDefault"
-              ? undefined
-              : search.autoCapitalize
-          }
-          inputMode={INPUT_MODE[search.inputType ?? "text"]}
-          enterKeyHint="search"
-          onFocus={search.onFocus}
-          onBlur={search.onBlur}
-          onSubmitEditing={() => search.onSearchButtonPress?.(textEvent(query))}
-        />
-        <SearchField.ClearButton />
-      </SearchField.Group>
-    </SearchField>
+    <Memo>
+      {() => (
+        <SearchField
+          value={query$.get()}
+          onChange={emit}
+          className="min-w-0 flex-1"
+        >
+          <SearchField.Group>
+            <SearchField.SearchIcon />
+            <SearchField.Input
+              ref={inputRef}
+              // The inline field never unmounts (it has to animate its width
+              // both ways), so opening it focuses by hand instead of on mount.
+              autoFocus={isStacked && search.autoFocus}
+              placeholder={search.placeholder}
+              autoCapitalize={
+                search.autoCapitalize === "systemDefault"
+                  ? undefined
+                  : search.autoCapitalize
+              }
+              inputMode={INPUT_MODE[search.inputType ?? "text"]}
+              enterKeyHint="search"
+              onFocus={search.onFocus}
+              onBlur={search.onBlur}
+              onSubmitEditing={() =>
+                search.onSearchButtonPress?.(textEvent(query$.peek()))
+              }
+            />
+            <SearchField.ClearButton />
+          </SearchField.Group>
+        </SearchField>
+      )}
+    </Memo>
   );
 
   const titleNode =

@@ -1,15 +1,15 @@
 import { PressableFeedback } from "heroui-native/pressable-feedback";
 import { Tabs } from "heroui-native/tabs";
-import type {
-  NavigationState,
-  Route,
-  SceneRendererProps,
-} from "react-native-tab-view";
+import type { Route, TabViewProps } from "react-native-tab-view";
+
+export type TabBarProps<T extends Route> = Parameters<
+  NonNullable<TabViewProps<T>["renderTabBar"]>
+>[0];
 
 export function TabBar<T extends Route>({
   navigationState: { index, routes },
   jumpTo,
-}: SceneRendererProps & { navigationState: NavigationState<T> }) {
+}: TabBarProps<T>) {
   return (
     <Tabs value={routes[index].key} onValueChange={jumpTo} variant="secondary">
       <Tabs.List className="w-full">

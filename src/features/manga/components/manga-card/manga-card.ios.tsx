@@ -61,6 +61,7 @@ function MangaCardBase({
           <Image
             style={StyleSheet.absoluteFill}
             source={cover}
+            recyclingKey={typeof cover === "string" ? cover : undefined}
             placeholder={{ blurhash: BlurHash }}
             contentFit="cover"
             transition={500}

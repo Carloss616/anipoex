@@ -9,17 +9,14 @@ import {
   type TouchableNativeFeedbackProps,
   View,
 } from "react-native";
-import type {
-  NavigationState,
-  Route,
-  SceneRendererProps,
-} from "react-native-tab-view";
+import type { Route } from "react-native-tab-view";
 import { useUniwind } from "uniwind";
+import type { TabBarProps } from "./tab-bar";
 
 export function TabBar<T extends Route>({
   navigationState: { index, routes },
   jumpTo,
-}: SceneRendererProps & { navigationState: NavigationState<T> }) {
+}: TabBarProps<T>) {
   const accent = useThemeColor("accent");
   const m3 = useMaterialColors({ seedColor: accent });
 

@@ -4,7 +4,6 @@ import {
   type AnimatedLegendListProps,
 } from "@legendapp/list/reanimated";
 import { cn } from "heroui-native/utils";
-import { useMemo } from "react";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
@@ -23,7 +22,6 @@ export function LegendList<T>({
   ListHeaderComponentStyle,
   ListFooterComponentStyle,
   renderItem,
-  extraData,
   // consumed here, never forwarded: LegendList's own gap handling is web-only,
   // and letting it through would stack a second gap on top of the padding below
   columnWrapperStyle,
@@ -36,25 +34,17 @@ export function LegendList<T>({
     0;
   const halfGap = gap / 2;
 
-  // cells memoize on `[key, item, extraData]`, so a filtered list keeps stale
-  // `index`es — and the padding below reads `index`. fold the length in.
-  const itemExtraData = useMemo(
-    () => ({ dataLength: props.data?.length, extraData }),
-    [props.data?.length, extraData],
-  );
-
-  const getPaddingStyles = (index: number) => {
-    if (!halfGap) return {};
-    return {
-      paddingHorizontal: resolveSpacing(halfGap),
-      paddingTop: index < (props.numColumns ?? 1) ? 0 : resolveSpacing(gap),
-    };
-  };
-
   return (
     <LegendListRoot
       style={[
-        halfGap ? { marginHorizontal: resolveSpacing(-halfGap) } : {},
+        halfGap
+          ? {
+              marginHorizontal: resolveSpacing(-halfGap),
+              ...(props.ListHeaderComponent
+                ? {}
+                : { marginTop: resolveSpacing(-halfGap) }),
+            }
+          : {},
         // a hidden screen measures 0 wide, so LegendList auto-sizes the list to
         // its widest item. this undoes that — our style wins over its own.
         { width: "auto" },
@@ -62,25 +52,34 @@ export function LegendList<T>({
       ]}
       contentContainerClassName={cn("grow", contentContainerClassName)}
       ListHeaderComponentStyle={[
-        halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
+        halfGap
+          ? {
+              paddingHorizontal: resolveSpacing(halfGap),
+              marginBottom: resolveSpacing(-halfGap),
+            }
+          : {},
         ListHeaderComponentStyle,
-      ]}
-      ListFooterComponentStyle={[
-        halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
-        ListFooterComponentStyle,
       ]}
       renderItem={(props) => {
         if (!renderItem) return null;
 
         return (
-          <View data-index={props.index} style={getPaddingStyles(props.index)}>
+          <View
+            style={{
+              paddingHorizontal: resolveSpacing(halfGap),
+              paddingTop: resolveSpacing(halfGap),
+            }}
+          >
             {renderItem(
               props as LegendListRenderItemProps<T, string | undefined>,
             )}
           </View>
         );
       }}
-      extraData={itemExtraData}
+      ListFooterComponentStyle={[
+        halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
+        ListFooterComponentStyle,
+      ]}
       itemLayoutAnimation={LinearTransition}
       {...(props as AnimatedLegendListProps<unknown>)}
     />
