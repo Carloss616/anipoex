@@ -2,15 +2,19 @@ import {
   type MaterialColors,
   useMaterialColors,
 } from "@expo/ui/jetpack-compose";
+import { Memo } from "@legendapp/state/react";
 import { useThemeColor } from "heroui-native/hooks";
 import { Tabs, useTabsTrigger } from "heroui-native/tabs";
 import { type TouchableNativeFeedbackProps, View } from "react-native";
 import type { Route } from "react-native-tab-view";
+import { Badge } from "@/components/ui/badge";
 import { TouchableNativeFeedback } from "@/components/ui/touchable-native-feedback";
+import type { MediaListStatus } from "@/graphql/types";
 import type { TabBarProps } from "./tab-bar";
 
 export function TabBar<T extends Route>({
   navigationState: { index, routes },
+  counts$,
   jumpTo,
 }: TabBarProps<T>) {
   const accent = useThemeColor("accent");
@@ -30,7 +34,18 @@ export function TabBar<T extends Route>({
           <Tabs.Indicator style={{ borderColor: m3.primary }} />
           {routes.map((r) => (
             <Tabs.Trigger key={r.key} value={r.key} asChild>
-              <TabTrigger m3={m3}>{r.title}</TabTrigger>
+              <TabTrigger m3={m3}>
+                {r.title}
+                <View className="w-9 items-end">
+                  <Memo>
+                    {() => (
+                      <Badge>
+                        {counts$[r.key as MediaListStatus].get() ?? "~"}
+                      </Badge>
+                    )}
+                  </Memo>
+                </View>
+              </TabTrigger>
             </Tabs.Trigger>
           ))}
         </Tabs.ScrollView>

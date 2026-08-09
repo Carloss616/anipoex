@@ -1,4 +1,4 @@
-import type { ObservablePrimitive } from "@legendapp/state";
+import type { Observable, ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useWindowDimensions } from "react-native";
 import { EmptyState } from "@/components/empty-state";
@@ -14,14 +14,17 @@ import { ListItem } from "./list-item";
 export function ListScene({
   status,
   query$,
+  counts$,
 }: {
   status: MediaListStatus;
   query$: ObservablePrimitive<string>;
+  counts$: Observable<Record<MediaListStatus, number | null>>;
 }) {
   const { width } = useWindowDimensions();
   const { manga$, genres$, genre$, isPending, error } = useMangaList(
     status,
     query$,
+    counts$,
   );
   const manga = useValue(manga$);
 

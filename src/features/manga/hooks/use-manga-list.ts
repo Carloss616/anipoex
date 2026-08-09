@@ -1,5 +1,9 @@
-import type { ObservablePrimitive } from "@legendapp/state";
-import { useObservable, useValue } from "@legendapp/state/react";
+import type { Observable, ObservablePrimitive } from "@legendapp/state";
+import {
+  useObservable,
+  useObserveEffect,
+  useValue,
+} from "@legendapp/state/react";
 import { useEffect } from "react";
 import type { MediaListStatus } from "@/graphql/types";
 import { session$ } from "@/state/session";
@@ -11,6 +15,7 @@ export const ALL = "All";
 export function useMangaList(
   status: MediaListStatus,
   query$: ObservablePrimitive<string>,
+  counts$: Observable<Record<MediaListStatus, number | null>>,
 ) {
   const userId = useValue(session$.user)?.id;
 
@@ -42,6 +47,10 @@ export function useMangaList(
           (genre === ALL || m.genres.includes(genre)) &&
           m.titles.some((t) => t.toLowerCase().includes(needle)),
       );
+  });
+  
+  useObserveEffect(() => {
+    counts$[status].set(manga$.length);
   });
 
   return { manga$, genres$, genre$, isPending, error };

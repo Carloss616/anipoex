@@ -5,6 +5,7 @@ import { useMemo, useRef } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 import { TabView } from "react-native-tab-view";
 import { TabBar } from "@/components/layout/tab-bar";
+import { MediaListStatus } from "@/graphql/types";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { ListScene } from "./components/list-scene";
 import { MANGA_STATUSES } from "./constants";
@@ -14,9 +15,18 @@ export function MangaList() {
   const headerHeight = useHeaderHeight();
   const { height, width } = useWindowDimensions();
   const { list } = useLocalSearchParams<{ list?: string }>();
-  const query$ = useObservable("");
   const searchBarTheme = useStackSearchBarTheme();
   const large = height > 640;
+
+  const query$ = useObservable("");
+  const counts$ = useObservable<Record<MediaListStatus, number | null>>({
+    [MediaListStatus.Current]: null,
+    [MediaListStatus.Planning]: null,
+    [MediaListStatus.Completed]: null,
+    [MediaListStatus.Dropped]: null,
+    [MediaListStatus.Paused]: null,
+    [MediaListStatus.Repeating]: null,
+  });
 
   const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
   const setQuery = (text: string) => {
@@ -52,9 +62,9 @@ export function MangaList() {
         navigationState={{ index, routes }}
         onIndexChange={(i) => router.setParams({ list: routes[i].key })}
         renderScene={({ route }) => (
-          <ListScene status={route.key} query$={query$} />
+          <ListScene status={route.key} query$={query$} counts$={counts$} />
         )}
-        renderTabBar={(props) => <TabBar {...props} />}
+        renderTabBar={(props) => <TabBar {...props} counts$={counts$} />}
         initialLayout={{ width }}
         style={{
           paddingTop: Platform.select({
