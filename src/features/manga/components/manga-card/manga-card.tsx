@@ -1,5 +1,5 @@
 import LucideBase from "@react-native-vector-icons/lucide";
-import { Image, type ImageProps } from "expo-image";
+import type { ImageSource } from "expo-image";
 import { Card } from "heroui-native/card";
 import { PressableFeedback } from "heroui-native/pressable-feedback";
 import { cn } from "heroui-native/utils";
@@ -12,12 +12,15 @@ import {
 } from "react-native";
 import { withUniwind } from "uniwind";
 import { TouchableNativeFeedback } from "@/components/ui/touchable-native-feedback";
-import { BlurHash } from "./constants";
+import { CoverImage } from "./components/cover-image";
 
 const Lucide = withUniwind(LucideBase);
 
 export interface MangaCardProps {
-  cover?: ImageProps["source"];
+  cover?: string | ImageSource | null;
+  /** Low-res cover, blown up as a soft preview until `cover` decodes. */
+  coverThumb?: string | null;
+  coverColor?: string | null;
   title?: string;
   year?: string | number;
   style?: StyleProp<ViewStyle>;
@@ -39,6 +42,8 @@ export interface MangaCardProps {
  */
 export function MangaCard({
   cover,
+  coverThumb,
+  coverColor,
   title,
   year,
   style,
@@ -49,13 +54,11 @@ export function MangaCard({
   const content = (
     <>
       {cover ? (
-        <Image
+        <CoverImage
           style={StyleSheet.absoluteFill}
-          source={cover}
-          recyclingKey={typeof cover === "string" ? cover : undefined}
-          placeholder={{ blurhash: BlurHash }}
-          contentFit="cover"
-          transition={500}
+          cover={cover}
+          coverThumb={coverThumb}
+          coverColor={coverColor}
         />
       ) : (
         <View

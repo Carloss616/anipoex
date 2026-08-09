@@ -23,14 +23,23 @@ describe("toEntries", () => {
     expect(toEntries(query([{ entries: [entry(null), null] }]))).toEqual([]);
   });
 
-  it("maps an entry and drops null genres", () => {
+  it("maps an entry, drops null genres and dedupes titles", () => {
     const data = query([
       {
         entries: [
           entry({
             id: 30002,
-            title: { userPreferred: "Berserk" },
-            coverImage: { large: "https://img/berserk.jpg" },
+            title: {
+              userPreferred: "Berserk",
+              english: "Berserk",
+              romaji: "Berserk",
+              native: "ベルセルク",
+            },
+            coverImage: {
+              large: "https://img/berserk.jpg",
+              medium: "https://img/berserk-small.jpg",
+              color: "#1a1a1a",
+            },
             startDate: { year: 1989 },
             genres: ["Action", null, "Drama"],
             chapters: 374,
@@ -43,9 +52,12 @@ describe("toEntries", () => {
       {
         id: "30002",
         title: "Berserk",
+        titles: ["Berserk", "ベルセルク"],
         year: "1989",
         genres: ["Action", "Drama"],
         cover: "https://img/berserk.jpg",
+        coverThumb: "https://img/berserk-small.jpg",
+        coverColor: "#1a1a1a",
         progress: 12,
         chapters: 374,
       },
@@ -77,9 +89,12 @@ describe("toEntries", () => {
       {
         id: "7",
         title: "",
+        titles: [],
         year: "",
         genres: [],
         cover: null,
+        coverThumb: null,
+        coverColor: null,
         progress: 0,
         chapters: null,
       },

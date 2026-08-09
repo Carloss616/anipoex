@@ -10,13 +10,29 @@ query MangaList($userId: Int!, $status: MediaListStatus!) {
         id
         progress
         score
+        startedAt {
+          year
+          month
+          day
+        }
+        completedAt {
+          year
+          month
+          day
+        }
+        notes
         media {
           id
           title {
             userPreferred
+            english
+            romaji
+            native
           }
           coverImage {
             large
+            medium
+            color
           }
           startDate {
             year

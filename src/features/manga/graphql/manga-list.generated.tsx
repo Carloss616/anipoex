@@ -39,12 +39,32 @@ export type MangaListQuery = {
         id: number;
         progress: number | null;
         score: number | null;
+        notes: string | null;
+        startedAt: {
+          year: number | null;
+          month: number | null;
+          day: number | null;
+        } | null;
+        completedAt: {
+          year: number | null;
+          month: number | null;
+          day: number | null;
+        } | null;
         media: {
           id: number;
           genres: Array<string | null> | null;
           chapters: number | null;
-          title: { userPreferred: string | null } | null;
-          coverImage: { large: string | null } | null;
+          title: {
+            userPreferred: string | null;
+            english: string | null;
+            romaji: string | null;
+            native: string | null;
+          } | null;
+          coverImage: {
+            large: string | null;
+            medium: string | null;
+            color: string | null;
+          } | null;
           startDate: { year: number | null } | null;
         } | null;
       } | null> | null;
@@ -65,13 +85,29 @@ export const MangaListDocument = new TypedDocumentString(`
         id
         progress
         score
+        startedAt {
+          year
+          month
+          day
+        }
+        completedAt {
+          year
+          month
+          day
+        }
+        notes
         media {
           id
           title {
             userPreferred
+            english
+            romaji
+            native
           }
           coverImage {
             large
+            medium
+            color
           }
           startDate {
             year

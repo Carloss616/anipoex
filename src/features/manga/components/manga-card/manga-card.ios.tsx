@@ -7,7 +7,6 @@ import {
   onLongPressGesture,
   onTapGesture,
 } from "@expo/ui/swift-ui/modifiers";
-import { Image as ImageBase } from "expo-image";
 import { useThemeColor } from "heroui-native/hooks";
 import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
@@ -17,10 +16,8 @@ import { Icon } from "@/components/ui/icon";
 import { Scrim } from "@/components/ui/scrim";
 import { Typography } from "@/components/ui/typography";
 import { dp } from "@/utils/utils";
-import { BlurHash, BookIcon } from "./constants";
+import { CoverImage } from "./components/cover-image";
 import type { MangaCardProps } from "./manga-card";
-
-const Image = withUniwind(ImageBase);
 
 /**
  * Stands in for SwiftUI's `.infinity`: a frame clamps `maxWidth` to whatever
@@ -31,13 +28,15 @@ const FILL = 100_000;
 
 function MangaCardBase({
   cover,
+  coverThumb,
+  coverColor,
   title,
   year,
   style,
   onPress,
   onLongPress,
 }: MangaCardProps) {
-  const [surface] = useThemeColor(["surface"]);
+  const [surface, _overlay] = useThemeColor(["surface", "overlay"]);
   const isInsideHost = useIsInsideHost();
 
   const content = (
@@ -58,19 +57,16 @@ function MangaCardBase({
     >
       {cover ? (
         <RNHostView className="flex-1">
-          <Image
-            style={StyleSheet.absoluteFill}
-            source={cover}
-            recyclingKey={typeof cover === "string" ? cover : undefined}
-            placeholder={{ blurhash: BlurHash }}
-            contentFit="cover"
-            transition={500}
-            className="rounded-3xl"
+          <CoverImage
+            style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
+            cover={cover}
+            coverThumb={coverThumb}
+            coverColor={coverColor}
           />
         </RNHostView>
       ) : (
         <Icon
-          name={BookIcon}
+          name="book"
           size={22}
           modifiers={[
             foregroundStyle({

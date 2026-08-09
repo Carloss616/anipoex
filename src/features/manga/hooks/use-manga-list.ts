@@ -40,7 +40,7 @@ export function useMangaList(
       .filter(
         (m) =>
           (genre === ALL || m.genres.includes(genre)) &&
-          m.title.toLowerCase().includes(needle),
+          m.titles.some((t) => t.toLowerCase().includes(needle)),
       );
   });
 

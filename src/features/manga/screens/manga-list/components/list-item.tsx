@@ -7,7 +7,13 @@ export const ListItem = memo(function ListItem({ item }: { item: MangaEntry }) {
   return (
     <Link href={`/manga/${item.id}`} asChild>
       <Link.Trigger>
-        <MangaCard cover={item.cover} title={item.title} year={item.year} />
+        <MangaCard
+          cover={item.cover}
+          coverThumb={item.coverThumb}
+          coverColor={item.coverColor}
+          title={item.title}
+          year={item.year}
+        />
       </Link.Trigger>
       <Link.Preview />
       <Link.Menu>
