@@ -1,7 +1,7 @@
 import { useValue } from "@legendapp/state/react";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { Column } from "@/components/layout/column";
+import { Center } from "@/components/layout/center";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
@@ -25,7 +25,7 @@ export function Home() {
 
   return (
     <Host className="flex-1">
-      <Column alignment="center" className="gap-4 px-8 py-24">
+      <Center className="gap-4 px-8 py-24">
         <Typography type="h5" align="center">
           {token ? (user ? `Hi, ${user.name}` : "Signed in") : "Anipoex"}
         </Typography>
@@ -44,7 +44,7 @@ export function Home() {
           </Typography>
         )}
         <ThemeToggle />
-      </Column>
+      </Center>
     </Host>
   );
 }

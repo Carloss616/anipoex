@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Column } from "@/components/layout/column";
+import { Center } from "@/components/layout/center";
 import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
 import { Typography } from "@/components/ui/typography";
@@ -45,7 +45,7 @@ export function SignIn() {
 
   return (
     <Host className="flex-1">
-      <Column alignment="center" className="gap-4 px-8 py-24">
+      <Center className="gap-4 px-8 py-24">
         <Typography type="h5" align="center">
           Connect your account
         </Typography>
@@ -63,7 +63,7 @@ export function SignIn() {
             {error}
           </Typography>
         )}
-      </Column>
+      </Center>
     </Host>
   );
 }
