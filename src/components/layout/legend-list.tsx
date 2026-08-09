@@ -5,7 +5,6 @@ import {
 } from "@legendapp/list/reanimated";
 import { cn } from "heroui-native/utils";
 import { View } from "react-native";
-import { LinearTransition } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 import { resolveSpacing } from "@/utils/resolve-spacing";
 
@@ -40,10 +39,10 @@ export function LegendList<T>({
         halfGap
           ? {
               marginHorizontal: resolveSpacing(-halfGap),
-              ...(props.ListHeaderComponent
-                ? {}
-                : { marginTop: resolveSpacing(-halfGap) }),
             }
+          : {},
+        gap && !props.ListHeaderComponent
+          ? { marginTop: resolveSpacing(-gap) }
           : {},
         // a hidden screen measures 0 wide, so LegendList auto-sizes the list to
         // its widest item. this undoes that — our style wins over its own.
@@ -52,12 +51,8 @@ export function LegendList<T>({
       ]}
       contentContainerClassName={cn("grow", contentContainerClassName)}
       ListHeaderComponentStyle={[
-        halfGap
-          ? {
-              paddingHorizontal: resolveSpacing(halfGap),
-              marginBottom: resolveSpacing(-halfGap),
-            }
-          : {},
+        halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
+        gap ? { marginBottom: resolveSpacing(-gap) } : {},
         ListHeaderComponentStyle,
       ]}
       renderItem={(props) => {
@@ -67,7 +62,7 @@ export function LegendList<T>({
           <View
             style={{
               paddingHorizontal: resolveSpacing(halfGap),
-              paddingTop: resolveSpacing(halfGap),
+              paddingTop: resolveSpacing(gap),
             }}
           >
             {renderItem(
@@ -80,7 +75,6 @@ export function LegendList<T>({
         halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
         ListFooterComponentStyle,
       ]}
-      itemLayoutAnimation={LinearTransition}
       {...(props as AnimatedLegendListProps<unknown>)}
     />
   );
