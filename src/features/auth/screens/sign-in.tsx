@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { Column } from "@/components/layout/column";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,11 @@ import { Host } from "@/components/ui/host";
 import { Typography } from "@/components/ui/typography";
 import { setToken, setUser } from "@/state/session";
 import { anilist } from "../trackers/anilist";
+
+function close() {
+  if (router.canGoBack()) router.back();
+  else router.replace("/");
+}
 
 export function SignIn() {
   const [isBusy, setIsBusy] = useState(false);
@@ -28,6 +34,8 @@ export function SignIn() {
           cause instanceof Error ? cause.message : cause,
         );
       }
+
+      close();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Something went wrong");
     } finally {
@@ -46,6 +54,9 @@ export function SignIn() {
         </Typography>
         <Button onPress={handleSignIn} isDisabled={isBusy}>
           {isBusy ? "Connecting..." : "Sign in with AniList"}
+        </Button>
+        <Button variant="ghost" onPress={close} isDisabled={isBusy}>
+          Not now
         </Button>
         {error && (
           <Typography type="body-xs" align="center" className="text-danger">

@@ -11,10 +11,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { HeroUINativeProvider } from "heroui-native/provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import { Tabs } from "@/components/layout/tabs";
 import { persistOptions, queryClient } from "@/utils/query-client";
 import "@/global.css";
 import "@/utils/focus-modality";
+import { Stack } from "expo-router/stack";
 import { StatusBar } from "expo-status-bar";
 import { useNavigationTheme } from "@/hooks/use-theme";
 
@@ -41,7 +41,12 @@ export default function RootLayout() {
         <HeroUINativeProvider>
           <ThemeProvider value={theme}>
             <AnimatedSplashOverlay />
-            <Tabs />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen
+                name="sign-in"
+                options={{ presentation: "modal" }}
+              />
+            </Stack>
             <StatusBar style={theme.dark ? "light" : "dark"} />
           </ThemeProvider>
         </HeroUINativeProvider>
