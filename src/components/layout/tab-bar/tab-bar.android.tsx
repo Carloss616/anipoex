@@ -4,13 +4,9 @@ import {
 } from "@expo/ui/jetpack-compose";
 import { useThemeColor } from "heroui-native/hooks";
 import { Tabs, useTabsTrigger } from "heroui-native/tabs";
-import {
-  TouchableNativeFeedback,
-  type TouchableNativeFeedbackProps,
-  View,
-} from "react-native";
+import { type TouchableNativeFeedbackProps, View } from "react-native";
 import type { Route } from "react-native-tab-view";
-import { useUniwind } from "uniwind";
+import { TouchableNativeFeedback } from "@/components/ui/touchable-native-feedback";
 import type { TabBarProps } from "./tab-bar";
 
 export function TabBar<T extends Route>({
@@ -50,12 +46,10 @@ function TabTrigger({
   children,
   ...props
 }: TouchableNativeFeedbackProps & { m3: MaterialColors }) {
-  const { theme } = useUniwind();
   const { isSelected } = useTabsTrigger();
 
   return (
-    // key is to force re-render when theme changes, so ripple color is correct
-    <TouchableNativeFeedback key={theme} {...props}>
+    <TouchableNativeFeedback {...props}>
       <View className={className} style={style}>
         <Tabs.Label
           style={{

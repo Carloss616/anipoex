@@ -1,10 +1,7 @@
 import { cn } from "heroui-native/utils";
 import { useState } from "react";
-import { Platform } from "react-native";
-import { EnsureHost } from "@/components/ui/host";
 import { Typography } from "@/components/ui/typography";
-import { Column } from "./layout/column";
-import { Row } from "./layout/row";
+import { Center } from "./layout/center";
 
 /** @see https://github.com/mihonapp/mihon/blob/main/presentation-core/src/main/java/tachiyomi/presentation/core/screens/EmptyScreen.kt */
 const FACES = [
@@ -38,14 +35,9 @@ export function EmptyState({
   const [face] = useState(
     () => FACES[Math.floor(Math.random() * FACES.length)],
   );
-  const column = (
-    <Column
-      alignment="center"
-      className={cn(
-        "web:flex-1 web:justify-center gap-3 px-8 py-24",
-        className,
-      )}
-    >
+
+  return (
+    <Center className={cn("gap-3 px-8 py-24", className)}>
       <Typography align="center" color="muted" className="text-5xl">
         {face}
       </Typography>
@@ -58,16 +50,6 @@ export function EmptyState({
         </Typography>
       )}
       {children}
-    </Column>
-  );
-
-  return (
-    <EnsureHost className="flex-1">
-      {Platform.OS === "android" ? (
-        <Row alignment="center">{column}</Row>
-      ) : (
-        column
-      )}
-    </EnsureHost>
+    </Center>
   );
 }

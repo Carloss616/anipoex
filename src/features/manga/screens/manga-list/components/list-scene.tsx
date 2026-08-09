@@ -1,8 +1,10 @@
 import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
-import { ActivityIndicator, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { EmptyState } from "@/components/empty-state";
+import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
+import { Spinner } from "@/components/ui/spinner";
 import { useMangaList } from "@/features/manga/hooks/use-manga-list";
 import type { MediaListStatus } from "@/graphql/types";
 import { ListEmpty } from "./list-empty";
@@ -27,7 +29,11 @@ export function ListScene({
     width >= 1280 ? 12 : width >= 1024 ? 8 : width >= 768 ? 6 : 4;
 
   if (isPending) {
-    return <ActivityIndicator className="mt-16" />;
+    return (
+      <Center>
+        <Spinner size="lg" />
+      </Center>
+    );
   }
 
   if (error) {
