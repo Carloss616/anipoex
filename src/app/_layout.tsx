@@ -11,6 +11,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { HeroUINativeProvider } from "heroui-native/provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { ToastHost, toastConfig } from "@/components/ui/toast";
 import { persistOptions, queryClient } from "@/utils/query-client";
 import "@/global.css";
 import "@/utils/focus-modality";
@@ -38,7 +39,7 @@ export default function RootLayout() {
         persistOptions={persistOptions}
         onSuccess={() => queryClient.resumePausedMutations()}
       >
-        <HeroUINativeProvider>
+        <HeroUINativeProvider config={{ toast: toastConfig }}>
           <ThemeProvider value={theme}>
             <AnimatedSplashOverlay />
             <Stack screenOptions={{ headerShown: false }}>
@@ -47,6 +48,7 @@ export default function RootLayout() {
                 options={{ presentation: "modal" }}
               />
             </Stack>
+            <ToastHost />
             <StatusBar style={theme.dark ? "light" : "dark"} />
           </ThemeProvider>
         </HeroUINativeProvider>

@@ -90,6 +90,16 @@
 }
 
 @layer base {
+  /* RN's `box-none` is no CSS value, so HeroUI's toast overlay eats every click.
+     Re-enabled on the toasts, at any depth. `:where` keeps uniwind from mapping
+     it to a className, and loses to RNW's `none` on the hidden copy. */
+  :where(.pointer-events-box-none) {
+    pointer-events: none;
+  }
+  :where(.pointer-events-box-none .toast__root) {
+    pointer-events: auto;
+  }
+
   /* Drop the focus ring on pointer focus only; `:focus-visible` can't say that
      on text fields. Flag from @/utils/focus-modality. */
   [data-focus-modality="pointer"] input:focus,
