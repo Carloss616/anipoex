@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import { fetcher } from "@/graphql/fetcher";
 import type { Tracker, User } from "../../types/tracker";
 import { parseFragment } from "../../utils/parse-fragment";
-import { CLIENT_ID, REDIRECT_URI } from "./constants/config";
+import { CLIENT_ID, REDIRECT_URI } from "./constants";
 import { ViewerDocument } from "./graphql/viewer.generated";
 
 const AUTHORIZE_URL = process.env.EXPO_PUBLIC_ANILIST_AUTHORIZE_URL;
