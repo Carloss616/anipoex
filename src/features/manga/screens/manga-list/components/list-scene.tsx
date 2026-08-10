@@ -1,12 +1,13 @@
 import type { Observable, ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
-import { useWindowDimensions } from "react-native";
+import { RefreshControl, useWindowDimensions } from "react-native";
 import { EmptyState } from "@/components/empty-state";
 import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
 import { Spinner } from "@/components/ui/spinner";
 import { useMangaList } from "@/features/manga/hooks/use-manga-list";
 import type { MediaListStatus } from "@/graphql/types";
+import { useRefreshControlTheme } from "@/hooks/use-theme";
 import { ListEmpty } from "./list-empty";
 import { ListHeader } from "./list-header";
 import { ListItem } from "./list-item";
@@ -21,11 +22,9 @@ export function ListScene({
   counts$: Observable<Record<MediaListStatus, number | null>>;
 }) {
   const { width } = useWindowDimensions();
-  const { manga$, genres$, genre$, isPending, error } = useMangaList(
-    status,
-    query$,
-    counts$,
-  );
+  const { manga$, genres$, genre$, isPending, isRefetching, refetch, error } =
+    useMangaList(status, query$, counts$);
+  const refreshControlTheme = useRefreshControlTheme();
   const manga = useValue(manga$);
 
   const numColumns =
@@ -39,7 +38,7 @@ export function ListScene({
     );
   }
 
-  if (error) {
+  if (error && !manga?.length) {
     return (
       <EmptyState
         title="Couldn't load this list"
@@ -60,6 +59,13 @@ export function ListScene({
       ListHeaderComponent={<ListHeader genre$={genre$} genres$={genres$} />}
       renderItem={({ item }) => <ListItem item={item} />}
       ListEmptyComponent={<ListEmpty genre$={genre$} query$={query$} />}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefetching}
+          onRefresh={refetch}
+          {...refreshControlTheme}
+        />
+      }
     />
   );
 }

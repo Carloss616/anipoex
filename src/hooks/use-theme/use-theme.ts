@@ -1,11 +1,14 @@
 import type {
+  NativeStackNavigationOptions,
   StackSearchBarProps,
   StackToolbarProps,
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native/hooks";
+import type { RefreshControlProps } from "react-native";
 import { useUniwind } from "uniwind";
+import { header } from "@/components/layout/header";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useNativeTabsTheme(): NativeTabsProps {
@@ -59,10 +62,34 @@ export function useNavigationTheme(): Theme {
   };
 }
 
+export function useStackTheme(): NativeStackNavigationOptions {
+  const foreground = useThemeColor("foreground");
+
+  return {
+    header,
+    headerTintColor: foreground,
+    headerBlurEffect: "systemChromeMaterial",
+    headerShadowVisible: false,
+    headerStyle: { backgroundColor: "transparent" },
+    headerLargeStyle: { backgroundColor: "transparent" },
+    headerBackButtonDisplayMode: "minimal",
+  };
+}
+
 export function useStackSearchBarTheme(): StackSearchBarProps {
   return {};
 }
 
 export function useStackToolbarTheme(): StackToolbarProps {
   return {};
+}
+
+export function useRefreshControlTheme(): Partial<RefreshControlProps> {
+  const [accent, surface] = useThemeColor(["accent", "surface"]);
+
+  return {
+    tintColor: accent,
+    colors: [accent],
+    progressBackgroundColor: surface,
+  };
 }

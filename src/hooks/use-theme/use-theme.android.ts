@@ -1,12 +1,15 @@
 import { useMaterialColors } from "@expo/ui/jetpack-compose";
 import type {
+  NativeStackNavigationOptions,
   StackSearchBarProps,
   StackToolbarProps,
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native/hooks";
+import type { RefreshControlProps } from "react-native";
 import { useUniwind } from "uniwind";
+import { header } from "@/components/layout/header";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useNativeTabsTheme(): NativeTabsProps {
@@ -50,6 +53,21 @@ export function useNavigationTheme(): Theme {
   };
 }
 
+export function useStackTheme(): NativeStackNavigationOptions {
+  const accent = useThemeColor("accent");
+  const m3 = useMaterialColors({ seedColor: accent });
+
+  return {
+    header,
+    headerTintColor: m3.onSurface,
+    headerBlurEffect: "systemChromeMaterial",
+    headerShadowVisible: false,
+    headerStyle: { backgroundColor: "transparent" },
+    headerLargeStyle: { backgroundColor: "transparent" },
+    headerBackButtonDisplayMode: "minimal",
+  };
+}
+
 export function useStackSearchBarTheme(): StackSearchBarProps {
   const accent = useThemeColor("accent");
   const m3 = useMaterialColors({ seedColor: accent });
@@ -67,6 +85,15 @@ export function useStackToolbarTheme(): StackToolbarProps {
 
   return {
     backgroundColor: m3.surfaceContainerLow,
-    tintColor: m3.onSurface,
+  };
+}
+
+export function useRefreshControlTheme(): Partial<RefreshControlProps> {
+  const accent = useThemeColor("accent");
+  const m3 = useMaterialColors({ seedColor: accent });
+
+  return {
+    colors: [m3.primary],
+    progressBackgroundColor: m3.surfaceContainerHigh,
   };
 }

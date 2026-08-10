@@ -19,7 +19,7 @@ export function useMangaList(
 ) {
   const userId = useValue(session$.user)?.id;
 
-  const { data, isPending, error } = useMangaListQuery(
+  const { data, isPending, isRefetching, refetch, error } = useMangaListQuery(
     { userId: userId ?? 0, status },
     { enabled: userId != null },
   );
@@ -48,10 +48,10 @@ export function useMangaList(
           m.titles.some((t) => t.toLowerCase().includes(needle)),
       );
   });
-  
+
   useObserveEffect(() => {
     counts$[status].set(manga$.length);
   });
 
-  return { manga$, genres$, genre$, isPending, error };
+  return { manga$, genres$, genre$, isPending, isRefetching, refetch, error };
 }

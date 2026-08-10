@@ -7,3 +7,5 @@ export const MANGA_STATUSES = [
   { status: MediaListStatus.Paused, title: "Paused" },
   { status: MediaListStatus.Dropped, title: "Dropped" },
 ] as const;
+
+export const MANGA_LIST_KEY = ["MangaList"];
