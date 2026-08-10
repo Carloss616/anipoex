@@ -1,7 +1,6 @@
 import type { Observable, ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { RefreshControl, useWindowDimensions } from "react-native";
-import { EmptyState } from "@/components/empty-state";
 import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
 import { Spinner } from "@/components/ui/spinner";
@@ -22,7 +21,7 @@ export function ListScene({
   counts$: Observable<Record<MediaListStatus, number | null>>;
 }) {
   const { width } = useWindowDimensions();
-  const { manga$, genres$, genre$, isPending, isRefetching, refetch, error } =
+  const { manga$, genres$, genre$, isPending, isRefetching, refetch } =
     useMangaList(status, query$, counts$);
   const refreshControlTheme = useRefreshControlTheme();
   const manga = useValue(manga$);
@@ -35,15 +34,6 @@ export function ListScene({
       <Center>
         <Spinner size="lg" />
       </Center>
-    );
-  }
-
-  if (error && !manga?.length) {
-    return (
-      <EmptyState
-        title="Couldn't load this list"
-        description={error instanceof Error ? error.message : String(error)}
-      />
     );
   }
 

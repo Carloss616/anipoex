@@ -19,9 +19,12 @@ export function useMangaList(
 ) {
   const userId = useValue(session$.user)?.id;
 
-  const { data, isPending, isRefetching, refetch, error } = useMangaListQuery(
+  const { data, isPending, isRefetching, refetch } = useMangaListQuery(
     { userId: userId ?? 0, status },
-    { enabled: userId != null },
+    {
+      enabled: userId != null,
+      meta: { error: "Couldn't load this list" },
+    },
   );
 
   const entries$ = useObservable<MangaEntry[]>([]);
@@ -53,5 +56,5 @@ export function useMangaList(
     counts$[status].set(manga$.length);
   });
 
-  return { manga$, genres$, genre$, isPending, isRefetching, refetch, error };
+  return { manga$, genres$, genre$, isPending, isRefetching, refetch };
 }

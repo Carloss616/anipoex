@@ -1,12 +1,23 @@
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { type Query, QueryClient } from "@tanstack/react-query";
+import { type Query, QueryCache, QueryClient } from "@tanstack/react-query";
 import type { PersistQueryClientProviderProps } from "@tanstack/react-query-persist-client";
 import Constants from "expo-constants";
 import { createMMKV } from "react-native-mmkv";
+import { toast } from "@/components/ui/toast";
 
 const storage = createMMKV({ id: "query-cache" });
 
 export const queryClient = new QueryClient({
+  // One place for every failed query. Per-query copy via `meta.error`.
+  queryCache: new QueryCache({
+    onError: (_error, query) => {
+      const message = query.meta?.error;
+      toast.danger(
+        typeof message === "string" ? message : "Something went wrong",
+        { actionLabel: "Retry", onAction: () => query.fetch() },
+      );
+    },
+  }),
   defaultOptions: {
     queries: {
       networkMode: "offlineFirst",
