@@ -1,0 +1,8 @@
+query Manga($id: Int!) {
+  Media(id: $id, type: MANGA) {
+    ...MangaMedia
+    mediaListEntry {
+      ...MangaListEntry
+    }
+  }
+}

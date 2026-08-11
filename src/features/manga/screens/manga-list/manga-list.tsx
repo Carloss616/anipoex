@@ -15,8 +15,9 @@ import {
   useStackSearchBarTheme,
   useStackToolbarTheme,
 } from "@/hooks/use-theme";
+import { MANGA_LIST_KEY } from "../../hooks/use-manga-entry";
 import { ListScene } from "./components/list-scene";
-import { MANGA_LIST_KEY, MANGA_STATUSES } from "./constants";
+import { MANGA_STATUSES } from "./constants";
 
 const SPIN: CSSAnimationProperties<ViewStyle> = {
   animationName: { to: { transform: [{ rotate: "360deg" }] } },
@@ -29,7 +30,7 @@ export function MangaList() {
   const router = useRouter();
   const muted = useThemeColor("muted");
   const queryClient = useQueryClient();
-  const isRefetching = useIsFetching({ queryKey: MANGA_LIST_KEY }) > 0;
+  const isRefetching = useIsFetching({ queryKey: [MANGA_LIST_KEY] }) > 0;
   const headerHeight = useHeaderHeight();
   const { height, width } = useWindowDimensions();
   const { list } = useLocalSearchParams<{ list?: string }>();
@@ -54,7 +55,7 @@ export function MangaList() {
   };
 
   const refresh = () =>
-    queryClient.invalidateQueries({ queryKey: MANGA_LIST_KEY });
+    queryClient.invalidateQueries({ queryKey: [MANGA_LIST_KEY] });
 
   const routes = useMemo(
     () => MANGA_STATUSES.map((s) => ({ key: s.status, title: s.title })),

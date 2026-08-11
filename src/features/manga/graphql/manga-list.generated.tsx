@@ -37,19 +37,10 @@ export type MangaListQuery = {
     lists: Array<{
       entries: Array<{
         id: number;
+        status: Types.MediaListStatus | null;
         progress: number | null;
         score: number | null;
         notes: string | null;
-        startedAt: {
-          year: number | null;
-          month: number | null;
-          day: number | null;
-        } | null;
-        completedAt: {
-          year: number | null;
-          month: number | null;
-          day: number | null;
-        } | null;
         media: {
           id: number;
           genres: Array<string | null> | null;
@@ -67,6 +58,16 @@ export type MangaListQuery = {
           } | null;
           startDate: { year: number | null } | null;
         } | null;
+        startedAt: {
+          year: number | null;
+          month: number | null;
+          day: number | null;
+        } | null;
+        completedAt: {
+          year: number | null;
+          month: number | null;
+          day: number | null;
+        } | null;
       } | null> | null;
     } | null> | null;
   } | null;
@@ -82,47 +83,50 @@ export const MangaListDocument = new TypedDocumentString(`
   ) {
     lists {
       entries {
-        id
-        progress
-        score
-        startedAt {
-          year
-          month
-          day
-        }
-        completedAt {
-          year
-          month
-          day
-        }
-        notes
+        ...MangaListEntry
         media {
-          id
-          title {
-            userPreferred
-            english
-            romaji
-            native
-          }
-          coverImage {
-            large
-            medium
-            color
-          }
-          startDate {
-            year
-          }
-          genres
-          chapters
+          ...MangaMedia
         }
       }
     }
   }
 }
-    `) as unknown as TypedDocumentString<
-  MangaListQuery,
-  MangaListQueryVariables
->;
+    fragment MangaListEntry on MediaList {
+  id
+  status
+  progress
+  score
+  startedAt {
+    year
+    month
+    day
+  }
+  completedAt {
+    year
+    month
+    day
+  }
+  notes
+}
+fragment MangaMedia on Media {
+  id
+  title {
+    userPreferred
+    english
+    romaji
+    native
+  }
+  coverImage {
+    large
+    medium
+    color
+  }
+  startDate {
+    year
+  }
+  genres
+  chapters
+}`) as unknown as TypedDocumentString<MangaListQuery, MangaListQueryVariables>;
 
 export const useMangaListQuery = <TData = MangaListQuery, TError = unknown>(
   variables: MangaListQueryVariables,

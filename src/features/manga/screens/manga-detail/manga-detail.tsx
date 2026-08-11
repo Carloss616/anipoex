@@ -1,6 +1,8 @@
 import { Spacer } from "@expo/ui";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
 import { cn } from "heroui-native/utils";
+import { EmptyState } from "@/components/empty-state";
+import { Center } from "@/components/layout/center";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
@@ -8,15 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
+import { Spinner } from "@/components/ui/spinner";
 import { Typography } from "@/components/ui/typography";
+import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useStackToolbarTheme } from "@/hooks/use-theme";
 import { MangaCard } from "../../components/manga-card";
-import { CHAPTERS, MANGA_DETAIL } from "../../mocks";
+import { CHAPTERS } from "../../mocks";
 import { Actions } from "./components/actions";
 import { Chapters } from "./components/chapters";
 import { DownloadButton } from "./components/download-button";
 import { Meta } from "./components/meta";
-import { Synopsis } from "./components/synopsis";
 import { Tracking } from "./components/tracking";
 
 const MENU_ACTIONS = [
@@ -40,12 +43,29 @@ export function MangaDetail() {
   const isPreview = useIsPreview();
   const { id } = useLocalSearchParams<{ id: string }>();
   const toolbarTheme = useStackToolbarTheme();
+  // `isLoading`, not `isPending`: a disabled query (bad id) is pending forever.
+  const { data: manga, isLoading } = useMangaEntry(id);
+
+  if (isLoading || !manga) {
+    return (
+      <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
+        <Center>
+          {isLoading ? (
+            <Spinner size="lg" />
+          ) : (
+            <EmptyState
+              title="Manga not found"
+              description="We couldn't find this manga on AniList."
+            />
+          )}
+        </Center>
+      </Host>
+    );
+  }
 
   return (
     <>
-      <Stack.Title large>
-        {MANGA_DETAIL.title} - {id}
-      </Stack.Title>
+      <Stack.Title large>{manga.title}</Stack.Title>
       <Stack.Toolbar placement="right" {...toolbarTheme}>
         <Stack.Toolbar.Menu
           icon={Icon.select({
@@ -67,31 +87,34 @@ export function MangaDetail() {
             <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
               <Row className="gap-4" alignment="center">
                 <MangaCard
-                  cover="https://picsum.photos/seed/696/3000/2000"
+                  cover={manga.cover}
+                  coverThumb={manga.coverThumb}
+                  coverColor={manga.coverColor}
                   className="w-36"
                 />
-                <Meta className="web:self-auto!" />
+                <Meta manga={manga} className="web:self-auto!" />
               </Row>
 
-              <Tracking />
+              <Tracking manga={manga} />
               <Actions />
-              <Synopsis />
             </Column>
 
-            <ScrollView direction="horizontal" showsIndicators={false}>
-              <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
-                {MANGA_DETAIL.genres.map((g) => (
-                  <Chip key={g} variant="secondary" size="sm">
-                    <Chip.Label>{g}</Chip.Label>
-                  </Chip>
-                ))}
-              </Row>
-            </ScrollView>
+            {manga.genres.length > 0 && (
+              <ScrollView direction="horizontal" showsIndicators={false}>
+                <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
+                  {manga.genres.map((g) => (
+                    <Chip key={g} variant="secondary" size="sm">
+                      <Chip.Label>{g}</Chip.Label>
+                    </Chip>
+                  ))}
+                </Row>
+              </ScrollView>
+            )}
 
             <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
               <Row alignment="center" className="gap-2">
                 <Typography weight="semibold">Chapters</Typography>
-                <Badge>{CHAPTERS.length}</Badge>
+                <Badge>{manga.chapters ?? CHAPTERS.length}</Badge>
                 <Spacer flexible />
                 <DownloadButton />
               </Row>

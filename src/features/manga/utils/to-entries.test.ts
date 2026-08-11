@@ -1,9 +1,11 @@
 import { describe, expect, it } from "bun:test";
+import { MediaListStatus } from "@/graphql/types";
 import type { MangaListQuery } from "../graphql/manga-list.generated";
-import { toEntries } from "./to-entries";
+import { toEntries, toEntry } from "./to-entries";
 
 const entry = (media: object | null) => ({
   id: 1,
+  status: MediaListStatus.Current,
   progress: 12,
   score: null,
   media,
@@ -60,6 +62,8 @@ describe("toEntries", () => {
         coverColor: "#1a1a1a",
         progress: 12,
         chapters: 374,
+        score: null,
+        listStatus: MediaListStatus.Current,
       },
     ]);
   });
@@ -70,6 +74,7 @@ describe("toEntries", () => {
         entries: [
           {
             id: 2,
+            status: null,
             progress: null,
             score: null,
             media: {
@@ -97,7 +102,24 @@ describe("toEntries", () => {
         coverColor: null,
         progress: 0,
         chapters: null,
+        score: null,
+        listStatus: null,
       },
     ]);
+  });
+});
+
+describe("toEntry", () => {
+  it("maps a media with no list entry — the untracked detail path", () => {
+    expect(toEntry({ id: 7 } as never, null)).toMatchObject({
+      id: "7",
+      progress: 0,
+      score: null,
+      listStatus: null,
+    });
+  });
+
+  it("returns null when there is no media", () => {
+    expect(toEntry(null, entry(null) as never)).toBeNull();
   });
 });

@@ -1,0 +1,37 @@
+fragment MangaMedia on Media {
+  id
+  title {
+    userPreferred
+    english
+    romaji
+    native
+  }
+  coverImage {
+    large
+    medium
+    color
+  }
+  startDate {
+    year
+  }
+  genres
+  chapters
+}
+
+fragment MangaListEntry on MediaList {
+  id
+  status
+  progress
+  score
+  startedAt {
+    year
+    month
+    day
+  }
+  completedAt {
+    year
+    month
+    day
+  }
+  notes
+}

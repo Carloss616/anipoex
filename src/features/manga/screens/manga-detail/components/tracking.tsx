@@ -7,10 +7,21 @@ import { RNHostView } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
+import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
+import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { noop } from "@/utils/utils";
 import { WEB_ICON_COLOR } from "../constants";
 
-export function Tracking() {
+export function Tracking({ manga }: { manga: MangaEntry }) {
+  const label = manga.listStatus
+    ? (MANGA_STATUSES.find((s) => s.status === manga.listStatus)?.title ??
+      manga.listStatus)
+    : "Not in list";
+  const total = manga.chapters;
+  const ratio =
+    total != null && total > 0 ? Math.min(manga.progress / total, 1) : 0;
+  const percent = Math.round(ratio * 100);
+
   return (
     <Button
       variant={Platform.select({
@@ -25,12 +36,16 @@ export function Tracking() {
           <RNHostView matchContents>
             <View className="size-2 rounded-full bg-accent" />
           </RNHostView>
-          <Button.Label className="ios:text-foreground">Reading</Button.Label>
+          <Button.Label className="ios:text-foreground">{label}</Button.Label>
           <Spacer flexible />
-          <Typography.Code className="web:self-auto">42/120</Typography.Code>
-          <Typography type="body-xs" color="muted">
-            35%
-          </Typography>
+          <Typography.Code className="web:self-auto">
+            {manga.progress}/{total ?? "?"}
+          </Typography.Code>
+          {total != null && total > 0 && (
+            <Typography type="body-xs" color="muted">
+              {percent}%
+            </Typography>
+          )}
           <Icon
             name={Icon.select({
               ios: "chevron.right",
@@ -41,7 +56,7 @@ export function Tracking() {
             colorClassName={WEB_ICON_COLOR}
           />
         </Row>
-        <Progress value={0.35} />
+        <Progress value={ratio} />
       </Column>
     </Button>
   );
