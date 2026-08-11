@@ -4,6 +4,7 @@ import {
   useToast as useHeroUIToast,
 } from "heroui-native/toast";
 import { useEffect } from "react";
+import { Platform } from "react-native";
 
 export interface ToastOptions {
   color?: ToastVariant;
@@ -46,7 +47,7 @@ export function ToastHost() {
         component: (props) => (
           <Toast
             variant={options?.color}
-            placement="bottom"
+            placement={Platform.select({ ios: "top", default: "bottom" })}
             className="w-full max-w-md flex-row items-center gap-2 self-center"
             {...props}
           >

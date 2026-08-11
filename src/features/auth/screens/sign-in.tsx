@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
 import { toast } from "@/components/ui/toast";
 import { Typography } from "@/components/ui/typography";
-import { setToken, setUser } from "@/state/session";
+import { session$ } from "@/state/session";
 import { anilist } from "../trackers/anilist";
 
 function close() {
@@ -21,11 +21,11 @@ export function SignIn() {
     try {
       const result = await anilist.authorize();
       if (!result) return;
-      await setToken(result.accessToken);
+      session$.token.set(result.accessToken);
 
       try {
         const user = await anilist.fetchViewer();
-        setUser(user);
+        session$.user.set(user);
       } catch (cause) {
         // Signed in either way — the profile just didn't load.
         toast.warning(

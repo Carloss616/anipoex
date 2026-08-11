@@ -22,14 +22,6 @@ syncObservable(session$.user, {
   },
 });
 
-export async function setToken(token: string) {
-  session$.token.set(token);
-}
-
-export function setUser(user: User) {
-  session$.user.set(user);
-}
-
 export async function clearSession() {
   session$.token.set(undefined);
   session$.user.set(undefined);

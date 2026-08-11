@@ -1,4 +1,5 @@
 import { useValue } from "@legendapp/state/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { Center } from "@/components/layout/center";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -9,12 +10,14 @@ import { Typography } from "@/components/ui/typography";
 import { clearSession, session$ } from "@/state/session";
 
 export function Home() {
+  const queryClient = useQueryClient();
   const token = useValue(session$.token);
   const user = useValue(session$.user);
 
   async function handleSignOut() {
     try {
       await clearSession();
+      queryClient.clear();
     } catch (cause) {
       toast.danger(
         cause instanceof Error ? cause.message : "Something went wrong",
