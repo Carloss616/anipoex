@@ -4,11 +4,10 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useThemeColor } from "heroui-native/hooks";
 import { useMemo, useRef, useState } from "react";
-import { Platform, useWindowDimensions, type ViewStyle } from "react-native";
-import Animated, { type CSSAnimationProperties } from "react-native-reanimated";
+import { Platform, useWindowDimensions } from "react-native";
 import { TabView } from "react-native-tab-view";
 import { TabBar } from "@/components/layout/tab-bar";
-import { CloseButton } from "@/components/ui/close-button";
+import { withWebToolbar } from "@/components/layout/with-web-toolbar";
 import { Icon } from "@/components/ui/icon";
 import { MediaListStatus } from "@/graphql/types.generated";
 import {
@@ -17,13 +16,6 @@ import {
 } from "@/hooks/use-theme";
 import { ListScene } from "./components/list-scene";
 import { MANGA_STATUSES } from "./constants";
-
-const SPIN: CSSAnimationProperties<ViewStyle> = {
-  animationName: { to: { transform: [{ rotate: "360deg" }] } },
-  animationDuration: "1s",
-  animationTimingFunction: "linear",
-  animationIterationCount: "infinite",
-};
 
 export function MangaList() {
   const router = useRouter();
@@ -82,36 +74,21 @@ export function MangaList() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      {/* TODO: create component to render Stack.Toolbar.Menu on mobile and Stack.Screen.headerRight on web */}
-      <Stack.Toolbar placement="right" {...toolbarTheme}>
-        <Stack.Toolbar.Button
-          icon={Icon.select({
-            ios: "arrow.clockwise",
-            android: require("@expo/material-symbols/refresh.xml"),
-          })}
-          onPress={refresh}
-          disabled={refetching}
-          tintColor={refetching ? muted : undefined}
-        />
-      </Stack.Toolbar>
-
-      {Platform.OS === "web" && (
-        <Stack.Screen
-          options={{
-            headerRight: ({ tintColor }) => (
-              <CloseButton
-                className="h-10"
-                isDisabled={refetching}
-                onPress={refresh}
-                accessibilityLabel="Refresh"
-              >
-                <Animated.View style={refetching ? SPIN : undefined}>
-                  <Icon name="refresh-cw" size={18} color={tintColor} />
-                </Animated.View>
-              </CloseButton>
-            ),
-          }}
-        />
+      {withWebToolbar(
+        <Stack.Toolbar placement="right" {...toolbarTheme}>
+          <Stack.Toolbar.Button
+            icon={Icon.select({
+              ios: "arrow.clockwise",
+              android: require("@expo/material-symbols/refresh.xml"),
+              web: "refresh-cw",
+            })}
+            onPress={refresh}
+            disabled={refetching}
+            tintColor={refetching ? muted : undefined}
+            accessibilityLabel="Refresh"
+          />
+        </Stack.Toolbar>,
+        { spinning: refetching },
       )}
 
       <TabView

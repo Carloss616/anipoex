@@ -1,4 +1,5 @@
 import type {
+  Icon as IconBase,
   IconName as IconBaseName,
   IconProps as IconBaseProps,
   IconSelectSpec as IconBaseSelectSpec,
@@ -42,17 +43,14 @@ export interface IconSelectSpec extends IconBaseSelectSpec {
   web?: LucideName;
 }
 
-const select = <T extends IconSelectSpec = IconSelectSpec>(spec: T) => {
-  return spec.web as {
-    // `require()` returns `any`, which distributes to both branches and
-    // collapses the whole union to `any`; `0 extends 1 & V` catches it first.
-    [K in keyof T]: 0 extends 1 & T[K]
-      ? ImageSourcePropType
-      : T[K] extends Promise<unknown>
-        ? ImageSourcePropType
-        : T[K];
-  }[keyof T];
-};
+/**
+ * Picks `spec.web` at runtime, but types the result like the native
+ * `Icon.select` so it stays assignable to native-typed props such as
+ * `Stack.Toolbar.Button`'s `icon`. `with-web-toolbar.web.tsx` casts it back to
+ * a Lucide name when it actually renders the icon on web.
+ */
+const select = (spec: IconSelectSpec) =>
+  spec.web as unknown as ReturnType<typeof IconBase.select>;
 
 export const Icon = Object.assign(IconRoot, {
   select,

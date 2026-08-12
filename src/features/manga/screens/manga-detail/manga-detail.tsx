@@ -6,6 +6,7 @@ import { Center } from "@/components/layout/center";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
+import { withWebToolbar } from "@/components/layout/with-web-toolbar";
 import { Badge } from "@/components/ui/badge";
 import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
@@ -14,6 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Typography } from "@/components/ui/typography";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useStackToolbarTheme } from "@/hooks/use-theme";
+import { noop } from "@/utils/utils";
 import { MangaCard } from "../../components/manga-card";
 import { CHAPTERS } from "../../mocks";
 import { Actions } from "./components/actions";
@@ -28,17 +30,21 @@ const MENU_ACTIONS = [
     icon: Icon.select({
       ios: "square.and.arrow.up",
       android: require("@expo/material-symbols/share.xml"),
+      web: "share",
     }),
     label: "Share",
+    onPress: noop,
   },
   {
     icon: Icon.select({
       ios: "arrow.down.circle",
       android: require("@expo/material-symbols/download.xml"),
+      web: "download",
     }),
     label: "Download",
+    onPress: noop,
   },
-];
+] as const;
 
 export function MangaDetail() {
   const isPreview = useIsPreview();
@@ -66,21 +72,28 @@ export function MangaDetail() {
   return (
     <>
       <Stack.Title large>{manga.title}</Stack.Title>
-      {/* TODO: create component to render Stack.Toolbar.Menu on mobile and Stack.Screen.headerRight on web */}
-      <Stack.Toolbar placement="right" {...toolbarTheme}>
-        <Stack.Toolbar.Menu
-          icon={Icon.select({
-            ios: "ellipsis",
-            android: require("@expo/material-symbols/more_vert.xml"),
-          })}
-        >
-          {MENU_ACTIONS.map(({ icon, label }) => (
-            <Stack.Toolbar.MenuAction key={label} icon={icon}>
-              {label}
-            </Stack.Toolbar.MenuAction>
-          ))}
-        </Stack.Toolbar.Menu>
-      </Stack.Toolbar>
+      {withWebToolbar(
+        <Stack.Toolbar placement="right" {...toolbarTheme}>
+          <Stack.Toolbar.Menu
+            icon={Icon.select({
+              ios: "ellipsis",
+              android: require("@expo/material-symbols/more_vert.xml"),
+              web: "ellipsis",
+            })}
+            accessibilityLabel="More options"
+          >
+            {MENU_ACTIONS.map(({ icon, label, onPress }) => (
+              <Stack.Toolbar.MenuAction
+                key={label}
+                icon={icon}
+                onPress={onPress}
+              >
+                {label}
+              </Stack.Toolbar.MenuAction>
+            ))}
+          </Stack.Toolbar.Menu>
+        </Stack.Toolbar>,
+      )}
 
       <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
         <ScrollView>
