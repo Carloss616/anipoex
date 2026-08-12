@@ -1,3 +1,4 @@
+import { ApolloProvider } from "@apollo/client/react";
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -5,14 +6,14 @@ import {
   Inter_700Bold,
   useFonts,
 } from "@expo-google-fonts/inter";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { HeroUINativeProvider } from "heroui-native/provider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { ToastHost, toastConfig } from "@/components/ui/toast";
-import { persistOptions, queryClient } from "@/utils/query-client";
+import { client } from "@/graphql/client";
+import { useCacheRestored } from "@/graphql/use-cache-restored";
 import "@/global.css";
 import "@/utils/focus-modality";
 import { Stack } from "expo-router/stack";
@@ -22,6 +23,7 @@ import { useNavigationTheme } from "@/hooks/use-theme";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const cacheRestored = useCacheRestored();
   const theme = useNavigationTheme();
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -30,15 +32,11 @@ export default function RootLayout() {
     Inter_700Bold,
   });
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || !cacheRestored) return null;
 
   return (
     <GestureHandlerRootView className="web:bg-background">
-      <PersistQueryClientProvider
-        client={queryClient}
-        persistOptions={persistOptions}
-        onSuccess={() => queryClient.resumePausedMutations()}
-      >
+      <ApolloProvider client={client}>
         <HeroUINativeProvider config={{ toast: toastConfig }}>
           <ThemeProvider value={theme}>
             <AnimatedSplashOverlay />
@@ -52,7 +50,7 @@ export default function RootLayout() {
             <StatusBar style={theme.dark ? "light" : "dark"} />
           </ThemeProvider>
         </HeroUINativeProvider>
-      </PersistQueryClientProvider>
+      </ApolloProvider>
     </GestureHandlerRootView>
   );
 }

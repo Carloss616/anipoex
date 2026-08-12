@@ -7,11 +7,8 @@ export type Incremental<T> =
       [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
     };
 
-import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
-import { fetcher } from "@/graphql/fetcher";
-import { TypedDocumentString } from "@/graphql/graphql";
-import type * as Types from "@/graphql/types";
-
+import type { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+import type * as Types from "@/graphql/types.generated";
 /** Media list watching/reading status enum. */
 export type MediaListStatus =
   /** Finished watching/reading */
@@ -33,96 +30,206 @@ export type MangaQueryVariables = Exact<{
 
 export type MangaQuery = {
   Media: {
+    __typename: "Media";
     id: number;
     genres: Array<string | null> | null;
     chapters: number | null;
-    mediaListEntry: {
-      id: number;
-      status: Types.MediaListStatus | null;
-      progress: number | null;
-      score: number | null;
-      notes: string | null;
-      startedAt: {
-        year: number | null;
-        month: number | null;
-        day: number | null;
-      } | null;
-      completedAt: {
-        year: number | null;
-        month: number | null;
-        day: number | null;
-      } | null;
-    } | null;
     title: {
+      __typename: "MediaTitle";
       userPreferred: string | null;
       english: string | null;
       romaji: string | null;
       native: string | null;
     } | null;
     coverImage: {
+      __typename: "MediaCoverImage";
       large: string | null;
       medium: string | null;
       color: string | null;
     } | null;
-    startDate: { year: number | null } | null;
+    startDate: { __typename: "FuzzyDate"; year: number | null } | null;
+    mediaListEntry: {
+      __typename: "MediaList";
+      id: number;
+      status: Types.MediaListStatus | null;
+      progress: number | null;
+      score: number | null;
+      notes: string | null;
+      startedAt: {
+        __typename: "FuzzyDate";
+        year: number | null;
+        month: number | null;
+        day: number | null;
+      } | null;
+      completedAt: {
+        __typename: "FuzzyDate";
+        year: number | null;
+        month: number | null;
+        day: number | null;
+      } | null;
+    } | null;
   } | null;
 };
 
-export const MangaDocument = new TypedDocumentString(`
-    query Manga($id: Int!) {
-  Media(id: $id, type: MANGA) {
-    ...MangaMedia
-    mediaListEntry {
-      ...MangaListEntry
-    }
-  }
-}
-    fragment MangaMedia on Media {
-  id
-  title {
-    userPreferred
-    english
-    romaji
-    native
-  }
-  coverImage {
-    large
-    medium
-    color
-  }
-  startDate {
-    year
-  }
-  genres
-  chapters
-}
-fragment MangaListEntry on MediaList {
-  id
-  status
-  progress
-  score
-  startedAt {
-    year
-    month
-    day
-  }
-  completedAt {
-    year
-    month
-    day
-  }
-  notes
-}`) as unknown as TypedDocumentString<MangaQuery, MangaQueryVariables>;
-
-export const useMangaQuery = <TData = MangaQuery, TError = unknown>(
-  variables: MangaQueryVariables,
-  options?: Omit<UseQueryOptions<MangaQuery, TError, TData>, "queryKey"> & {
-    queryKey?: UseQueryOptions<MangaQuery, TError, TData>["queryKey"];
-  },
-) => {
-  return useQuery<MangaQuery, TError, TData>({
-    queryKey: ["Manga", variables],
-    queryFn: fetcher<MangaQuery, MangaQueryVariables>(MangaDocument, variables),
-    ...options,
-  });
-};
+export const MangaDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Manga" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "Media" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "type" },
+                value: { kind: "EnumValue", value: "MANGA" },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "MangaMedia" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "MangaListEntry" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "MediaList" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          { kind: "Field", name: { kind: "Name", value: "status" } },
+          { kind: "Field", name: { kind: "Name", value: "progress" } },
+          { kind: "Field", name: { kind: "Name", value: "score" } },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "startedAt" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+                { kind: "Field", name: { kind: "Name", value: "month" } },
+                { kind: "Field", name: { kind: "Name", value: "day" } },
+              ],
+            },
+          },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "completedAt" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+                { kind: "Field", name: { kind: "Name", value: "month" } },
+                { kind: "Field", name: { kind: "Name", value: "day" } },
+              ],
+            },
+          },
+          { kind: "Field", name: { kind: "Name", value: "notes" } },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "MangaMedia" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "Media" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "title" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "userPreferred" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "english" } },
+                { kind: "Field", name: { kind: "Name", value: "romaji" } },
+                { kind: "Field", name: { kind: "Name", value: "native" } },
+              ],
+            },
+          },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "coverImage" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "large" } },
+                { kind: "Field", name: { kind: "Name", value: "medium" } },
+                { kind: "Field", name: { kind: "Name", value: "color" } },
+              ],
+            },
+          },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "startDate" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+              ],
+            },
+          },
+          { kind: "Field", name: { kind: "Name", value: "genres" } },
+          { kind: "Field", name: { kind: "Name", value: "chapters" } },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "mediaListEntry" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "FragmentSpread",
+                  name: { kind: "Name", value: "MangaListEntry" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MangaQuery, MangaQueryVariables>;

@@ -1,4 +1,4 @@
-import { MediaListStatus } from "@/graphql/types";
+import { MediaListStatus } from "@/graphql/types.generated";
 
 export const MANGA_STATUSES = [
   { status: MediaListStatus.Current, title: "Reading" },

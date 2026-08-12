@@ -87,7 +87,7 @@
       }
     },
     {
-      "includes": ["src/graphql/**", "src/**/*.generated.{ts,tsx}"],
+      "includes": ["src/**/*.generated.{ts,tsx}"],
       "linter": {
         "rules": {
           "suspicious": {

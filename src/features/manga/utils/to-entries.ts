@@ -1,8 +1,5 @@
-import type { MediaListStatus } from "@/graphql/types";
-import type {
-  MangaListEntryFragment,
-  MangaMediaFragment,
-} from "../graphql/manga-fragments.generated";
+import type { MediaListStatus } from "@/graphql/types.generated";
+import type { MangaMediaFragment } from "../graphql/manga-fragments.generated";
 import type { MangaListQuery } from "../graphql/manga-list.generated";
 
 export type MangaEntry = {
@@ -23,18 +20,16 @@ export type MangaEntry = {
   listStatus: MediaListStatus | null;
 };
 
-/**
- * Both the list and the detail query select the same two fragments, so a single
- * mapper covers the cached-list path and the fetched-by-id path.
- */
 export function toEntry(
+  id: number,
   media: MangaMediaFragment | null | undefined,
-  entry: MangaListEntryFragment | null | undefined,
 ): MangaEntry | null {
   if (!media) return null;
 
+  const entry = media.mediaListEntry;
+
   return {
-    id: String(media.id),
+    id: String(id),
     title: media.title?.userPreferred ?? "",
     titles: [
       ...new Set(
@@ -67,7 +62,9 @@ export function toEntries(data: MangaListQuery | undefined): MangaEntry[] {
     data?.MediaListCollection?.lists?.flatMap(
       (list) =>
         list?.entries?.flatMap((entry) => {
-          const mapped = toEntry(entry?.media, entry);
+          const mapped = entry?.media
+            ? toEntry(entry.media.id, entry.media)
+            : null;
           return mapped ? [mapped] : [];
         }) ?? [],
     ) ?? []

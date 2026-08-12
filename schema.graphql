@@ -4,6 +4,15 @@ schema {
 }
 
 """
+Apollo's client-only directives. AniList doesn't declare them and codegen
+validates every document against the schema, so they have to exist somewhere.
+Apollo strips them from the document before sending the request.
+"""
+directive @nonreactive on FIELD | FRAGMENT_SPREAD
+
+directive @unmask(mode: String) on FRAGMENT_SPREAD
+
+"""
 Notification for when a activity is liked
 """
 type ActivityLikeNotification {

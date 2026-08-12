@@ -1,21 +1,20 @@
+import { useApolloClient } from "@apollo/client/react";
 import { useObservable } from "@legendapp/state/react";
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useThemeColor } from "heroui-native/hooks";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Platform, useWindowDimensions, type ViewStyle } from "react-native";
 import Animated, { type CSSAnimationProperties } from "react-native-reanimated";
 import { TabView } from "react-native-tab-view";
 import { TabBar } from "@/components/layout/tab-bar";
 import { CloseButton } from "@/components/ui/close-button";
 import { Icon } from "@/components/ui/icon";
-import { MediaListStatus } from "@/graphql/types";
+import { MediaListStatus } from "@/graphql/types.generated";
 import {
   useStackSearchBarTheme,
   useStackToolbarTheme,
 } from "@/hooks/use-theme";
-import { MANGA_LIST_KEY } from "../../hooks/use-manga-entry";
 import { ListScene } from "./components/list-scene";
 import { MANGA_STATUSES } from "./constants";
 
@@ -29,8 +28,8 @@ const SPIN: CSSAnimationProperties<ViewStyle> = {
 export function MangaList() {
   const router = useRouter();
   const muted = useThemeColor("muted");
-  const queryClient = useQueryClient();
-  const isRefetching = useIsFetching({ queryKey: [MANGA_LIST_KEY] }) > 0;
+  const client = useApolloClient();
+  const [refetching, setRefetching] = useState(false);
   const headerHeight = useHeaderHeight();
   const { height, width } = useWindowDimensions();
   const { list } = useLocalSearchParams<{ list?: string }>();
@@ -54,15 +53,18 @@ export function MangaList() {
     debounce.current = setTimeout(() => query$.set(text), 150);
   };
 
-  const refresh = () =>
-    queryClient.invalidateQueries({ queryKey: [MANGA_LIST_KEY] });
+  const refresh = () => {
+    setRefetching(true);
+    client
+      .refetchQueries({ include: ["MangaList"] })
+      .finally(() => setRefetching(false));
+  };
 
   const routes = useMemo(
     () => MANGA_STATUSES.map((s) => ({ key: s.status, title: s.title })),
     [],
   );
 
-  // the URL is the source of truth, so a deep link lands on the right tab
   const index = Math.max(
     0,
     routes.findIndex((r) => r.key === list),
@@ -87,8 +89,8 @@ export function MangaList() {
             android: require("@expo/material-symbols/refresh.xml"),
           })}
           onPress={refresh}
-          disabled={isRefetching}
-          tintColor={isRefetching ? muted : undefined}
+          disabled={refetching}
+          tintColor={refetching ? muted : undefined}
         />
       </Stack.Toolbar>
 
@@ -98,11 +100,11 @@ export function MangaList() {
             headerRight: ({ tintColor }) => (
               <CloseButton
                 className="h-10"
-                isDisabled={isRefetching}
+                isDisabled={refetching}
                 onPress={refresh}
                 accessibilityLabel="Refresh"
               >
-                <Animated.View style={isRefetching ? SPIN : undefined}>
+                <Animated.View style={refetching ? SPIN : undefined}>
                   <Icon name="refresh-cw" size={18} color={tintColor} />
                 </Animated.View>
               </CloseButton>

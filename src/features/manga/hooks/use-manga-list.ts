@@ -1,3 +1,5 @@
+import { NetworkStatus } from "@apollo/client";
+import { skipToken, useQuery } from "@apollo/client/react";
 import type { Observable, ObservablePrimitive } from "@legendapp/state";
 import {
   useObservable,
@@ -5,9 +7,9 @@ import {
   useValue,
 } from "@legendapp/state/react";
 import { useEffect } from "react";
-import type { MediaListStatus } from "@/graphql/types";
+import type { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
-import { useMangaListQuery } from "../graphql/manga-list.generated";
+import { MangaListDocument } from "../graphql/manga-list.generated";
 import { type MangaEntry, toEntries } from "../utils/to-entries";
 
 export const ALL = "All";
@@ -19,19 +21,19 @@ export function useMangaList(
 ) {
   const userId = useValue(session$.user)?.id;
 
-  const { data, isPending, isRefetching, refetch } = useMangaListQuery(
-    { userId: userId ?? 0, status },
-    {
-      enabled: userId != null,
-      meta: { error: "Couldn't load this list" },
-    },
+  const { data, loading, networkStatus, refetch } = useQuery(
+    MangaListDocument,
+    userId == null
+      ? skipToken
+      : {
+          variables: { userId, status },
+          context: { errorMessage: "Couldn't load this list" },
+        },
   );
 
   const entries$ = useObservable<MangaEntry[]>([]);
   useEffect(() => {
-    if (data) {
-      entries$.set(toEntries(data));
-    }
+    entries$.set(toEntries(data));
   }, [data, entries$]);
 
   const genre$ = useObservable(ALL);
@@ -56,5 +58,12 @@ export function useMangaList(
     counts$[status].set(manga$.length);
   });
 
-  return { manga$, genres$, genre$, isPending, isRefetching, refetch };
+  return {
+    manga$,
+    genres$,
+    genre$,
+    loading: loading && !data,
+    refetching: networkStatus === NetworkStatus.refetch,
+    refetch,
+  };
 }

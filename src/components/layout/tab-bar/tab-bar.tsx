@@ -5,7 +5,7 @@ import { Tabs } from "heroui-native/tabs";
 import { View } from "react-native";
 import type { Route, TabViewProps } from "react-native-tab-view";
 import { Badge } from "@/components/ui/badge";
-import type { MediaListStatus } from "@/graphql/types";
+import type { MediaListStatus } from "@/graphql/types.generated";
 
 export type TabBarProps<T extends Route> = Parameters<
   NonNullable<TabViewProps<T>["renderTabBar"]>

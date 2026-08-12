@@ -7,44 +7,51 @@ export type Incremental<T> =
       [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
     };
 
-import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
-import { fetcher } from "@/graphql/fetcher";
-import { TypedDocumentString } from "@/graphql/graphql";
-
+import type { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
 export type ViewerQueryVariables = Exact<{ [key: string]: never }>;
 
 export type ViewerQuery = {
   Viewer: {
+    __typename: "User";
     id: number;
     name: string;
-    avatar: { large: string | null } | null;
+    avatar: { __typename: "UserAvatar"; large: string | null } | null;
   } | null;
 };
 
-export const ViewerDocument = new TypedDocumentString(`
-    query Viewer {
-  Viewer {
-    id
-    name
-    avatar {
-      large
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<ViewerQuery, ViewerQueryVariables>;
-
-export const useViewerQuery = <TData = ViewerQuery, TError = unknown>(
-  variables?: ViewerQueryVariables,
-  options?: Omit<UseQueryOptions<ViewerQuery, TError, TData>, "queryKey"> & {
-    queryKey?: UseQueryOptions<ViewerQuery, TError, TData>["queryKey"];
-  },
-) => {
-  return useQuery<ViewerQuery, TError, TData>({
-    queryKey: variables === undefined ? ["Viewer"] : ["Viewer", variables],
-    queryFn: fetcher<ViewerQuery, ViewerQueryVariables>(
-      ViewerDocument,
-      variables,
-    ),
-    ...options,
-  });
-};
+export const ViewerDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Viewer" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "Viewer" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "avatar" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "large" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ViewerQuery, ViewerQueryVariables>;

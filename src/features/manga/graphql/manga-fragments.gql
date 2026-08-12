@@ -1,5 +1,21 @@
+fragment MangaListEntry on MediaList {
+  status
+  progress
+  score
+  startedAt {
+    year
+    month
+    day
+  }
+  completedAt {
+    year
+    month
+    day
+  }
+  notes
+}
+
 fragment MangaMedia on Media {
-  id
   title {
     userPreferred
     english
@@ -16,22 +32,8 @@ fragment MangaMedia on Media {
   }
   genres
   chapters
-}
-
-fragment MangaListEntry on MediaList {
-  id
-  status
-  progress
-  score
-  startedAt {
-    year
-    month
-    day
+  mediaListEntry {
+    id
+    ...MangaListEntry
   }
-  completedAt {
-    year
-    month
-    day
-  }
-  notes
 }

@@ -5,7 +5,7 @@ import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
 import { Spinner } from "@/components/ui/spinner";
 import { useMangaList } from "@/features/manga/hooks/use-manga-list";
-import type { MediaListStatus } from "@/graphql/types";
+import type { MediaListStatus } from "@/graphql/types.generated";
 import { useRefreshControlTheme } from "@/hooks/use-theme";
 import { ListEmpty } from "./list-empty";
 import { ListHeader } from "./list-header";
@@ -21,7 +21,7 @@ export function ListScene({
   counts$: Observable<Record<MediaListStatus, number | null>>;
 }) {
   const { width } = useWindowDimensions();
-  const { manga$, genres$, genre$, isPending, isRefetching, refetch } =
+  const { manga$, genres$, genre$, loading, refetching, refetch } =
     useMangaList(status, query$, counts$);
   const refreshControlTheme = useRefreshControlTheme();
   const manga = useValue(manga$);
@@ -29,7 +29,7 @@ export function ListScene({
   const numColumns =
     width >= 1280 ? 12 : width >= 1024 ? 8 : width >= 768 ? 6 : 4;
 
-  if (isPending) {
+  if (loading) {
     return (
       <Center>
         <Spinner size="lg" />
@@ -51,7 +51,7 @@ export function ListScene({
       ListEmptyComponent={<ListEmpty genre$={genre$} query$={query$} />}
       refreshControl={
         <RefreshControl
-          refreshing={isRefetching}
+          refreshing={refetching}
           onRefresh={refetch}
           {...refreshControlTheme}
         />

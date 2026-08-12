@@ -7,9 +7,10 @@ query MangaList($userId: Int!, $status: MediaListStatus!) {
   ) {
     lists {
       entries {
-        ...MangaListEntry
+        id
         media {
-          ...MangaMedia
+          id
+          ...MangaMedia @nonreactive
         }
       }
     }

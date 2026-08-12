@@ -1,5 +1,4 @@
 import { useValue } from "@legendapp/state/react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { Center } from "@/components/layout/center";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -7,20 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
 import { toast } from "@/components/ui/toast";
 import { Typography } from "@/components/ui/typography";
+import { clearCache } from "@/graphql/client";
 import { clearSession, session$ } from "@/state/session";
 
 export function Home() {
-  const queryClient = useQueryClient();
   const token = useValue(session$.token);
   const user = useValue(session$.user);
 
   async function handleSignOut() {
-    try {
-      await clearSession();
-      queryClient.clear();
-    } catch (cause) {
+    const results = await Promise.allSettled([clearSession(), clearCache()]);
+    const failed = results.find((r) => r.status === "rejected");
+
+    if (failed) {
       toast.danger(
-        cause instanceof Error ? cause.message : "Something went wrong",
+        failed.reason instanceof Error
+          ? failed.reason.message
+          : "Something went wrong",
       );
     }
   }

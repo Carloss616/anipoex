@@ -9,7 +9,7 @@ import { type TouchableNativeFeedbackProps, View } from "react-native";
 import type { Route } from "react-native-tab-view";
 import { Badge } from "@/components/ui/badge";
 import { TouchableNativeFeedback } from "@/components/ui/touchable-native-feedback";
-import type { MediaListStatus } from "@/graphql/types";
+import type { MediaListStatus } from "@/graphql/types.generated";
 import type { TabBarProps } from "./tab-bar";
 
 export function TabBar<T extends Route>({

@@ -1,6 +1,6 @@
 import * as WebBrowser from "expo-web-browser";
 import { Platform } from "react-native";
-import { fetcher } from "@/graphql/fetcher";
+import { client } from "@/graphql/client";
 import type { Tracker, User } from "../../types/tracker";
 import { parseFragment } from "../../utils/parse-fragment";
 import { CLIENT_ID, REDIRECT_URI } from "./constants";
@@ -40,7 +40,14 @@ export const anilist: Tracker = {
   },
 
   async fetchViewer(): Promise<User> {
-    const { Viewer: viewer } = await fetcher(ViewerDocument)();
+    // `silent`: sign-in reports this failure itself, with its own copy.
+    const { data } = await client.query({
+      query: ViewerDocument,
+      fetchPolicy: "network-only",
+      context: { silent: true },
+    });
+
+    const viewer = data?.Viewer;
     if (!viewer) {
       throw new Error("AniList did not return Viewer");
     }

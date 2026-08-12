@@ -43,14 +43,13 @@ export function MangaDetail() {
   const isPreview = useIsPreview();
   const { id } = useLocalSearchParams<{ id: string }>();
   const toolbarTheme = useStackToolbarTheme();
-  // `isLoading`, not `isPending`: a disabled query (bad id) is pending forever.
-  const { data: manga, isLoading } = useMangaEntry(id);
+  const { manga, loading } = useMangaEntry(id);
 
-  if (isLoading || !manga) {
+  if (loading || !manga) {
     return (
       <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
         <Center>
-          {isLoading ? (
+          {loading ? (
             <Spinner size="lg" />
           ) : (
             <EmptyState
