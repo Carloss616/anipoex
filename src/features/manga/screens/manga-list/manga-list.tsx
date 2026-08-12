@@ -82,6 +82,7 @@ export function MangaList() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
+      {/* TODO: create component to render Stack.Toolbar.Menu on mobile and Stack.Screen.headerRight on web */}
       <Stack.Toolbar placement="right" {...toolbarTheme}>
         <Stack.Toolbar.Button
           icon={Icon.select({

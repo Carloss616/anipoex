@@ -1,5 +1,6 @@
 import { Spacer } from "@expo/ui";
 import { Fragment } from "react";
+import { ExternalLink } from "@/components/external-link";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ const ACTIONS = [
       web: "book-open",
     }),
     label: "Source",
+    mode: "action",
   },
   {
     icon: Icon.select({
@@ -23,6 +25,7 @@ const ACTIONS = [
       web: "hourglass",
     }),
     label: "4 days",
+    mode: "action",
   },
   {
     icon: Icon.select({
@@ -31,13 +34,39 @@ const ACTIONS = [
       web: "globe",
     }),
     label: "Website",
+    mode: "anilist-link",
   },
-];
+] as const;
 
-export function Actions() {
+const ButtonOrLink = ({
+  id,
+  mode,
+  children,
+}: {
+  id: string;
+  mode: (typeof ACTIONS)[number]["mode"];
+  children: React.ReactNode;
+}) => {
+  if (mode === "anilist-link") {
+    return (
+      <ExternalLink href={`https://anilist.co/manga/${id}`}>
+        <Button variant="ghost" className="h-auto">
+          {children}
+        </Button>
+      </ExternalLink>
+    );
+  }
+  return (
+    <Button variant="ghost" className="h-auto">
+      {children}
+    </Button>
+  );
+};
+
+export function Actions({ id }: { id: string }) {
   return (
     <Row alignment="center">
-      {ACTIONS.map(({ icon, label }, i) => (
+      {ACTIONS.map(({ icon, label, mode }, i) => (
         <Fragment key={label}>
           {i > 0 && (
             <>
@@ -46,14 +75,14 @@ export function Actions() {
               <Spacer flexible />
             </>
           )}
-          <Button variant="ghost" className="h-auto">
+          <ButtonOrLink id={id} mode={mode}>
             <Column className="web:self-auto! gap-0.5" alignment="center">
               <Icon name={icon} size={18} colorClassName={WEB_ICON_COLOR} />
               <Button.Label className="ios:text-foreground">
                 {label}
               </Button.Label>
             </Column>
-          </Button>
+          </ButtonOrLink>
         </Fragment>
       ))}
     </Row>

@@ -1,18 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { MediaListStatus } from "@/graphql/types.generated";
 import type { MangaMediaFragment } from "../graphql/manga-fragments.generated";
 import type { MangaListQuery } from "../graphql/manga-list.generated";
 import { toEntries, toEntry } from "./to-entries";
 
-const listEntry = {
-  id: 1,
-  status: MediaListStatus.Current,
-  progress: 12,
-  score: null,
-  startedAt: null,
-  completedAt: null,
-  notes: null,
-};
+// The list only selects progress off the entry — score, status and the dates
+// belong to `MangaDetail`.
+const listEntry = { id: 1, progress: 12 };
 
 const berserk = {
   id: 30002,
@@ -44,8 +37,6 @@ const berserkEntry = {
   coverColor: "#1a1a1a",
   progress: 12,
   chapters: 374,
-  score: null,
-  listStatus: MediaListStatus.Current,
 };
 
 const query = (lists: unknown) =>
@@ -91,8 +82,6 @@ describe("toEntry", () => {
       coverColor: null,
       progress: 0,
       chapters: null,
-      score: null,
-      listStatus: null,
     });
   });
 

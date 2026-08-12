@@ -20,6 +20,7 @@ import { Actions } from "./components/actions";
 import { Chapters } from "./components/chapters";
 import { DownloadButton } from "./components/download-button";
 import { Meta } from "./components/meta";
+import { Synopsis } from "./components/synopsis";
 import { Tracking } from "./components/tracking";
 
 const MENU_ACTIONS = [
@@ -43,13 +44,13 @@ export function MangaDetail() {
   const isPreview = useIsPreview();
   const { id } = useLocalSearchParams<{ id: string }>();
   const toolbarTheme = useStackToolbarTheme();
-  const { manga, loading } = useMangaEntry(id);
+  const { manga, loading, refetching } = useMangaEntry(id);
 
-  if (loading || !manga) {
+  if (loading || refetching || !manga) {
     return (
       <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
         <Center>
-          {loading ? (
+          {loading || refetching ? (
             <Spinner size="lg" />
           ) : (
             <EmptyState
@@ -65,6 +66,7 @@ export function MangaDetail() {
   return (
     <>
       <Stack.Title large>{manga.title}</Stack.Title>
+      {/* TODO: create component to render Stack.Toolbar.Menu on mobile and Stack.Screen.headerRight on web */}
       <Stack.Toolbar placement="right" {...toolbarTheme}>
         <Stack.Toolbar.Menu
           icon={Icon.select({
@@ -95,7 +97,8 @@ export function MangaDetail() {
               </Row>
 
               <Tracking manga={manga} />
-              <Actions />
+              <Actions id={id} />
+              <Synopsis text={manga.synopsis} />
             </Column>
 
             {manga.genres.length > 0 && (

@@ -24,6 +24,19 @@ export type MediaListStatus =
   /** Re-watching/reading */
   | "REPEATING";
 
+/** The current releasing status of the media */
+export type MediaStatus =
+  /** Ended before the work could be finished */
+  | "CANCELLED"
+  /** Has completed and is no longer being released */
+  | "FINISHED"
+  /** Version 2 only. Is currently paused from releasing and will resume at a later date */
+  | "HIATUS"
+  /** To be released at a later date */
+  | "NOT_YET_RELEASED"
+  /** Currently releasing */
+  | "RELEASING";
+
 export type MangaQueryVariables = Exact<{
   id: number;
 }>;
@@ -32,27 +45,15 @@ export type MangaQuery = {
   Media: {
     __typename: "Media";
     id: number;
+    status: Types.MediaStatus | null;
+    description: string | null;
     genres: Array<string | null> | null;
     chapters: number | null;
-    title: {
-      __typename: "MediaTitle";
-      userPreferred: string | null;
-      english: string | null;
-      romaji: string | null;
-      native: string | null;
-    } | null;
-    coverImage: {
-      __typename: "MediaCoverImage";
-      large: string | null;
-      medium: string | null;
-      color: string | null;
-    } | null;
-    startDate: { __typename: "FuzzyDate"; year: number | null } | null;
     mediaListEntry: {
       __typename: "MediaList";
       id: number;
-      status: Types.MediaListStatus | null;
       progress: number | null;
+      status: Types.MediaListStatus | null;
       score: number | null;
       notes: string | null;
       startedAt: {
@@ -68,6 +69,32 @@ export type MangaQuery = {
         day: number | null;
       } | null;
     } | null;
+    staff: {
+      __typename: "StaffConnection";
+      edges: Array<{
+        __typename: "StaffEdge";
+        role: string | null;
+        node: {
+          __typename: "Staff";
+          id: number;
+          name: { __typename: "StaffName"; full: string | null } | null;
+        } | null;
+      } | null> | null;
+    } | null;
+    title: {
+      __typename: "MediaTitle";
+      userPreferred: string | null;
+      english: string | null;
+      romaji: string | null;
+      native: string | null;
+    } | null;
+    coverImage: {
+      __typename: "MediaCoverImage";
+      large: string | null;
+      medium: string | null;
+      color: string | null;
+    } | null;
+    startDate: { __typename: "FuzzyDate"; year: number | null } | null;
   } | null;
 };
 
@@ -115,52 +142,11 @@ export const MangaDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 {
                   kind: "FragmentSpread",
-                  name: { kind: "Name", value: "MangaMedia" },
+                  name: { kind: "Name", value: "MangaDetail" },
                 },
               ],
             },
           },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
-      name: { kind: "Name", value: "MangaListEntry" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "MediaList" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "status" } },
-          { kind: "Field", name: { kind: "Name", value: "progress" } },
-          { kind: "Field", name: { kind: "Name", value: "score" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "startedAt" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "year" } },
-                { kind: "Field", name: { kind: "Name", value: "month" } },
-                { kind: "Field", name: { kind: "Name", value: "day" } },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completedAt" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "year" } },
-                { kind: "Field", name: { kind: "Name", value: "month" } },
-                { kind: "Field", name: { kind: "Name", value: "day" } },
-              ],
-            },
-          },
-          { kind: "Field", name: { kind: "Name", value: "notes" } },
         ],
       },
     },
@@ -221,9 +207,137 @@ export const MangaDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "progress" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "MangaListEntry" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "MediaList" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          { kind: "Field", name: { kind: "Name", value: "status" } },
+          { kind: "Field", name: { kind: "Name", value: "progress" } },
+          { kind: "Field", name: { kind: "Name", value: "score" } },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "startedAt" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+                { kind: "Field", name: { kind: "Name", value: "month" } },
+                { kind: "Field", name: { kind: "Name", value: "day" } },
+              ],
+            },
+          },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "completedAt" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+                { kind: "Field", name: { kind: "Name", value: "month" } },
+                { kind: "Field", name: { kind: "Name", value: "day" } },
+              ],
+            },
+          },
+          { kind: "Field", name: { kind: "Name", value: "notes" } },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "MangaDetail" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "Media" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "FragmentSpread",
+            name: { kind: "Name", value: "MangaMedia" },
+          },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
+          { kind: "Field", name: { kind: "Name", value: "description" } },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "mediaListEntry" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
                 {
                   kind: "FragmentSpread",
                   name: { kind: "Name", value: "MangaListEntry" },
+                },
+              ],
+            },
+          },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "staff" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "perPage" },
+                value: { kind: "IntValue", value: "6" },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "sort" },
+                value: { kind: "EnumValue", value: "RELEVANCE" },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "edges" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "role" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "node" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "name" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "full" },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
                 },
               ],
             },

@@ -59,22 +59,7 @@ export type MangaListQuery = {
           mediaListEntry: {
             __typename: "MediaList";
             id: number;
-            status: Types.MediaListStatus | null;
             progress: number | null;
-            score: number | null;
-            notes: string | null;
-            startedAt: {
-              __typename: "FuzzyDate";
-              year: number | null;
-              month: number | null;
-              day: number | null;
-            } | null;
-            completedAt: {
-              __typename: "FuzzyDate";
-              year: number | null;
-              month: number | null;
-              day: number | null;
-            } | null;
           } | null;
         } | null;
       } | null> | null;
@@ -209,47 +194,6 @@ export const MangaListDocument = {
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "MangaListEntry" },
-      typeCondition: {
-        kind: "NamedType",
-        name: { kind: "Name", value: "MediaList" },
-      },
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          { kind: "Field", name: { kind: "Name", value: "status" } },
-          { kind: "Field", name: { kind: "Name", value: "progress" } },
-          { kind: "Field", name: { kind: "Name", value: "score" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "startedAt" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "year" } },
-                { kind: "Field", name: { kind: "Name", value: "month" } },
-                { kind: "Field", name: { kind: "Name", value: "day" } },
-              ],
-            },
-          },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "completedAt" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "year" } },
-                { kind: "Field", name: { kind: "Name", value: "month" } },
-                { kind: "Field", name: { kind: "Name", value: "day" } },
-              ],
-            },
-          },
-          { kind: "Field", name: { kind: "Name", value: "notes" } },
-        ],
-      },
-    },
-    {
-      kind: "FragmentDefinition",
       name: { kind: "Name", value: "MangaMedia" },
       typeCondition: {
         kind: "NamedType",
@@ -305,10 +249,7 @@ export const MangaListDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "id" } },
-                {
-                  kind: "FragmentSpread",
-                  name: { kind: "Name", value: "MangaListEntry" },
-                },
+                { kind: "Field", name: { kind: "Name", value: "progress" } },
               ],
             },
           },

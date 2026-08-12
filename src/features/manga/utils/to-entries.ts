@@ -1,4 +1,4 @@
-import type { MediaListStatus } from "@/graphql/types.generated";
+import type { DeepPartial } from "@apollo/client/utilities";
 import type { MangaMediaFragment } from "../graphql/manga-fragments.generated";
 import type { MangaListQuery } from "../graphql/manga-list.generated";
 
@@ -14,19 +14,13 @@ export type MangaEntry = {
   coverColor: string | null;
   progress: number;
   chapters: number | null;
-  /** User score from the list entry; `null` when unscored. */
-  score: number | null;
-  /** `null` when the manga isn't on the user's list. */
-  listStatus: MediaListStatus | null;
 };
 
 export function toEntry(
   id: number,
-  media: MangaMediaFragment | null | undefined,
+  media: DeepPartial<MangaMediaFragment> | null | undefined,
 ): MangaEntry | null {
-  if (!media) return null;
-
-  const entry = media.mediaListEntry;
+  if (!media || Object.keys(media).length === 0) return null;
 
   return {
     id: String(id),
@@ -42,14 +36,12 @@ export function toEntry(
       ),
     ],
     year: media.startDate?.year ? String(media.startDate.year) : "",
-    genres: media.genres?.filter((g) => g !== null) ?? [],
+    genres: media.genres?.filter((g): g is string => !!g) ?? [],
     cover: media.coverImage?.large ?? null,
     coverThumb: media.coverImage?.medium ?? null,
     coverColor: media.coverImage?.color ?? null,
-    progress: entry?.progress ?? 0,
+    progress: media.mediaListEntry?.progress ?? 0,
     chapters: media.chapters ?? null,
-    score: entry?.score ?? null,
-    listStatus: entry?.status ?? null,
   };
 }
 

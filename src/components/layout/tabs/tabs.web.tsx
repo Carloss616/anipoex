@@ -11,6 +11,7 @@ import {
 import { useThemeColor } from "heroui-native/hooks";
 import { Surface } from "heroui-native/surface";
 import { Tabs as HeroTabs } from "heroui-native/tabs";
+import { cn } from "heroui-native/utils";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
@@ -103,8 +104,12 @@ function TabButton({
 function HeroTabList({ children, className, ...props }: TabListProps) {
   return (
     <View
+      pointerEvents="box-none"
+      className={cn(
+        className,
+        "justify-center! absolute bottom-0 w-full items-center p-4",
+      )}
       {...props}
-      className="justify-center! absolute bottom-0 w-full items-center p-4"
     >
       <Surface
         variant="tertiary"

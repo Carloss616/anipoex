@@ -8,11 +8,11 @@ import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
-import type { MangaEntry } from "@/features/manga/utils/to-entries";
+import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { noop } from "@/utils/utils";
 import { WEB_ICON_COLOR } from "../constants";
 
-export function Tracking({ manga }: { manga: MangaEntry }) {
+export function Tracking({ manga }: { manga: MangaDetail }) {
   const label = manga.listStatus
     ? (MANGA_STATUSES.find((s) => s.status === manga.listStatus)?.title ??
       manga.listStatus)
@@ -39,7 +39,7 @@ export function Tracking({ manga }: { manga: MangaEntry }) {
           <Button.Label className="ios:text-foreground">{label}</Button.Label>
           <Spacer flexible />
           <Typography.Code className="web:self-auto">
-            {manga.progress}/{total ?? "?"}
+            {manga.progress}/{total ?? "_"}
           </Typography.Code>
           {total != null && total > 0 && (
             <Typography type="body-xs" color="muted">

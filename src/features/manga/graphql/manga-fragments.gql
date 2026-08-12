@@ -34,6 +34,27 @@ fragment MangaMedia on Media {
   chapters
   mediaListEntry {
     id
+    progress
+  }
+}
+
+fragment MangaDetail on Media {
+  ...MangaMedia
+  status
+  description
+  mediaListEntry {
+    id
     ...MangaListEntry
+  }
+  staff(perPage: 6, sort: RELEVANCE) {
+    edges {
+      role
+      node {
+        id
+        name {
+          full
+        }
+      }
+    }
   }
 }
