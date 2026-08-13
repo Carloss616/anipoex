@@ -1,0 +1,66 @@
+diff --git a/lib/module/components/menu/menu.js b/lib/module/components/menu/menu.js
+index 95534185a48bda16c123707aa419ab0ea3d3a0c5..4795770d3ec77be69d12e11c11988757bb93f0e1 100644
+--- a/lib/module/components/menu/menu.js
++++ b/lib/module/components/menu/menu.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ 
+ import { createContext, forwardRef, useMemo } from 'react';
+-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
++import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+ import Animated, { FadeOut } from 'react-native-reanimated';
+ import { useSafeAreaInsets } from 'react-native-safe-area-context';
+ import { useThemeColor } from "../../helpers/external/hooks/index.js";
+@@ -205,7 +205,7 @@ const MenuContentPopover = /*#__PURE__*/forwardRef(({
+   const {
+     height: screenHeight
+   } = useWindowDimensions();
+-  const isReady = Boolean(contentLayout?.y && contentLayout.y < screenHeight);
++  const isReady = Boolean(contentLayout?.height && (Platform.OS === 'web' || contentLayout.y < screenHeight));
+   const insets = {
+     top: DEFAULT_INSETS.top + safeAreaInsets.top,
+     bottom: DEFAULT_INSETS.bottom + safeAreaInsets.bottom,
+diff --git a/lib/module/components/popover/popover.js b/lib/module/components/popover/popover.js
+index 0825189944a9950d74e5fba3792be580eb80ab93..f95f46ff5ab881788fd27d8e6973c1a850771498 100644
+--- a/lib/module/components/popover/popover.js
++++ b/lib/module/components/popover/popover.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ 
+ import { createContext, forwardRef, use, useMemo } from 'react';
+-import { StyleSheet, useWindowDimensions, View } from 'react-native';
++import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+ import Animated from 'react-native-reanimated';
+ import { useSafeAreaInsets } from 'react-native-safe-area-context';
+ import { useThemeColor } from "../../helpers/external/hooks/index.js";
+@@ -202,7 +202,7 @@ const PopoverContentPopover = /*#__PURE__*/forwardRef(({
+ 
+   // Initially useRelativePosition returns { position: 'absolute', opacity: 0, top: dimensions.height }
+   // So we need to wait for the content to be ready before showing it
+-  const isReady = Boolean(contentLayout?.y && contentLayout.y < screenHeight);
++  const isReady = Boolean(contentLayout?.height && (Platform.OS === 'web' || contentLayout.y < screenHeight));
+   const insets = {
+     top: DEFAULT_INSETS.top + safeAreaInsets.top,
+     bottom: DEFAULT_INSETS.bottom + safeAreaInsets.bottom,
+diff --git a/lib/module/components/select/select.js b/lib/module/components/select/select.js
+index b38de00777bedf31fbfe8157ee134c240fe5d376..3596e8cf02843e89f3a77188542387679d505410 100644
+--- a/lib/module/components/select/select.js
++++ b/lib/module/components/select/select.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ 
+ import { forwardRef, useLayoutEffect, useMemo, useRef } from 'react';
+-import { StyleSheet, useWindowDimensions, View } from 'react-native';
++import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+ import { GestureDetector } from 'react-native-gesture-handler';
+ import Animated from 'react-native-reanimated';
+ import { useSafeAreaInsets } from 'react-native-safe-area-context';
+@@ -319,7 +319,7 @@ const SelectContentPopover = /*#__PURE__*/forwardRef(({
+ 
+   // Initially useRelativePosition returns { position: 'absolute', opacity: 0, top: dimensions.height }
+   // So we need to wait for the content to be ready before showing it
+-  const isReady = Boolean(contentLayout?.y && contentLayout.y < screenHeight);
++  const isReady = Boolean(contentLayout?.height && (Platform.OS === 'web' || contentLayout.y < screenHeight));
+   const insets = {
+     top: DEFAULT_INSETS.top + safeAreaInsets.top,
+     bottom: DEFAULT_INSETS.bottom + safeAreaInsets.bottom,

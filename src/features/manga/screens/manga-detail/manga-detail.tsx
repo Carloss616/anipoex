@@ -78,7 +78,7 @@ export function MangaDetail() {
             icon={Icon.select({
               ios: "ellipsis",
               android: require("@expo/material-symbols/more_vert.xml"),
-              web: "ellipsis",
+              web: "ellipsis-vertical",
             })}
             accessibilityLabel="More options"
           >
