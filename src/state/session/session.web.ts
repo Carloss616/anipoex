@@ -1,5 +1,7 @@
 import { observable, syncState } from "@legendapp/state";
-import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
+// MMKV on web is a localStorage shim that throws during the Node render pass.
+// This plugin no-ops when localStorage is missing, so SSR stays quiet.
+import { ObservablePersistLocalStorage } from "@legendapp/state/persist-plugins/local-storage";
 import { syncObservable } from "@legendapp/state/sync";
 import type { User } from "@/features/auth/types/tracker";
 
@@ -11,14 +13,14 @@ export const session$ = observable({
 syncObservable(session$.token, {
   persist: {
     name: "session-token",
-    plugin: ObservablePersistMMKV,
+    plugin: ObservablePersistLocalStorage,
   },
 });
 
 syncObservable(session$.user, {
   persist: {
     name: "session-user",
-    plugin: ObservablePersistMMKV,
+    plugin: ObservablePersistLocalStorage,
   },
 });
 
@@ -30,7 +32,7 @@ export async function clearSession() {
     await syncState(session$.user).clearPersist();
   } catch (error) {
     console.warn(
-      "[session] failed to clear cached user from MMKV",
+      "[session] failed to clear cached user from localStorage",
       error instanceof Error ? error.message : error,
     );
   }

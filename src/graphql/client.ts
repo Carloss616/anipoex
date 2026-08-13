@@ -53,8 +53,7 @@ const errorLink = new ErrorLink(({ error, operation }) => {
 });
 
 export const client = new ApolloClient({
-  // Order matters: the error link sits upstream of retry, so a failure toasts
-  // once after the attempts are spent instead of once per attempt.
+  // Error sits upstream of retry, so a failure toasts once, not once per attempt.
   link: ApolloLink.from([
     authLink,
     errorLink,
@@ -65,14 +64,19 @@ export const client = new ApolloClient({
   devtools: { enabled: __DEV__, name: "anipoex" },
 });
 
+// MMKV's localStorage shim throws in web's Node render, where nothing persists anyway.
+const hasStorage = typeof window !== "undefined";
+
 const persistor = new CachePersistor({
   cache,
   key: "snapshot",
   storage: {
-    getItem: (key) => storage.getString(key) ?? null,
-    setItem: (key, value) => storage.set(key, String(value)),
+    getItem: (key) => (hasStorage ? (storage.getString(key) ?? null) : null),
+    setItem: (key, value) => {
+      if (hasStorage) storage.set(key, String(value));
+    },
     removeItem: (key) => {
-      storage.remove(key);
+      if (hasStorage) storage.remove(key);
     },
   },
   // The default 1MB ceiling silently stops persisting once a few lists are in.
@@ -82,8 +86,7 @@ const persistor = new CachePersistor({
 
 /** Started at import so the read is already in flight by the time the tree mounts. */
 export const cacheRestored = persistor.restore().catch((error) => {
-  // A corrupt or unreadable snapshot must not keep the app from booting — the
-  // worst case is a cold cache. Never rejects, so callers just await it.
+  // Never rejects: an unreadable snapshot costs a cold cache, not the boot.
   console.warn(
     "[apollo] failed to restore the persisted cache",
     error instanceof Error ? error.message : error,
