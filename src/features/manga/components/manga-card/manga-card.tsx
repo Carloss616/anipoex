@@ -1,17 +1,10 @@
 import LucideBase from "@react-native-vector-icons/lucide";
 import type { ImageSource } from "expo-image";
 import { Card } from "heroui-native/card";
-import { PressableFeedback } from "heroui-native/pressable-feedback";
 import { cn } from "heroui-native/utils";
-import {
-  Platform,
-  type StyleProp,
-  StyleSheet,
-  View,
-  type ViewStyle,
-} from "react-native";
+import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
-import { TouchableNativeFeedback } from "@/components/ui/touchable-native-feedback";
+import { Feedback } from "@/components/ui/feedback";
 import { CoverImage } from "./components/cover-image";
 
 const Lucide = withUniwind(LucideBase);
@@ -30,15 +23,10 @@ export interface MangaCardProps {
 }
 
 /**
- * Also the Android card — there's no Compose sibling, on purpose. `<Host>` on
- * Android is a whole `ComposeView` (its own composition, recomposer and
- * semantics tree), so one per grid cell tanks list scrolling and sizes itself
- * too late for LegendList to place rows.
- *
- * Hence plain RN all the way down, including the pieces that look native-ish:
- * the `scrim` class instead of `<Scrim>`, `<Lucide>` instead of `<Icon>`, and
- * `<TouchableNativeFeedback>` for the ripple — each of those resolves to a
- * Host on Android.
+ * No Android sibling on purpose: `<Host>` is a whole `ComposeView` there, so one
+ * per grid cell tanks scrolling and sizes too late for LegendList. Hence plain RN
+ * throughout — `scrim`, `<Lucide>` and `<TouchableNativeFeedback>` instead of
+ * `<Scrim>`, `<Icon>` and a Compose ripple, which each resolve to a Host.
  */
 export function MangaCard({
   cover,
@@ -51,8 +39,14 @@ export function MangaCard({
   onPress,
   onLongPress,
 }: MangaCardProps) {
-  const content = (
-    <>
+  return (
+    <Feedback
+      for={Card}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      className={cn("aspect-2/3 p-0", className)}
+      style={style}
+    >
       {cover ? (
         <CoverImage
           style={StyleSheet.absoluteFill}
@@ -69,7 +63,7 @@ export function MangaCard({
         </View>
       )}
       {title && year && (
-        <View className="scrim p-2 pt-12">
+        <View className="scrim mt-auto p-2 pt-12">
           <Card.Description
             numberOfLines={1}
             className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"
@@ -84,42 +78,6 @@ export function MangaCard({
           </Card.Title>
         </View>
       )}
-    </>
-  );
-
-  if (!onPress && !onLongPress)
-    return (
-      <Card
-        style={style}
-        className={cn("aspect-2/3 justify-end p-0", className)}
-      >
-        {content}
-      </Card>
-    );
-
-  if (Platform.OS === "android")
-    return (
-      <Card style={style} className={cn("aspect-2/3 p-0", className)}>
-        <TouchableNativeFeedback
-          onPress={onPress}
-          onLongPress={onLongPress}
-          useForeground
-        >
-          <View className="flex-1 justify-end">{content}</View>
-        </TouchableNativeFeedback>
-      </Card>
-    );
-
-  return (
-    <Card
-      style={style}
-      className={cn("aspect-2/3 justify-end p-0", className)}
-      asChild
-    >
-      <PressableFeedback onPress={onPress} onLongPress={onLongPress}>
-        {content}
-        <PressableFeedback.Highlight />
-      </PressableFeedback>
-    </Card>
+    </Feedback>
   );
 }
