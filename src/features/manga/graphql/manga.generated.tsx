@@ -143,6 +143,12 @@ export const MangaDocument = {
                 {
                   kind: "FragmentSpread",
                   name: { kind: "Name", value: "MangaDetail" },
+                  directives: [
+                    {
+                      kind: "Directive",
+                      name: { kind: "Name", value: "nonreactive" },
+                    },
+                  ],
                 },
               ],
             },

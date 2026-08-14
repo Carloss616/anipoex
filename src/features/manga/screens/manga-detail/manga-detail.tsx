@@ -136,7 +136,11 @@ export function MangaDetail() {
                 <Spacer flexible />
                 <DownloadButton />
               </Row>
-              <Chapters />
+              <Chapters
+                id={manga.id}
+                __typename={manga.__typename}
+                chapters={[]}
+              />
             </Column>
           </Column>
         </ScrollView>
