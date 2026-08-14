@@ -4,8 +4,11 @@ import { Card } from "heroui-native/card";
 import { cn } from "heroui-native/utils";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
-import { Feedback } from "@/components/ui/feedback";
+import type { MediaStatus } from "@/graphql/types.generated";
+import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
+import { Feedback } from "./components/feedback";
+import { STATUS_COLOR } from "./constants";
 
 const Lucide = withUniwind(LucideBase);
 
@@ -14,8 +17,9 @@ export interface MangaCardProps {
   /** Low-res cover, blown up as a soft preview until `cover` decodes. */
   coverThumb?: string | null;
   coverColor?: string | null;
-  title?: string;
-  year?: string | number;
+  status?: MediaStatus | null;
+  title?: React.ReactNode;
+  label?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   className?: string;
   onPress?: () => void;
@@ -32,8 +36,9 @@ export function MangaCard({
   cover,
   coverThumb,
   coverColor,
+  status,
   title,
-  year,
+  label,
   style,
   className,
   onPress,
@@ -44,7 +49,7 @@ export function MangaCard({
       for={Card}
       onPress={onPress}
       onLongPress={onLongPress}
-      className={cn("aspect-2/3 p-0", className)}
+      className={cn("relative aspect-2/3 p-0", className)}
       style={style}
     >
       {cover ? (
@@ -62,13 +67,18 @@ export function MangaCard({
           <Lucide name="book-open" size={22} colorClassName="accent-muted/20" />
         </View>
       )}
-      {title && year && (
+      {status && (
+        <Badge color={STATUS_COLOR[status]} className="absolute top-2 right-2">
+          {status[0].toUpperCase()}
+        </Badge>
+      )}
+      {(title || label) && (
         <View className="scrim mt-auto p-2 pt-12">
           <Card.Description
             numberOfLines={1}
             className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"
           >
-            {year}
+            {label}
           </Card.Description>
           <Card.Title
             numberOfLines={2}

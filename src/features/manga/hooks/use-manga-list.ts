@@ -38,9 +38,10 @@ export function useMangaList(
 
   const genre$ = useObservable(ALL);
   const genres$ = useObservable(() =>
-    [ALL, ...[...new Set(entries$.get().flatMap((m) => m.genres))].sort()].map(
-      (g) => ({ name: g, selected: genre$.get() === g }),
-    ),
+    [
+      ALL,
+      ...[...new Set(entries$.get().flatMap((m) => m.genres))].sort(),
+    ].flatMap((g) => (g ? { name: g, selected: genre$.get() === g } : [])),
   );
   const manga$ = useObservable(() => {
     const needle = query$.get().trim().toLowerCase();
@@ -49,8 +50,10 @@ export function useMangaList(
       .get()
       .filter(
         (m) =>
-          (genre === ALL || m.genres.includes(genre)) &&
-          m.titles.some((t) => t.toLowerCase().includes(needle)),
+          (genre === ALL || m.genres?.includes(genre)) &&
+          Object.values(m.title ?? {}).some((t) =>
+            t?.toLowerCase().includes(needle),
+          ),
       );
   });
 
@@ -62,7 +65,7 @@ export function useMangaList(
     manga$,
     genres$,
     genre$,
-    loading: loading && !data,
+    loading,
     refetching: networkStatus === NetworkStatus.refetch,
     refetch,
   };

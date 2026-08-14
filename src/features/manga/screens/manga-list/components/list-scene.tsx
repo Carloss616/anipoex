@@ -29,7 +29,7 @@ export function ListScene({
   const numColumns =
     width >= 1280 ? 12 : width >= 1024 ? 8 : width >= 768 ? 6 : 4;
 
-  if (loading) {
+  if (loading && !refetching) {
     return (
       <Center>
         <Spinner size="lg" />
@@ -42,7 +42,7 @@ export function ListScene({
       recycleItems
       data={manga}
       numColumns={numColumns}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => String(item.id)}
       columnWrapperStyle={{ gap: 2 }}
       contentContainerClassName="gutters px-safe-offset-gx pb-safe-offset-gb"
       ListHeaderComponentClassName="gutters mx-bleed-safe-gx"

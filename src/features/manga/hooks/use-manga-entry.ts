@@ -30,7 +30,7 @@ export function useMangaEntry(id: string) {
 
   return {
     manga: toDetail(mediaId, media),
-    loading: loading && !media,
+    loading,
     refetching: networkStatus === NetworkStatus.refetch,
   };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { MediaListStatus, MediaStatus } from "@/graphql/types.generated";
+import { MediaStatus } from "@/graphql/types.generated";
 import type { MangaDetailFragment } from "../graphql/manga-fragments.generated";
 import { toDetail } from "./to-detail";
 
@@ -23,21 +23,17 @@ const staffOf = (edges: { role: string | null; full: string }[]) =>
   }) as MangaDetailFragment["staff"];
 
 describe("toDetail", () => {
-  it("returns null when there is no media", () => {
-    expect(toDetail(7, null)).toBeNull();
+  it("keeps the media fields and stamps the id", () => {
+    expect(toDetail(7, media({ status: MediaStatus.Releasing }))).toMatchObject(
+      {
+        id: 7,
+        title: { userPreferred: "Berserk" },
+        status: MediaStatus.Releasing,
+      },
+    );
   });
 
-  it("keeps the list fields and defaults the detail ones", () => {
-    expect(toDetail(7, media())).toMatchObject({
-      id: "7",
-      title: "Berserk",
-      synopsis: "",
-      publicationStatus: null,
-      author: null,
-    });
-  });
-
-  it("maps the partial media the list cached, with the detail keys absent", () => {
+  it("passes through the partial media the list cached", () => {
     // What `useFragment` hands back before the detail fetch lands: the list's
     // half of the fragment, with the rest of the keys simply missing.
     const partial = {
@@ -47,52 +43,25 @@ describe("toDetail", () => {
       chapters: 374,
     } as MangaDetailFragment;
 
-    expect(toDetail(30002, partial)).toMatchObject({
-      id: "30002",
-      title: "Berserk",
-      cover: "https://img/berserk.jpg",
+    expect(toDetail(30002, partial)).toEqual({
+      id: 30002,
+      title: { userPreferred: "Berserk" },
+      coverImage: { large: "https://img/berserk.jpg" },
       genres: ["Action"],
       chapters: 374,
-      progress: 0,
-      synopsis: "",
-      author: null,
-      publicationStatus: null,
+      description: undefined,
+      author: undefined,
     });
   });
 
-  it("reads the score and list status the list fragment doesn't select", () => {
-    const detail = toDetail(
-      7,
-      media({
-        mediaListEntry: {
-          id: 1,
-          status: MediaListStatus.Current,
-          score: 9,
-        },
-      } as Partial<MangaDetailFragment>),
-    );
-
-    expect(detail).toMatchObject({
-      score: 9,
-      listStatus: MediaListStatus.Current,
-    });
-  });
-
-  it("carries the publication status, which is not the list status", () => {
-    const detail = toDetail(7, media({ status: MediaStatus.Releasing }));
-
-    expect(detail?.publicationStatus).toBe(MediaStatus.Releasing);
-    expect(detail?.listStatus).toBeNull();
-  });
-
-  describe("synopsis", () => {
+  describe("description", () => {
     it("turns <br> into newlines and drops the rest of the markup", () => {
       const detail = toDetail(
         7,
         media({ description: "A <i>dark</i> epic.<br><br>Guts <b>walks</b>." }),
       );
 
-      expect(detail?.synopsis).toBe("A dark epic.\n\nGuts walks.");
+      expect(detail.description).toBe("A dark epic.\n\nGuts walks.");
     });
 
     it("decodes the entities AniList actually emits", () => {
@@ -101,7 +70,7 @@ describe("toDetail", () => {
         media({ description: "Rock &amp; Roll &quot;Mad&quot; &#039;90s" }),
       );
 
-      expect(detail?.synopsis).toBe(`Rock & Roll "Mad" '90s`);
+      expect(detail.description).toBe(`Rock & Roll "Mad" '90s`);
     });
 
     it("collapses runs of blank lines and trims", () => {
@@ -110,7 +79,7 @@ describe("toDetail", () => {
         media({ description: "<br>One.<br><br><br><br>Two.<br>" }),
       );
 
-      expect(detail?.synopsis).toBe("One.\n\nTwo.");
+      expect(detail.description).toBe("One.\n\nTwo.");
     });
   });
 
@@ -126,7 +95,7 @@ describe("toDetail", () => {
         }),
       );
 
-      expect(detail?.author).toBe("Kentaro Miura");
+      expect(detail.author).toBe("Kentaro Miura");
     });
 
     it("matches the combined credit too", () => {
@@ -135,7 +104,7 @@ describe("toDetail", () => {
         media({ staff: staffOf([{ role: "Story & Art", full: "Miura" }]) }),
       );
 
-      expect(detail?.author).toBe("Miura");
+      expect(detail.author).toBe("Miura");
     });
 
     it("falls back to the top-billed name when no role mentions story", () => {
@@ -149,7 +118,7 @@ describe("toDetail", () => {
         }),
       );
 
-      expect(detail?.author).toBe("First");
+      expect(detail.author).toBe("First");
     });
 
     it("skips edges with no name instead of billing an empty author", () => {
@@ -162,7 +131,7 @@ describe("toDetail", () => {
         }),
       );
 
-      expect(detail?.author).toBeNull();
+      expect(detail.author).toBeUndefined();
     });
   });
 });

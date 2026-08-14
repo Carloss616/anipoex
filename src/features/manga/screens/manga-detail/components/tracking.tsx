@@ -1,3 +1,4 @@
+import { useFragment } from "@apollo/client/react";
 import { Spacer } from "@expo/ui";
 import { Platform, View } from "react-native";
 import { Column } from "@/components/layout/column";
@@ -7,19 +8,31 @@ import { RNHostView } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
+import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { noop } from "@/utils/utils";
 import { WEB_ICON_COLOR } from "../constants";
 
-export function Tracking({ manga }: { manga: MangaDetail }) {
-  const label = manga.listStatus
-    ? (MANGA_STATUSES.find((s) => s.status === manga.listStatus)?.title ??
-      manga.listStatus)
-    : "Not in list";
-  const total = manga.chapters;
-  const ratio =
-    total != null && total > 0 ? Math.min(manga.progress / total, 1) : 0;
+export function Tracking({
+  id,
+  __typename,
+}: Pick<MangaDetail, "id" | "__typename">) {
+  const { data } = useFragment({
+    fragment: MangaDetailFragmentDoc,
+    fragmentName: "MangaDetail",
+    from: { __typename, id },
+  });
+
+  const status = data.mediaListEntry?.status;
+  const label =
+    MANGA_STATUSES.find((s) => s.status === status)?.title ??
+    status ??
+    "Not in list";
+
+  const total = data.chapters;
+  const progress = data.mediaListEntry?.progress ?? 0;
+  const ratio = total ? Math.min(progress / total, 1) : 0;
   const percent = Math.round(ratio * 100);
 
   return (
@@ -39,9 +52,9 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
           <Button.Label className="ios:text-foreground">{label}</Button.Label>
           <Spacer flexible />
           <Typography.Code className="web:self-auto">
-            {manga.progress}/{total ?? "_"}
+            {progress}/{total ?? "_"}
           </Typography.Code>
-          {total != null && total > 0 && (
+          {!!total && (
             <Typography type="body-xs" color="muted">
               {percent}%
             </Typography>

@@ -3,8 +3,8 @@ import type { ComponentType, PropsWithChildren, ReactNode } from "react";
 
 export type FeedbackProps<P> = {
   for: ComponentType<PropsWithChildren<P>>;
-  onPress: (() => void) | undefined;
-  onLongPress: (() => void) | undefined;
+  onPress?: () => void;
+  onLongPress?: () => void;
   children: ReactNode;
 } & P;
 
@@ -20,7 +20,11 @@ export function Feedback<P>({
 
   return (
     <Component asChild {...(props as P)}>
-      <PressableFeedback onPress={onPress} onLongPress={onLongPress}>
+      <PressableFeedback
+        onPress={onPress}
+        onLongPress={onLongPress}
+        className="flex-1"
+      >
         {children}
         <PressableFeedback.Highlight />
       </PressableFeedback>

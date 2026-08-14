@@ -36,43 +36,43 @@ export function Meta({
     });
   }
 
-  if (manga.publicationStatus) {
+  if (manga.status) {
     fields.push({
       icon: Icon.select({
         ios: "clock",
         android: require("@expo/material-symbols/schedule.xml"),
         web: "clock",
       }),
-      value: PUBLICATION_STATUSES[manga.publicationStatus],
+      value: PUBLICATION_STATUSES[manga.status],
     });
   }
 
-  if (manga.year) {
+  if (manga.startDate?.year) {
     fields.push({
       icon: Icon.select({
         ios: "calendar",
         android: require("@expo/material-symbols/calendar_today.xml"),
         web: "calendar",
       }),
-      value: manga.year,
+      value: String(manga.startDate.year),
     });
   }
 
-  if (manga.score != null && manga.score > 0) {
+  if (manga.mediaListEntry?.score) {
     fields.push({
       icon: Icon.select({
         ios: "star",
         android: require("@expo/material-symbols/star.xml"),
         web: "star",
       }),
-      value: String(manga.score),
+      value: String(manga.mediaListEntry.score),
     });
   }
 
   return (
     <Column className={cn("gap-2", className)} alignment="start">
       <Typography type="h3" className={cn(!isPreview && "hidden")}>
-        {manga.title}
+        {manga.title?.userPreferred}
       </Typography>
       {fields.map(({ icon, value }) => (
         <Row key={value} className="gap-1" alignment="center">

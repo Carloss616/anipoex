@@ -43,7 +43,7 @@ const ButtonOrLink = ({
   mode,
   children,
 }: {
-  id: string;
+  id: number | string;
   mode: (typeof ACTIONS)[number]["mode"];
   children: React.ReactNode;
 }) => {
@@ -63,7 +63,7 @@ const ButtonOrLink = ({
   );
 };
 
-export function Actions({ id }: { id: string }) {
+export function Actions({ id }: { id: number | string }) {
   return (
     <Row alignment="center">
       {ACTIONS.map(({ icon, label, mode }, i) => (

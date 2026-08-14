@@ -45,9 +45,9 @@ export type MangaQuery = {
   Media: {
     __typename: "Media";
     id: number;
-    status: Types.MediaStatus | null;
     description: string | null;
     genres: Array<string | null> | null;
+    status: Types.MediaStatus | null;
     chapters: number | null;
     mediaListEntry: {
       __typename: "MediaList";
@@ -199,6 +199,7 @@ export const MangaDocument = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "genres" } },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "chapters" } },
           {
             kind: "Field",
@@ -269,7 +270,6 @@ export const MangaDocument = {
             kind: "FragmentSpread",
             name: { kind: "Name", value: "MangaMedia" },
           },
-          { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "description" } },
           {
             kind: "Field",

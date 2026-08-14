@@ -9,7 +9,7 @@ import { Typography } from "../typography";
 import type { BadgeColor, BadgeProps } from "./badge";
 
 /** Seeds an M3 scheme off the semantic color, so it harmonizes with the theme. */
-function useColors(color: BadgeColor) {
+export function useColors(color: BadgeColor) {
   const seedColor = useThemeColor(color === "default" ? "accent" : color);
   const m3 = useMaterialColors({ seedColor });
 

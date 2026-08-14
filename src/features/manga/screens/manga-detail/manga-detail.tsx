@@ -54,24 +54,27 @@ export function MangaDetail() {
 
   if (loading || refetching || !manga) {
     return (
-      <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
-        <Center>
-          {loading || refetching ? (
-            <Spinner size="lg" />
-          ) : (
-            <EmptyState
-              title="Manga not found"
-              description="We couldn't find this manga on AniList."
-            />
-          )}
-        </Center>
-      </Host>
+      <>
+        <Stack.Title large>{manga.title?.userPreferred}</Stack.Title>
+        <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
+          <Center>
+            {loading || refetching ? (
+              <Spinner size="lg" />
+            ) : (
+              <EmptyState
+                title="Manga not found"
+                description="We couldn't find this manga on AniList."
+              />
+            )}
+          </Center>
+        </Host>
+      </>
     );
   }
 
   return (
     <>
-      <Stack.Title large>{manga.title}</Stack.Title>
+      <Stack.Title large>{manga.title?.userPreferred}</Stack.Title>
       {withWebToolbar(
         <Stack.Toolbar placement="right" {...toolbarTheme}>
           <Stack.Toolbar.Menu
@@ -101,20 +104,20 @@ export function MangaDetail() {
             <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
               <Row className="gap-4" alignment="center">
                 <MangaCard
-                  cover={manga.cover}
-                  coverThumb={manga.coverThumb}
-                  coverColor={manga.coverColor}
+                  cover={manga.coverImage?.large}
+                  coverThumb={manga.coverImage?.medium}
+                  coverColor={manga.coverImage?.color}
                   className="w-36"
                 />
                 <Meta manga={manga} className="web:self-auto!" />
               </Row>
 
-              <Tracking manga={manga} />
-              <Actions id={id} />
-              <Synopsis text={manga.synopsis} />
+              <Tracking id={manga.id} __typename={manga.__typename} />
+              <Actions id={manga.id} />
+              <Synopsis text={manga.description} />
             </Column>
 
-            {manga.genres.length > 0 && (
+            {!!manga.genres?.length && (
               <ScrollView direction="horizontal" showsIndicators={false}>
                 <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
                   {manga.genres.map((g) => (

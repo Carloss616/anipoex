@@ -6,17 +6,21 @@ import {
   glassEffect,
   onLongPressGesture,
   onTapGesture,
+  padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { useThemeColor } from "heroui-native/hooks";
 import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
+import { Row } from "@/components/layout/row";
 import { Host, RNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Scrim } from "@/components/ui/scrim";
 import { Typography } from "@/components/ui/typography";
 import { dp } from "@/utils/utils";
+import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
+import { STATUS_COLOR } from "./constants";
 import type { MangaCardProps } from "./manga-card";
 
 /**
@@ -30,8 +34,9 @@ function MangaCardBase({
   cover,
   coverThumb,
   coverColor,
+  status,
   title,
-  year,
+  label,
   style,
   onPress,
   onLongPress,
@@ -76,16 +81,30 @@ function MangaCardBase({
           ]}
         />
       )}
+      {status && (
+        <Row
+          modifiers={[
+            padding({ all: 8 }),
+            frame({
+              maxWidth: FILL,
+              maxHeight: FILL,
+              alignment: "topTrailing",
+            }),
+          ]}
+        >
+          <Badge color={STATUS_COLOR[status]}>{status[0].toUpperCase()}</Badge>
+        </Row>
+      )}
       <Column modifiers={[frame({ maxWidth: FILL, maxHeight: FILL })]}>
         <Spacer />
-        {title && year && (
+        {(title || label) && (
           <Scrim className="rounded-3xl p-2 pt-12">
             <Typography
               type="body-xs"
               numberOfLines={1}
               className="text-center text-gray-50"
             >
-              {year}
+              {label}
             </Typography>
             <Typography
               type="body-sm"

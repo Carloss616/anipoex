@@ -24,6 +24,19 @@ export type MediaListStatus =
   /** Re-watching/reading */
   | "REPEATING";
 
+/** The current releasing status of the media */
+export type MediaStatus =
+  /** Ended before the work could be finished */
+  | "CANCELLED"
+  /** Has completed and is no longer being released */
+  | "FINISHED"
+  /** Version 2 only. Is currently paused from releasing and will resume at a later date */
+  | "HIATUS"
+  /** To be released at a later date */
+  | "NOT_YET_RELEASED"
+  /** Currently releasing */
+  | "RELEASING";
+
 export type MangaListQueryVariables = Exact<{
   userId: number;
   status: Types.MediaListStatus;
@@ -41,6 +54,7 @@ export type MangaListQuery = {
           __typename: "Media";
           id: number;
           genres: Array<string | null> | null;
+          status: Types.MediaStatus | null;
           chapters: number | null;
           title: {
             __typename: "MediaTitle";
@@ -241,6 +255,7 @@ export const MangaListDocument = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "genres" } },
+          { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "chapters" } },
           {
             kind: "Field",

@@ -31,6 +31,7 @@ fragment MangaMedia on Media {
     year
   }
   genres
+  status
   chapters
   mediaListEntry {
     id
@@ -40,7 +41,6 @@ fragment MangaMedia on Media {
 
 fragment MangaDetail on Media {
   ...MangaMedia
-  status
   description
   mediaListEntry {
     id

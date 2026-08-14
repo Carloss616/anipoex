@@ -1,11 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import type { MangaMediaFragment } from "../graphql/manga-fragments.generated";
 import type { MangaListQuery } from "../graphql/manga-list.generated";
-import { toEntries, toEntry } from "./to-entries";
-
-// The list only selects progress off the entry — score, status and the dates
-// belong to `MangaDetail`.
-const listEntry = { id: 1, progress: 12 };
+import { type MangaEntry, toEntries } from "./to-entries";
 
 const berserk = {
   id: 30002,
@@ -23,21 +18,8 @@ const berserk = {
   startDate: { year: 1989 },
   genres: ["Action", null, "Drama"],
   chapters: 374,
-  mediaListEntry: listEntry,
-};
-
-const berserkEntry = {
-  id: "30002",
-  title: "Berserk",
-  titles: ["Berserk", "ベルセルク"],
-  year: "1989",
-  genres: ["Action", "Drama"],
-  cover: "https://img/berserk.jpg",
-  coverThumb: "https://img/berserk-small.jpg",
-  coverColor: "#1a1a1a",
-  progress: 12,
-  chapters: 374,
-};
+  mediaListEntry: { id: 1, progress: 12 },
+} as unknown as MangaEntry;
 
 const query = (lists: unknown) =>
   ({ MediaListCollection: { lists } }) as MangaListQuery;
@@ -54,38 +36,11 @@ describe("toEntries", () => {
     expect(toEntries(data)).toEqual([]);
   });
 
-  it("maps an entry, drops null genres and dedupes titles", () => {
-    const data = query([{ entries: [{ id: 1, media: berserk }] }]);
-    expect(toEntries(data)).toEqual([berserkEntry]);
-  });
-});
-
-describe("toEntry", () => {
-  it("survives a media with every optional field missing", () => {
-    const media = {
-      title: null,
-      coverImage: null,
-      startDate: null,
-      genres: null,
-      chapters: null,
-      mediaListEntry: null,
-    } as MangaMediaFragment;
-
-    expect(toEntry(7, media)).toEqual({
-      id: "7",
-      title: "",
-      titles: [],
-      year: "",
-      genres: [],
-      cover: null,
-      coverThumb: null,
-      coverColor: null,
-      progress: 0,
-      chapters: null,
-    });
-  });
-
-  it("returns null when there is no media", () => {
-    expect(toEntry(7, null)).toBeNull();
+  it("flattens the media out of every list", () => {
+    const data = query([
+      { entries: [{ id: 1, media: berserk }] },
+      { entries: [{ id: 2, media: berserk }] },
+    ]);
+    expect(toEntries(data)).toEqual([berserk, berserk]);
   });
 });

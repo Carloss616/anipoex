@@ -11,14 +11,3 @@ export type Tracker = {
   authorize(): Promise<{ accessToken: string } | null>;
   fetchViewer(): Promise<User>;
 };
-
-/**
- * The token is expired or revoked. Callers must clear the session.
- * Distinct from a network failure, where the token is still good.
- */
-export class UnauthorizedError extends Error {
-  constructor() {
-    super("Your AniList token expired or was revoked");
-    this.name = "UnauthorizedError";
-  }
-}
