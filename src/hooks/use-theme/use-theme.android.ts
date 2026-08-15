@@ -6,15 +6,15 @@ import type {
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
-import { useThemeColor } from "heroui-native/hooks";
 import type { RefreshControlProps } from "react-native";
 import { useUniwind } from "uniwind";
 import { header } from "@/components/layout/header";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useNativeTabsTheme(): NativeTabsProps {
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
   const fontFamily = useFontFamily("medium");
 
   return {
@@ -35,8 +35,8 @@ export function useNativeTabsTheme(): NativeTabsProps {
 
 export function useNavigationTheme(): Theme {
   const { theme } = useUniwind();
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent, colorScheme: theme });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary, colorScheme: theme });
   const fonts = useNavigationFonts();
 
   return {
@@ -54,8 +54,8 @@ export function useNavigationTheme(): Theme {
 }
 
 export function useStackTheme(): NativeStackNavigationOptions {
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
 
   return {
     header,
@@ -69,8 +69,8 @@ export function useStackTheme(): NativeStackNavigationOptions {
 }
 
 export function useStackSearchBarTheme(): StackSearchBarProps {
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
 
   return {
     textColor: m3.onSurface,
@@ -80,8 +80,8 @@ export function useStackSearchBarTheme(): StackSearchBarProps {
 }
 
 export function useStackToolbarTheme(): StackToolbarProps {
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
 
   return {
     backgroundColor: m3.surfaceContainerLow,
@@ -89,8 +89,8 @@ export function useStackToolbarTheme(): StackToolbarProps {
 }
 
 export function useRefreshControlTheme(): Partial<RefreshControlProps> {
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
 
   return {
     colors: [m3.primary],

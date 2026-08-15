@@ -7,9 +7,9 @@ import {
   onTapGesture,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
-import { useThemeColor } from "heroui-native/hooks";
 import { Uniwind, useUniwind } from "uniwind";
 import { EnsureHost } from "@/components/ui/host";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 /**
  * Tap flips light/dark; long press hands the theme back to the system.
@@ -19,7 +19,7 @@ import { EnsureHost } from "@/components/ui/host";
  */
 export function ThemeToggle() {
   const { theme, hasAdaptiveThemes } = useUniwind();
-  const iconColor = useThemeColor("default-foreground");
+  const foreground = useThemeColor("foreground");
   const isLight = theme === "light";
 
   return (
@@ -33,7 +33,7 @@ export function ThemeToggle() {
               : "moon"
         }
         size={18}
-        color={iconColor}
+        color={foreground}
         modifiers={[
           frame({ width: 40, height: 40 }),
           glassEffect({

@@ -1,7 +1,7 @@
 import { useFragment } from "@apollo/client/react";
 import { ListGroup } from "heroui-native/list-group";
 import { PressableFeedback } from "heroui-native/pressable-feedback";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { EmptyState } from "@/components/empty-state";
 import { Separator } from "@/components/ui/separator";
 import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";

@@ -1,12 +1,12 @@
-import { useThemeColor } from "heroui-native/hooks";
 import { Uniwind, useUniwind } from "uniwind";
 import { CloseButton } from "@/components/ui/close-button";
 import { Icon } from "@/components/ui/icon";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 /** Tap flips light/dark; long press hands the theme back to the system. */
 export function ThemeToggle() {
   const { theme, hasAdaptiveThemes } = useUniwind();
-  const iconColor = useThemeColor("default-foreground");
+  const foreground = useThemeColor("foreground");
   const isLight = theme === "light";
 
   const icon = hasAdaptiveThemes
@@ -29,7 +29,7 @@ export function ThemeToggle() {
       onPress={() => Uniwind.setTheme(isLight ? "dark" : "light")}
       onLongPress={() => Uniwind.setTheme("system")}
     >
-      <Icon name={icon} size={18} color={iconColor} />
+      <Icon name={icon} size={18} color={foreground} />
     </CloseButton>
   );
 }

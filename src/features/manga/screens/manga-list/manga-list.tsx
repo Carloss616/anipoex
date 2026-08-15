@@ -2,7 +2,6 @@ import { useApolloClient } from "@apollo/client/react";
 import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { useThemeColor } from "heroui-native/hooks";
 import { useMemo, useRef, useState } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 import { TabView } from "react-native-tab-view";
@@ -14,12 +13,13 @@ import {
   useStackSearchBarTheme,
   useStackToolbarTheme,
 } from "@/hooks/use-theme";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListScene } from "./components/list-scene";
 import { MANGA_STATUSES } from "./constants";
 
 export function MangaList() {
   const router = useRouter();
-  const muted = useThemeColor("muted");
+  const mutedForeground = useThemeColor("muted-foreground");
   const client = useApolloClient();
   const [refetching, setRefetching] = useState(false);
   const headerHeight = useHeaderHeight();
@@ -84,7 +84,7 @@ export function MangaList() {
             })}
             onPress={refresh}
             disabled={refetching}
-            tintColor={refetching ? muted : undefined}
+            tintColor={refetching ? mutedForeground : undefined}
             accessibilityLabel="Refresh"
           />
         </Stack.Toolbar>,

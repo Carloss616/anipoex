@@ -7,9 +7,10 @@ import {
   font,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { useThemeColor } from "heroui-native/hooks";
 import { useFontFamily } from "@/hooks/use-font";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
+import { SEMANTIC_COLOR } from "../colors";
 import { EnsureHost } from "../host";
 import type { ChipLabelProps, ChipProps, ChipSize, ChipVariant } from "./chip";
 
@@ -53,13 +54,13 @@ export function Chip({
   children,
   size = "sm",
   variant = "primary",
-  color = "accent",
+  color = "primary",
   selected = false,
   disabled: isDisabled = false,
   onPress,
   testID,
 }: ChipProps) {
-  const tintColor = useThemeColor(color === "default" ? "accent" : color);
+  const tintColor = useThemeColor(SEMANTIC_COLOR[color].token.fill);
   const themeFamily = useFontFamily("normal");
 
   return (
@@ -82,7 +83,7 @@ export function Chip({
           }),
         ]}
         testID={testID as string | undefined}
-        role={color === "danger" ? "destructive" : undefined}
+        role={color === "destructive" ? "destructive" : undefined}
       />
     </EnsureHost>
   );

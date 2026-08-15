@@ -1,5 +1,5 @@
 import { Image, type ImageProps, type ImageSource } from "expo-image";
-import { useThemeColor } from "heroui-native/hooks";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export function CoverImage({
   cover,

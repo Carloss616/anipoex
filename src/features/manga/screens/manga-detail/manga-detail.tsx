@@ -1,6 +1,6 @@
 import { Spacer } from "@expo/ui";
 import { Stack, useIsPreview, useLocalSearchParams } from "expo-router";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { EmptyState } from "@/components/empty-state";
 import { Center } from "@/components/layout/center";
 import { Column } from "@/components/layout/column";

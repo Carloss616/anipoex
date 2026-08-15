@@ -6,7 +6,8 @@ import {
   padding,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
-import { useThemeColor } from "heroui-native/hooks";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { SEMANTIC_COLOR } from "../colors";
 import { EnsureHost } from "../host";
 import { Typography } from "../typography";
 import type { BadgeProps } from "./badge";
@@ -20,8 +21,9 @@ const DOT = 8;
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/hstack/
  */
-export function Badge({ children, color = "default", testID }: BadgeProps) {
-  const [container, content] = useThemeColor([color, `${color}-foreground`]);
+export function Badge({ children, color = "secondary", testID }: BadgeProps) {
+  const { token } = SEMANTIC_COLOR[color];
+  const [container, content] = useThemeColor([token.fill, token.label]);
   return (
     <EnsureHost matchContents>
       {children == null ? (

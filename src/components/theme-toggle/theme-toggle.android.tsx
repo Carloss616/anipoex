@@ -8,10 +8,10 @@ import {
   combinedClickable,
   size,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useThemeColor } from "heroui-native/hooks";
 import { Uniwind, useUniwind } from "uniwind";
 import { EnsureHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 /**
  * Tap flips light/dark; long press hands the theme back to the system.
@@ -22,8 +22,8 @@ import { Icon } from "@/components/ui/icon";
  */
 export function ThemeToggle() {
   const { theme, hasAdaptiveThemes } = useUniwind();
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent, colorScheme: theme });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary, colorScheme: theme });
   const isLight = theme === "light";
 
   return (

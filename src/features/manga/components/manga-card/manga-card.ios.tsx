@@ -8,7 +8,6 @@ import {
   onTapGesture,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
-import { useThemeColor } from "heroui-native/hooks";
 import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
@@ -17,6 +16,7 @@ import { Host, RNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Scrim } from "@/components/ui/scrim";
 import { Typography } from "@/components/ui/typography";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
 import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
@@ -41,7 +41,7 @@ function MangaCardBase({
   onPress,
   onLongPress,
 }: MangaCardProps) {
-  const [surface, _overlay] = useThemeColor(["surface", "overlay"]);
+  const card = useThemeColor("card");
   const isInsideHost = useIsInsideHost();
 
   const content = (
@@ -51,7 +51,7 @@ function MangaCardBase({
           glass: {
             variant: "regular",
             interactive: !!onPress || !!onLongPress,
-            tint: surface,
+            tint: card,
           },
           shape: "roundedRectangle",
           cornerRadius: 24,

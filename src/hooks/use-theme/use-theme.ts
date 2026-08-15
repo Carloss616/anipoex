@@ -5,58 +5,60 @@ import type {
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
-import { useThemeColor } from "heroui-native/hooks";
 import type { RefreshControlProps } from "react-native";
 import { useUniwind } from "uniwind";
 import { header } from "@/components/layout/header";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useNativeTabsTheme(): NativeTabsProps {
-  const [accentSoftForeground, accentSoft, accent, backgroundSecondary, muted] =
+  // PanelUI's `accent` is the tinted surface a selected item sits on, not the
+  // brand — that is `primary`.
+  const [accentForeground, accent, primary, surface, mutedForeground] =
     useThemeColor([
-      "accent-soft-foreground",
-      "accent-soft",
+      "accent-foreground",
       "accent",
-      "background-secondary",
-      "muted",
+      "primary",
+      "surface",
+      "muted-foreground",
     ]);
   const fontFamily = useFontFamily("medium");
 
   return {
-    tintColor: accent,
-    backgroundColor: backgroundSecondary,
-    indicatorColor: accentSoft,
-    rippleColor: accentSoft,
+    tintColor: primary,
+    backgroundColor: surface,
+    indicatorColor: accent,
+    rippleColor: accent,
     labelStyle: {
-      default: { color: muted, fontFamily },
-      selected: { color: accentSoftForeground, fontFamily },
+      default: { color: mutedForeground, fontFamily },
+      selected: { color: accentForeground, fontFamily },
     },
-    iconColor: { default: muted, selected: accentSoftForeground },
+    iconColor: { default: mutedForeground, selected: accentForeground },
   };
 }
 
 export function useNavigationTheme(): Theme {
   const { theme } = useUniwind();
-  const [accent, background, surface, foreground, border, danger] =
+  const [primary, background, card, foreground, border, destructive] =
     useThemeColor([
-      "accent",
+      "primary",
       "background",
-      "surface",
+      "card",
       "foreground",
       "border",
-      "danger",
+      "destructive",
     ]);
   const fonts = useNavigationFonts();
 
   return {
     dark: theme === "dark",
     colors: {
-      primary: accent,
+      primary,
       background,
-      card: surface,
+      card,
       text: foreground,
       border,
-      notification: danger,
+      notification: destructive,
     },
     fonts,
   };
@@ -85,11 +87,11 @@ export function useStackToolbarTheme(): StackToolbarProps {
 }
 
 export function useRefreshControlTheme(): Partial<RefreshControlProps> {
-  const [accent, surface] = useThemeColor(["accent", "surface"]);
+  const [primary, card] = useThemeColor(["primary", "card"]);
 
   return {
-    tintColor: accent,
-    colors: [accent],
-    progressBackgroundColor: surface,
+    tintColor: primary,
+    colors: [primary],
+    progressBackgroundColor: card,
   };
 }

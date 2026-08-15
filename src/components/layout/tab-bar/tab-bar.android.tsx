@@ -3,13 +3,13 @@ import {
   useMaterialColors,
 } from "@expo/ui/jetpack-compose";
 import { Memo } from "@legendapp/state/react";
-import { useThemeColor } from "heroui-native/hooks";
 import { Tabs, useTabsTrigger } from "heroui-native/tabs";
 import { type TouchableNativeFeedbackProps, View } from "react-native";
 import type { Route } from "react-native-tab-view";
 import { Badge } from "@/components/ui/badge";
 import { TouchableNativeFeedback } from "@/components/ui/touchable-native-feedback";
 import type { MediaListStatus } from "@/graphql/types.generated";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import type { TabBarProps } from "./tab-bar";
 
 export function TabBar<T extends Route>({
@@ -17,8 +17,8 @@ export function TabBar<T extends Route>({
   counts$,
   jumpTo,
 }: TabBarProps<T>) {
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
 
   return (
     <Tabs value={routes[index].key} onValueChange={jumpTo} variant="secondary">

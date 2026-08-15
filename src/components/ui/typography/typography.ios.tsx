@@ -12,7 +12,6 @@ import {
   onTapGesture,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
-import { useThemeColor } from "heroui-native/hooks";
 import type {
   TypographyAlign,
   TypographyCodeProps,
@@ -29,6 +28,7 @@ import {
 } from "react-native";
 import { withUniwind } from "uniwind";
 import { useFontFamily } from "@/hooks/use-font";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 
@@ -107,7 +107,7 @@ function TypographyRootBase({
   onPress,
   testID,
 }: TypographyRootProps) {
-  const defaultColor = useThemeColor("default");
+  const secondary = useThemeColor("secondary");
 
   const {
     display,
@@ -164,7 +164,7 @@ function TypographyRootBase({
           ...(isCode
             ? [
                 padding({ horizontal: 6, vertical: 2 }),
-                background(defaultColor),
+                background(secondary),
                 cornerRadius(6),
               ]
             : []),

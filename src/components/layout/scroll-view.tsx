@@ -1,5 +1,5 @@
 import { ScrollView as ScrollViewBase } from "@expo/ui";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import {
   ScrollView as RNScrollView,
   type ScrollViewProps,

@@ -3,7 +3,7 @@ import {
   AnimatedLegendList,
   type AnimatedLegendListProps,
 } from "@legendapp/list/reanimated";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { resolveSpacing } from "@/utils/resolve-spacing";

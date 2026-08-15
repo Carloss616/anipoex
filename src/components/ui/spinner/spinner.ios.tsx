@@ -25,7 +25,7 @@ const SIZES = {
 
 export function Spinner({
   size = "md",
-  color = "default",
+  color = "primary",
   isLoading = true,
   testID,
 }: SpinnerProps) {

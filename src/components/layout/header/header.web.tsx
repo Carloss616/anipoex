@@ -3,9 +3,8 @@ import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
 import { CloseButton } from "heroui-native/close-button";
-import { useThemeColor } from "heroui-native/hooks";
 import { SearchField } from "heroui-native/search-field";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import {
   type InputModeOptions,
@@ -16,6 +15,7 @@ import {
 } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 type SearchBarOptions = NonNullable<
   NativeStackHeaderProps["options"]["headerSearchBarOptions"]
@@ -47,11 +47,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const inputRef = useRef<TextInput>(null);
-  const mutedColor = useThemeColor("muted");
+  const mutedForeground = useThemeColor("muted-foreground");
 
   const search = options.headerSearchBarOptions;
   const tintColor = options.headerTintColor;
-  const iconColor = tintColor ?? mutedColor;
+  const iconColor = tintColor ?? mutedForeground;
   const title = getHeaderTitle(options, "");
   const showBack = !!back && options.headerBackVisible !== false;
   const backLabel = options.headerBackTitle ?? back?.title;

@@ -1,4 +1,4 @@
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import type { ReactNode } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 import { View } from "react-native";

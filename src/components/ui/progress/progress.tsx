@@ -1,5 +1,4 @@
-import { useThemeColor } from "heroui-native/hooks";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { useEffect } from "react";
 import { type StyleProp, View, type ViewStyle } from "react-native";
 import Animated, {
@@ -9,6 +8,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export interface ProgressProps {
   /** Progress from 0 to 1. Omit for an indeterminate bar. */
@@ -19,7 +19,7 @@ export interface ProgressProps {
 }
 
 export function Progress({ value, style, className, testID }: ProgressProps) {
-  const accent = useThemeColor("accent");
+  const primary = useThemeColor("primary");
   const percent = value == null ? null : Math.min(Math.max(value, 0), 1) * 100;
 
   return (
@@ -36,7 +36,7 @@ export function Progress({ value, style, className, testID }: ProgressProps) {
       aria-valuenow={percent ?? undefined}
     >
       {percent === null ? (
-        <IndeterminateBar color={accent} />
+        <IndeterminateBar color={primary} />
       ) : (
         <View
           className="h-full rounded-full bg-primary"

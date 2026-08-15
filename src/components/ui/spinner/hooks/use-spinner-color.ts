@@ -1,13 +1,12 @@
-import { useThemeColor } from "heroui-native/hooks";
-import type { SpinnerProps } from "heroui-native/spinner";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { SEMANTIC_COLOR, type SemanticColor } from "../../colors";
 
-const NAMED = ["accent", "default", "success", "warning", "danger"] as const;
-
-/** heroui's `color` prop is either a theme name or a raw color string. */
-export function useSpinnerColor(color: NonNullable<SpinnerProps["color"]>) {
-  const named = (NAMED as readonly string[]).includes(color);
+/** The `color` prop is either a semantic name or a raw color string. */
+export function useSpinnerColor(color: SemanticColor | (string & {})) {
+  const named = color in SEMANTIC_COLOR;
   const themed = useThemeColor(
-    named ? (color as (typeof NAMED)[number]) : "default",
+    SEMANTIC_COLOR[named ? (color as SemanticColor) : "primary"].token.fill,
   );
-  return named ? (themed as string) : color;
+
+  return named ? themed : color;
 }

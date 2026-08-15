@@ -1,7 +1,7 @@
 import LucideBase from "@react-native-vector-icons/lucide";
 import type { ImageSource } from "expo-image";
 import { Card } from "heroui-native/card";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import type { MediaStatus } from "@/graphql/types.generated";

@@ -5,14 +5,15 @@ import {
   Text,
   useMaterialColors,
 } from "@expo/ui/jetpack-compose";
-import { useThemeColor } from "heroui-native/hooks";
 import { useFontFamily } from "@/hooks/use-font";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
+import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
-import type { ChipColor, ChipLabelProps, ChipProps } from "./chip";
+import type { ChipLabelProps, ChipProps } from "./chip";
 
-function useColors(color: ChipColor) {
-  const seedColor = useThemeColor(color === "default" ? "accent" : color);
+function useColors(color: SemanticColor) {
+  const seedColor = useThemeColor(SEMANTIC_COLOR[color].token.fill);
   const m3 = useMaterialColors({ seedColor });
   const colors: FilterChipColors = {
     containerColor: m3.surfaceContainerLow,
@@ -37,7 +38,7 @@ function useColors(color: ChipColor) {
 export function Chip({
   children,
   selected = false,
-  color = "accent",
+  color = "primary",
   disabled: isDisabled = false,
   onPress,
 }: ChipProps) {

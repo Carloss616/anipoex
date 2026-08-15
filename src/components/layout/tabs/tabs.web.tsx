@@ -8,13 +8,13 @@ import {
   TabTrigger,
   type TabTriggerSlotProps,
 } from "expo-router/ui";
-import { useThemeColor } from "heroui-native/hooks";
 import { Surface } from "heroui-native/surface";
 import { Tabs as HeroTabs } from "heroui-native/tabs";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { noop } from "@/utils/utils";
 import { ThemeToggle } from "../../theme-toggle";
 
@@ -81,7 +81,10 @@ function TabButton({
   children,
   ...props
 }: TabTriggerSlotProps & { item: Route }) {
-  const [accent, muted] = useThemeColor(["accent", "muted"]);
+  const [primary, mutedForeground] = useThemeColor([
+    "primary",
+    "muted-foreground",
+  ]);
 
   return (
     <HeroTabs.Trigger value={item.href} {...props}>
@@ -90,7 +93,7 @@ function TabButton({
           <Lucide
             size={18}
             name={isSelected ? item.icon.selected : item.icon.default}
-            color={isSelected ? accent : muted}
+            color={isSelected ? primary : mutedForeground}
           />
           <HeroTabs.Label
             className={isSelected ? "text-primary" : "text-muted-foreground"}

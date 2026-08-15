@@ -17,8 +17,7 @@ import type {
   ButtonSize,
   ButtonVariant,
 } from "heroui-native/button";
-import { useThemeColor } from "heroui-native/hooks";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import {
   Children,
   createContext,
@@ -28,6 +27,7 @@ import {
 } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp, omitUndefined, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 import { Typography, type TypographyParagraphProps } from "../typography";
@@ -111,13 +111,19 @@ function ButtonRoot({
   style,
 }: ButtonRootProps) {
   const id = useId();
-  const [danger, dangerForeground, dangerSoft, dangerSoftForeground] =
-    useThemeColor([
-      "danger",
-      "danger-foreground",
-      "danger-soft",
-      "danger-soft-foreground",
-    ]);
+  const [
+    destructive,
+    destructiveSolidForeground,
+    destructiveSoft,
+    destructiveForeground,
+  ] = useThemeColor([
+    "destructive",
+    // On a solid fill it is `-solid-foreground`; plain `-foreground` is the
+    // status as text, which is what belongs on the soft fill.
+    "destructive-solid-foreground",
+    "destructive-soft",
+    "destructive-foreground",
+  ]);
 
   const { spacing, height: buttonHeight } = SIZES[size];
   const box = resolveStyle(style as StyleProp<ViewStyle>);
@@ -156,11 +162,14 @@ function ButtonRoot({
           onClick={onPress as (() => void) | undefined}
           colors={
             variant === "danger"
-              ? { containerColor: danger, contentColor: dangerForeground }
+              ? {
+                  containerColor: destructive,
+                  contentColor: destructiveSolidForeground,
+                }
               : variant === "danger-soft"
                 ? {
-                    containerColor: dangerSoft,
-                    contentColor: dangerSoftForeground,
+                    containerColor: destructiveSoft,
+                    contentColor: destructiveForeground,
                   }
                 : undefined
           }

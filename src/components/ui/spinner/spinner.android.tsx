@@ -24,11 +24,11 @@ export const SCALES = {
  */
 export function Spinner({
   size = "md",
-  color = "default",
+  color = "primary",
   isLoading = true,
   testID,
 }: SpinnerProps) {
-  const seedColor = useSpinnerColor(color === "default" ? "accent" : color);
+  const seedColor = useSpinnerColor(color);
   const m3 = useMaterialColors({ seedColor });
   const scale = SCALES[size];
 

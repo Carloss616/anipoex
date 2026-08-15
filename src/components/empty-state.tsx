@@ -1,4 +1,4 @@
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { useState } from "react";
 import { Typography } from "@/components/ui/typography";
 import { Center } from "./layout/center";

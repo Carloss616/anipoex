@@ -1,4 +1,4 @@
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { EnsureHost } from "../../ui/host";
 import { Column } from "../column";
 

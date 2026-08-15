@@ -1,5 +1,5 @@
 import { Card } from "heroui-native/card";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
 import type { BadgeProps } from "@/components/ui/badge";
 import { useColors } from "@/components/ui/badge/badge.android";
@@ -7,7 +7,7 @@ import { useColors } from "@/components/ui/badge/badge.android";
 /** Redraws the shared Badge in plain RN Yoga: its Android one mounts a `<Host>`, one `ComposeView` per row inside LegendList. */
 export function Badge({
   children,
-  color = "default",
+  color = "secondary",
   testID,
   style,
   className,

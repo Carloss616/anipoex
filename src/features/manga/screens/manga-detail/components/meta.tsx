@@ -1,5 +1,5 @@
 import { useIsPreview } from "expo-router";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { Icon, type IconName } from "@/components/ui/icon";

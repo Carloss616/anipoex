@@ -12,7 +12,6 @@ import {
   Shapes,
   testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useThemeColor } from "heroui-native/hooks";
 import type {
   TypographyAlign,
   TypographyCodeProps,
@@ -29,6 +28,7 @@ import {
 } from "react-native";
 import { withUniwind } from "uniwind";
 import { useFontFamily } from "@/hooks/use-font";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 
@@ -93,8 +93,8 @@ function TypographyRootBase({
   onPress,
   testID,
 }: TypographyRootProps) {
-  const accent = useThemeColor("accent");
-  const m3 = useMaterialColors({ seedColor: accent });
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
 
   const {
     display,

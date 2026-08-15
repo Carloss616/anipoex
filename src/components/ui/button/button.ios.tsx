@@ -21,11 +21,11 @@ import type {
   ButtonSize,
   ButtonVariant,
 } from "heroui-native/button";
-import { useThemeColor } from "heroui-native/hooks";
-import { cn } from "heroui-native/utils";
+import { cn } from "panelui-native/utils/cn";
 import { Children, createContext, isValidElement, useContext } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp, omitUndefined, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
@@ -133,11 +133,11 @@ function ButtonRoot({
   testID,
   style,
 }: ButtonRootProps) {
-  const danger = useThemeColor("danger");
+  const destructive = useThemeColor("destructive");
 
   const box = resolveStyle(style as StyleProp<ViewStyle>);
   const dangerTint =
-    variant === "danger" || variant === "danger-soft" ? danger : null;
+    variant === "danger" || variant === "danger-soft" ? destructive : null;
 
   const isSimple = isSimpleLabel(children);
 
