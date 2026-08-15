@@ -23,7 +23,7 @@ export function Host(props: React.ComponentProps<typeof HostRoot>) {
   return (
     <HostContext.Provider value={true}>
       <HostRoot
-        seedColorClassName="accent-accent"
+        seedColorClassName="accent-primary"
         colorScheme={theme}
         {...props}
       />

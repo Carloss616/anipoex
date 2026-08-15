@@ -1,20 +1,12 @@
 @import "tailwindcss";
 @import "uniwind";
 
-/* heroui-native/styles split apart: its component CSS ships unlayered, which beats
-   every Tailwind utility in @layer utilities. Importing it into @layer components
-   lets our classNames win without `!`. Vars/theme must stay unlayered (@theme). */
-@import "../node_modules/heroui-native/lib/module/styles/variables.css";
-@import "../node_modules/heroui-native/lib/module/styles/utilities.css";
-@import "../node_modules/heroui-native/lib/module/styles/theme.css";
-@import "../node_modules/heroui-native/lib/module/styles/components/index.css"
-  layer(components);
+/* Tokens only — PanelUI ships its components as source with classNames, so
+   there is no component CSS to layer around. */
+@import "panelui-native/theme.css";
 
-/* custom theme, last so they win over heroui's own @layer theme. */
-@import "./theme.css";
-
-/* Path to the heroui-native lib inside node_modules relative to global.css */
-@source "../node_modules/heroui-native/lib";
+/* Path to the panelui-native source inside node_modules relative to global.css */
+@source "../node_modules/panelui-native/src";
 
 /* `static` so @/hooks/use-font reads all four, className or not. */
 @theme static {
@@ -90,22 +82,12 @@
 }
 
 @layer base {
-  /* RN's `box-none` is no CSS value, so HeroUI's toast overlay eats every click.
-     Re-enabled on the toasts, at any depth. `:where` keeps uniwind from mapping
-     it to a className, and loses to RNW's `none` on the hidden copy. */
-  :where(.pointer-events-box-none) {
-    pointer-events: none;
-  }
-  :where(.pointer-events-box-none .toast__root) {
-    pointer-events: auto;
-  }
-
   /* Drop the focus ring on pointer focus only; `:focus-visible` can't say that
      on text fields. Flag from @/utils/focus-modality. */
   [data-focus-modality="pointer"] input:focus,
   [data-focus-modality="pointer"] textarea:focus {
     outline-style: none;
     outline-width: 0px;
-    border-color: var(--color-focus);
+    border-color: var(--color-ring);
   }
 }

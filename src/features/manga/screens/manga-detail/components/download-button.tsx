@@ -12,7 +12,7 @@ export function DownloadButton() {
           web: "circle-arrow-down",
         })}
         size={24}
-        colorClassName="accent-accent"
+        colorClassName="accent-primary"
       />
     </Button>
   );

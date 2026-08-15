@@ -64,7 +64,11 @@ export function MangaCard({
           style={StyleSheet.absoluteFill}
           className="items-center justify-center"
         >
-          <Lucide name="book-open" size={22} colorClassName="accent-muted/20" />
+          <Lucide
+            name="book-open"
+            size={22}
+            colorClassName="accent-muted-foreground/20"
+          />
         </View>
       )}
       {status && (

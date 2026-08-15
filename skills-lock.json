@@ -13,6 +13,12 @@
       "skillPath": "skills/heroui-native/SKILL.md",
       "computedHash": "d2fc03a13d03678d40799726a144ba72ba1cb08126176ddbf0a0461c901aef29"
     },
+    "panelui": {
+      "source": "panel-ui/PanelUI",
+      "sourceType": "github",
+      "skillPath": "skills/panelui/SKILL.md",
+      "computedHash": "366548c677bba2e9bf6e8635e96439ffa21271be8067371ad6859787fef25657"
+    },
     "uniwind": {
       "source": "uni-stack/uniwind",
       "sourceType": "github",

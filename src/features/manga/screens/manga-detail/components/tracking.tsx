@@ -47,7 +47,7 @@ export function Tracking({
       <Column className="web:w-full gap-2">
         <Row alignment="center" className="gap-2">
           <RNHostView matchContents>
-            <View className="size-2 rounded-full bg-accent" />
+            <View className="size-2 rounded-full bg-primary" />
           </RNHostView>
           <Button.Label className="ios:text-foreground">{label}</Button.Label>
           <Spacer flexible />

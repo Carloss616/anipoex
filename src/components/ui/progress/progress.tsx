@@ -26,7 +26,7 @@ export function Progress({ value, style, className, testID }: ProgressProps) {
     <View
       style={style}
       className={cn(
-        "h-1.5 w-full overflow-hidden rounded-full bg-accent-soft",
+        "h-1.5 w-full overflow-hidden rounded-full bg-secondary",
         className,
       )}
       testID={testID}
@@ -39,7 +39,7 @@ export function Progress({ value, style, className, testID }: ProgressProps) {
         <IndeterminateBar color={accent} />
       ) : (
         <View
-          className="h-full rounded-full bg-accent"
+          className="h-full rounded-full bg-primary"
           style={{ width: `${percent}%` }}
         />
       )}

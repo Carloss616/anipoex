@@ -76,7 +76,11 @@ export function Meta({
       </Typography>
       {fields.map(({ icon, value }) => (
         <Row key={value} className="gap-1" alignment="center">
-          <Icon name={icon} size={12} colorClassName="accent-muted" />
+          <Icon
+            name={icon}
+            size={12}
+            colorClassName="accent-muted-foreground"
+          />
           <Typography type="body-sm" color="muted">
             {value}
           </Typography>

@@ -20,19 +20,21 @@ export interface BadgeProps {
 }
 
 const CONTAINER = {
-  accent: "bg-accent",
-  default: "bg-default",
+  accent: "bg-primary",
+  default: "bg-secondary",
   success: "bg-success",
   warning: "bg-warning",
-  danger: "bg-danger",
+  danger: "bg-destructive",
 } as const satisfies Record<BadgeColor, string>;
 
+/* The status tokens' `-foreground` is the status *as text*; the readable color
+   on a solid fill is `-solid-foreground`. */
 const LABEL = {
-  accent: "text-accent-foreground",
-  default: "text-default-foreground",
-  success: "text-success-foreground",
-  warning: "text-warning-foreground",
-  danger: "text-danger-foreground",
+  accent: "text-primary-foreground",
+  default: "text-secondary-foreground",
+  success: "text-success-solid-foreground",
+  warning: "text-warning-solid-foreground",
+  danger: "text-destructive-solid-foreground",
 } as const satisfies Record<BadgeColor, string>;
 
 /** A small, non-interactive status marker — a count, a state, or a bare dot. */

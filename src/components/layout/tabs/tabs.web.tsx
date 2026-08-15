@@ -92,7 +92,9 @@ function TabButton({
             name={isSelected ? item.icon.selected : item.icon.default}
             color={isSelected ? accent : muted}
           />
-          <HeroTabs.Label className={isSelected ? "text-accent" : "text-muted"}>
+          <HeroTabs.Label
+            className={isSelected ? "text-primary" : "text-muted-foreground"}
+          >
             {children}
           </HeroTabs.Label>
         </>

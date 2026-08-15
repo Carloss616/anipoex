@@ -16,4 +16,4 @@ export const PUBLICATION_STATUSES: Record<MediaStatus, string> = {
  * detached DOM node, where the platform variant never matches.
  */
 export const WEB_ICON_COLOR =
-  Platform.OS === "web" ? "accent-accent" : undefined;
+  Platform.OS === "web" ? "accent-primary" : undefined;
