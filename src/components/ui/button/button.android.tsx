@@ -11,20 +11,12 @@ import {
 } from "@expo/ui/jetpack-compose";
 import { height, width } from "@expo/ui/jetpack-compose/modifiers";
 import type {
-  ButtonContextValue,
-  ButtonLabelProps,
-  ButtonRootProps,
+  ButtonProps as ButtonRootProps,
   ButtonSize,
   ButtonVariant,
-} from "heroui-native/button";
+} from "panelui-native/components/button";
 import { cn } from "panelui-native/utils/cn";
-import {
-  Children,
-  createContext,
-  isValidElement,
-  useContext,
-  useId,
-} from "react";
+import { Children, isValidElement, useId } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -35,44 +27,34 @@ import { Typography, type TypographyParagraphProps } from "../typography";
 const VARIANTS = {
   primary: ButtonBase,
   secondary: FilledTonalButton,
-  tertiary: FilledTonalButton,
   outline: OutlinedButton,
   ghost: TextButton,
-  danger: ButtonBase,
-  "danger-soft": FilledTonalButton,
+  destructive: ButtonBase,
+  social: OutlinedButton,
 } as const satisfies Record<ButtonVariant, unknown>;
 
 const ICON_VARIANTS = {
   primary: FilledIconButton,
   secondary: FilledTonalIconButton,
-  tertiary: FilledTonalIconButton,
   outline: OutlinedIconButton,
   ghost: IconButton,
-  danger: FilledIconButton,
-  "danger-soft": FilledTonalIconButton,
+  destructive: FilledIconButton,
+  social: OutlinedIconButton,
 } as const satisfies Record<ButtonVariant, unknown>;
 
 const SIZES = {
   sm: { height: 40, spacing: 6 },
   md: { height: 48, spacing: 8 },
   lg: { height: 56, spacing: 10 },
+  icon: { height: 48, spacing: 0 },
 } as const satisfies Record<ButtonSize, { height: number; spacing: number }>;
 
 const LABEL_SIZES = {
   sm: "body-xs",
   md: "body-sm",
   lg: "body",
+  icon: "body-sm",
 } as const satisfies Record<ButtonSize, TypographyParagraphProps["type"]>;
-
-const ButtonContext = createContext<ButtonContextValue | null>(null);
-
-export function useButton() {
-  const context = useContext(ButtonContext);
-  if (!context) {
-    throw new Error("useButton must be used within a Button");
-  }
-  return context;
-}
 
 /**
  * The size preset fixes the button's height; `h-auto` hands it back to the
@@ -105,17 +87,18 @@ function ButtonRoot({
   children,
   variant = "primary",
   size = "md",
-  isIconOnly = false,
-  isDisabled = false,
+  disabled = false,
+  loading = false,
   onPress,
   style,
 }: ButtonRootProps) {
   const id = useId();
+  const isIconOnly = size === "icon";
   const [
     destructive,
     destructiveSolidForeground,
-    destructiveSoft,
-    destructiveForeground,
+    _destructiveSoft,
+    _destructiveForeground,
   ] = useThemeColor([
     "destructive",
     // On a solid fill it is `-solid-foreground`; plain `-foreground` is the
@@ -137,62 +120,54 @@ function ButtonRoot({
       child
     ) : (
       // biome-ignore lint/suspicious/noArrayIndexKey: text children have no stable id
-      <ButtonLabel key={`${id}-${index}`}>{child}</ButtonLabel>
+      <ButtonLabel key={`${id}-${index}`} size={size}>
+        {child}
+      </ButtonLabel>
     ),
   );
 
   return (
-    <ButtonContext.Provider
-      value={{
-        size,
-        variant,
-        isDisabled,
-      }}
-    >
-      <EnsureHost matchContents>
-        <ButtonComponent
-          enabled={!isDisabled}
-          modifiers={[
-            ...(box.hugs ? [] : [height(box.height ?? buttonHeight)]),
-            ...(isIconOnly || box.width !== undefined
-              ? [width(box.width ?? buttonHeight)]
-              : []),
-          ]}
-          {...(isIconOnly ? {} : { contentPadding: box.contentPadding })}
-          onClick={onPress as (() => void) | undefined}
-          colors={
-            variant === "danger"
-              ? {
-                  containerColor: destructive,
-                  contentColor: destructiveSolidForeground,
-                }
-              : variant === "danger-soft"
-                ? {
-                    containerColor: destructiveSoft,
-                    contentColor: destructiveForeground,
-                  }
-                : undefined
-          }
-        >
-          {isIconOnly ? (
-            content
-          ) : (
-            <Row
-              horizontalArrangement={{ spacedBy: spacing }}
-              horizontalAlignment="center"
-            >
-              {content}
-            </Row>
-          )}
-        </ButtonComponent>
-      </EnsureHost>
-    </ButtonContext.Provider>
+    <EnsureHost matchContents>
+      <ButtonComponent
+        enabled={!disabled && !loading}
+        modifiers={[
+          ...(box.hugs ? [] : [height(box.height ?? buttonHeight)]),
+          ...(isIconOnly || box.width !== undefined
+            ? [width(box.width ?? buttonHeight)]
+            : []),
+        ]}
+        {...(isIconOnly ? {} : { contentPadding: box.contentPadding })}
+        onClick={onPress as (() => void) | undefined}
+        colors={
+          variant === "destructive"
+            ? {
+                containerColor: destructive,
+                contentColor: destructiveSolidForeground,
+              }
+            : undefined
+        }
+      >
+        {isIconOnly ? (
+          content
+        ) : (
+          <Row
+            horizontalArrangement={{ spacedBy: spacing }}
+            horizontalAlignment="center"
+          >
+            {content}
+          </Row>
+        )}
+      </ButtonComponent>
+    </EnsureHost>
   );
 }
 
-function ButtonLabel({ children, className, ...props }: ButtonLabelProps) {
-  const { size } = useButton();
-
+function ButtonLabel({
+  children,
+  className,
+  size,
+  ...props
+}: TypographyParagraphProps & { size: ButtonSize }) {
   return (
     <Typography
       type={LABEL_SIZES[size]}
@@ -205,12 +180,10 @@ function ButtonLabel({ children, className, ...props }: ButtonLabelProps) {
 }
 
 /**
- * Android Button: same props as `heroui-native`'s, rendered as the Jetpack
- * Compose `Button` family — one Material 3 button per variant.
+ * Android Button: same props as PanelUI's, rendered as the Jetpack Compose
+ * `Button` family — one Material 3 button per variant.
  *
- * @see https://heroui.com/docs/native/components/button
+ * @see https://panelui.dev/docs/components/button
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/button/
  */
-export const Button = Object.assign(withUniwind(ButtonRoot), {
-  Label: ButtonLabel,
-});
+export const Button = withUniwind(ButtonRoot);

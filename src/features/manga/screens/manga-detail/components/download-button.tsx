@@ -4,7 +4,7 @@ import { noop } from "@/utils/utils";
 
 export function DownloadButton() {
   return (
-    <Button size="sm" variant="ghost" isIconOnly onPress={noop}>
+    <Button size="icon" variant="ghost" onPress={noop}>
       <Icon
         name={Icon.select({
           ios: "arrow.down.circle",

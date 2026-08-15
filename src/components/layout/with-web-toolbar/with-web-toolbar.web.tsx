@@ -80,7 +80,7 @@ function ToolbarButton({
   return (
     <CloseButton
       className="h-10"
-      isDisabled={props.disabled}
+      disabled={props.disabled}
       onPress={props.onPress}
       accessibilityLabel={label}
     >
@@ -106,7 +106,7 @@ function ToolbarMenu({
       <Menu.Trigger asChild>
         <CloseButton
           className="h-10"
-          isDisabled={props.disabled}
+          disabled={props.disabled}
           accessibilityLabel={label}
         >
           <Icon

@@ -15,21 +15,17 @@ import {
   tint,
 } from "@expo/ui/swift-ui/modifiers";
 import type {
-  ButtonContextValue,
-  ButtonLabelProps,
-  ButtonRootProps,
+  ButtonProps as ButtonRootProps,
   ButtonSize,
   ButtonVariant,
-} from "heroui-native/button";
-import { cn } from "panelui-native/utils/cn";
-import { Children, createContext, isValidElement, useContext } from "react";
+} from "panelui-native/components/button";
+import { Children, isValidElement } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp, omitUndefined, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
-import { Typography, type TypographyParagraphProps } from "../typography";
 
 type ControlSize = Parameters<typeof controlSize>[0];
 type ButtonStyle = Parameters<typeof buttonStyle>[0];
@@ -37,38 +33,30 @@ type ButtonStyle = Parameters<typeof buttonStyle>[0];
 const VARIANTS = {
   primary: "glassProminent",
   secondary: "glass",
-  tertiary: "glass",
   outline: "glass",
   ghost: "borderless",
-  danger: "glassProminent",
-  "danger-soft": "glass",
+  destructive: "glassProminent",
+  social: "glass",
 } as const satisfies Record<ButtonVariant, ButtonStyle>;
 
 const SIZES = {
   sm: "small",
   md: "regular",
   lg: "large",
+  icon: "regular",
 } as const satisfies Record<ButtonSize, ControlSize>;
-
-const LABEL_SIZES = {
-  sm: "body-xs",
-  md: "body-sm",
-  lg: "body",
-} as const satisfies Record<ButtonSize, TypographyParagraphProps["type"]>;
 
 /** Gap between the pieces of a custom label — SwiftUI stacks them by default. */
 const SPACING = {
   sm: 4,
   md: 6,
   lg: 8,
+  icon: 0,
 } as const satisfies Record<ButtonSize, number>;
 
 function isSimpleLabel(children: React.ReactNode): boolean {
   return Children.toArray(children).every(
-    (child) =>
-      !isValidElement(child) ||
-      child.type === Icon ||
-      child.type === ButtonLabel,
+    (child) => !isValidElement(child) || child.type === Icon,
   );
 }
 
@@ -83,16 +71,6 @@ function systemImageOf(children: React.ReactNode): ButtonProps["systemImage"] {
     return child.props.name as ButtonProps["systemImage"];
   }
   return undefined;
-}
-
-const ButtonContext = createContext<ButtonContextValue | null>(null);
-
-export function useButton() {
-  const context = useContext(ButtonContext);
-  if (!context) {
-    throw new Error("useButton must be used within a Button");
-  }
-  return context;
 }
 
 /**
@@ -127,84 +105,51 @@ function ButtonRoot({
   children,
   variant = "primary",
   size = "md",
-  isIconOnly = false,
-  isDisabled = false,
+  disabled: isDisabled = false,
+  loading = false,
   onPress,
   testID,
   style,
 }: ButtonRootProps) {
-  const destructive = useThemeColor("destructive");
+  const destructiveColor = useThemeColor("destructive");
 
   const box = resolveStyle(style as StyleProp<ViewStyle>);
-  const dangerTint =
-    variant === "danger" || variant === "danger-soft" ? destructive : null;
+  const isIconOnly = size === "icon";
+  const destructiveTint = variant === "destructive" ? destructiveColor : null;
 
   const isSimple = isSimpleLabel(children);
 
   return (
-    <ButtonContext.Provider
-      value={{
-        size,
-        variant,
-        isDisabled,
-      }}
-    >
-      <EnsureHost matchContents>
-        <ButtonBase
-          label={isSimple ? textOf(children) : undefined}
-          systemImage={isSimple ? systemImageOf(children) : undefined}
-          modifiers={[
-            buttonStyle(VARIANTS[variant]),
-            controlSize(SIZES[size]),
-            labelStyle(isIconOnly ? "iconOnly" : "automatic"),
-            buttonBorderShape(isIconOnly ? "circle" : "automatic"),
-            disabled(!!isDisabled),
-            ...(dangerTint ? [tint(dangerTint)] : []),
-          ]}
-          onPress={onPress as (() => void) | undefined}
-          testID={testID as string | undefined}
-          role={
-            variant === "danger" || variant === "danger-soft"
-              ? "destructive"
-              : undefined
-          }
-        >
-          {isSimple ? undefined : (
-            <HStack spacing={SPACING[size]} alignment="center" modifiers={box}>
-              {children}
-            </HStack>
-          )}
-        </ButtonBase>
-      </EnsureHost>
-    </ButtonContext.Provider>
+    <EnsureHost matchContents>
+      <ButtonBase
+        label={isSimple ? textOf(children) : undefined}
+        systemImage={isSimple ? systemImageOf(children) : undefined}
+        modifiers={[
+          buttonStyle(VARIANTS[variant]),
+          controlSize(SIZES[size]),
+          labelStyle(isIconOnly ? "iconOnly" : "automatic"),
+          buttonBorderShape(isIconOnly ? "circle" : "automatic"),
+          disabled(isDisabled || loading),
+          ...(destructiveTint ? [tint(destructiveTint)] : []),
+        ]}
+        onPress={onPress as (() => void) | undefined}
+        testID={testID as string | undefined}
+        role={variant === "destructive" ? "destructive" : undefined}
+      >
+        {isSimple ? undefined : (
+          <HStack spacing={SPACING[size]} alignment="center" modifiers={box}>
+            {children}
+          </HStack>
+        )}
+      </ButtonBase>
+    </EnsureHost>
   );
 }
 
 /**
- * Only reached inside a custom label view — a simple button reads its text off
- * the tree and hands it to SwiftUI as the `label` prop instead. Unstyled on
- * purpose, so the text picks up the button's own tint and control size.
- */
-function ButtonLabel({ children, className, ...props }: ButtonLabelProps) {
-  const { size } = useButton();
-
-  return (
-    <Typography
-      type={LABEL_SIZES[size]}
-      className={cn("text-inherit", className)}
-      {...props}
-    >
-      {textOf(children)}
-    </Typography>
-  );
-}
-
-/**
- * iOS Button: same props as `heroui-native`'s, rendered as a SwiftUI `Button`.
+ * iOS Button: same props as PanelUI's, rendered as a SwiftUI `Button`.
  *
- * @see https://heroui.com/docs/native/components/button
+ * @see https://panelui.dev/docs/components/button
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/button/
  */
-export const Button = Object.assign(withUniwind(ButtonRoot), {
-  Label: ButtonLabel,
-});
+export const Button = withUniwind(ButtonRoot);

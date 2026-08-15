@@ -10,7 +10,17 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
-import type { ChipLabelProps, ChipProps } from "./chip";
+import type { ChipLabelProps, ChipProps, ChipVariant } from "./chip";
+
+const COLORS = {
+  default: "primary",
+  primary: "primary",
+  outline: "primary",
+  success: "success",
+  warning: "warning",
+  info: "primary",
+  destructive: "destructive",
+} as const satisfies Record<ChipVariant, SemanticColor>;
 
 function useColors(color: SemanticColor) {
   const seedColor = useThemeColor(SEMANTIC_COLOR[color].token.fill);
@@ -29,7 +39,7 @@ function useColors(color: SemanticColor) {
 }
 
 /**
- * Android Chip: same props as `heroui-native`'s, rendered as a Jetpack Compose
+ * Android Chip: same props as PanelUI's, rendered as a Jetpack Compose
  * `FilterChip` — the M3 chip that carries a selected state.
  *
  * @see https://heroui.com/docs/native/components/chip
@@ -38,11 +48,12 @@ function useColors(color: SemanticColor) {
 export function Chip({
   children,
   selected = false,
-  color = "primary",
+  variant = "default",
   disabled: isDisabled = false,
   onPress,
 }: ChipProps) {
-  const { colors, border } = useColors(color);
+  const semanticColor = COLORS[variant];
+  const { colors, border } = useColors(semanticColor);
   const fontFamily = useFontFamily("normal");
 
   return (

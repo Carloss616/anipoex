@@ -8,8 +8,8 @@ import {
   TabTrigger,
   type TabTriggerSlotProps,
 } from "expo-router/ui";
-import { Surface } from "heroui-native/surface";
 import { Tabs as HeroTabs } from "heroui-native/tabs";
+import { Surface } from "panelui-native/components/surface";
 import { cn } from "panelui-native/utils/cn";
 import type { ComponentProps } from "react";
 import { View } from "react-native";

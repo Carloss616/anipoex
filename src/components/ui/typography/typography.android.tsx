@@ -13,14 +13,12 @@ import {
   testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import type {
-  TypographyAlign,
   TypographyCodeProps,
   TypographyHeadingProps,
   TypographyParagraphProps,
-  TypographyRootProps,
+  TypographyProps,
   TypographyType,
-  TypographyWeight,
-} from "heroui-native/text";
+} from "panelui-native/components/typography";
 import {
   type TextStyle as RNTextStyle,
   type StyleProp,
@@ -31,12 +29,13 @@ import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
+import type { TypographyWeight } from "./typography";
 
 type ComposeTextStyle = NonNullable<TextProps["style"]>;
 type TypographyStyle = NonNullable<ComposeTextStyle["typography"]>;
 
 /**
- * Material 3 typography presets, picked by nearest size to heroui's scale.
+ * Material 3 typography presets, picked by nearest size to PanelUI's scale.
  * M3 has no 18sp step, so h5 and h6 share `titleMedium`.
  */
 const TYPOGRAPHY = {
@@ -46,9 +45,13 @@ const TYPOGRAPHY = {
   h4: "titleLarge",
   h5: "titleMedium",
   h6: "titleMedium",
+  lead: "titleLarge",
   body: "bodyLarge",
   "body-sm": "bodyMedium",
   "body-xs": "bodySmall",
+  large: "titleMedium",
+  small: "bodySmall",
+  blockquote: "bodyLarge",
   code: "bodyMedium",
 } as const satisfies Record<TypographyType, TypographyStyle>;
 
@@ -60,39 +63,27 @@ const PRESET_WEIGHT = {
   h4: "normal",
   h5: "medium",
   h6: "medium",
+  lead: "normal",
   body: "normal",
   "body-sm": "normal",
   "body-xs": "normal",
+  large: "semibold",
+  small: "medium",
+  blockquote: "normal",
   code: "normal",
 } as const satisfies Record<TypographyType, TypographyWeight>;
-
-/** A `text-*` class lands in the style, where it outranks the `align` prop. */
-const STYLE_ALIGN: Record<string, TypographyAlign> = {
-  left: "start",
-  right: "end",
-  center: "center",
-  justify: "justify",
-};
-
-const ALIGN = {
-  start: "start",
-  center: "center",
-  end: "end",
-  justify: "justify",
-} as const satisfies Record<TypographyAlign, string>;
 
 function TypographyRootBase({
   children,
   type = "body",
-  align = "start",
-  color = "default",
+  align,
+  muted = false,
   weight,
-  truncate = false,
   numberOfLines,
   style,
   onPress,
   testID,
-}: TypographyRootProps) {
+}: TypographyProps) {
   const primary = useThemeColor("primary");
   const m3 = useMaterialColors({ seedColor: primary });
 
@@ -114,8 +105,7 @@ function TypographyRootBase({
 
   if (display === "none") return null;
 
-  const alignment = STYLE_ALIGN[textAlign as string] ?? align;
-  const lines = numberOfLines ?? (truncate ? 1 : undefined);
+  const alignment = textAlign === "auto" ? undefined : (textAlign ?? align);
 
   return (
     <EnsureHost matchContents>
@@ -124,14 +114,15 @@ function TypographyRootBase({
           styleColor === "inherit"
             ? undefined
             : ((styleColor as string) ??
-              (color === "muted" ? m3.onSurfaceVariant : m3.onSurface))
+              (muted ? m3.onSurfaceVariant : m3.onSurface))
         }
-        maxLines={lines}
-        overflow={lines == null ? undefined : "ellipsis"}
+        maxLines={numberOfLines}
+        overflow={numberOfLines == null ? undefined : "ellipsis"}
         style={{
           // The preset is the base; everything below overrides just that key.
           typography: TYPOGRAPHY[type],
-          textAlign: ALIGN[alignment],
+          // Unset means natural alignment, which Compose spells `start`.
+          textAlign: alignment ?? "start",
           fontFamily: isCode ? "monospace" : (fontFamily ?? themeFamily),
           fontSize,
           lineHeight,
@@ -140,7 +131,9 @@ function TypographyRootBase({
         modifiers={[
           // Compose `Text` wraps its content, so a centered alignment needs the
           // full width to center within.
-          ...(alignment === "start" ? [] : [fillMaxWidth()]),
+          ...(alignment == null || alignment === "left"
+            ? []
+            : [fillMaxWidth()]),
           ...(testID ? [testIDModifier(testID)] : []),
           ...(onPress ? [clickable(onPress as () => void)] : []),
           ...(isCode
@@ -176,10 +169,10 @@ function TypographyCode(props: TypographyCodeProps) {
 }
 
 /**
- * Android Typography: same props as `heroui-native`'s, rendered as a Jetpack
+ * Android Typography: same props as PanelUI's, rendered as a Jetpack
  * Compose `Text` on top of the Material 3 typography scale.
  *
- * @see https://heroui.com/docs/native/components/text
+ * @see https://panelui.dev/docs/components/typography
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/text/
  */
 export const Typography = Object.assign(TypographyRoot, {

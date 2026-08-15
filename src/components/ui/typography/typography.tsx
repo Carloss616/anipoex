@@ -1,1 +1,1 @@
-export * from "heroui-native/text";
+export * from "panelui-native/components/typography";

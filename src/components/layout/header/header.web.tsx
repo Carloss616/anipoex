@@ -2,7 +2,6 @@ import { Memo, useObservable } from "@legendapp/state/react";
 import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
-import { CloseButton } from "heroui-native/close-button";
 import { SearchField } from "heroui-native/search-field";
 import { cn } from "panelui-native/utils/cn";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +12,7 @@ import {
   type TextStyle,
   View,
 } from "react-native";
-import { Button } from "@/components/ui/button";
+import { CloseButton } from "@/components/ui/close-button";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
@@ -160,14 +159,12 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         {showBack && (
           <CloseButton
             className="h-10"
-            isIconOnly={isMinimalBack || !backLabel}
+            size={isMinimalBack || !backLabel ? "icon" : "sm"}
             onPress={navigation.goBack}
             accessibilityLabel={backLabel ?? "Back"}
           >
             <Lucide name="chevron-left" size={18} color={iconColor} />
-            {!isMinimalBack && backLabel && (
-              <Button.Label>{backLabel}</Button.Label>
-            )}
+            {!isMinimalBack && backLabel}
           </CloseButton>
         )}
 

@@ -25,7 +25,6 @@ export const ListHeader = memo(function ListHeader({
           <For each={genres$} optimized>
             {(item$) => (
               <Chip
-                variant="secondary"
                 selected={item$.selected.get()}
                 onPress={() => genre$.set(item$.name.get())}
               >

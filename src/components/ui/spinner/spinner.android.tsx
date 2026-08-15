@@ -2,12 +2,9 @@ import {
   ContainedLoadingIndicator,
   useMaterialColors,
 } from "@expo/ui/jetpack-compose";
-import {
-  graphicsLayer,
-  testID as testIDModifier,
-} from "@expo/ui/jetpack-compose/modifiers";
+import { graphicsLayer } from "@expo/ui/jetpack-compose/modifiers";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { EnsureHost } from "../host";
-import { useSpinnerColor } from "./hooks/use-spinner-color";
 import type { SpinnerProps, SpinnerSize } from "./spinner";
 
 export const SCALES = {
@@ -22,29 +19,19 @@ export const SCALES = {
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/progress/
  */
-export function Spinner({
-  size = "md",
-  color = "primary",
-  isLoading = true,
-  testID,
-}: SpinnerProps) {
-  const seedColor = useSpinnerColor(color);
-  const m3 = useMaterialColors({ seedColor });
+export function Spinner({ size = "md" }: SpinnerProps) {
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
   const scale = SCALES[size];
-
-  if (!isLoading) return null;
 
   return (
     <EnsureHost matchContents>
       <ContainedLoadingIndicator
-        containerColor={
-          color === "default" ? undefined : m3.surfaceContainerHighest
+        containerColor={m3.surfaceContainerHighest}
+        color={m3.primary}
+        modifiers={
+          scale ? [graphicsLayer({ scaleX: scale, scaleY: scale })] : []
         }
-        color={color === "default" ? undefined : m3.primary}
-        modifiers={[
-          ...(scale ? [graphicsLayer({ scaleX: scale, scaleY: scale })] : []),
-          ...(testID ? [testIDModifier(String(testID))] : []),
-        ]}
       />
     </EnsureHost>
   );

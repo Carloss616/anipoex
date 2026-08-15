@@ -121,7 +121,7 @@ export function MangaDetail() {
               <ScrollView direction="horizontal" showsIndicators={false}>
                 <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
                   {manga.genres.map((g) => (
-                    <Chip key={g} variant="secondary" size="sm">
+                    <Chip key={g} size="sm">
                       <Chip.Label>{g}</Chip.Label>
                     </Chip>
                   ))}

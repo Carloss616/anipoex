@@ -13,14 +13,12 @@ import {
   padding,
 } from "@expo/ui/swift-ui/modifiers";
 import type {
-  TypographyAlign,
   TypographyCodeProps,
   TypographyHeadingProps,
   TypographyParagraphProps,
-  TypographyRootProps,
+  TypographyProps,
   TypographyType,
-  TypographyWeight,
-} from "heroui-native/text";
+} from "panelui-native/components/typography";
 import {
   type TextStyle as RNTextStyle,
   type StyleProp,
@@ -31,6 +29,7 @@ import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
+import type { TypographyWeight } from "./typography";
 
 type FontParams = Parameters<typeof font>[0];
 
@@ -42,9 +41,13 @@ const TEXT_STYLE = {
   h4: "title3",
   h5: "headline",
   h6: "subheadline",
+  lead: "title3",
   body: "body",
   "body-sm": "subheadline",
   "body-xs": "footnote",
+  large: "headline",
+  small: "footnote",
+  blockquote: "body",
   code: "body",
 } as const satisfies Record<TypographyType, FontParams["textStyle"]>;
 
@@ -56,9 +59,13 @@ const TEXT_SIZE = {
   h4: 20,
   h5: 17,
   h6: 15,
+  lead: 20,
   body: 17,
   "body-sm": 15,
   "body-xs": 13,
+  large: 18,
+  small: 14,
+  blockquote: 17,
   code: 17,
 } as const satisfies Record<TypographyType, number>;
 
@@ -70,43 +77,41 @@ const PRESET_WEIGHT = {
   h4: "normal",
   h5: "semibold",
   h6: "normal",
+  lead: "normal",
   body: "normal",
   "body-sm": "normal",
   "body-xs": "normal",
+  large: "semibold",
+  small: "medium",
+  blockquote: "normal",
   code: "normal",
 } as const satisfies Record<TypographyType, TypographyWeight>;
 
 /** Stands in for `.infinity`, which doesn't survive the props bridge. */
 const FILL = 100_000;
 
-/** A `text-*` class lands in the style, where it outranks the `align` prop. */
-const STYLE_ALIGN: Record<string, TypographyAlign> = {
-  left: "start",
-  right: "end",
-  center: "center",
-  justify: "justify",
-};
+type TypographyAlign = NonNullable<TypographyProps["align"]>;
 
-// `leading`/`trailing` are already RTL-aware; SwiftUI has no justified alignment.
+// `leading`/`trailing` are the RTL-aware pair, so an unset `align` maps to
+// `leading` rather than to a side — matching the natural alignment RN gives
+// a Text with no `textAlign`.
 const ALIGN = {
-  start: "leading",
+  left: "leading",
   center: "center",
-  end: "trailing",
-  justify: "leading",
+  right: "trailing",
 } as const satisfies Record<TypographyAlign, "leading" | "center" | "trailing">;
 
 function TypographyRootBase({
   children,
   type = "body",
-  align = "start",
-  color = "default",
+  align,
+  muted = false,
   weight,
-  truncate = false,
   numberOfLines,
   style,
   onPress,
   testID,
-}: TypographyRootProps) {
+}: TypographyProps) {
   const secondary = useThemeColor("secondary");
 
   const {
@@ -126,8 +131,11 @@ function TypographyRootBase({
 
   if (display === "none") return null;
 
-  const alignment = ALIGN[STYLE_ALIGN[textAlign as string] ?? align];
-  const lines = numberOfLines ?? (truncate ? 1 : undefined);
+  const resolvedAlign =
+    textAlign === "auto" || textAlign === "justify"
+      ? undefined
+      : (textAlign ?? align);
+  const alignment = resolvedAlign ? ALIGN[resolvedAlign] : "leading";
 
   return (
     <EnsureHost matchContents>
@@ -144,14 +152,13 @@ function TypographyRootBase({
             ? []
             : [
                 foregroundStyle(
-                  (styleColor as string) ??
-                    (color === "muted" ? "secondary" : "primary"),
+                  (styleColor as string) ?? (muted ? "secondary" : "primary"),
                 ),
               ]),
           multilineTextAlignment(alignment),
           // A tight height truncates mid-word; only a code chip also refuses
           // to give up width, since it must never wrap.
-          ...(lines === 1
+          ...(numberOfLines === 1
             ? []
             : [fixedSize({ horizontal: isCode, vertical: true })]),
           // A `Text` hugs its content: alignment needs a frame to move in.
@@ -159,7 +166,7 @@ function TypographyRootBase({
             ? []
             : [frame({ maxWidth: FILL, alignment })]),
           ...(letterSpacing == null ? [] : [kerning(letterSpacing)]),
-          ...(lines == null ? [] : [lineLimit(lines)]),
+          ...(numberOfLines == null ? [] : [lineLimit(numberOfLines)]),
           ...(onPress == null ? [] : [onTapGesture(onPress as () => void)]),
           ...(isCode
             ? [
@@ -194,9 +201,9 @@ function TypographyCode(props: TypographyCodeProps) {
 }
 
 /**
- * iOS Typography: same props as `heroui-native`'s, rendered as a SwiftUI `Text`.
+ * iOS Typography: same props as PanelUI's, rendered as a SwiftUI `Text`.
  *
- * @see https://heroui.com/docs/native/components/text
+ * @see https://panelui.dev/docs/components/typography
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/text/
  */
 export const Typography = Object.assign(TypographyRoot, {

@@ -42,7 +42,7 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
               </Typography>
             </ListItem.HeadlineContent>
             <ListItem.SupportingContent>
-              <Typography type="body-xs" color="muted">
+              <Typography type="body-xs" muted>
                 {chapter.date}
               </Typography>
             </ListItem.SupportingContent>

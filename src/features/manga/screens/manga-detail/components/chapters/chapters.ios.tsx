@@ -48,7 +48,7 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
                 <Typography type="body-sm" weight="semibold">
                   {chapter.title}
                 </Typography>
-                <Typography type="body-xs" color="muted">
+                <Typography type="body-xs" muted>
                   {chapter.date}
                 </Typography>
               </VStack>

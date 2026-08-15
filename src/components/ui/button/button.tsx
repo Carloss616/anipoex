@@ -1,1 +1,1 @@
-export * from "heroui-native/button";
+export * from "panelui-native/components/button";

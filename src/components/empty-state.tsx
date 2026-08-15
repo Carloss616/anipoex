@@ -38,14 +38,14 @@ export function EmptyState({
 
   return (
     <Center className={cn("gap-3 px-8 py-24", className)}>
-      <Typography align="center" color="muted" className="text-5xl">
+      <Typography align="center" muted className="text-5xl">
         {face}
       </Typography>
-      <Typography type="h5" align="center" color="muted">
+      <Typography type="h5" align="center" muted>
         {title}
       </Typography>
       {description && (
-        <Typography type="body-xs" align="center" color="muted">
+        <Typography type="body-xs" align="center" muted>
           {description}
         </Typography>
       )}

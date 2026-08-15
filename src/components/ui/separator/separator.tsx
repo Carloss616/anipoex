@@ -1,1 +1,1 @@
-export * from "heroui-native/separator";
+export * from "panelui-native/components/separator";

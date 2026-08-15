@@ -3,32 +3,55 @@ import {
   frame,
   progressViewStyle,
   scaleEffect,
+  tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
-import { dp } from "@/utils/utils";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { EnsureHost } from "../host";
 import type { ProgressProps } from "./progress";
+import { fractionOf, ProgressHeader, TRACK_HEIGHT } from "./progress-header";
 
 /** SwiftUI's linear `ProgressView` draws a fixed-thickness track. */
 const TRACK = 4;
 
-function ProgressBase({ value, style, testID }: ProgressProps) {
-  const height = dp(StyleSheet.flatten(style)?.height);
+function ProgressBase({
+  value = 0,
+  minValue = 0,
+  maxValue = 100,
+  indeterminate = false,
+  color = "primary",
+  size = "md",
+  testID,
+  ...props
+}: ProgressProps) {
+  const tintColor = useThemeColor(color);
+  const height = TRACK_HEIGHT[size];
+  const fraction = fractionOf(value, minValue, maxValue);
 
   return (
-    <EnsureHost className="w-full">
-      <ProgressView
+    <EnsureHost matchContents={{ vertical: true }} className="w-full">
+      <ProgressHeader
+        {...props}
         value={value}
-        modifiers={[
-          progressViewStyle("linear"),
-          // `.frame` can't thicken the track — only a scale can. The frame that
-          // follows just hands the layout the height the scaled bar now takes.
-          ...(height
-            ? [scaleEffect({ x: 1, y: height / TRACK }), frame({ height })]
-            : []),
-        ]}
-        testID={testID}
+        minValue={minValue}
+        maxValue={maxValue}
+        indeterminate={indeterminate}
+        fraction={fraction}
+        track={
+          <ProgressView
+            // Omitting the value is what makes SwiftUI's own bar indeterminate.
+            value={indeterminate ? undefined : fraction}
+            modifiers={[
+              progressViewStyle("linear"),
+              tint(tintColor),
+              // `.frame` can't thicken the track — only a scale can. The frame
+              // that follows hands the layout the height the scaled bar takes.
+              scaleEffect({ x: 1, y: height / TRACK }),
+              frame({ height }),
+            ]}
+            testID={testID}
+          />
+        }
       />
     </EnsureHost>
   );
@@ -36,7 +59,8 @@ function ProgressBase({ value, style, testID }: ProgressProps) {
 
 /**
  * iOS Progress: same props as [the web one](./progress.tsx), rendered as a
- * linear SwiftUI `ProgressView`.
+ * linear SwiftUI `ProgressView`. `indicatorClassName` is the one prop that
+ * cannot carry over — the platform draws the bar.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/progressview/
  */

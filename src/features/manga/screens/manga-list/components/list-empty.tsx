@@ -31,7 +31,7 @@ export const ListEmpty = memo(function ListEmpty({
         {() =>
           genre$.get() !== ALL && (
             <Button
-              variant="tertiary"
+              variant="secondary"
               size="sm"
               className="mt-1"
               onPress={() => genre$.set(ALL)}

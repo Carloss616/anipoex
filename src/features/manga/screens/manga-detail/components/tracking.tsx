@@ -39,7 +39,7 @@ export function Tracking({
     <Button
       variant={Platform.select({
         android: "outline",
-        default: "tertiary",
+        default: "secondary",
       })}
       onPress={noop}
       className="h-auto web:w-full web:rounded-full py-4"
@@ -49,13 +49,13 @@ export function Tracking({
           <RNHostView matchContents>
             <View className="size-2 rounded-full bg-primary" />
           </RNHostView>
-          <Button.Label className="ios:text-foreground">{label}</Button.Label>
+          <Typography className="ios:text-foreground">{label}</Typography>
           <Spacer flexible />
           <Typography.Code className="web:self-auto">
             {progress}/{total ?? "_"}
           </Typography.Code>
           {!!total && (
-            <Typography type="body-xs" color="muted">
+            <Typography type="body-xs" muted>
               {percent}%
             </Typography>
           )}
@@ -69,7 +69,7 @@ export function Tracking({
             colorClassName={WEB_ICON_COLOR}
           />
         </Row>
-        <Progress value={ratio} />
+        <Progress value={percent} />
       </Column>
     </Button>
   );

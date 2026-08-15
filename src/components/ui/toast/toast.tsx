@@ -2,7 +2,7 @@ import {
   toast as panelToast,
   type ToastPlacement,
   type ToastVariant,
-} from "panelui-native";
+} from "panelui-native/components/toast";
 import { Platform } from "react-native";
 
 /** iOS puts transient status at the top; everywhere else it belongs at the bottom. */

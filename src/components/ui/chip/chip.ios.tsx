@@ -10,7 +10,7 @@ import {
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
-import { SEMANTIC_COLOR } from "../colors";
+import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
 import type { ChipLabelProps, ChipProps, ChipSize, ChipVariant } from "./chip";
 
@@ -30,21 +30,37 @@ const FONT_SIZES = {
 } as const satisfies Record<ChipSize, number>;
 
 const VARIANTS = {
+  default: "glass",
   primary: "glassProminent",
-  secondary: "glass",
-  tertiary: "borderless",
-  soft: "glass",
+  outline: "borderless",
+  success: "glass",
+  warning: "glass",
+  info: "glass",
+  destructive: "glass",
 } as const satisfies Record<ChipVariant, ButtonStyle>;
 
 const SELECTED_VARIANTS = {
+  default: "glassProminent",
   primary: "glassProminent",
-  secondary: "glassProminent",
-  tertiary: "glass",
-  soft: "glassProminent",
+  outline: "glass",
+  success: "glassProminent",
+  warning: "glassProminent",
+  info: "glassProminent",
+  destructive: "glassProminent",
 } as const satisfies Record<ChipVariant, ButtonStyle>;
 
+const COLORS = {
+  default: "secondary",
+  primary: "primary",
+  outline: "primary",
+  success: "success",
+  warning: "warning",
+  info: "primary",
+  destructive: "destructive",
+} as const satisfies Record<ChipVariant, SemanticColor>;
+
 /**
- * iOS Chip: same props as `heroui-native`'s, rendered as a capsule SwiftUI
+ * iOS Chip: same props as PanelUI's, rendered as a capsule SwiftUI
  * `Button` — iOS has no chip of its own.
  *
  * @see https://heroui.com/docs/native/components/chip
@@ -53,14 +69,14 @@ const SELECTED_VARIANTS = {
 export function Chip({
   children,
   size = "sm",
-  variant = "primary",
-  color = "primary",
+  variant = "default",
   selected = false,
   disabled: isDisabled = false,
   onPress,
   testID,
 }: ChipProps) {
-  const tintColor = useThemeColor(SEMANTIC_COLOR[color].token.fill);
+  const semanticColor = COLORS[variant];
+  const tintColor = useThemeColor(SEMANTIC_COLOR[semanticColor].token.fill);
   const themeFamily = useFontFamily("normal");
 
   return (
@@ -83,7 +99,7 @@ export function Chip({
           }),
         ]}
         testID={testID as string | undefined}
-        role={color === "destructive" ? "destructive" : undefined}
+        role={variant === "destructive" ? "destructive" : undefined}
       />
     </EnsureHost>
   );

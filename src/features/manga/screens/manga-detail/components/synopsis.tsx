@@ -10,7 +10,7 @@ export function Synopsis({ text }: { text: string | undefined }) {
 
   return (
     <Feedback for={Row} onPress={() => setExpanded((e) => !e)}>
-      <Typography numberOfLines={expanded ? undefined : 2} color="muted">
+      <Typography numberOfLines={expanded ? undefined : 2} muted>
         {text}
       </Typography>
     </Feedback>

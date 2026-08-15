@@ -49,13 +49,13 @@ export function SignIn() {
         <Typography type="h5" align="center">
           Connect your account
         </Typography>
-        <Typography type="body-xs" align="center" color="muted">
+        <Typography type="body-xs" align="center" muted>
           Sync your reading progress with AniList.
         </Typography>
-        <Button onPress={handleSignIn} isDisabled={isBusy}>
+        <Button onPress={handleSignIn} disabled={isBusy}>
           {isBusy ? "Connecting..." : "Sign in with AniList"}
         </Button>
-        <Button variant="ghost" onPress={close} isDisabled={isBusy}>
+        <Button variant="ghost" onPress={close} disabled={isBusy}>
           Not now
         </Button>
       </Center>

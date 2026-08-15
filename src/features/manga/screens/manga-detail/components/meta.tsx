@@ -81,7 +81,7 @@ export function Meta({
             size={12}
             colorClassName="accent-muted-foreground"
           />
-          <Typography type="body-sm" color="muted">
+          <Typography type="body-sm" muted>
             {value}
           </Typography>
         </Row>
