@@ -35,7 +35,7 @@ export function SignIn() {
 
       close();
     } catch (cause) {
-      toast.danger(
+      toast.destructive(
         cause instanceof Error ? cause.message : "Something went wrong",
       );
     } finally {

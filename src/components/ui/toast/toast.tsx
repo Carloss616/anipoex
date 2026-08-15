@@ -1,73 +1,58 @@
 import {
-  Toast,
+  toast as panelToast,
+  type ToastPlacement,
   type ToastVariant,
-  useToast as useHeroUIToast,
-} from "heroui-native/toast";
-import { useEffect } from "react";
+} from "panelui-native";
 import { Platform } from "react-native";
 
-export interface ToastOptions {
-  color?: ToastVariant;
+/** iOS puts transient status at the top; everywhere else it belongs at the bottom. */
+const PLACEMENT = Platform.select<ToastPlacement>({
+  ios: "top",
+  default: "bottom",
+});
+
+export interface ShowToastOptions {
+  variant?: ToastVariant;
   actionLabel?: string;
   onAction?: () => void;
 }
 
-export type ShowToast = (message: string, options?: ToastOptions) => void;
-
-let impl: ShowToast = () => {};
-
-const show: ShowToast = (message, options) => impl(message, options);
-
-const colored =
-  (color: ToastVariant) =>
-  (message: string, options?: Omit<ToastOptions, "color">) =>
-    show(message, { ...options, color });
-
-/** Shows a transient message — `toast.danger` and friends pick the color. */
-export const toast = Object.assign(show, {
-  accent: colored("accent"),
-  success: colored("success"),
-  warning: colored("warning"),
-  danger: colored("danger"),
-});
+export type ShowToast = (label: string, options?: ShowToastOptions) => void;
 
 /**
- * Mount once inside `HeroUINativeProvider`. Renders nothing — it only captures
- * HeroUI's hook, so `toast` stays callable outside React.
- *
- * @see https://heroui.com/en/docs/native/components/toast
+ * PanelUI's viewport is mounted by `PanelUIProvider`, so there is nothing to
+ * render here — [Android](./toast.android.tsx) is the platform that needs a
+ * host of its own.
  */
 export function ToastHost() {
-  const { toast: heroUIToast } = useHeroUIToast();
-
-  useEffect(() => {
-    impl = (message, options) => {
-      heroUIToast.show({
-        duration: options?.actionLabel ? "persistent" : undefined,
-        component: (props) => (
-          <Toast
-            variant={options?.color}
-            placement={Platform.select({ ios: "top", default: "bottom" })}
-            className="w-full max-w-md flex-row items-center gap-2 self-center"
-            {...props}
-          >
-            <Toast.Title className="flex-1">{message}</Toast.Title>
-            {!!options?.onAction && (
-              <Toast.Action
-                onPress={() => {
-                  options.onAction?.();
-                  props.hide(props.id);
-                }}
-              >
-                {options?.actionLabel}
-              </Toast.Action>
-            )}
-            <Toast.Close />
-          </Toast>
-        ),
-      });
-    };
-  }, [heroUIToast.show]);
-
   return null;
 }
+
+/** Shows a transient message — `toast.destructive` and friends pick the variant. */
+const show: ShowToast = (label, options) => {
+  const { onAction, ...rest } = options ?? {};
+
+  panelToast.show({
+    placement: PLACEMENT,
+    label,
+    ...(options?.actionLabel && { duration: 0 }),
+    ...(onAction && {
+      onActionPress: (handle) => {
+        onAction();
+        handle.hide();
+      },
+    }),
+    ...rest,
+  });
+};
+
+function variant(variant: ToastVariant): ShowToast {
+  return (label, options) => show(label, { ...options, variant });
+}
+
+export const toast = Object.assign(show, {
+  info: variant("info"),
+  success: variant("success"),
+  warning: variant("warning"),
+  destructive: variant("destructive"),
+});

@@ -18,7 +18,7 @@ export function Home() {
     const failed = results.find((r) => r.status === "rejected");
 
     if (failed) {
-      toast.danger(
+      toast.destructive(
         failed.reason instanceof Error
           ? failed.reason.message
           : "Something went wrong",

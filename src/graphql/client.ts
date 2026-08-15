@@ -42,7 +42,7 @@ const errorLink = new ErrorLink(({ error, operation }) => {
 
   const { operationName } = operation;
 
-  toast.danger(typeof message === "string" ? message : error.message, {
+  toast.destructive(typeof message === "string" ? message : error.message, {
     ...(operationName && {
       actionLabel: "Retry",
       onAction: () => {

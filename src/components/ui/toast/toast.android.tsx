@@ -49,8 +49,8 @@ const show: ShowToast = (message, options) => {
 
 // M3 snackbars carry no severity color, so every variant is the same snackbar.
 export const toast = Object.assign(show, {
-  accent: show,
+  info: show,
   success: show,
   warning: show,
-  danger: show,
+  destructive: show,
 });

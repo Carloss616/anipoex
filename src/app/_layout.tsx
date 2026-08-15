@@ -8,10 +8,9 @@ import {
 } from "@expo-google-fonts/inter";
 import { ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { HeroUINativeProvider } from "heroui-native/provider";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { PanelUIProvider } from "panelui-native";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import { ToastHost, toastConfig } from "@/components/ui/toast";
+import { ToastHost } from "@/components/ui/toast";
 import { client } from "@/graphql/client";
 import { useCacheRestored } from "@/graphql/use-cache-restored";
 import "@/global.css";
@@ -35,22 +34,17 @@ export default function RootLayout() {
   if (!fontsLoaded || !cacheRestored) return null;
 
   return (
-    <GestureHandlerRootView className="web:bg-background">
+    <PanelUIProvider background={false} className="web:bg-background">
       <ApolloProvider client={client}>
-        <HeroUINativeProvider config={{ toast: toastConfig }}>
-          <ThemeProvider value={theme}>
-            <AnimatedSplashOverlay />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen
-                name="sign-in"
-                options={{ presentation: "modal" }}
-              />
-            </Stack>
-            <ToastHost />
-            <StatusBar style={theme.dark ? "light" : "dark"} />
-          </ThemeProvider>
-        </HeroUINativeProvider>
+        <ThemeProvider value={theme}>
+          <AnimatedSplashOverlay />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="sign-in" options={{ presentation: "modal" }} />
+          </Stack>
+          <ToastHost />
+          <StatusBar style={theme.dark ? "light" : "dark"} />
+        </ThemeProvider>
       </ApolloProvider>
-    </GestureHandlerRootView>
+    </PanelUIProvider>
   );
 }
