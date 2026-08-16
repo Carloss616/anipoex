@@ -19,14 +19,8 @@ export function Feedback<P>({
     return <Component {...(props as P)}>{children}</Component>;
 
   return (
-    <Component {...(props as P)}>
-      <AnimatedPressable
-        onPress={onPress}
-        onLongPress={onLongPress}
-        className="flex-1"
-      >
-        {children}
-      </AnimatedPressable>
-    </Component>
+    <AnimatedPressable onPress={onPress} onLongPress={onLongPress}>
+      <Component {...(props as P)}>{children}</Component>
+    </AnimatedPressable>
   );
 }

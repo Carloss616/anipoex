@@ -49,8 +49,6 @@ export function MangaCard({
       for={Card}
       onPress={onPress}
       onLongPress={onLongPress}
-      // Spelled out: heroui's Card inherited the clip from its Surface, and
-      // the cover fills the card absolutely — without it the corners square off.
       className={cn("relative aspect-2/3 overflow-hidden p-0", className)}
       style={style}
     >
