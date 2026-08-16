@@ -28,7 +28,6 @@
     "expo-symbols": "~57.0.2",
     "expo-system-ui": "~57.0.2",
     "expo-web-browser": "~57.0.2",
-    "heroui-native": "1.0.8",
     "panelui-native": "^0.68.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -75,8 +74,5 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },
-  "private": true,
-  "patchedDependencies": {
-    "heroui-native@1.0.8": "patches/heroui-native@1.0.8.patch"
-  }
+  "private": true
 }

@@ -7,12 +7,6 @@
       "skillPath": "skills/apollo-client/SKILL.md",
       "computedHash": "008c067a3d480ab905aa37aab113b8dc54028e29e593610866b7ea8131377ce1"
     },
-    "heroui-native": {
-      "source": "heroui-inc/heroui",
-      "sourceType": "github",
-      "skillPath": "skills/heroui-native/SKILL.md",
-      "computedHash": "d2fc03a13d03678d40799726a144ba72ba1cb08126176ddbf0a0461c901aef29"
-    },
     "panelui": {
       "source": "panel-ui/PanelUI",
       "sourceType": "github",

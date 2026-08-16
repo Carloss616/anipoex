@@ -55,13 +55,13 @@
                 ],
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
               },
-              "heroui-native": "Import scoped: heroui-native/<component>",
-              "heroui-native/button": "Import from @/components/ui/button",
-              "heroui-native/chip": "Import from @/components/ui/chip",
-              "heroui-native/close-button": "Import from @/components/ui/close-button",
-              "heroui-native/separator": "Import from @/components/ui/separator",
-              "heroui-native/spinner": "Import from @/components/ui/spinner",
-              "heroui-native/text": "Import from @/components/ui/typography"
+              "panelui-native": "Import scoped: panelui-native/components/<component>",
+              "panelui-native/components/button": "Import from @/components/ui/button",
+              "panelui-native/components/chip": "Import from @/components/ui/chip",
+              "panelui-native/components/progress": "Import from @/components/ui/progress",
+              "panelui-native/components/separator": "Import from @/components/ui/separator",
+              "panelui-native/components/spinner": "Import from @/components/ui/spinner",
+              "panelui-native/components/typography": "Import from @/components/ui/typography"
             }
           }
         }
@@ -78,7 +78,7 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "heroui-native": "Import scoped: heroui-native/<component>"
+                  "panelui-native": "Import scoped: panelui-native/components/<component>"
                 }
               }
             }
@@ -92,6 +92,24 @@
         "rules": {
           "suspicious": {
             "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/app/_layout.tsx",
+        "src/components/ui/feedback/feedback.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {}
+              }
+            }
           }
         }
       }
