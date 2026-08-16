@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
-import { Spinner } from "@/components/ui/spinner";
+import { Loader } from "@/components/ui/loader";
 import { Typography } from "@/components/ui/typography";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useStackToolbarTheme } from "@/hooks/use-theme";
@@ -59,7 +59,7 @@ export function MangaDetail() {
         <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
           <Center>
             {loading || refetching ? (
-              <Spinner size="lg" />
+              <Loader variant="morph-ring" speed={3} size="lg" />
             ) : (
               <EmptyState
                 title="Manga not found"

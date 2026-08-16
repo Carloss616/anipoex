@@ -60,7 +60,8 @@
               "panelui-native/components/chip": "Import from @/components/ui/chip",
               "panelui-native/components/progress": "Import from @/components/ui/progress",
               "panelui-native/components/separator": "Import from @/components/ui/separator",
-              "panelui-native/components/spinner": "Import from @/components/ui/spinner",
+              "panelui-native/components/spinner": "Import from @/components/ui/loader",
+              "panelui-native/components/loader": "Import from @/components/ui/loader",
               "panelui-native/components/typography": "Import from @/components/ui/typography"
             }
           }
@@ -87,16 +88,6 @@
       }
     },
     {
-      "includes": ["src/**/*.generated.{ts,tsx}"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off"
-          }
-        }
-      }
-    },
-    {
       "includes": [
         "src/app/_layout.tsx",
         "src/components/ui/feedback/feedback.tsx"
@@ -105,11 +96,18 @@
         "rules": {
           "style": {
             "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "paths": {}
-              }
+              "level": "error"
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/**/*.generated.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
           }
         }
       }

@@ -3,7 +3,7 @@ import { useValue } from "@legendapp/state/react";
 import { RefreshControl, useWindowDimensions } from "react-native";
 import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
-import { Spinner } from "@/components/ui/spinner";
+import { Loader } from "@/components/ui/loader";
 import { useMangaList } from "@/features/manga/hooks/use-manga-list";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { useRefreshControlTheme } from "@/hooks/use-theme";
@@ -32,7 +32,7 @@ export function ListScene({
   if (loading && !refetching) {
     return (
       <Center>
-        <Spinner size="lg" />
+        <Loader variant="morph-ring" speed={3} size="lg" />
       </Center>
     );
   }
