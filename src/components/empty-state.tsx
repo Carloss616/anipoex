@@ -41,7 +41,7 @@ export function EmptyState({
       <Typography align="center" muted className="text-5xl">
         {face}
       </Typography>
-      <Typography type="h5" align="center" muted>
+      <Typography type="h5" weight="medium" align="center" muted>
         {title}
       </Typography>
       {description && (
