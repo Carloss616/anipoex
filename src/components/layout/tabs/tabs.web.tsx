@@ -1,5 +1,5 @@
 import Lucide from "@react-native-vector-icons/lucide";
-import { usePathname } from "expo-router";
+import { router, usePathname } from "expo-router";
 import {
   TabList,
   type TabListProps,
@@ -8,15 +8,14 @@ import {
   TabTrigger,
   type TabTriggerSlotProps,
 } from "expo-router/ui";
-import { Tabs as HeroTabs } from "heroui-native/tabs";
 import { Surface } from "panelui-native/components/surface";
+import { Tabs as PanelTabs } from "panelui-native/components/tabs";
 import { cn } from "panelui-native/utils/cn";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { noop } from "@/utils/utils";
-import { ThemeToggle } from "../../theme-toggle";
 
 const TabSlot = withUniwind(TabSlotBase);
 
@@ -53,11 +52,19 @@ export function Tabs() {
       ?.href ?? "/";
 
   return (
-    <HeroTabs value={value} onValueChange={noop} className="flex-1">
+    <PanelTabs
+      value={value}
+      defaultValue="/"
+      onValueChange={(href) =>
+        router.navigate(href as (typeof ROUTES)[number]["href"])
+      }
+      variant="pill"
+      className="flex-1"
+    >
       <TabsBase>
         <TabSlot className="flex-1" />
         <TabList asChild>
-          <HeroTabList>
+          <PanelTabList>
             {ROUTES.map((item) => (
               <TabTrigger
                 key={item.name}
@@ -65,48 +72,47 @@ export function Tabs() {
                 href={item.href}
                 asChild
               >
-                <TabButton item={item}>{item.label}</TabButton>
+                <PanelTabTrigger item={item} />
               </TabTrigger>
             ))}
-          </HeroTabList>
+          </PanelTabList>
         </TabList>
       </TabsBase>
-    </HeroTabs>
+    </PanelTabs>
   );
 }
 
-function TabButton({
+function PanelTabTrigger({
   item,
   isFocused,
-  children,
+  disabled,
   ...props
-}: TabTriggerSlotProps & { item: Route }) {
-  const [primary, mutedForeground] = useThemeColor([
-    "primary",
+}: Omit<TabTriggerSlotProps, "children"> & { item: Route }) {
+  const [primaryForeground, mutedForeground] = useThemeColor([
+    "primary-foreground",
     "muted-foreground",
   ]);
 
   return (
-    <HeroTabs.Trigger value={item.href} {...props}>
-      {({ isSelected }) => (
-        <>
-          <Lucide
-            size={18}
-            name={isSelected ? item.icon.selected : item.icon.default}
-            color={isSelected ? primary : mutedForeground}
-          />
-          <HeroTabs.Label
-            className={isSelected ? "text-primary" : "text-muted-foreground"}
-          >
-            {children}
-          </HeroTabs.Label>
-        </>
-      )}
-    </HeroTabs.Trigger>
+    <PanelTabs.Trigger
+      value={item.href}
+      className="px-4"
+      icon={
+        <Lucide
+          size={18}
+          name={isFocused ? item.icon.selected : item.icon.default}
+          color={isFocused ? primaryForeground : mutedForeground}
+        />
+      }
+      disabled={disabled ?? false}
+      {...props}
+    >
+      {item.label}
+    </PanelTabs.Trigger>
   );
 }
 
-function HeroTabList({ children, className, ...props }: TabListProps) {
+function PanelTabList({ children, className, ...props }: TabListProps) {
   return (
     <View
       pointerEvents="box-none"
@@ -118,16 +124,11 @@ function HeroTabList({ children, className, ...props }: TabListProps) {
     >
       <Surface
         variant="tertiary"
-        className="flex-row items-center gap-2 rounded-full p-2"
+        className="flex-row items-center gap-2 rounded-full"
+        padding="sm"
+        bordered
       >
-        {/* TabTriggers must stay direct children of TabList, so the list lives here. */}
-        <HeroTabs.List>
-          <HeroTabs.ScrollView scrollAlign="center">
-            <HeroTabs.Indicator />
-            {children}
-          </HeroTabs.ScrollView>
-        </HeroTabs.List>
-
+        <PanelTabs.List>{children}</PanelTabs.List>
         <ThemeToggle />
       </Surface>
     </View>

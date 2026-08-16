@@ -1,4 +1,4 @@
-import { PressableFeedback } from "heroui-native/pressable-feedback";
+import { AnimatedPressable } from "panelui-native";
 import type { ComponentType, PropsWithChildren, ReactNode } from "react";
 
 export type FeedbackProps<P> = {
@@ -19,15 +19,14 @@ export function Feedback<P>({
     return <Component {...(props as P)}>{children}</Component>;
 
   return (
-    <Component asChild {...(props as P)}>
-      <PressableFeedback
+    <Component {...(props as P)}>
+      <AnimatedPressable
         onPress={onPress}
         onLongPress={onLongPress}
         className="flex-1"
       >
         {children}
-        <PressableFeedback.Highlight />
-      </PressableFeedback>
+      </AnimatedPressable>
     </Component>
   );
 }

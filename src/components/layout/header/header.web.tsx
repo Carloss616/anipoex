@@ -2,7 +2,7 @@ import { Memo, useObservable } from "@legendapp/state/react";
 import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
-import { SearchField } from "heroui-native/search-field";
+import { Input } from "panelui-native/components/input";
 import { cn } from "panelui-native/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -87,40 +87,46 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     return () => clearTimeout(timer);
   }, [isSearching]);
 
-  // SearchField is controlled (its ClearButton keys off the value), so it has to
+  // The field is controlled (the clear button keys off the value), so it has to
   // re-render per keystroke — Memo re-renders just this subtree, not the header.
   const searchField = search && (
     <Memo>
       {() => (
-        <SearchField
+        <Input
+          ref={inputRef}
           value={query$.get()}
-          onChange={emit}
-          className="min-w-0 flex-1"
-        >
-          <SearchField.Group>
-            <SearchField.SearchIcon />
-            <SearchField.Input
-              ref={inputRef}
-              // The inline field never unmounts (it has to animate its width
-              // both ways), so opening it focuses by hand instead of on mount.
-              autoFocus={isStacked && search.autoFocus}
-              placeholder={search.placeholder}
-              autoCapitalize={
-                search.autoCapitalize === "systemDefault"
-                  ? undefined
-                  : search.autoCapitalize
-              }
-              inputMode={INPUT_MODE[search.inputType ?? "text"]}
-              enterKeyHint="search"
-              onFocus={search.onFocus}
-              onBlur={search.onBlur}
-              onSubmitEditing={() =>
-                search.onSearchButtonPress?.(textEvent(query$.peek()))
-              }
-            />
-            <SearchField.ClearButton />
-          </SearchField.Group>
-        </SearchField>
+          onChangeText={emit}
+          containerClassName="min-w-0 flex-1"
+          startContent={
+            <Lucide name="search" size={16} color={mutedForeground} />
+          }
+          endContent={
+            query$.get() ? (
+              <CloseButton
+                variant="ghost"
+                onPress={() => emit("")}
+                accessibilityLabel="Clear search"
+                iconProps={{ size: 14 }}
+              />
+            ) : undefined
+          }
+          // The inline field never unmounts (it has to animate its width
+          // both ways), so opening it focuses by hand instead of on mount.
+          autoFocus={isStacked && search.autoFocus}
+          placeholder={search.placeholder}
+          autoCapitalize={
+            search.autoCapitalize === "systemDefault"
+              ? undefined
+              : search.autoCapitalize
+          }
+          inputMode={INPUT_MODE[search.inputType ?? "text"]}
+          enterKeyHint="search"
+          onFocus={search.onFocus}
+          onBlur={search.onBlur}
+          onSubmitEditing={() =>
+            search.onSearchButtonPress?.(textEvent(query$.peek()))
+          }
+        />
       )}
     </Memo>
   );
@@ -158,7 +164,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       <View className="h-14 flex-row items-center gap-2">
         {showBack && (
           <CloseButton
-            className="h-10"
+            className={cn(!isMinimalBack && backLabel && "w-[unset]")}
             size={isMinimalBack || !backLabel ? "icon" : "sm"}
             onPress={navigation.goBack}
             accessibilityLabel={backLabel ?? "Back"}
@@ -208,14 +214,12 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           !isStacked &&
           (isSearching ? (
             <CloseButton
-              className="h-10"
               onPress={closeSearch}
               accessibilityLabel={search.cancelButtonText ?? "Cancel"}
               iconProps={{ size: 18 }}
             />
           ) : (
             <CloseButton
-              className="h-10"
               onPress={openSearch}
               accessibilityLabel={search.placeholder ?? "Search"}
             >

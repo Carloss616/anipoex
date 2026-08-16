@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { Menu } from "heroui-native/menu";
+import { Menu } from "panelui-native/components/menu";
 import {
   Children,
   type ComponentProps,
@@ -79,7 +79,6 @@ function ToolbarButton({
 
   return (
     <CloseButton
-      className="h-10"
       disabled={props.disabled}
       onPress={props.onPress}
       accessibilityLabel={label}
@@ -103,12 +102,8 @@ function ToolbarMenu({
 
   return (
     <Menu>
-      <Menu.Trigger asChild>
-        <CloseButton
-          className="h-10"
-          disabled={props.disabled}
-          accessibilityLabel={label}
-        >
+      <Menu.Trigger>
+        <CloseButton disabled={props.disabled} accessibilityLabel={label}>
           <Icon
             name={(props.icon as IconName) ?? "ellipsis-vertical"}
             size={18}
@@ -116,34 +111,32 @@ function ToolbarMenu({
           />
         </CloseButton>
       </Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Overlay />
-        <Menu.Content presentation="popover" placement="bottom" align="end">
-          {actions.map((action, index) => {
-            if (action.props.hidden) return null;
-            const actionLabel =
-              labelFromChildren(action.props.children) ?? `Action ${index + 1}`;
+      <Menu.Content placement="bottom" align="end">
+        {actions.map((action, index) => {
+          if (action.props.hidden) return null;
+          const actionLabel =
+            labelFromChildren(action.props.children) ?? `Action ${index + 1}`;
 
-            return (
-              <Menu.Item
-                key={action.key ?? actionLabel}
-                className="flex-row items-center gap-2"
-                isDisabled={action.props.disabled}
-                onPress={action.props.onPress}
-              >
-                {action.props.icon != null ? (
+          return (
+            <Menu.Item
+              key={action.key ?? actionLabel}
+              disabled={action.props.disabled}
+              onPress={action.props.onPress}
+              icon={
+                action.props.icon == null ? undefined : (
                   <Icon
                     name={action.props.icon as IconName}
                     size={16}
                     color={tintColor}
                   />
-                ) : null}
-                <Menu.ItemTitle>{actionLabel}</Menu.ItemTitle>
-              </Menu.Item>
-            );
-          })}
-        </Menu.Content>
-      </Menu.Portal>
+                )
+              }
+            >
+              {actionLabel}
+            </Menu.Item>
+          );
+        })}
+      </Menu.Content>
     </Menu>
   );
 }

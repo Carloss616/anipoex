@@ -94,10 +94,10 @@ export function MangaList() {
       <TabView
         navigationState={{ index, routes }}
         onIndexChange={(i) => router.setParams({ list: routes[i].key })}
+        renderTabBar={(props) => <TabBar {...props} counts$={counts$} />}
         renderScene={({ route }) => (
           <ListScene status={route.key} query$={query$} counts$={counts$} />
         )}
-        renderTabBar={(props) => <TabBar {...props} counts$={counts$} />}
         initialLayout={{ width }}
         style={{
           paddingTop: Platform.select({

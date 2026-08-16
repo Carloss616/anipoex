@@ -1,9 +1,8 @@
 import { useFragment } from "@apollo/client/react";
-import { ListGroup } from "heroui-native/list-group";
-import { PressableFeedback } from "heroui-native/pressable-feedback";
+import { Item } from "panelui-native/components/item";
 import { cn } from "panelui-native/utils/cn";
+import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
-import { Separator } from "@/components/ui/separator";
 import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import type { CHAPTERS } from "../../../../mocks";
@@ -25,26 +24,23 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
   if (!chapters.length) return <EmptyState title="No chapters available" />;
 
   return (
-    <ListGroup className="w-full p-0">
+    <Item.Group>
       {chapters.map((chapter, index) => (
-        <PressableFeedback key={chapter.id}>
-          {index > 0 && <Separator className="mx-4" />}
-          <ListGroup.Item disabled>
-            <ListGroup.ItemContent
-              className={cn(progress > chapter.id && "opacity-40")}
-            >
-              <ListGroup.ItemTitle>{chapter.title}</ListGroup.ItemTitle>
-              <ListGroup.ItemDescription>
-                {chapter.date}
-              </ListGroup.ItemDescription>
-            </ListGroup.ItemContent>
-            <ListGroup.ItemSuffix>
+        <Fragment key={chapter.id}>
+          {index > 0 && <Item.Separator className="mx-4" />}
+          {/* Item is a pressable in its own right, so the press feedback that
+              used to need a wrapper comes with the row. */}
+          <Item>
+            <Item.Content className={cn(progress > chapter.id && "opacity-40")}>
+              <Item.Title>{chapter.title}</Item.Title>
+              <Item.Description>{chapter.date}</Item.Description>
+            </Item.Content>
+            <Item.Actions>
               <DownloadButton />
-            </ListGroup.ItemSuffix>
-          </ListGroup.Item>
-          <PressableFeedback.Highlight />
-        </PressableFeedback>
+            </Item.Actions>
+          </Item>
+        </Fragment>
       ))}
-    </ListGroup>
+    </Item.Group>
   );
 }

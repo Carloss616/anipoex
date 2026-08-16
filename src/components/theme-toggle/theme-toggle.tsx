@@ -3,7 +3,7 @@ import { CloseButton } from "@/components/ui/close-button";
 import { Icon } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
-/** Tap flips light/dark; long press hands the theme back to the system. */
+/** Tap flips `light`/`dark`; long press hands the theme back to the system. */
 export function ThemeToggle() {
   const { theme, hasAdaptiveThemes } = useUniwind();
   const foreground = useThemeColor("foreground");
@@ -25,7 +25,7 @@ export function ThemeToggle() {
 
   return (
     <CloseButton
-      className="h-10"
+      variant="ghost"
       onPress={() => Uniwind.setTheme(isLight ? "dark" : "light")}
       onLongPress={() => Uniwind.setTheme("system")}
     >

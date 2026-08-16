@@ -1,4 +1,4 @@
-import { Card } from "heroui-native/card";
+import { Card } from "panelui-native/components/card";
 import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
 import type { BadgeProps } from "@/components/ui/badge";

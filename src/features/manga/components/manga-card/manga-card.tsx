@@ -1,6 +1,6 @@
 import LucideBase from "@react-native-vector-icons/lucide";
 import type { ImageSource } from "expo-image";
-import { Card } from "heroui-native/card";
+import { Card } from "panelui-native/components/card";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
@@ -49,7 +49,9 @@ export function MangaCard({
       for={Card}
       onPress={onPress}
       onLongPress={onLongPress}
-      className={cn("relative aspect-2/3 p-0", className)}
+      // Spelled out: heroui's Card inherited the clip from its Surface, and
+      // the cover fills the card absolutely — without it the corners square off.
+      className={cn("relative aspect-2/3 overflow-hidden p-0", className)}
       style={style}
     >
       {cover ? (

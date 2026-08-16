@@ -52,7 +52,7 @@ export function SignIn() {
         <Typography type="body-xs" align="center" muted>
           Sync your reading progress with AniList.
         </Typography>
-        <Button onPress={handleSignIn} disabled={isBusy}>
+        <Button variant="social" onPress={handleSignIn} disabled={isBusy}>
           {isBusy ? "Connecting..." : "Sign in with AniList"}
         </Button>
         <Button variant="ghost" onPress={close} disabled={isBusy}>
