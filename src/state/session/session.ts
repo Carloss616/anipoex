@@ -1,8 +1,8 @@
 import { observable, syncState } from "@legendapp/state";
-import { ObservablePersistMMKV } from "@legendapp/state/persist-plugins/mmkv";
 import { synced, syncObservable } from "@legendapp/state/sync";
 import * as SecureStore from "expo-secure-store";
 import type { User } from "@/features/auth/types/tracker";
+import { ObservablePersist } from "../observable-persist";
 
 const TOKEN_KEY = "anilist_access_token";
 
@@ -20,7 +20,7 @@ export const session$ = observable({
 syncObservable(session$.user, {
   persist: {
     name: "session-user",
-    plugin: ObservablePersistMMKV,
+    plugin: ObservablePersist,
   },
 });
 

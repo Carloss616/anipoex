@@ -1,35 +1,24 @@
-import { Uniwind, useUniwind } from "uniwind";
+import { useValue } from "@legendapp/state/react";
+import Lucide from "@react-native-vector-icons/lucide";
 import { CloseButton } from "@/components/ui/close-button";
-import { Icon } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { theme$ } from "@/state/theme";
 
-/** Tap flips `light`/`dark`; long press hands the theme back to the system. */
+/** Tap flips light/dark within the family; long press hands it to the system. */
 export function ThemeToggle() {
-  const { theme, hasAdaptiveThemes } = useUniwind();
+  const preference = useValue(theme$.preference);
   const foreground = useThemeColor("foreground");
-  const isLight = theme === "light";
+  const isLight = useValue(theme$.mode) === "light";
 
-  const icon = hasAdaptiveThemes
-    ? Icon.select({
-        ios: "circle.lefthalf.filled",
-        android: require("@expo/material-symbols/brightness_auto.xml"),
-        web: "sun-moon",
-      })
-    : Icon.select({
-        ios: isLight ? "sun.max" : "moon",
-        android: isLight
-          ? require("@expo/material-symbols/light_mode.xml")
-          : require("@expo/material-symbols/dark_mode.xml"),
-        web: isLight ? "sun" : "moon",
-      });
+  const icon = preference === "system" ? "sun-moon" : isLight ? "sun" : "moon";
 
   return (
     <CloseButton
-      variant="ghost"
-      onPress={() => Uniwind.setTheme(isLight ? "dark" : "light")}
-      onLongPress={() => Uniwind.setTheme("system")}
+      variant="outline"
+      onPress={() => theme$.preference.set(isLight ? "dark" : "light")}
+      onLongPress={() => theme$.preference.set("system")}
     >
-      <Icon name={icon} size={18} color={foreground} />
+      <Lucide name={icon} size={18} color={foreground} />
     </CloseButton>
   );
 }

@@ -1,5 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Center } from "@/components/layout/center";
+import { ThemePicker } from "@/components/theme-picker";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
@@ -34,6 +35,7 @@ export function Home() {
           Sign out
         </Button>
         <ThemeToggle />
+        <ThemePicker />
       </Center>
     </Host>
   );

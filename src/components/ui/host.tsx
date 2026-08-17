@@ -1,6 +1,8 @@
 import { Host as HostBase, RNHostView as RNHostViewBase } from "@expo/ui";
+import { useValue } from "@legendapp/state/react";
 import { createContext, useContext } from "react";
-import { useUniwind, withUniwind } from "uniwind";
+import { withUniwind } from "uniwind";
+import { theme$ } from "@/state/theme";
 
 export const HostRoot = withUniwind(HostBase);
 export const RNHostViewRoot = withUniwind(RNHostViewBase);
@@ -18,13 +20,13 @@ export function useIsInsideRNHostView() {
 
 /** `@expo/ui`'s Host, tracked so our components know not to add another one. */
 export function Host(props: React.ComponentProps<typeof HostRoot>) {
-  const { theme } = useUniwind();
+  const mode = useValue(theme$.mode);
 
   return (
     <HostContext.Provider value={true}>
       <HostRoot
         seedColorClassName="accent-primary"
-        colorScheme={theme}
+        colorScheme={mode}
         {...props}
       />
     </HostContext.Provider>

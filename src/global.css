@@ -1,11 +1,7 @@
 @import "tailwindcss";
 @import "uniwind";
-
-/* Tokens only — PanelUI ships its components as source with classNames, so
-   there is no component CSS to layer around. */
 @import "panelui-native/theme.css";
 
-/* Path to the panelui-native source inside node_modules relative to global.css */
 @source "../node_modules/panelui-native/src";
 
 /* `static` so @/hooks/use-font reads all four, className or not. */

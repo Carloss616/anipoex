@@ -1,9 +1,11 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { withUniwindConfig } = require("uniwind/metro");
+const { EXTRA_THEMES } = require("./src/state/theme/constants.ts");
 
 const config = withUniwindConfig(getDefaultConfig(__dirname), {
   cssEntryFile: "./src/global.css",
   dtsFile: "./src/uniwind-types.d.ts",
+  extraThemes: EXTRA_THEMES,
 });
 
 const resolveRequest = config.resolver.resolveRequest;

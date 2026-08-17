@@ -90,7 +90,8 @@
     {
       "includes": [
         "src/app/_layout.tsx",
-        "src/components/ui/feedback/feedback.tsx"
+        "src/components/ui/feedback/feedback.tsx",
+        "src/state/theme/constants.ts"
       ],
       "linter": {
         "rules": {

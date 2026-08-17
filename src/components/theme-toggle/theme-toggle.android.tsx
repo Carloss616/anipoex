@@ -8,23 +8,25 @@ import {
   combinedClickable,
   size,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Uniwind, useUniwind } from "uniwind";
+import { useValue } from "@legendapp/state/react";
 import { EnsureHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { theme$ } from "@/state/theme";
 
 /**
- * Tap flips light/dark; long press hands the theme back to the system.
+ * Tap flips light/dark within the family; long press hands it to the system.
  *
  * Material's `IconButton` swallows long presses — its internal `clickable`
  * consumes the gesture — so this is a tonal `Box` whose only click handler is
  * `combinedClickable`, styled like the `FilledTonalIconButton` it replaces.
  */
 export function ThemeToggle() {
-  const { theme, hasAdaptiveThemes } = useUniwind();
+  const preference = useValue(theme$.preference);
+  const mode = useValue(theme$.mode);
   const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary, colorScheme: theme });
-  const isLight = theme === "light";
+  const m3 = useMaterialColors({ seedColor: primary, colorScheme: mode });
+  const isLight = mode === "light";
 
   return (
     <EnsureHost matchContents>
@@ -35,14 +37,14 @@ export function ThemeToggle() {
           clip({ type: "circle" }),
           background(m3.secondaryContainer),
           combinedClickable({
-            onClick: () => Uniwind.setTheme(isLight ? "dark" : "light"),
-            onLongClick: () => Uniwind.setTheme("system"),
+            onClick: () => theme$.preference.set(isLight ? "dark" : "light"),
+            onLongClick: () => theme$.preference.set("system"),
           }),
         ]}
       >
         <Icon
           name={
-            hasAdaptiveThemes
+            preference === "system"
               ? Brightness4Icon
               : isLight
                 ? LightModeIcon

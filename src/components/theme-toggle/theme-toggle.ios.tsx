@@ -7,26 +7,27 @@ import {
   onTapGesture,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
-import { Uniwind, useUniwind } from "uniwind";
+import { useValue } from "@legendapp/state/react";
 import { EnsureHost } from "@/components/ui/host";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { theme$ } from "@/state/theme";
 
 /**
- * Tap flips light/dark; long press hands the theme back to the system.
+ * Tap flips light/dark within the family; long press hands it to the system.
  *
  * A SwiftUI `Button` swallows long presses — its own gesture wins — so this is
  * a glass-styled `Image` carrying both gestures instead of our `CloseButton`.
  */
 export function ThemeToggle() {
-  const { theme, hasAdaptiveThemes } = useUniwind();
+  const preference = useValue(theme$.preference);
   const foreground = useThemeColor("foreground");
-  const isLight = theme === "light";
+  const isLight = useValue(theme$.mode) === "light";
 
   return (
     <EnsureHost matchContents>
       <Image
         systemName={
-          hasAdaptiveThemes
+          preference === "system"
             ? "circle.lefthalf.filled"
             : isLight
               ? "sun.max"
@@ -41,8 +42,8 @@ export function ThemeToggle() {
             shape: "circle",
           }),
           contentShape(shapes.circle()),
-          onTapGesture(() => Uniwind.setTheme(isLight ? "dark" : "light")),
-          onLongPressGesture(() => Uniwind.setTheme("system")),
+          onTapGesture(() => theme$.preference.set(isLight ? "dark" : "light")),
+          onLongPressGesture(() => theme$.preference.set("system")),
         ]}
       />
     </EnsureHost>

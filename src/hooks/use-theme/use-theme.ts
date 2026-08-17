@@ -1,3 +1,4 @@
+import { useValue } from "@legendapp/state/react";
 import type {
   NativeStackNavigationOptions,
   StackSearchBarProps,
@@ -6,9 +7,9 @@ import type {
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
 import type { RefreshControlProps } from "react-native";
-import { useUniwind } from "uniwind";
 import { header } from "@/components/layout/header";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { theme$ } from "@/state/theme";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useNativeTabsTheme(): NativeTabsProps {
@@ -38,7 +39,7 @@ export function useNativeTabsTheme(): NativeTabsProps {
 }
 
 export function useNavigationTheme(): Theme {
-  const { theme } = useUniwind();
+  const mode = useValue(theme$.mode);
   const [primary, background, card, foreground, border, destructive] =
     useThemeColor([
       "primary",
@@ -51,7 +52,7 @@ export function useNavigationTheme(): Theme {
   const fonts = useNavigationFonts();
 
   return {
-    dark: theme === "dark",
+    dark: mode === "dark",
     colors: {
       primary,
       background,

@@ -1,9 +1,7 @@
 import { observable, syncState } from "@legendapp/state";
-// MMKV on web is a localStorage shim that throws during the Node render pass.
-// This plugin no-ops when localStorage is missing, so SSR stays quiet.
-import { ObservablePersistLocalStorage } from "@legendapp/state/persist-plugins/local-storage";
 import { syncObservable } from "@legendapp/state/sync";
 import type { User } from "@/features/auth/types/tracker";
+import { ObservablePersist } from "../observable-persist";
 
 export const session$ = observable({
   token: undefined as string | undefined,
@@ -13,14 +11,14 @@ export const session$ = observable({
 syncObservable(session$.token, {
   persist: {
     name: "session-token",
-    plugin: ObservablePersistLocalStorage,
+    plugin: ObservablePersist,
   },
 });
 
 syncObservable(session$.user, {
   persist: {
     name: "session-user",
-    plugin: ObservablePersistLocalStorage,
+    plugin: ObservablePersist,
   },
 });
 
