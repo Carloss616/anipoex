@@ -7,7 +7,9 @@ import type {
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
-import type { RefreshControlProps } from "react-native";
+import { type RefreshControlProps, StyleSheet } from "react-native";
+import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
+import { useResolveClassNames } from "uniwind";
 import { header } from "@/components/layout/header";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
@@ -96,5 +98,46 @@ export function useRefreshControlTheme(): Partial<RefreshControlProps> {
   return {
     colors: [m3.primary],
     progressBackgroundColor: m3.surfaceContainerHigh,
+  };
+}
+
+export function useTabViewTheme(): {
+  commonOptions: Pick<TabDescriptor<Route>, "labelStyle">;
+  tabBar: Pick<
+    TabBarProps<Route>,
+    | "scrollEnabled"
+    | "activeColor"
+    | "inactiveColor"
+    | "pressColor"
+    | "style"
+    | "tabStyle"
+    | "indicatorStyle"
+  >;
+} {
+  const primary = useThemeColor("primary");
+  const m3 = useMaterialColors({ seedColor: primary });
+  const tabStyles = useResolveClassNames("w-auto px-4");
+  const labelStyles = useResolveClassNames("font-medium text-sm normal-case");
+  const indicatorStyles = useResolveClassNames("h-0.75 rounded-t-[3px]");
+
+  return {
+    commonOptions: {
+      labelStyle: labelStyles,
+    },
+    tabBar: {
+      scrollEnabled: true,
+      activeColor: m3.primary,
+      inactiveColor: m3.onSurfaceVariant,
+      pressColor: m3.secondaryContainer,
+      style: {
+        backgroundColor: m3.surface,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: m3.surfaceVariant,
+        elevation: 0,
+        shadowOpacity: 0,
+      },
+      tabStyle: tabStyles,
+      indicatorStyle: [indicatorStyles, { backgroundColor: m3.primary }],
+    },
   };
 }

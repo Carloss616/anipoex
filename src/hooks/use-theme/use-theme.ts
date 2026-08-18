@@ -6,7 +6,9 @@ import type {
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
-import type { RefreshControlProps } from "react-native";
+import { type RefreshControlProps, StyleSheet } from "react-native";
+import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
+import { useResolveClassNames } from "uniwind";
 import { header } from "@/components/layout/header";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
@@ -94,5 +96,55 @@ export function useRefreshControlTheme(): Partial<RefreshControlProps> {
     tintColor: primary,
     colors: [primary],
     progressBackgroundColor: card,
+  };
+}
+
+export function useTabViewTheme(): {
+  commonOptions: Pick<TabDescriptor<Route>, "labelStyle">;
+  tabBar: Pick<
+    TabBarProps<Route>,
+    | "scrollEnabled"
+    | "activeColor"
+    | "inactiveColor"
+    | "pressColor"
+    | "pressOpacity"
+    | "style"
+    | "tabStyle"
+    | "indicatorStyle"
+    // | "contentContainerStyle"
+    // | "indicatorContainerStyle"
+  >;
+} {
+  const [primary, mutedForeground] = useThemeColor([
+    "primary",
+    "muted-foreground",
+  ]);
+  const styles = useResolveClassNames("bg-transparent border-border");
+  const tabStyles = useResolveClassNames("w-auto px-4");
+  const labelStyles = useResolveClassNames("font-medium text-sm normal-case");
+  
+
+  return {
+    commonOptions: {
+      labelStyle: labelStyles,
+    },
+    tabBar: {
+      scrollEnabled: true,
+      activeColor: primary,
+      inactiveColor: mutedForeground,
+      pressColor: "transparent",
+      pressOpacity: 0.5,
+      style: [
+        styles,
+        {
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          shadowOpacity: 0,
+        },
+      ],
+      tabStyle: tabStyles,
+      indicatorStyle: { backgroundColor: primary },
+      // contentContainerStyle: pxStyles,
+      // indicatorContainerStyle: pxStyles,
+    },
   };
 }

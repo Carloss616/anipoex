@@ -4,17 +4,18 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Platform, useWindowDimensions } from "react-native";
-import { TabView } from "react-native-tab-view";
-import { TabBar } from "@/components/layout/tab-bar";
+import { TabBar, TabView } from "react-native-tab-view";
 import { withWebToolbar } from "@/components/layout/with-web-toolbar";
 import { Icon } from "@/components/ui/icon";
 import { MediaListStatus } from "@/graphql/types.generated";
 import {
   useStackSearchBarTheme,
   useStackToolbarTheme,
+  useTabViewTheme,
 } from "@/hooks/use-theme";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListScene } from "./components/list-scene";
+import { TabLabel } from "./components/tab-label";
 import { MANGA_STATUSES } from "./constants";
 
 export function MangaList() {
@@ -27,6 +28,7 @@ export function MangaList() {
   const { list } = useLocalSearchParams<{ list?: string }>();
   const searchBarTheme = useStackSearchBarTheme();
   const toolbarTheme = useStackToolbarTheme();
+  const tabViewTheme = useTabViewTheme();
   const large = height > 640;
 
   const query$ = useObservable("");
@@ -96,7 +98,18 @@ export function MangaList() {
       <TabView
         navigationState={{ index, routes }}
         onIndexChange={(i) => router.setParams({ list: routes[i].key })}
-        renderTabBar={(props) => <TabBar {...props} counts$={counts$} />}
+        commonOptions={{
+          ...tabViewTheme.commonOptions,
+          label: ({ route, color, style }) => (
+            <TabLabel
+              title={route.title}
+              color={color}
+              style={style}
+              count$={counts$[route.key]}
+            />
+          ),
+        }}
+        renderTabBar={(props) => <TabBar {...props} {...tabViewTheme.tabBar} />}
         renderScene={({ route }) => (
           <ListScene status={route.key} query$={query$} counts$={counts$} />
         )}
