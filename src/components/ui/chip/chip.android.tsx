@@ -10,17 +10,8 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
-import type { ChipLabelProps, ChipProps, ChipVariant } from "./chip";
-
-const COLORS = {
-  default: "primary",
-  primary: "primary",
-  outline: "primary",
-  success: "success",
-  warning: "warning",
-  info: "primary",
-  destructive: "destructive",
-} as const satisfies Record<ChipVariant, SemanticColor>;
+import type { ChipLabelProps, ChipProps } from "./chip";
+import { COLORS } from "./constants";
 
 function useColors(color: SemanticColor) {
   const seedColor = useThemeColor(SEMANTIC_COLOR[color].token.fill);

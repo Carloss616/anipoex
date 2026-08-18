@@ -10,9 +10,10 @@ import {
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
-import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
+import { SEMANTIC_COLOR } from "../colors";
 import { EnsureHost } from "../host";
 import type { ChipLabelProps, ChipProps, ChipSize, ChipVariant } from "./chip";
+import { COLORS } from "./constants";
 
 type ControlSize = Parameters<typeof controlSize>[0];
 type ButtonStyle = Parameters<typeof buttonStyle>[0];
@@ -24,9 +25,9 @@ const SIZES = {
 } as const satisfies Record<ChipSize, ControlSize>;
 
 const FONT_SIZES = {
-  sm: 13,
-  md: 14,
-  lg: 15,
+  sm: 12,
+  md: 13,
+  lg: 14,
 } as const satisfies Record<ChipSize, number>;
 
 const VARIANTS = {
@@ -48,16 +49,6 @@ const SELECTED_VARIANTS = {
   info: "glassProminent",
   destructive: "glassProminent",
 } as const satisfies Record<ChipVariant, ButtonStyle>;
-
-const COLORS = {
-  default: "secondary",
-  primary: "primary",
-  outline: "primary",
-  success: "success",
-  warning: "warning",
-  info: "primary",
-  destructive: "destructive",
-} as const satisfies Record<ChipVariant, SemanticColor>;
 
 /**
  * iOS Chip: same props as PanelUI's, rendered as a capsule SwiftUI

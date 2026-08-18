@@ -23,6 +23,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp, omitUndefined, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 import { Typography, type TypographyParagraphProps } from "../typography";
+import { LABEL_SIZES, SPACING } from "./constants";
 
 const VARIANTS = {
   primary: ButtonBase,
@@ -42,19 +43,12 @@ const ICON_VARIANTS = {
   social: OutlinedIconButton,
 } as const satisfies Record<ButtonVariant, unknown>;
 
-const SIZES = {
-  sm: { height: 40, spacing: 6 },
-  md: { height: 48, spacing: 8 },
-  lg: { height: 56, spacing: 10 },
-  icon: { height: 48, spacing: 0 },
-} as const satisfies Record<ButtonSize, { height: number; spacing: number }>;
-
-const LABEL_SIZES = {
-  sm: "body-xs",
-  md: "body-sm",
-  lg: "body",
-  icon: "body-sm",
-} as const satisfies Record<ButtonSize, TypographyParagraphProps["type"]>;
+const HEIGHTS = {
+  sm: 40,
+  md: 48,
+  lg: 56,
+  icon: 48,
+} as const satisfies Record<ButtonSize, number>;
 
 /**
  * The size preset fixes the button's height; `h-auto` hands it back to the
@@ -94,21 +88,14 @@ function ButtonRoot({
 }: ButtonRootProps) {
   const id = useId();
   const isIconOnly = size === "icon";
-  const [
-    destructive,
-    destructiveSolidForeground,
-    _destructiveSoft,
-    _destructiveForeground,
-  ] = useThemeColor([
+  const [destructive, destructiveSolidForeground] = useThemeColor([
     "destructive",
     // On a solid fill it is `-solid-foreground`; plain `-foreground` is the
     // status as text, which is what belongs on the soft fill.
     "destructive-solid-foreground",
-    "destructive-soft",
-    "destructive-foreground",
   ]);
 
-  const { spacing, height: buttonHeight } = SIZES[size];
+  const buttonHeight = HEIGHTS[size];
   const box = resolveStyle(style as StyleProp<ViewStyle>);
   const ButtonComponent = isIconOnly
     ? ICON_VARIANTS[variant]
@@ -151,7 +138,7 @@ function ButtonRoot({
           content
         ) : (
           <Row
-            horizontalArrangement={{ spacedBy: spacing }}
+            horizontalArrangement={{ spacedBy: SPACING[size] }}
             horizontalAlignment="center"
           >
             {content}

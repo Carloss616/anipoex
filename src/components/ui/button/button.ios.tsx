@@ -9,6 +9,7 @@ import {
   buttonStyle,
   controlSize,
   disabled,
+  font,
   frame,
   labelStyle,
   padding,
@@ -19,15 +20,21 @@ import type {
   ButtonSize,
   ButtonVariant,
 } from "panelui-native/components/button";
-import { Children, isValidElement } from "react";
+import { cn } from "panelui-native/utils/cn";
+import { Children, isValidElement, useId } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
+import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp, omitUndefined, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
+import { Typography, type TypographyParagraphProps } from "../typography";
+import { TEXT_SIZE } from "../typography/constants";
+import { LABEL_SIZES, SPACING } from "./constants";
 
 type ControlSize = Parameters<typeof controlSize>[0];
+type FontParams = Parameters<typeof font>[0];
 type ButtonStyle = Parameters<typeof buttonStyle>[0];
 
 const VARIANTS = {
@@ -46,13 +53,12 @@ const SIZES = {
   icon: "regular",
 } as const satisfies Record<ButtonSize, ControlSize>;
 
-/** Gap between the pieces of a custom label — SwiftUI stacks them by default. */
-const SPACING = {
-  sm: 4,
-  md: 6,
-  lg: 8,
-  icon: 0,
-} as const satisfies Record<ButtonSize, number>;
+const LABEL_STYLES = {
+  sm: "footnote",
+  md: "subheadline",
+  lg: "body",
+  icon: "subheadline",
+} as const satisfies Record<ButtonSize, FontParams["textStyle"]>;
 
 function isSimpleLabel(children: React.ReactNode): boolean {
   return Children.toArray(children).every(
@@ -111,13 +117,26 @@ function ButtonRoot({
   testID,
   style,
 }: ButtonRootProps) {
+  const id = useId();
   const destructiveColor = useThemeColor("destructive");
+  const themeFamily = useFontFamily("medium");
 
   const box = resolveStyle(style as StyleProp<ViewStyle>);
   const isIconOnly = size === "icon";
   const destructiveTint = variant === "destructive" ? destructiveColor : null;
 
   const isSimple = isSimpleLabel(children);
+  // A bare string child is the documented shorthand for <Button.Label>.
+  const content = Children.toArray(children).map((child, index) =>
+    isValidElement(child) ? (
+      child
+    ) : (
+      // biome-ignore lint/suspicious/noArrayIndexKey: text children have no stable id
+      <ButtonLabel key={`${id}-${index}`} size={size}>
+        {child}
+      </ButtonLabel>
+    ),
+  );
 
   return (
     <EnsureHost matchContents>
@@ -130,6 +149,15 @@ function ButtonRoot({
           labelStyle(isIconOnly ? "iconOnly" : "automatic"),
           buttonBorderShape(isIconOnly ? "circle" : "automatic"),
           disabled(isDisabled || loading),
+          ...(isIconOnly
+            ? []
+            : [
+                font({
+                  size: TEXT_SIZE[LABEL_SIZES[size]],
+                  textStyle: LABEL_STYLES[size],
+                  family: themeFamily,
+                }),
+              ]),
           ...(destructiveTint ? [tint(destructiveTint)] : []),
         ]}
         onPress={onPress as (() => void) | undefined}
@@ -138,11 +166,28 @@ function ButtonRoot({
       >
         {isSimple ? undefined : (
           <HStack spacing={SPACING[size]} alignment="center" modifiers={box}>
-            {children}
+            {content}
           </HStack>
         )}
       </ButtonBase>
     </EnsureHost>
+  );
+}
+
+function ButtonLabel({
+  children,
+  className,
+  size,
+  ...props
+}: TypographyParagraphProps & { size: ButtonSize }) {
+  return (
+    <Typography
+      type={LABEL_SIZES[size]}
+      className={cn("text-inherit", className)}
+      {...props}
+    >
+      {textOf(children)}
+    </Typography>
   );
 }
 

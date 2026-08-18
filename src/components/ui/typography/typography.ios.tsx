@@ -29,7 +29,7 @@ import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
-import type { TypographyWeight } from "./typography";
+import { PRESET_WEIGHT, TEXT_SIZE } from "./constants";
 
 type FontParams = Parameters<typeof font>[0];
 
@@ -50,42 +50,6 @@ const TEXT_STYLE = {
   blockquote: "body",
   code: "body",
 } as const satisfies Record<TypographyType, FontParams["textStyle"]>;
-
-/** Preset point sizes: given a `family`, `font()` falls back to `size ?? 17`. */
-const TEXT_SIZE = {
-  h1: 34,
-  h2: 28,
-  h3: 22,
-  h4: 20,
-  h5: 17,
-  h6: 15,
-  lead: 20,
-  body: 17,
-  "body-sm": 15,
-  "body-xs": 13,
-  large: 18,
-  small: 14,
-  blockquote: 17,
-  code: 17,
-} as const satisfies Record<TypographyType, number>;
-
-/** Each preset's own weight — `headline` is the only one iOS ships semibold. */
-const PRESET_WEIGHT = {
-  h1: "normal",
-  h2: "normal",
-  h3: "normal",
-  h4: "normal",
-  h5: "semibold",
-  h6: "normal",
-  lead: "normal",
-  body: "normal",
-  "body-sm": "normal",
-  "body-xs": "normal",
-  large: "semibold",
-  small: "medium",
-  blockquote: "normal",
-  code: "normal",
-} as const satisfies Record<TypographyType, TypographyWeight>;
 
 /** Stands in for `.infinity`, which doesn't survive the props bridge. */
 const FILL = 100_000;

@@ -1,3 +1,6 @@
+// Registers the extra themes, which the `observe` below sets on load. Here, and
+// first, because expo-router loads this file before `app/_layout`'s own import.
+import "@/global.css";
 import { observable, observe } from "@legendapp/state";
 import { synced, syncObservable } from "@legendapp/state/sync";
 import { Appearance, Platform } from "react-native";

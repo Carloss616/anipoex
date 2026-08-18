@@ -29,15 +29,12 @@ import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
-import type { TypographyWeight } from "./typography";
+import { PRESET_WEIGHT } from "./constants";
 
 type ComposeTextStyle = NonNullable<TextProps["style"]>;
 type TypographyStyle = NonNullable<ComposeTextStyle["typography"]>;
 
-/**
- * Material 3 typography presets, picked by nearest size to PanelUI's scale.
- * M3 has no 18sp step, so h5 and h6 share `titleMedium`.
- */
+/** Material 3 typography presets, picked by nearest size to PanelUI's scale. */
 const TYPOGRAPHY = {
   h1: "displaySmall",
   h2: "headlineLarge",
@@ -54,24 +51,6 @@ const TYPOGRAPHY = {
   blockquote: "bodyLarge",
   code: "bodyMedium",
 } as const satisfies Record<TypographyType, TypographyStyle>;
-
-/** Each M3 role's own weight. */
-const PRESET_WEIGHT = {
-  h1: "normal",
-  h2: "normal",
-  h3: "normal",
-  h4: "normal",
-  h5: "medium",
-  h6: "medium",
-  lead: "normal",
-  body: "normal",
-  "body-sm": "normal",
-  "body-xs": "normal",
-  large: "semibold",
-  small: "medium",
-  blockquote: "normal",
-  code: "normal",
-} as const satisfies Record<TypographyType, TypographyWeight>;
 
 function TypographyRootBase({
   children,
@@ -119,9 +98,7 @@ function TypographyRootBase({
         maxLines={numberOfLines}
         overflow={numberOfLines == null ? undefined : "ellipsis"}
         style={{
-          // The preset is the base; everything below overrides just that key.
           typography: TYPOGRAPHY[type],
-          // Unset means natural alignment, which Compose spells `start`.
           textAlign: alignment ?? "start",
           fontFamily: isCode ? "monospace" : (fontFamily ?? themeFamily),
           fontSize,
