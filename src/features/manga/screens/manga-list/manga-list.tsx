@@ -2,7 +2,7 @@ import { useApolloClient } from "@apollo/client/react";
 import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 import { TabView } from "react-native-tab-view";
 import { TabBar } from "@/components/layout/tab-bar";
@@ -44,6 +44,8 @@ export function MangaList() {
     clearTimeout(debounce.current);
     debounce.current = setTimeout(() => query$.set(text), 150);
   };
+
+  useEffect(() => () => clearTimeout(debounce.current), []);
 
   const refresh = () => {
     setRefetching(true);

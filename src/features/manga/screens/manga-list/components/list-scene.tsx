@@ -1,6 +1,10 @@
 import type { Observable, ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
-import { RefreshControl, useWindowDimensions } from "react-native";
+import {
+  type UseBreakpointResult,
+  useBreakpoint,
+} from "panelui-native/hooks/use-breakpoint";
+import { RefreshControl } from "react-native";
 import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
 import { Loader } from "@/components/ui/loader";
@@ -11,6 +15,14 @@ import { ListEmpty } from "./list-empty";
 import { ListHeader } from "./list-header";
 import { ListItem } from "./list-item";
 
+const COLUMNS = {
+  base: 4,
+  sm: 4,
+  md: 6,
+  lg: 8,
+  xl: 12,
+} as const satisfies Record<UseBreakpointResult["current"], number>;
+
 export function ListScene({
   status,
   query$,
@@ -20,14 +32,13 @@ export function ListScene({
   query$: ObservablePrimitive<string>;
   counts$: Observable<Record<MediaListStatus, number | null>>;
 }) {
-  const { width } = useWindowDimensions();
+  const { current } = useBreakpoint();
   const { manga$, genres$, genre$, loading, refetching, refetch } =
     useMangaList(status, query$, counts$);
   const refreshControlTheme = useRefreshControlTheme();
   const manga = useValue(manga$);
 
-  const numColumns =
-    width >= 1280 ? 12 : width >= 1024 ? 8 : width >= 768 ? 6 : 4;
+  const numColumns = COLUMNS[current];
 
   if (loading && !refetching) {
     return (

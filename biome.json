@@ -38,6 +38,7 @@
             "paths": {
               "@expo/ui": {
                 "importNames": [
+                  "BottomSheet",
                   "Column",
                   "Host",
                   "RNHostView",
@@ -47,6 +48,7 @@
                 ],
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
               },
+              "@expo/ui/community/bottom-sheet": "Import from @/components/ui/sheet",
               "react-native": {
                 "importNames": [
                   "ScrollView",
@@ -56,6 +58,7 @@
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
               },
               "panelui-native": "Import scoped: panelui-native/components/<component>",
+              "panelui-native/components/bottom-sheet": "Import from @/components/ui/sheet",
               "panelui-native/components/button": "Import from @/components/ui/button",
               "panelui-native/components/chip": "Import from @/components/ui/chip",
               "panelui-native/components/progress": "Import from @/components/ui/progress",

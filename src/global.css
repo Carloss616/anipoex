@@ -82,8 +82,18 @@
      on text fields. Flag from @/utils/focus-modality. */
   [data-focus-modality="pointer"] input:focus,
   [data-focus-modality="pointer"] textarea:focus {
-    outline-style: none;
-    outline-width: 0px;
-    border-color: var(--color-ring);
+    @apply outline-0 border-ring;
+  }
+
+  [data-vaul-overlay] {
+    @apply bg-black/50! opacity-100!;
+  }
+
+  [data-vaul-drawer] {
+    @apply border-t border-border bg-popover! shadow-sm;
+  }
+
+  [data-vaul-handle] {
+    @apply bg-muted-foreground/30!;
   }
 }

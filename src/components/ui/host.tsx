@@ -42,6 +42,20 @@ export function RNHostView(props: React.ComponentProps<typeof RNHostViewRoot>) {
   );
 }
 
+/**
+ * Marks a subtree as already inside a native host without rendering one, for
+ * the components that mount `@expo/ui`'s own Host internally.
+ */
+export function HostBoundary({ children }: { children: React.ReactNode }) {
+  return (
+    <HostContext.Provider value={true}>
+      <RNHostViewContext.Provider value={false}>
+        {children}
+      </RNHostViewContext.Provider>
+    </HostContext.Provider>
+  );
+}
+
 /** Ensures there's exactly one native Host boundary in the tree. */
 export function EnsureHost(props: React.ComponentProps<typeof HostRoot>) {
   const isInsideHost = useIsInsideHost();
