@@ -1,3 +1,4 @@
+import type { MaterialColors } from "@expo/ui/jetpack-compose";
 import { useValue } from "@legendapp/state/react";
 import type {
   NativeStackNavigationOptions,
@@ -10,9 +11,13 @@ import { type RefreshControlProps, StyleSheet } from "react-native";
 import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
 import { useResolveClassNames } from "uniwind";
 import { header } from "@/components/layout/header";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 import { useFontFamily, useNavigationFonts } from "../use-font";
+
+export function useThemeM3Colors(_name?: ThemeColor) {
+  return null as MaterialColors | null;
+}
 
 export function useNativeTabsTheme(): NativeTabsProps {
   // PanelUI's `accent` is the tinted surface a selected item sits on, not the
@@ -122,7 +127,6 @@ export function useTabViewTheme(): {
   const styles = useResolveClassNames("bg-transparent border-border");
   const tabStyles = useResolveClassNames("w-auto px-4");
   const labelStyles = useResolveClassNames("font-medium text-sm normal-case");
-  
 
   return {
     commonOptions: {

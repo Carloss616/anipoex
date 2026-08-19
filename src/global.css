@@ -84,16 +84,4 @@
   [data-focus-modality="pointer"] textarea:focus {
     @apply outline-0 border-ring;
   }
-
-  [data-vaul-overlay] {
-    @apply bg-black/50! opacity-100!;
-  }
-
-  [data-vaul-drawer] {
-    @apply border-t border-border bg-popover! shadow-sm;
-  }
-
-  [data-vaul-handle] {
-    @apply bg-muted-foreground/30!;
-  }
 }

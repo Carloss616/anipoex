@@ -1,10 +1,7 @@
-import {
-  ContainedLoadingIndicator,
-  useMaterialColors,
-} from "@expo/ui/jetpack-compose";
+import { ContainedLoadingIndicator } from "@expo/ui/jetpack-compose";
 import { graphicsLayer } from "@expo/ui/jetpack-compose/modifiers";
 import type { LoaderSize } from "panelui-native/components/loader";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { EnsureHost } from "../host";
 import type { LoaderProps } from "./loader";
 
@@ -21,8 +18,7 @@ export const SCALES = {
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/progress/
  */
 export function Loader({ size = "md" }: LoaderProps) {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
   const scale = SCALES[size];
 
   return (

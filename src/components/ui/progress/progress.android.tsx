@@ -1,14 +1,11 @@
-import {
-  LinearWavyProgressIndicator,
-  useMaterialColors,
-} from "@expo/ui/jetpack-compose";
+import { LinearWavyProgressIndicator } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
   height as heightModifier,
   testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { withUniwind } from "uniwind";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { EnsureHost } from "../host";
 import type { ProgressProps } from "./progress";
 import { fractionOf, ProgressHeader, TRACK_HEIGHT } from "./progress-header";
@@ -23,8 +20,7 @@ function ProgressBase({
   testID,
   ...props
 }: ProgressProps) {
-  const seedColor = useThemeColor(color);
-  const m3 = useMaterialColors({ seedColor });
+  const m3 = useThemeM3Colors(color);
   const height = TRACK_HEIGHT[size];
   const fraction = fractionOf(value, minValue, maxValue);
 

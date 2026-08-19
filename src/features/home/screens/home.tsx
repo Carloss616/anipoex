@@ -1,5 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Center } from "@/components/layout/center";
+import { ScrollView } from "@/components/layout/scroll-view";
 import { ThemePicker } from "@/components/theme-picker";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -27,16 +28,18 @@ export function Home() {
 
   return (
     <Host className="flex-1">
-      <Center className="gap-4 px-8 py-24">
-        <Typography type="h5" align="center">
-          {user ? `Hi, ${user.name}` : "Signed in"}
-        </Typography>
-        <Button variant="outline" onPress={handleSignOut}>
-          Sign out
-        </Button>
-        <ThemeToggle />
-        <ThemePicker />
-      </Center>
+      <ScrollView>
+        <Center className="gap-4 px-8 py-24">
+          <Typography type="h5" align="center">
+            {user ? `Hi, ${user.name}` : "Signed in"}
+          </Typography>
+          <Button variant="outline" onPress={handleSignOut}>
+            Sign out
+          </Button>
+          <ThemeToggle />
+          <ThemePicker />
+        </Center>
+      </ScrollView>
     </Host>
   );
 }

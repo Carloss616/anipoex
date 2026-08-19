@@ -1,7 +1,7 @@
 import Brightness4Icon from "@expo/material-symbols/brightness_4.xml";
 import DarkModeIcon from "@expo/material-symbols/dark_mode.xml";
 import LightModeIcon from "@expo/material-symbols/light_mode.xml";
-import { Box, useMaterialColors } from "@expo/ui/jetpack-compose";
+import { Box } from "@expo/ui/jetpack-compose";
 import {
   background,
   clip,
@@ -11,7 +11,7 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { EnsureHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { theme$ } from "@/state/theme";
 
 /**
@@ -24,8 +24,7 @@ import { theme$ } from "@/state/theme";
 export function ThemeToggle() {
   const preference = useValue(theme$.preference);
   const mode = useValue(theme$.mode);
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary, colorScheme: mode });
+  const m3 = useThemeM3Colors();
   const isLight = mode === "light";
 
   return (

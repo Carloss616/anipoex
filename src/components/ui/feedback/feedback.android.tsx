@@ -1,7 +1,7 @@
-import { Surface, useMaterialColors } from "@expo/ui/jetpack-compose";
+import { Surface } from "@expo/ui/jetpack-compose";
 import { combinedClickable } from "@expo/ui/jetpack-compose/modifiers";
 import { EnsureHost } from "@/components/ui/host";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { FeedbackProps } from "./feedback";
 
 export function Feedback<P>({
@@ -11,8 +11,7 @@ export function Feedback<P>({
   children,
   ...props
 }: FeedbackProps<P>) {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
 
   return !onPress && !onLongPress ? (
     <Component {...(props as P)}>{children}</Component>

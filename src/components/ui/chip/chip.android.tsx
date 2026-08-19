@@ -3,10 +3,9 @@ import {
   FilterChip,
   type FilterChipColors,
   Text,
-  useMaterialColors,
 } from "@expo/ui/jetpack-compose";
 import { useFontFamily } from "@/hooks/use-font";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { textOf } from "@/utils/utils";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
@@ -14,8 +13,9 @@ import type { ChipLabelProps, ChipProps } from "./chip";
 import { COLORS } from "./constants";
 
 function useColors(color: SemanticColor) {
-  const seedColor = useThemeColor(SEMANTIC_COLOR[color].token.fill);
-  const m3 = useMaterialColors({ seedColor });
+  const themeColor =
+    SEMANTIC_COLOR[color === "secondary" ? "primary" : color].token.fill;
+  const m3 = useThemeM3Colors(themeColor);
   const colors: FilterChipColors = {
     containerColor: m3.surfaceContainerLow,
     labelColor: m3.onSurfaceVariant,

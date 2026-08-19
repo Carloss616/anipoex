@@ -4,11 +4,11 @@ import { useState } from "react";
 import { Platform, View } from "react-native";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { RNHostView } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
-import { Sheet } from "@/components/ui/sheet";
 import { Typography } from "@/components/ui/typography";
 import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
@@ -76,13 +76,13 @@ export function Tracking({
         </Column>
       </Button>
 
-      <Sheet
+      <BottomSheet
         isPresented={isPresented}
         onDismiss={() => setIsPresented(false)}
-        snapPoints={[{ fraction: 0.25 }, { fraction: 0.5 }, { fraction: 0.9 }]}
+        snapPoints={[{ fraction: 0.25 }, { fraction: 0.5 }, "full"]}
       >
         <Typography>Render Anilist actions</Typography>
-      </Sheet>
+      </BottomSheet>
     </>
   );
 }

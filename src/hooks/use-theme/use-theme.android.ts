@@ -11,13 +11,18 @@ import { type RefreshControlProps, StyleSheet } from "react-native";
 import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
 import { useResolveClassNames } from "uniwind";
 import { header } from "@/components/layout/header";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
+export function useThemeM3Colors(name: ThemeColor = "primary") {
+  const mode = useValue(theme$.mode);
+  const primary = useThemeColor(name);
+  return useMaterialColors({ seedColor: primary, colorScheme: mode });
+}
+
 export function useNativeTabsTheme(): NativeTabsProps {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
   const fontFamily = useFontFamily("medium");
 
   return {
@@ -37,13 +42,11 @@ export function useNativeTabsTheme(): NativeTabsProps {
 }
 
 export function useNavigationTheme(): Theme {
-  const mode = useValue(theme$.mode);
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary, colorScheme: mode });
+  const m3 = useThemeM3Colors();
   const fonts = useNavigationFonts();
 
   return {
-    dark: mode === "dark",
+    dark: useValue(theme$.mode) === "dark",
     colors: {
       primary: m3.primary,
       background: m3.background,
@@ -57,8 +60,7 @@ export function useNavigationTheme(): Theme {
 }
 
 export function useStackTheme(): NativeStackNavigationOptions {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
 
   return {
     header,
@@ -72,8 +74,7 @@ export function useStackTheme(): NativeStackNavigationOptions {
 }
 
 export function useStackSearchBarTheme(): StackSearchBarProps {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
 
   return {
     textColor: m3.onSurface,
@@ -83,8 +84,7 @@ export function useStackSearchBarTheme(): StackSearchBarProps {
 }
 
 export function useStackToolbarTheme(): StackToolbarProps {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
 
   return {
     backgroundColor: m3.surfaceContainerLow,
@@ -92,8 +92,7 @@ export function useStackToolbarTheme(): StackToolbarProps {
 }
 
 export function useRefreshControlTheme(): Partial<RefreshControlProps> {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
 
   return {
     colors: [m3.primary],
@@ -114,8 +113,7 @@ export function useTabViewTheme(): {
     | "indicatorStyle"
   >;
 } {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
   const tabStyles = useResolveClassNames("w-auto px-4");
   const labelStyles = useResolveClassNames("font-medium text-sm normal-case");
   const indicatorStyles = useResolveClassNames("h-0.75 rounded-t-[3px]");

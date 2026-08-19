@@ -140,6 +140,7 @@ function ButtonRoot({
           <Row
             horizontalArrangement={{ spacedBy: SPACING[size] }}
             horizontalAlignment="center"
+            verticalAlignment="center"
           >
             {content}
           </Row>

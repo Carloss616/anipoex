@@ -1,8 +1,4 @@
-import {
-  Text,
-  type TextProps,
-  useMaterialColors,
-} from "@expo/ui/jetpack-compose";
+import { Text, type TextProps } from "@expo/ui/jetpack-compose";
 import {
   background,
   clickable,
@@ -26,7 +22,7 @@ import {
 } from "react-native";
 import { withUniwind } from "uniwind";
 import { useFontFamily } from "@/hooks/use-font";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 import { PRESET_WEIGHT } from "./constants";
@@ -63,8 +59,7 @@ function TypographyRootBase({
   onPress,
   testID,
 }: TypographyProps) {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
 
   const {
     display,

@@ -1,7 +1,6 @@
 import {
   SegmentedButton,
   SingleChoiceSegmentedButtonRow,
-  useMaterialColors,
 } from "@expo/ui/jetpack-compose";
 import { height, width } from "@expo/ui/jetpack-compose/modifiers";
 import { Memo } from "@legendapp/state/react";
@@ -12,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
 import { Typography } from "@/components/ui/typography";
 import type { MediaListStatus } from "@/graphql/types.generated";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Row } from "../row";
 import type { TabBarProps } from "./tab-bar";
 
@@ -33,8 +32,7 @@ export function TabBar<T extends Route>({
   counts$,
   jumpTo,
 }: TabBarProps<T>) {
-  const primary = useThemeColor("primary");
-  const m3 = useMaterialColors({ seedColor: primary });
+  const m3 = useThemeM3Colors();
   const scroller = useRef<ScrollView>(null);
 
   const segmentWidth = useMemo(

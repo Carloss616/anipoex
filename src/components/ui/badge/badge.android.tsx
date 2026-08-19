@@ -1,9 +1,6 @@
-import {
-  Badge as BadgeView,
-  useMaterialColors,
-} from "@expo/ui/jetpack-compose";
+import { Badge as BadgeView } from "@expo/ui/jetpack-compose";
 import { testID as testIDModifier } from "@expo/ui/jetpack-compose/modifiers";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
 import { Typography } from "../typography";
@@ -11,10 +8,9 @@ import type { BadgeProps } from "./badge";
 
 /** Seeds an M3 scheme off the semantic color, so it harmonizes with the theme. */
 export function useColors(color: SemanticColor) {
-  const seedColor = useThemeColor(
-    SEMANTIC_COLOR[color === "secondary" ? "primary" : color].token.fill,
-  );
-  const m3 = useMaterialColors({ seedColor });
+  const themeColor =
+    SEMANTIC_COLOR[color === "secondary" ? "primary" : color].token.fill;
+  const m3 = useThemeM3Colors(themeColor);
 
   // `secondary` is the neutral badge, so it takes the surface, not the seed.
   return color === "secondary"
