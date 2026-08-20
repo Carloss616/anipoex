@@ -3,14 +3,16 @@ import type {
   ColumnProps,
   SnapPoint,
 } from "@expo/ui";
+import type { ModalBottomSheetProps } from "@expo/ui/jetpack-compose";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
-import { View } from "react-native";
 import { Drawer } from "vaul";
+import { Column } from "@/components/layout/column";
 
 export interface BottomSheetProps
   extends BottomSheetBaseProps,
-    Pick<ColumnProps, "alignment"> {
+    Pick<ColumnProps, "alignment">,
+    Pick<ModalBottomSheetProps, "containerColor" | "scrimColor"> {
   className?: string;
 }
 
@@ -32,6 +34,8 @@ export function BottomSheet({
   showDragIndicator = true,
   snapPoints,
   testID,
+  containerColor,
+  scrimColor,
   alignment,
   className,
 }: BottomSheetProps) {
@@ -40,6 +44,8 @@ export function BottomSheet({
     ? snapPoints.map(snapPointToVaul)
     : undefined;
   const hasSnapPoints = vaulSnapPoints != null;
+  const direction = isAtLeast("md") ? "right" : "bottom";
+  const isRight = direction === "right";
 
   return (
     <Drawer.Root
@@ -48,38 +54,49 @@ export function BottomSheet({
         if (!open) onDismiss();
       }}
       snapPoints={vaulSnapPoints}
-      direction={isAtLeast("md") ? "right" : "bottom"}
+      direction={direction}
     >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/50 opacity-100" />
+        <Drawer.Overlay
+          className="fixed inset-0 bg-black/50 opacity-100!"
+          style={
+            typeof scrimColor === "string"
+              ? { backgroundColor: scrimColor }
+              : undefined
+          }
+        />
         <Drawer.Content
           className={cn(
-            "fixed right-0 bottom-0 left-0 z-50 flex flex-col rounded-t-[16px] border-border border-t bg-popover shadow-sm outline-none",
+            "fixed right-0 bottom-0 z-50 flex flex-col border-border bg-popover shadow-sm outline-none",
+            isRight
+              ? "top-0 rounded-l-[16px] border-l"
+              : "left-0 rounded-t-[16px] border-t",
             // Snap-points mode: vaul translates the drawer by `viewport - snapHeight`.
             // The drawer has to fill the viewport or it gets pushed off-screen.
-            hasSnapPoints ? "h-[96vh]" : "max-h-[85vh]",
-            showDragIndicator && "pt-16",
+            isRight
+              ? hasSnapPoints
+                ? "w-[96vw]"
+                : "w-full max-w-80"
+              : hasSnapPoints
+                ? "h-[96vh]"
+                : "max-h-[85vh]",
           )}
+          style={
+            typeof containerColor === "string"
+              ? { backgroundColor: containerColor }
+              : undefined
+          }
           aria-describedby={undefined}
+          data-testid={testID}
         >
           {/* Radix Dialog requires a title for a11y; render visually-hidden. */}
           <Drawer.Title className="sr-only">Bottom sheet</Drawer.Title>
-          {showDragIndicator && (
-            <Drawer.Handle className="bg-muted-foreground/30" />
+          {showDragIndicator && !isRight && (
+            <Drawer.Handle className="mt-2 bg-muted-foreground/30" />
           )}
-          <View
-            className={cn(
-              alignment === "center"
-                ? "items-center"
-                : alignment === "end"
-                  ? "items-end"
-                  : undefined,
-              className,
-            )}
-            data-testid={testID}
-          >
+          <Column alignment={alignment} className={className}>
             {children}
-          </View>
+          </Column>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>

@@ -79,7 +79,8 @@ export function Tracking({
       <BottomSheet
         isPresented={isPresented}
         onDismiss={() => setIsPresented(false)}
-        snapPoints={[{ fraction: 0.25 }, { fraction: 0.5 }, "full"]}
+        alignment="center"
+        className="gap-4 p-4 android:pt-0"
       >
         <Typography>Render Anilist actions</Typography>
       </BottomSheet>

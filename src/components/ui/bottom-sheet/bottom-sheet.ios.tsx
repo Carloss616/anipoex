@@ -1,15 +1,15 @@
 import type { SnapPoint } from "@expo/ui";
 import { Group, BottomSheet as SwiftUIBottomSheet } from "@expo/ui/swift-ui";
 import {
-  frame,
-  type ModifierConfig,
   type PresentationDetent,
+  padding,
+  presentationBackground,
   presentationDetents,
   presentationDragIndicator,
 } from "@expo/ui/swift-ui/modifiers";
 import { Column } from "@/components/layout/column";
 import { Host } from "../host";
-import type { BottomSheetProps } from "./bottom.sheet";
+import type { BottomSheetProps } from "./bottom-sheet";
 
 function snapPointToDetent(snapPoint: SnapPoint): PresentationDetent {
   if (snapPoint === "half") return "medium";
@@ -26,22 +26,10 @@ export function BottomSheet({
   snapPoints,
   testID,
   modifiers,
+  containerColor,
   alignment,
   className,
 }: BottomSheetProps) {
-  const presentationModifiers: ModifierConfig[] = [
-    frame({ maxWidth: Infinity, alignment: "topLeading" }),
-    presentationDragIndicator(showDragIndicator ? "visible" : "hidden"),
-  ];
-  if (snapPoints && snapPoints.length > 0) {
-    presentationModifiers.push(
-      presentationDetents(snapPoints.map(snapPointToDetent)),
-    );
-  }
-  if (modifiers?.length) {
-    presentationModifiers.push(...modifiers);
-  }
-
   return (
     <Host className="absolute" pointerEvents="none">
       <SwiftUIBottomSheet
@@ -49,10 +37,22 @@ export function BottomSheet({
         onIsPresentedChange={(presented) => {
           if (!presented) onDismiss();
         }}
-        fitToContents={!snapPoints || snapPoints.length === 0}
+        fitToContents={!snapPoints?.length}
         testID={testID}
       >
-        <Group modifiers={presentationModifiers}>
+        <Group
+          modifiers={[
+            presentationDragIndicator(showDragIndicator ? "visible" : "hidden"),
+            ...(typeof containerColor === "string"
+              ? [presentationBackground(containerColor)]
+              : []),
+            ...(showDragIndicator ? [padding({ top: 10 })] : []),
+            ...(snapPoints?.length
+              ? [presentationDetents(snapPoints.map(snapPointToDetent))]
+              : []),
+            ...(modifiers ?? []),
+          ]}
+        >
           <Column alignment={alignment} className={className}>
             {children}
           </Column>

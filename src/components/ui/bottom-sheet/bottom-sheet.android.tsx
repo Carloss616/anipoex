@@ -3,12 +3,14 @@ import {
   ModalBottomSheet,
   type ModalBottomSheetRef,
 } from "@expo/ui/jetpack-compose";
-import { fillMaxHeight } from "@expo/ui/jetpack-compose/modifiers";
-import { cn } from "panelui-native/utils/cn";
+import {
+  fillMaxHeight,
+  fillMaxWidth,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { useEffect, useRef, useState } from "react";
 import { Column } from "@/components/layout/column";
 import { Host } from "../host";
-import type { BottomSheetProps } from "./bottom.sheet";
+import type { BottomSheetProps } from "./bottom-sheet";
 
 // M3 `ModalBottomSheet` only has partial/expanded states.
 // Only allow the partial state when the consumer requested a partial-friendly snap point.
@@ -44,6 +46,8 @@ export function BottomSheet({
   snapPoints,
   testID,
   modifiers,
+  containerColor,
+  scrimColor,
   alignment,
   className,
 }: BottomSheetProps) {
@@ -76,14 +80,17 @@ export function BottomSheet({
         showDragHandle={showDragIndicator}
         skipPartiallyExpanded={shouldSkipPartiallyExpanded(snapPoints)}
         modifiers={modifiers}
+        containerColor={containerColor}
+        scrimColor={scrimColor}
       >
         <Column
           testID={testID}
           alignment={alignment}
-          className={cn(showDragIndicator && "pt-4", className)}
-          modifiers={
-            shouldFillMaxHeight(snapPoints) ? [fillMaxHeight()] : undefined
-          }
+          className={className}
+          modifiers={[
+            fillMaxWidth(),
+            ...(shouldFillMaxHeight(snapPoints) ? [fillMaxHeight()] : []),
+          ]}
         >
           {children}
         </Column>
