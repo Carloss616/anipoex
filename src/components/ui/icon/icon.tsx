@@ -8,6 +8,7 @@ import { Lucide } from "@react-native-vector-icons/lucide";
 import type { SFSymbol } from "expo-symbols";
 import type { ImageSourcePropType } from "react-native";
 import { withUniwind } from "uniwind";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 type LucideName = React.ComponentProps<typeof Lucide>["name"];
 
@@ -20,11 +21,22 @@ export type IconName =
       web: LucideName;
     };
 
-export interface IconProps extends Omit<IconBaseProps, "name"> {
+export interface IconExtendProps {
+  muted?: boolean;
+}
+
+export interface IconProps
+  extends Omit<IconBaseProps, "name">,
+    IconExtendProps {
   name: IconName;
 }
 
-function IconRootBase({ name, ...props }: IconProps) {
+function IconRootBase({ name, muted, color, ...props }: IconProps) {
+  const [foreground, mutedForeground] = useThemeColor([
+    "foreground",
+    "muted-foreground",
+  ]);
+
   return (
     <Lucide
       name={
@@ -32,12 +44,21 @@ function IconRootBase({ name, ...props }: IconProps) {
           ? name.web
           : (name as LucideName)
       }
+      color={muted ? mutedForeground : (color ?? foreground)}
       {...props}
     />
   );
 }
 
-const IconRoot = withUniwind(IconRootBase);
+const IconRoot = withUniwind(IconRootBase, {
+  style: {
+    fromClassName: "className",
+  },
+  color: {
+    fromClassName: "className",
+    styleProperty: "color",
+  },
+});
 
 export interface IconSelectSpec extends IconBaseSelectSpec {
   web?: LucideName;
@@ -46,7 +67,7 @@ export interface IconSelectSpec extends IconBaseSelectSpec {
 /**
  * Picks `spec.web` at runtime, but types the result like the native
  * `Icon.select` so it stays assignable to native-typed props such as
- * `Stack.Toolbar.Button`'s `icon`. `with-web-toolbar.web.tsx` casts it back to
+ * `Stack.Toolbar.Button`'s `icon`. `web-toolbar.web.tsx` casts it back to
  * a Lucide name when it actually renders the icon on web.
  */
 const select = (spec: IconSelectSpec) =>

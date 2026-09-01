@@ -7,22 +7,28 @@ import {
   OutlinedButton,
   OutlinedIconButton,
   Row,
+  Shape,
+  type ShapeJSXElement,
   TextButton,
 } from "@expo/ui/jetpack-compose";
-import { height, width } from "@expo/ui/jetpack-compose/modifiers";
+import {
+  height,
+  testID as testIDModifier,
+  weight,
+  width,
+} from "@expo/ui/jetpack-compose/modifiers";
 import type {
   ButtonProps as ButtonRootProps,
   ButtonSize,
   ButtonVariant,
 } from "panelui-native/components/button";
-import { cn } from "panelui-native/utils/cn";
-import { Children, isValidElement, useId } from "react";
+import { Children, cloneElement, isValidElement, useId } from "react";
 import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { dp, omitUndefined, textOf } from "@/utils/utils";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { dp, omitUndefined } from "@/utils/utils";
 import { EnsureHost } from "../host";
-import { Typography, type TypographyParagraphProps } from "../typography";
+import { Typography } from "../typography";
 import { LABEL_SIZES, SPACING } from "./constants";
 
 const VARIANTS = {
@@ -30,7 +36,7 @@ const VARIANTS = {
   secondary: FilledTonalButton,
   outline: OutlinedButton,
   ghost: TextButton,
-  destructive: ButtonBase,
+  destructive: TextButton,
   social: OutlinedButton,
 } as const satisfies Record<ButtonVariant, unknown>;
 
@@ -39,7 +45,7 @@ const ICON_VARIANTS = {
   secondary: FilledTonalIconButton,
   outline: OutlinedIconButton,
   ghost: IconButton,
-  destructive: FilledIconButton,
+  destructive: IconButton,
   social: OutlinedIconButton,
 } as const satisfies Record<ButtonVariant, unknown>;
 
@@ -69,7 +75,24 @@ function resolveStyle(style: StyleProp<ViewStyle>) {
     bottom: dp(flat.paddingBottom) ?? vertical,
   });
 
+  const radius = dp(flat.borderRadius);
+
   return {
+    fill: !!(flat.flex ?? flat.flexGrow),
+    // Compose takes the shape as an element, one radius per corner.
+    shape:
+      radius == null
+        ? undefined
+        : ((
+            <Shape.RoundedCorner
+              cornerRadii={{
+                topStart: radius,
+                topEnd: radius,
+                bottomStart: radius,
+                bottomEnd: radius,
+              }}
+            />
+          ) as ShapeJSXElement),
     hugs: flat.height === "auto",
     height: dp(flat.height),
     width: dp(flat.width),
@@ -83,17 +106,19 @@ function ButtonRoot({
   size = "md",
   disabled = false,
   loading = false,
+  startContent,
+  endContent,
   onPress,
   style,
+  testID,
+  modifiers,
+  colors,
+  muted,
 }: ButtonRootProps) {
   const id = useId();
   const isIconOnly = size === "icon";
-  const [destructive, destructiveSolidForeground] = useThemeColor([
-    "destructive",
-    // On a solid fill it is `-solid-foreground`; plain `-foreground` is the
-    // status as text, which is what belongs on the soft fill.
-    "destructive-solid-foreground",
-  ]);
+  const destructive = useThemeM3Colors("destructive");
+  const m3 = useThemeM3Colors();
 
   const buttonHeight = HEIGHTS[size];
   const box = resolveStyle(style as StyleProp<ViewStyle>);
@@ -101,16 +126,23 @@ function ButtonRoot({
     ? ICON_VARIANTS[variant]
     : VARIANTS[variant];
 
-  // A bare string child is the documented shorthand for <Button.Label>.
-  const content = Children.toArray(children).map((child, index) =>
-    isValidElement(child) ? (
-      child
-    ) : (
-      // biome-ignore lint/suspicious/noArrayIndexKey: text children have no stable id
-      <ButtonLabel key={`${id}-${index}`} size={size}>
-        {child}
-      </ButtonLabel>
-    ),
+  // `Children.toArray` marks an element that arrived unkeyed through a prop
+  // slot, so re-key every child here instead of warning at each call site.
+  const content = Children.toArray([startContent, children, endContent]).map(
+    (child, index) =>
+      isValidElement(child) ? (
+        // biome-ignore lint/suspicious/noArrayIndexKey: slot content has no stable id
+        cloneElement(child, { key: `${id}-${index}` })
+      ) : (
+        <Typography
+          // biome-ignore lint/suspicious/noArrayIndexKey: text children have no stable id
+          key={`${id}-${index}`}
+          type={LABEL_SIZES[size]}
+          className="text-inherit"
+        >
+          {child}
+        </Typography>
+      ),
   );
 
   return (
@@ -122,16 +154,22 @@ function ButtonRoot({
           ...(isIconOnly || box.width !== undefined
             ? [width(box.width ?? buttonHeight)]
             : []),
+          ...(box.fill ? [weight(1)] : []),
+          ...(testID ? [testIDModifier(testID as string)] : []),
+          ...(modifiers ?? []),
         ]}
+        shape={box.shape}
         {...(isIconOnly ? {} : { contentPadding: box.contentPadding })}
         onClick={onPress as (() => void) | undefined}
         colors={
           variant === "destructive"
             ? {
-                containerColor: destructive,
-                contentColor: destructiveSolidForeground,
+                contentColor: destructive.primary,
               }
-            : undefined
+            : {
+                contentColor: muted ? m3?.onSurfaceVariant : undefined,
+                ...colors,
+              }
         }
       >
         {isIconOnly ? (
@@ -147,23 +185,6 @@ function ButtonRoot({
         )}
       </ButtonComponent>
     </EnsureHost>
-  );
-}
-
-function ButtonLabel({
-  children,
-  className,
-  size,
-  ...props
-}: TypographyParagraphProps & { size: ButtonSize }) {
-  return (
-    <Typography
-      type={LABEL_SIZES[size]}
-      className={cn("text-inherit", className)}
-      {...props}
-    >
-      {textOf(children)}
-    </Typography>
   );
 }
 

@@ -12,6 +12,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { textOf } from "@/utils/utils";
 import { SEMANTIC_COLOR } from "../colors";
 import { EnsureHost } from "../host";
+import { TYPOGRAPHY_IOS } from "../typography/constants";
 import type { ChipLabelProps, ChipProps, ChipSize, ChipVariant } from "./chip";
 import { COLORS } from "./constants";
 
@@ -24,11 +25,15 @@ const SIZES = {
   lg: "regular",
 } as const satisfies Record<ChipSize, ControlSize>;
 
-const FONT_SIZES = {
-  sm: 12,
-  md: 13,
-  lg: 14,
-} as const satisfies Record<ChipSize, number>;
+/** iOS has no chip of its own, so each size borrows a typography preset. */
+const FONTS = {
+  sm: TYPOGRAPHY_IOS["body-xs"],
+  md: TYPOGRAPHY_IOS.small,
+  lg: TYPOGRAPHY_IOS["body-sm"],
+} as const satisfies Record<
+  ChipSize,
+  (typeof TYPOGRAPHY_IOS)[keyof typeof TYPOGRAPHY_IOS]
+>;
 
 const VARIANTS = {
   default: "glass",
@@ -54,6 +59,7 @@ const SELECTED_VARIANTS = {
  * iOS Chip: same props as PanelUI's, rendered as a capsule SwiftUI
  * `Button` — iOS has no chip of its own.
  *
+ * @see https://developer.apple.com/design/human-interface-guidelines/typography#iOS-iPadOS-Dynamic-Type-sizes
  * @see https://heroui.com/docs/native/components/chip
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/button/
  */
@@ -83,11 +89,7 @@ export function Chip({
           controlSize(SIZES[size]),
           disabled(!!isDisabled),
           tint(tintColor),
-          font({
-            textStyle: "caption",
-            size: FONT_SIZES[size],
-            family: themeFamily,
-          }),
+          font({ ...FONTS[size], family: themeFamily }),
         ]}
         testID={testID as string | undefined}
         role={variant === "destructive" ? "destructive" : undefined}

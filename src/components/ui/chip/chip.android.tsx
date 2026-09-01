@@ -4,6 +4,7 @@ import {
   type FilterChipColors,
   Text,
 } from "@expo/ui/jetpack-compose";
+import { testID as testIDModifier } from "@expo/ui/jetpack-compose/modifiers";
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { textOf } from "@/utils/utils";
@@ -31,7 +32,9 @@ function useColors(color: SemanticColor) {
 
 /**
  * Android Chip: same props as PanelUI's, rendered as a Jetpack Compose
- * `FilterChip` — the M3 chip that carries a selected state.
+ * `FilterChip` — the M3 chip that carries a selected state. `size` is a no-op:
+ * M3 gives the chip one 32dp height, so a smaller label would only shrink the
+ * text inside an unchanged pill.
  *
  * @see https://heroui.com/docs/native/components/chip
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/chip/
@@ -42,6 +45,7 @@ export function Chip({
   variant = "default",
   disabled: isDisabled = false,
   onPress,
+  testID,
 }: ChipProps) {
   const semanticColor = COLORS[variant];
   const { colors, border } = useColors(semanticColor);
@@ -55,6 +59,7 @@ export function Chip({
         onClick={onPress as (() => void) | undefined}
         colors={colors}
         border={border}
+        modifiers={testID ? [testIDModifier(testID as string)] : []}
       >
         <FilterChip.Label>
           <Text style={{ fontFamily }}>{textOf(children)}</Text>
