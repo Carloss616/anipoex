@@ -15,6 +15,7 @@ import {
 import { CloseButton } from "@/components/ui/close-button";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { LARGE_TITLE_HEIGHT } from "./constants";
 
 type SearchBarOptions = NonNullable<
   NativeStackHeaderProps["options"]["headerSearchBarOptions"]
@@ -56,10 +57,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const backLabel = options.headerBackTitle ?? back?.title;
   const isMinimalBack = options.headerBackButtonDisplayMode === "minimal";
   const isStacked = search?.placement === "stacked";
-  // A custom headerTitle owns its own sizing, so `large` only applies to plain titles.
   const canBeLarge = typeof options.headerTitle !== "function";
   const isLarge =
-    (options.headerLargeTitle || options.headerLargeTitleEnabled) && canBeLarge;
+    (options.headerLargeTitle || options.headerLargeTitleEnabled) &&
+    canBeLarge &&
+    !options.headerShadowVisible;
 
   const emit = (text: string) => {
     query$.set(text);
@@ -87,8 +89,6 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     return () => clearTimeout(timer);
   }, [isSearching]);
 
-  // The field is controlled (the clear button keys off the value), so it has to
-  // re-render per keystroke — Memo re-renders just this subtree, not the header.
   const searchField = search && (
     <Memo>
       {() => (
@@ -97,8 +97,6 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           value={query$.get()}
           onChangeText={emit}
           containerClassName="min-w-0 flex-1"
-          // The inline field never unmounts (it has to animate its width
-          // both ways), so opening it focuses by hand instead of on mount.
           autoFocus={isStacked && search.autoFocus}
           placeholder={search.placeholder}
           autoCapitalize={
@@ -141,13 +139,12 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     <View
       style={options.headerStyle}
       className={cn(
-        "gutters px-gx py-3 backdrop-blur-xl transition-[padding]",
+        "gutters px-gx py-3 transition-[padding,backdrop-filter]",
         TRANSITION,
-        options.headerShadowVisible && "border-b",
-        options.headerTransparent && "absolute inset-x-0 top-0 z-10",
+        options.headerShadowVisible && "backdrop-blur-xl",
       )}
     >
-      <View className="h-14 flex-row items-center gap-2">
+      <View className="h-14 flex-row items-center gap-4">
         {showBack && (
           <CloseButton
             className={cn(!isMinimalBack && backLabel && "w-[unset]")}
@@ -220,10 +217,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       {canBeLarge && (
         <View
           aria-hidden={!isLarge}
+          style={{ maxHeight: isLarge ? LARGE_TITLE_HEIGHT : 0 }}
           className={cn(
             "overflow-hidden transition-[max-height,opacity]",
             TRANSITION,
-            isLarge ? "max-h-16 opacity-100" : "max-h-0 opacity-0",
+            isLarge ? "opacity-100" : "opacity-0",
           )}
         >
           <Typography

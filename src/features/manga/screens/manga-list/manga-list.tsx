@@ -110,8 +110,8 @@ export function MangaList() {
         initialLayout={{ width }}
         style={{
           paddingTop: Platform.select({
-            ios: headerHeight,
-            default: undefined,
+            default: headerHeight,
+            android: undefined,
           }),
         }}
         lazy

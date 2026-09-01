@@ -1,6 +1,8 @@
 import { cn } from "panelui-native/utils/cn";
 import { Platform, RefreshControl, ScrollView } from "react-native";
 import { Host } from "@/components/ui/host";
+import { useHeaderInset } from "@/hooks/use-header-inset";
+import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { useRefreshControlTheme } from "@/hooks/use-theme";
 
 export interface RefreshScrollViewProps {
@@ -24,10 +26,14 @@ export function RefreshScrollView({
   onRefresh,
 }: RefreshScrollViewProps) {
   const refreshControlTheme = useRefreshControlTheme();
+  const headerScroll = useHeaderScroll();
+  const headerInset = useHeaderInset();
 
   return (
     <ScrollView
       className={cn("flex-1", className)}
+      contentContainerStyle={{ paddingTop: headerInset }}
+      {...headerScroll}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}

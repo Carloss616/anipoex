@@ -82,6 +82,7 @@ export function useStackTheme(): NativeStackNavigationOptions {
     headerTintColor: foreground,
     headerBlurEffect: "systemChromeMaterial",
     headerShadowVisible: false,
+    headerTransparent: true,
     headerStyle: { backgroundColor: "transparent" },
     headerLargeStyle: { backgroundColor: "transparent" },
     headerBackButtonDisplayMode: "minimal",

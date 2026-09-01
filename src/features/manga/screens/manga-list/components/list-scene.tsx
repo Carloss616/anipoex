@@ -10,6 +10,7 @@ import { LegendList } from "@/components/layout/legend-list";
 import { Loader } from "@/components/ui/loader";
 import { useMangaList } from "@/features/manga/hooks/use-manga-list";
 import type { MediaListStatus } from "@/graphql/types.generated";
+import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { useRefreshControlTheme } from "@/hooks/use-theme";
 import { ListEmpty } from "./list-empty";
 import { ListHeader } from "./list-header";
@@ -36,6 +37,7 @@ export function ListScene({
   const { manga$, genres$, genre$, loading, refetching, refetch } =
     useMangaList(status, query$, counts$);
   const refreshControlTheme = useRefreshControlTheme();
+  const headerScroll = useHeaderScroll();
   const manga = useValue(manga$);
 
   const numColumns = COLUMNS[current];
@@ -60,6 +62,7 @@ export function ListScene({
       ListHeaderComponent={<ListHeader genre$={genre$} genres$={genres$} />}
       renderItem={({ item }) => <ListItem item={item} />}
       ListEmptyComponent={<ListEmpty genre$={genre$} query$={query$} />}
+      {...headerScroll}
       refreshControl={
         <RefreshControl
           refreshing={refetching}
