@@ -1,0 +1,28 @@
+mutation SaveMangaEntry(
+  $id: Int
+  $mediaId: Int
+  $status: MediaListStatus
+  $progress: Int
+  $score: Float
+  $startedAt: FuzzyDateInput
+  $completedAt: FuzzyDateInput
+) {
+  SaveMediaListEntry(
+    id: $id
+    mediaId: $mediaId
+    status: $status
+    progress: $progress
+    score: $score
+    startedAt: $startedAt
+    completedAt: $completedAt
+  ) {
+    id
+    ...MangaListEntry
+  }
+}
+
+mutation DeleteMangaEntry($id: Int!) {
+  DeleteMediaListEntry(id: $id) {
+    deleted
+  }
+}
