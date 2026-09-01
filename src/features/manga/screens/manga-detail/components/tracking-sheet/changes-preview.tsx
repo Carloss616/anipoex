@@ -1,4 +1,5 @@
 import { Column } from "@/components/layout/column";
+import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Typography } from "@/components/ui/typography";
 
 export interface ChangesPreviewProps {
@@ -6,20 +7,17 @@ export interface ChangesPreviewProps {
   changes: string[];
 }
 
-/**
- * The preview under a tracking field. Both native platforms animate it in and
- * out; on web the drawer's own height transition carries the reveal.
- */
+/** The preview under a tracking field, opening and closing with the edit. */
 export function ChangesPreview({ changes }: ChangesPreviewProps) {
-  if (!changes.length) return null;
-
   return (
-    <Column className="gap-1 px-4 pb-4">
-      {changes.map((line) => (
-        <Typography key={line} type="small" muted>
-          {line}
-        </Typography>
-      ))}
-    </Column>
+    <AnimatedVisibility visible={changes.length > 0}>
+      <Column className="gap-1 px-4 pb-4">
+        {changes.map((line) => (
+          <Typography key={line} type="small" muted>
+            {line}
+          </Typography>
+        ))}
+      </Column>
+    </AnimatedVisibility>
   );
 }
