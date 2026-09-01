@@ -56,6 +56,7 @@ export const anilist: Tracker = {
       id: viewer.id,
       name: viewer.name,
       avatarUrl: viewer.avatar?.large ?? null,
+      scoreFormat: viewer.mediaListOptions?.scoreFormat ?? null,
     };
   },
 };
