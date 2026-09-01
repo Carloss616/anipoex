@@ -17,39 +17,14 @@ import type {
   TypographyHeadingProps,
   TypographyParagraphProps,
   TypographyProps,
-  TypographyType,
 } from "panelui-native/components/typography";
-import {
-  type TextStyle as RNTextStyle,
-  type StyleProp,
-  StyleSheet,
-} from "react-native";
+import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { textOf } from "@/utils/utils";
+import { dp, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
-import { PRESET_WEIGHT, TEXT_SIZE } from "./constants";
-
-type FontParams = Parameters<typeof font>[0];
-
-/** SwiftUI text styles — the iOS preset ramp, so text follows Dynamic Type. */
-const TEXT_STYLE = {
-  h1: "largeTitle",
-  h2: "title",
-  h3: "title2",
-  h4: "title3",
-  h5: "headline",
-  h6: "subheadline",
-  lead: "title3",
-  body: "body",
-  "body-sm": "subheadline",
-  "body-xs": "footnote",
-  large: "headline",
-  small: "footnote",
-  blockquote: "body",
-  code: "body",
-} as const satisfies Record<TypographyType, FontParams["textStyle"]>;
+import { TYPOGRAPHY_IOS, WEIGHT } from "./constants";
 
 /** Stands in for `.infinity`, which doesn't survive the props bridge. */
 const FILL = 100_000;
@@ -75,6 +50,7 @@ function TypographyRootBase({
   style,
   onPress,
   testID,
+  modifiers,
 }: TypographyProps) {
   const secondary = useThemeColor("secondary");
 
@@ -86,20 +62,32 @@ function TypographyRootBase({
     fontFamily,
     letterSpacing,
     textAlign,
-  } = StyleSheet.flatten(style as StyleProp<RNTextStyle>) ?? {};
+    padding: paddingSize,
+    paddingTop,
+    paddingBottom,
+    paddingLeft,
+    paddingRight,
+    paddingVertical,
+    paddingHorizontal,
+  } = StyleSheet.flatten(style) ?? {};
 
-  const isCode = type === "code";
-  const themeFamily = useFontFamily(
-    fontWeight ?? weight ?? PRESET_WEIGHT[type],
-  );
+  const themeFamily = useFontFamily(fontWeight ?? weight ?? WEIGHT[type]);
 
   if (display === "none") return null;
 
+  const isCode = type === "code";
   const resolvedAlign =
     textAlign === "auto" || textAlign === "justify"
       ? undefined
       : (textAlign ?? align);
   const alignment = resolvedAlign ? ALIGN[resolvedAlign] : "leading";
+  const pt = dp(paddingTop);
+  const pb = dp(paddingBottom);
+  const pl = dp(paddingLeft);
+  const pr = dp(paddingRight);
+  const py = dp(paddingVertical) ?? (isCode ? 2 : undefined);
+  const px = dp(paddingHorizontal) ?? (isCode ? 6 : undefined);
+  const p = dp(paddingSize);
 
   return (
     <EnsureHost matchContents>
@@ -107,8 +95,8 @@ function TypographyRootBase({
         testID={testID}
         modifiers={[
           font({
-            textStyle: TEXT_STYLE[type],
-            size: fontSize ?? TEXT_SIZE[type],
+            textStyle: TYPOGRAPHY_IOS[type].textStyle,
+            size: fontSize ?? TYPOGRAPHY_IOS[type].size,
             family: fontFamily ?? themeFamily,
             design: isCode ? "monospaced" : undefined,
           }),
@@ -132,13 +120,21 @@ function TypographyRootBase({
           ...(letterSpacing == null ? [] : [kerning(letterSpacing)]),
           ...(numberOfLines == null ? [] : [lineLimit(numberOfLines)]),
           ...(onPress == null ? [] : [onTapGesture(onPress as () => void)]),
-          ...(isCode
+          ...(pl || pt || pr || pb || px || py || p
             ? [
-                padding({ horizontal: 6, vertical: 2 }),
-                background(secondary),
-                cornerRadius(6),
+                padding({
+                  top: pt,
+                  bottom: pb,
+                  leading: pl,
+                  trailing: pr,
+                  horizontal: px,
+                  vertical: py,
+                  all: p,
+                }),
               ]
             : []),
+          ...(isCode ? [background(secondary), cornerRadius(6)] : []),
+          ...(modifiers ?? []),
         ]}
       >
         {textOf(children)}

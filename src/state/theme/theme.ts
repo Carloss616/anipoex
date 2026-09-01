@@ -1,6 +1,7 @@
 // Registers the extra themes, which the `observe` below sets on load. Here, and
 // first, because expo-router loads this file before `app/_layout`'s own import.
 import "@/global.css";
+
 import { observable, observe } from "@legendapp/state";
 import { synced, syncObservable } from "@legendapp/state/sync";
 import { Appearance, Platform } from "react-native";
@@ -49,6 +50,7 @@ syncObservable(theme$, {
 });
 
 observe(() => {
+  const mode = theme$.mode.get();
   const family =
     THEME_FAMILIES.find((entry) => entry.id === theme$.family.get()) ??
     THEME_FAMILIES[0];
@@ -57,6 +59,10 @@ observe(() => {
   if (theme$.preference.get() === "system" && family.id === "default") {
     Uniwind.setTheme("system");
   } else {
-    Uniwind.setTheme(family[theme$.mode.get()]);
+    Uniwind.setTheme(family[mode]);
   }
+
+  const hasWindow = typeof window !== "undefined";
+  if (Platform.OS === "web" && hasWindow)
+    document.documentElement.style.colorScheme = mode;
 });

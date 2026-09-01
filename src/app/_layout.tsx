@@ -1,22 +1,18 @@
+import "@/global.css";
+import "@/utils/focus-modality";
+
 import { ApolloProvider } from "@apollo/client/react";
-import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  useFonts,
-} from "@expo-google-fonts/inter";
+import { useFonts } from "expo-font";
 import { ThemeProvider } from "expo-router";
+import { Stack } from "expo-router/stack";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { PanelUIProvider } from "panelui-native";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { ToastHost } from "@/components/ui/toast";
+import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
 import { client } from "@/graphql/client";
 import { useCacheRestored } from "@/graphql/use-cache-restored";
-import "@/global.css";
-import "@/utils/focus-modality";
-import { Stack } from "expo-router/stack";
-import { StatusBar } from "expo-status-bar";
 import { useNavigationTheme } from "@/hooks/use-theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -25,11 +21,13 @@ export default function RootLayout() {
   const cacheRestored = useCacheRestored();
   const theme = useNavigationTheme();
   const [fontsLoaded] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    "MapleMono-Regular": require("@/assets/fonts/MapleMono/MapleMono-Regular.ttf"),
+    "MapleMono-Medium": require("@/assets/fonts/MapleMono/MapleMono-Medium.ttf"),
+    "MapleMono-SemiBold": require("@/assets/fonts/MapleMono/MapleMono-SemiBold.ttf"),
+    "MapleMono-Bold": require("@/assets/fonts/MapleMono/MapleMono-Bold.ttf"),
   });
+
+  useRefreshViewer();
 
   if (!fontsLoaded || !cacheRestored) return null;
 

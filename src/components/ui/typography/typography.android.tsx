@@ -15,22 +15,23 @@ import type {
   TypographyProps,
   TypographyType,
 } from "panelui-native/components/typography";
-import {
-  type TextStyle as RNTextStyle,
-  type StyleProp,
-  StyleSheet,
-} from "react-native";
+import { StyleSheet } from "react-native";
 import { withUniwind } from "uniwind";
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { textOf } from "@/utils/utils";
+import { dp, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
-import { PRESET_WEIGHT } from "./constants";
+import { WEIGHT } from "./constants";
 
 type ComposeTextStyle = NonNullable<TextProps["style"]>;
 type TypographyStyle = NonNullable<ComposeTextStyle["typography"]>;
 
-/** Material 3 typography presets, picked by nearest size to PanelUI's scale. */
+/**
+ * One row per preset: the Material 3 style, picked by nearest size to PanelUI's
+ * scale. Sizes come from the M3 style itself; weights from `WEIGHT`.
+ *
+ * @see https://m3.material.io/styles/typography/type-scale-tokens
+ */
 const TYPOGRAPHY = {
   h1: "displaySmall",
   h2: "headlineLarge",
@@ -58,6 +59,7 @@ function TypographyRootBase({
   style,
   onPress,
   testID,
+  modifiers,
 }: TypographyProps) {
   const m3 = useThemeM3Colors();
 
@@ -70,16 +72,29 @@ function TypographyRootBase({
     lineHeight,
     letterSpacing,
     textAlign,
-  } = StyleSheet.flatten(style as StyleProp<RNTextStyle>) ?? {};
+    padding: paddingSize,
+    paddingTop,
+    paddingBottom,
+    paddingLeft,
+    paddingRight,
+    paddingVertical,
+    paddingHorizontal,
+  } = StyleSheet.flatten(style) ?? {};
 
-  const isCode = type === "code";
-  const themeFamily = useFontFamily(
-    fontWeight ?? weight ?? PRESET_WEIGHT[type],
-  );
+  const themeFamily = useFontFamily(fontWeight ?? weight ?? WEIGHT[type]);
 
   if (display === "none") return null;
 
+  const isCode = type === "code";
   const alignment = textAlign === "auto" ? undefined : (textAlign ?? align);
+  const pl =
+    dp(paddingSize ?? paddingHorizontal ?? paddingLeft) ?? (isCode ? 6 : 0);
+  const pt =
+    dp(paddingSize ?? paddingVertical ?? paddingTop) ?? (isCode ? 2 : 0);
+  const pr =
+    dp(paddingSize ?? paddingHorizontal ?? paddingRight) ?? (isCode ? 6 : 0);
+  const pb =
+    dp(paddingSize ?? paddingVertical ?? paddingBottom) ?? (isCode ? 2 : 0);
 
   return (
     <EnsureHost matchContents>
@@ -108,13 +123,11 @@ function TypographyRootBase({
             : [fillMaxWidth()]),
           ...(testID ? [testIDModifier(testID)] : []),
           ...(onPress ? [clickable(onPress as () => void)] : []),
+          ...(pl || pt || pr || pb ? [padding(pl, pt, pr, pb)] : []),
           ...(isCode
-            ? [
-                clip(Shapes.RoundedCorner(6)),
-                background(m3.surfaceContainer),
-                padding(6, 2, 6, 2),
-              ]
+            ? [clip(Shapes.RoundedCorner(6)), background(m3.surfaceContainer)]
             : []),
+          ...(modifiers ?? []),
         ]}
       >
         {textOf(children)}

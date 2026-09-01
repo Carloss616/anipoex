@@ -6,10 +6,10 @@
 
 /* `static` so @/hooks/use-font reads all four, className or not. */
 @theme static {
-  --font-normal: "Inter_400Regular";
-  --font-medium: "Inter_500Medium";
-  --font-semibold: "Inter_600SemiBold";
-  --font-bold: "Inter_700Bold";
+  --font-normal: "MapleMono-Regular";
+  --font-medium: "MapleMono-Medium";
+  --font-semibold: "MapleMono-SemiBold";
+  --font-bold: "MapleMono-Bold";
 }
 
 @theme {
@@ -78,6 +78,12 @@
 }
 
 @layer base {
+  /* An <input> is ~20ch wide and `min-width: auto` as a flex item; RNW never
+     zeroes it, so a flex-1 field won't shrink below ~170px. */
+  input {
+    min-width: 0;
+  }
+
   /* Drop the focus ring on pointer focus only; `:focus-visible` can't say that
      on text fields. Flag from @/utils/focus-modality. */
   [data-focus-modality="pointer"] input:focus,

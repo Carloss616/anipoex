@@ -39,6 +39,7 @@ test("hands `system` to Uniwind for the family it can resolve itself", () => {
 
 test("resolves `system` to the custom family's own dark theme", () => {
   osScheme = "dark";
+  notifyOS();
   theme$.family.set("moon");
 
   expect(setTheme).toHaveBeenLastCalledWith("moon-dark");
