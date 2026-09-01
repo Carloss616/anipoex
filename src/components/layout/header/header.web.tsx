@@ -2,7 +2,7 @@ import { Memo, useObservable } from "@legendapp/state/react";
 import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
-import { Input } from "panelui-native/components/input";
+import { SearchBar } from "panelui-native/components/search-bar";
 import { cn } from "panelui-native/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -92,24 +92,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const searchField = search && (
     <Memo>
       {() => (
-        <Input
+        <SearchBar
           ref={inputRef}
           value={query$.get()}
           onChangeText={emit}
           containerClassName="min-w-0 flex-1"
-          startContent={
-            <Lucide name="search" size={16} color={mutedForeground} />
-          }
-          endContent={
-            query$.get() ? (
-              <CloseButton
-                variant="ghost"
-                onPress={() => emit("")}
-                accessibilityLabel="Clear search"
-                iconProps={{ size: 14 }}
-              />
-            ) : undefined
-          }
           // The inline field never unmounts (it has to animate its width
           // both ways), so opening it focuses by hand instead of on mount.
           autoFocus={isStacked && search.autoFocus}
@@ -215,7 +202,6 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             <CloseButton
               onPress={closeSearch}
               accessibilityLabel={search.cancelButtonText ?? "Cancel"}
-              iconProps={{ size: 18 }}
             />
           ) : (
             <CloseButton

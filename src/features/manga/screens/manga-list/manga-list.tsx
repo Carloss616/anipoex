@@ -5,14 +5,10 @@ import { useHeaderHeight } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 import { TabBar, TabView } from "react-native-tab-view";
-import { withWebToolbar } from "@/components/layout/with-web-toolbar";
+import { Toolbar } from "@/components/layout/toolbar";
 import { Icon } from "@/components/ui/icon";
 import { MediaListStatus } from "@/graphql/types.generated";
-import {
-  useStackSearchBarTheme,
-  useStackToolbarTheme,
-  useTabViewTheme,
-} from "@/hooks/use-theme";
+import { useStackSearchBarTheme, useTabViewTheme } from "@/hooks/use-theme";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListScene } from "./components/list-scene";
 import { TabLabel } from "./components/tab-label";
@@ -27,7 +23,6 @@ export function MangaList() {
   const { height, width } = useWindowDimensions();
   const { list } = useLocalSearchParams<{ list?: string }>();
   const searchBarTheme = useStackSearchBarTheme();
-  const toolbarTheme = useStackToolbarTheme();
   const tabViewTheme = useTabViewTheme();
   const large = height > 640;
 
@@ -78,8 +73,8 @@ export function MangaList() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      {withWebToolbar(
-        <Stack.Toolbar placement="right" {...toolbarTheme}>
+      <Toolbar spinning={refetching}>
+        <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
             icon={Icon.select({
               ios: "arrow.clockwise",
@@ -91,9 +86,8 @@ export function MangaList() {
             tintColor={refetching ? mutedForeground : undefined}
             accessibilityLabel="Refresh"
           />
-        </Stack.Toolbar>,
-        { spinning: refetching },
-      )}
+        </Stack.Toolbar>
+      </Toolbar>
 
       <TabView
         navigationState={{ index, routes }}
