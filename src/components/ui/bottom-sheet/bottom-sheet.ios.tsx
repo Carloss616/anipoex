@@ -7,6 +7,7 @@ import {
   presentationDetents,
   presentationDragIndicator,
 } from "@expo/ui/swift-ui/modifiers";
+import type { ViewProps } from "react-native";
 import { Column } from "@/components/layout/column";
 import { Host } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
@@ -61,3 +62,5 @@ export function BottomSheet({
     </Host>
   );
 }
+
+export const NoDragView = ({ children }: ViewProps) => children;

@@ -4,11 +4,15 @@ import {
   type ModalBottomSheetRef,
 } from "@expo/ui/jetpack-compose";
 import {
+  animateContentSize,
+  clickable,
   fillMaxHeight,
   fillMaxWidth,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useEffect, useRef, useState } from "react";
+import type { ViewProps } from "react-native";
 import { Column } from "@/components/layout/column";
+import { dismissFocus } from "@/utils/focus";
 import { Host } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
 
@@ -88,7 +92,9 @@ export function BottomSheet({
           alignment={alignment}
           className={className}
           modifiers={[
+            clickable(dismissFocus, { indication: false }),
             fillMaxWidth(),
+            animateContentSize(),
             ...(shouldFillMaxHeight(snapPoints) ? [fillMaxHeight()] : []),
           ]}
         >
@@ -98,3 +104,5 @@ export function BottomSheet({
     </Host>
   );
 }
+
+export const NoDragView = ({ children }: ViewProps) => children;
