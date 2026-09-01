@@ -5,24 +5,39 @@ import {
   scaleEffect,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { withUniwind } from "uniwind";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { EnsureHost } from "../host";
+import {
+  formatProgressValue,
+  fractionOf,
+  TRACK_HEIGHT,
+  TrackHeader,
+} from "../track-header";
 import type { ProgressProps } from "./progress";
-import { fractionOf, ProgressHeader, TRACK_HEIGHT } from "./progress-header";
 
 /** SwiftUI's linear `ProgressView` draws a fixed-thickness track. */
 const TRACK = 4;
 
-function ProgressBase({
+/**
+ * iOS Progress: same props as [the web one](./progress.tsx), rendered as a
+ * linear SwiftUI `ProgressView`. `indicatorClassName` is the one prop that
+ * cannot carry over — the platform draws the bar.
+ *
+ * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/progressview/
+ */
+export function Progress({
   value = 0,
   minValue = 0,
   maxValue = 100,
   indeterminate = false,
   color = "primary",
   size = "md",
+  label,
+  showValueLabel = false,
+  valueLabel,
+  formatOptions,
+  headerClassName,
   testID,
-  ...props
 }: ProgressProps) {
   const tintColor = useThemeColor(color);
   const height = TRACK_HEIGHT[size];
@@ -30,13 +45,14 @@ function ProgressBase({
 
   return (
     <EnsureHost matchContents={{ vertical: true }} className="w-full">
-      <ProgressHeader
-        {...props}
-        value={value}
-        minValue={minValue}
-        maxValue={maxValue}
-        indeterminate={indeterminate}
-        fraction={fraction}
+      <TrackHeader
+        label={label}
+        headerClassName={headerClassName}
+        valueLabel={
+          showValueLabel && !indeterminate
+            ? formatProgressValue(value, fraction, valueLabel, formatOptions)
+            : undefined
+        }
         track={
           <ProgressView
             // Omitting the value is what makes SwiftUI's own bar indeterminate.
@@ -56,12 +72,3 @@ function ProgressBase({
     </EnsureHost>
   );
 }
-
-/**
- * iOS Progress: same props as [the web one](./progress.tsx), rendered as a
- * linear SwiftUI `ProgressView`. `indicatorClassName` is the one prop that
- * cannot carry over — the platform draws the bar.
- *
- * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/progressview/
- */
-export const Progress = withUniwind(ProgressBase);

@@ -2,8 +2,8 @@ import { Spacer } from "@expo/ui";
 import type { ReactNode } from "react";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
-import { Typography } from "../typography";
-import type { ProgressProps } from "./progress";
+import type { ProgressProps } from "./progress/progress";
+import { Typography } from "./typography";
 
 type ProgressSize = NonNullable<ProgressProps["size"]>;
 
@@ -20,7 +20,8 @@ export function fractionOf(value: number, min: number, max: number) {
   return Math.min(Math.max((value - min) / span, 0), 1);
 }
 
-function formatValue(
+/** Progress' value label: an override, an `Intl` format, or a bare percent. */
+export function formatProgressValue(
   value: number,
   fraction: number,
   valueLabel?: string,
@@ -40,37 +41,34 @@ function formatValue(
 }
 
 /**
- * The caption row above the track. Plain RN on every platform — only the track
- * itself is drawn by the OS, so this stays identical to PanelUI's own.
+ * The caption row above a track — the label on the left, the value opposite
+ * it. Plain RN on every platform: only the track itself is drawn by the OS, so
+ * this stays identical to PanelUI's own, for Progress and Slider alike.
  */
-export function ProgressHeader({
-  fraction,
-  track,
-  value = 0,
-  indeterminate = false,
+export function TrackHeader({
   label,
-  showValueLabel = false,
   valueLabel,
-  formatOptions,
   headerClassName,
-}: ProgressProps & { fraction: number; track: ReactNode }) {
-  const showValue = showValueLabel && !indeterminate;
-  if (label == null && !showValue) return track;
+  track,
+}: {
+  label?: string;
+  /** Already formatted — the callers each write their value their own way. */
+  valueLabel?: string;
+  headerClassName?: string;
+  track: ReactNode;
+}) {
+  if (label == null && valueLabel == null) return track;
 
   return (
-    <Column className="w-full gap-2">
+    <Column className="gap-2">
       <Row alignment="center" className={headerClassName}>
         {label && (
-          <Typography type="body-sm" weight="medium" numberOfLines={1}>
+          <Typography weight="medium" numberOfLines={1}>
             {label}
           </Typography>
         )}
         <Spacer flexible />
-        {showValue && (
-          <Typography type="body-sm" muted>
-            {formatValue(value, fraction, valueLabel, formatOptions)}
-          </Typography>
-        )}
+        {valueLabel != null && <Typography muted>{valueLabel}</Typography>}
       </Row>
       {track}
     </Column>
