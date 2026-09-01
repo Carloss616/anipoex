@@ -1,8 +1,10 @@
 import { Host as HostBase, RNHostView as RNHostViewBase } from "@expo/ui";
 import { useValue } from "@legendapp/state/react";
 import { createContext, useContext } from "react";
+import { Platform } from "react-native";
 import { withUniwind } from "uniwind";
 import { theme$ } from "@/state/theme";
+import { HostContent } from "./host-content";
 
 export const HostRoot = withUniwind(HostBase);
 export const RNHostViewRoot = withUniwind(RNHostViewBase);
@@ -19,7 +21,10 @@ export function useIsInsideRNHostView() {
 }
 
 /** `@expo/ui`'s Host, tracked so our components know not to add another one. */
-export function Host(props: React.ComponentProps<typeof HostRoot>) {
+export function Host({
+  children,
+  ...props
+}: React.ComponentProps<typeof HostRoot>) {
   const mode = useValue(theme$.mode);
 
   return (
@@ -28,7 +33,9 @@ export function Host(props: React.ComponentProps<typeof HostRoot>) {
         seedColorClassName="accent-primary"
         colorScheme={mode}
         {...props}
-      />
+      >
+        <HostContent>{children}</HostContent>
+      </HostRoot>
     </HostContext.Provider>
   );
 }
@@ -61,7 +68,7 @@ export function EnsureHost(props: React.ComponentProps<typeof HostRoot>) {
   const isInsideHost = useIsInsideHost();
   const isInsideRNHostView = useIsInsideRNHostView();
 
-  if (isInsideHost && !isInsideRNHostView) {
+  if ((isInsideHost && !isInsideRNHostView) || Platform.OS === "web") {
     return <>{props.children}</>;
   }
 
@@ -74,7 +81,7 @@ export function EnsureRNHostView(
 ) {
   const isInsideHost = useIsInsideHost();
 
-  if (isInsideHost) {
+  if (isInsideHost && Platform.OS !== "web") {
     return <RNHostView {...props}>{props.children}</RNHostView>;
   }
 
