@@ -28,8 +28,6 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
       {chapters.map((chapter, index) => (
         <Fragment key={chapter.id}>
           {index > 0 && <Item.Separator className="mx-4" />}
-          {/* Item is a pressable in its own right, so the press feedback that
-              used to need a wrapper comes with the row. */}
           <Item>
             <Item.Content className={cn(progress > chapter.id && "opacity-40")}>
               <Item.Title>{chapter.title}</Item.Title>

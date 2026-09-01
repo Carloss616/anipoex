@@ -20,9 +20,6 @@ export function Meta({
   className: string;
 }) {
   const isPreview = useIsPreview();
-
-  // Everything here is optional on AniList, so each field earns its row.
-  // The list status is deliberately absent — `Tracking` already owns it.
   const fields: MetaField[] = [];
 
   if (manga.author) {
@@ -76,11 +73,7 @@ export function Meta({
       </Typography>
       {fields.map(({ icon, value }) => (
         <Row key={value} className="gap-1" alignment="center">
-          <Icon
-            name={icon}
-            size={12}
-            colorClassName="accent-muted-foreground"
-          />
+          <Icon name={icon} size={12} muted />
           <Typography type="body-sm" muted>
             {value}
           </Typography>

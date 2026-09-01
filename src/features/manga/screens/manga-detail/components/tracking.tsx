@@ -1,19 +1,19 @@
 import { useFragment } from "@apollo/client/react";
 import { Spacer } from "@expo/ui";
 import { useState } from "react";
-import { Platform, View } from "react-native";
+import { Platform } from "react-native";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RNHostView } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
 import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { WEB_ICON_COLOR } from "../constants";
+import { toDetail } from "@/features/manga/utils/to-detail";
+import { TrackingSheet } from "./tracking-sheet";
 
 export function Tracking({
   id,
@@ -49,9 +49,7 @@ export function Tracking({
       >
         <Column className="web:w-full gap-2">
           <Row alignment="center" className="gap-2">
-            <RNHostView matchContents>
-              <View className="size-2 rounded-full bg-primary" />
-            </RNHostView>
+            <Badge color="primary" />
             <Typography className="ios:text-foreground">{label}</Typography>
             <Spacer flexible />
             <Typography.Code className="web:self-auto">
@@ -69,21 +67,18 @@ export function Tracking({
                 web: "chevron-right",
               })}
               size={18}
-              colorClassName={WEB_ICON_COLOR}
+              className="text-inherit web:text-primary"
             />
           </Row>
           <Progress value={percent} />
         </Column>
       </Button>
 
-      <BottomSheet
+      <TrackingSheet
         isPresented={isPresented}
+        manga={toDetail(id, data)}
         onDismiss={() => setIsPresented(false)}
-        alignment="center"
-        className="gap-4 p-4 android:pt-0"
-      >
-        <Typography>Render Anilist actions</Typography>
-      </BottomSheet>
+      />
     </>
   );
 }

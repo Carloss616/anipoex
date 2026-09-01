@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/ui/typography";
-import { WEB_ICON_COLOR } from "../constants";
 
 const ACTIONS = [
   {
@@ -78,10 +77,12 @@ export function Actions({ id }: { id: number | string }) {
           )}
           <ButtonOrLink id={id} mode={mode}>
             <Column className="web:self-auto! gap-0.5" alignment="center">
-              <Icon name={icon} size={18} colorClassName={WEB_ICON_COLOR} />
-              <Typography type="body-sm" className="ios:text-foreground">
-                {label}
-              </Typography>
+              <Icon
+                name={icon}
+                size={18}
+                className="text-inherit web:text-primary"
+              />
+              <Typography type="body-sm">{label}</Typography>
             </Column>
           </ButtonOrLink>
         </Fragment>

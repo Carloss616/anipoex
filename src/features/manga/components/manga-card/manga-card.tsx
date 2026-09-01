@@ -1,16 +1,13 @@
-import LucideBase from "@react-native-vector-icons/lucide";
 import type { ImageSource } from "expo-image";
 import { Card } from "panelui-native/components/card";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
-import { withUniwind } from "uniwind";
+import { Icon } from "@/components/ui/icon";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
 import { Feedback } from "./components/feedback";
 import { STATUS_COLOR } from "./constants";
-
-const Lucide = withUniwind(LucideBase);
 
 export interface MangaCardProps {
   cover?: string | ImageSource | null;
@@ -49,7 +46,10 @@ export function MangaCard({
       for={Card}
       onPress={onPress}
       onLongPress={onLongPress}
-      className={cn("relative aspect-2/3 overflow-hidden p-0", className)}
+      className={cn(
+        "relative aspect-2/3 overflow-hidden android:rounded-[12px] border-0 p-0",
+        className,
+      )}
       style={style}
     >
       {cover ? (
@@ -64,10 +64,10 @@ export function MangaCard({
           style={StyleSheet.absoluteFill}
           className="items-center justify-center"
         >
-          <Lucide
+          <Icon
             name="book-open"
             size={22}
-            colorClassName="accent-muted-foreground/20"
+            className="text-muted-foreground/20"
           />
         </View>
       )}

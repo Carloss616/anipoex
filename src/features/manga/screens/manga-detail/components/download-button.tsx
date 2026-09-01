@@ -4,7 +4,7 @@ import { noop } from "@/utils/utils";
 
 export function DownloadButton() {
   return (
-    <Button size="icon" variant="ghost" onPress={noop}>
+    <Button size="icon" variant="ghost" onPress={noop} muted>
       <Icon
         name={Icon.select({
           ios: "arrow.down.circle",
@@ -12,7 +12,7 @@ export function DownloadButton() {
           web: "circle-arrow-down",
         })}
         size={24}
-        colorClassName="accent-primary"
+        className="text-inherit web:text-muted-foreground"
       />
     </Button>
   );

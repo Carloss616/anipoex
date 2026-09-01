@@ -26,7 +26,6 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
 
   return (
     <Column
-      className="gap-0"
       modifiers={[
         glassEffect({
           glass: { variant: "regular", interactive: false },
