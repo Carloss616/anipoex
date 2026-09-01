@@ -1,4 +1,4 @@
-import { fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
+import { cn } from "panelui-native/utils/cn";
 import { EnsureHost } from "../../ui/host";
 import { Column } from "../column";
 import { Row } from "../row";
@@ -14,8 +14,7 @@ export function Center({
       <Row alignment="center">
         <Column
           alignment="center"
-          className={className}
-          modifiers={[fillMaxWidth(), ...(modifiers ?? [])]}
+          className={cn("w-full", className)}
           {...props}
         >
           {children}

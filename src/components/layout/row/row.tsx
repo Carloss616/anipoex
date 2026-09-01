@@ -1,4 +1,4 @@
-import { Column as ColumnBase, type ColumnProps } from "@expo/ui";
+import { Row as RowBase, type RowProps } from "@expo/ui";
 import { Platform } from "react-native";
 import { withUniwind } from "uniwind";
 import { resolveFill } from "@/utils/resolve-fill";
@@ -10,14 +10,14 @@ import { resolveFill } from "@/utils/resolve-fill";
  */
 const DEFAULT_SPACING = Platform.OS === "web" ? undefined : 0;
 
-function ColumnRoot({
+function RowRoot({
   style,
   modifiers,
   spacing = DEFAULT_SPACING,
   ...props
-}: ColumnProps) {
+}: RowProps) {
   return (
-    <ColumnBase
+    <RowBase
       spacing={spacing}
       {...props}
       {...resolveFill({ style, modifiers })}
@@ -25,7 +25,7 @@ function ColumnRoot({
   );
 }
 
-export const Column = withUniwind(ColumnRoot, {
+export const Row = withUniwind(RowRoot, {
   style: {
     fromClassName: "className",
   },
