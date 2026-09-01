@@ -3,11 +3,10 @@ import { useValue } from "@legendapp/state/react";
 import type {
   NativeStackNavigationOptions,
   StackSearchBarProps,
-  StackToolbarProps,
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
-import { type RefreshControlProps, StyleSheet } from "react-native";
+import { type RefreshControlProps, useWindowDimensions } from "react-native";
 import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
 import { useResolveClassNames } from "uniwind";
 import { header } from "@/components/layout/header";
@@ -83,14 +82,6 @@ export function useStackSearchBarTheme(): StackSearchBarProps {
   };
 }
 
-export function useStackToolbarTheme(): StackToolbarProps {
-  const m3 = useThemeM3Colors();
-
-  return {
-    backgroundColor: m3.surfaceContainerLow,
-  };
-}
-
 export function useRefreshControlTheme(): Partial<RefreshControlProps> {
   const m3 = useThemeM3Colors();
 
@@ -111,12 +102,16 @@ export function useTabViewTheme(): {
     | "style"
     | "tabStyle"
     | "indicatorStyle"
+    | "contentContainerStyle"
   >;
 } {
   const m3 = useThemeM3Colors();
-  const tabStyles = useResolveClassNames("w-auto px-4");
+  const { width } = useWindowDimensions();
+  const tabWidth = Math.min(Math.max(width * 0.4, 140), 180);
+  const tabStyles = useResolveClassNames("px-4");
   const labelStyles = useResolveClassNames("font-medium text-sm normal-case");
   const indicatorStyles = useResolveClassNames("h-0.75 rounded-t-[3px]");
+  const contentStyles = useResolveClassNames("gutters px-safe-offset-gx");
 
   return {
     commonOptions: {
@@ -129,13 +124,14 @@ export function useTabViewTheme(): {
       pressColor: m3.secondaryContainer,
       style: {
         backgroundColor: m3.surface,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: m3.surfaceVariant,
+        borderBottomWidth: 1,
+        borderBottomColor: m3.outlineVariant,
         elevation: 0,
         shadowOpacity: 0,
       },
-      tabStyle: tabStyles,
+      tabStyle: [tabStyles, { width: tabWidth }],
       indicatorStyle: [indicatorStyles, { backgroundColor: m3.primary }],
+      contentContainerStyle: contentStyles,
     },
   };
 }

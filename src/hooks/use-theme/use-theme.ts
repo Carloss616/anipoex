@@ -3,16 +3,18 @@ import { useValue } from "@legendapp/state/react";
 import type {
   NativeStackNavigationOptions,
   StackSearchBarProps,
-  StackToolbarProps,
   Theme,
 } from "expo-router";
 import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
-import { type RefreshControlProps, StyleSheet } from "react-native";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import type { RefreshControlProps } from "react-native";
+import { Platform } from "react-native";
 import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
 import { useResolveClassNames } from "uniwind";
 import { header } from "@/components/layout/header";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
+import { dp } from "@/utils/utils";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useThemeM3Colors(_name?: ThemeColor) {
@@ -90,10 +92,6 @@ export function useStackSearchBarTheme(): StackSearchBarProps {
   return {};
 }
 
-export function useStackToolbarTheme(): StackToolbarProps {
-  return {};
-}
-
 export function useRefreshControlTheme(): Partial<RefreshControlProps> {
   const [primary, card] = useThemeColor(["primary", "card"]);
 
@@ -116,8 +114,7 @@ export function useTabViewTheme(): {
     | "style"
     | "tabStyle"
     | "indicatorStyle"
-    // | "contentContainerStyle"
-    // | "indicatorContainerStyle"
+    | "contentContainerStyle"
   >;
 } {
   const [primary, mutedForeground] = useThemeColor([
@@ -125,8 +122,16 @@ export function useTabViewTheme(): {
     "muted-foreground",
   ]);
   const styles = useResolveClassNames("bg-transparent border-border");
-  const tabStyles = useResolveClassNames("w-auto px-4");
+  const tabStyles = useResolveClassNames("px-4");
   const labelStyles = useResolveClassNames("font-medium text-sm normal-case");
+
+  const { current, width } = useBreakpoint();
+  const tabWidth = Math.min(Math.max(width * 0.4, 140), 180);
+  // The trailing breakpoint is a cache key, not a class: uniwind only re-resolves
+  // when the string changes, and `gx` grows with the web breakpoints.
+  const gutter = useResolveClassNames(
+    `gutters px-safe-offset-gx${Platform.OS === "web" ? ` ${current}` : ""}`,
+  );
 
   return {
     commonOptions: {
@@ -141,14 +146,18 @@ export function useTabViewTheme(): {
       style: [
         styles,
         {
-          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomWidth: 1,
           shadowOpacity: 0,
         },
       ],
-      tabStyle: tabStyles,
+      tabStyle: [tabStyles, { width: tabWidth }],
       indicatorStyle: { backgroundColor: primary },
-      // contentContainerStyle: pxStyles,
-      // indicatorContainerStyle: pxStyles,
+      contentContainerStyle: {
+        // TabBarIndicator only adds it to the position when it is a number.
+        // On web it arrives as <N>px, so it must be converted to <N> (without "px").
+        paddingLeft: dp(gutter.paddingLeft),
+        paddingRight: dp(gutter.paddingRight),
+      },
     },
   };
 }
