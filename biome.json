@@ -61,10 +61,12 @@
               "panelui-native/components/bottom-sheet": "Import from @/components/ui/bottom-sheet",
               "panelui-native/components/button": "Import from @/components/ui/button",
               "panelui-native/components/chip": "Import from @/components/ui/chip",
+              "panelui-native/components/loader": "Import from @/components/ui/loader",
               "panelui-native/components/progress": "Import from @/components/ui/progress",
+              "panelui-native/components/rating": "Import from @/components/ui/rating",
               "panelui-native/components/separator": "Import from @/components/ui/separator",
               "panelui-native/components/spinner": "Import from @/components/ui/loader",
-              "panelui-native/components/loader": "Import from @/components/ui/loader",
+              "panelui-native/components/surface": "Import from @/components/ui/surface",
               "panelui-native/components/typography": "Import from @/components/ui/typography"
             }
           }
@@ -93,6 +95,7 @@
     {
       "includes": [
         "src/app/_layout.tsx",
+        "src/components/ui/bottom-sheet/bottom-sheet.tsx",
         "src/components/ui/feedback/feedback.tsx",
         "src/state/theme/constants.ts"
       ],

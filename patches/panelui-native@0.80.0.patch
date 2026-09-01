@@ -1,0 +1,54 @@
+diff --git a/lib/module/icons/index.js b/lib/module/icons/index.js
+index d0266da756704b967af1f8dffd712d9c5f4ba10f..cb44c4acf394c2b30b83fc79584c4e208177d277 100644
+--- a/lib/module/icons/index.js
++++ b/lib/module/icons/index.js
+@@ -25,6 +25,7 @@
+  * directions (a magnifier, a pencil, a play triangle).
+  */
+ import { createContext, useContext } from 'react';
++import { Platform } from 'react-native';
+ import Svg, { Circle, G, Path } from 'react-native-svg';
+ import { useDirection } from "../hooks/use-direction.js";
+ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+@@ -59,7 +60,9 @@ function useResolvedColor(explicit, fallback) {
+ }
+ 
+ /** Props for icons that must never be announced by a screen reader. */
+-const decorative = {
++const decorative = Platform.OS === 'web' ? {
++  'aria-hidden': true
++} : {
+   accessibilityElementsHidden: true,
+   importantForAccessibility: 'no-hide-descendants'
+ };
+diff --git a/src/icons/index.tsx b/src/icons/index.tsx
+index e6bcaa2a2c6acae3335808e07f8cdd5d4512ba38..6a0cfce5c355ae3b8ef37a0babe61544502d027f 100644
+--- a/src/icons/index.tsx
++++ b/src/icons/index.tsx
+@@ -23,6 +23,7 @@
+  * directions (a magnifier, a pencil, a play triangle).
+  */
+ import { createContext, useContext, type ReactNode } from 'react';
++import { Platform } from 'react-native';
+ import Svg, { Circle, G, Path, type SvgProps } from 'react-native-svg';
+ import { useDirection } from '../hooks/use-direction';
+ 
+@@ -63,10 +64,14 @@ function useResolvedColor(explicit: string | undefined, fallback: string): strin
+ }
+ 
+ /** Props for icons that must never be announced by a screen reader. */
+-const decorative = {
+-  accessibilityElementsHidden: true,
+-  importantForAccessibility: 'no-hide-descendants',
+-} as const;
++const decorative = (
++  Platform.OS === 'web'
++    ? { 'aria-hidden': true }
++    : {
++        accessibilityElementsHidden: true,
++        importantForAccessibility: 'no-hide-descendants',
++      }
++) as Record<string, unknown>;
+ 
+ /* -------------------------------------------------------------------------- */
+ /* Stroked chrome icons                                                       */
