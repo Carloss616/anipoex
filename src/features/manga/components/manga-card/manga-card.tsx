@@ -2,6 +2,7 @@ import type { ImageSource } from "expo-image";
 import { Card } from "panelui-native/components/card";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
+import { EnsureRNHostView } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { ScrimGradient, WASH } from "@/components/ui/scrim";
 import type { MediaStatus } from "@/graphql/types.generated";
@@ -43,57 +44,62 @@ export function MangaCard({
   onLongPress,
 }: MangaCardProps) {
   return (
-    <Feedback
-      for={Card}
-      onPress={onPress}
-      onLongPress={onLongPress}
-      className={cn(
-        "relative aspect-2/3 overflow-hidden android:rounded-[12px] border-0 p-0",
-        className,
-      )}
-      style={style}
-    >
-      {cover ? (
-        <CoverImage
-          style={StyleSheet.absoluteFill}
-          cover={cover}
-          coverThumb={coverThumb}
-          coverColor={coverColor}
-        />
-      ) : (
-        <View
-          style={StyleSheet.absoluteFill}
-          className="items-center justify-center"
-        >
-          <Icon
-            name="book-open"
-            size={22}
-            className="text-muted-foreground/20"
+    <EnsureRNHostView matchContents>
+      <Feedback
+        for={Card}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        className={cn(
+          "relative aspect-2/3 overflow-hidden android:rounded-[12px] border-0 p-0",
+          className,
+        )}
+        style={style}
+      >
+        {cover ? (
+          <CoverImage
+            style={StyleSheet.absoluteFill}
+            cover={cover}
+            coverThumb={coverThumb}
+            coverColor={coverColor}
           />
-        </View>
-      )}
-      {status && (
-        <Badge color={STATUS_COLOR[status]} className="absolute top-2 right-2">
-          {status[0].toUpperCase()}
-        </Badge>
-      )}
-      {(title || label) && (
-        <View className="mt-auto p-2 pt-12">
-          <ScrimGradient color={WASH} />
-          <Card.Description
-            numberOfLines={1}
-            className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"
+        ) : (
+          <View
+            style={StyleSheet.absoluteFill}
+            className="items-center justify-center"
           >
-            {label}
-          </Card.Description>
-          <Card.Title
-            numberOfLines={2}
-            className="text-center text-shadow-[0_1px_3px_#000000b3] text-sm text-white"
+            <Icon
+              name="book-open"
+              size={22}
+              className="text-muted-foreground/20"
+            />
+          </View>
+        )}
+        {status && (
+          <Badge
+            color={STATUS_COLOR[status]}
+            className="absolute top-2 right-2"
           >
-            {title}
-          </Card.Title>
-        </View>
-      )}
-    </Feedback>
+            {status[0].toUpperCase()}
+          </Badge>
+        )}
+        {(title || label) && (
+          <View className="mt-auto p-2 pt-12">
+            <ScrimGradient color={WASH} />
+            <Card.Description
+              numberOfLines={1}
+              className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"
+            >
+              {label}
+            </Card.Description>
+            <Card.Title
+              numberOfLines={2}
+              className="text-center text-shadow-[0_1px_3px_#000000b3] text-sm text-white"
+            >
+              {title}
+            </Card.Title>
+          </View>
+        )}
+      </Feedback>
+    </EnsureRNHostView>
   );
 }
