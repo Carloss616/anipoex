@@ -1,6 +1,7 @@
 import { cn } from "panelui-native/utils/cn";
+import { StyleSheet } from "react-native";
 import { Column, type ColumnProps } from "@/components/layout/column";
-import { ScrimGradient, WASH } from "./scrim-gradient";
+import { ScrimGradient } from "./scrim-gradient";
 
 /**
  * Lays its children over a dark wash, so text stays legible on top of artwork.
@@ -9,7 +10,10 @@ import { ScrimGradient, WASH } from "./scrim-gradient";
 export function ScrimColumn({ children, className, ...props }: ColumnProps) {
   return (
     <Column className={cn("overflow-hidden", className)} {...props}>
-      <ScrimGradient color={WASH} />
+      <ScrimGradient
+        colorClassName="accent-black"
+        style={StyleSheet.absoluteFill}
+      />
       {children}
     </Column>
   );

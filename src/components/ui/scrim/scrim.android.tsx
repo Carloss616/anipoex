@@ -5,7 +5,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { cn } from "panelui-native/utils/cn";
 import { Column, type ColumnProps } from "../../layout/column";
-import { ScrimGradient, WASH } from "./scrim-gradient";
+import { ScrimGradient } from "./scrim-gradient";
 
 /**
  * [`ScrimColumn`](./scrim.tsx) as a Jetpack Compose `Box`.
@@ -18,7 +18,7 @@ export function ScrimColumn({ className, ...props }: ColumnProps) {
       {/* `matchParentSize` keeps the ramp out of the box's measurement, so
           the content is what sets the height. */}
       <Column modifiers={[matchParentSize()]}>
-        <ScrimGradient color={WASH} />
+        <ScrimGradient colorClassName="accent-black" />
       </Column>
       <Column className={cn("w-full", className)} {...props} />
     </Box>

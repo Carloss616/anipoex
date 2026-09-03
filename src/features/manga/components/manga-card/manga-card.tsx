@@ -4,7 +4,7 @@ import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { EnsureRNHostView } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
-import { ScrimGradient, WASH } from "@/components/ui/scrim";
+import { ScrimGradient } from "@/components/ui/scrim";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
@@ -84,7 +84,10 @@ export function MangaCard({
         )}
         {(title || label) && (
           <View className="mt-auto p-2 pt-12">
-            <ScrimGradient color={WASH} />
+            <ScrimGradient
+              colorClassName="accent-black"
+              style={StyleSheet.absoluteFill}
+            />
             <Card.Description
               numberOfLines={1}
               className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"

@@ -10,9 +10,8 @@ import { useResolveClassNames } from "uniwind";
 import { ramp } from "@/utils/ramp";
 import { dp } from "@/utils/utils";
 import { Column, type ColumnProps } from "../../layout/column";
-import { WASH } from "./scrim-gradient";
 
-const STOPS = ramp(WASH);
+const STOPS = ramp("#000000");
 
 /**
  * [`ScrimColumn`](./scrim.tsx) as a SwiftUI `ZStack`.

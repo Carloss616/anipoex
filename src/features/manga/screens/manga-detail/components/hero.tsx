@@ -39,9 +39,18 @@ export function Hero({ manga }: { manga: MangaDetail }) {
         ]}
         contentFit="cover"
         transition={400}
-        blurRadius={8}
+        blurRadius={Platform.select({
+          ios: 8,
+          web: 4,
+          default: 2,
+        })}
       />
-      <ScrimGradient peak={1} ease={smootherstep} />
+      <ScrimGradient ease={smootherstep} style={StyleSheet.absoluteFill} flip />
+      <ScrimGradient
+        peak={1}
+        ease={smootherstep}
+        style={StyleSheet.absoluteFill}
+      />
     </View>
   );
 }

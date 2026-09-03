@@ -12,6 +12,13 @@ describe("ramp", () => {
     expect(ramp("#fbf8ffff").colors[0]).toBe("#fbf8ff00");
   });
 
+  it("flips to start at the peak, for a ramp that floors the top of a frame", () => {
+    const { colors, locations } = ramp("#000000", { peak: 1, flip: true });
+    expect(colors[0]).toBe("#000000ff");
+    expect(colors.at(-1)).toBe("#00000000");
+    expect(locations).toEqual([0, 0.2, 0.4, 0.6, 0.8, 1]);
+  });
+
   // Within 1/255 of the hex `global.css` and `scrim.ios.tsx` used to carry by
   // hand — those came off decimals CSS had already rounded, this is the curve.
   it("walks 0.6·p² by default, the scrim's wash", () => {
