@@ -37,33 +37,39 @@ export function useMangaList(
   }, [data, entries$]);
 
   const genre$ = useObservable(ALL);
-  const genres$ = useObservable(() =>
-    [
-      ALL,
-      ...[...new Set(entries$.get().flatMap((m) => m.genres))].sort(),
-    ].flatMap((g) => (g ? { name: g, selected: genre$.get() === g } : [])),
-  );
-  const manga$ = useObservable(() => {
-    const needle = query$.get().trim().toLowerCase();
-    const genre = genre$.get();
-    return entries$
-      .get()
-      .filter(
-        (m) =>
-          (genre === ALL || m.genres?.includes(genre)) &&
-          Object.values(m.title ?? {}).some((t) =>
-            t?.toLowerCase().includes(needle),
-          ),
-      );
+
+  /**
+   * Computeds under a plain root: `useObservable` deactivates only its root node on unmount, and
+   * Fast Refresh re-runs effects without ever reactivating it, freezing a computed at the root.
+   */
+  const derived$ = useObservable({
+    genres: () =>
+      [
+        ALL,
+        ...[...new Set(entries$.get().flatMap((m) => m.genres))].sort(),
+      ].flatMap((g) => (g ? { name: g, selected: genre$.get() === g } : [])),
+    manga: () => {
+      const needle = query$.get().trim().toLowerCase();
+      const genre = genre$.get();
+      return entries$
+        .get()
+        .filter(
+          (m) =>
+            (genre === ALL || m.genres?.includes(genre)) &&
+            Object.values(m.title ?? {}).some((t) =>
+              t?.toLowerCase().includes(needle),
+            ),
+        );
+    },
   });
 
   useObserveEffect(() => {
-    counts$[status].set(manga$.length);
+    counts$[status].set(derived$.manga.length);
   });
 
   return {
-    manga$,
-    genres$,
+    manga$: derived$.manga,
+    genres$: derived$.genres,
     genre$,
     loading,
     refetching: networkStatus === NetworkStatus.refetch,

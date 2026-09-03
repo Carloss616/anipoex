@@ -8,7 +8,7 @@ import {
   onTapGesture,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
@@ -128,9 +128,13 @@ function MangaCardBase({
   }
 
   return (
-    <Host style={style} className="aspect-2/3 rounded-3xl" ignoreSafeArea="all">
-      {content}
-    </Host>
+    /* <Link.Trigger>'s native view keeps a stale ref to its direct child, so it stops mounting
+      the card once Fast Refresh remounts it. A host component's type never changes. */
+    <View style={style} className="aspect-2/3 rounded-[24px]">
+      <Host className="flex-1" ignoreSafeArea="all">
+        {content}
+      </Host>
+    </View>
   );
 }
 
