@@ -16,10 +16,10 @@ import { Loader } from "@/components/ui/loader";
 import { Typography } from "@/components/ui/typography";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { openExternal } from "@/utils/open-external";
 import { noop } from "@/utils/utils";
 import { MangaCard } from "../../components/manga-card";
 import { CHAPTERS } from "../../mocks";
-import { Actions } from "./components/actions";
 import { Chapters } from "./components/chapters";
 import { DownloadButton } from "./components/download-button";
 import { Hero } from "./components/hero";
@@ -35,7 +35,7 @@ const MENU_ACTIONS = [
       web: "share",
     }),
     label: "Share",
-    onPress: noop,
+    onPress: () => noop(),
   },
   {
     icon: Icon.select({
@@ -44,7 +44,17 @@ const MENU_ACTIONS = [
       web: "download",
     }),
     label: "Download",
-    onPress: noop,
+    onPress: () => noop(),
+  },
+  {
+    icon: Icon.select({
+      ios: "arrow.up.forward.square",
+      android: require("@expo/material-symbols/open_in_new.xml"),
+      web: "external-link",
+    }),
+    // The destination names itself better than "Website" did.
+    label: "View on AniList",
+    onPress: (id: string) => openExternal(`https://anilist.co/manga/${id}`),
   },
 ] as const;
 
@@ -102,7 +112,7 @@ export function MangaDetail() {
               <Stack.Toolbar.MenuAction
                 key={label}
                 icon={icon}
-                onPress={onPress}
+                onPress={() => onPress(id)}
               >
                 {label}
               </Stack.Toolbar.MenuAction>
@@ -130,7 +140,6 @@ export function MangaDetail() {
                 <Meta manga={manga} className="web:self-auto!" />
               </Row>
               <Tracking id={manga.id} __typename={manga.__typename} />
-              <Actions id={manga.id} />
               <Synopsis text={manga.description} />
             </Column>
             {!!manga.genres?.length && (
