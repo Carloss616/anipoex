@@ -34,6 +34,14 @@ export function TrackingSheet({
   const [editing, setEditing] = useState<Field | null>(null);
   const { save, remove, removing } = useSaveTracking(manga.id);
 
+  // The sheet stays mounted while closed, so the form seeds on every open;
+  // seeding once would outlive any refetch that moves the entry ahead.
+  const [wasPresented, setWasPresented] = useState(isPresented);
+  if (isPresented !== wasPresented) {
+    setWasPresented(isPresented);
+    if (isPresented) setForm(toTrackingForm(entry));
+  }
+
   /** Every field saves as it is confirmed, so there is no draft to discard. */
   const commit = (next: TrackingForm) => {
     setForm(next);
