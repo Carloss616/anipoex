@@ -57,6 +57,7 @@ export type MangaListEntryFragment = {
 
 export type MangaMediaFragment = {
   __typename: "Media";
+  bannerImage: string | null;
   genres: Array<string | null> | null;
   status: Types.MediaStatus | null;
   chapters: number | null;
@@ -69,6 +70,7 @@ export type MangaMediaFragment = {
   } | null;
   coverImage: {
     __typename: "MediaCoverImage";
+    extraLarge: string | null;
     large: string | null;
     medium: string | null;
     color: string | null;
@@ -84,6 +86,7 @@ export type MangaMediaFragment = {
 export type MangaDetailFragment = {
   __typename: "Media";
   description: string | null;
+  bannerImage: string | null;
   genres: Array<string | null> | null;
   status: Types.MediaStatus | null;
   chapters: number | null;
@@ -128,6 +131,7 @@ export type MangaDetailFragment = {
   } | null;
   coverImage: {
     __typename: "MediaCoverImage";
+    extraLarge: string | null;
     large: string | null;
     medium: string | null;
     color: string | null;
@@ -170,12 +174,14 @@ export const MangaMediaFragmentDoc = {
             selectionSet: {
               kind: "SelectionSet",
               selections: [
+                { kind: "Field", name: { kind: "Name", value: "extraLarge" } },
                 { kind: "Field", name: { kind: "Name", value: "large" } },
                 { kind: "Field", name: { kind: "Name", value: "medium" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
               ],
             },
           },
+          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
           {
             kind: "Field",
             name: { kind: "Name", value: "startDate" },
@@ -375,12 +381,14 @@ export const MangaDetailFragmentDoc = {
             selectionSet: {
               kind: "SelectionSet",
               selections: [
+                { kind: "Field", name: { kind: "Name", value: "extraLarge" } },
                 { kind: "Field", name: { kind: "Name", value: "large" } },
                 { kind: "Field", name: { kind: "Name", value: "medium" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
               ],
             },
           },
+          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
           {
             kind: "Field",
             name: { kind: "Name", value: "startDate" },

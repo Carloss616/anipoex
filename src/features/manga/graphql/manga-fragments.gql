@@ -23,10 +23,12 @@ fragment MangaMedia on Media {
     native
   }
   coverImage {
+    extraLarge
     large
     medium
     color
   }
+  bannerImage
   startDate {
     year
   }

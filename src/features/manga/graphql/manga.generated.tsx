@@ -46,6 +46,7 @@ export type MangaQuery = {
     __typename: "Media";
     id: number;
     description: string | null;
+    bannerImage: string | null;
     genres: Array<string | null> | null;
     status: Types.MediaStatus | null;
     chapters: number | null;
@@ -90,6 +91,7 @@ export type MangaQuery = {
     } | null;
     coverImage: {
       __typename: "MediaCoverImage";
+      extraLarge: string | null;
       large: string | null;
       medium: string | null;
       color: string | null;
@@ -188,12 +190,14 @@ export const MangaDocument = {
             selectionSet: {
               kind: "SelectionSet",
               selections: [
+                { kind: "Field", name: { kind: "Name", value: "extraLarge" } },
                 { kind: "Field", name: { kind: "Name", value: "large" } },
                 { kind: "Field", name: { kind: "Name", value: "medium" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
               ],
             },
           },
+          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
           {
             kind: "Field",
             name: { kind: "Name", value: "startDate" },

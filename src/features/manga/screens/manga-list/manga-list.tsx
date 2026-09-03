@@ -3,7 +3,7 @@ import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Platform, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { TabBar, TabView } from "react-native-tab-view";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icon } from "@/components/ui/icon";
@@ -109,10 +109,7 @@ export function MangaList() {
         )}
         initialLayout={{ width }}
         style={{
-          paddingTop: Platform.select({
-            default: headerHeight,
-            android: undefined,
-          }),
+          paddingTop: headerHeight,
         }}
         lazy
       />

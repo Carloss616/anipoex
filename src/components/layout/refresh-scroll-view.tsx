@@ -1,8 +1,7 @@
 import { cn } from "panelui-native/utils/cn";
 import { Platform, RefreshControl, ScrollView } from "react-native";
-import { Host } from "@/components/ui/host";
-import { useHeaderInset } from "@/hooks/use-header-inset";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
+import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useRefreshControlTheme } from "@/hooks/use-theme";
 
 export interface RefreshScrollViewProps {
@@ -27,28 +26,23 @@ export function RefreshScrollView({
 }: RefreshScrollViewProps) {
   const refreshControlTheme = useRefreshControlTheme();
   const headerScroll = useHeaderScroll();
-  const headerInset = useHeaderInset();
+  const maxHeaderHeight = useMaxHeaderHeight();
 
   return (
     <ScrollView
       className={cn("flex-1", className)}
-      contentContainerStyle={{ paddingTop: headerInset }}
       {...headerScroll}
       refreshControl={
         <RefreshControl
+          // Only Android; on iOS when `headerTransparent` is set, the header is not positioned absolutely
+          progressViewOffset={Platform.OS === "android" ? maxHeaderHeight : 0}
           refreshing={refreshing}
           onRefresh={onRefresh}
           {...refreshControlTheme}
         />
       }
     >
-      {Platform.OS === "web" ? (
-        children
-      ) : (
-        <Host matchContents={{ vertical: true }} className="w-full">
-          {children}
-        </Host>
-      )}
+      {children}
     </ScrollView>
   );
 }

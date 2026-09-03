@@ -22,6 +22,7 @@ import { CHAPTERS } from "../../mocks";
 import { Actions } from "./components/actions";
 import { Chapters } from "./components/chapters";
 import { DownloadButton } from "./components/download-button";
+import { Hero } from "./components/hero";
 import { Meta } from "./components/meta";
 import { Synopsis } from "./components/synopsis";
 import { Tracking } from "./components/tracking";
@@ -115,49 +116,49 @@ export function MangaDetail() {
         refreshing={refreshing}
         onRefresh={refresh}
       >
-        <Column className="gutters pt-gt pb-gb">
-          <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
-            <Row className="gap-4" alignment="center">
-              <MangaCard
-                cover={manga.coverImage?.large}
-                coverThumb={manga.coverImage?.medium}
-                coverColor={manga.coverImage?.color}
-                className="w-36"
-              />
-              <Meta manga={manga} className="web:self-auto!" />
-            </Row>
-
-            <Tracking id={manga.id} __typename={manga.__typename} />
-            <Actions id={manga.id} />
-            <Synopsis text={manga.description} />
-          </Column>
-
-          {!!manga.genres?.length && (
-            <ScrollView direction="horizontal" showsIndicators={false}>
-              <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
-                {manga.genres.map((g) => (
-                  <Chip key={g} size="sm">
-                    <Chip.Label>{g}</Chip.Label>
-                  </Chip>
-                ))}
+        <Hero manga={manga} />
+        <Host matchContents={{ vertical: true }} className="w-full">
+          <Column className="gutters pt-gt pb-gb">
+            <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
+              <Row className="gap-4" alignment="center">
+                <MangaCard
+                  cover={manga.coverImage?.large}
+                  coverThumb={manga.coverImage?.medium}
+                  coverColor={manga.coverImage?.color}
+                  className="w-36"
+                />
+                <Meta manga={manga} className="web:self-auto!" />
               </Row>
-            </ScrollView>
-          )}
-
-          <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
-            <Row alignment="center" className="gap-2">
-              <Typography weight="semibold">Chapters</Typography>
-              <Badge>{manga.chapters ?? CHAPTERS.length}</Badge>
-              <Spacer flexible />
-              <DownloadButton />
-            </Row>
-            <Chapters
-              id={manga.id}
-              __typename={manga.__typename}
-              chapters={[]}
-            />
+              <Tracking id={manga.id} __typename={manga.__typename} />
+              <Actions id={manga.id} />
+              <Synopsis text={manga.description} />
+            </Column>
+            {!!manga.genres?.length && (
+              <ScrollView direction="horizontal" showsIndicators={false}>
+                <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
+                  {manga.genres.map((g) => (
+                    <Chip key={g} size="sm">
+                      <Chip.Label>{g}</Chip.Label>
+                    </Chip>
+                  ))}
+                </Row>
+              </ScrollView>
+            )}
+            <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
+              <Row alignment="center" className="gap-2">
+                <Typography weight="semibold">Chapters</Typography>
+                <Badge>{manga.chapters ?? CHAPTERS.length}</Badge>
+                <Spacer flexible />
+                <DownloadButton />
+              </Row>
+              <Chapters
+                id={manga.id}
+                __typename={manga.__typename}
+                chapters={[]}
+              />
+            </Column>
           </Column>
-        </Column>
+        </Host>
       </RefreshScrollView>
     </>
   );

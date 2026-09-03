@@ -64,11 +64,8 @@ export function useStackTheme(): NativeStackNavigationOptions {
   return {
     header,
     headerTintColor: m3.onSurface,
-    headerBlurEffect: "systemChromeMaterial",
     headerShadowVisible: false,
-    headerStyle: { backgroundColor: "transparent" },
-    headerLargeStyle: { backgroundColor: "transparent" },
-    headerBackButtonDisplayMode: "minimal",
+    headerTransparent: true,
   };
 }
 
