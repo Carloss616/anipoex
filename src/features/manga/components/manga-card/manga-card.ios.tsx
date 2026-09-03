@@ -6,7 +6,6 @@ import {
   glassEffect,
   onLongPressGesture,
   onTapGesture,
-  padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 import { withUniwind } from "uniwind";
@@ -14,7 +13,7 @@ import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { Host, RNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
-import { Scrim } from "@/components/ui/scrim";
+import { ScrimColumn } from "@/components/ui/scrim";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
@@ -22,13 +21,6 @@ import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
 import { STATUS_COLOR } from "./constants";
 import type { MangaCardProps } from "./manga-card";
-
-/**
- * Stands in for SwiftUI's `.infinity`: a frame clamps `maxWidth` to whatever
- * the parent proposes, so any number past the screen behaves the same — and
- * unlike `Infinity` it survives the props bridge.
- */
-const FILL = 100_000;
 
 function MangaCardBase({
   cover,
@@ -83,11 +75,11 @@ function MangaCardBase({
       )}
       {status && (
         <Row
+          className="p-2"
           modifiers={[
-            padding({ all: 8 }),
             frame({
-              maxWidth: FILL,
-              maxHeight: FILL,
+              maxWidth: Infinity,
+              maxHeight: Infinity,
               alignment: "topTrailing",
             }),
           ]}
@@ -95,10 +87,10 @@ function MangaCardBase({
           <Badge color={STATUS_COLOR[status]}>{status[0].toUpperCase()}</Badge>
         </Row>
       )}
-      <Column modifiers={[frame({ maxWidth: FILL, maxHeight: FILL })]}>
+      <Column className="flex-1">
         <Spacer />
         {(title || label) && (
-          <Scrim className="rounded-3xl p-2 pt-12">
+          <ScrimColumn className="rounded-[24px] p-2 pt-12">
             <Typography
               type="body-xs"
               numberOfLines={1}
@@ -113,7 +105,7 @@ function MangaCardBase({
             >
               {title}
             </Typography>
-          </Scrim>
+          </ScrimColumn>
         )}
       </Column>
     </ZStack>

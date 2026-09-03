@@ -3,6 +3,7 @@ import { Card } from "panelui-native/components/card";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { Icon } from "@/components/ui/icon";
+import { ScrimGradient, WASH } from "@/components/ui/scrim";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
@@ -26,8 +27,8 @@ export interface MangaCardProps {
 /**
  * No Android sibling on purpose: `<Host>` is a whole `ComposeView` there, so one
  * per grid cell tanks scrolling and sizes too late for LegendList. Hence plain RN
- * throughout — `scrim`, `<Lucide>` and `<TouchableNativeFeedback>` instead of
- * `<Scrim>`, `<Icon>` and a Compose ripple, which each resolve to a Host.
+ * throughout — `<ScrimGradient>`, `<Lucide>` and `<TouchableNativeFeedback>` instead of
+ * `<ScrimColumn>`, `<Icon>` and a Compose ripple, which each resolve to a Host.
  */
 export function MangaCard({
   cover,
@@ -77,7 +78,8 @@ export function MangaCard({
         </Badge>
       )}
       {(title || label) && (
-        <View className="scrim mt-auto p-2 pt-12">
+        <View className="mt-auto p-2 pt-12">
+          <ScrimGradient color={WASH} />
           <Card.Description
             numberOfLines={1}
             className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3] text-xs"

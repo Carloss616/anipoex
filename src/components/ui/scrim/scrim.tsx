@@ -1,24 +1,16 @@
 import { cn } from "panelui-native/utils/cn";
-import type { ReactNode } from "react";
-import type { StyleProp, ViewStyle } from "react-native";
-import { View } from "react-native";
-
-export interface ScrimProps {
-  children?: ReactNode;
-  className?: string;
-  style?: StyleProp<ViewStyle>;
-}
+import { Column, type ColumnProps } from "@/components/layout/column";
+import { ScrimGradient, WASH } from "./scrim-gradient";
 
 /**
  * Lays its children over a dark wash, so text stays legible on top of artwork.
- *
- * The stops live in `global.css` as the `scrim` utility; the native builds
- * mirror them, so keep the three in sync.
+ * `overflow-hidden` so a rounded `className` clips the wash too.
  */
-export function Scrim({ children, className, style }: ScrimProps) {
+export function ScrimColumn({ children, className, ...props }: ColumnProps) {
   return (
-    <View className={cn("scrim", className)} style={style}>
+    <Column className={cn("overflow-hidden", className)} {...props}>
+      <ScrimGradient color={WASH} />
       {children}
-    </View>
+    </Column>
   );
 }

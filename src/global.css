@@ -64,19 +64,6 @@
   );
 }
 
-/* Scrim for text over cover art: alpha = 0.6·p², since a linear ramp Mach-bands where it hits 0. */
-@utility scrim {
-  background-image: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.6) 0%,
-    rgba(0, 0, 0, 0.38) 20%,
-    rgba(0, 0, 0, 0.22) 40%,
-    rgba(0, 0, 0, 0.1) 60%,
-    rgba(0, 0, 0, 0.024) 80%,
-    rgba(0, 0, 0, 0) 100%
-  );
-}
-
 @layer base {
   /* An <input> is ~20ch wide and `min-width: auto` as a flex item; RNW never
      zeroes it, so a flex-1 field won't shrink below ~170px. */

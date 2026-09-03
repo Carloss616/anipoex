@@ -1,4 +1,7 @@
-import { Column as ColumnBase, type ColumnProps } from "@expo/ui";
+import {
+  Column as ColumnBase,
+  type ColumnProps as ColumnBaseProps,
+} from "@expo/ui";
 import { Platform } from "react-native";
 import { withUniwind } from "uniwind";
 import { resolveFill } from "@/utils/resolve-fill";
@@ -15,7 +18,7 @@ function ColumnRoot({
   modifiers,
   spacing = DEFAULT_SPACING,
   ...props
-}: ColumnProps) {
+}: ColumnBaseProps) {
   return (
     <ColumnBase
       spacing={spacing}
@@ -34,3 +37,5 @@ export const Column = withUniwind(ColumnRoot, {
     styleProperty: "gap",
   },
 });
+
+export type ColumnProps = React.ComponentProps<typeof Column>;

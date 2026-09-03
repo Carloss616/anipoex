@@ -1,4 +1,4 @@
-import { Row as RowBase, type RowProps } from "@expo/ui";
+import { Row as RowBase, type RowProps as RowBaseProps } from "@expo/ui";
 import { Platform } from "react-native";
 import { withUniwind } from "uniwind";
 import { resolveFill } from "@/utils/resolve-fill";
@@ -15,7 +15,7 @@ function RowRoot({
   modifiers,
   spacing = DEFAULT_SPACING,
   ...props
-}: RowProps) {
+}: RowBaseProps) {
   return (
     <RowBase
       spacing={spacing}
@@ -34,3 +34,5 @@ export const Row = withUniwind(RowRoot, {
     styleProperty: "gap",
   },
 });
+
+export type RowProps = React.ComponentProps<typeof Row>;

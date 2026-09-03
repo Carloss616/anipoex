@@ -26,9 +26,6 @@ import { dp, textOf } from "@/utils/utils";
 import { EnsureHost } from "../host";
 import { TYPOGRAPHY_IOS, WEIGHT } from "./constants";
 
-/** Stands in for `.infinity`, which doesn't survive the props bridge. */
-const FILL = 100_000;
-
 type TypographyAlign = NonNullable<TypographyProps["align"]>;
 
 // `leading`/`trailing` are the RTL-aware pair, so an unset `align` maps to
@@ -116,7 +113,7 @@ function TypographyRootBase({
           // A `Text` hugs its content: alignment needs a frame to move in.
           ...(alignment === "leading"
             ? []
-            : [frame({ maxWidth: FILL, alignment })]),
+            : [frame({ maxWidth: Infinity, alignment })]),
           ...(letterSpacing == null ? [] : [kerning(letterSpacing)]),
           ...(numberOfLines == null ? [] : [lineLimit(numberOfLines)]),
           ...(onPress == null ? [] : [onTapGesture(onPress as () => void)]),
