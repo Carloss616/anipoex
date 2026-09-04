@@ -2,15 +2,12 @@ import { useIsPreview } from "expo-router";
 import { cn } from "panelui-native/utils/cn";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
-import { Icon, type IconName } from "@/components/ui/icon";
+import { Badge } from "@/components/ui/badge";
+import { Icon } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
+import { STATUS_COLOR } from "@/features/manga/components/manga-card/constants";
+import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { PUBLICATION_STATUSES } from "../constants";
-
-type MetaField = {
-  icon: IconName;
-  value: string;
-};
 
 export function Meta({
   manga,
@@ -20,65 +17,75 @@ export function Meta({
   className: string;
 }) {
   const isPreview = useIsPreview();
-  const fields: MetaField[] = [];
-
-  if (manga.author) {
-    fields.push({
-      icon: Icon.select({
-        ios: "person",
-        android: require("@expo/material-symbols/person.xml"),
-        web: "user",
-      }),
-      value: manga.author,
-    });
-  }
-
-  if (manga.status) {
-    fields.push({
-      icon: Icon.select({
-        ios: "clock",
-        android: require("@expo/material-symbols/schedule.xml"),
-        web: "clock",
-      }),
-      value: PUBLICATION_STATUSES[manga.status],
-    });
-  }
-
-  if (manga.startDate?.year) {
-    fields.push({
-      icon: Icon.select({
-        ios: "calendar",
-        android: require("@expo/material-symbols/calendar_today.xml"),
-        web: "calendar",
-      }),
-      value: String(manga.startDate.year),
-    });
-  }
-
-  if (manga.mediaListEntry?.score) {
-    fields.push({
-      icon: Icon.select({
-        ios: "star",
-        android: require("@expo/material-symbols/star.xml"),
-        web: "star",
-      }),
-      value: String(manga.mediaListEntry.score),
-    });
-  }
+  const state = [
+    manga.status ? PUBLICATION_STATUSES[manga.status] : undefined,
+    manga.startDate?.year,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <Column className={cn("gap-2", className)} alignment="start">
       <Typography type="h3" className={cn(!isPreview && "hidden")}>
         {manga.title?.userPreferred}
       </Typography>
-      {fields.map(({ icon, value }) => (
-        <Row key={value} className="gap-1" alignment="center">
-          <Icon name={icon} size={12} muted />
-          <Typography type="body-sm" muted>
-            {value}
+
+      {!!manga.author && (
+        <Row className="gap-2" alignment="center">
+          <Icon
+            name={Icon.select({
+              ios: "person",
+              android: require("@expo/material-symbols/person.xml"),
+              web: "user",
+            })}
+            size={12}
+            muted
+          />
+          <Typography type="body-sm" weight="medium">
+            {manga.author}
           </Typography>
         </Row>
-      ))}
+      )}
+
+      {!!state && (
+        <Row className="gap-2" alignment="center">
+          {manga.status ? (
+            <Column className="web:self-auto! w-3" alignment="center">
+              <Badge color={STATUS_COLOR[manga.status]} />
+            </Column>
+          ) : (
+            <Icon
+              name={Icon.select({
+                ios: "calendar",
+                android: require("@expo/material-symbols/calendar_today.xml"),
+                web: "calendar",
+              })}
+              size={12}
+              muted
+            />
+          )}
+          <Typography type="body-sm" muted>
+            {state}
+          </Typography>
+        </Row>
+      )}
+
+      {!!manga.averageScore && (
+        <Row className="gap-2" alignment="center">
+          <Icon
+            name={Icon.select({
+              ios: "star",
+              android: require("@expo/material-symbols/star.xml"),
+              web: "star",
+            })}
+            size={12}
+            muted
+          />
+          <Typography type="body-sm" muted>
+            {`${manga.averageScore}% community`}
+          </Typography>
+        </Row>
+      )}
     </Column>
   );
 }

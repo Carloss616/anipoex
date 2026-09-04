@@ -28,10 +28,6 @@ fragment MangaMedia on Media {
     medium
     color
   }
-  bannerImage
-  startDate {
-    year
-  }
   genres
   status
   chapters
@@ -44,6 +40,11 @@ fragment MangaMedia on Media {
 fragment MangaDetail on Media {
   ...MangaMedia
   description
+  bannerImage
+  averageScore
+  startDate {
+    year
+  }
   mediaListEntry {
     id
     ...MangaListEntry

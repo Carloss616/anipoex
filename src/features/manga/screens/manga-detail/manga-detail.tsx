@@ -129,19 +129,19 @@ export function MangaDetail() {
         <Hero manga={manga} />
         <Host matchContents={{ vertical: true }} className="w-full">
           <Column className="gutters pt-gt pb-gb">
-            <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
-              <Row className="gap-4" alignment="center">
-                <MangaCard
-                  cover={manga.coverImage?.large}
-                  coverThumb={manga.coverImage?.medium}
-                  coverColor={manga.coverImage?.color}
-                  className="w-36"
-                />
-                <Meta manga={manga} className="web:self-auto!" />
-              </Row>
-              <Tracking id={manga.id} __typename={manga.__typename} />
-              <Synopsis text={manga.description} />
-            </Column>
+            <Row
+              className="gutters gap-4 android:px-safe-offset-gx px-gx"
+              alignment="end"
+            >
+              <MangaCard
+                cover={manga.coverImage?.large}
+                coverThumb={manga.coverImage?.medium}
+                coverColor={manga.coverImage?.color}
+                className="w-36"
+              />
+              <Meta manga={manga} className="web:self-auto!" />
+            </Row>
+
             {!!manga.genres?.length && (
               <ScrollView direction="horizontal" showsIndicators={false}>
                 <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
@@ -153,7 +153,16 @@ export function MangaDetail() {
                 </Row>
               </ScrollView>
             )}
-            <Column className="gutters gap-6 android:px-safe-offset-gx px-gx">
+
+            <Column
+              className={cn(
+                "gutters gap-6 android:px-safe-offset-gx px-gx",
+                !manga.genres?.length && "pt-6",
+              )}
+            >
+              <Tracking id={manga.id} __typename={manga.__typename} />
+              <Synopsis text={manga.description} />
+
               <Row alignment="center" className="gap-2">
                 <Typography weight="semibold">Chapters</Typography>
                 <Badge>{manga.chapters ?? CHAPTERS.length}</Badge>

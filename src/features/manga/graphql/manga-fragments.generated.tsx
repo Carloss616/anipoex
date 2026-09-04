@@ -57,7 +57,6 @@ export type MangaListEntryFragment = {
 
 export type MangaMediaFragment = {
   __typename: "Media";
-  bannerImage: string | null;
   genres: Array<string | null> | null;
   status: Types.MediaStatus | null;
   chapters: number | null;
@@ -75,7 +74,6 @@ export type MangaMediaFragment = {
     medium: string | null;
     color: string | null;
   } | null;
-  startDate: { __typename: "FuzzyDate"; year: number | null } | null;
   mediaListEntry: {
     __typename: "MediaList";
     id: number;
@@ -87,9 +85,11 @@ export type MangaDetailFragment = {
   __typename: "Media";
   description: string | null;
   bannerImage: string | null;
+  averageScore: number | null;
   genres: Array<string | null> | null;
   status: Types.MediaStatus | null;
   chapters: number | null;
+  startDate: { __typename: "FuzzyDate"; year: number | null } | null;
   mediaListEntry: {
     __typename: "MediaList";
     id: number;
@@ -136,7 +136,6 @@ export type MangaDetailFragment = {
     medium: string | null;
     color: string | null;
   } | null;
-  startDate: { __typename: "FuzzyDate"; year: number | null } | null;
 };
 
 export const MangaMediaFragmentDoc = {
@@ -178,17 +177,6 @@ export const MangaMediaFragmentDoc = {
                 { kind: "Field", name: { kind: "Name", value: "large" } },
                 { kind: "Field", name: { kind: "Name", value: "medium" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
-              ],
-            },
-          },
-          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "startDate" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "year" } },
               ],
             },
           },
@@ -275,6 +263,18 @@ export const MangaDetailFragmentDoc = {
             name: { kind: "Name", value: "MangaMedia" },
           },
           { kind: "Field", name: { kind: "Name", value: "description" } },
+          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
+          { kind: "Field", name: { kind: "Name", value: "averageScore" } },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "startDate" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+              ],
+            },
+          },
           {
             kind: "Field",
             name: { kind: "Name", value: "mediaListEntry" },
@@ -385,17 +385,6 @@ export const MangaDetailFragmentDoc = {
                 { kind: "Field", name: { kind: "Name", value: "large" } },
                 { kind: "Field", name: { kind: "Name", value: "medium" } },
                 { kind: "Field", name: { kind: "Name", value: "color" } },
-              ],
-            },
-          },
-          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "startDate" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "year" } },
               ],
             },
           },

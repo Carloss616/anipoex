@@ -47,9 +47,11 @@ export type MangaQuery = {
     id: number;
     description: string | null;
     bannerImage: string | null;
+    averageScore: number | null;
     genres: Array<string | null> | null;
     status: Types.MediaStatus | null;
     chapters: number | null;
+    startDate: { __typename: "FuzzyDate"; year: number | null } | null;
     mediaListEntry: {
       __typename: "MediaList";
       id: number;
@@ -96,7 +98,6 @@ export type MangaQuery = {
       medium: string | null;
       color: string | null;
     } | null;
-    startDate: { __typename: "FuzzyDate"; year: number | null } | null;
   } | null;
 };
 
@@ -197,17 +198,6 @@ export const MangaDocument = {
               ],
             },
           },
-          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "startDate" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "year" } },
-              ],
-            },
-          },
           { kind: "Field", name: { kind: "Name", value: "genres" } },
           { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "chapters" } },
@@ -281,6 +271,18 @@ export const MangaDocument = {
             name: { kind: "Name", value: "MangaMedia" },
           },
           { kind: "Field", name: { kind: "Name", value: "description" } },
+          { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
+          { kind: "Field", name: { kind: "Name", value: "averageScore" } },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "startDate" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+              ],
+            },
+          },
           {
             kind: "Field",
             name: { kind: "Name", value: "mediaListEntry" },
