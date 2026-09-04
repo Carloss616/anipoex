@@ -2,13 +2,13 @@ import { describe, expect, it } from "bun:test";
 import { ramp } from "./ramp";
 
 describe("ramp", () => {
-  it("keeps the hue at the clear end, so the fade never greys out", () => {
+  it("keeps the hue at the clear end, so the fade never grays out", () => {
     const { colors } = ramp("#fbf8ff", { peak: 1 });
     expect(colors[0]).toBe("#fbf8ff00");
     expect(colors.at(-1)).toBe("#fbf8ffff");
   });
 
-  it("replaces an alpha the colour already carries", () => {
+  it("replaces an alpha the color already carries", () => {
     expect(ramp("#fbf8ffff").colors[0]).toBe("#fbf8ff00");
   });
 

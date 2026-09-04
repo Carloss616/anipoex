@@ -178,7 +178,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             // whole shrink, then drops out of hit-testing and the tab order.
             <View
               className={cn(
-                // Centred instead of stretched: at the row's full height the clip
+                // Centered instead of stretched: at the row's full height the clip
                 // box is taller than the field, which reads as a crop.
                 "absolute top-1/2 right-0 -translate-y-1/2 flex-row items-center transition-[width,opacity,visibility]",
                 TRANSITION,

@@ -12,7 +12,7 @@ export interface RampOptions {
    */
   peak?: number;
   /**
-   * How many colours the curve is sampled at.
+   * How many colors the curve is sampled at.
    * @default 6
    */
   stops?: number;
@@ -26,19 +26,19 @@ export interface RampOptions {
 }
 
 /**
- * Colour stops for a gradient that fades without banding, top to bottom.
- * Defaults to a wash; one that has to *arrive* at its colour wants `peak: 1`
+ * Color stops for a gradient that fades without banding, top to bottom.
+ * Defaults to a wash; one that has to *arrive* at its color wants `peak: 1`
  * and `smootherstep`.
  *
  * The clear end is `color` at alpha 0, never `transparent` — that is
  * transparent *black*, and both platforms interpolate unpremultiplied, so a
- * ramp to a light colour greys out on the way.
+ * ramp to a light color grays out on the way.
  */
 export function ramp(
   color: string,
   { peak = 0.6, stops = 6, ease = easeIn, flip = false }: RampOptions = {},
 ) {
-  const rgb = color.slice(0, 7); // Compose hands colours back as `#rrggbbaa`.
+  const rgb = color.slice(0, 7); // Compose hands colors back as `#rrggbbaa`.
   const locations = Array.from({ length: stops }, (_, i) => i / (stops - 1));
   const colors = locations.map(
     (p) =>

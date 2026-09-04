@@ -1,6 +1,6 @@
 import { useCSSVariable } from "uniwind";
 
-/** Every colour token PanelUI's theme defines, without the `--color-` prefix. */
+/** Every color token PanelUI's theme defines, without the `--color-` prefix. */
 export type ThemeColor =
   | "accent"
   | "accent-foreground"
@@ -53,9 +53,9 @@ export type ThemeColor =
   | "warning-subtle";
 
 /**
- * A theme colour, resolved and kept current across theme switches.
+ * A theme color, resolved and kept current across theme switches.
  *
- * Reach for it where a colour has to be a value rather than a class: native
+ * Reach for it where a color has to be a value rather than a class: native
  * `@expo/ui` views, React Navigation's theme, an SVG fill. Everywhere else the
  * className is both shorter and cheaper.
  *
