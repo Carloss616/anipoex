@@ -1,12 +1,13 @@
 import { useFragment } from "@apollo/client/react";
 import { Spacer } from "@expo/ui";
-import { Divider, VStack } from "@expo/ui/swift-ui";
-import { glassEffect, opacity } from "@expo/ui/swift-ui/modifiers";
+import { Divider } from "@expo/ui/swift-ui";
+import { opacity } from "@expo/ui/swift-ui/modifiers";
 import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
-import { Button } from "@/components/ui/button";
+import { Feedback } from "@/components/ui/feedback";
+import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
 import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { noop } from "@/utils/utils";
@@ -25,38 +26,34 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
   if (!chapters.length) return <EmptyState title="No chapters available" />;
 
   return (
-    <Column
-      modifiers={[
-        glassEffect({
-          glass: { variant: "regular", interactive: false },
-          shape: "roundedRectangle",
-          cornerRadius: 24,
-        }),
-      ]}
-    >
+    <Surface padding="none">
       {chapters.map((chapter, index) => (
         <Fragment key={chapter.id}>
           {index > 0 && <Divider />}
-          <Button key={chapter.id} onPress={noop} variant="ghost">
-            <Row alignment="center" className="gap-2 p-4">
-              <VStack
-                alignment="leading"
-                spacing={2}
-                modifiers={[opacity(progress > chapter.id ? 0.4 : 1)]}
-              >
-                <Typography type="body-sm" weight="semibold">
-                  {chapter.title}
-                </Typography>
-                <Typography type="body-xs" muted>
-                  {chapter.date}
-                </Typography>
-              </VStack>
-              <Spacer />
-              <DownloadButton />
-            </Row>
-          </Button>
+          <Feedback
+            key={chapter.id}
+            for={Row}
+            onPress={noop}
+            alignment="center"
+            className="gap-2 p-4"
+          >
+            <Column
+              alignment="start"
+              className="gap-0.5"
+              modifiers={[opacity(progress > chapter.id ? 0.4 : 1)]}
+            >
+              <Typography type="body-sm" weight="semibold">
+                {chapter.title}
+              </Typography>
+              <Typography type="body-xs" muted>
+                {chapter.date}
+              </Typography>
+            </Column>
+            <Spacer />
+            <DownloadButton />
+          </Feedback>
         </Fragment>
       ))}
-    </Column>
+    </Surface>
   );
 }

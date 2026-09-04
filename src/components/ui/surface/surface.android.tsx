@@ -1,10 +1,5 @@
-import { Surface as JetpackSurface } from "@expo/ui/jetpack-compose";
-import {
-  background,
-  clip,
-  fillMaxWidth,
-  Shapes,
-} from "@expo/ui/jetpack-compose/modifiers";
+import { Surface as JetpackSurface, Shape } from "@expo/ui/jetpack-compose";
+import { background, fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
 import type { SurfaceProps } from "panelui-native/components/surface";
 import { cn } from "panelui-native/utils/cn";
 import { Column } from "@/components/layout/column";
@@ -14,8 +9,8 @@ import { PADDINGS } from "./constants";
 type SurfaceVariant = NonNullable<SurfaceProps["variant"]>;
 
 const VARIANTS = {
-  default: 0,
-  secondary: 1,
+  default: 1,
+  secondary: 2,
   tertiary: 3,
   transparent: 0,
 } as const satisfies Record<SurfaceVariant, number>;
@@ -38,9 +33,16 @@ export function Surface({
       <JetpackSurface
         tonalElevation={VARIANTS[variant]}
         shadowElevation={elevated ? 1 : 0}
+        shape={Shape.RoundedCorner({
+          cornerRadii: {
+            topStart: 12,
+            topEnd: 12,
+            bottomStart: 12,
+            bottomEnd: 12,
+          },
+        })}
         modifiers={[
           ...(variant === "transparent" ? [background("transparent")] : []),
-          clip(Shapes.RoundedCorner(12)),
           fillMaxWidth(),
         ]}
       >

@@ -1,12 +1,9 @@
 import { useFragment } from "@apollo/client/react";
-import {
-  ElevatedCard,
-  HorizontalDivider,
-  ListItem,
-} from "@expo/ui/jetpack-compose";
+import { HorizontalDivider, ListItem } from "@expo/ui/jetpack-compose";
 import { alpha, clickable } from "@expo/ui/jetpack-compose/modifiers";
 import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
 import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { noop } from "@/utils/utils";
@@ -25,7 +22,7 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
   if (!chapters.length) return <EmptyState title="No chapters available" />;
 
   return (
-    <ElevatedCard>
+    <Surface padding="none" elevated>
       {chapters.map((chapter, index) => (
         <Fragment key={chapter.id}>
           {index > 0 && <HorizontalDivider />}
@@ -52,6 +49,6 @@ export function Chapters({ id, __typename, chapters }: ChaptersProps) {
           </ListItem>
         </Fragment>
       ))}
-    </ElevatedCard>
+    </Surface>
   );
 }
