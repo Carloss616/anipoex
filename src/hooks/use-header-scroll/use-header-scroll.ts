@@ -1,4 +1,4 @@
-import { useNavigation } from "expo-router";
+import { type NativeStackNavigationOptions, useNavigation } from "expo-router";
 import { useRef } from "react";
 import { Platform, type ScrollViewProps } from "react-native";
 import { LARGE_TITLE_HEIGHT } from "@/components/layout/header/constants";
@@ -17,11 +17,6 @@ export type HeaderScrollProps = Pick<
   | "contentInsetAdjustmentBehavior"
 >;
 
-/**
- * `headerShadowVisible` carries that everywhere — Android raises the app bar by
- * 4dp, and the web header blurs and drops the large title back to the plain one,
- * which is what iOS does on its own (`use-header-scroll.ios`).
- */
 export function useHeaderScroll(): HeaderScrollProps {
   const navigation = useNavigation();
   const m3 = useThemeM3Colors(); // android only
@@ -44,7 +39,7 @@ export function useHeaderScroll(): HeaderScrollProps {
             backgroundColor: next ? m3.surfaceContainer : "transparent",
           },
         }),
-      });
+      } satisfies NativeStackNavigationOptions);
     },
   };
 }

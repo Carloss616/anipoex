@@ -25,8 +25,6 @@ function DialogRoot({
   const [uncontrolled, setUncontrolled] = useState(false);
   const isOpen = open ?? uncontrolled;
   const setOpen = onOpenChange ?? setUncontrolled;
-  // ponytail: Alert and ConfirmationDialog share the same slot API, so the only
-  // difference is the component and ConfirmationDialog's titleVisibility.
   const Root = alert ? Alert : ConfirmationDialog;
 
   return (
