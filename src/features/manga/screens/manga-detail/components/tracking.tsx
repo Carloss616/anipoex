@@ -28,9 +28,7 @@ export function Tracking({
 
   const status = data.mediaListEntry?.status;
   const label =
-    MANGA_STATUSES.find((s) => s.status === status)?.title ??
-    status ??
-    "Not in list";
+    MANGA_STATUSES.find((s) => s.status === status)?.title ?? status;
 
   const total = data.chapters;
   const progress = data.mediaListEntry?.progress ?? 0;
@@ -49,8 +47,10 @@ export function Tracking({
       >
         <Column className="web:w-full gap-2">
           <Row alignment="center" className="gap-2">
-            <Badge color="primary" />
-            <Typography className="ios:text-foreground">{label}</Typography>
+            <Badge color={label ? "primary" : "secondary"} />
+            <Typography className="ios:text-foreground">
+              {label ?? "Not in list"}
+            </Typography>
             <Spacer flexible />
             <Typography.Code className="web:self-auto">
               {progress}/{total ?? "_"}

@@ -11,7 +11,7 @@ import {
 } from "./fuzzy-date";
 
 export interface TrackingForm {
-  status: MediaListStatus;
+  status?: MediaListStatus;
   progress: number;
   score: number;
   startedAt?: Date;
@@ -29,7 +29,7 @@ interface PartialEntry {
 export interface SaveVariables {
   id?: number;
   mediaId: number;
-  status: MediaListStatus;
+  status?: MediaListStatus;
   progress: number;
   score: number;
   startedAt: FuzzyDateInput;
@@ -44,7 +44,7 @@ export function toTrackingForm(
   entry: PartialEntry | null | undefined,
 ): TrackingForm {
   return {
-    status: entry?.status ?? MediaListStatus.Planning,
+    status: entry?.status ?? undefined,
     progress: entry?.progress ?? 0,
     score: entry?.score ?? 0,
     startedAt: fromFuzzyDate(entry?.startedAt),
@@ -54,7 +54,7 @@ export function toTrackingForm(
 
 export function setStatus(
   form: TrackingForm,
-  status: MediaListStatus,
+  status: MediaListStatus | undefined,
   total: number | null | undefined,
   today: Date,
 ): TrackingForm {

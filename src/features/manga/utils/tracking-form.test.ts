@@ -22,10 +22,11 @@ const form = (over: Partial<TrackingForm> = {}): TrackingForm => ({
 });
 
 describe("toTrackingForm", () => {
-  it("defaults an untracked manga to planning at zero", () => {
+  it("leaves an untracked manga without a status", () => {
+    // Defaulting to Planning made the sheet claim a list the manga is not on.
     expect(toTrackingForm(null)).toEqual(
       form({
-        status: MediaListStatus.Planning,
+        status: undefined,
         progress: 0,
         score: 0,
       }),
@@ -181,6 +182,14 @@ describe("toSaveVariables", () => {
 
     expect(variables.id).toBeUndefined();
     expect(variables.mediaId).toBe(30002);
+  });
+
+  it("sends no status for an entry that never had one", () => {
+    // `$status` is nullable in the mutation, so leaving it out asks AniList to
+    // keep whatever it has rather than asserting a list the user never picked.
+    const variables = toSaveVariables(toTrackingForm(null), { mediaId: 30002 });
+
+    expect(variables.status).toBeUndefined();
   });
 });
 

@@ -99,7 +99,7 @@ export function Overview({
                 className="flex-1 ios:py-3"
                 onPress={() => onEdit("status")}
               >
-                {status ?? form.status}
+                {status ?? form.status ?? <Typography muted>Status</Typography>}
               </Button>
               <Separator orientation="vertical" className="android:h-12" />
               <Button
