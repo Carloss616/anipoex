@@ -1,4 +1,4 @@
-fragment MangaListEntry on MediaList {
+fragment MangaTracking on MediaList {
   status
   progress
   score
@@ -15,7 +15,7 @@ fragment MangaListEntry on MediaList {
   notes
 }
 
-fragment MangaMedia on Media {
+fragment MangaBase on Media {
   title {
     userPreferred
     english
@@ -31,6 +31,10 @@ fragment MangaMedia on Media {
   genres
   status
   chapters
+}
+
+fragment MangaMedia on Media {
+  ...MangaBase
   mediaListEntry {
     id
     progress
@@ -38,7 +42,7 @@ fragment MangaMedia on Media {
 }
 
 fragment MangaDetail on Media {
-  ...MangaMedia
+  ...MangaBase
   description
   bannerImage
   averageScore
@@ -47,7 +51,7 @@ fragment MangaDetail on Media {
   }
   mediaListEntry {
     id
-    ...MangaListEntry
+    ...MangaTracking @nonreactive
   }
   staff(perPage: 6, sort: RELEVANCE) {
     edges {

@@ -1,4 +1,3 @@
-import { useFragment } from "@apollo/client/react";
 import { Spacer } from "@expo/ui";
 import { useState } from "react";
 import { Platform } from "react-native";
@@ -9,29 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
-import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
-import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
+import { MANGA_STATUSES } from "@/features/manga/constants";
+import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { toDetail } from "@/features/manga/utils/to-detail";
 import { TrackingSheet } from "./tracking-sheet";
 
-export function Tracking({
-  id,
-  __typename,
-}: Pick<MangaDetail, "id" | "__typename">) {
+export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);
-  const { data } = useFragment({
-    fragment: MangaDetailFragmentDoc,
-    fragmentName: "MangaDetail",
-    from: { __typename, id },
-  });
+  const tracking = useTrackingEntry(manga.mediaListEntry?.id);
 
-  const status = data.mediaListEntry?.status;
-  const label =
-    MANGA_STATUSES.find((s) => s.status === status)?.title ?? status;
+  const status = tracking?.status;
+  const label = status && MANGA_STATUSES[status];
 
-  const total = data.chapters;
-  const progress = data.mediaListEntry?.progress ?? 0;
+  const total = manga.chapters;
+  const progress = tracking?.progress ?? 0;
   const ratio = total ? Math.min(progress / total, 1) : 0;
   const percent = Math.round(ratio * 100);
 
@@ -76,7 +66,8 @@ export function Tracking({
 
       <TrackingSheet
         isPresented={isPresented}
-        manga={toDetail(id, data)}
+        manga={manga}
+        tracking={tracking}
         onDismiss={() => setIsPresented(false)}
       />
     </>

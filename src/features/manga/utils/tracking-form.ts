@@ -1,4 +1,4 @@
-import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
+import { MANGA_STATUSES } from "@/features/manga/constants";
 import {
   type FuzzyDateInput,
   MediaListStatus,
@@ -148,9 +148,7 @@ export function describeChanges(
 
     if (field === "status") {
       if (after.status === before.status) return [];
-      const title = MANGA_STATUSES.find(
-        (entry) => entry.status === after.status,
-      )?.title;
+      const title = after.status && MANGA_STATUSES[after.status];
       return `${label} → ${title ?? after.status}`;
     }
 

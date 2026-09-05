@@ -1,4 +1,4 @@
-mutation SaveMangaEntry(
+mutation SaveMangaTracking(
   $id: Int
   $mediaId: Int
   $status: MediaListStatus
@@ -17,11 +17,11 @@ mutation SaveMangaEntry(
     completedAt: $completedAt
   ) {
     id
-    ...MangaListEntry
+    ...MangaTracking
   }
 }
 
-mutation DeleteMangaEntry($id: Int!) {
+mutation DeleteMangaTracking($id: Int!) {
   DeleteMediaListEntry(id: $id) {
     deleted
   }

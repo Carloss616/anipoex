@@ -34,7 +34,7 @@ export type MediaListStatus =
   /** Re-watching/reading */
   | "REPEATING";
 
-export type SaveMangaEntryMutationVariables = Exact<{
+export type SaveMangaTrackingMutationVariables = Exact<{
   id?: number | null | undefined;
   mediaId?: number | null | undefined;
   status?: Types.MediaListStatus | null | undefined;
@@ -44,7 +44,7 @@ export type SaveMangaEntryMutationVariables = Exact<{
   completedAt?: Types.FuzzyDateInput | null | undefined;
 }>;
 
-export type SaveMangaEntryMutation = {
+export type SaveMangaTrackingMutation = {
   SaveMediaListEntry: {
     __typename: "MediaList";
     id: number;
@@ -67,24 +67,24 @@ export type SaveMangaEntryMutation = {
   } | null;
 };
 
-export type DeleteMangaEntryMutationVariables = Exact<{
+export type DeleteMangaTrackingMutationVariables = Exact<{
   id: number;
 }>;
 
-export type DeleteMangaEntryMutation = {
+export type DeleteMangaTrackingMutation = {
   DeleteMediaListEntry: {
     __typename: "Deleted";
     deleted: boolean | null;
   } | null;
 };
 
-export const SaveMangaEntryDocument = {
+export const SaveMangaTrackingDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "SaveMangaEntry" },
+      name: { kind: "Name", value: "SaveMangaTracking" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -219,7 +219,7 @@ export const SaveMangaEntryDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 {
                   kind: "FragmentSpread",
-                  name: { kind: "Name", value: "MangaListEntry" },
+                  name: { kind: "Name", value: "MangaTracking" },
                 },
               ],
             },
@@ -229,7 +229,7 @@ export const SaveMangaEntryDocument = {
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "MangaListEntry" },
+      name: { kind: "Name", value: "MangaTracking" },
       typeCondition: {
         kind: "NamedType",
         name: { kind: "Name", value: "MediaList" },
@@ -270,16 +270,16 @@ export const SaveMangaEntryDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  SaveMangaEntryMutation,
-  SaveMangaEntryMutationVariables
+  SaveMangaTrackingMutation,
+  SaveMangaTrackingMutationVariables
 >;
-export const DeleteMangaEntryDocument = {
+export const DeleteMangaTrackingDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "DeleteMangaEntry" },
+      name: { kind: "Name", value: "DeleteMangaTracking" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -318,6 +318,6 @@ export const DeleteMangaEntryDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  DeleteMangaEntryMutation,
-  DeleteMangaEntryMutationVariables
+  DeleteMangaTrackingMutation,
+  DeleteMangaTrackingMutationVariables
 >;

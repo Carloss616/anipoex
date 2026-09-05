@@ -10,7 +10,7 @@ import { Menu } from "@/components/ui/menu";
 import { Separator } from "@/components/ui/separator";
 import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
-import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
+import { MANGA_STATUSES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { formatDate } from "@/utils/utils";
 
@@ -40,7 +40,7 @@ export function Overview({
   canRemove,
   removing,
 }: OverviewProps) {
-  const status = MANGA_STATUSES.find((s) => s.status === form.status)?.title;
+  const status = form.status && MANGA_STATUSES[form.status];
 
   const { isLandscape } = useBreakpoint();
 

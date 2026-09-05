@@ -7,7 +7,7 @@ import { ScrollView } from "@/components/layout/scroll-view";
 import { Button } from "@/components/ui/button";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { Typography } from "@/components/ui/typography";
-import { MANGA_STATUSES } from "@/features/manga/screens/manga-list/constants";
+import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import {
   describeChanges,
@@ -41,7 +41,7 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
       onValueChange={(value) => setSelected(value as MediaListStatus)}
       className="ios:px-4 py-4"
     >
-      {MANGA_STATUSES.map(({ status, title }) => (
+      {MANGA_STATUS_ENTRIES.map(([status, title]) => (
         <RadioGroup.Item
           key={status}
           value={status}

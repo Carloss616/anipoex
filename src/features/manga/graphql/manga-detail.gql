@@ -1,4 +1,4 @@
-query Manga($id: Int!) {
+query MangaDetail($id: Int!) {
   Media(id: $id, type: MANGA) {
     id
     ...MangaDetail @nonreactive

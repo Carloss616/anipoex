@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client/react";
 import {
-  DeleteMangaEntryDocument,
-  SaveMangaEntryDocument,
+  DeleteMangaTrackingDocument,
+  SaveMangaTrackingDocument,
 } from "../graphql/manga-tracking.generated";
 import type { SaveVariables } from "../utils/tracking-form";
 
@@ -10,24 +10,27 @@ import type { SaveVariables } from "../utils/tracking-form";
  * first save, where `Media.mediaListEntry` was null and needs the link written.
  */
 export function useSaveTracking(mediaId: number) {
-  const [saveEntry, { loading: saving }] = useMutation(SaveMangaEntryDocument, {
-    context: { errorMessage: "Couldn't save your changes" },
-    update(cache, { data }) {
-      const entry = data?.SaveMediaListEntry;
-      if (!entry) return;
+  const [saveEntry, { loading: saving }] = useMutation(
+    SaveMangaTrackingDocument,
+    {
+      context: { errorMessage: "Couldn't save your changes" },
+      update(cache, { data }) {
+        const entry = data?.SaveMediaListEntry;
+        if (!entry) return;
 
-      cache.modify({
-        id: cache.identify({ __typename: "Media", id: mediaId }),
-        fields: {
-          mediaListEntry: () =>
-            cache.identify(entry) ? { __ref: cache.identify(entry) } : null,
-        },
-      });
+        cache.modify({
+          id: cache.identify({ __typename: "Media", id: mediaId }),
+          fields: {
+            mediaListEntry: () =>
+              cache.identify(entry) ? { __ref: cache.identify(entry) } : null,
+          },
+        });
+      },
     },
-  });
+  );
 
   const [deleteEntry, { loading: removing }] = useMutation(
-    DeleteMangaEntryDocument,
+    DeleteMangaTrackingDocument,
     {
       context: { errorMessage: "Couldn't remove this from your list" },
       update(cache, { data }, { variables }) {

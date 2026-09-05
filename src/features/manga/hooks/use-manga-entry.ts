@@ -5,7 +5,7 @@ import {
   useQuery,
 } from "@apollo/client/react";
 import { useCallback, useState } from "react";
-import { MangaDocument } from "../graphql/manga.generated";
+import { MangaDetailDocument } from "../graphql/manga-detail.generated";
 import { MangaDetailFragmentDoc } from "../graphql/manga-fragments.generated";
 import { toDetail } from "../utils/to-detail";
 
@@ -24,7 +24,7 @@ export function useMangaEntry(id: string) {
   });
 
   const { data, loading } = useQuery(
-    MangaDocument,
+    MangaDetailDocument,
     !valid || cached.complete
       ? skipToken
       : { variables: { id: mediaId }, context: CONTEXT },
@@ -39,7 +39,7 @@ export function useMangaEntry(id: string) {
     setRefreshing(true);
     client
       .query({
-        query: MangaDocument,
+        query: MangaDetailDocument,
         variables: { id: mediaId },
         fetchPolicy: "network-only",
         context: CONTEXT,

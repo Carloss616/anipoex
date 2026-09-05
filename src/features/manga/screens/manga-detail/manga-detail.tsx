@@ -160,7 +160,7 @@ export function MangaDetail() {
                 !manga.genres?.length && "pt-6",
               )}
             >
-              <Tracking id={manga.id} __typename={manga.__typename} />
+              <Tracking manga={manga} />
               <Synopsis text={manga.description} />
 
               <Row alignment="center" className="gap-2">
@@ -169,11 +169,7 @@ export function MangaDetail() {
                 <Spacer flexible />
                 <DownloadButton />
               </Row>
-              <Chapters
-                id={manga.id}
-                __typename={manga.__typename}
-                chapters={[]}
-              />
+              <Chapters entryId={manga.mediaListEntry?.id} chapters={[]} />
             </Column>
           </Column>
         </Host>

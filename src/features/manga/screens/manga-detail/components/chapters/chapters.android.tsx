@@ -1,23 +1,16 @@
-import { useFragment } from "@apollo/client/react";
 import { HorizontalDivider, ListItem } from "@expo/ui/jetpack-compose";
 import { alpha, clickable } from "@expo/ui/jetpack-compose/modifiers";
 import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
-import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
+import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import { noop } from "@/utils/utils";
 import { DownloadButton } from "../download-button";
 import type { ChaptersProps } from "./chapters";
 
-export function Chapters({ id, __typename, chapters }: ChaptersProps) {
-  const { data } = useFragment({
-    fragment: MangaDetailFragmentDoc,
-    fragmentName: "MangaDetail",
-    from: { __typename, id },
-  });
-
-  const progress = data?.mediaListEntry?.progress ?? 0;
+export function Chapters({ entryId, chapters }: ChaptersProps) {
+  const progress = useTrackingEntry(entryId)?.progress ?? 0;
 
   if (!chapters.length) return <EmptyState title="No chapters available" />;
 

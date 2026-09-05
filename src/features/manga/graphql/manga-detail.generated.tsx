@@ -37,11 +37,11 @@ export type MediaStatus =
   /** Currently releasing */
   | "RELEASING";
 
-export type MangaQueryVariables = Exact<{
+export type MangaDetailQueryVariables = Exact<{
   id: number;
 }>;
 
-export type MangaQuery = {
+export type MangaDetailQuery = {
   Media: {
     __typename: "Media";
     id: number;
@@ -55,8 +55,8 @@ export type MangaQuery = {
     mediaListEntry: {
       __typename: "MediaList";
       id: number;
-      progress: number | null;
       status: Types.MediaListStatus | null;
+      progress: number | null;
       score: number | null;
       notes: string | null;
       startedAt: {
@@ -101,13 +101,13 @@ export type MangaQuery = {
   } | null;
 };
 
-export const MangaDocument = {
+export const MangaDetailDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "Manga" },
+      name: { kind: "Name", value: "MangaDetail" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -161,7 +161,7 @@ export const MangaDocument = {
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "MangaMedia" },
+      name: { kind: "Name", value: "MangaBase" },
       typeCondition: {
         kind: "NamedType",
         name: { kind: "Name", value: "Media" },
@@ -201,23 +201,12 @@ export const MangaDocument = {
           { kind: "Field", name: { kind: "Name", value: "genres" } },
           { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "chapters" } },
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "mediaListEntry" },
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "id" } },
-                { kind: "Field", name: { kind: "Name", value: "progress" } },
-              ],
-            },
-          },
         ],
       },
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "MangaListEntry" },
+      name: { kind: "Name", value: "MangaTracking" },
       typeCondition: {
         kind: "NamedType",
         name: { kind: "Name", value: "MediaList" },
@@ -268,7 +257,7 @@ export const MangaDocument = {
         selections: [
           {
             kind: "FragmentSpread",
-            name: { kind: "Name", value: "MangaMedia" },
+            name: { kind: "Name", value: "MangaBase" },
           },
           { kind: "Field", name: { kind: "Name", value: "description" } },
           { kind: "Field", name: { kind: "Name", value: "bannerImage" } },
@@ -292,7 +281,13 @@ export const MangaDocument = {
                 { kind: "Field", name: { kind: "Name", value: "id" } },
                 {
                   kind: "FragmentSpread",
-                  name: { kind: "Name", value: "MangaListEntry" },
+                  name: { kind: "Name", value: "MangaTracking" },
+                  directives: [
+                    {
+                      kind: "Directive",
+                      name: { kind: "Name", value: "nonreactive" },
+                    },
+                  ],
                 },
               ],
             },
@@ -358,4 +353,4 @@ export const MangaDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<MangaQuery, MangaQueryVariables>;
+} as unknown as DocumentNode<MangaDetailQuery, MangaDetailQueryVariables>;

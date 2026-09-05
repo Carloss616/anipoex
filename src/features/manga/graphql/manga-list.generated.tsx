@@ -56,6 +56,11 @@ export type MangaListQuery = {
           genres: Array<string | null> | null;
           status: Types.MediaStatus | null;
           chapters: number | null;
+          mediaListEntry: {
+            __typename: "MediaList";
+            id: number;
+            progress: number | null;
+          } | null;
           title: {
             __typename: "MediaTitle";
             userPreferred: string | null;
@@ -69,11 +74,6 @@ export type MangaListQuery = {
             large: string | null;
             medium: string | null;
             color: string | null;
-          } | null;
-          mediaListEntry: {
-            __typename: "MediaList";
-            id: number;
-            progress: number | null;
           } | null;
         } | null;
       } | null> | null;
@@ -208,7 +208,7 @@ export const MangaListDocument = {
     },
     {
       kind: "FragmentDefinition",
-      name: { kind: "Name", value: "MangaMedia" },
+      name: { kind: "Name", value: "MangaBase" },
       typeCondition: {
         kind: "NamedType",
         name: { kind: "Name", value: "Media" },
@@ -248,6 +248,23 @@ export const MangaListDocument = {
           { kind: "Field", name: { kind: "Name", value: "genres" } },
           { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "chapters" } },
+        ],
+      },
+    },
+    {
+      kind: "FragmentDefinition",
+      name: { kind: "Name", value: "MangaMedia" },
+      typeCondition: {
+        kind: "NamedType",
+        name: { kind: "Name", value: "Media" },
+      },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "FragmentSpread",
+            name: { kind: "Name", value: "MangaBase" },
+          },
           {
             kind: "Field",
             name: { kind: "Name", value: "mediaListEntry" },

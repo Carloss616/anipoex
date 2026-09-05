@@ -1,26 +1,19 @@
-import { useFragment } from "@apollo/client/react";
 import { Item } from "panelui-native/components/item";
 import { cn } from "panelui-native/utils/cn";
 import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Surface } from "@/components/ui/surface";
-import { MangaDetailFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
-import type { MangaDetail } from "@/features/manga/utils/to-detail";
+import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import type { CHAPTERS } from "../../../../mocks";
 import { DownloadButton } from "../download-button";
 
-export interface ChaptersProps extends Pick<MangaDetail, "id" | "__typename"> {
+export interface ChaptersProps {
+  entryId: number | null | undefined;
   chapters: typeof CHAPTERS;
 }
 
-export function Chapters({ id, __typename, chapters }: ChaptersProps) {
-  const { data } = useFragment({
-    fragment: MangaDetailFragmentDoc,
-    fragmentName: "MangaDetail",
-    from: { __typename, id },
-  });
-
-  const progress = data?.mediaListEntry?.progress ?? 0;
+export function Chapters({ entryId, chapters }: ChaptersProps) {
+  const progress = useTrackingEntry(entryId)?.progress ?? 0;
 
   if (!chapters.length) return <EmptyState title="No chapters available" />;
 

@@ -10,9 +10,9 @@ import { Icon } from "@/components/ui/icon";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useStackSearchBarTheme, useTabViewTheme } from "@/hooks/use-theme";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { MANGA_STATUS_ENTRIES } from "../../constants";
 import { ListScene } from "./components/list-scene";
 import { TabLabel } from "./components/tab-label";
-import { MANGA_STATUSES } from "./constants";
 
 export function MangaList() {
   const router = useRouter();
@@ -52,7 +52,7 @@ export function MangaList() {
   };
 
   const routes = useMemo(
-    () => MANGA_STATUSES.map((s) => ({ key: s.status, title: s.title })),
+    () => MANGA_STATUS_ENTRIES.map(([key, title]) => ({ key, title })),
     [],
   );
 
