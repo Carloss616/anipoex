@@ -139,7 +139,9 @@ export function MangaDetail() {
                 coverColor={manga.coverImage?.color}
                 accessibilityLabel={manga.title?.userPreferred ?? undefined}
                 testID="manga-detail-cover"
-                className="w-36"
+                // Width as a style, not `w-36`: inside the Host the card has to read it
+                // back to work out its height, and a class never reaches it.
+                style={{ width: 144 }}
               />
               <Meta manga={manga} className="web:self-auto!" />
             </Row>

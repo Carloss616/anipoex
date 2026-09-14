@@ -2,10 +2,11 @@ import type { ImageSource } from "expo-image";
 import { Card } from "panelui-native/components/card";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
-import { EnsureRNHostView } from "@/components/ui/host";
+import { EnsureRNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { ScrimGradient } from "@/components/ui/scrim";
 import type { MediaStatus } from "@/graphql/types.generated";
+import { dp } from "@/utils/utils";
 import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
 import { Feedback } from "./components/feedback";
@@ -48,6 +49,15 @@ export function MangaCard({
   onPress,
   onLongPress,
 }: MangaCardProps) {
+  const isInsideHost = useIsInsideHost();
+
+  // `matchContents` measures the card without resolving its aspect ratio, so inside a
+  // host it comes out 0 tall. Spell the height out, the way the iOS card does.
+  const flat = StyleSheet.flatten(style) ?? {};
+  const width = dp(flat.width);
+  const height = dp(flat.height) ?? (width ? width * (3 / 2) : undefined);
+  const sized = isInsideHost && height ? { ...flat, height } : style;
+
   return (
     <EnsureRNHostView matchContents>
       <Feedback
@@ -62,7 +72,7 @@ export function MangaCard({
           "relative aspect-2/3 overflow-hidden android:rounded-[12px] border-0 p-0",
           className,
         )}
-        style={style}
+        style={sized}
       >
         {cover ? (
           <CoverImage
