@@ -137,6 +137,8 @@ export function MangaDetail() {
                 cover={manga.coverImage?.large}
                 coverThumb={manga.coverImage?.medium}
                 coverColor={manga.coverImage?.color}
+                accessibilityLabel={manga.title?.userPreferred ?? undefined}
+                testID="manga-detail-cover"
                 className="w-36"
               />
               <Meta manga={manga} className="web:self-auto!" />

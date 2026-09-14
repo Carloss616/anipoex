@@ -21,6 +21,9 @@ export interface MangaCardProps {
   label?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   className?: string;
+  /** Spoken name for the card — `title` is a node, so it can't be read off it. */
+  accessibilityLabel?: string;
+  testID?: string;
   onPress?: () => void;
   onLongPress?: () => void;
 }
@@ -40,6 +43,8 @@ export function MangaCard({
   label,
   style,
   className,
+  accessibilityLabel,
+  testID,
   onPress,
   onLongPress,
 }: MangaCardProps) {
@@ -49,6 +54,10 @@ export function MangaCard({
         for={Card}
         onPress={onPress}
         onLongPress={onLongPress}
+        accessible={!!accessibilityLabel}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        testID={testID}
         className={cn(
           "relative aspect-2/3 overflow-hidden android:rounded-[12px] border-0 p-0",
           className,

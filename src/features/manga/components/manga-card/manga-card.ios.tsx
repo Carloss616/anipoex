@@ -1,6 +1,8 @@
 import { Spacer } from "@expo/ui";
 import { ZStack } from "@expo/ui/swift-ui";
 import {
+  accessibilityIdentifier,
+  accessibilityLabel,
   foregroundStyle,
   frame,
   glassEffect,
@@ -30,6 +32,8 @@ function MangaCardBase({
   title,
   label,
   style,
+  accessibilityLabel: a11yLabel,
+  testID,
   onPress,
   onLongPress,
 }: MangaCardProps) {
@@ -116,13 +120,35 @@ function MangaCardBase({
     const width = dp(flat.width);
     const height = dp(flat.height) ?? (width ? width * (3 / 2) : undefined);
 
-    return <Column style={{ height, ...flat }}>{content}</Column>;
+    // Nothing but SwiftUI above this stack, so it carries its own name and iOS reads
+    // it straight off the modifiers.
+    return (
+      <Column
+        style={{ height, ...flat }}
+        modifiers={[
+          ...(a11yLabel ? [accessibilityLabel(a11yLabel)] : []),
+          ...(testID ? [accessibilityIdentifier(testID)] : []),
+        ]}
+      >
+        {content}
+      </Column>
+    );
   }
 
   return (
     /* <Link.Trigger>'s native view keeps a stale ref to its direct child, so it stops mounting
       the card once Fast Refresh remounts it. A host component's type never changes. */
-    <View style={style} className="aspect-2/3 rounded-[24px]">
+    /* `accessible` makes this a leaf, which is what collapses the stack's text
+      children into a single button — and hides their labels along with them, so
+      unlike the branch above the name has to be repeated out here. */
+    <View
+      style={style}
+      className="aspect-2/3 rounded-[24px]"
+      accessible={!!a11yLabel}
+      accessibilityRole="button"
+      accessibilityLabel={a11yLabel}
+      testID={testID}
+    >
       <Host className="flex-1" ignoreSafeArea="all">
         {content}
       </Host>

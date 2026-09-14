@@ -29,6 +29,8 @@ export const ListItem = memo(function ListItem({ item }: { item: MangaEntry }) {
           status={item.status}
           title={item.title?.userPreferred}
           label={<ProgressLabel id={item.id} __typename={item.__typename} />}
+          accessibilityLabel={item.title?.userPreferred ?? undefined}
+          testID={`manga-card-${item.id}`}
         />
       </Link.Trigger>
       <Link.Preview />
