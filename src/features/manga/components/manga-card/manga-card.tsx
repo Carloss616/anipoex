@@ -70,6 +70,7 @@ export function MangaCard({
         testID={testID}
         className={cn(
           "relative aspect-2/3 overflow-hidden android:rounded-[12px] border-0 p-0",
+          (onPress || onLongPress) && "web:cursor-pointer",
           className,
         )}
         style={sized}
