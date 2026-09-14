@@ -3,6 +3,11 @@
     "uniwind": {
       "type": "http",
       "url": "https://docs.uniwind.dev/mcp"
+    },
+    "argent": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["node_modules/@swmansion/argent/dist/cli.js", "mcp"]
     }
   }
 }
