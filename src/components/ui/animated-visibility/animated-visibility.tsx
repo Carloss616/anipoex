@@ -23,6 +23,9 @@ export function AnimatedVisibility({
 
   return (
     <View
+      // `overflow-hidden` only hides it from the eye — the content stays in the
+      // DOM, and a screen reader would still read what is closed.
+      aria-hidden={!visible}
       className="self-stretch overflow-hidden transition-[height] duration-300 ease-out"
       style={{ height: visible ? height : 0 }}
     >
