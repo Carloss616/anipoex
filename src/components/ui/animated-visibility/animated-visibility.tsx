@@ -26,8 +26,9 @@ export function AnimatedVisibility({
       // `overflow-hidden` only hides it from the eye — the content stays in the
       // DOM, and a screen reader would still read what is closed.
       aria-hidden={!visible}
-      className="self-stretch overflow-hidden transition-[height] duration-300 ease-out"
-      style={{ height: visible ? height : 0 }}
+      className="self-stretch overflow-hidden transition-[height,opacity] duration-300 ease-sheet"
+      // Two of these animate at once; the fade blends the overlap.
+      style={{ height: visible ? height : 0, opacity: visible ? 1 : 0 }}
     >
       <View onLayout={(e) => setHeight(e.nativeEvent.layout.height)}>
         {last.current}

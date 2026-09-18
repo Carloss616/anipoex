@@ -4,6 +4,7 @@ import {
   animation,
   clipped,
   frame,
+  opacity,
 } from "@expo/ui/swift-ui/modifiers";
 import { useRef } from "react";
 import { Column } from "@/components/layout/column";
@@ -25,11 +26,14 @@ export function AnimatedVisibility({
       modifiers={[
         frame({ maxHeight: visible ? Infinity : 0, alignment: "topLeading" }),
         clipped(),
+        // Two of these open and close at once; the fade blends the overlap.
+        opacity(visible ? 1 : 0),
         // Clipping only hides it from the eye. The content stays in the view
         // tree, so without this VoiceOver reads what is closed — and the two
         // copies a disclosure keeps mounted get read one after the other.
         accessibilityHidden(!visible),
-        animation(Animation.easeInOut({ duration: 0.3 }), visible),
+        // Drawer-scale travel, on a curve that leaves the start instead of front-loading it.
+        animation(Animation.spring({ duration: 0.3, bounce: 0 }), visible),
       ]}
     >
       {last.current}

@@ -6,9 +6,7 @@ import {
 import { useRef } from "react";
 import type { AnimatedVisibilityProps } from "./animated-visibility";
 
-/**
- * Compose's default transitions fade as well; these don't.
- */
+/** Vertical only, unlike Compose's defaults; the fade blends two of these overlapping. */
 export function AnimatedVisibility({
   visible,
   children,
@@ -19,8 +17,12 @@ export function AnimatedVisibility({
   return (
     <AnimatedVisibilityBase
       visible={visible}
-      enterTransition={EnterTransition.expandVertically()}
-      exitTransition={ExitTransition.shrinkVertically()}
+      enterTransition={EnterTransition.expandVertically().plus(
+        EnterTransition.fadeIn(),
+      )}
+      exitTransition={ExitTransition.shrinkVertically().plus(
+        ExitTransition.fadeOut(),
+      )}
     >
       {last.current}
     </AnimatedVisibilityBase>
