@@ -12,6 +12,7 @@ import {
   type TextStyle,
   View,
 } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
 import { CloseButton } from "@/components/ui/close-button";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -31,8 +32,17 @@ const INPUT_MODE: Record<
   email: "email",
 } as const;
 
-const TRANSITION = "duration-300 ease-out";
-const DURATION_MS = 300;
+const TRANSITION = "duration-200 ease-out";
+/** Must match `TRANSITION`: Tailwind only sees class literals, the timer only a number. */
+const DURATION_MS = 200;
+
+/** The large title row and what crossfades with it: drawer-scale travel, drawer timing. */
+const COLLAPSE = "duration-500 ease-sheet";
+
+/** The titles cross with an overlap; the blur keeps it from reading as the same words twice. */
+const HANDOVER = "duration-300 ease-out";
+const LEAVING = "opacity-0 blur-[2px] delay-0";
+const ARRIVING = "opacity-100 blur-[0px] delay-100";
 
 // The native search bar reports through events, so mirror that shape here.
 const textEvent = (text: string) =>
@@ -48,6 +58,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const mutedForeground = useThemeColor("muted-foreground");
+  const reduced = useReducedMotion();
 
   const search = options.headerSearchBarOptions;
   const tintColor = options.headerTintColor;
@@ -84,10 +95,13 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   useEffect(() => {
     if (!isSearching) return setIsExpanded(false);
     inputRef.current?.focus();
-    const timer = setTimeout(() => setIsExpanded(true), DURATION_MS);
+    const timer = setTimeout(
+      () => setIsExpanded(true),
+      reduced ? 0 : DURATION_MS,
+    );
 
     return () => clearTimeout(timer);
-  }, [isSearching]);
+  }, [isSearching, reduced]);
 
   const searchField = search && (
     <Memo>
@@ -139,8 +153,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     <View
       style={options.headerStyle}
       className={cn(
-        "gutters px-gx py-3 transition-[padding,backdrop-filter]",
-        TRANSITION,
+        "gutters px-gx py-3 transition-[backdrop-filter]",
+        COLLAPSE,
         options.headerShadowVisible && "backdrop-blur-xl",
       )}
     >
@@ -165,9 +179,9 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           <View
             aria-hidden={isLarge || isSearching}
             className={cn(
-              "flex-1 flex-row items-center transition-opacity",
-              TRANSITION,
-              (isLarge || isSearching) && "opacity-0",
+              "flex-1 flex-row items-center transition-[opacity,filter]",
+              HANDOVER,
+              isLarge || isSearching ? LEAVING : ARRIVING,
             )}
           >
             {titleNode}
@@ -180,7 +194,10 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
               className={cn(
                 // Centered instead of stretched: at the row's full height the clip
                 // box is taller than the field, which reads as a crop.
-                "absolute top-1/2 right-0 -translate-y-1/2 flex-row items-center transition-[width,opacity,visibility]",
+                "absolute top-1/2 right-0 -translate-y-1/2 flex-row items-center",
+                reduced
+                  ? "transition-[opacity,visibility]"
+                  : "transition-[width,opacity,visibility]",
                 TRANSITION,
                 isSearching
                   ? "visible w-full opacity-100"
@@ -219,25 +236,35 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           aria-hidden={!isLarge}
           style={{ maxHeight: isLarge ? LARGE_TITLE_HEIGHT : 0 }}
           className={cn(
-            "overflow-hidden transition-[max-height,opacity]",
-            TRANSITION,
-            isLarge ? "opacity-100" : "opacity-0",
+            "overflow-hidden",
+            reduced ? "transition-none" : "transition-[max-height]",
+            COLLAPSE,
           )}
         >
-          <Typography
-            type="h1"
-            numberOfLines={1}
-            style={[
-              { color: tintColor },
-              options.headerLargeTitleStyle as StyleProp<TextStyle>,
-            ]}
+          {/* Rises as it goes: `max-height` alone closes from the bottom and reads as a crop. */}
+          <View
             className={cn(
-              "pt-3",
-              options.headerTitleAlign === "center" && "text-center",
+              reduced ? "transition-opacity" : "transition-[opacity,transform]",
+              HANDOVER,
+              isLarge ? ARRIVING : LEAVING,
+              !reduced && (isLarge ? "translate-y-0" : "-translate-y-2"),
             )}
           >
-            {title}
-          </Typography>
+            <Typography
+              type="h1"
+              numberOfLines={1}
+              style={[
+                { color: tintColor },
+                options.headerLargeTitleStyle as StyleProp<TextStyle>,
+              ]}
+              className={cn(
+                "pt-3",
+                options.headerTitleAlign === "center" && "text-center",
+              )}
+            >
+              {title}
+            </Typography>
+          </View>
         </View>
       )}
 

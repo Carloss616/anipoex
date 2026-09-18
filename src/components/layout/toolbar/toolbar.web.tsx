@@ -11,7 +11,8 @@ import { labelOf, readToolbar, type ToolbarItem } from "./toolbar-items";
 
 const SPIN: CSSAnimationProperties<ViewStyle> = {
   animationName: { to: { transform: [{ rotate: "360deg" }] } },
-  animationDuration: "1s",
+  // Faster reads as a shorter wait at the same real load time.
+  animationDuration: "0.7s",
   animationTimingFunction: "linear",
   animationIterationCount: "infinite",
 };
