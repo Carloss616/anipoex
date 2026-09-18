@@ -23,7 +23,7 @@ export function CoverImage({
       placeholder={coverThumb ? { uri: coverThumb } : undefined}
       placeholderContentFit="cover"
       contentFit="cover"
-      transition={500}
+      transition={250}
     />
   );
 }
