@@ -1,12 +1,15 @@
 import type { SnapPoint } from "@expo/ui";
 import { Group, BottomSheet as SwiftUIBottomSheet } from "@expo/ui/swift-ui";
 import {
+  Animation,
+  animation,
   type PresentationDetent,
   padding,
   presentationBackground,
   presentationDetents,
   presentationDragIndicator,
 } from "@expo/ui/swift-ui/modifiers";
+import { useState } from "react";
 import type { ViewProps } from "react-native";
 import { Column } from "@/components/layout/column";
 import { Host } from "../host";
@@ -30,7 +33,14 @@ export function BottomSheet({
   containerColor,
   alignment,
   className,
+  contentKey,
 }: BottomSheetProps) {
+  // `animation(_:value:)` takes a number, so count the swaps rather than pass the key.
+  const [content, setContent] = useState({ key: contentKey, revision: 0 });
+  if (contentKey !== content.key) {
+    setContent({ key: contentKey, revision: content.revision + 1 });
+  }
+
   return (
     <Host className="absolute" pointerEvents="none">
       <SwiftUIBottomSheet
@@ -52,6 +62,11 @@ export function BottomSheet({
               ? [presentationDetents(snapPoints.map(snapPointToDetent))]
               : []),
             ...(modifiers ?? []),
+            // Without this the sheet jumps from one content height to the next.
+            animation(
+              Animation.spring({ duration: 0.3, bounce: 0 }),
+              content.revision,
+            ),
           ]}
         >
           <Column alignment={alignment} className={className}>

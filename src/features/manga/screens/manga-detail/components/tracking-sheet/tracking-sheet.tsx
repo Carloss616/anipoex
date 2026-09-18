@@ -91,6 +91,7 @@ export function TrackingSheet({
   return (
     <BottomSheet
       isPresented={isPresented}
+      contentKey={editing ?? "overview"}
       onDismiss={() => {
         back();
         onDismiss();

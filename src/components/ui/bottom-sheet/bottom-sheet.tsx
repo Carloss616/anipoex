@@ -18,6 +18,8 @@ export interface BottomSheetProps
     Pick<ColumnProps, "alignment">,
     Pick<ModalBottomSheetProps, "containerColor" | "scrimColor"> {
   className?: string;
+  /** What the sheet shows. iOS only: SwiftUI animates a resize only against a value that changes. */
+  contentKey?: string | number;
 }
 
 function snapPointToVaul(snapPoint: SnapPoint): string | number {
@@ -137,7 +139,7 @@ function AnimatedHeight({ children }: { children: ReactNode }) {
 
   return (
     <View
-      className="overflow-hidden transition-[height] duration-300 ease-out"
+      className="overflow-hidden transition-[height] duration-300 ease-sheet"
       style={{ height }}
     >
       <View onLayout={(e) => setHeight(e.nativeEvent.layout.height)}>
