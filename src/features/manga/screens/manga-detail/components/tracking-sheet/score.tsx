@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { Typography } from "@/components/ui/typography";
 import { scoreScale } from "@/features/manga/utils/score-scale";
 import { session$ } from "@/state/session";
+import { tick } from "@/utils/haptics";
 
 export interface ScoreProps {
   value: number;
@@ -48,9 +49,13 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
               max={scale.max}
               step={scale.step}
               precision={scale.step}
-              onValueChange={(next) =>
-                setScore(Number(next.toFixed(scale.step < 1 ? 1 : 0)))
-              }
+              // The slider reports every frame; the detent is the rounded value.
+              onValueChange={(next) => {
+                const stepped = Number(next.toFixed(scale.step < 1 ? 1 : 0));
+                if (stepped === score) return;
+                setScore(stepped);
+                tick();
+              }}
             />
           </NoDragView>
         </Column>

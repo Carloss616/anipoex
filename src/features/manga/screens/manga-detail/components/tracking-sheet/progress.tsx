@@ -12,6 +12,7 @@ import {
   describeChanges,
   setProgress,
 } from "@/features/manga/utils/tracking-form";
+import { tick } from "@/utils/haptics";
 import { ChangesPreview } from "./changes-preview";
 
 export interface ProgressProps {
@@ -48,7 +49,11 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
             max={total ?? Number.MAX_SAFE_INTEGER}
             step={1}
             size="lg"
-            onValueChange={setValue}
+            onValueChange={(next) => {
+              if (next === value) return;
+              setValue(next);
+              tick();
+            }}
             className="ios:w-full"
           />
         </Column>
