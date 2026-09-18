@@ -13,6 +13,11 @@
 }
 
 @theme {
+  /* Tailwind's own is too weak; this re-points every `ease-out` in the app. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* For boxes that open or close by their own size: `ease-out` front-loads too much. */
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
   --spacing-gx: calc(var(--spacing) * 4);
   --spacing-gt: calc(var(--spacing) * 4);
   --spacing-gb: calc(var(--spacing) * 4);
