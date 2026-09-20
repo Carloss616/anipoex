@@ -3,6 +3,7 @@ import {
   fillMaxHeight,
   fillMaxWidth,
   height as heightModifier,
+  padding,
   testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { StyleSheet } from "react-native";
@@ -24,10 +25,27 @@ function SeparatorBase({
   const vertical = orientation === "vertical";
   const size =
     thickness ?? (variant === "thick" ? THICK : StyleSheet.hairlineWidth);
+  const {
+    height: styleHeight,
+    marginHorizontal,
+    marginVertical,
+    marginLeft,
+    marginRight,
+    marginTop,
+    marginBottom,
+  } = StyleSheet.flatten(style) ?? {};
   // A Compose Row sizes itself to its children, so it can't answer
   // `fillMaxHeight` — a vertical rule inside one needs a height of its own.
-  const height = dp(StyleSheet.flatten(style)?.height);
+  const height = dp(styleHeight);
   const modifiers = [
+    // Compose has no margins either, so an inset rule — `mx-4` between list
+    // rows — asks for the gap as padding, before the fill measures what's left.
+    padding(
+      dp(marginLeft ?? marginHorizontal) ?? 0,
+      dp(marginTop ?? marginVertical) ?? 0,
+      dp(marginRight ?? marginHorizontal) ?? 0,
+      dp(marginBottom ?? marginVertical) ?? 0,
+    ),
     vertical
       ? height
         ? heightModifier(height)
