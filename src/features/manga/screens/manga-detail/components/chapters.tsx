@@ -1,11 +1,11 @@
-import { Item } from "panelui-native/components/item";
 import { cn } from "panelui-native/utils/cn";
 import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { Item } from "@/components/ui/item";
 import { Surface } from "@/components/ui/surface";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import type { CHAPTERS } from "../../../../mocks";
-import { DownloadButton } from "../download-button";
+import type { CHAPTERS } from "@/features/manga/mocks";
+import { DownloadButton } from "./download-button";
 
 export interface ChaptersProps {
   entryId: number | null | undefined;
@@ -18,7 +18,7 @@ export function Chapters({ entryId, chapters }: ChaptersProps) {
   if (!chapters.length) return <EmptyState title="No chapters available" />;
 
   return (
-    <Surface padding="none" elevated className="w-full">
+    <Surface padding="none" elevated className="web:w-full">
       <Item.Group>
         {chapters.map((chapter, index) => (
           <Fragment key={chapter.id}>
