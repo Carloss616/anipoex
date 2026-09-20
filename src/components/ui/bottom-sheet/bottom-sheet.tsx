@@ -33,7 +33,7 @@ function snapPointToVaul(snapPoint: SnapPoint): string | number {
  * A modal sheet that slides up from the bottom of the screen.
  * @see `node_modules/@expo/ui/src/universal/BottomSheet/index.tsx`
  */
-export function BottomSheet({
+function BottomSheetRoot({
   children,
   isPresented,
   onDismiss,
@@ -153,6 +153,6 @@ function AnimatedHeight({ children }: { children: ReactNode }) {
  * Wraps a control the drawer must not drag from, like a slider thumb.
  * Inert outside a drawer.
  */
-export const NoDragView = (props: ViewProps) => (
-  <View {...props} data-vaul-no-drag />
-);
+const LockDrag = (props: ViewProps) => <View {...props} data-vaul-no-drag />;
+
+export const BottomSheet = Object.assign(BottomSheetRoot, { LockDrag });

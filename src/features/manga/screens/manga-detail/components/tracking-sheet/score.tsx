@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
-import { NoDragView } from "@/components/ui/bottom-sheet";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
@@ -39,10 +39,10 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
         <Typography.Code>{`${score || "_"}/${scale.max}`}</Typography.Code>
       </Row>
 
-      {/* Dragging the slider must not drag the sheet out from under it. */}
       <ScrollView fill={isLandscape} className="w-full">
         <Column className="p-4" alignment="center">
-          <NoDragView>
+          {/* Dragging the control must not drag the sheet out from under it. */}
+          <BottomSheet.LockDrag>
             <RatingOrSlider
               value={score}
               min={0}
@@ -57,7 +57,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
                 tick();
               }}
             />
-          </NoDragView>
+          </BottomSheet.LockDrag>
         </Column>
       </ScrollView>
 

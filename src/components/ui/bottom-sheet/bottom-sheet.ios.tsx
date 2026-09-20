@@ -22,7 +22,7 @@ function snapPointToDetent(snapPoint: SnapPoint): PresentationDetent {
 }
 
 /** @see `node_modules/@expo/ui/src/universal/BottomSheet/index.ios.tsx` */
-export function BottomSheet({
+function BottomSheetRoot({
   children,
   isPresented,
   onDismiss,
@@ -78,4 +78,7 @@ export function BottomSheet({
   );
 }
 
-export const NoDragView = ({ children }: ViewProps) => children;
+/** No-op: `@expo/ui` exposes no SwiftUI lever for it. @see `bottom-sheet.android.tsx` */
+const LockDrag = ({ children }: ViewProps) => children;
+
+export const BottomSheet = Object.assign(BottomSheetRoot, { LockDrag });

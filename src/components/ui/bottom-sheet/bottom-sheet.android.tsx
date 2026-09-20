@@ -9,7 +9,14 @@ import {
   fillMaxHeight,
   fillMaxWidth,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { ViewProps } from "react-native";
 import { Column } from "@/components/layout/column";
 import { dismissFocus } from "@/utils/focus";
@@ -41,8 +48,11 @@ function shouldFillMaxHeight(snapPoints: SnapPoint[] | undefined): boolean {
   );
 }
 
+/** While any `LockDrag` is mounted, the sheet can't be dragged. */
+const LockDragContext = createContext<(delta: 1 | -1) => void>(() => {});
+
 /** @see `node_modules/@expo/ui/src/universal/BottomSheet/index.android.tsx` */
-export function BottomSheet({
+function BottomSheetRoot({
   children,
   isPresented,
   onDismiss,
@@ -57,6 +67,11 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const sheetRef = useRef<ModalBottomSheetRef>(null);
   const [mount, setMount] = useState(isPresented);
+  const [lockCount, setLockCount] = useState(0);
+  // Stable, or `LockDrag` would re-count on every render.
+  const trackLock = useCallback((delta: 1 | -1) => {
+    setLockCount((count) => count + delta);
+  }, []);
 
   useEffect(() => {
     if (isPresented) {
@@ -83,6 +98,7 @@ export function BottomSheet({
         onDismissRequest={onDismiss}
         showDragHandle={showDragIndicator}
         skipPartiallyExpanded={shouldSkipPartiallyExpanded(snapPoints)}
+        sheetGesturesEnabled={lockCount === 0}
         modifiers={modifiers}
         containerColor={containerColor}
         scrimColor={scrimColor}
@@ -98,11 +114,29 @@ export function BottomSheet({
             ...(shouldFillMaxHeight(snapPoints) ? [fillMaxHeight()] : []),
           ]}
         >
-          {children}
+          <LockDragContext.Provider value={trackLock}>
+            {children}
+          </LockDragContext.Provider>
         </Column>
       </ModalBottomSheet>
     </Host>
   );
 }
 
-export const NoDragView = ({ children }: ViewProps) => children;
+/**
+ * Wraps a control the sheet must not drag from, like a slider thumb: M3 drags
+ * from anywhere inside it. Turns the sheet's drag off while mounted — the scrim
+ * and back still dismiss it. Inert outside a sheet.
+ */
+function LockDrag({ children }: ViewProps) {
+  const trackLock = useContext(LockDragContext);
+
+  useEffect(() => {
+    trackLock(1);
+    return () => trackLock(-1);
+  }, [trackLock]);
+
+  return children;
+}
+
+export const BottomSheet = Object.assign(BottomSheetRoot, { LockDrag });
