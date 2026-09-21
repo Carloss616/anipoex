@@ -10,7 +10,7 @@ import { cn } from "panelui-native/utils/cn";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { View, type ViewProps } from "react-native";
-import { Drawer } from "vaul";
+import { type DialogProps, Drawer } from "vaul";
 import { Column } from "@/components/layout/column";
 
 export interface BottomSheetProps
@@ -20,6 +20,17 @@ export interface BottomSheetProps
   className?: string;
   /** What the sheet shows. iOS only: SwiftUI animates a resize only against a value that changes. */
   contentKey?: string | number;
+  /**
+   * Direction of the drawer.
+   * @platform web
+   * @default "bottom" (mobile) | "right" (desktop)
+   */
+  direction?: DialogProps["direction"];
+  /**
+   * The direction in which the snap points are applied. Leave empty to use any direction.
+   * @platform web
+   */
+  snapPointsDirection?: DialogProps["direction"];
 }
 
 function snapPointToVaul(snapPoint: SnapPoint): string | number {
@@ -44,14 +55,19 @@ function BottomSheetRoot({
   scrimColor,
   alignment,
   className,
+  direction: directionProp,
+  snapPointsDirection,
 }: BottomSheetProps) {
   const { isAtLeast } = useBreakpoint();
-  const vaulSnapPoints = snapPoints?.length
-    ? snapPoints.map(snapPointToVaul)
-    : undefined;
-  const hasSnapPoints = vaulSnapPoints != null;
-  const direction = isAtLeast("md") ? "right" : "bottom";
+  const direction = directionProp ?? (isAtLeast("md") ? "right" : "bottom");
   const isRight = direction === "right";
+  const isSnapPoints =
+    !snapPointsDirection || snapPointsDirection === direction;
+  const vaulSnapPoints =
+    isSnapPoints && snapPoints?.length
+      ? snapPoints.map(snapPointToVaul)
+      : undefined;
+  const hasSnapPoints = vaulSnapPoints != null;
 
   return (
     <Drawer.Root
