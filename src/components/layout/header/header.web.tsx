@@ -125,6 +125,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           onSubmitEditing={() =>
             search.onSearchButtonPress?.(textEvent(query$.peek()))
           }
+          shape="pill"
         />
       )}
     </Memo>
