@@ -1,4 +1,10 @@
-import { frame } from "@expo/ui/swift-ui/modifiers";
+import {
+  background,
+  border,
+  clipShape,
+  frame,
+  type ModifierConfig,
+} from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet } from "react-native";
 import type { StyleModifiers } from "./resolve-fill";
 
@@ -34,5 +40,42 @@ export function resolveFill({
   }
 
   if (!Object.keys(box).length) return { style, modifiers };
-  return { style: flat, modifiers: [frame(box), ...(modifiers ?? [])] };
+
+  // @expo/ui drops its own `frame` when we pass one, so fixed sizes join ours
+  // (as min = max: a plain width/height would cancel the max).
+  if (typeof flat.width === "number") {
+    box.minWidth = box.maxWidth = flat.width;
+    delete flat.width;
+  }
+  if (typeof flat.height === "number") {
+    box.minHeight = box.maxHeight = flat.height;
+    delete flat.height;
+  }
+
+  // Derived modifiers land ahead of ours, so a style background would paint
+  // the view before the frame grows it. Same order @expo/ui uses, after it.
+  const paint: ModifierConfig[] = [];
+  if (flat.backgroundColor) {
+    paint.push(background(flat.backgroundColor as string));
+    delete flat.backgroundColor;
+  }
+  if (flat.borderWidth != null && flat.borderColor != null) {
+    paint.push(
+      border({
+        content: flat.borderColor as string,
+        width: flat.borderWidth as number,
+      }),
+    );
+    delete flat.borderWidth;
+    delete flat.borderColor;
+  }
+  if (typeof flat.borderRadius === "number") {
+    paint.push(clipShape("roundedRectangle", flat.borderRadius));
+    delete flat.borderRadius;
+  }
+
+  return {
+    style: flat,
+    modifiers: [frame(box), ...paint, ...(modifiers ?? [])],
+  };
 }
