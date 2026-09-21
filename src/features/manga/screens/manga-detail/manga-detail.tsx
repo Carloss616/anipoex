@@ -21,9 +21,9 @@ import { noop } from "@/utils/utils";
 import { MangaCard } from "../../components/manga-card";
 import { CHAPTERS } from "../../mocks";
 import { Chapters } from "./components/chapters";
-import { DownloadButton } from "./components/download-button";
 import { Hero } from "./components/hero";
 import { Meta } from "./components/meta";
+import { SourcePicker } from "./components/source-picker";
 import { Synopsis } from "./components/synopsis";
 import { Tracking } from "./components/tracking";
 
@@ -171,7 +171,11 @@ export function MangaDetail() {
                 <Typography weight="semibold">Chapters</Typography>
                 <Badge>{manga.chapters ?? CHAPTERS.length}</Badge>
                 <Spacer flexible />
-                <DownloadButton />
+                <SourcePicker
+                  mangaId={manga.id}
+                  entryId={manga.mediaListEntry?.id}
+                  total={manga.chapters}
+                />
               </Row>
               <Chapters entryId={manga.mediaListEntry?.id} chapters={[]} />
             </Column>
