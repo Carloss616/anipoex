@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import type { ViewProps } from "react-native";
 import { Column } from "@/components/layout/column";
-import { Host } from "../host";
+import { EnsureHost } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
 
 function snapPointToDetent(snapPoint: SnapPoint): PresentationDetent {
@@ -42,7 +42,7 @@ function BottomSheetRoot({
   }
 
   return (
-    <Host className="absolute" pointerEvents="none">
+    <EnsureHost className="absolute" pointerEvents="none">
       <SwiftUIBottomSheet
         isPresented={isPresented}
         onIsPresentedChange={(presented) => {
@@ -74,7 +74,7 @@ function BottomSheetRoot({
           </Column>
         </Group>
       </SwiftUIBottomSheet>
-    </Host>
+    </EnsureHost>
   );
 }
 

@@ -20,7 +20,7 @@ import {
 import type { ViewProps } from "react-native";
 import { Column } from "@/components/layout/column";
 import { dismissFocus } from "@/utils/focus";
-import { Host } from "../host";
+import { EnsureHost } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
 
 // M3 `ModalBottomSheet` only has partial/expanded states.
@@ -92,7 +92,7 @@ function BottomSheetRoot({
   }
 
   return (
-    <Host className="absolute" pointerEvents="none">
+    <EnsureHost className="absolute" pointerEvents="none">
       <ModalBottomSheet
         ref={sheetRef}
         onDismissRequest={onDismiss}
@@ -119,7 +119,7 @@ function BottomSheetRoot({
           </LockDragContext.Provider>
         </Column>
       </ModalBottomSheet>
-    </Host>
+    </EnsureHost>
   );
 }
 
