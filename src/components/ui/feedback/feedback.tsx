@@ -1,26 +1,18 @@
 import { AnimatedPressable } from "panelui-native";
-import type { ComponentType, PropsWithChildren, ReactNode } from "react";
+import type { ReactElement } from "react";
 
-export type FeedbackProps<P> = {
-  for: ComponentType<PropsWithChildren<P>>;
+export type FeedbackProps = {
   onPress?: () => void;
   onLongPress?: () => void;
-  children: ReactNode;
-} & P;
+  children: ReactElement;
+};
 
-export function Feedback<P>({
-  for: Component,
-  onPress,
-  onLongPress,
-  children,
-  ...props
-}: FeedbackProps<P>) {
-  if (!onPress && !onLongPress)
-    return <Component {...(props as P)}>{children}</Component>;
+export function Feedback({ onPress, onLongPress, children }: FeedbackProps) {
+  if (!onPress && !onLongPress) return children;
 
   return (
     <AnimatedPressable onPress={onPress} onLongPress={onLongPress}>
-      <Component {...(props as P)}>{children}</Component>
+      {children}
     </AnimatedPressable>
   );
 }

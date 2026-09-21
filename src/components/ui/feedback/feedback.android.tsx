@@ -4,17 +4,11 @@ import { EnsureHost } from "@/components/ui/host";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { FeedbackProps } from "./feedback";
 
-export function Feedback<P>({
-  for: Component,
-  onPress,
-  onLongPress,
-  children,
-  ...props
-}: FeedbackProps<P>) {
+export function Feedback({ onPress, onLongPress, children }: FeedbackProps) {
   const m3 = useThemeM3Colors();
 
   return !onPress && !onLongPress ? (
-    <Component {...(props as P)}>{children}</Component>
+    children
   ) : (
     <EnsureHost matchContents>
       <Surface
@@ -26,7 +20,7 @@ export function Feedback<P>({
           combinedClickable({ onClick: onPress, onLongClick: onLongPress }),
         ]}
       >
-        <Component {...(props as P)}>{children}</Component>
+        {children}
       </Surface>
     </EnsureHost>
   );
