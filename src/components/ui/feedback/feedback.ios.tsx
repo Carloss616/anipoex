@@ -3,15 +3,9 @@ import { buttonStyle, onLongPressGesture } from "@expo/ui/swift-ui/modifiers";
 import { EnsureHost } from "@/components/ui/host";
 import type { FeedbackProps } from "./feedback";
 
-export function Feedback<P>({
-  for: Component,
-  onPress,
-  onLongPress,
-  children,
-  ...props
-}: FeedbackProps<P>) {
+export function Feedback({ onPress, onLongPress, children }: FeedbackProps) {
   return !onPress && !onLongPress ? (
-    <Component {...(props as P)}>{children}</Component>
+    children
   ) : (
     <EnsureHost matchContents>
       <Button
@@ -21,7 +15,7 @@ export function Feedback<P>({
           ...(onLongPress ? [onLongPressGesture(onLongPress)] : []),
         ]}
       >
-        <Component {...(props as P)}>{children}</Component>
+        {children}
       </Button>
     </EnsureHost>
   );

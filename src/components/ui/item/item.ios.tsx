@@ -46,20 +46,20 @@ function ItemRoot({
     <ItemSizeContext.Provider value={size}>
       <EnsureHost matchContents>
         <Feedback
-          for={Row}
-          // A SwiftUI button hands over no gesture event, and nothing
-          // downstream of a row reads one.
           onPress={
             disabled
               ? undefined
               : ((onPress ?? undefined) as (() => void) | undefined)
           }
-          alignment="center"
-          className={cn(PADDINGS[size], className)}
-          modifiers={disabled ? [opacity(0.64)] : undefined}
-          testID={testID}
         >
-          {children}
+          <Row
+            alignment="center"
+            className={cn(PADDINGS[size], className)}
+            modifiers={disabled ? [opacity(0.64)] : undefined}
+            testID={testID}
+          >
+            {children}
+          </Row>
         </Feedback>
       </EnsureHost>
     </ItemSizeContext.Provider>
