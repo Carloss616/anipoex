@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view/scroll-view";
+import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { SEMANTIC_COLOR } from "@/components/ui/colors";
 import { Icon } from "@/components/ui/icon";
@@ -61,7 +62,11 @@ export function SourceSheet({
       <Column className="web:flex-1 gap-4 py-4 android:pt-0">
         <Column className="gap-4 px-4">
           <Row alignment="center" className="gap-2">
-            <Typography type="h4">Source</Typography>
+            <Typography type="h4">Sources</Typography>
+            {/* M3's badge reads high; centered, this pads it 2dp down. */}
+            <Column className="android:pt-1">
+              <Badge>{sources.length}</Badge>
+            </Column>
             <Spacer flexible />
             {!!progress && (
               <Typography.Code className="web:self-auto">
