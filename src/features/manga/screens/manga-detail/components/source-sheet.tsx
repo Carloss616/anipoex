@@ -1,4 +1,5 @@
 import { Spacer } from "@expo/ui";
+import { useValue } from "@legendapp/state/react";
 import { Fragment, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Column } from "@/components/layout/column";
@@ -6,13 +7,13 @@ import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view/scroll-view";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { SEMANTIC_COLOR } from "@/components/ui/colors";
 import { Icon } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import { MOCK_SOURCES } from "@/features/manga/sources";
+import { MOCK_SOURCES, sourceColor } from "@/features/manga/sources";
+import { theme$ } from "@/state/theme";
 
 export interface SourceSheetProps {
   isPresented: boolean;
@@ -37,6 +38,7 @@ export function SourceSheet({
   onDismiss,
 }: SourceSheetProps) {
   const [query, setQuery] = useState("");
+  const mode = useValue(theme$.mode);
   const progress = useTrackingEntry(entryId)?.progress;
 
   const needle = query.trim().toLowerCase();
@@ -88,17 +90,15 @@ export function SourceSheet({
           ) : (
             <Item.Group>
               {sources.map((source, index) => {
-                const { className } = SEMANTIC_COLOR[source.color];
                 return (
                   <Fragment key={source.id}>
                     {index > 0 && <Item.Separator className="mx-4" />}
                     <Item onPress={() => onSelect(source.id)}>
-                      <Item.Media variant="icon" className={className.fill}>
-                        <Typography
-                          type="body-xs"
-                          weight="semibold"
-                          className={className.label}
-                        >
+                      <Item.Media
+                        variant="icon"
+                        style={{ backgroundColor: sourceColor(source, mode) }}
+                      >
+                        <Typography type="body-xs" weight="semibold">
                           {source.initials}
                         </Typography>
                       </Item.Media>
