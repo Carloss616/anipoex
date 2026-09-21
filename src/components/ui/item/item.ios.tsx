@@ -1,7 +1,14 @@
 import { Spacer } from "@expo/ui";
-import { LazyVStack } from "@expo/ui/swift-ui";
-import { opacity } from "@expo/ui/swift-ui/modifiers";
+import { LazyVStack, ZStack } from "@expo/ui/swift-ui";
+import {
+  background,
+  clipShape,
+  frame,
+  opacity,
+  strokeBorder,
+} from "@expo/ui/swift-ui/modifiers";
 import { cn } from "panelui-native/utils/cn";
+import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { Feedback } from "../feedback";
@@ -11,10 +18,10 @@ import { Typography } from "../typography";
 import {
   DESCRIPTION_TYPES,
   ItemSizeContext,
-  MEDIA_SIZES,
   PADDINGS,
   TITLE_TYPES,
   useItemSize,
+  useMediaTile,
 } from "./constants";
 import type {
   ItemActionsProps,
@@ -80,23 +87,35 @@ function ItemSeparator({ className, testID }: ItemSeparatorProps) {
   return <Separator className={className} testID={testID} />;
 }
 
-function ItemMedia({
-  variant = "default",
-  size,
-  className,
-  children,
-}: ItemMediaProps) {
-  const itemSize = useItemSize();
+function ItemMediaBase({ variant, size, style, children }: ItemMediaProps) {
+  const tile = useMediaTile({ variant, size, style });
+
+  if (!tile) return <Column alignment="center">{children}</Column>;
 
   return (
-    <Column
-      alignment="center"
-      className={cn(MEDIA_SIZES[variant][size ?? itemSize], className)}
+    <ZStack
+      modifiers={[
+        // A fixed frame centers what it holds on both axes by default.
+        frame({ width: tile.side, height: tile.side }),
+        background(tile.fill),
+        clipShape("roundedRectangle", tile.radius),
+        ...(tile.border
+          ? [
+              strokeBorder({
+                content: tile.border,
+                shape: "roundedRectangle",
+                cornerRadius: tile.radius,
+              }),
+            ]
+          : []),
+      ]}
     >
       {children}
-    </Column>
+    </ZStack>
   );
 }
+
+const ItemMedia = withUniwind(ItemMediaBase);
 
 /**
  * The text column. A SwiftUI `HStack` hugs its children, so the `Spacer` is

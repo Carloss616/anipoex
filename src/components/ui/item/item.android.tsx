@@ -1,6 +1,15 @@
-import { ListItem } from "@expo/ui/jetpack-compose";
-import { alpha, clickable } from "@expo/ui/jetpack-compose/modifiers";
+import { Box, ListItem } from "@expo/ui/jetpack-compose";
+import {
+  alpha,
+  background,
+  clickable,
+  clip,
+  paddingAll,
+  Shapes,
+  size as sizeModifier,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { cn } from "panelui-native/utils/cn";
+import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { EnsureHost } from "../host";
@@ -9,9 +18,9 @@ import { Typography } from "../typography";
 import {
   DESCRIPTION_TYPES,
   ItemSizeContext,
-  MEDIA_SIZES,
   TITLE_TYPES,
   useItemSize,
+  useMediaTile,
 } from "./constants";
 import type {
   ItemActionsProps,
@@ -75,25 +84,39 @@ function ItemSeparator({ className, testID }: ItemSeparatorProps) {
   return <Separator className={className} testID={testID} />;
 }
 
-function ItemMedia({
-  variant = "default",
-  size,
-  className,
-  children,
-}: ItemMediaProps) {
-  const itemSize = useItemSize();
+function ItemMediaBase({ variant, size, style, children }: ItemMediaProps) {
+  const tile = useMediaTile({ variant, size, style });
 
   return (
     <ListItem.LeadingContent>
-      <Column
-        alignment="center"
-        className={cn(MEDIA_SIZES[variant][size ?? itemSize], className)}
-      >
-        {children}
-      </Column>
+      {tile ? (
+        <Box
+          contentAlignment="center"
+          modifiers={[
+            sizeModifier(tile.side, tile.side),
+            clip(Shapes.RoundedCorner(tile.radius)),
+            // Compose's `border()` takes no shape, so a rounded one is the
+            // border color showing through a hairline gap around the fill.
+            ...(tile.border
+              ? [
+                  background(tile.border),
+                  paddingAll(1),
+                  clip(Shapes.RoundedCorner(tile.radius - 1)),
+                ]
+              : []),
+            background(tile.fill),
+          ]}
+        >
+          {children}
+        </Box>
+      ) : (
+        <Column alignment="center">{children}</Column>
+      )}
     </ListItem.LeadingContent>
   );
 }
+
+const ItemMedia = withUniwind(ItemMediaBase);
 
 /**
  * Pass-through: `ListItem` only finds its slots among its own direct children,

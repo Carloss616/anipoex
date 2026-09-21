@@ -1,6 +1,10 @@
 import type { ItemMediaProps, ItemProps } from "panelui-native/components/item";
 import type { TypographyType } from "panelui-native/components/typography";
 import { createContext, useContext } from "react";
+import { StyleSheet } from "react-native";
+import { useCSSVariable } from "uniwind";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { dp } from "@/utils/utils";
 
 export type ItemSize = NonNullable<ItemProps["size"]>;
 type ItemMediaVariant = NonNullable<ItemMediaProps["variant"]>;
@@ -25,16 +29,45 @@ export const DESCRIPTION_TYPES = {
   xs: "body-xs",
 } as const satisfies Record<ItemSize, TypographyType>;
 
-/** Leading tile, sized off the row's density. `default` is whatever it holds. */
-export const MEDIA_SIZES = {
-  default: { default: "", sm: "", xs: "" },
-  icon: { default: "h-10 w-10", sm: "h-8 w-8", xs: "h-6 w-6" },
-  image: { default: "h-12 w-12", sm: "h-10 w-10", xs: "h-8 w-8" },
-} as const satisfies Record<ItemMediaVariant, Record<ItemSize, string>>;
+/** Tile side in dp — the web tile's `h-10 w-10` and friends. */
+export const MEDIA_SIDES = {
+  icon: { default: 40, sm: 32, xs: 24 },
+  image: { default: 48, sm: 40, xs: 32 },
+} as const satisfies Record<
+  Exclude<ItemMediaVariant, "default">,
+  Record<ItemSize, number>
+>;
 
 /** The row's density, so each slot inherits it instead of being told. */
 export const ItemSizeContext = createContext<ItemSize>("default");
 
 export function useItemSize() {
   return useContext(ItemSizeContext);
+}
+
+/**
+ * A boxed media tile, resolved to values. The native stacks translate only a
+ * handful of classes — rounding and borders don't survive — so the tile is
+ * drawn with modifiers, and the one class it still honors is a `bg-*` fill.
+ * `null` for the `default` variant, which draws no box at all.
+ */
+export function useMediaTile({
+  variant = "default",
+  size,
+  style,
+}: Pick<ItemMediaProps, "variant" | "size" | "style">) {
+  const itemSize = useItemSize();
+  const [muted, border] = useThemeColor(["muted", "border"]);
+  // Each theme family sets its own rounding, so `rounded-lg` is read, not fixed.
+  const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
+  const { backgroundColor } = StyleSheet.flatten(style) ?? {};
+
+  if (variant === "default") return null;
+
+  return {
+    side: MEDIA_SIDES[variant][size ?? itemSize],
+    radius,
+    fill: (backgroundColor as string | undefined) ?? muted,
+    border: variant === "icon" ? border : undefined,
+  };
 }
