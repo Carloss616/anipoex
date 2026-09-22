@@ -53,6 +53,7 @@ export type MangaListQuery = {
         media: {
           __typename: "Media";
           id: number;
+          synonyms: Array<string | null> | null;
           genres: Array<string | null> | null;
           status: Types.MediaStatus | null;
           chapters: number | null;
@@ -232,6 +233,7 @@ export const MangaListDocument = {
               ],
             },
           },
+          { kind: "Field", name: { kind: "Name", value: "synonyms" } },
           {
             kind: "Field",
             name: { kind: "Name", value: "coverImage" },

@@ -48,6 +48,7 @@ export type MangaDetailQuery = {
     description: string | null;
     bannerImage: string | null;
     averageScore: number | null;
+    synonyms: Array<string | null> | null;
     genres: Array<string | null> | null;
     status: Types.MediaStatus | null;
     chapters: number | null;
@@ -185,6 +186,7 @@ export const MangaDetailDocument = {
               ],
             },
           },
+          { kind: "Field", name: { kind: "Name", value: "synonyms" } },
           {
             kind: "Field",
             name: { kind: "Name", value: "coverImage" },
