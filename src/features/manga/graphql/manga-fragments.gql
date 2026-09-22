@@ -22,6 +22,7 @@ fragment MangaBase on Media {
     romaji
     native
   }
+  synonyms
   coverImage {
     extraLarge
     large

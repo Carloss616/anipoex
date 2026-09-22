@@ -143,7 +143,7 @@ export function MangaDetail() {
                 // back to work out its height, and a class never reaches it.
                 style={{ width: 144 }}
               />
-              <Meta manga={manga} className="web:self-auto!" />
+              <Meta manga={manga} className="web:self-auto! web:flex-1" />
             </Row>
 
             {!!manga.genres?.length && (

@@ -17,6 +17,10 @@ export function Meta({
   className: string;
 }) {
   const isPreview = useIsPreview();
+  const title = manga.title?.userPreferred?.toLowerCase();
+  const synonyms = manga.synonyms
+    ?.filter((s) => s && s.toLowerCase() !== title)
+    .join(" · ");
   const state = [
     manga.status ? PUBLICATION_STATUSES[manga.status] : undefined,
     manga.startDate?.year,
@@ -26,9 +30,15 @@ export function Meta({
 
   return (
     <Column className={cn("gap-2", className)} alignment="start">
-      <Typography type="h3" className={cn(!isPreview && "hidden")}>
-        {manga.title?.userPreferred}
-      </Typography>
+      {isPreview && (
+        <Typography type="h3">{manga.title?.userPreferred}</Typography>
+      )}
+
+      {!!synonyms && (
+        <Typography type="body-sm" muted numberOfLines={3}>
+          {synonyms}
+        </Typography>
+      )}
 
       {!!manga.author && (
         <Row className="gap-2" alignment="center">
