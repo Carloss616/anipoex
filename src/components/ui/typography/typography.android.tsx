@@ -116,18 +116,18 @@ function TypographyRootBase({
           letterSpacing,
         }}
         modifiers={[
-          // Compose `Text` wraps its content, so a centered alignment needs the
-          // full width to center within.
+          // Compose `Text` wraps its content, so centering needs the full width.
           ...(alignment == null || alignment === "left"
             ? []
             : [fillMaxWidth()]),
           ...(testID ? [testIDModifier(testID)] : []),
           ...(onPress ? [clickable(onPress as () => void)] : []),
-          ...(pl || pt || pr || pb ? [padding(pl, pt, pr, pb)] : []),
           ...(isCode
             ? [clip(Shapes.RoundedCorner(6)), background(m3.surfaceContainer)]
             : []),
           ...(modifiers ?? []),
+          // Last, so backgrounds above paint under the padding (Compose is outside-in).
+          ...(pl || pt || pr || pb ? [padding(pl, pt, pr, pb)] : []),
         ]}
       >
         {textOf(children)}
