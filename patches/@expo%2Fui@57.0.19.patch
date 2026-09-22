@@ -1,0 +1,57 @@
+diff --git a/node_modules/@expo/ui/.bun-tag-dcaf421bfcaf86f7 b/.bun-tag-dcaf421bfcaf86f7
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/ios/HostView.swift b/ios/HostView.swift
+index 4c2c82e2bfaf95b66cca431803d1240a2c2a8fb4..a5d9f9d8835091144b89dd36e5842ca10c9250dd 100644
+--- a/ios/HostView.swift
++++ b/ios/HostView.swift
+@@ -74,6 +74,10 @@ struct HostView: ExpoSwiftUI.View, ExpoSwiftUI.WithHostingView {
+       )
+       .modifier(GeometryChangeModifier(props: props))
+       .coordinateSpace(name: expoHostCoordinateSpace)
++      .modifier(PinToHostOriginModifier(
++        isEnabled: props.matchContentsHorizontal || props.matchContentsVertical,
++        alignment: alignment
++      ))
+     } else {
+       ZStack(alignment: alignment) {
+         Children()
+@@ -89,6 +93,10 @@ struct HostView: ExpoSwiftUI.View, ExpoSwiftUI.WithHostingView {
+       )
+       .modifier(GeometryChangeModifier(props: props))
+       .coordinateSpace(name: expoHostCoordinateSpace)
++      .modifier(PinToHostOriginModifier(
++        isEnabled: props.matchContentsHorizontal || props.matchContentsVertical,
++        alignment: alignment
++      ))
+     }
+   }
+ 
+@@ -210,6 +218,27 @@ private struct GeometryChangeModifier: ViewModifier {
+   }
+ }
+ 
++/**
++ A matching `Host` is resized by Yoga a commit after its content changes size, and for that frame
++ `UIHostingController` centres the larger or smaller content in the old bounds — shifting the whole
++ page. Pinning the content to the host's leading edge keeps it where it was until the resize lands.
++ Placed outside `GeometryChangeModifier`, so the size reported to Yoga is still the content's.
++ */
++private struct PinToHostOriginModifier: ViewModifier {
++  let isEnabled: Bool
++  let alignment: Alignment
++
++  func body(content: Content) -> some View {
++    if isEnabled {
++      // The explicit zero minimums make the frame take the proposed (old) size even when the
++      // content has already outgrown it; without them it grows to the content and gets centred.
++      content.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: alignment)
++    } else {
++      content
++    }
++  }
++}
++
+ private struct ColorSchemeModifier: ViewModifier {
+   let colorScheme: ColorScheme?
+ 
