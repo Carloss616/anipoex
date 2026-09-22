@@ -1,3 +1,6 @@
+diff --git a/node_modules/@expo/ui/.bun-tag-ba82b216b48a45a1 b/.bun-tag-ba82b216b48a45a1
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/@expo/ui/.bun-tag-dcaf421bfcaf86f7 b/.bun-tag-dcaf421bfcaf86f7
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
@@ -55,3 +58,31 @@ index 4c2c82e2bfaf95b66cca431803d1240a2c2a8fb4..a5d9f9d8835091144b89dd36e5842ca1
  private struct ColorSchemeModifier: ViewModifier {
    let colorScheme: ColorScheme?
  
+diff --git a/src/jetpack-compose/colors.ts b/src/jetpack-compose/colors.ts
+index a3a2aa2581b2b4a779dad572481997362fe7283c..eb965d95353bee9678ca9495f0ff611a8b41e549 100644
+--- a/src/jetpack-compose/colors.ts
++++ b/src/jetpack-compose/colors.ts
+@@ -186,8 +186,22 @@ export const HostPaletteContext = createContext<MaterialColors | null>(null);
+ /**
+  * Get the Material 3 color palette.
+  */
++// A seeded palette is a pure function of (scheme, seed) and costs a synchronous
++// native call, while `useMaterialColors` calls this on every render. Unseeded
++// palettes follow the wallpaper and non-string seeds have no stable key, so
++// neither is cached.
++const seededPalettes = new Map<string, MaterialColors>();
++
+ export function getMaterialColors(options?: MaterialColorsOptions): MaterialColors {
+-  return ExpoUIModule.getMaterialColors(options ?? null);
++  if (typeof options?.seedColor !== "string") return ExpoUIModule.getMaterialColors(options ?? null);
++
++  const key = `${options.scheme}:${options.seedColor}`;
++  let palette = seededPalettes.get(key);
++  if (!palette) {
++    palette = ExpoUIModule.getMaterialColors(options) as MaterialColors;
++    seededPalettes.set(key, palette);
++  }
++  return palette;
+ }
+ 
+ /**
