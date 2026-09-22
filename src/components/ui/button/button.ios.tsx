@@ -49,6 +49,7 @@ const SIZES = {
   sm: "small",
   md: "regular",
   lg: "large",
+  xl: "extraLarge",
   icon: "regular",
 } as const satisfies Record<ButtonSize, ControlSize>;
 

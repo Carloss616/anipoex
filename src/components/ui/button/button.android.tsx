@@ -53,6 +53,7 @@ const HEIGHTS = {
   sm: 40,
   md: 48,
   lg: 56,
+  xl: 64,
   icon: 48,
 } as const satisfies Record<ButtonSize, number>;
 
