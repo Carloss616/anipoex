@@ -79,6 +79,7 @@
   },
   "private": true,
   "patchedDependencies": {
-    "panelui-native@0.80.0": "patches/panelui-native@0.80.0.patch"
+    "panelui-native@0.80.0": "patches/panelui-native@0.80.0.patch",
+    "@expo/ui@57.0.19": "patches/@expo%2Fui@57.0.19.patch"
   }
 }
