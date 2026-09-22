@@ -56,8 +56,8 @@ export function useMangaList(
         .filter(
           (m) =>
             (genre === ALL || m.genres?.includes(genre)) &&
-            [...Object.values(m.title ?? {}), ...(m.synonyms ?? [])].some(
-              (t) => t?.toLowerCase().includes(needle),
+            [...Object.values(m.title ?? {}), ...(m.synonyms ?? [])].some((t) =>
+              t?.toLowerCase().includes(needle),
             ),
         );
     },
