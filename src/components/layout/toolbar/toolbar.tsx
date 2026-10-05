@@ -1,5 +1,5 @@
-import type { StackToolbarProps } from "expo-router";
 import type { ReactElement } from "react";
+import type { StackToolbarProps } from "./toolbar-items";
 
 export type ToolbarProps = {
   children: ReactElement<StackToolbarProps>;

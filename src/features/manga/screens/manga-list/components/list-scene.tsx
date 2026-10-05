@@ -66,7 +66,7 @@ export function ListScene({
       refreshControl={
         <RefreshControl
           refreshing={refetching}
-          onRefresh={refetch}
+          onRefresh={() => void refetch()}
           {...refreshControlTheme}
         />
       }

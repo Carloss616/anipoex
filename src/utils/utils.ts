@@ -1,5 +1,5 @@
 import { isValidElement, type ReactNode } from "react";
-import type { AnimatableNumericValue, DimensionValue } from "react-native";
+import type { DimensionValue } from "react-native";
 
 export function noop() {}
 
@@ -14,9 +14,7 @@ export function omitUndefined<T extends object>(value: T): Partial<T> {
  * Native modifiers take dp, so percentages and `'auto'` — legal in a React
  * Native style — have to be dropped rather than passed through.
  */
-export function dp(
-  value?: DimensionValue | AnimatableNumericValue | string,
-): number | undefined {
+export function dp(value?: DimensionValue | string): number | undefined {
   return typeof value === "number"
     ? value
     : String(value).includes("%")

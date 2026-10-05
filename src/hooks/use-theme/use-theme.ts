@@ -1,12 +1,10 @@
 import type { MaterialColors } from "@expo/ui/jetpack-compose";
 import { useValue } from "@legendapp/state/react";
-import type {
-  NativeStackNavigationOptions,
-  StackSearchBarProps,
-  Theme,
-} from "expo-router";
-import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
+import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
+import type { NativeTabsProps } from "expo-router/native-tabs";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import type { ComponentProps } from "react";
 import type { RefreshControlProps } from "react-native";
 import { Platform } from "react-native";
 import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
@@ -80,7 +78,9 @@ export function useStackTheme(): NativeStackNavigationOptions {
   return {
     header,
     headerTintColor: foreground,
-    headerBlurEffect: "systemChromeMaterial",
+    headerBlurEffect: isLiquidGlassAvailable()
+      ? undefined
+      : "systemChromeMaterial",
     headerShadowVisible: false,
     headerTransparent: true,
     headerStyle: { backgroundColor: "transparent" },
@@ -89,7 +89,9 @@ export function useStackTheme(): NativeStackNavigationOptions {
   };
 }
 
-export function useStackSearchBarTheme(): StackSearchBarProps {
+export function useStackSearchBarTheme(): ComponentProps<
+  typeof Stack.SearchBar
+> {
   return {};
 }
 

@@ -1,4 +1,4 @@
-import { Stack, type StackToolbarProps } from "expo-router";
+import { Stack } from "expo-router";
 import {
   Children,
   type ComponentProps,
@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
+export type StackToolbarProps = ComponentProps<typeof Stack.Toolbar>;
 export type ToolbarButtonProps = ComponentProps<typeof Stack.Toolbar.Button>;
 export type ToolbarMenuProps = ComponentProps<typeof Stack.Toolbar.Menu>;
 type ToolbarMenuActionProps = ComponentProps<typeof Stack.Toolbar.MenuAction>;

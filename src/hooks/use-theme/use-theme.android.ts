@@ -1,11 +1,8 @@
 import { useMaterialColors } from "@expo/ui/jetpack-compose";
 import { useValue } from "@legendapp/state/react";
-import type {
-  NativeStackNavigationOptions,
-  StackSearchBarProps,
-  Theme,
-} from "expo-router";
-import type { NativeTabsProps } from "expo-router/unstable-native-tabs";
+import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
+import type { NativeTabsProps } from "expo-router/native-tabs";
+import type { ComponentProps } from "react";
 import { type RefreshControlProps, useWindowDimensions } from "react-native";
 import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
 import { useResolveClassNames } from "uniwind";
@@ -69,7 +66,9 @@ export function useStackTheme(): NativeStackNavigationOptions {
   };
 }
 
-export function useStackSearchBarTheme(): StackSearchBarProps {
+export function useStackSearchBarTheme(): ComponentProps<
+  typeof Stack.SearchBar
+> {
   const m3 = useThemeM3Colors();
 
   return {
