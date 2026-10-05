@@ -3,6 +3,7 @@ import "@/utils/focus-modality";
 import "@/utils/text-input-state";
 
 import { ApolloProvider } from "@apollo/client/react";
+import { useValue } from "@legendapp/state/react";
 import { useFonts } from "expo-font";
 import { ThemeProvider } from "expo-router";
 import { Stack } from "expo-router/stack";
@@ -15,6 +16,7 @@ import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
 import { client } from "@/graphql/client";
 import { useCacheRestored } from "@/graphql/use-cache-restored";
 import { useNavigationTheme } from "@/hooks/use-theme";
+import { session$ } from "@/state/session";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,13 +39,26 @@ export default function RootLayout() {
       <ApolloProvider client={client}>
         <ThemeProvider value={theme}>
           <AnimatedSplashOverlay />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="sign-in" options={{ presentation: "modal" }} />
-          </Stack>
+          <Layout />
           <ToastHost />
           <StatusBar style={theme.dark ? "light" : "dark"} />
         </ThemeProvider>
       </ApolloProvider>
     </PanelUIProvider>
+  );
+}
+
+function Layout() {
+  const token = useValue(session$.token);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!!token} redirectTo="/sign-in">
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!token} redirectTo="/">
+        <Stack.Screen name="sign-in" options={{ presentation: "modal" }} />
+      </Stack.Protected>
+    </Stack>
   );
 }

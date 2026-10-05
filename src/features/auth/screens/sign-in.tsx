@@ -32,8 +32,7 @@ export function SignIn() {
           `Signed in, but we couldn't load your profile: ${cause instanceof Error ? cause.message : cause}`,
         );
       }
-
-      close();
+      // No navigation: the root sign-in guard redirects once the token is set.
     } catch (cause) {
       toast.destructive(
         cause instanceof Error ? cause.message : "Something went wrong",

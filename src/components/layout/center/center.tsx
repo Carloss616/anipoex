@@ -11,7 +11,7 @@ export function Center({
     <EnsureHost className="flex-1">
       <Column
         alignment="center"
-        className={cn("web:flex-1 web:justify-center", className)}
+        className={cn("flex-1 web:justify-center", className)}
         {...props}
       >
         {children}

@@ -35,7 +35,12 @@ const ALIGN = {
   left: "leading",
   center: "center",
   right: "trailing",
-} as const satisfies Record<TypographyAlign, "leading" | "center" | "trailing">;
+  start: "leading",
+  end: "trailing",
+} as const satisfies Record<
+  TypographyAlign | "start" | "end",
+  "leading" | "center" | "trailing"
+>;
 
 function TypographyRootBase({
   children,
