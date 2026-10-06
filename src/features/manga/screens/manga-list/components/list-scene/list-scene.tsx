@@ -1,9 +1,6 @@
 import type { Observable, ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
-import {
-  type UseBreakpointResult,
-  useBreakpoint,
-} from "panelui-native/hooks/use-breakpoint";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { RefreshControl } from "react-native";
 import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
@@ -12,27 +9,18 @@ import { useMangaList } from "@/features/manga/hooks/use-manga-list";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { useRefreshControlTheme } from "@/hooks/use-theme";
-import { ListEmpty } from "./list-empty";
-import { ListHeader } from "./list-header";
-import { ListItem } from "./list-item";
+import { ListEmpty } from "../list-empty";
+import { ListHeader } from "../list-header";
+import { ListItem } from "../list-item";
+import { COLUMNS } from "./grid";
 
-const COLUMNS = {
-  base: 4,
-  sm: 4,
-  md: 6,
-  lg: 8,
-  xl: 12,
-} as const satisfies Record<UseBreakpointResult["current"], number>;
-
-export function ListScene({
-  status,
-  query$,
-  counts$,
-}: {
+export interface ListSceneProps {
   status: MediaListStatus;
   query$: ObservablePrimitive<string>;
   counts$: Observable<Record<MediaListStatus, number | null>>;
-}) {
+}
+
+export function ListScene({ status, query$, counts$ }: ListSceneProps) {
   const { current } = useBreakpoint();
   const { manga$, genres$, genre$, loading, refetching, refetch } =
     useMangaList(status, query$, counts$);
