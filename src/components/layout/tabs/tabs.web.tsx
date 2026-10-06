@@ -43,6 +43,12 @@ const ROUTES = [
     label: "Manga",
     icon: { default: "book-open", selected: "book-open-text" },
   },
+  {
+    name: "extensions",
+    href: "/extensions",
+    label: "Extensions",
+    icon: { default: "puzzle", selected: "puzzle" },
+  },
 ] as const satisfies Route[];
 
 export function Tabs() {
