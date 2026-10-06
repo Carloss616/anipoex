@@ -1,11 +1,19 @@
+import { usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/native-tabs";
+import { FilterPicker } from "@/features/extensions/components/filter-picker";
 import { useNativeTabsTheme } from "@/hooks/use-theme";
 
 export function Tabs() {
   const tabTheme = useNativeTabsTheme();
+  const onExtensions = usePathname().startsWith("/extensions");
 
   return (
     <NativeTabs minimizeBehavior="onScrollDown" sidebarAdaptable {...tabTheme}>
+      {onExtensions && (
+        <NativeTabs.BottomAccessory>
+          <FilterPicker />
+        </NativeTabs.BottomAccessory>
+      )}
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
