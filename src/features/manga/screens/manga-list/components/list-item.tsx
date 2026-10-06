@@ -3,13 +3,14 @@ import { useRouter } from "expo-router";
 import { memo } from "react";
 import { useResolveClassNames } from "uniwind";
 import { MangaCard } from "@/features/manga/components/manga-card";
+import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { dp } from "@/utils/utils";
 import { cellWidth } from "./list-scene/grid";
 
-/** "progress/chapters" from the cache, so it updates without a refetch. */
-function useProgressLabel({
+/** Progress from the cache, so it updates without a refetch: shown, and spoken. */
+function useProgress({
   id,
   __typename,
 }: Pick<MangaEntry, "id" | "__typename">) {
@@ -18,8 +19,15 @@ function useProgressLabel({
     fragmentName: "MangaMedia",
     from: { __typename, id },
   });
+  const read = data.mediaListEntry?.progress ?? 0;
+  const total = data.chapters;
 
-  return `${data.mediaListEntry?.progress ?? 0}/${data.chapters ?? "_"}`;
+  return {
+    label: `${read}/${total ?? "_"}`,
+    spoken: total
+      ? `${read} of ${total} chapters read`
+      : `${read} chapters read`,
+  };
 }
 
 /**
@@ -53,7 +61,8 @@ export const ListItem = memo(function ListItem({
   width?: number;
 }) {
   const router = useRouter();
-  const label = useProgressLabel(item);
+  const progress = useProgress(item);
+  const title = item.title?.userPreferred;
 
   return (
     <MangaCard
@@ -61,9 +70,16 @@ export const ListItem = memo(function ListItem({
       cover={item.coverImage?.medium}
       coverColor={item.coverImage?.color}
       status={item.status}
-      title={item.title?.userPreferred}
-      label={label}
-      accessibilityLabel={item.title?.userPreferred ?? undefined}
+      title={title}
+      label={progress.label}
+      // The badge is a letter and the label a fraction: say both in words.
+      accessibilityLabel={[
+        title,
+        item.status && PUBLICATION_STATUSES[item.status],
+        progress.spoken,
+      ]
+        .filter(Boolean)
+        .join(", ")}
       testID={`manga-card-${item.id}`}
       onPress={() => router.push(`/manga/${item.id}`)}
     />

@@ -2,6 +2,7 @@ import BookIcon from "@expo/material-symbols/book.xml";
 import { Box } from "@expo/ui/jetpack-compose";
 import {
   align,
+  clickable,
   clip,
   combinedClickable,
   fillMaxSize,
@@ -92,14 +93,17 @@ function MangaCardBase({
             ? [semantics({ contentDescription: accessibilityLabel })]
             : []),
           ...(testID ? [testIDModifier(testID)] : []),
-          ...(onPress || onLongPress
+          // `combinedClickable` always reports a long-click action to TalkBack.
+          ...(onLongPress
             ? [
                 combinedClickable({
                   onClick: onPress,
                   onLongClick: onLongPress,
                 }),
               ]
-            : []),
+            : onPress
+              ? [clickable(onPress)]
+              : []),
         ]}
       />
     </Box>
