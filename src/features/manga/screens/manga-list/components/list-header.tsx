@@ -4,7 +4,7 @@ import { memo } from "react";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { Chip } from "@/components/ui/chip";
-import { Host } from "@/components/ui/host";
+import { EnsureHost } from "@/components/ui/host";
 
 export const ListHeader = memo(function ListHeader({
   genre$,
@@ -19,7 +19,7 @@ export const ListHeader = memo(function ListHeader({
   >;
 }) {
   return (
-    <Host matchContents={{ vertical: true }} className="w-full">
+    <EnsureHost matchContents={{ vertical: true }} className="w-full">
       <ScrollView direction="horizontal" showsIndicators={false}>
         <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
           <For each={genres$} optimized>
@@ -34,6 +34,6 @@ export const ListHeader = memo(function ListHeader({
           </For>
         </Row>
       </ScrollView>
-    </Host>
+    </EnsureHost>
   );
 });

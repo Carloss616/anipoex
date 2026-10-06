@@ -2,14 +2,14 @@ import type { ImageSource } from "expo-image";
 import { Card } from "panelui-native/components/card";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
+import { Badge } from "@/components/ui/badge";
+import { Feedback } from "@/components/ui/feedback";
 import { EnsureRNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { ScrimGradient } from "@/components/ui/scrim";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { dp } from "@/utils/utils";
-import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
-import { Feedback } from "./components/feedback";
 import { STATUS_COLOR } from "./constants";
 
 export interface MangaCardProps {
@@ -29,12 +29,7 @@ export interface MangaCardProps {
   onLongPress?: () => void;
 }
 
-/**
- * No Android sibling on purpose: `<Host>` is a whole `ComposeView` there, so one
- * per grid cell tanks scrolling and sizes too late for LegendList. Hence plain RN
- * throughout — `<ScrimGradient>`, `<Lucide>` and `<TouchableNativeFeedback>` instead of
- * `<ScrimColumn>`, `<Icon>` and a Compose ripple, which each resolve to a Host.
- */
+/** The web card. iOS and Android draw their own, inside the native grid's single Host. */
 export function MangaCard({
   cover,
   coverThumb,

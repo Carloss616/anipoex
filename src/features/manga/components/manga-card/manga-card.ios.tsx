@@ -1,6 +1,8 @@
 import { Spacer } from "@expo/ui";
 import { ZStack } from "@expo/ui/swift-ui";
 import {
+  accessibilityAddTraits,
+  accessibilityElement,
   accessibilityIdentifier,
   accessibilityLabel,
   foregroundStyle,
@@ -13,13 +15,13 @@ import { StyleSheet, View } from "react-native";
 import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
+import { Badge } from "@/components/ui/badge";
 import { Host, RNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { ScrimColumn } from "@/components/ui/scrim";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
-import { Badge } from "./components/badge";
 import { CoverImage } from "./components/cover-image";
 import { STATUS_COLOR } from "./constants";
 import type { MangaCardProps } from "./manga-card";
@@ -120,13 +122,16 @@ function MangaCardBase({
     const width = dp(flat.width);
     const height = dp(flat.height) ?? (width ? width * (3 / 2) : undefined);
 
-    // Nothing but SwiftUI above this stack, so it carries its own name and iOS reads
-    // it straight off the modifiers.
     return (
       <Column
         style={{ height, ...flat }}
         modifiers={[
-          ...(a11yLabel ? [accessibilityLabel(a11yLabel)] : []),
+          ...(a11yLabel
+            ? [accessibilityElement("ignore"), accessibilityLabel(a11yLabel)]
+            : []),
+          ...(onPress || onLongPress
+            ? [accessibilityAddTraits(["isButton"])]
+            : []),
           ...(testID ? [accessibilityIdentifier(testID)] : []),
         ]}
       >

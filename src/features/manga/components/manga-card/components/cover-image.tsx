@@ -1,17 +1,19 @@
 import { Image, type ImageProps, type ImageSource } from "expo-image";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
+export interface CoverImageProps {
+  cover?: string | ImageSource | null;
+  coverThumb?: string | null;
+  coverColor?: string | null;
+  style?: ImageProps["style"];
+}
+
 export function CoverImage({
   cover,
   coverThumb,
   coverColor,
   style,
-}: {
-  cover?: string | ImageSource | null;
-  coverThumb?: string | null;
-  coverColor?: string | null;
-  style?: ImageProps["style"];
-}) {
+}: CoverImageProps) {
   const overlay = useThemeColor("overlay");
   const uri = typeof cover === "string" ? cover : cover?.uri;
 
