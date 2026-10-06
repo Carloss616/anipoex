@@ -1,5 +1,4 @@
 import {
-  ContentUnavailableView,
   List,
   Section,
   Spacer,
@@ -15,6 +14,7 @@ import { useValue } from "@legendapp/state/react";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
 import { useState } from "react";
+import { EmptyState } from "@/components/empty-state";
 import { Row } from "@/components/layout/row";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Badge } from "@/components/ui/badge";
@@ -45,13 +45,7 @@ import type { ExtensionListProps } from "./extension-list";
  */
 const HAS_ACCESSORY = isLiquidGlassAvailable();
 
-const EMPTY = (
-  <ContentUnavailableView
-    title="No Extensions"
-    systemImage="puzzlepiece.extension"
-    description="Nothing matches this filter."
-  />
-);
+const EMPTY = <EmptyState title="No extensions match this filter" />;
 
 export function ExtensionList({
   sections,
