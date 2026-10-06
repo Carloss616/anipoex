@@ -7,7 +7,11 @@ import { Typography } from "../typography";
 export interface BadgeProps {
   /** Label or count. Left out, the badge is a bare dot. */
   children?: ReactNode;
-  color?: SemanticColor;
+  /**
+   * `inherit` takes the platform's own badge colors: M3's `error` pair on
+   * Android, and `destructive` (the same red) where there is no native badge.
+   */
+  color?: SemanticColor | "inherit";
   className?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -22,6 +26,7 @@ export function Badge({
   testID,
 }: BadgeProps) {
   const dot = children == null;
+  const semantic = color === "inherit" ? "destructive" : color;
 
   return (
     <View
@@ -29,7 +34,7 @@ export function Badge({
       style={style}
       className={cn(
         "items-center justify-center rounded-full",
-        SEMANTIC_COLOR[color].className.fill,
+        SEMANTIC_COLOR[semantic].className.fill,
         dot ? "size-2" : "min-w-5 px-1.5 py-0.5",
         className,
       )}
@@ -40,7 +45,7 @@ export function Badge({
           weight="medium"
           className={cn(
             "leading-[normal]",
-            SEMANTIC_COLOR[color].className.label,
+            SEMANTIC_COLOR[semantic].className.label,
           )}
         >
           {children}

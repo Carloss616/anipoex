@@ -7,11 +7,14 @@ import { Typography } from "../typography";
 import type { BadgeProps } from "./badge";
 
 /** Seeds an M3 scheme off the semantic color, so it harmonizes with the theme. */
-export function useColors(color: SemanticColor) {
+export function useColors(color: SemanticColor | "inherit") {
   const themeColor =
-    SEMANTIC_COLOR[color === "secondary" ? "primary" : color].token.fill;
+    SEMANTIC_COLOR[
+      color === "secondary" || color === "inherit" ? "primary" : color
+    ].token.fill;
   const m3 = useThemeM3Colors(themeColor);
 
+  if (color === "inherit") return { container: undefined, content: undefined };
   // `secondary` is the neutral badge, so it takes the surface, not the seed.
   return color === "secondary"
     ? { container: m3.surfaceContainerHighest, content: m3.onSurface }
@@ -35,7 +38,7 @@ export function Badge({ children, color = "secondary", testID }: BadgeProps) {
         modifiers={testID ? [testIDModifier(testID)] : []}
       >
         {children == null ? null : (
-          <Typography type="body-xs" weight="medium" style={{ color: content }}>
+          <Typography type="body-xs" weight="medium" className="text-inherit">
             {children}
           </Typography>
         )}

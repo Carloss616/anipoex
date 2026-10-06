@@ -22,7 +22,8 @@ const DOT = 8;
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/hstack/
  */
 export function Badge({ children, color = "secondary", testID }: BadgeProps) {
-  const { token } = SEMANTIC_COLOR[color];
+  // No native badge to inherit from: `destructive` is the red it would be.
+  const { token } = SEMANTIC_COLOR[color === "inherit" ? "destructive" : color];
   const [container, content] = useThemeColor([token.fill, token.label]);
   return (
     <EnsureHost matchContents>
@@ -40,9 +41,10 @@ export function Badge({ children, color = "secondary", testID }: BadgeProps) {
           modifiers={[
             padding({ horizontal: 6, vertical: 2 }),
             background(container, shapes.capsule()),
+            foregroundStyle(content),
           ]}
         >
-          <Typography type="body-xs" weight="medium" style={{ color: content }}>
+          <Typography type="body-xs" weight="medium" className="text-inherit">
             {children}
           </Typography>
         </HStack>
