@@ -7,7 +7,6 @@ import {
   ToggleButton,
 } from "@expo/ui/jetpack-compose";
 import { align, fillMaxSize, offset } from "@expo/ui/jetpack-compose/modifiers";
-import { useValue } from "@legendapp/state/react";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,26 +14,17 @@ import { EmptyState } from "@/components/empty-state";
 import { Row } from "@/components/layout/row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CloseButton } from "@/components/ui/close-button";
 import { Host } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
 import { Typography } from "@/components/ui/typography";
 import {
-  describeVersion,
   EXTENSION_FILTERS,
-  type Extension,
-  hasUpdate,
-  installExtension,
   toRows,
-  uninstallExtension,
   updateAllExtensions,
-  updateExtension,
 } from "@/features/extensions";
-import { sourceColor } from "@/features/manga/sources";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { theme$ } from "@/state/theme";
+import { ExtensionRow } from "../extension-row";
 import type { ExtensionListProps } from "./extension-list";
 
 const TITLES = {
@@ -42,12 +32,6 @@ const TITLES = {
   installed: "Installed",
   updates: "Updates",
 } as const;
-
-const MORE = Icon.select({
-  ios: "ellipsis",
-  android: require("@expo/material-symbols/more_vert.xml"),
-  web: "ellipsis-vertical",
-});
 
 /** Floors of the rendered heights (dp), so a list that can't scroll never counts as one. */
 const HEADER_HEIGHT = 48;
@@ -187,71 +171,5 @@ export function ExtensionList({
         </HorizontalFloatingToolbar>
       </Box>
     </Host>
-  );
-}
-
-function ExtensionRow({ extension: e }: { extension: Extension }) {
-  const mode = useValue(theme$.mode);
-
-  return (
-    <Item>
-      <Item.Media
-        variant="icon"
-        style={{ backgroundColor: sourceColor(e, mode) }}
-      >
-        <Typography type="body-xs" weight="semibold">
-          {e.initials}
-        </Typography>
-      </Item.Media>
-      <Item.Content>
-        <Item.Title numberOfLines={1}>
-          {e.nsfw ? `${e.name} · 18+` : e.name}
-        </Item.Title>
-        <Item.Description numberOfLines={1}>
-          {`${e.language} · ${describeVersion(e)}`}
-        </Item.Description>
-      </Item.Content>
-      <Item.Actions>
-        {!e.installed ? (
-          <Button
-            size="sm"
-            variant="outline"
-            onPress={() => installExtension(e.id)}
-          >
-            Install
-          </Button>
-        ) : hasUpdate(e) ? (
-          <Button size="sm" onPress={() => updateExtension(e.id)}>
-            Update
-          </Button>
-        ) : (
-          <Badge>Installed</Badge>
-        )}
-        {e.installed && (
-          <Menu
-            items={[
-              {
-                label: "Uninstall",
-                destructive: true,
-                onPress: () => uninstallExtension(e.id),
-                onPressMode: "dialog",
-                dialogConfig: {
-                  title: `Uninstall ${e.name}?`,
-                  description: "You can install it again from Available.",
-                  confirmLabel: "Uninstall",
-                },
-              },
-            ]}
-          >
-            <CloseButton
-              variant="ghost"
-              accessibilityLabel={`More actions for ${e.name}`}
-            >
-              <Icon name={MORE} size={16} muted />
-            </CloseButton>
-          </Menu>
-        )}
-      </Item.Actions>
-    </Item>
   );
 }

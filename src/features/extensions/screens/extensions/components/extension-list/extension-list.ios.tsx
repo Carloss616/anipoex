@@ -10,7 +10,6 @@ import {
   scrollContentBackground,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { useValue } from "@legendapp/state/react";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Stack } from "expo-router";
 import { useState } from "react";
@@ -21,21 +20,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Host } from "@/components/ui/host";
-import { Item } from "@/components/ui/item";
 import { Typography } from "@/components/ui/typography";
 import {
-  describeVersion,
   type Extension,
-  hasUpdate,
-  installExtension,
   uninstallExtension,
   updateAllExtensions,
-  updateExtension,
 } from "@/features/extensions";
 import { FilterPicker } from "@/features/extensions/components/filter-picker";
-import { sourceColor } from "@/features/manga/sources";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { theme$ } from "@/state/theme";
+import { ExtensionRow } from "../extension-row";
 import type { ExtensionListProps } from "./extension-list";
 
 /**
@@ -170,48 +163,5 @@ function InstalledRow({ extension: e }: { extension: Extension }) {
         />
       </SwipeActions.Actions>
     </SwipeActions>
-  );
-}
-
-function ExtensionRow({ extension: e }: { extension: Extension }) {
-  const mode = useValue(theme$.mode);
-
-  return (
-    // The List row already insets its content.
-    <Item className="p-0">
-      <Item.Media
-        variant="icon"
-        style={{ backgroundColor: sourceColor(e, mode) }}
-      >
-        <Typography type="body-xs" weight="semibold">
-          {e.initials}
-        </Typography>
-      </Item.Media>
-      <Item.Content>
-        <Item.Title numberOfLines={1}>
-          {e.nsfw ? `${e.name} · 18+` : e.name}
-        </Item.Title>
-        <Item.Description numberOfLines={1}>
-          {`${e.language} · ${describeVersion(e)}`}
-        </Item.Description>
-      </Item.Content>
-      <Item.Actions>
-        {!e.installed ? (
-          <Button
-            size="sm"
-            variant="outline"
-            onPress={() => installExtension(e.id)}
-          >
-            Install
-          </Button>
-        ) : hasUpdate(e) ? (
-          <Button size="sm" onPress={() => updateExtension(e.id)}>
-            Update
-          </Button>
-        ) : (
-          <Badge>Installed</Badge>
-        )}
-      </Item.Actions>
-    </Item>
   );
 }
