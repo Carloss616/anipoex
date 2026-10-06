@@ -35,6 +35,18 @@ export function Tabs() {
           renderingMode="template"
         />
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="extensions">
+        <NativeTabs.Trigger.Label>Extensions</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: "puzzlepiece.extension",
+            selected: "puzzlepiece.extension.fill",
+          }}
+          md={{ default: "extension", selected: "extension" }}
+          renderingMode="template"
+        />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
