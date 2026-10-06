@@ -10,7 +10,7 @@ import { smootherstep } from "@/utils/ramp";
  * header is a different size on every platform, so a fixed total would leave a
  * different hero on each.
  */
-const ART_HEIGHT = 200;
+export const ART_HEIGHT = 200;
 
 /** Cover art behind the header. */
 export function Hero({ manga }: { manga: MangaDetail }) {
@@ -20,15 +20,7 @@ export function Hero({ manga }: { manga: MangaDetail }) {
   if (!art) return null;
 
   return (
-    <View
-      className="w-full"
-      style={{
-        height: maxHeaderHeight + ART_HEIGHT,
-        // Only iOS: elsewhere `headerTransparent` already positions it absolutely.
-        marginTop: Platform.OS === "ios" ? -maxHeaderHeight : 0,
-        marginBottom: -ART_HEIGHT,
-      }}
-    >
+    <View className="w-full" style={{ height: maxHeaderHeight + ART_HEIGHT }}>
       <Image
         source={art}
         style={[

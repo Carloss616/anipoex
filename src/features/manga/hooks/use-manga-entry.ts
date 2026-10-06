@@ -37,16 +37,18 @@ export function useMangaEntry(id: string) {
     if (!valid) return;
 
     setRefreshing(true);
-    client
-      .query({
-        query: MangaDetailDocument,
-        variables: { id: mediaId },
-        fetchPolicy: "network-only",
-        context: CONTEXT,
-      })
-      // The error link already toasts it; a rejection here would just be unhandled.
-      .catch(() => {})
-      .finally(() => setRefreshing(false));
+    return (
+      client
+        .query({
+          query: MangaDetailDocument,
+          variables: { id: mediaId },
+          fetchPolicy: "network-only",
+          context: CONTEXT,
+        })
+        // The error link already toasts it; a rejection here would just be unhandled.
+        .catch(() => {})
+        .finally(() => setRefreshing(false))
+    );
   }, [client, mediaId, valid]);
 
   // `cached.data` is partial when incomplete, so the list's half paints now and

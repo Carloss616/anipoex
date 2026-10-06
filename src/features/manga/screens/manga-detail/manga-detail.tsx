@@ -4,7 +4,6 @@ import { cn } from "panelui-native/utils/cn";
 import { EmptyState } from "@/components/empty-state";
 import { Center } from "@/components/layout/center";
 import { Column } from "@/components/layout/column";
-import { RefreshScrollView } from "@/components/layout/refresh-scroll-view";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { Toolbar } from "@/components/layout/toolbar";
@@ -21,6 +20,7 @@ import { noop } from "@/utils/utils";
 import { MangaCard } from "../../components/manga-card";
 import { CHAPTERS } from "../../mocks";
 import { Chapters } from "./components/chapters";
+import { DetailScroll } from "./components/detail-scroll";
 import { Hero } from "./components/hero";
 import { Meta } from "./components/meta";
 import { SourcePicker } from "./components/source-picker";
@@ -121,67 +121,65 @@ export function MangaDetail() {
         </Stack.Toolbar>
       </Toolbar>
 
-      <RefreshScrollView
+      <DetailScroll
         className={cn(isPreview && "ios:bg-background")}
         refreshing={refreshing}
         onRefresh={refresh}
+        hero={<Hero manga={manga} />}
       >
-        <Hero manga={manga} />
-        <Host matchContents={{ vertical: true }} className="w-full">
-          <Column className="gutters pt-gt pb-gb">
-            <Row
-              className="gutters gap-4 android:px-safe-offset-gx px-gx"
-              alignment="end"
-            >
-              <MangaCard
-                cover={manga.coverImage?.large}
-                coverThumb={manga.coverImage?.medium}
-                coverColor={manga.coverImage?.color}
-                accessibilityLabel={manga.title?.userPreferred ?? undefined}
-                testID="manga-detail-cover"
-                // Width as a style, not `w-36`: inside the Host the card has to read it
-                // back to work out its height, and a class never reaches it.
-                style={{ width: 144 }}
-              />
-              <Meta manga={manga} className="web:self-auto! web:flex-1" />
-            </Row>
+        <Column className="gutters pt-gt pb-gb">
+          <Row
+            className="gutters gap-4 android:px-safe-offset-gx px-gx"
+            alignment="end"
+          >
+            <MangaCard
+              cover={manga.coverImage?.large}
+              coverThumb={manga.coverImage?.medium}
+              coverColor={manga.coverImage?.color}
+              accessibilityLabel={manga.title?.userPreferred ?? undefined}
+              testID="manga-detail-cover"
+              // Width as a style, not `w-36`: inside the Host the card has to read it
+              // back to work out its height, and a class never reaches it.
+              style={{ width: 144 }}
+            />
+            <Meta manga={manga} className="web:self-auto! web:flex-1" />
+          </Row>
 
-            {!!manga.genres?.length && (
-              <ScrollView direction="horizontal" showsIndicators={false}>
-                <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
-                  {manga.genres.map((g) => (
-                    <Chip key={g} size="sm">
-                      <Chip.Label>{g}</Chip.Label>
-                    </Chip>
-                  ))}
-                </Row>
-              </ScrollView>
-            )}
-
-            <Column
-              className={cn(
-                "gutters gap-6 android:px-safe-offset-gx px-gx",
-                !manga.genres?.length && "pt-6",
-              )}
-            >
-              <Tracking manga={manga} />
-              <Synopsis text={manga.description} />
-
-              <Row alignment="center" className="gap-2">
-                <Typography weight="semibold">Chapters</Typography>
-                <Badge>{manga.chapters ?? CHAPTERS.length}</Badge>
-                <Spacer flexible />
-                <SourcePicker
-                  mangaId={manga.id}
-                  entryId={manga.mediaListEntry?.id}
-                  total={manga.chapters}
-                />
+          {!!manga.genres?.length && (
+            <ScrollView direction="horizontal" showsIndicators={false}>
+              <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
+                {manga.genres.map((g) => (
+                  <Chip key={g} size="sm">
+                    <Chip.Label>{g}</Chip.Label>
+                  </Chip>
+                ))}
               </Row>
-              <Chapters entryId={manga.mediaListEntry?.id} chapters={[]} />
-            </Column>
+            </ScrollView>
+          )}
+
+          <Column
+            className={cn(
+              "gutters gap-6 android:px-safe-offset-gx px-gx",
+              !manga.genres?.length && "pt-6",
+            )}
+          >
+            <Tracking manga={manga} />
+            <Synopsis text={manga.description} />
+
+            <Row alignment="center" className="gap-2">
+              <Typography weight="semibold">Chapters</Typography>
+              <Badge>{manga.chapters ?? CHAPTERS.length}</Badge>
+              <Spacer flexible />
+              <SourcePicker
+                mangaId={manga.id}
+                entryId={manga.mediaListEntry?.id}
+                total={manga.chapters}
+              />
+            </Row>
+            <Chapters entryId={manga.mediaListEntry?.id} chapters={[]} />
           </Column>
-        </Host>
-      </RefreshScrollView>
+        </Column>
+      </DetailScroll>
     </>
   );
 }
