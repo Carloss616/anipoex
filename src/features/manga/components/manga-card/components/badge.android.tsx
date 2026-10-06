@@ -12,7 +12,10 @@ export function Badge({
   style,
   className,
 }: BadgeProps) {
-  const { container, content } = useColors(color);
+  // No native Badge to fill in M3's defaults: `inherit` is `destructive`, as on iOS and web.
+  const { container, content } = useColors(
+    color === "inherit" ? "destructive" : color,
+  );
   const dot = children == null;
 
   return (
