@@ -3,6 +3,7 @@ import { ZStack } from "@expo/ui/swift-ui";
 import {
   accessibilityAddTraits,
   accessibilityElement,
+  accessibilityHidden,
   accessibilityIdentifier,
   accessibilityLabel,
   foregroundStyle,
@@ -45,6 +46,8 @@ function MangaCardBase({
   const content = (
     <ZStack
       modifiers={[
+        // The card speaks for itself (`accessibilityLabel`); its texts would repeat it.
+        ...(a11yLabel ? [accessibilityHidden()] : []),
         glassEffect({
           glass: {
             variant: "regular",
