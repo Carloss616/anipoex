@@ -45,7 +45,7 @@ function ItemRoot({
 }: ItemProps) {
   return (
     <ItemSizeContext.Provider value={size}>
-      <EnsureHost matchContents>
+      <EnsureHost matchContents={{ vertical: true }} className="w-full">
         <ListItem
           colors={{ containerColor: "transparent" }}
           modifiers={[
@@ -74,7 +74,7 @@ function ItemRoot({
  */
 function ItemGroup({ className, children }: ItemGroupProps) {
   return (
-    <EnsureHost matchContents>
+    <EnsureHost matchContents={{ vertical: true }} className="w-full">
       <Column className={cn("w-full", className)}>{children}</Column>
     </EnsureHost>
   );

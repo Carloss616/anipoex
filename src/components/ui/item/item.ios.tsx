@@ -44,7 +44,7 @@ function ItemRoot({
 }: ItemProps) {
   return (
     <ItemSizeContext.Provider value={size}>
-      <EnsureHost matchContents>
+      <EnsureHost matchContents={{ vertical: true }} className="w-full">
         <Feedback
           onPress={
             disabled
@@ -75,7 +75,7 @@ function ItemRoot({
  */
 function ItemGroup({ children, testID }: ItemGroupProps) {
   return (
-    <EnsureHost matchContents>
+    <EnsureHost matchContents={{ vertical: true }} className="w-full">
       <LazyVStack alignment="leading" spacing={0} testID={testID}>
         {children}
       </LazyVStack>
