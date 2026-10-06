@@ -57,7 +57,7 @@ export function ListScene({
       numColumns={numColumns}
       keyExtractor={(item) => String(item.id)}
       columnWrapperStyle={{ gap: 2 }}
-      contentContainerClassName="gutters px-safe-offset-gx pb-safe-offset-gb"
+      contentContainerClassName="gutters px-safe-offset-gx pb-gb"
       ListHeaderComponentClassName="gutters mx-bleed-safe-gx"
       ListHeaderComponent={<ListHeader genre$={genre$} genres$={genres$} />}
       renderItem={({ item }) => <ListItem item={item} />}

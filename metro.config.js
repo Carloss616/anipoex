@@ -25,20 +25,6 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     );
   }
 
-  // @legendapp/list's "browser" build renders raw <div>s that can't read the
-  // styles uniwind hands it. Force the react-native build on web.
-  if (platform === "web" && moduleName.startsWith("@legendapp/list")) {
-    return context.resolveRequest(
-      {
-        ...context,
-        unstable_conditionNames: ["react-native", "require"],
-        unstable_conditionsByPlatform: {},
-      },
-      moduleName,
-      platform,
-    );
-  }
-
   return (resolveRequest ?? context.resolveRequest)(
     context,
     moduleName,
