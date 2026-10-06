@@ -80,8 +80,9 @@ export function EnsureRNHostView(
   props: React.ComponentProps<typeof RNHostView>,
 ) {
   const isInsideHost = useIsInsideHost();
+  const isInsideRNHostView = useIsInsideRNHostView();
 
-  if (isInsideHost && Platform.OS !== "web") {
+  if (isInsideHost && !isInsideRNHostView && Platform.OS !== "web") {
     return <RNHostView {...props}>{props.children}</RNHostView>;
   }
 
