@@ -1,4 +1,5 @@
-import { ProgressView, ScrollView } from "@expo/ui/swift-ui";
+import { useApolloClient } from "@apollo/client/react";
+import { ProgressView, ScrollView, ZStack } from "@expo/ui/swift-ui";
 import {
   frame,
   padding,
@@ -8,6 +9,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { cn } from "panelui-native/utils/cn";
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,27 +18,28 @@ import { LazyVStack } from "@/components/layout/lazy-v-stack";
 import { Row } from "@/components/layout/row";
 import { Host } from "@/components/ui/host";
 import { Loader } from "@/components/ui/loader";
-import { useMangaList } from "@/features/manga/hooks/use-manga-list";
+import { listView$ } from "@/features/manga/state/list-view";
+import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListEmpty } from "../list-empty";
-import { ListHeader } from "../list-header";
 import { ListItem, useItemWidth } from "../list-item";
-import { COLUMNS, toRows } from "./grid";
+import { toRows } from "./grid";
 import type { ListSceneProps } from "./list-scene";
 
 const ROW = "gap-2 px-gx";
 
-export function ListScene({ status, query$, counts$ }: ListSceneProps) {
+export function ListScene({ list, query$, genre$, header }: ListSceneProps) {
   const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { manga$, genres$, genre$, loading, refetching, refetch } =
-    useMangaList(status, query$, counts$);
+  const { manga$, loading, refetching, refetch } = list;
   const manga = useValue(manga$);
   const mutedForeground = useThemeColor("muted-foreground");
   const [pulling, setPulling] = useState(false);
+  const client = useApolloClient();
 
-  const columns = COLUMNS[current];
+  const columns = columnsFor(current, useValue(listView$.density));
+  const titlePosition = toTitlePosition(useValue(listView$.title));
   // The Host already insets the safe area.
   const cell = useItemWidth(ROW, columns, width - insets.left - insets.right);
   const rows = toRows(manga, columns);
@@ -50,49 +53,72 @@ export function ListScene({ status, query$, counts$ }: ListSceneProps) {
   }
 
   return (
-    <Host className="flex-1">
-      <ScrollView
-        modifiers={[
-          refreshable(async () => {
-            setPulling(true);
-            try {
-              await refetch();
-            } finally {
-              setPulling(false);
-            }
-          }),
-        ]}
-      >
-        <LazyVStack className="gap-2 pb-gb" alignment="leading">
-          {/* Native-looking spinner for refreshes `refreshable` doesn't show. */}
-          {refetching && !pulling && (
-            <ProgressView
-              modifiers={[
-                scaleEffect(1.4),
-                tint(mutedForeground),
-                // The 60pt band the native refresh opens, minus the stack's gap.
-                frame({ maxWidth: Infinity, minHeight: 60, maxHeight: 60 }),
-                padding({ bottom: -8 }),
-              ]}
-            />
-          )}
-          <ListHeader genre$={genre$} genres$={genres$} />
-          {rows.length === 0 && <ListEmpty genre$={genre$} query$={query$} />}
-          <LazyVStack.ForEach
-            data={rows}
-            keyExtractor={(row) => row.map((m) => m.id).join()}
-            estimatedItemSize={cell * 1.5}
-          >
-            {({ item: row }) => (
-              <Row className={ROW}>
-                {row.map((item) => (
-                  <ListItem key={item.id} item={item} width={cell} />
-                ))}
-              </Row>
+    // Keyed: switching the title moves every cover to a new SwiftUI parent, and
+    // expo-image misses the load while it's re-hosted. A fresh grid loads them all.
+    <Host key={titlePosition} className="flex-1">
+      <ZStack>
+        <ScrollView
+          modifiers={[
+            refreshable(async () => {
+              setPulling(true);
+              try {
+                // The toolbar has no Refresh on iOS: this one redoes the counts too.
+                await Promise.all([
+                  refetch(),
+                  client.refetchQueries({ include: ["MangaListCounts"] }),
+                ]);
+              } finally {
+                setPulling(false);
+              }
+            }),
+          ]}
+        >
+          <LazyVStack
+            className={cn(
+              "pb-gb",
+              titlePosition === "below" ? "gap-5" : "gap-2",
             )}
-          </LazyVStack.ForEach>
-        </LazyVStack>
-      </ScrollView>
+            alignment="leading"
+          >
+            {/* Native-looking spinner for refreshes `refreshable` doesn't show. */}
+            {refetching && !pulling && (
+              <ProgressView
+                modifiers={[
+                  scaleEffect(1.4),
+                  tint(mutedForeground),
+                  // The 60pt band the native refresh opens, minus the stack's gap.
+                  frame({ maxWidth: Infinity, minHeight: 60, maxHeight: 60 }),
+                  padding({ bottom: -8 }),
+                ]}
+              />
+            )}
+            {header}
+            <LazyVStack.ForEach
+              data={rows}
+              keyExtractor={(row) => row.map((m) => m.id).join()}
+              // Two lines of title and the caption sit under the cover when `below`.
+              estimatedItemSize={
+                cell * 1.5 + (titlePosition === "below" ? 68 : 0)
+              }
+            >
+              {({ item: row }) => (
+                <Row className={ROW}>
+                  {row.map((item) => (
+                    <ListItem
+                      key={item.id}
+                      item={item}
+                      width={cell}
+                      titlePosition={titlePosition}
+                    />
+                  ))}
+                </Row>
+              )}
+            </LazyVStack.ForEach>
+          </LazyVStack>
+        </ScrollView>
+        {/* Over the grid, centred in the visible area; a lazy row can't fill it. */}
+        {rows.length === 0 && <ListEmpty genre$={genre$} query$={query$} />}
+      </ZStack>
     </Host>
   );
 }
