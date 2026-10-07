@@ -63,6 +63,7 @@ function ToolbarItemView({ item }: { item: ToolbarItem }) {
         label: action.label,
         icon: action.icon as IconName,
         disabled: action.disabled,
+        checked: action.isOn,
         onPress: action.onPress ?? noop,
       }))}
     >
