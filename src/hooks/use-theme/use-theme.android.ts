@@ -3,9 +3,7 @@ import { useValue } from "@legendapp/state/react";
 import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
-import { type RefreshControlProps, useWindowDimensions } from "react-native";
-import type { Route, TabBarProps, TabDescriptor } from "react-native-tab-view";
-import { useResolveClassNames } from "uniwind";
+import type { RefreshControlProps } from "react-native";
 import { header } from "@/components/layout/header";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
@@ -84,50 +82,5 @@ export function useRefreshControlTheme(): Partial<RefreshControlProps> {
   return {
     colors: [m3.primary],
     progressBackgroundColor: m3.surfaceContainerHigh,
-  };
-}
-
-export function useTabViewTheme(): {
-  commonOptions: Pick<TabDescriptor<Route>, "labelStyle">;
-  tabBar: Pick<
-    TabBarProps<Route>,
-    | "scrollEnabled"
-    | "activeColor"
-    | "inactiveColor"
-    | "pressColor"
-    | "style"
-    | "tabStyle"
-    | "indicatorStyle"
-    | "contentContainerStyle"
-  >;
-} {
-  const m3 = useThemeM3Colors();
-  const { width } = useWindowDimensions();
-  const tabWidth = Math.min(Math.max(width * 0.4, 140), 180);
-  const tabStyles = useResolveClassNames("px-4");
-  const labelStyles = useResolveClassNames("font-medium text-sm normal-case");
-  const indicatorStyles = useResolveClassNames("h-0.75 rounded-t-[3px]");
-  const contentStyles = useResolveClassNames("gutters px-safe-offset-gx");
-
-  return {
-    commonOptions: {
-      labelStyle: labelStyles,
-    },
-    tabBar: {
-      scrollEnabled: true,
-      activeColor: m3.primary,
-      inactiveColor: m3.onSurfaceVariant,
-      pressColor: m3.secondaryContainer,
-      style: {
-        backgroundColor: m3.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: m3.outlineVariant,
-        elevation: 0,
-        shadowOpacity: 0,
-      },
-      tabStyle: [tabStyles, { width: tabWidth }],
-      indicatorStyle: [indicatorStyles, { backgroundColor: m3.primary }],
-      contentContainerStyle: contentStyles,
-    },
   };
 }
