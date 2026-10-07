@@ -1,0 +1,15 @@
+query MangaListCounts($userId: Int!) {
+  MediaListCollection(
+    userId: $userId
+    type: MANGA
+    forceSingleCompletedList: true
+  ) {
+    lists {
+      status
+      isCustomList
+      entries {
+        id
+      }
+    }
+  }
+}
