@@ -4,7 +4,7 @@ import {
   type LegendListProps as LegendListBaseProps,
 } from "@legendapp/list/react-native";
 import { createElement, isValidElement } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { resolveSpacing } from "@/utils/resolve-spacing";
 
@@ -71,13 +71,12 @@ export function LegendList<T>({
   const halfGap = gap / 2;
 
   return (
-    // On a wrapper because rn-web puts `style` on both the RefreshControl and the
-    // ScrollView it wraps, so a margin on the list itself lands twice
+    // The top margin sits on a wrapper because rn-web puts `style` on both the
+    // RefreshControl and the ScrollView it wraps, so on the list it would land twice
     <View
       style={{
         flexGrow: 1,
         flexShrink: 1,
-        marginHorizontal: halfGap ? resolveSpacing(-halfGap) : 0,
         marginTop: gap && !ListHeaderComponent ? resolveSpacing(-gap) : 0,
       }}
     >
@@ -86,10 +85,18 @@ export function LegendList<T>({
         style={StyleSheet.flatten([
           // a hidden screen measures 0 wide, and the list would size to its widest item
           { width: "auto", flexGrow: 1 },
+          // the content's negative `marginInline` would otherwise scroll sideways
+          Platform.OS === "web" && ({ overflowX: "hidden" } as ViewStyle),
           style,
         ])}
         contentContainerStyle={StyleSheet.flatten([
-          { flexGrow: 1 },
+          {
+            flexGrow: 1,
+            marginInline: halfGap ? resolveSpacing(-halfGap) : 0,
+            // a column, so the empty component can fill the height left under the header
+            display: "flex",
+            flexDirection: "column",
+          },
           contentContainerStyle,
         ])}
         ListHeaderComponent={classedSlot(
@@ -104,7 +111,7 @@ export function LegendList<T>({
           ? {}
           : { ListHeaderComponentClassName, ListFooterComponentClassName })}
         ListHeaderComponentStyle={StyleSheet.flatten([
-          halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
+          halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
           gap ? { marginBottom: resolveSpacing(-gap), zIndex: 1 } : {},
           ListHeaderComponentStyle,
         ])}
@@ -125,7 +132,7 @@ export function LegendList<T>({
           );
         }}
         ListFooterComponentStyle={StyleSheet.flatten([
-          halfGap ? { paddingHorizontal: resolveSpacing(halfGap) } : {},
+          halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
           ListFooterComponentStyle,
         ])}
         {...(props as LegendListBaseProps<unknown>)}

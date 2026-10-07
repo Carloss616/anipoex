@@ -17,6 +17,7 @@ export interface ToolbarAction {
   label: string;
   icon?: ToolbarMenuActionProps["icon"];
   disabled?: boolean;
+  isOn?: boolean;
   onPress?: () => void;
 }
 
@@ -79,6 +80,7 @@ function toActions(children: ReactNode): ToolbarAction[] {
       label: labelOf(action.props, `Action ${index + 1}`),
       icon: action.props.icon,
       disabled: action.props.disabled,
+      isOn: action.props.isOn,
       onPress: action.props.onPress,
     }));
 }

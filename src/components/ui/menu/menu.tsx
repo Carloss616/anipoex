@@ -57,6 +57,8 @@ function RowItem({
         checked={checked}
         disabled={disabled}
         variant={variant}
+        // Every checked row here picks one of several, and native menus close on a pick.
+        closeOnSelect
         onCheckedChange={onPress}
       >
         {label}
