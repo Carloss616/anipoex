@@ -1,34 +1,37 @@
-import type { Observable, ObservablePrimitive } from "@legendapp/state";
+import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import type { ReactElement } from "react";
 import { RefreshControl } from "react-native";
 import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
 import { Loader } from "@/components/ui/loader";
-import { useMangaList } from "@/features/manga/hooks/use-manga-list";
-import type { MediaListStatus } from "@/graphql/types.generated";
+import type { MangaListState } from "@/features/manga/hooks/use-manga-list";
+import { listView$ } from "@/features/manga/state/list-view";
+import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { useRefreshControlTheme } from "@/hooks/use-theme";
 import { ListEmpty } from "../list-empty";
-import { ListHeader } from "../list-header";
 import { ListItem } from "../list-item";
-import { COLUMNS } from "./grid";
 
 export interface ListSceneProps {
-  status: MediaListStatus;
+  list: MangaListState;
   query$: ObservablePrimitive<string>;
-  counts$: Observable<Record<MediaListStatus, number | null>>;
+  genre$: ObservablePrimitive<string>;
+  /** Scrolls with the grid, above it (the genre and view controls). */
+  header?: ReactElement;
 }
 
-export function ListScene({ status, query$, counts$ }: ListSceneProps) {
+/** The grid for one list; the caller owns the data (`useMangaList`). */
+export function ListScene({ list, query$, genre$, header }: ListSceneProps) {
   const { current } = useBreakpoint();
-  const { manga$, genres$, genre$, loading, refetching, refetch } =
-    useMangaList(status, query$, counts$);
+  const { manga$, loading, refetching, refetch } = list;
   const refreshControlTheme = useRefreshControlTheme();
   const headerScroll = useHeaderScroll();
   const manga = useValue(manga$);
 
-  const numColumns = COLUMNS[current];
+  const numColumns = columnsFor(current, useValue(listView$.density));
+  const titlePosition = toTitlePosition(useValue(listView$.title));
 
   if (loading && !refetching) {
     return (
@@ -43,12 +46,17 @@ export function ListScene({ status, query$, counts$ }: ListSceneProps) {
       recycleItems
       data={manga}
       numColumns={numColumns}
+      // Recycled cells only redraw when this changes; the title mode lives in `renderItem`.
+      extraData={titlePosition}
       keyExtractor={(item) => String(item.id)}
-      columnWrapperStyle={{ gap: 2 }}
+      // Spacing units, one gap for both axes (see `LegendList`). Titles under the
+      // covers need air between rows; on the cover they don't.
+      columnWrapperStyle={{ gap: titlePosition === "below" ? 4 : 2 }}
       contentContainerClassName="gutters px-safe-offset-gx pb-gb"
-      ListHeaderComponentClassName="gutters mx-bleed-safe-gx"
-      ListHeaderComponent={<ListHeader genre$={genre$} genres$={genres$} />}
-      renderItem={({ item }) => <ListItem item={item} />}
+      ListHeaderComponent={header}
+      renderItem={({ item }) => (
+        <ListItem item={item} titlePosition={titlePosition} />
+      )}
       ListEmptyComponent={<ListEmpty genre$={genre$} query$={query$} />}
       {...headerScroll}
       refreshControl={

@@ -3,6 +3,7 @@ import { testID as testIDModifier } from "@expo/ui/jetpack-compose/modifiers";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
+import { Icon } from "../icon";
 import { Typography } from "../typography";
 import type { BadgeProps } from "./badge";
 
@@ -27,7 +28,12 @@ export function useColors(color: SemanticColor | "inherit") {
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/badge/
  */
-export function Badge({ children, color = "secondary", testID }: BadgeProps) {
+export function Badge({
+  children,
+  color = "secondary",
+  icon,
+  testID,
+}: BadgeProps) {
   const { container, content } = useColors(color);
 
   return (
@@ -37,7 +43,9 @@ export function Badge({ children, color = "secondary", testID }: BadgeProps) {
         contentColor={content}
         modifiers={testID ? [testIDModifier(testID)] : []}
       >
-        {children == null ? null : (
+        {icon ? (
+          <Icon name={icon} size={12} color={content} />
+        ) : children == null ? null : (
           <Typography type="body-xs" weight="medium" className="text-inherit">
             {children}
           </Typography>

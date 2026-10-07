@@ -39,7 +39,9 @@ export function resolveFill({
     box.maxHeight = Infinity;
   }
 
-  if (!Object.keys(box).length) return { style, modifiers };
+  // Flat either way: a className makes Uniwind pass `[classStyles, style]`, and
+  // @expo/ui reads `style.width` off the object, so an array would lose it.
+  if (!Object.keys(box).length) return { style: flat, modifiers };
 
   // @expo/ui drops its own `frame` when we pass one, so fixed sizes join ours
   // (as min = max: a plain width/height would cancel the max).

@@ -9,6 +9,7 @@ import {
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { SEMANTIC_COLOR } from "../colors";
 import { EnsureHost } from "../host";
+import { Icon } from "../icon";
 import { Typography } from "../typography";
 import type { BadgeProps } from "./badge";
 
@@ -21,13 +22,28 @@ const DOT = 8;
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/hstack/
  */
-export function Badge({ children, color = "secondary", testID }: BadgeProps) {
+export function Badge({
+  children,
+  color = "secondary",
+  icon,
+  testID,
+}: BadgeProps) {
   // No native badge to inherit from: `destructive` is the red it would be.
   const { token } = SEMANTIC_COLOR[color === "inherit" ? "destructive" : color];
   const [container, content] = useThemeColor([token.fill, token.label]);
   return (
     <EnsureHost matchContents>
-      {children == null ? (
+      {icon ? (
+        <HStack
+          testID={testID}
+          modifiers={[
+            frame({ width: 20, height: 20 }),
+            background(container, shapes.circle()),
+          ]}
+        >
+          <Icon name={icon} size={11} color={content} />
+        </HStack>
+      ) : children == null ? (
         <Circle
           testID={testID}
           modifiers={[

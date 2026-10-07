@@ -5,7 +5,10 @@ import { useResolveClassNames } from "uniwind";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
+import type { TitlePosition } from "@/features/manga/utils/list-view";
+import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
+import { MediaStatus } from "@/graphql/types.generated";
 import { dp } from "@/utils/utils";
 import { cellWidth } from "./list-scene/grid";
 
@@ -19,15 +22,7 @@ function useProgress({
     fragmentName: "MangaMedia",
     from: { __typename, id },
   });
-  const read = data.mediaListEntry?.progress ?? 0;
-  const total = data.chapters;
-
-  return {
-    label: `${read}/${total ?? "_"}`,
-    spoken: total
-      ? `${read} of ${total} chapters read`
-      : `${read} chapters read`,
-  };
+  return toProgress(data.mediaListEntry?.progress, data.chapters);
 }
 
 /**
@@ -55,8 +50,10 @@ export function useItemWidth(
 export const ListItem = memo(function ListItem({
   item,
   width,
+  titlePosition,
 }: {
   item: MangaEntry;
+  titlePosition: TitlePosition;
   /** Required in the native grids: the card's height comes from it. */
   width?: number;
 }) {
@@ -69,9 +66,12 @@ export const ListItem = memo(function ListItem({
       style={width ? { width } : undefined}
       cover={item.coverImage?.medium}
       coverColor={item.coverImage?.color}
-      status={item.status}
+      // Most of a list is still releasing: only the exceptions get a tag.
+      status={item.status === MediaStatus.Releasing ? undefined : item.status}
       title={title}
       label={progress.label}
+      progress={progress.fraction}
+      titlePosition={titlePosition}
       // The badge is a letter and the label a fraction: say both in words.
       accessibilityLabel={[
         title,

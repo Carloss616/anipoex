@@ -11,6 +11,7 @@ import {
   glassEffect,
   onLongPressGesture,
   onTapGesture,
+  shadow,
 } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 import { withUniwind } from "uniwind";
@@ -19,12 +20,13 @@ import { Row } from "@/components/layout/row";
 import { Badge } from "@/components/ui/badge";
 import { Host, RNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
+import { Progress } from "@/components/ui/progress";
 import { ScrimColumn } from "@/components/ui/scrim";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
 import { CoverImage } from "./components/cover-image";
-import { STATUS_COLOR } from "./constants";
+import { STATUS_COLOR, STATUS_ICON } from "./constants";
 import type { MangaCardProps } from "./manga-card";
 
 function MangaCardBase({
@@ -34,6 +36,8 @@ function MangaCardBase({
   status,
   title,
   label,
+  titlePosition = "over",
+  progress,
   style,
   accessibilityLabel: a11yLabel,
   testID,
@@ -42,6 +46,10 @@ function MangaCardBase({
 }: MangaCardProps) {
   const card = useThemeColor("card");
   const isInsideHost = useIsInsideHost();
+
+  const flat = StyleSheet.flatten(style) ?? {};
+  const width = dp(flat.width);
+  const height = dp(flat.height) ?? (width ? width * (3 / 2) : undefined);
 
   const content = (
     <ZStack
@@ -52,7 +60,7 @@ function MangaCardBase({
           glass: {
             variant: "regular",
             interactive: !!onPress || !!onLongPress,
-            tint: card,
+            tint: coverColor ?? card,
           },
           shape: "roundedRectangle",
           cornerRadius: 24,
@@ -64,7 +72,14 @@ function MangaCardBase({
       {cover ? (
         <RNHostView className="flex-1">
           <CoverImage
-            style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
+            // Sized up front when the card knows its size: the host gets its frame from
+            // SwiftUI a beat later, and expo-image skips a load while it measures 0×0.
+            style={[
+              width && height
+                ? { position: "absolute", width, height }
+                : StyleSheet.absoluteFill,
+              { borderRadius: 24 },
+            ]}
             cover={cover}
             coverThumb={coverThumb}
             coverColor={coverColor}
@@ -89,16 +104,16 @@ function MangaCardBase({
             frame({
               maxWidth: Infinity,
               maxHeight: Infinity,
-              alignment: "topTrailing",
+              alignment: "topLeading",
             }),
           ]}
         >
-          <Badge color={STATUS_COLOR[status]}>{status[0].toUpperCase()}</Badge>
+          <Badge color={STATUS_COLOR[status]} icon={STATUS_ICON[status]} />
         </Row>
       )}
       <Column className="flex-1">
         <Spacer />
-        {(title || label) && (
+        {titlePosition === "over" && (title || label) && (
           <ScrimColumn className="rounded-[24px] p-2 pt-12">
             <Typography
               type="body-xs"
@@ -120,45 +135,76 @@ function MangaCardBase({
     </ZStack>
   );
 
-  if (isInsideHost) {
-    const flat = StyleSheet.flatten(style) ?? {};
-    const width = dp(flat.width);
-    const height = dp(flat.height) ?? (width ? width * (3 / 2) : undefined);
+  const a11y = [
+    ...(a11yLabel
+      ? [accessibilityElement("ignore"), accessibilityLabel(a11yLabel)]
+      : []),
+    ...(onPress || onLongPress ? [accessibilityAddTraits(["isButton"])] : []),
+    ...(testID ? [accessibilityIdentifier(testID)] : []),
+  ];
 
-    return (
+  // Outside a Host the RN wrapper below speaks for the card.
+  const modifiers = isInsideHost ? a11y : undefined;
+
+  // Needs a width in `style`: the cover's height comes from it.
+  const body =
+    titlePosition === "below" ? (
       <Column
-        style={{ height, ...flat }}
-        modifiers={[
-          ...(a11yLabel
-            ? [accessibilityElement("ignore"), accessibilityLabel(a11yLabel)]
-            : []),
-          ...(onPress || onLongPress
-            ? [accessibilityAddTraits(["isButton"])]
-            : []),
-          ...(testID ? [accessibilityIdentifier(testID)] : []),
-        ]}
+        alignment="start"
+        className="gap-1.5"
+        style={flat}
+        modifiers={modifiers}
       >
+        <Column
+          style={{ width, height }}
+          // A faded glow in the cover's color: SwiftUI has no negative spread to tame it.
+          modifiers={[
+            shadow({
+              radius: 9,
+              y: 6,
+              color: coverColor ? `${coverColor}66` : "#00000000",
+            }),
+          ]}
+        >
+          {content}
+        </Column>
+        <Typography
+          type="body-sm"
+          weight="semibold"
+          numberOfLines={2}
+          // Always two lines tall, so captions and bars line up across a row.
+          minLines={2}
+        >
+          {title}
+        </Typography>
+        <Typography type="body-xs" muted numberOfLines={1}>
+          {label}
+        </Typography>
+        {progress != null && <Progress value={progress * 100} size="sm" />}
+      </Column>
+    ) : (
+      <Column style={{ height, ...flat }} modifiers={modifiers}>
         {content}
       </Column>
     );
-  }
+
+  if (isInsideHost) return body;
 
   return (
     /* <Link.Trigger>'s native view keeps a stale ref to its direct child, so it stops mounting
       the card once Fast Refresh remounts it. A host component's type never changes. */
     /* `accessible` makes this a leaf, which is what collapses the stack's text
       children into a single button — and hides their labels along with them, so
-      unlike the branch above the name has to be repeated out here. */
+      unlike the Host branch the name has to be repeated out here. */
     <View
       style={style}
-      className="aspect-2/3 rounded-[24px]"
       accessible={!!a11yLabel}
       accessibilityRole="button"
       accessibilityLabel={a11yLabel}
       testID={testID}
     >
-      <Host className="flex-1" ignoreSafeArea="all">
-        {content}
+      <Host matchContents={{ vertical: true }} ignoreSafeArea="all">
+        {body}
       </Host>
     </View>
   );

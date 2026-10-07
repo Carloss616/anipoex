@@ -56,6 +56,7 @@ function TypographyRootBase({
   muted = false,
   weight,
   numberOfLines,
+  minLines,
   style,
   onPress,
   testID,
@@ -106,6 +107,7 @@ function TypographyRootBase({
               (muted ? m3.onSurfaceVariant : m3.onSurface))
         }
         maxLines={numberOfLines}
+        minLines={minLines}
         overflow={numberOfLines == null ? undefined : "ellipsis"}
         style={{
           typography: TYPOGRAPHY[type],
