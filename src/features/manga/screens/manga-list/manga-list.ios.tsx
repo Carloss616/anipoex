@@ -1,6 +1,5 @@
 import { useObservable, useValue } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useWindowDimensions } from "react-native";
 import {
   MANGA_STATUS_ENTRIES,
@@ -8,22 +7,18 @@ import {
 } from "@/features/manga/constants";
 import { ALL, useMangaList } from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
-import { listView$ } from "@/features/manga/state/list-view";
-import {
-  columnOptions,
-  columnsFor,
-  toTitlePosition,
-} from "@/features/manga/utils/list-view";
 import { parseList } from "@/features/manga/utils/parse-list";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { ListScene } from "./components/list-scene";
+import { openViewSheet, ViewSheet } from "./components/view-sheet";
 import { LIST_SYMBOLS } from "./constants";
 import { useSearchQuery } from "./hooks/use-search-query";
 
 /**
- * iOS: one list at a time, named in the large title. One toolbar menu switches
- * it and holds the genre and view options. The menu sits inline: `Stack.Toolbar`
- * only reads its direct children, so a wrapper component would be dropped.
+ * iOS: one list at a time, named in the large title. A toolbar menu switches it
+ * and picks the genre; a second button opens the view sheet. The menu sits
+ * inline: `Stack.Toolbar` only reads its direct children, so a wrapper component
+ * would be dropped.
  */
 export function MangaList() {
   const { height } = useWindowDimensions();
@@ -35,10 +30,7 @@ export function MangaList() {
   const genre$ = useObservable(ALL);
   const mangaList = useMangaList(status, query$, genre$);
   const router = useRouter();
-  const { current } = useBreakpoint();
   const genres = useValue(mangaList.genres$);
-  const columns = columnsFor(current, useValue(listView$.density));
-  const title = toTitlePosition(useValue(listView$.title));
   const large = height > 640;
 
   return (
@@ -56,7 +48,7 @@ export function MangaList() {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           icon="line.3.horizontal.decrease"
-          accessibilityLabel="List and view options"
+          accessibilityLabel="List and genre"
         >
           <Stack.Toolbar.Menu inline title="List">
             {MANGA_STATUS_ENTRIES.map(([key, name]) => (
@@ -88,36 +80,15 @@ export function MangaList() {
               </Stack.Toolbar.MenuAction>
             ))}
           </Stack.Toolbar.Menu>
-          <Stack.Toolbar.Menu title="Columns" icon="square.grid.3x3">
-            {columnOptions(current).map((option) => (
-              <Stack.Toolbar.MenuAction
-                key={option.density}
-                isOn={option.columns === columns}
-                onPress={() => listView$.density.set(option.density)}
-              >
-                {`${option.columns} columns`}
-              </Stack.Toolbar.MenuAction>
-            ))}
-          </Stack.Toolbar.Menu>
-          <Stack.Toolbar.Menu title="Title" icon="textformat">
-            <Stack.Toolbar.MenuAction
-              icon="text.below.photo"
-              isOn={title === "below"}
-              onPress={() => listView$.title.set("below")}
-            >
-              Below cover
-            </Stack.Toolbar.MenuAction>
-            <Stack.Toolbar.MenuAction
-              icon="photo"
-              isOn={title === "over"}
-              onPress={() => listView$.title.set("over")}
-            >
-              On cover
-            </Stack.Toolbar.MenuAction>
-          </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>
+        <Stack.Toolbar.Button
+          icon="square.grid.2x2"
+          onPress={openViewSheet}
+          accessibilityLabel="View options"
+        />
       </Stack.Toolbar>
       <ListScene list={mangaList} query$={query$} genre$={genre$} />
+      <ViewSheet />
     </>
   );
 }
