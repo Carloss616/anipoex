@@ -1,13 +1,3 @@
-import type { UseBreakpointResult } from "panelui-native/hooks/use-breakpoint";
-
-export const COLUMNS = {
-  base: 4,
-  sm: 4,
-  md: 6,
-  lg: 8,
-  xl: 12,
-} as const satisfies Record<UseBreakpointResult["current"], number>;
-
 /** Splits `items` into rows of `columns`; the lazy stacks have no grid. */
 export function toRows<T>(items: readonly T[], columns: number): T[][] {
   const rows: T[][] = [];
