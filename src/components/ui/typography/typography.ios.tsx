@@ -49,6 +49,7 @@ function TypographyRootBase({
   muted = false,
   weight,
   numberOfLines,
+  minLines,
   style,
   onPress,
   testID,
@@ -120,7 +121,11 @@ function TypographyRootBase({
             ? []
             : [frame({ maxWidth: Infinity, alignment })]),
           ...(letterSpacing == null ? [] : [kerning(letterSpacing)]),
-          ...(numberOfLines == null ? [] : [lineLimit(numberOfLines)]),
+          ...(minLines != null
+            ? [lineLimit({ min: minLines, max: numberOfLines ?? minLines })]
+            : numberOfLines == null
+              ? []
+              : [lineLimit(numberOfLines)]),
           ...(onPress == null ? [] : [onTapGesture(onPress as () => void)]),
           ...(pl || pt || pr || pb || px || py || p
             ? [

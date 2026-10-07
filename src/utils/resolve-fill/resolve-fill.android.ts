@@ -34,6 +34,7 @@ export function resolveFill({
     fills.push(fillMaxHeight());
   }
 
-  if (!fills.length) return { style, modifiers };
+  // Flat either way: see the iOS twin for why an array can't reach @expo/ui.
+  if (!fills.length) return { style: flat, modifiers };
   return { style: flat, modifiers: [...fills, ...(modifiers ?? [])] };
 }
