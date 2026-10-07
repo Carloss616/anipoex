@@ -1,11 +1,7 @@
 import { NetworkStatus } from "@apollo/client";
 import { skipToken, useQuery } from "@apollo/client/react";
-import type { Observable, ObservablePrimitive } from "@legendapp/state";
-import {
-  useObservable,
-  useObserveEffect,
-  useValue,
-} from "@legendapp/state/react";
+import type { ObservablePrimitive } from "@legendapp/state";
+import { useObservable, useValue } from "@legendapp/state/react";
 import { useEffect } from "react";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
@@ -14,10 +10,14 @@ import { type MangaEntry, toEntries } from "../utils/to-entries";
 
 export const ALL = "All";
 
+/** Every list query a manual refresh or a tracking change should redo. */
+export const REFRESH_QUERIES = ["MangaList", "MangaListCounts"];
+
+/** One list, filtered by the search and by the caller's `genre$`. */
 export function useMangaList(
   status: MediaListStatus,
   query$: ObservablePrimitive<string>,
-  counts$: Observable<Record<MediaListStatus, number | null>>,
+  genre$: ObservablePrimitive<string>,
 ) {
   const userId = useValue(session$.user)?.id;
 
@@ -35,8 +35,6 @@ export function useMangaList(
   useEffect(() => {
     entries$.set(toEntries(data));
   }, [data, entries$]);
-
-  const genre$ = useObservable(ALL);
 
   /**
    * Computeds under a plain root: `useObservable` deactivates only its root node on unmount, and
@@ -63,16 +61,13 @@ export function useMangaList(
     },
   });
 
-  useObserveEffect(() => {
-    counts$[status].set(derived$.manga.length);
-  });
-
   return {
     manga$: derived$.manga,
     genres$: derived$.genres,
-    genre$,
     loading,
     refetching: networkStatus === NetworkStatus.refetch,
     refetch,
   };
 }
+
+export type MangaListState = ReturnType<typeof useMangaList>;

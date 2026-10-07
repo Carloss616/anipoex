@@ -5,6 +5,7 @@ import {
   SaveMangaTrackingDocument,
 } from "../graphql/manga-tracking.generated";
 import type { SaveVariables } from "../utils/tracking-form";
+import { REFRESH_QUERIES } from "./use-manga-list";
 
 /** Never the only feedback: the entry redraws, and the error link toasts. */
 async function felt<T>(work: Promise<T>) {
@@ -27,6 +28,8 @@ export function useSaveTracking(mediaId: number) {
     SaveMangaTrackingDocument,
     {
       context: { errorMessage: "Couldn't save your changes" },
+      // A status change moves the entry between lists and their counts.
+      refetchQueries: REFRESH_QUERIES,
       update(cache, { data }) {
         const entry = data?.SaveMediaListEntry;
         if (!entry) return;
@@ -46,6 +49,7 @@ export function useSaveTracking(mediaId: number) {
     DeleteMangaTrackingDocument,
     {
       context: { errorMessage: "Couldn't remove this from your list" },
+      refetchQueries: REFRESH_QUERIES,
       update(cache, { data }, { variables }) {
         if (!data?.DeleteMediaListEntry?.deleted) return;
 
