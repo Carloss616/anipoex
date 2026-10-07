@@ -6,6 +6,7 @@ import {
   SwipeActions,
 } from "@expo/ui/swift-ui";
 import {
+  listRowBackground,
   listStyle,
   scrollContentBackground,
   tint,
@@ -47,6 +48,8 @@ export function ExtensionList({
   languages,
   onLanguageChange,
 }: ExtensionListProps) {
+  const rowBackground = listRowBackground(useThemeColor("muted"));
+
   return (
     <>
       <Toolbar>
@@ -81,7 +84,7 @@ export function ExtensionList({
           >
             {/* Kept above an empty result too, so a filter can always be left. */}
             {!HAS_ACCESSORY && (
-              <Section>
+              <Section modifiers={[rowBackground]}>
                 <FilterPicker />
               </Section>
             )}
@@ -89,6 +92,7 @@ export function ExtensionList({
             {sections.map((s) => (
               <Section
                 key={s.key}
+                modifiers={[rowBackground]}
                 header={
                   <Row alignment="center" className="gap-3">
                     <Typography type="small" muted>
