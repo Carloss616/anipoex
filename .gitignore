@@ -45,6 +45,11 @@ example
 /ios
 /android
 
+# local native modules: their sources are tracked, their build output is not
+modules/*/android/build/
+modules/*/android/.gradle/
+modules/*/android/.cxx/
+
 # local
 docs/design
 docs/superpowers

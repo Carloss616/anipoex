@@ -1,3 +1,4 @@
+import { useApolloClient } from "@apollo/client/react";
 import { PullToRefreshBox } from "@expo/ui/jetpack-compose";
 import { fillMaxSize } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -6,66 +7,90 @@ import { useWindowDimensions } from "react-native";
 import { Center } from "@/components/layout/center";
 import { LazyColumn } from "@/components/layout/lazy-column";
 import { Row } from "@/components/layout/row";
-import { Host } from "@/components/ui/host";
+import { EnsureHost, EnsureRNHostView } from "@/components/ui/host";
 import { Loader } from "@/components/ui/loader";
-import { useMangaList } from "@/features/manga/hooks/use-manga-list";
+import { listView$ } from "@/features/manga/state/list-view";
+import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { ListEmpty } from "../list-empty";
-import { ListHeader } from "../list-header";
 import { ListItem, useItemWidth } from "../list-item";
-import { COLUMNS, toRows } from "./grid";
+import { toRows } from "./grid";
 import type { ListSceneProps } from "./list-scene";
 
 const ROW = "gap-2 px-safe-offset-gx";
 
 /**
- * One Host for the whole grid (a Host per card made scrolling crawl). @expo/ui
- * has no lazy grid, so rows go down a `LazyColumn`.
+ * One Host for the whole grid (a Host per card made scrolling crawl), or the
+ * pager's when it sits in one. @expo/ui has no lazy grid, so rows go down a
+ * `LazyColumn`.
  */
-export function ListScene({ status, query$, counts$ }: ListSceneProps) {
+export function ListScene({ list, query$, genre$, header }: ListSceneProps) {
   const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
-  const { manga$, genres$, genre$, loading, refetching, refetch } =
-    useMangaList(status, query$, counts$);
+  const { manga$, loading, refetching, refetch } = list;
   const manga = useValue(manga$);
+  const client = useApolloClient();
 
-  const columns = COLUMNS[current];
+  const columns = columnsFor(current, useValue(listView$.density));
+  const titlePosition = toTitlePosition(useValue(listView$.title));
   const cell = useItemWidth(ROW, columns, width);
   const rows = toRows(manga, columns);
 
   if (loading && !refetching) {
     return (
-      <Center>
-        <Loader variant="morph-ring" speed={3} size="lg" />
-      </Center>
+      // An RN view: inside the pager's Host it needs its own boundary.
+      <EnsureRNHostView className="flex-1">
+        <Center>
+          <Loader variant="morph-ring" speed={3} size="lg" />
+        </Center>
+      </EnsureRNHostView>
     );
   }
 
   return (
-    <Host className="flex-1">
+    // Reuses the pager's Host when it sits in one.
+    <EnsureHost className="flex-1">
       <PullToRefreshBox
         isRefreshing={refetching}
-        onRefresh={() => void refetch()}
+        // The app bar has no Refresh on Android: this one redoes the counts too.
+        onRefresh={() =>
+          void Promise.all([
+            refetch(),
+            client.refetchQueries({ include: ["MangaListCounts"] }),
+          ])
+        }
         contentAlignment="topCenter"
         modifiers={[fillMaxSize()]}
       >
-        <LazyColumn modifiers={[fillMaxSize()]} className="gap-2 pb-gb">
-          <ListHeader genre$={genre$} genres$={genres$} />
-          {rows.length === 0 && <ListEmpty genre$={genre$} query$={query$} />}
+        <LazyColumn
+          modifiers={[fillMaxSize()]}
+          className={titlePosition === "below" ? "gap-5 pb-gb" : "gap-2 pb-gb"}
+        >
+          {header}
           <LazyColumn.Items
             data={rows}
             keyExtractor={(row) => row.map((m) => m.id).join()}
-            estimatedItemSize={cell * 1.5}
+            // Two lines of title and the caption sit under the cover when `below`.
+            estimatedItemSize={
+              cell * 1.5 + (titlePosition === "below" ? 68 : 0)
+            }
           >
             {({ item: row }) => (
               <Row className={ROW}>
                 {row.map((item) => (
-                  <ListItem key={item.id} item={item} width={cell} />
+                  <ListItem
+                    key={item.id}
+                    item={item}
+                    width={cell}
+                    titlePosition={titlePosition}
+                  />
                 ))}
               </Row>
             )}
           </LazyColumn.Items>
         </LazyColumn>
+        {/* Over the list, not in it: a lazy item has no height to fill. */}
+        {rows.length === 0 && <ListEmpty genre$={genre$} query$={query$} />}
       </PullToRefreshBox>
-    </Host>
+    </EnsureHost>
   );
 }
