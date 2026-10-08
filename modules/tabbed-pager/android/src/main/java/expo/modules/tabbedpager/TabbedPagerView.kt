@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
@@ -19,6 +20,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.view.size
@@ -44,6 +46,7 @@ data class TabbedPagerProps(
   val tabs: List<TabItem> = emptyList(),
   val page: Int = 0,
   val fontFamily: String? = null,
+  val edgePadding: Double = 16.0,
   val modifiers: ModifierList = emptyList()
 ) : ComposeProps
 
@@ -99,21 +102,24 @@ fun FunctionalComposableScope.TabbedPagerContent(
   ) {
     PrimaryScrollableTabRow(
       selectedTabIndex = pagerState.currentPage.coerceIn(0, (props.tabs.size - 1).coerceAtLeast(0)),
-      edgePadding = 16.dp
+      edgePadding = props.edgePadding.dp
     ) {
       props.tabs.forEachIndexed { index, tab ->
         Tab(
           selected = pagerState.currentPage == index,
           onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
           text = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+              horizontalArrangement = Arrangement.spacedBy(8.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
               Text(tab.title, fontFamily = font)
               tab.count?.let {
-                Text(
-                  it.toString(),
-                  fontFamily = font,
-                  color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // A tally, not an alert: secondary tones instead of Badge's default error red.
+                Badge(
+                  containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                  contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ) { Text(it.toString(), fontFamily = font) }
               }
             }
           }

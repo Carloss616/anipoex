@@ -9,7 +9,7 @@ import type { TitlePosition } from "@/features/manga/utils/list-view";
 import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaStatus } from "@/graphql/types.generated";
-import { dp } from "@/utils/utils";
+import { dp, paddingX } from "@/utils/utils";
 import { cellWidth } from "./list-scene/grid";
 
 /** Progress from the cache, so it updates without a refetch: shown, and spoken. */
@@ -35,9 +35,7 @@ export function useItemWidth(
   width: number,
 ) {
   const s = useResolveClassNames(rowClassName);
-  const x = dp(s.paddingHorizontal) ?? dp(s.padding) ?? 0;
-  const left = dp(s.paddingLeft) ?? dp(s.paddingStart) ?? x;
-  const right = dp(s.paddingRight) ?? dp(s.paddingEnd) ?? x;
+  const { left, right } = paddingX(s);
   const gap = dp(s.columnGap) ?? dp(s.gap) ?? 0;
 
   return cellWidth(width - left - right, columns, gap);
