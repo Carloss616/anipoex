@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
 import type { ViewStyle } from "react-native";
 import Animated, { type CSSAnimationProperties } from "react-native-reanimated";
-import { Row } from "@/components/layout/row";
 import { CloseButton } from "@/components/ui/close-button";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
@@ -90,18 +89,15 @@ export function Toolbar({ children: toolbar, spinning }: ToolbarProps) {
   return (
     <Stack.Screen
       options={{
-        [headerSlot]: ({ tintColor }: { tintColor?: string }) => (
-          <Row className="gap-4" alignment="center">
-            {parsed.items.map((item) => (
-              <ToolbarItemView
-                key={item.key}
-                item={item}
-                tintColor={tintColor}
-                spinning={spinning}
-              />
-            ))}
-          </Row>
-        ),
+        [headerSlot]: ({ tintColor }: { tintColor?: string }) =>
+          parsed.items.map((item) => (
+            <ToolbarItemView
+              key={item.key}
+              item={item}
+              tintColor={tintColor}
+              spinning={spinning}
+            />
+          )),
       }}
     />
   );
