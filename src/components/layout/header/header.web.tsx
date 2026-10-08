@@ -142,7 +142,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         numberOfLines={1}
         style={[{ color: tintColor }, options.headerTitleStyle]}
         className={cn(
-          "flex-1",
+          "flex-1 leading-[normal]",
           options.headerTitleAlign === "center" && "text-center",
         )}
       >
@@ -259,7 +259,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 options.headerLargeTitleStyle as StyleProp<TextStyle>,
               ]}
               className={cn(
-                "pt-3",
+                "pt-3 leading-[normal]",
                 options.headerTitleAlign === "center" && "text-center",
               )}
             >
