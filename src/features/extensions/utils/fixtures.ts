@@ -1,4 +1,8 @@
-import type { Extension } from "./extension";
+import type { Extension, Language } from "./extension";
+
+export const EN: Language = { code: "en", name: "English" };
+export const KO: Language = { code: "ko", name: "Korean" };
+export const MULTI: Language = { code: "mul", name: "Multi" };
 
 /** Test fixtures shared by the `utils` tests. */
 export const ext = (
@@ -6,14 +10,14 @@ export const ext = (
 ): Extension => ({
   name: over.id,
   initials: "XX",
-  language: "English",
+  language: EN,
   version: "1.0.0",
   installed: false,
   ...over,
 });
 
 export const LIST: Extension[] = [
-  ext({ id: "mangadex", name: "MangaDex", language: "Multi", installed: true }),
+  ext({ id: "mangadex", name: "MangaDex", language: MULTI, installed: true }),
   ext({
     id: "asura",
     name: "Asura Scans",
@@ -23,10 +27,10 @@ export const LIST: Extension[] = [
   ext({
     id: "comick",
     name: "ComicK",
-    language: "Multi",
+    language: MULTI,
     installed: true,
     latestVersion: "1.0.1",
   }),
   ext({ id: "flame", name: "Flame Comics" }),
-  ext({ id: "kakao", name: "Kakao Page", language: "Korean" }),
+  ext({ id: "kakao", name: "Kakao Page", language: KO }),
 ];

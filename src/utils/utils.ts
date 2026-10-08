@@ -31,6 +31,19 @@ export function paddingX(s: ViewStyle) {
   };
 }
 
+/** A Compose `contentPadding` from a resolved style, side over axis over all. */
+export function contentPaddingOf(s: ViewStyle) {
+  const all = dp(s.padding);
+  const x = dp(s.paddingHorizontal) ?? all;
+  const y = dp(s.paddingVertical) ?? all;
+  return {
+    top: dp(s.paddingTop) ?? y,
+    bottom: dp(s.paddingBottom) ?? y,
+    start: dp(s.paddingStart) ?? dp(s.paddingLeft) ?? x,
+    end: dp(s.paddingEnd) ?? dp(s.paddingRight) ?? x,
+  };
+}
+
 /** Extract plain text from a child's tree. */
 export function textOf(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") return String(node);

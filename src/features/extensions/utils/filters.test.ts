@@ -5,11 +5,12 @@ import {
   parseFilter,
   parseLanguage,
 } from "./filters";
-import { LIST } from "./fixtures";
+import { EN, KO, LIST, MULTI } from "./fixtures";
 
 describe("parseFilter", () => {
-  it("accepts the three filters", () => {
+  it("accepts every filter", () => {
     expect(parseFilter("installed")).toBe("installed");
+    expect(parseFilter("available")).toBe("available");
     expect(parseFilter("updates")).toBe("updates");
   });
 
@@ -30,27 +31,30 @@ describe("parseLanguage", () => {
   const known = languagesOf(LIST);
 
   it("keeps a language the registry has", () => {
-    expect(parseLanguage("Korean", known)).toBe("Korean");
+    expect(parseLanguage("ko", known)).toBe("ko");
   });
 
   it("drops unknown or empty values to mean every language", () => {
-    expect(parseLanguage("Klingon", known)).toBeUndefined();
+    expect(parseLanguage("tlh", known)).toBeUndefined();
+    // A name is not a code.
+    expect(parseLanguage("Korean", known)).toBeUndefined();
     expect(parseLanguage("", known)).toBeUndefined();
     expect(parseLanguage(undefined, known)).toBeUndefined();
   });
 });
 
 describe("languagesOf", () => {
-  it("lists each language once, sorted", () => {
-    expect(languagesOf(LIST)).toEqual(["English", "Korean", "Multi"]);
+  it("lists each language once, sorted by name", () => {
+    expect(languagesOf(LIST)).toEqual([EN, KO, MULTI]);
   });
 });
 
 describe("filterLabel", () => {
   it("adds the count only when there is one", () => {
-    const counts = { installed: 3, updates: 0 };
-    expect(filterLabel("all", counts)).toBe("All");
-    expect(filterLabel("installed", counts)).toBe("Installed 3");
+    const counts = { all: 5, installed: 3, available: 2, updates: 0 };
+    expect(filterLabel("all", counts)).toBe("All · 5");
+    expect(filterLabel("installed", counts)).toBe("Installed · 3");
+    expect(filterLabel("available", counts)).toBe("Available · 2");
     expect(filterLabel("updates", counts)).toBe("Updates");
   });
 });

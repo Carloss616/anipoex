@@ -9,6 +9,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { EnsureHost } from "@/components/ui/host";
+import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 
@@ -33,7 +34,7 @@ export function ThemeToggle() {
               ? "sun.max"
               : "moon"
         }
-        size={18}
+        size={BUTTON_ICON_SIZE}
         color={foreground}
         modifiers={[
           frame({ width: 40, height: 40 }),

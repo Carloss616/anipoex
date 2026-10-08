@@ -1,4 +1,9 @@
-import type { Extension } from "./utils/extension";
+import type { Extension, Language } from "./utils/extension";
+
+const MULTI: Language = { code: "mul", name: "Multi" };
+const EN: Language = { code: "en", name: "English" };
+const KO: Language = { code: "ko", name: "Korean" };
+const ZH: Language = { code: "zh", name: "Chinese" };
 
 /**
  * SCAFFOLDING. Stands in until there is a registry that fetches, like
@@ -10,7 +15,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "mangadex",
     name: "MangaDex",
     initials: "MD",
-    language: "Multi",
+    language: MULTI,
     version: "1.4.12",
     latestVersion: "1.4.13",
     installed: true,
@@ -19,7 +24,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "comick",
     name: "ComicK",
     initials: "CK",
-    language: "Multi",
+    language: MULTI,
     version: "1.4.40",
     installed: true,
   },
@@ -27,7 +32,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "asurascans",
     name: "Asura Scans",
     initials: "AS",
-    language: "English",
+    language: EN,
     version: "1.4.7",
     latestVersion: "1.4.9",
     installed: true,
@@ -36,7 +41,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "weebcentral",
     name: "Weeb Central",
     initials: "WC",
-    language: "English",
+    language: EN,
     version: "1.4.2",
     installed: true,
   },
@@ -44,7 +49,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "batoto",
     name: "Bato.to",
     initials: "BT",
-    language: "Multi",
+    language: MULTI,
     version: "1.3.9",
     installed: true,
   },
@@ -52,7 +57,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "mangapark",
     name: "MangaPark",
     initials: "MP",
-    language: "Multi",
+    language: MULTI,
     version: "1.4.3",
     installed: false,
   },
@@ -60,7 +65,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "flamecomics",
     name: "Flame Comics",
     initials: "FC",
-    language: "English",
+    language: EN,
     version: "1.4.1",
     installed: false,
   },
@@ -68,7 +73,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "mangafire",
     name: "MangaFire",
     initials: "MF",
-    language: "Multi",
+    language: MULTI,
     version: "1.4.20",
     installed: false,
   },
@@ -76,7 +81,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "webtoons",
     name: "Webtoons",
     initials: "WT",
-    language: "Multi",
+    language: MULTI,
     version: "1.4.11",
     installed: false,
   },
@@ -84,7 +89,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "toonily",
     name: "Toonily",
     initials: "TN",
-    language: "English",
+    language: EN,
     version: "1.4.4",
     nsfw: true,
     installed: false,
@@ -93,7 +98,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "kakaopage",
     name: "Kakao Page",
     initials: "KP",
-    language: "Korean",
+    language: KO,
     version: "1.2.0",
     installed: false,
   },
@@ -101,7 +106,7 @@ export const MOCK_EXTENSIONS: Extension[] = [
     id: "bilibilicomics",
     name: "Bilibili Comics",
     initials: "BC",
-    language: "Chinese",
+    language: ZH,
     version: "1.3.1",
     installed: false,
   },

@@ -21,6 +21,12 @@ describe("toSections", () => {
     ]);
   });
 
+  it("keeps only the not-installed for the available filter", () => {
+    expect(ids(toSections(LIST, { ...all, filter: "available" }))).toEqual([
+      ["available", ["flame", "kakao"]],
+    ]);
+  });
+
   it("keeps only pending updates for the updates filter", () => {
     expect(ids(toSections(LIST, { ...all, filter: "updates" }))).toEqual([
       ["updates", ["asura", "comick"]],
@@ -28,7 +34,7 @@ describe("toSections", () => {
   });
 
   it("filters by language", () => {
-    expect(ids(toSections(LIST, { ...all, language: "Multi" }))).toEqual([
+    expect(ids(toSections(LIST, { ...all, language: "mul" }))).toEqual([
       ["installed", ["comick", "mangadex"]],
     ]);
   });

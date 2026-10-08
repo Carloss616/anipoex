@@ -1,22 +1,15 @@
 import { usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/native-tabs";
 import { Platform } from "react-native";
-import { FilterPicker } from "@/features/extensions/components/filter-picker";
 import { openViewSheet } from "@/features/manga/screens/manga-list/components/view-sheet";
 import { useNativeTabsTheme } from "@/hooks/use-theme";
 
 export function Tabs() {
   const tabTheme = useNativeTabsTheme();
   const pathname = usePathname();
-  const onExtensions = pathname.startsWith("/extensions");
 
   return (
     <NativeTabs minimizeBehavior="onScrollDown" sidebarAdaptable {...tabTheme}>
-      {onExtensions && (
-        <NativeTabs.BottomAccessory>
-          <FilterPicker />
-        </NativeTabs.BottomAccessory>
-      )}
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

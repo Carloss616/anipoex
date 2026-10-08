@@ -3,9 +3,7 @@ import { MOCK_EXTENSIONS } from "../mock-extensions";
 import { type Extension, hasUpdate } from "../utils/extension";
 
 /**
- * SCAFFOLDING. In memory only: installs reset on reload. Global rather than
- * screen state because the iOS bottom accessory, mounted by the tab layout,
- * shows the counts too.
+ * SCAFFOLDING. In memory only: installs reset on reload.
  */
 export const extensions$ = observable<Extension[]>(MOCK_EXTENSIONS);
 
@@ -25,4 +23,15 @@ export const updateExtension = (id: string) =>
 
 export function updateAllExtensions() {
   for (const e of extensions$.peek()) if (hasUpdate(e)) updateExtension(e.id);
+}
+
+// no registry yet, so a check resets to the mock after a fake round-trip
+// (the spinners need one). Wire the real fetch.
+export function checkForUpdates() {
+  return new Promise<void>((resolve) =>
+    setTimeout(() => {
+      extensions$.set(MOCK_EXTENSIONS);
+      resolve();
+    }, 800),
+  );
 }

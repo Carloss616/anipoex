@@ -9,6 +9,7 @@ import {
   size as sizeModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { cn } from "panelui-native/utils/cn";
+import { Children, isValidElement } from "react";
 import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
@@ -127,17 +128,30 @@ function ItemContent({ children }: ItemContentProps) {
   return <>{children}</>;
 }
 
+/** `Typography` keeps only the text: an icon among the children goes after it. */
 function ItemTitle({ className, children, ...props }: ItemTitleProps) {
+  const icons = Children.toArray(children).filter(isValidElement);
+  const text = (
+    <Typography
+      type={TITLE_TYPES[useItemSize()]}
+      weight="medium"
+      className={className}
+      {...props}
+    >
+      {children}
+    </Typography>
+  );
+
   return (
     <ListItem.HeadlineContent>
-      <Typography
-        type={TITLE_TYPES[useItemSize()]}
-        weight="medium"
-        className={className}
-        {...props}
-      >
-        {children}
-      </Typography>
+      {icons.length ? (
+        <Row alignment="center" className="gap-1.5">
+          {text}
+          {icons}
+        </Row>
+      ) : (
+        text
+      )}
     </ListItem.HeadlineContent>
   );
 }

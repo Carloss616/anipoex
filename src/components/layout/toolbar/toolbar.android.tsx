@@ -3,7 +3,7 @@ import type { ColorValue } from "react-native";
 import { Row } from "@/components/layout/row";
 import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
-import { Icon, type IconName } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
@@ -35,7 +35,7 @@ function ToolbarButton({
       ) : (
         <Icon
           name={icon as IconName}
-          size={24}
+          size={BUTTON_ICON_SIZE}
           accessibilityLabel={label}
           className="text-inherit"
         />
