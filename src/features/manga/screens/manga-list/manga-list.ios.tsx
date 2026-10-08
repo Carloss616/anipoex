@@ -14,6 +14,9 @@ import { openViewSheet, ViewSheet } from "./components/view-sheet";
 import { LIST_SYMBOLS } from "./constants";
 import { useSearchQuery } from "./hooks/use-search-query";
 
+const mangaCount = (count: number) =>
+  `${count} ${count === 1 ? "manga" : "mangas"}`;
+
 /**
  * iOS: one list at a time, named in the large title. A toolbar menu switches it
  * and picks the genre; a second button opens the view sheet. The menu sits
@@ -37,7 +40,11 @@ export function MangaList() {
     <>
       <Stack.Title large={large}>{MANGA_STATUSES[status]}</Stack.Title>
       <Stack.SearchBar
-        placeholder="Search"
+        placeholder={
+          counts[status] == null
+            ? "Search..."
+            : `Search ${mangaCount(counts[status])}...`
+        }
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
         onChangeText={(e) => setQuery(e.nativeEvent.text)}
@@ -51,23 +58,23 @@ export function MangaList() {
           accessibilityLabel="List and genre"
         >
           <Stack.Toolbar.Menu inline title="List">
-            {MANGA_STATUS_ENTRIES.map(([key, name]) => (
-              <Stack.Toolbar.MenuAction
-                key={key}
-                icon={LIST_SYMBOLS[key]}
-                isOn={key === status}
-                subtitle={
-                  counts[key] == null ? undefined : `${counts[key]} manga`
-                }
-                onPress={() => {
-                  // A genre picked in one list may not exist in the next.
-                  genre$.set(ALL);
-                  router.setParams({ list: key });
-                }}
-              >
-                {name}
-              </Stack.Toolbar.MenuAction>
-            ))}
+            {MANGA_STATUS_ENTRIES.map(([key, name]) => {
+              const count = counts[key];
+              return (
+                <Stack.Toolbar.MenuAction
+                  key={key}
+                  icon={LIST_SYMBOLS[key]}
+                  isOn={key === status}
+                  subtitle={count == null ? undefined : mangaCount(count)}
+                  onPress={() => {
+                    genre$.set(ALL);
+                    router.setParams({ list: key });
+                  }}
+                >
+                  {name}
+                </Stack.Toolbar.MenuAction>
+              );
+            })}
           </Stack.Toolbar.Menu>
           <Stack.Toolbar.Menu title="Genre" icon="tag">
             {genres.map(({ name, selected }) => (
