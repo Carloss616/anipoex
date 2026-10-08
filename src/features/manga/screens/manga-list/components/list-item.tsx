@@ -10,7 +10,7 @@ import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaStatus } from "@/graphql/types.generated";
 import { dp, paddingX } from "@/utils/utils";
-import { cellWidth } from "./list-scene/grid";
+import { cellWidth } from "./list-grid/grid";
 
 /** Progress from the cache, so it updates without a refetch: shown, and spoken. */
 function useProgress({

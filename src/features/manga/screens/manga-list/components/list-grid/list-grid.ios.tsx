@@ -24,11 +24,11 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListEmpty } from "../list-empty";
 import { ListItem, useItemWidth } from "../list-item";
 import { toRows } from "./grid";
-import type { ListSceneProps } from "./list-scene";
+import type { ListGridProps } from "./list-grid";
 
 const ROW = "gap-2 px-gx";
 
-export function ListScene({ list, query$, genre$, header }: ListSceneProps) {
+export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();

@@ -14,7 +14,7 @@ import { useRefreshControlTheme } from "@/hooks/use-theme";
 import { ListEmpty } from "../list-empty";
 import { ListItem } from "../list-item";
 
-export interface ListSceneProps {
+export interface ListGridProps {
   list: MangaListState;
   query$: ObservablePrimitive<string>;
   genre$: ObservablePrimitive<string>;
@@ -23,7 +23,7 @@ export interface ListSceneProps {
 }
 
 /** The grid for one list; the caller owns the data (`useMangaList`). */
-export function ListScene({ list, query$, genre$, header }: ListSceneProps) {
+export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const { current } = useBreakpoint();
   const { manga$, loading, refetching, refetch } = list;
   const refreshControlTheme = useRefreshControlTheme();
