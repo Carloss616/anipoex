@@ -64,6 +64,7 @@ export function MangaList() {
             }))}
             page={page}
             fontFamily={fontFamily}
+            tabsClassName="px-safe"
             onPageChange={(index) =>
               router.setParams({ list: MANGA_STATUS_ENTRIES[index][0] })
             }

@@ -1,5 +1,5 @@
 import { isValidElement, type ReactNode } from "react";
-import type { DimensionValue } from "react-native";
+import type { DimensionValue, ViewStyle } from "react-native";
 
 export function noop() {}
 
@@ -20,6 +20,15 @@ export function dp(value?: DimensionValue | string): number | undefined {
     : String(value).includes("%")
       ? undefined
       : Number.parseFloat(String(value)) || undefined;
+}
+
+/** Left and right padding of a resolved style, in dp, falling back from side to axis to all. */
+export function paddingX(s: ViewStyle) {
+  const x = dp(s.paddingHorizontal) ?? dp(s.padding) ?? 0;
+  return {
+    left: dp(s.paddingLeft) ?? dp(s.paddingStart) ?? x,
+    right: dp(s.paddingRight) ?? dp(s.paddingEnd) ?? x,
+  };
 }
 
 /** Extract plain text from a child's tree. */
