@@ -14,7 +14,7 @@ import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { ListEmpty } from "../list-empty";
 import { ListItem, useItemWidth } from "../list-item";
 import { toRows } from "./grid";
-import type { ListSceneProps } from "./list-scene";
+import type { ListGridProps } from "./list-grid";
 
 const ROW = "gap-2 px-safe-offset-gx";
 
@@ -23,7 +23,7 @@ const ROW = "gap-2 px-safe-offset-gx";
  * pager's when it sits in one. @expo/ui has no lazy grid, so rows go down a
  * `LazyColumn`.
  */
-export function ListScene({ list, query$, genre$, header }: ListSceneProps) {
+export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
   const { manga$, loading, refetching, refetch } = list;

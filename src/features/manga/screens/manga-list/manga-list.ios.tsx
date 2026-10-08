@@ -9,7 +9,7 @@ import { ALL, useMangaList } from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
 import { parseList } from "@/features/manga/utils/parse-list";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
-import { ListScene } from "./components/list-scene";
+import { ListGrid } from "./components/list-grid";
 import { openViewSheet, ViewSheet } from "./components/view-sheet";
 import { LIST_SYMBOLS } from "./constants";
 import { useSearchQuery } from "./hooks/use-search-query";
@@ -94,7 +94,7 @@ export function MangaList() {
           accessibilityLabel="View options"
         />
       </Stack.Toolbar>
-      <ListScene list={mangaList} query$={query$} genre$={genre$} />
+      <ListGrid list={mangaList} query$={query$} genre$={genre$} />
       <ViewSheet />
     </>
   );

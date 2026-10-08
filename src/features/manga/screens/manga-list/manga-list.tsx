@@ -18,8 +18,8 @@ import type { MediaListStatus } from "@/graphql/types.generated";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { MANGA_STATUS_ENTRIES, MANGA_STATUSES } from "../../constants";
+import { ListGrid } from "./components/list-grid";
 import { ListHeader } from "./components/list-header";
-import { ListScene } from "./components/list-scene";
 import { ListSidebar } from "./components/list-sidebar";
 import { openViewSheet, ViewSheet } from "./components/view-sheet";
 import { useSearchQuery } from "./hooks/use-search-query";
@@ -118,7 +118,7 @@ export function MangaList() {
           <ListSidebar status={status} counts={counts} onSelect={select} />
         )}
         <View className="flex-1">
-          <ListScene
+          <ListGrid
             list={mangaList}
             query$={query$}
             genre$={genre$}

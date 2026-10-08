@@ -1,12 +1,13 @@
 import GridViewIcon from "@expo/material-symbols/grid_view.xml";
-import { Box } from "@expo/ui/jetpack-compose";
 import { fillMaxSize } from "@expo/ui/jetpack-compose/modifiers";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
 import { useWindowDimensions, View } from "react-native";
+import { Center } from "@/components/layout/center";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Host } from "@/components/ui/host";
+import { Loader } from "@/components/ui/loader";
 import { TabbedPager } from "@/components/ui/tabbed-pager";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
@@ -74,7 +75,9 @@ export function MangaList() {
               visited.has(key) ? (
                 <ListPage key={key} status={key} query$={query$} />
               ) : (
-                <Box key={key} modifiers={[fillMaxSize()]} />
+                <Center key={key}>
+                  <Loader speed={3} size="lg" />
+                </Center>
               ),
             )}
           </TabbedPager>
