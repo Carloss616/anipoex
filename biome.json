@@ -49,6 +49,10 @@
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
               },
               "@expo/ui/community/bottom-sheet": "Import from @/components/ui/sheet",
+              "@expo/ui/jetpack-compose": {
+                "importNames": ["LazyColumn", "LazyRow"],
+                "message": "Import from @/components/layout/lazy-column or @/components/layout/lazy-row"
+              },
               "react-native": {
                 "importNames": [
                   "ScrollView",

@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import type { ViewStyle } from "react-native";
 import Animated, { type CSSAnimationProperties } from "react-native-reanimated";
 import { CloseButton } from "@/components/ui/close-button";
-import { Icon, type IconName } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
@@ -38,7 +38,7 @@ function ToolbarItemView({
     ) : (
       <Icon
         name={iconName}
-        size={18}
+        size={BUTTON_ICON_SIZE}
         color={item.props.tintColor ?? tintColor}
       />
     );

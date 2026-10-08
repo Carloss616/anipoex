@@ -17,8 +17,13 @@ describe("hasUpdate", () => {
 });
 
 describe("countExtensions", () => {
-  it("counts installed and pending updates", () => {
-    expect(countExtensions(LIST)).toEqual({ installed: 3, updates: 2 });
+  it("counts every filter", () => {
+    expect(countExtensions(LIST)).toEqual({
+      all: 5,
+      installed: 3,
+      available: 2,
+      updates: 2,
+    });
   });
 });
 

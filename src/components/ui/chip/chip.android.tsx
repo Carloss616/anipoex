@@ -2,9 +2,13 @@ import {
   type ChipBorder,
   FilterChip,
   type FilterChipColors,
+  Icon,
   Text,
 } from "@expo/ui/jetpack-compose";
-import { testID as testIDModifier } from "@expo/ui/jetpack-compose/modifiers";
+import {
+  size,
+  testID as testIDModifier,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { textOf } from "@/utils/utils";
@@ -22,6 +26,7 @@ function useColors(color: SemanticColor) {
     labelColor: m3.onSurfaceVariant,
     selectedContainerColor: m3.secondaryContainer,
     selectedLabelColor: m3.onSecondaryContainer,
+    selectedLeadingIconColor: m3.onSecondaryContainer,
   };
   const border: ChipBorder = {
     color: m3.outlineVariant,
@@ -61,6 +66,14 @@ export function Chip({
         border={border}
         modifiers={testID ? [testIDModifier(testID as string)] : []}
       >
+        {selected && (
+          <FilterChip.LeadingIcon>
+            <Icon
+              source={require("@expo/material-symbols/check.xml")}
+              modifiers={[size(18, 18)]}
+            />
+          </FilterChip.LeadingIcon>
+        )}
         <FilterChip.Label>
           <Text style={{ fontFamily }}>{textOf(children)}</Text>
         </FilterChip.Label>

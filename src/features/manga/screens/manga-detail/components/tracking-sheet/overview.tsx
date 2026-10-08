@@ -5,7 +5,7 @@ import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { Separator } from "@/components/ui/separator";
 import { Surface } from "@/components/ui/surface";
@@ -68,9 +68,9 @@ export function Overview({
           ]}
         >
           <Button
-            variant={Platform.OS === "ios" ? "secondary" : "ghost"}
+            variant={Platform.OS === "android" ? "ghost" : "outline"}
             size="icon"
-            className="ios:size-8 size-9"
+            className="ios:size-5 web:size-9"
             muted
           >
             <Icon
@@ -79,11 +79,7 @@ export function Overview({
                 android: require("@expo/material-symbols/more_vert.xml"),
                 web: "more-vertical",
               })}
-              size={Platform.select({
-                ios: 20,
-                android: 24,
-                web: 18,
-              })}
+              size={BUTTON_ICON_SIZE}
               className="text-inherit"
             />
           </Button>

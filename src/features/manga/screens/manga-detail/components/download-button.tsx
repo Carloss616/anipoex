@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 import { noop } from "@/utils/utils";
 
 export function DownloadButton() {
@@ -11,7 +11,7 @@ export function DownloadButton() {
           android: require("@expo/material-symbols/downloading.xml"),
           web: "circle-arrow-down",
         })}
-        size={24}
+        size={BUTTON_ICON_SIZE}
         className="text-inherit web:text-muted-foreground"
       />
     </Button>

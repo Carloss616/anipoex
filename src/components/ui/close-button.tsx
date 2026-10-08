@@ -2,7 +2,7 @@ import type { ButtonProps } from "panelui-native/components/button";
 import { cn } from "panelui-native/utils/cn";
 import { Platform } from "react-native";
 import { Button } from "./button";
-import { Icon } from "./icon";
+import { BUTTON_ICON_SIZE, Icon } from "./icon";
 
 type IconProps = React.ComponentProps<typeof Icon>;
 
@@ -23,7 +23,7 @@ export function CloseButton({
     <Button
       variant={variant}
       size={size}
-      className={cn("size-9", className)}
+      className={cn("web:size-9", className)}
       muted
       {...props}
     >
@@ -34,7 +34,7 @@ export function CloseButton({
             android: require("@expo/material-symbols/close.xml"),
             web: "x",
           })}
-          size={18}
+          size={BUTTON_ICON_SIZE}
           {...(Platform.OS === "web" ? { muted: true } : { color: "inherit" })}
           {...iconProps}
         />

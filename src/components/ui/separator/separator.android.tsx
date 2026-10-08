@@ -24,7 +24,7 @@ function SeparatorBase({
 }: SeparatorProps) {
   const vertical = orientation === "vertical";
   const size =
-    thickness ?? (variant === "thick" ? THICK : StyleSheet.hairlineWidth);
+    thickness ?? (variant === "thick" ? THICK : undefined);
   const {
     height: styleHeight,
     marginHorizontal,

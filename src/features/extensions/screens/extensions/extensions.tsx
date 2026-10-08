@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import {
   countExtensions,
+  extensionCount,
   extensions$,
   languagesOf,
   parseFilter,
@@ -35,7 +36,7 @@ export function Extensions() {
     <>
       <Stack.Title large={large}>Extensions</Stack.Title>
       <Stack.SearchBar
-        placeholder="Search..."
+        placeholder={`Search ${extensionCount(counts[filter])}...`}
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
         onChangeText={(e) => setSearch(e.nativeEvent.text)}

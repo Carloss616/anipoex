@@ -1,14 +1,17 @@
-import type { Extension, ExtensionCounts } from "./extension";
+import type { Extension, ExtensionCounts, Language } from "./extension";
 
-export const EXTENSION_FILTERS = ["all", "installed", "updates"] as const;
+export const EXTENSION_FILTERS = [
+  "all",
+  "installed",
+  "available",
+  "updates",
+] as const;
 export type ExtensionFilter = (typeof EXTENSION_FILTERS)[number];
 
-/** The `Select` / menu value for "no language filter"; never put in the URL. */
-export const ALL_LANGUAGES = "all";
-
-const TITLES: Record<ExtensionFilter, string> = {
+export const FILTER_TITLES: Record<ExtensionFilter, string> = {
   all: "All",
   installed: "Installed",
+  available: "Available",
   updates: "Updates",
 };
 
@@ -23,23 +26,30 @@ export function parseFilter(
   return EXTENSION_FILTERS.find((f) => f === value) ?? "all";
 }
 
-export function languagesOf(extensions: Extension[]): string[] {
-  return [...new Set(extensions.map((e) => e.language))].sort();
+/** Each language once, by name. */
+export function languagesOf(extensions: Extension[]): Language[] {
+  const byCode = new Map(extensions.map((e) => [e.language.code, e.language]));
+  return [...byCode.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** `undefined` means every language. */
+/** A known language code, or `undefined` for every language. */
 export function parseLanguage(
   raw: string | string[] | undefined,
-  known: string[],
+  known: Language[],
 ): string | undefined {
   const value = first(raw);
-  return value && known.includes(value) ? value : undefined;
+  return known.some((l) => l.code === value) ? value : undefined;
 }
 
 export function filterLabel(
   filter: ExtensionFilter,
   counts: ExtensionCounts,
 ): string {
-  const count = filter === "all" ? 0 : counts[filter];
-  return count > 0 ? `${TITLES[filter]} ${count}` : TITLES[filter];
+  const count = counts[filter];
+  return count > 0
+    ? `${FILTER_TITLES[filter]} · ${count}`
+    : FILTER_TITLES[filter];
 }
+
+export const extensionCount = (count: number) =>
+  `${count} ${count === 1 ? "extension" : "extensions"}`;

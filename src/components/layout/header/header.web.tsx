@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import { CloseButton } from "@/components/ui/close-button";
+import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { LARGE_TITLE_HEIGHT } from "./constants";
@@ -161,7 +162,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       )}
     >
       <View className="h-14 flex-row items-center gap-4">
-        <ButtonGroup>
+        <ButtonGroup className={cn(!showBack && !options.headerLeft && "hidden")}>
           {showBack && (
             <CloseButton
               className={cn(!isMinimalBack && backLabel && "w-[unset]")}
@@ -169,7 +170,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
               onPress={navigation.goBack}
               accessibilityLabel={backLabel ?? "Back"}
             >
-              <Lucide name="chevron-left" size={18} color={iconColor} />
+              <Lucide
+                name="chevron-left"
+                size={BUTTON_ICON_SIZE}
+                color={iconColor}
+              />
               {!isMinimalBack && backLabel}
             </CloseButton>
           )}
@@ -226,7 +231,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 onPress={openSearch}
                 accessibilityLabel={search.placeholder ?? "Search"}
               >
-                <Lucide name="search" size={18} color={iconColor} />
+                <Lucide
+                  name="search"
+                  size={BUTTON_ICON_SIZE}
+                  color={iconColor}
+                />
               </CloseButton>
             ))}
           {options.headerRight?.({ tintColor, canGoBack: !!back })}

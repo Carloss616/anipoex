@@ -18,37 +18,28 @@ export function toSections(
   const needle = query.search.trim().toLowerCase();
   const shown = extensions.filter(
     (e) =>
-      (!query.language || e.language === query.language) &&
+      (!query.language || e.language.code === query.language) &&
       (!needle || e.name.toLowerCase().includes(needle)),
   );
   // Stable sort: pending updates first, registry order otherwise.
   const installed = shown
     .filter((e) => e.installed)
     .sort((a, b) => Number(hasUpdate(b)) - Number(hasUpdate(a)));
+  const available = shown.filter((e) => !e.installed);
 
-  const sections: ExtensionSection[] =
-    query.filter === "updates"
-      ? [
-          {
-            key: "updates",
-            title: "Updates",
-            data: installed.filter(hasUpdate),
-          },
-        ]
-      : [
-          { key: "installed", title: "Installed", data: installed },
-          ...(query.filter === "all"
-            ? [
-                {
-                  key: "available" as const,
-                  title: "Available",
-                  data: shown.filter((e) => !e.installed),
-                },
-              ]
-            : []),
-        ];
+  const byFilter: Record<ExtensionFilter, ExtensionSection[]> = {
+    all: [
+      { key: "installed", title: "Installed", data: installed },
+      { key: "available", title: "Available", data: available },
+    ],
+    installed: [{ key: "installed", title: "Installed", data: installed }],
+    available: [{ key: "available", title: "Available", data: available }],
+    updates: [
+      { key: "updates", title: "Updates", data: installed.filter(hasUpdate) },
+    ],
+  };
 
-  return sections.filter((s) => s.data.length > 0);
+  return byFilter[query.filter].filter((s) => s.data.length > 0);
 }
 
 /** One list row: lists render sections flat so they recycle per row, not per section. */
