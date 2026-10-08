@@ -2,6 +2,7 @@ import { Memo, useObservable } from "@legendapp/state/react";
 import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
+import { ButtonGroup } from "panelui-native/components/button-group";
 import { SearchBar } from "panelui-native/components/search-bar";
 import { cn } from "panelui-native/utils/cn";
 import { useEffect, useRef, useState } from "react";
@@ -160,19 +161,20 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       )}
     >
       <View className="h-14 flex-row items-center gap-4">
-        {showBack && (
-          <CloseButton
-            className={cn(!isMinimalBack && backLabel && "w-[unset]")}
-            size={isMinimalBack || !backLabel ? "icon" : "sm"}
-            onPress={navigation.goBack}
-            accessibilityLabel={backLabel ?? "Back"}
-          >
-            <Lucide name="chevron-left" size={18} color={iconColor} />
-            {!isMinimalBack && backLabel}
-          </CloseButton>
-        )}
-
-        {options.headerLeft?.({ tintColor, canGoBack: !!back })}
+        <ButtonGroup>
+          {showBack && (
+            <CloseButton
+              className={cn(!isMinimalBack && backLabel && "w-[unset]")}
+              size={isMinimalBack || !backLabel ? "icon" : "sm"}
+              onPress={navigation.goBack}
+              accessibilityLabel={backLabel ?? "Back"}
+            >
+              <Lucide name="chevron-left" size={18} color={iconColor} />
+              {!isMinimalBack && backLabel}
+            </CloseButton>
+          )}
+          {options.headerLeft?.({ tintColor, canGoBack: !!back })}
+        </ButtonGroup>
 
         {/* The field is laid over the title rather than next to it: no gap to
             collapse, so it can grow straight out of nothing. */}
@@ -211,23 +213,24 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           )}
         </View>
 
-        {search &&
-          !isStacked &&
-          (isSearching ? (
-            <CloseButton
-              onPress={closeSearch}
-              accessibilityLabel={search.cancelButtonText ?? "Cancel"}
-            />
-          ) : (
-            <CloseButton
-              onPress={openSearch}
-              accessibilityLabel={search.placeholder ?? "Search"}
-            >
-              <Lucide name="search" size={18} color={iconColor} />
-            </CloseButton>
-          ))}
-
-        {options.headerRight?.({ tintColor, canGoBack: !!back })}
+        <ButtonGroup>
+          {search &&
+            !isStacked &&
+            (isSearching ? (
+              <CloseButton
+                onPress={closeSearch}
+                accessibilityLabel={search.cancelButtonText ?? "Cancel"}
+              />
+            ) : (
+              <CloseButton
+                onPress={openSearch}
+                accessibilityLabel={search.placeholder ?? "Search"}
+              >
+                <Lucide name="search" size={18} color={iconColor} />
+              </CloseButton>
+            ))}
+          {options.headerRight?.({ tintColor, canGoBack: !!back })}
+        </ButtonGroup>
       </View>
 
       {/* Stays mounted and clipped so the row can grow open instead of popping
