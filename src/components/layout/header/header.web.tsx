@@ -162,7 +162,9 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       )}
     >
       <View className="h-14 flex-row items-center gap-4">
-        <ButtonGroup className={cn(!showBack && !options.headerLeft && "hidden")}>
+        <ButtonGroup
+          className={cn(!showBack && !options.headerLeft && "hidden")}
+        >
           {showBack && (
             <CloseButton
               className={cn(!isMinimalBack && backLabel && "w-[unset]")}
