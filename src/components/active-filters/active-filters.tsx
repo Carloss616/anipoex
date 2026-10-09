@@ -1,6 +1,5 @@
 import { Chip } from "@/components/ui/chip";
 import { Typography } from "@/components/ui/typography";
-import { extensionCount } from "@/features/extensions";
 
 /** A filter narrowing the list, and how to drop it. */
 export interface ActiveFilter {
@@ -10,12 +9,12 @@ export interface ActiveFilter {
 
 export interface ActiveFiltersProps {
   filters: ActiveFilter[];
-  /** How many extensions are listed. */
-  shown: number;
+  /** What's listed, worded by the caller ("3 extensions"); omitted = not shown. */
+  total?: string;
 }
 
-/** Web: removable chips, then the total, always; a fragment for the caller's row. */
-export function ActiveFilters({ filters, shown }: ActiveFiltersProps) {
+/** Web: removable chips, then the total; a fragment for the caller's row. */
+export function ActiveFilters({ filters, total }: ActiveFiltersProps) {
   return (
     <>
       {filters.map((f) => (
@@ -29,9 +28,11 @@ export function ActiveFilters({ filters, shown }: ActiveFiltersProps) {
           {f.label}
         </Chip>
       ))}
-      <Typography type="body-sm" muted className="whitespace-nowrap">
-        {extensionCount(shown)}
-      </Typography>
+      {total && (
+        <Typography type="body-sm" muted className="whitespace-nowrap">
+          {total}
+        </Typography>
+      )}
     </>
   );
 }

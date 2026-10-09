@@ -1,27 +1,25 @@
-import { useObservable, useValue } from "@legendapp/state/react";
+import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useWindowDimensions } from "react-native";
+import { Host } from "@/components/ui/host";
+import { MANGA_STATUSES, mangaCount } from "@/features/manga/constants";
 import {
-  MANGA_STATUS_ENTRIES,
-  MANGA_STATUSES,
-} from "@/features/manga/constants";
-import { ALL, useMangaList } from "@/features/manga/hooks/use-manga-list";
+  ALL,
+  emptyMangaList,
+  useMangaList,
+} from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
 import { parseList } from "@/features/manga/utils/parse-list";
+import type { MediaListStatus } from "@/graphql/types.generated";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { ListGrid } from "./components/list-grid";
-import { openViewSheet, ViewSheet } from "./components/view-sheet";
-import { LIST_SYMBOLS } from "./constants";
+import { ListToolbar } from "./components/list-toolbar";
+import { ViewSheet } from "./components/view-sheet";
 import { useSearchQuery } from "./hooks/use-search-query";
 
-const mangaCount = (count: number) =>
-  `${count} ${count === 1 ? "manga" : "mangas"}`;
-
 /**
- * iOS: one list at a time, named in the large title. A toolbar menu switches it
- * and picks the genre; a second button opens the view sheet. The menu sits
- * inline: `Stack.Toolbar` only reads its direct children, so a wrapper component
- * would be dropped.
+ * iOS: one list at a time, named in the large title; the toolbar switches it
+ * and picks the genre.
  */
 export function MangaList() {
   const { height } = useWindowDimensions();
@@ -30,11 +28,17 @@ export function MangaList() {
   const counts = useMangaListCounts();
   const searchBarTheme = useStackSearchBarTheme();
   const { query$, setQuery } = useSearchQuery();
-  const genre$ = useObservable(ALL);
-  const mangaList = useMangaList(status, query$, genre$);
+  const list$ = useObservable(emptyMangaList());
+  const genre$ = list$.genre;
+  const mangaList = useMangaList(status, query$, list$);
   const router = useRouter();
-  const genres = useValue(mangaList.genres$);
   const large = height > 640;
+
+  const select = (key: MediaListStatus) => {
+    // A genre picked in one list may not exist in the next.
+    genre$.set(ALL);
+    router.setParams({ list: key });
+  };
 
   return (
     <>
@@ -52,50 +56,11 @@ export function MangaList() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Menu
-          icon="line.3.horizontal.decrease"
-          accessibilityLabel="List and genre"
-        >
-          <Stack.Toolbar.Menu inline title="List">
-            {MANGA_STATUS_ENTRIES.map(([key, name]) => {
-              const count = counts[key];
-              return (
-                <Stack.Toolbar.MenuAction
-                  key={key}
-                  icon={LIST_SYMBOLS[key]}
-                  isOn={key === status}
-                  subtitle={count == null ? undefined : mangaCount(count)}
-                  onPress={() => {
-                    genre$.set(ALL);
-                    router.setParams({ list: key });
-                  }}
-                >
-                  {name}
-                </Stack.Toolbar.MenuAction>
-              );
-            })}
-          </Stack.Toolbar.Menu>
-          <Stack.Toolbar.Menu title="Genre" icon="tag">
-            {genres.map(({ name, selected }) => (
-              <Stack.Toolbar.MenuAction
-                key={name}
-                isOn={selected}
-                onPress={() => genre$.set(name)}
-              >
-                {name}
-              </Stack.Toolbar.MenuAction>
-            ))}
-          </Stack.Toolbar.Menu>
-        </Stack.Toolbar.Menu>
-        <Stack.Toolbar.Button
-          icon="square.grid.2x2"
-          onPress={openViewSheet}
-          accessibilityLabel="View options"
-        />
-      </Stack.Toolbar>
-      <ListGrid list={mangaList} query$={query$} genre$={genre$} />
-      <ViewSheet />
+      <ListToolbar status={status} list$={list$} onSelect={select} />
+      <Host className="flex-1">
+        <ListGrid list={mangaList} query$={query$} genre$={genre$} />
+        <ViewSheet />
+      </Host>
     </>
   );
 }

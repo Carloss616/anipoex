@@ -24,3 +24,6 @@ export const MANGA_STATUS_ENTRIES = Object.entries(MANGA_STATUSES) as [
   MediaListStatus,
   string,
 ][];
+
+export const mangaCount = (count: number) =>
+  `${count} ${count === 1 ? "manga" : "mangas"}`;
