@@ -80,6 +80,9 @@ function TypographyRootBase({
     paddingRight,
     paddingVertical,
     paddingHorizontal,
+    textShadowColor,
+    textShadowOffset,
+    textShadowRadius,
   } = StyleSheet.flatten(style) ?? {};
 
   const themeFamily = useFontFamily(fontWeight ?? weight ?? WEIGHT[type]);
@@ -116,6 +119,15 @@ function TypographyRootBase({
           fontSize,
           lineHeight,
           letterSpacing,
+          shadow:
+            textShadowColor == null
+              ? undefined
+              : {
+                  color: textShadowColor,
+                  offsetX: dp(textShadowOffset?.width),
+                  offsetY: dp(textShadowOffset?.height),
+                  blurRadius: dp(textShadowRadius),
+                },
         }}
         modifiers={[
           // Compose `Text` wraps its content, so centering needs the full width.
