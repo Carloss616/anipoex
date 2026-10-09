@@ -67,18 +67,18 @@ export function MangaDetail() {
   if (loading || !manga) {
     return (
       <>
-        <Stack.Title large>{manga.title?.userPreferred}</Stack.Title>
+        <Stack.Title large>{manga?.title?.userPreferred}</Stack.Title>
         <Host className={cn("flex-1", isPreview && "ios:bg-background")}>
-          <Center>
-            {loading ? (
+          {loading ? (
+            <Center>
               <Loader variant="morph-ring" speed={3} size="lg" />
-            ) : (
-              <EmptyState
-                title="Manga not found"
-                description="We couldn't find this manga on AniList."
-              />
-            )}
-          </Center>
+            </Center>
+          ) : (
+            <EmptyState
+              title="Manga not found"
+              description="We couldn't find this manga on AniList."
+            />
+          )}
         </Host>
       </>
     );

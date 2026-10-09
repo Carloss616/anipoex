@@ -54,6 +54,12 @@ describe("toDetail", () => {
     });
   });
 
+  it("returns nothing for media without a title", () => {
+    // An id AniList doesn't know: no fetch result and an empty cache read.
+    expect(toDetail(7, undefined)).toBeUndefined();
+    expect(toDetail(7, {})).toBeUndefined();
+  });
+
   describe("description", () => {
     it("turns <br> into newlines and drops the rest of the markup", () => {
       const detail = toDetail(
@@ -61,7 +67,7 @@ describe("toDetail", () => {
         media({ description: "A <i>dark</i> epic.<br><br>Guts <b>walks</b>." }),
       );
 
-      expect(detail.description).toBe("A dark epic.\n\nGuts walks.");
+      expect(detail?.description).toBe("A dark epic.\n\nGuts walks.");
     });
 
     it("decodes the entities AniList actually emits", () => {
@@ -70,7 +76,7 @@ describe("toDetail", () => {
         media({ description: "Rock &amp; Roll &quot;Mad&quot; &#039;90s" }),
       );
 
-      expect(detail.description).toBe(`Rock & Roll "Mad" '90s`);
+      expect(detail?.description).toBe(`Rock & Roll "Mad" '90s`);
     });
 
     it("collapses runs of blank lines and trims", () => {
@@ -79,7 +85,7 @@ describe("toDetail", () => {
         media({ description: "<br>One.<br><br><br><br>Two.<br>" }),
       );
 
-      expect(detail.description).toBe("One.\n\nTwo.");
+      expect(detail?.description).toBe("One.\n\nTwo.");
     });
   });
 
@@ -95,7 +101,7 @@ describe("toDetail", () => {
         }),
       );
 
-      expect(detail.author).toBe("Kentaro Miura");
+      expect(detail?.author).toBe("Kentaro Miura");
     });
 
     it("matches the combined credit too", () => {
@@ -104,7 +110,7 @@ describe("toDetail", () => {
         media({ staff: staffOf([{ role: "Story & Art", full: "Miura" }]) }),
       );
 
-      expect(detail.author).toBe("Miura");
+      expect(detail?.author).toBe("Miura");
     });
 
     it("falls back to the top-billed name when no role mentions story", () => {
@@ -118,7 +124,7 @@ describe("toDetail", () => {
         }),
       );
 
-      expect(detail.author).toBe("First");
+      expect(detail?.author).toBe("First");
     });
 
     it("skips edges with no name instead of billing an empty author", () => {
@@ -131,7 +137,7 @@ describe("toDetail", () => {
         }),
       );
 
-      expect(detail.author).toBeUndefined();
+      expect(detail?.author).toBeUndefined();
     });
   });
 });

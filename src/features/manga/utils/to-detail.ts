@@ -38,16 +38,24 @@ function toAuthor(staff: DeepPartial<MangaDetailFragment>["staff"]) {
   return (story ?? edges[0])?.node?.name?.full;
 }
 
+/**
+ * An unknown id leaves the media empty (no fetch result, nothing cached), so
+ * there is no detail to build; no title means there is nothing to show.
+ */
 export function toDetail(
   id: number,
-  { staff, description, ...media }: DeepPartial<MangaDetailFragment>,
+  media: DeepPartial<MangaDetailFragment> | null | undefined,
 ) {
+  if (!media?.title) return undefined;
+
+  const { staff, description, ...rest } = media;
+
   return {
-    ...media,
+    ...rest,
     id,
     description: toPlainText(description),
     author: toAuthor(staff),
   };
 }
 
-export type MangaDetail = ReturnType<typeof toDetail>;
+export type MangaDetail = NonNullable<ReturnType<typeof toDetail>>;
