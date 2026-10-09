@@ -23,8 +23,7 @@ function SeparatorBase({
   testID,
 }: SeparatorProps) {
   const vertical = orientation === "vertical";
-  const size =
-    thickness ?? (variant === "thick" ? THICK : undefined);
+  const size = thickness ?? (variant === "thick" ? THICK : undefined);
   const {
     height: styleHeight,
     marginHorizontal,
