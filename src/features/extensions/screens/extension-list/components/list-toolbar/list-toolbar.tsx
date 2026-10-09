@@ -9,10 +9,10 @@ import {
   FILTER_TITLES,
 } from "@/features/extensions";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import type { ExtensionListProps } from "../extension-list";
+import type { ListContentProps } from "../list-content";
 
-export type ExtensionToolbarProps = Pick<
-  ExtensionListProps,
+export type ListToolbarProps = Pick<
+  ListContentProps,
   | "counts"
   | "filter"
   | "onFilterChange"
@@ -25,13 +25,13 @@ export type ExtensionToolbarProps = Pick<
  * Web: below `md` the language and the filter fold in here as menus; from `md`
  * the dropdown and the sidebar take them. Always a check for updates.
  */
-export function ExtensionToolbar({
+export function ListToolbar({
   filter,
   onFilterChange,
   language,
   languages,
   onLanguageChange,
-}: ExtensionToolbarProps) {
+}: ListToolbarProps) {
   const wide = useBreakpoint().isAtLeast("md");
   const primary = useThemeColor("primary");
   const [checking, setChecking] = useState(false);

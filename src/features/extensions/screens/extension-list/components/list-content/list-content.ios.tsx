@@ -15,15 +15,11 @@ import { Host } from "@/components/ui/host";
 import { Typography } from "@/components/ui/typography";
 import { checkForUpdates, updateAllExtensions } from "@/features/extensions";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { ExtensionRow } from "../extension-row";
-import type { ExtensionListProps } from "./extension-list";
+import { ListItem } from "../list-item";
+import type { ListContentProps } from "./list-content";
 
 /** An inset-grouped list per section, pull to check for updates. */
-export function ExtensionList({
-  sections,
-  counts,
-  language,
-}: ExtensionListProps) {
+export function ListContent({ sections, counts, language }: ListContentProps) {
   const rowBackground = listRowBackground(useThemeColor("muted"));
 
   return (
@@ -71,7 +67,7 @@ export function ExtensionList({
               }
             >
               <List.ForEach data={s.data} keyExtractor={(e) => e.id}>
-                {({ item: e }) => <ExtensionRow extension={e} />}
+                {({ item: e }) => <ListItem extension={e} />}
               </List.ForEach>
             </Section>
           ))}

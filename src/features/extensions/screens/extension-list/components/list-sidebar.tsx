@@ -12,7 +12,7 @@ import {
 } from "@/features/extensions";
 
 /** Same column as the manga `ListSidebar`: tabs, since they switch one view. */
-export function FilterSidebar({
+export function ListSidebar({
   filter,
   counts,
   onSelect,

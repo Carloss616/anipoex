@@ -1,5 +1,5 @@
-import { Extensions } from "@/features/extensions/screens/extensions";
+import { ExtensionList } from "@/features/extensions/screens/extension-list";
 
 export default function ExtensionsScreen() {
-  return <Extensions />;
+  return <ExtensionList />;
 }
