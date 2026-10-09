@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { Platform, StyleSheet, View } from "react-native";
+import { EnsureRNHostView } from "@/components/ui/host";
 import { ScrimGradient } from "@/components/ui/scrim";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
@@ -20,29 +21,35 @@ export function Hero({ manga }: { manga: MangaDetail }) {
   if (!art) return null;
 
   return (
-    <View className="w-full" style={{ height: maxHeaderHeight + ART_HEIGHT }}>
-      <Image
-        source={art}
-        style={[
-          StyleSheet.absoluteFill,
-          {
-            backgroundColor: manga.coverImage?.color ?? undefined,
-          },
-        ]}
-        contentFit="cover"
-        transition={400}
-        blurRadius={Platform.select({
-          ios: 8,
-          web: 4,
-          default: 2,
-        })}
-      />
-      <ScrimGradient ease={smootherstep} style={StyleSheet.absoluteFill} flip />
-      <ScrimGradient
-        peak={1}
-        ease={smootherstep}
-        style={StyleSheet.absoluteFill}
-      />
-    </View>
+    <EnsureRNHostView matchContents={{ vertical: true }} className="w-full">
+      <View className="w-full" style={{ height: maxHeaderHeight + ART_HEIGHT }}>
+        <Image
+          source={art}
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: manga.coverImage?.color ?? undefined,
+            },
+          ]}
+          contentFit="cover"
+          transition={400}
+          blurRadius={Platform.select({
+            ios: 8,
+            web: 4,
+            default: 2,
+          })}
+        />
+        <ScrimGradient
+          ease={smootherstep}
+          style={StyleSheet.absoluteFill}
+          flip
+        />
+        <ScrimGradient
+          peak={1}
+          ease={smootherstep}
+          style={StyleSheet.absoluteFill}
+        />
+      </View>
+    </EnsureRNHostView>
   );
 }
