@@ -1,5 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Platform } from "expo";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
@@ -60,7 +61,12 @@ export function ExtensionRow({ extension: e }: { extension: Extension }) {
       </Item.Media>
       <Item.Content>
         <Item.Title numberOfLines={1}>
-          {e.nsfw ? `${e.name} · 18+` : e.name}
+          {e.name}
+          {e.nsfw && (
+            <Badge color="destructive" className="web:ml-1.5">
+              18+
+            </Badge>
+          )}
           {e.installed && (
             <Icon
               name={INSTALLED}
@@ -72,7 +78,8 @@ export function ExtensionRow({ extension: e }: { extension: Extension }) {
           )}
         </Item.Title>
         <Item.Description numberOfLines={1}>
-          {`${e.language.name} · ${describeVersion(e)}`}
+          <Badge>{e.language.code.toUpperCase()}</Badge>
+          {` · ${describeVersion(e)}`}
         </Item.Description>
       </Item.Content>
       <Item.Actions>

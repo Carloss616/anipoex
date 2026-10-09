@@ -8,14 +8,12 @@ import {
   strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
 import { cn } from "panelui-native/utils/cn";
-import { Children, isValidElement } from "react";
 import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { Feedback } from "../feedback";
 import { EnsureHost } from "../host";
 import { Separator } from "../separator";
-import { Typography } from "../typography";
 import {
   DESCRIPTION_TYPES,
   ItemSizeContext,
@@ -34,6 +32,7 @@ import type {
   ItemSeparatorProps,
   ItemTitleProps,
 } from "./item";
+import { ItemText } from "./item-text";
 
 function ItemRoot({
   size = "default",
@@ -133,45 +132,14 @@ function ItemContent({ className, children }: ItemContentProps) {
   );
 }
 
-/** `Typography` keeps only the text: an icon among the children goes after it. */
-function ItemTitle({ className, children, ...props }: ItemTitleProps) {
-  const icons = Children.toArray(children).filter(isValidElement);
-  const text = (
-    <Typography
-      type={TITLE_TYPES[useItemSize()]}
-      weight="medium"
-      className={className}
-      {...props}
-    >
-      {children}
-    </Typography>
-  );
-
-  return icons.length ? (
-    <Row alignment="center" className="gap-1.5">
-      {text}
-      {icons}
-    </Row>
-  ) : (
-    text
+function ItemTitle(props: ItemTitleProps) {
+  return (
+    <ItemText type={TITLE_TYPES[useItemSize()]} weight="medium" {...props} />
   );
 }
 
-function ItemDescription({
-  className,
-  children,
-  ...props
-}: ItemDescriptionProps) {
-  return (
-    <Typography
-      type={DESCRIPTION_TYPES[useItemSize()]}
-      muted
-      className={className}
-      {...props}
-    >
-      {children}
-    </Typography>
-  );
+function ItemDescription(props: ItemDescriptionProps) {
+  return <ItemText type={DESCRIPTION_TYPES[useItemSize()]} muted {...props} />;
 }
 
 function ItemActions({ className, children }: ItemActionsProps) {

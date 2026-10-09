@@ -9,13 +9,11 @@ import {
   size as sizeModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { cn } from "panelui-native/utils/cn";
-import { Children, isValidElement } from "react";
 import { withUniwind } from "uniwind";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { EnsureHost } from "../host";
 import { Separator } from "../separator";
-import { Typography } from "../typography";
 import {
   DESCRIPTION_TYPES,
   ItemSizeContext,
@@ -33,6 +31,7 @@ import type {
   ItemSeparatorProps,
   ItemTitleProps,
 } from "./item";
+import { ItemText } from "./item-text";
 
 /**
  * M3's `ListItem` owns its padding, so `size` only reaches the text presets
@@ -128,49 +127,18 @@ function ItemContent({ children }: ItemContentProps) {
   return <>{children}</>;
 }
 
-/** `Typography` keeps only the text: an icon among the children goes after it. */
-function ItemTitle({ className, children, ...props }: ItemTitleProps) {
-  const icons = Children.toArray(children).filter(isValidElement);
-  const text = (
-    <Typography
-      type={TITLE_TYPES[useItemSize()]}
-      weight="medium"
-      className={className}
-      {...props}
-    >
-      {children}
-    </Typography>
-  );
-
+function ItemTitle(props: ItemTitleProps) {
   return (
     <ListItem.HeadlineContent>
-      {icons.length ? (
-        <Row alignment="center" className="gap-1.5">
-          {text}
-          {icons}
-        </Row>
-      ) : (
-        text
-      )}
+      <ItemText type={TITLE_TYPES[useItemSize()]} weight="medium" {...props} />
     </ListItem.HeadlineContent>
   );
 }
 
-function ItemDescription({
-  className,
-  children,
-  ...props
-}: ItemDescriptionProps) {
+function ItemDescription(props: ItemDescriptionProps) {
   return (
     <ListItem.SupportingContent>
-      <Typography
-        type={DESCRIPTION_TYPES[useItemSize()]}
-        muted
-        className={className}
-        {...props}
-      >
-        {children}
-      </Typography>
+      <ItemText type={DESCRIPTION_TYPES[useItemSize()]} muted {...props} />
     </ListItem.SupportingContent>
   );
 }

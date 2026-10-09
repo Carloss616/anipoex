@@ -118,6 +118,7 @@ export function ExtensionList({
                       {s.title}
                     </Typography>
                     <Badge>{s.data.length}</Badge>
+                    {language && <Badge>{language.toUpperCase()}</Badge>}
                     <Spacer />
                     {s.key !== "available" && counts.updates > 0 && (
                       <Button
