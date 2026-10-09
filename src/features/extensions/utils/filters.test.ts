@@ -1,10 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import {
-  filterLabel,
-  languagesOf,
-  parseFilter,
-  parseLanguage,
-} from "./filters";
+import { languagesOf, parseFilter, parseLanguage } from "./filters";
 import { EN, KO, LIST, MULTI } from "./fixtures";
 
 describe("parseFilter", () => {
@@ -46,15 +41,5 @@ describe("parseLanguage", () => {
 describe("languagesOf", () => {
   it("lists each language once, sorted by name", () => {
     expect(languagesOf(LIST)).toEqual([EN, KO, MULTI]);
-  });
-});
-
-describe("filterLabel", () => {
-  it("adds the count only when there is one", () => {
-    const counts = { all: 5, installed: 3, available: 2, updates: 0 };
-    expect(filterLabel("all", counts)).toBe("All · 5");
-    expect(filterLabel("installed", counts)).toBe("Installed · 3");
-    expect(filterLabel("available", counts)).toBe("Available · 2");
-    expect(filterLabel("updates", counts)).toBe("Updates");
   });
 });

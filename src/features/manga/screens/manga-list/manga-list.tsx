@@ -1,10 +1,10 @@
 import { useApolloClient } from "@apollo/client/react";
 import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useHeaderHeight } from "expo-router/react-navigation";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
 import { View } from "react-native";
+import { HeaderInset } from "@/components/layout/header-inset";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -32,7 +32,6 @@ export function MangaList() {
   const router = useRouter();
   const client = useApolloClient();
   const mutedForeground = useThemeColor("muted-foreground");
-  const headerHeight = useHeaderHeight();
   const searchBarTheme = useStackSearchBarTheme();
   const { isAtLeast, height } = useBreakpoint();
   const { list } = useLocalSearchParams<{ list?: string }>();
@@ -113,7 +112,7 @@ export function MangaList() {
           />
         </Stack.Toolbar>
       </Toolbar>
-      <View className="flex-1 flex-row" style={{ paddingTop: headerHeight }}>
+      <HeaderInset className="flex-1 flex-row">
         {wide && (
           <ListSidebar status={status} counts={counts} onSelect={select} />
         )}
@@ -125,7 +124,7 @@ export function MangaList() {
             header={<ListHeader genre$={genre$} genres$={mangaList.genres$} />}
           />
         </View>
-      </View>
+      </HeaderInset>
       <ViewSheet />
     </>
   );

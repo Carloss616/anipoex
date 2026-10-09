@@ -4,14 +4,16 @@ import { useMemo, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import {
   countExtensions,
-  extensionCount,
+  type ExtensionFilter,
   extensions$,
+  FILTER_TITLES,
   languagesOf,
   parseFilter,
   parseLanguage,
   toSections,
 } from "@/features/extensions";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
+import type { ActiveFilter } from "./components/active-filters";
 import { ExtensionList } from "./components/extension-list";
 
 export function Extensions() {
@@ -32,11 +34,26 @@ export function Extensions() {
   );
   const counts = useMemo(() => countExtensions(extensions), [extensions]);
 
+  // `all` is the default: keep it out of the URL.
+  const setFilter = (f: ExtensionFilter) =>
+    router.setParams({ filter: f === "all" ? undefined : f });
+  const setLanguage = (l: string | undefined) =>
+    router.setParams({ language: l });
+  const languageName = languages.find((l) => l.code === language)?.name;
+  const activeFilters: ActiveFilter[] = [
+    ...(languageName
+      ? [{ label: languageName, clear: () => setLanguage(undefined) }]
+      : []),
+    ...(filter !== "all"
+      ? [{ label: FILTER_TITLES[filter], clear: () => setFilter("all") }]
+      : []),
+  ];
+
   return (
     <>
       <Stack.Title large={large}>Extensions</Stack.Title>
       <Stack.SearchBar
-        placeholder={`Search ${extensionCount(counts[filter])}...`}
+        placeholder="Search..."
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
         onChangeText={(e) => setSearch(e.nativeEvent.text)}
@@ -48,13 +65,11 @@ export function Extensions() {
         sections={sections}
         counts={counts}
         filter={filter}
-        // `all` is the default: keep it out of the URL.
-        onFilterChange={(f) =>
-          router.setParams({ filter: f === "all" ? undefined : f })
-        }
+        onFilterChange={setFilter}
         language={language}
         languages={languages}
-        onLanguageChange={(l) => router.setParams({ language: l })}
+        onLanguageChange={setLanguage}
+        activeFilters={activeFilters}
       />
     </>
   );
