@@ -10,7 +10,7 @@ import { Toolbar } from "@/components/layout/toolbar";
 import { Badge } from "@/components/ui/badge";
 import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
-import { Icon } from "@/components/ui/icon";
+import { Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Typography } from "@/components/ui/typography";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
@@ -29,29 +29,17 @@ import { Tracking } from "./components/tracking";
 
 const MENU_ACTIONS = [
   {
-    icon: Icon.select({
-      ios: "square.and.arrow.up",
-      android: require("@expo/material-symbols/share.xml"),
-      web: "share",
-    }),
+    icon: Icons.share,
     label: "Share",
     onPress: () => noop(),
   },
   {
-    icon: Icon.select({
-      ios: "arrow.down.circle",
-      android: require("@expo/material-symbols/download.xml"),
-      web: "download",
-    }),
+    icon: Icons.download,
     label: "Download",
     onPress: () => noop(),
   },
   {
-    icon: Icon.select({
-      ios: "arrow.up.forward.square",
-      android: require("@expo/material-symbols/open_in_new.xml"),
-      web: "external-link",
-    }),
+    icon: Icons.openExternal,
     // The destination names itself better than "Website" did.
     label: "View on AniList",
     onPress: (id: string) => openExternal(`https://anilist.co/manga/${id}`),
@@ -90,22 +78,14 @@ export function MangaDetail() {
       <Toolbar spinning={refreshing}>
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
-            icon={Icon.select({
-              ios: "arrow.clockwise",
-              android: require("@expo/material-symbols/refresh.xml"),
-              web: "refresh-cw",
-            })}
+            icon={Icons.refresh}
             onPress={refresh}
             disabled={refreshing}
             tintColor={refreshing ? mutedForeground : undefined}
             accessibilityLabel="Refresh"
           />
           <Stack.Toolbar.Menu
-            icon={Icon.select({
-              ios: "ellipsis",
-              android: require("@expo/material-symbols/more_vert.xml"),
-              web: "ellipsis-vertical",
-            })}
+            icon={Icons.more}
             accessibilityLabel="More options"
           >
             {MENU_ACTIONS.map(({ icon, label, onPress }) => (
@@ -176,7 +156,7 @@ export function MangaDetail() {
                 total={manga.chapters}
               />
             </Row>
-            <Chapters entryId={manga.mediaListEntry?.id} chapters={[]} />
+            <Chapters entryId={manga.mediaListEntry?.id} chapters={CHAPTERS} />
           </Column>
         </Column>
       </DetailScroll>

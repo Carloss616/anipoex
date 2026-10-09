@@ -5,7 +5,7 @@ import { Stack } from "expo-router";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
 import { Toolbar } from "@/components/layout/toolbar";
-import { Icon } from "@/components/ui/icon";
+import { Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import {
   ALL,
@@ -52,11 +52,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           hidden={wide}
-          icon={Icon.select({
-            ios: "list.bullet",
-            android: require("@expo/material-symbols/list.xml"),
-            web: "list",
-          })}
+          icon={Icons.list}
           accessibilityLabel="Lists"
         >
           {MANGA_STATUS_ENTRIES.map(([key, name]) => (
@@ -71,11 +67,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Menu
           hidden={wide}
-          icon={Icon.select({
-            ios: "tag",
-            android: require("@expo/material-symbols/sell.xml"),
-            web: "tag",
-          })}
+          icon={Icons.tag}
           tintColor={genre !== ALL ? primary : undefined}
           accessibilityLabel="Genre"
         >
@@ -90,20 +82,12 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
           ))}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
-          icon={Icon.select({
-            ios: "square.grid.2x2",
-            android: require("@expo/material-symbols/grid_view.xml"),
-            web: "layout-grid",
-          })}
+          icon={Icons.grid}
           onPress={openViewSheet}
           accessibilityLabel="View options"
         />
         <Stack.Toolbar.Button
-          icon={Icon.select({
-            ios: "arrow.clockwise",
-            android: require("@expo/material-symbols/refresh.xml"),
-            web: "refresh-cw",
-          })}
+          icon={Icons.refresh}
           onPress={refresh}
           disabled={refetching}
           tintColor={refetching ? mutedForeground : undefined}

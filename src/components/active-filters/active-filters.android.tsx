@@ -1,7 +1,6 @@
-import CloseIcon from "@expo/material-symbols/close.xml";
 import { InputChip } from "@expo/ui/jetpack-compose";
 import { LazyRow } from "@/components/layout/lazy-row";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ActiveFiltersProps } from "./active-filters";
@@ -30,7 +29,7 @@ export function ActiveFilters({ filters, total }: ActiveFiltersProps) {
             </Typography>
           </InputChip.Label>
           <InputChip.TrailingIcon>
-            <Icon name={CloseIcon} size={18} className="text-inherit" />
+            <Icon name={Icons.close} size={18} className="text-inherit" />
           </InputChip.TrailingIcon>
         </InputChip>
       ))}

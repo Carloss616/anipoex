@@ -7,7 +7,7 @@ import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view/scroll-view";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
@@ -107,14 +107,7 @@ export function SourceSheet({
                       </Item.Content>
                       {source.id === selectedId && (
                         <Item.Actions>
-                          <Icon
-                            name={Icon.select({
-                              ios: "checkmark",
-                              android: require("@expo/material-symbols/check.xml"),
-                              web: "check",
-                            })}
-                            size={18}
-                          />
+                          <Icon name={Icons.check} size={18} />
                         </Item.Actions>
                       )}
                     </Item>

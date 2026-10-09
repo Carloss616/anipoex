@@ -1,8 +1,7 @@
-import GridViewIcon from "@expo/material-symbols/grid_view.xml";
-import SellIcon from "@expo/material-symbols/sell.xml";
 import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { Toolbar } from "@/components/layout/toolbar";
+import { Icons } from "@/components/ui/icon";
 import { ALL, genresOf } from "@/features/manga/hooks/use-manga-list";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { openViewSheet } from "../view-sheet";
@@ -18,7 +17,7 @@ export function ListToolbar({ list$ }: ListToolbarProps) {
     <Toolbar>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
-          icon={SellIcon}
+          icon={Icons.tag}
           tintColor={genre !== ALL ? m3.primary : undefined}
           accessibilityLabel="Genre"
         >
@@ -33,7 +32,7 @@ export function ListToolbar({ list$ }: ListToolbarProps) {
           ))}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
-          icon={GridViewIcon}
+          icon={Icons.grid}
           onPress={openViewSheet}
           accessibilityLabel="View options"
         />

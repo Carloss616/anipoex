@@ -5,7 +5,7 @@ import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUSES } from "@/features/manga/constants";
@@ -51,11 +51,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
               </Typography>
             )}
             <Icon
-              name={Icon.select({
-                ios: "chevron.right",
-                android: require("@expo/material-symbols/chevron_right.xml"),
-                web: "chevron-right",
-              })}
+              name={Icons.chevronRight}
               size={18}
               className="text-inherit web:text-primary"
             />

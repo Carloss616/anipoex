@@ -23,7 +23,7 @@ import { LazyColumn } from "@/components/layout/lazy-column";
 import { Row } from "@/components/layout/row";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import {
   checkForUpdates,
@@ -128,7 +128,7 @@ export function ListContent({
                   <Badge color="inherit">{String(counts.updates)}</Badge>
                 </BadgedBox.Badge>
                 <Icon
-                  name={require("@expo/material-symbols/deployed_code_update.xml")}
+                  name={Icons.update}
                   accessibilityLabel={`Update all (${counts.updates})`}
                   className="text-inherit"
                 />

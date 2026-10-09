@@ -2,7 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { Platform } from "expo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
 import { Typography } from "@/components/ui/typography";
@@ -18,30 +18,6 @@ import { sourceColor } from "@/features/manga/sources";
 import { useThemeM3Colors } from "@/hooks/use-theme";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
-
-const INSTALL = Icon.select({
-  ios: "arrow.down",
-  android: require("@expo/material-symbols/download.xml"),
-  web: "download",
-});
-
-const UPDATE = Icon.select({
-  ios: "arrow.clockwise",
-  android: require("@expo/material-symbols/deployed_code_update.xml"),
-  web: "refresh-cw",
-});
-
-const INSTALLED = Icon.select({
-  ios: "checkmark.circle",
-  android: require("@expo/material-symbols/check_circle.xml"),
-  web: "circle-check",
-});
-
-const MORE = Icon.select({
-  ios: "ellipsis",
-  android: require("@expo/material-symbols/more_vert.xml"),
-  web: "ellipsis-vertical",
-});
 
 export function ListItem({ extension: e }: { extension: Extension }) {
   const mode = useValue(theme$.mode);
@@ -69,7 +45,7 @@ export function ListItem({ extension: e }: { extension: Extension }) {
           )}
           {e.installed && (
             <Icon
-              name={INSTALLED}
+              name={Icons.checkCircle}
               size={14}
               color={m3?.primary ?? primary}
               className="web:ml-1.5"
@@ -92,7 +68,7 @@ export function ListItem({ extension: e }: { extension: Extension }) {
             accessibilityLabel={`Install ${e.name}`}
           >
             <Icon
-              name={INSTALL}
+              name={Icons.download}
               size={BUTTON_ICON_SIZE}
               className="text-inherit web:text-primary"
             />
@@ -106,7 +82,7 @@ export function ListItem({ extension: e }: { extension: Extension }) {
             accessibilityLabel={`Update ${e.name}`}
           >
             <Icon
-              name={UPDATE}
+              name={Icons.update}
               size={BUTTON_ICON_SIZE}
               className="text-inherit web:text-primary-foreground"
             />
@@ -136,7 +112,7 @@ export function ListItem({ extension: e }: { extension: Extension }) {
               accessibilityLabel={`More actions for ${e.name}`}
             >
               <Icon
-                name={MORE}
+                name={Icons.more}
                 size={BUTTON_ICON_SIZE}
                 className="text-inherit web:text-foreground"
               />

@@ -1,7 +1,6 @@
-import FilterListIcon from "@expo/material-symbols/filter_list.xml";
-import TranslateIcon from "@expo/material-symbols/translate.xml";
 import { Stack } from "expo-router";
 import { Toolbar } from "@/components/layout/toolbar";
+import { Icons } from "@/components/ui/icon";
 import { EXTENSION_FILTERS, FILTER_TITLES } from "@/features/extensions";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ListToolbarProps } from "./list-toolbar";
@@ -20,7 +19,7 @@ export function ListToolbar({
     <Toolbar>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
-          icon={TranslateIcon}
+          icon={Icons.language}
           tintColor={language ? m3.primary : undefined}
           accessibilityLabel="Language"
         >
@@ -35,7 +34,7 @@ export function ListToolbar({
           ))}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Menu
-          icon={FilterListIcon}
+          icon={Icons.filter}
           tintColor={filter !== "all" ? m3.primary : undefined}
           accessibilityLabel="Filter"
         >
