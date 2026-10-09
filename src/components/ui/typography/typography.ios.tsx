@@ -11,6 +11,7 @@ import {
   multilineTextAlignment,
   onTapGesture,
   padding,
+  shadow,
 } from "@expo/ui/swift-ui/modifiers";
 import type {
   TypographyCodeProps,
@@ -72,6 +73,9 @@ function TypographyRootBase({
     paddingRight,
     paddingVertical,
     paddingHorizontal,
+    textShadowColor,
+    textShadowOffset,
+    textShadowRadius,
   } = StyleSheet.flatten(style) ?? {};
 
   const themeFamily = useFontFamily(fontWeight ?? weight ?? WEIGHT[type]);
@@ -111,6 +115,16 @@ function TypographyRootBase({
                 ),
               ]),
           multilineTextAlignment(alignment),
+          ...(textShadowColor == null
+            ? []
+            : [
+                shadow({
+                  color: textShadowColor as string,
+                  radius: dp(textShadowRadius) ?? 0,
+                  x: dp(textShadowOffset?.width),
+                  y: dp(textShadowOffset?.height),
+                }),
+              ]),
           // A tight height truncates mid-word; only a code chip also refuses
           // to give up width, since it must never wrap.
           ...(numberOfLines === 1
