@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
 import { Toolbar } from "@/components/layout/toolbar";
-import { Icon } from "@/components/ui/icon";
+import { Icons } from "@/components/ui/icon";
 import {
   checkForUpdates,
   EXTENSION_FILTERS,
@@ -41,11 +41,7 @@ export function ListToolbar({
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           hidden={wide}
-          icon={Icon.select({
-            ios: "globe",
-            android: require("@expo/material-symbols/translate.xml"),
-            web: "languages",
-          })}
+          icon={Icons.language}
           tintColor={language ? primary : undefined}
           accessibilityLabel="Language"
         >
@@ -61,11 +57,7 @@ export function ListToolbar({
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Menu
           hidden={wide}
-          icon={Icon.select({
-            ios: "line.3.horizontal.decrease",
-            android: require("@expo/material-symbols/filter_list.xml"),
-            web: "list-filter",
-          })}
+          icon={Icons.filter}
           tintColor={filter !== "all" ? primary : undefined}
           accessibilityLabel="Filter"
         >
@@ -80,11 +72,7 @@ export function ListToolbar({
           ))}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
-          icon={Icon.select({
-            ios: "arrow.clockwise",
-            android: require("@expo/material-symbols/refresh.xml"),
-            web: "refresh-cw",
-          })}
+          icon={Icons.refresh}
           onPress={() => {
             setChecking(true);
             void checkForUpdates().finally(() => setChecking(false));

@@ -5,7 +5,7 @@ import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { Button } from "@/components/ui/button";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { Separator } from "@/components/ui/separator";
 import { Surface } from "@/components/ui/surface";
@@ -74,11 +74,7 @@ export function Overview({
             muted
           >
             <Icon
-              name={Icon.select({
-                ios: "ellipsis",
-                android: require("@expo/material-symbols/more_vert.xml"),
-                web: "more-vertical",
-              })}
+              name={Icons.more}
               size={BUTTON_ICON_SIZE}
               className="text-inherit"
             />

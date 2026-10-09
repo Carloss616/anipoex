@@ -3,7 +3,7 @@ import { cn } from "panelui-native/utils/cn";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { Badge } from "@/components/ui/badge";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { STATUS_COLOR } from "@/features/manga/components/manga-card/constants";
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
@@ -42,15 +42,7 @@ export function Meta({
 
       {!!manga.author && (
         <Row className="gap-2" alignment="center">
-          <Icon
-            name={Icon.select({
-              ios: "person",
-              android: require("@expo/material-symbols/person.xml"),
-              web: "user",
-            })}
-            size={12}
-            muted
-          />
+          <Icon name={Icons.person} size={12} muted />
           <Typography type="body-sm" weight="medium">
             {manga.author}
           </Typography>
@@ -64,15 +56,7 @@ export function Meta({
               <Badge color={STATUS_COLOR[manga.status]} />
             </Column>
           ) : (
-            <Icon
-              name={Icon.select({
-                ios: "calendar",
-                android: require("@expo/material-symbols/calendar_today.xml"),
-                web: "calendar",
-              })}
-              size={12}
-              muted
-            />
+            <Icon name={Icons.calendar} size={12} muted />
           )}
           <Typography type="body-sm" muted>
             {state}
@@ -82,15 +66,7 @@ export function Meta({
 
       {!!manga.averageScore && (
         <Row className="gap-2" alignment="center">
-          <Icon
-            name={Icon.select({
-              ios: "star",
-              android: require("@expo/material-symbols/star.xml"),
-              web: "star",
-            })}
-            size={12}
-            muted
-          />
+          <Icon name={Icons.star} size={12} muted />
           <Typography type="body-sm" muted>
             {`${manga.averageScore}% community`}
           </Typography>

@@ -1,9 +1,8 @@
-import CheckIcon from "@expo/material-symbols/check.xml";
 import { DropdownMenu, DropdownMenuItem } from "@expo/ui/jetpack-compose";
 import { cloneElement, useState } from "react";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Dialog } from "../dialog";
-import { Icon } from "../icon";
+import { Icon, Icons } from "../icon";
 import { Typography } from "../typography";
 import type { MenuProps } from "./menu";
 import { useMenuDialogState } from "./use-menu-dialog";
@@ -51,7 +50,7 @@ export function Menu({ items, children }: MenuProps) {
               )}
               {item.checked && (
                 <DropdownMenuItem.TrailingIcon>
-                  <Icon name={CheckIcon} size={24} />
+                  <Icon name={Icons.check} size={24} />
                 </DropdownMenuItem.TrailingIcon>
               )}
             </DropdownMenuItem>

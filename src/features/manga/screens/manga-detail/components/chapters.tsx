@@ -1,11 +1,14 @@
+import { Platform } from "expo";
 import { cn } from "panelui-native/utils/cn";
 import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { Button } from "@/components/ui/button";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Surface } from "@/components/ui/surface";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import type { CHAPTERS } from "@/features/manga/mocks";
-import { DownloadButton } from "./download-button";
+import { noop } from "@/utils/utils";
 
 export interface ChaptersProps {
   entryId: number | null | undefined;
@@ -31,7 +34,19 @@ export function Chapters({ entryId, chapters }: ChaptersProps) {
                 <Item.Description>{chapter.date}</Item.Description>
               </Item.Content>
               <Item.Actions>
-                <DownloadButton />
+                <Button
+                  size="icon"
+                  className="web:size-9"
+                  variant={Platform.OS === "android" ? "ghost" : "outline"}
+                  onPress={noop}
+                  accessibilityLabel={`Download chapter ${chapter.title}`}
+                >
+                  <Icon
+                    name={Icons.download}
+                    size={BUTTON_ICON_SIZE}
+                    className="text-inherit web:text-primary"
+                  />
+                </Button>
               </Item.Actions>
             </Item>
           </Fragment>

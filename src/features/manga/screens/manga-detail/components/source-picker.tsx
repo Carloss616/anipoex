@@ -1,7 +1,7 @@
 import { useValue } from "@legendapp/state/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { MOCK_SOURCES } from "@/features/manga/sources";
 import { source$ } from "@/features/manga/state/source";
@@ -33,11 +33,7 @@ export function SourcePicker({
           {source?.name ?? "Source"}
         </Typography>
         <Icon
-          name={Icon.select({
-            ios: "chevron.down",
-            android: require("@expo/material-symbols/arrow_drop_down.xml"),
-            web: "chevron-down",
-          })}
+          name={Icons.chevronDown}
           size={16}
           className="text-inherit web:text-primary"
         />
