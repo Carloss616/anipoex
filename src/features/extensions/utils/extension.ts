@@ -35,5 +35,5 @@ export function countExtensions(extensions: Extension[]): ExtensionCounts {
 }
 
 export function describeVersion(e: Extension): string {
-  return hasUpdate(e) ? `v${e.version} → v${e.latestVersion}` : `v${e.version}`;
+  return hasUpdate(e) ? `${e.version} → ${e.latestVersion}` : `${e.version}`;
 }
