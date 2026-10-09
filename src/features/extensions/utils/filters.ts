@@ -1,4 +1,4 @@
-import type { Extension, ExtensionCounts, Language } from "./extension";
+import type { Extension, Language } from "./extension";
 
 export const EXTENSION_FILTERS = [
   "all",
@@ -39,16 +39,6 @@ export function parseLanguage(
 ): string | undefined {
   const value = first(raw);
   return known.some((l) => l.code === value) ? value : undefined;
-}
-
-export function filterLabel(
-  filter: ExtensionFilter,
-  counts: ExtensionCounts,
-): string {
-  const count = counts[filter];
-  return count > 0
-    ? `${FILTER_TITLES[filter]} · ${count}`
-    : FILTER_TITLES[filter];
 }
 
 export const extensionCount = (count: number) =>

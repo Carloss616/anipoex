@@ -1,5 +1,6 @@
 import { List, Section, Spacer } from "@expo/ui/swift-ui";
 import {
+  defaultScrollAnchorForRole,
   listRowBackground,
   listStyle,
   refreshable,
@@ -9,6 +10,7 @@ import { Stack } from "expo-router";
 import type { SFSymbol } from "expo-symbols";
 import { EmptyState } from "@/components/empty-state";
 import { Row } from "@/components/layout/row";
+import { ScrollView } from "@/components/layout/scroll-view";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,6 +50,7 @@ export function ExtensionList({
   onLanguageChange,
 }: ExtensionListProps) {
   const rowBackground = listRowBackground(useThemeColor("muted"));
+  const primary = useThemeColor("primary");
 
   return (
     <>
@@ -55,6 +58,7 @@ export function ExtensionList({
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Menu
             icon="line.3.horizontal.decrease"
+            tintColor={filter !== "all" || language ? primary : undefined}
             accessibilityLabel="Filter and language"
           >
             <Stack.Toolbar.Menu inline title="Filter">
@@ -87,7 +91,15 @@ export function ExtensionList({
 
       <Host className="flex-1">
         {sections.length === 0 ? (
-          <EmptyState title="No extensions match this filter" />
+          <ScrollView
+            fill
+            modifiers={[
+              defaultScrollAnchorForRole("center", "alignment"),
+              refreshable(checkForUpdates),
+            ]}
+          >
+            <EmptyState title="No extensions match this filter" />
+          </ScrollView>
         ) : (
           <List
             modifiers={[

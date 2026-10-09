@@ -1,7 +1,7 @@
 import { cn } from "panelui-native/utils/cn";
 import { useState } from "react";
 import { Typography } from "@/components/ui/typography";
-import { Center } from "./layout/center";
+import { Center, type CenterProps } from "./layout/center";
 
 /** @see https://github.com/mihonapp/mihon/blob/main/presentation-core/src/main/java/tachiyomi/presentation/core/screens/EmptyScreen.kt */
 const FACES = [
@@ -24,6 +24,7 @@ type EmptyStateProps = {
   description?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
+  modifiers?: CenterProps["modifiers"];
 };
 
 export function EmptyState({
@@ -31,13 +32,14 @@ export function EmptyState({
   description,
   children,
   className,
+  modifiers,
 }: EmptyStateProps) {
   const [face] = useState(
     () => FACES[Math.floor(Math.random() * FACES.length)],
   );
 
   return (
-    <Center className={cn("gap-3 px-8 py-24", className)}>
+    <Center className={cn("gap-3 px-8 py-24", className)} modifiers={modifiers}>
       <Typography align="center" muted className="text-5xl">
         {face}
       </Typography>
