@@ -2,6 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { useWindowDimensions } from "react-native";
+import type { ActiveFilter } from "@/components/active-filters";
 import {
   countExtensions,
   type ExtensionFilter,
@@ -13,8 +14,8 @@ import {
   toSections,
 } from "@/features/extensions";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
-import type { ActiveFilter } from "./components/active-filters";
 import { ExtensionList } from "./components/extension-list";
+import { ExtensionToolbar } from "./components/extension-toolbar";
 
 export function Extensions() {
   const router = useRouter();
@@ -60,6 +61,14 @@ export function Extensions() {
         onCancelButtonPress={() => setSearch("")}
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
+      />
+      <ExtensionToolbar
+        counts={counts}
+        filter={filter}
+        onFilterChange={setFilter}
+        language={language}
+        languages={languages}
+        onLanguageChange={setLanguage}
       />
       <ExtensionList
         sections={sections}

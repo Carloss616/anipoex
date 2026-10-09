@@ -1,27 +1,30 @@
-import type { ObservablePrimitive } from "@legendapp/state";
-import { useObservable } from "@legendapp/state/react";
-import { ALL, useMangaList } from "@/features/manga/hooks/use-manga-list";
+import type { Observable, ObservablePrimitive } from "@legendapp/state";
+import {
+  type MangaListStore,
+  useMangaList,
+} from "@/features/manga/hooks/use-manga-list";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { ListGrid } from "./list-grid";
 import { ListHeader } from "./list-header";
 
-/** One page of a pager: its own genre, its own query. */
+/** One page of a pager; its list state is the screen's, so the toolbar can read it. */
 export function ListPage({
   status,
   query$,
+  list$,
 }: {
   status: MediaListStatus;
   query$: ObservablePrimitive<string>;
+  list$: Observable<MangaListStore>;
 }) {
-  const genre$ = useObservable(ALL);
-  const list = useMangaList(status, query$, genre$);
+  const list = useMangaList(status, query$, list$);
 
   return (
     <ListGrid
       list={list}
       query$={query$}
-      genre$={genre$}
-      header={<ListHeader genre$={genre$} genres$={list.genres$} />}
+      genre$={list$.genre}
+      header={<ListHeader genre$={list$.genre} list={list} />}
     />
   );
 }

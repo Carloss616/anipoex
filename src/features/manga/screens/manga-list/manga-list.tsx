@@ -1,55 +1,41 @@
-import { useApolloClient } from "@apollo/client/react";
 import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { useState } from "react";
-import { View } from "react-native";
 import { HeaderInset } from "@/components/layout/header-inset";
-import { Toolbar } from "@/components/layout/toolbar";
-import { Icon } from "@/components/ui/icon";
 import {
   ALL,
-  REFRESH_QUERIES,
+  emptyMangaList,
   useMangaList,
 } from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
 import { parseList } from "@/features/manga/utils/parse-list";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { MANGA_STATUS_ENTRIES, MANGA_STATUSES } from "../../constants";
+import { MANGA_STATUSES } from "../../constants";
 import { ListGrid } from "./components/list-grid";
 import { ListHeader } from "./components/list-header";
 import { ListSidebar } from "./components/list-sidebar";
-import { openViewSheet, ViewSheet } from "./components/view-sheet";
+import { ListToolbar } from "./components/list-toolbar";
+import { ViewSheet } from "./components/view-sheet";
 import { useSearchQuery } from "./hooks/use-search-query";
 
 /**
  * Web: the lists in a sidebar, the open one as the title. Below `md` the
- * sidebar folds into a toolbar menu.
+ * sidebar and the genre dropdown fold into the toolbar.
  */
 export function MangaList() {
   const router = useRouter();
-  const client = useApolloClient();
-  const mutedForeground = useThemeColor("muted-foreground");
   const searchBarTheme = useStackSearchBarTheme();
   const { isAtLeast, height } = useBreakpoint();
   const { list } = useLocalSearchParams<{ list?: string }>();
   const status = parseList(list);
   const counts = useMangaListCounts();
   const { query$, setQuery } = useSearchQuery();
-  const genre$ = useObservable(ALL);
-  const mangaList = useMangaList(status, query$, genre$);
-  const [refetching, setRefetching] = useState(false);
+  const list$ = useObservable(emptyMangaList());
+  const genre$ = list$.genre;
+  const mangaList = useMangaList(status, query$, list$);
   const wide = isAtLeast("md");
   const large = height > 640;
-
-  const refresh = () => {
-    setRefetching(true);
-    client
-      .refetchQueries({ include: REFRESH_QUERIES })
-      .finally(() => setRefetching(false));
-  };
 
   const select = (key: MediaListStatus) => {
     // A genre picked in one list may not exist in the next.
@@ -69,61 +55,17 @@ export function MangaList() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      <Toolbar spinning={refetching}>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Menu
-            hidden={wide}
-            icon={Icon.select({
-              ios: "list.bullet",
-              android: require("@expo/material-symbols/list.xml"),
-              web: "list",
-            })}
-            accessibilityLabel="Lists"
-          >
-            {MANGA_STATUS_ENTRIES.map(([key, name]) => (
-              <Stack.Toolbar.MenuAction
-                key={key}
-                isOn={key === status}
-                onPress={() => select(key)}
-              >
-                {counts[key] == null ? name : `${name} (${counts[key]})`}
-              </Stack.Toolbar.MenuAction>
-            ))}
-          </Stack.Toolbar.Menu>
-          <Stack.Toolbar.Button
-            icon={Icon.select({
-              ios: "square.grid.2x2",
-              android: require("@expo/material-symbols/grid_view.xml"),
-              web: "layout-grid",
-            })}
-            onPress={openViewSheet}
-            accessibilityLabel="View options"
-          />
-          <Stack.Toolbar.Button
-            icon={Icon.select({
-              ios: "arrow.clockwise",
-              android: require("@expo/material-symbols/refresh.xml"),
-              web: "refresh-cw",
-            })}
-            onPress={refresh}
-            disabled={refetching}
-            tintColor={refetching ? mutedForeground : undefined}
-            accessibilityLabel="Refresh"
-          />
-        </Stack.Toolbar>
-      </Toolbar>
+      <ListToolbar status={status} list$={list$} onSelect={select} />
       <HeaderInset className="flex-1 flex-row">
         {wide && (
           <ListSidebar status={status} counts={counts} onSelect={select} />
         )}
-        <View className="flex-1">
-          <ListGrid
-            list={mangaList}
-            query$={query$}
-            genre$={genre$}
-            header={<ListHeader genre$={genre$} genres$={mangaList.genres$} />}
-          />
-        </View>
+        <ListGrid
+          list={mangaList}
+          query$={query$}
+          genre$={genre$}
+          header={<ListHeader genre$={genre$} list={mangaList} />}
+        />
       </HeaderInset>
       <ViewSheet />
     </>
