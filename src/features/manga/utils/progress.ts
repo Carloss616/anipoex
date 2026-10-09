@@ -7,14 +7,14 @@ export function toProgress(
 
   if (!total) {
     return {
-      label: `Ch. ${chapters}`,
+      label: `c.${chapters}`,
       spoken: `${chapters} chapters read`,
       fraction: undefined,
     };
   }
 
   return {
-    label: `${chapters} / ${total}`,
+    label: `c.${chapters}/${total}`,
     spoken: `${chapters} of ${total} chapters read`,
     fraction: Math.min(chapters / total, 1),
   };

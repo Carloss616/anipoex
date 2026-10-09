@@ -21,8 +21,8 @@ export interface MangaCardProps {
   coverThumb?: string | null;
   coverColor?: string | null;
   status?: MediaStatus | null;
-  title?: React.ReactNode;
-  label?: React.ReactNode;
+  title?: string | null;
+  label?: string | null;
   /** Where `title` and `label` go. `over` keeps them on a scrim over the cover. */
   titlePosition?: TitlePosition;
   /** Share read, 0–1; draws a bar under the label. Omit when the total is unknown. */
@@ -122,9 +122,7 @@ export function MangaCard({
             >
               {title}
             </Typography>
-            <Typography type="body-xs" muted numberOfLines={1}>
-              {label}
-            </Typography>
+            <Badge className="self-start">{label}</Badge>
             {progress != null && <Progress value={progress * 100} size="sm" />}
           </View>
         </Feedback>

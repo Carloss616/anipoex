@@ -8,7 +8,7 @@ export const easeIn = (p: number) => p * p;
 export interface RampOptions {
   /**
    * Alpha at the far end.
-   * @default 0.6
+   * @default 0.75
    */
   peak?: number;
   /**
@@ -36,7 +36,7 @@ export interface RampOptions {
  */
 export function ramp(
   color: string,
-  { peak = 0.6, stops = 6, ease = easeIn, flip = false }: RampOptions = {},
+  { peak = 0.75, stops = 6, ease = easeIn, flip = false }: RampOptions = {},
 ) {
   const rgb = color.slice(0, 7); // Compose hands colors back as `#rrggbbaa`.
   const locations = Array.from({ length: stops }, (_, i) => i / (stops - 1));

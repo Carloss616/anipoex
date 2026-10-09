@@ -98,14 +98,14 @@ function MangaCardBase({
             <Typography
               type="body-xs"
               numberOfLines={1}
-              className="text-center text-gray-50"
+              className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3]"
             >
               {label}
             </Typography>
             <Typography
               type="body-sm"
               numberOfLines={2}
-              className="text-center text-white"
+              className="text-center text-shadow-[0_1px_3px_#000000b3] text-white"
             >
               {title}
             </Typography>
@@ -136,9 +136,7 @@ function MangaCardBase({
           >
             {title}
           </Typography>
-          <Typography type="body-xs" muted numberOfLines={1}>
-            {label}
-          </Typography>
+          <Badge>{label}</Badge>
           {progress != null && <Progress value={progress * 100} size="sm" />}
         </Column>
         {overlay}
