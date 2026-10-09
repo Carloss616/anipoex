@@ -14,10 +14,10 @@ import {
   toSections,
 } from "@/features/extensions";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
-import { ExtensionList } from "./components/extension-list";
-import { ExtensionToolbar } from "./components/extension-toolbar";
+import { ListContent } from "./components/list-content";
+import { ListToolbar } from "./components/list-toolbar";
 
-export function Extensions() {
+export function ExtensionList() {
   const router = useRouter();
   const params = useLocalSearchParams<{ filter?: string; language?: string }>();
   const extensions = useValue(extensions$);
@@ -62,7 +62,7 @@ export function Extensions() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      <ExtensionToolbar
+      <ListToolbar
         counts={counts}
         filter={filter}
         onFilterChange={setFilter}
@@ -70,7 +70,7 @@ export function Extensions() {
         languages={languages}
         onLanguageChange={setLanguage}
       />
-      <ExtensionList
+      <ListContent
         sections={sections}
         counts={counts}
         filter={filter}

@@ -24,10 +24,10 @@ import {
   updateAllExtensions,
 } from "@/features/extensions";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
-import { ExtensionRow } from "../extension-row";
-import { FilterSidebar } from "../filter-sidebar";
+import { ListItem } from "../list-item";
+import { ListSidebar } from "../list-sidebar";
 
-export interface ExtensionListProps {
+export interface ListContentProps {
   sections: ExtensionSection[];
   counts: ExtensionCounts;
   filter: ExtensionFilter;
@@ -41,7 +41,7 @@ export interface ExtensionListProps {
 }
 
 /** Web, laid out like the manga list. */
-export function ExtensionList({
+export function ListContent({
   sections,
   counts,
   filter,
@@ -50,7 +50,7 @@ export function ExtensionList({
   languages,
   onLanguageChange,
   activeFilters,
-}: ExtensionListProps) {
+}: ListContentProps) {
   const headerScroll = useHeaderScroll();
   const wide = useBreakpoint().isAtLeast("md");
   const rows = useMemo(() => toRows(sections), [sections]);
@@ -60,7 +60,7 @@ export function ExtensionList({
   return (
     <HeaderInset className="flex-1 flex-row">
       {wide && (
-        <FilterSidebar
+        <ListSidebar
           filter={filter}
           counts={counts}
           onSelect={onFilterChange}
@@ -113,7 +113,7 @@ export function ExtensionList({
             ) : (
               <>
                 {row.divided && <Item.Separator />}
-                <ExtensionRow extension={row.extension} />
+                <ListItem extension={row.extension} />
               </>
             )
           }

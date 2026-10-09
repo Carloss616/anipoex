@@ -7,7 +7,7 @@ import {
   FILTER_TITLES,
 } from "@/features/extensions";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import type { ExtensionToolbarProps } from "./extension-toolbar";
+import type { ListToolbarProps } from "./list-toolbar";
 
 const FILTER_SYMBOLS: Record<ExtensionFilter, SFSymbol> = {
   all: "puzzlepiece.extension",
@@ -21,14 +21,14 @@ const FILTER_SYMBOLS: Record<ExtensionFilter, SFSymbol> = {
  * language. The menus sit inline: `Stack.Toolbar` only reads its direct
  * children, so a wrapper component would be dropped.
  */
-export function ExtensionToolbar({
+export function ListToolbar({
   counts,
   filter,
   onFilterChange,
   language,
   languages,
   onLanguageChange,
-}: ExtensionToolbarProps) {
+}: ListToolbarProps) {
   const primary = useThemeColor("primary");
 
   return (

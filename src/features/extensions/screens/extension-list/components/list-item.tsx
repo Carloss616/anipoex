@@ -43,7 +43,7 @@ const MORE = Icon.select({
   web: "ellipsis-vertical",
 });
 
-export function ExtensionRow({ extension: e }: { extension: Extension }) {
+export function ListItem({ extension: e }: { extension: Extension }) {
   const mode = useValue(theme$.mode);
   const primary = useThemeColor("primary");
   const m3 = useThemeM3Colors();

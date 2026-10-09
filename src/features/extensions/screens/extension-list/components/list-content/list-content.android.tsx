@@ -33,16 +33,16 @@ import {
 } from "@/features/extensions";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { contentPaddingOf } from "@/utils/utils";
-import { ExtensionRow } from "../extension-row";
-import type { ExtensionListProps } from "./extension-list";
+import { ListItem } from "../list-item";
+import type { ListContentProps } from "./list-content";
 
 /** Pull to check for updates; the FAB installs them, collapsing once the list scrolls. */
-export function ExtensionList({
+export function ListContent({
   sections,
   counts,
   filter,
   activeFilters,
-}: ExtensionListProps) {
+}: ListContentProps) {
   const headerHeight = useHeaderHeight();
   const m3 = useThemeM3Colors();
   const [checking, setChecking] = useState(false);
@@ -105,7 +105,7 @@ export function ExtensionList({
                       <Badge>{r.section.data.length}</Badge>
                     </Row>
                   ) : (
-                    <ExtensionRow extension={r.extension} />
+                    <ListItem extension={r.extension} />
                   )
                 }
               </LazyColumn.Items>

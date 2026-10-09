@@ -4,16 +4,16 @@ import { Stack } from "expo-router";
 import { Toolbar } from "@/components/layout/toolbar";
 import { EXTENSION_FILTERS, FILTER_TITLES } from "@/features/extensions";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import type { ExtensionToolbarProps } from "./extension-toolbar";
+import type { ListToolbarProps } from "./list-toolbar";
 
 /** Android: language and filter as menus, tinted while set. */
-export function ExtensionToolbar({
+export function ListToolbar({
   filter,
   onFilterChange,
   language,
   languages,
   onLanguageChange,
-}: ExtensionToolbarProps) {
+}: ListToolbarProps) {
   const m3 = useThemeM3Colors();
 
   return (
