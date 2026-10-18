@@ -2,7 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { useWindowDimensions } from "react-native";
-import type { ActiveFilter } from "@/components/active-filters";
+import type { ActiveFilter } from "@/components/blocks/active-filters";
 import {
   countExtensions,
   type ExtensionFilter,

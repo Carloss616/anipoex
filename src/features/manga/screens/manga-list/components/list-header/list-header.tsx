@@ -3,7 +3,7 @@ import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { memo } from "react";
 import { View } from "react-native";
-import { ActiveFilters } from "@/components/active-filters";
+import { ActiveFilters } from "@/components/blocks/active-filters";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";

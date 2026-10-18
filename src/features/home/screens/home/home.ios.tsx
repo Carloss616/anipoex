@@ -5,9 +5,9 @@ import {
   multilineTextAlignment,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
+import { ThemePicker } from "@/components/blocks/theme-picker";
+import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { Text, useFont } from "@/components/native/swift-ui/text";
-import { ThemePicker } from "@/components/theme-picker";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Host } from "@/components/ui/host";
 import { useSignOut } from "./hooks/use-sign-out";
 

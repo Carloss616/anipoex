@@ -5,7 +5,7 @@ import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LoadingState } from "@/components/loading-state";
+import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
 import { ALL } from "@/features/manga/hooks/use-manga-list";
 import { listView$ } from "@/features/manga/state/list-view";

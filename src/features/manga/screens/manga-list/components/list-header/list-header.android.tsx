@@ -1,6 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
-import { ActiveFilters } from "@/components/active-filters";
+import { ActiveFilters } from "@/components/blocks/active-filters";
 import { mangaCount } from "@/features/manga/constants";
 import { ALL } from "@/features/manga/hooks/use-manga-list";
 import type { ListHeaderProps } from "./list-header";

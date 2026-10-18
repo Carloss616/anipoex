@@ -1,6 +1,6 @@
 import { ScrollView, View } from "react-native";
-import { ThemePicker } from "@/components/theme-picker";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemePicker } from "@/components/blocks/theme-picker";
+import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { useSignOut } from "./hooks/use-sign-out";

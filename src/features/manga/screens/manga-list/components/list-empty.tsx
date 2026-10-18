@@ -1,7 +1,7 @@
 import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { ALL } from "@/features/manga/hooks/use-manga-list";
 
 export const ListEmpty = memo(function ListEmpty({

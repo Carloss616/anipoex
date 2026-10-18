@@ -15,7 +15,7 @@ import {
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { Fragment } from "react";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { Code, Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";

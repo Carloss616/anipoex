@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/blocks/empty-state";
+import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
-import { LoadingState } from "@/components/loading-state";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";

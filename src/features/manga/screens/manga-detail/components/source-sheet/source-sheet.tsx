@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { ScrollView, View } from "react-native";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";

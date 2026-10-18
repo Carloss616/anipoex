@@ -1,7 +1,7 @@
 import { useValue } from "@legendapp/state/react";
 import { CloseButton } from "@/components/ui/close-button";
+import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 import { theme$ } from "@/state/theme";
-import { BUTTON_ICON_SIZE, Icon } from "../ui/icon";
 
 /** Tap flips light/dark within the family; long press hands it to the system. */
 export function ThemeToggle() {

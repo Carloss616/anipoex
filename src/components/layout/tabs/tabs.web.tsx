@@ -14,7 +14,7 @@ import { cn } from "panelui-native/utils/cn";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
 const TabSlot = withUniwind(TabSlotBase);

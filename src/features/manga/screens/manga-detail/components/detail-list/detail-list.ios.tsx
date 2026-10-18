@@ -12,7 +12,7 @@ import {
   scrollContentBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { cn } from "panelui-native/utils/cn";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";

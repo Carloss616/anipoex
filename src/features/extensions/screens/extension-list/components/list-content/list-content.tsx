@@ -1,8 +1,11 @@
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useMemo } from "react";
 import { View } from "react-native";
-import { type ActiveFilter, ActiveFilters } from "@/components/active-filters";
-import { EmptyState } from "@/components/empty-state";
+import {
+  type ActiveFilter,
+  ActiveFilters,
+} from "@/components/blocks/active-filters";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInset } from "@/components/layout/header-inset";
 import { LegendList } from "@/components/layout/legend-list";
 import { Button } from "@/components/ui/button";

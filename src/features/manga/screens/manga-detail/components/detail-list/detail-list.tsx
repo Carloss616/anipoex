@@ -1,6 +1,6 @@
 import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { Item } from "@/components/ui/item";

@@ -4,9 +4,9 @@ import {
   padding,
   verticalScroll,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { ThemePicker } from "@/components/blocks/theme-picker";
+import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { ThemePicker } from "@/components/theme-picker";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Host } from "@/components/ui/host";
 import { useSignOut } from "./hooks/use-sign-out";
 

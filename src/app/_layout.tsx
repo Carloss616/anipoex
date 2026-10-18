@@ -10,7 +10,7 @@ import { Stack } from "expo-router/stack";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { PanelUIProvider } from "panelui-native";
-import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { useEffect } from "react";
 import { ToastHost } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
 import { client } from "@/graphql/client";
@@ -19,6 +19,8 @@ import { useNavigationTheme } from "@/hooks/use-theme";
 import { session$ } from "@/state/session";
 
 SplashScreen.preventAutoHideAsync();
+// Android always fades it out; iOS only when asked.
+SplashScreen.setOptions({ fade: true });
 
 export default function RootLayout() {
   const cacheRestored = useCacheRestored();
@@ -32,13 +34,18 @@ export default function RootLayout() {
 
   useRefreshViewer();
 
-  if (!fontsLoaded || !cacheRestored) return null;
+  const ready = fontsLoaded && cacheRestored;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hide();
+  }, [ready]);
+
+  if (!ready) return null;
 
   return (
     <PanelUIProvider background={false} className="web:bg-background">
       <ApolloProvider client={client}>
         <ThemeProvider value={theme}>
-          <AnimatedSplashOverlay />
           <Layout />
           <ToastHost />
           <StatusBar style={theme.dark ? "light" : "dark"} />

@@ -26,17 +26,20 @@ anipoex/
 │   ├── components/                  # global — reused across features
 │   │   ├── ui/                      # design system (button, icon, typography…)
 │   │   ├── layout/                  # structure (header, tabs, toolbar…)
-│   │   ├── <component>/             # complex or multi-platform component
-│   │   │   ├── components/          # only used by this component
-│   │   │   ├── <component>.tsx
-│   │   │   └── index.ts             # export * from './<component>'
-│   │   ├── empty-state.tsx          # simple component — single file, no folder
-│   │   └── ...
+│   │   ├── blocks/                  # product pieces built from ui/ (empty-state, theme-toggle…)
+│   │   │   ├── <component>/         # complex or multi-platform component
+│   │   │   │   ├── components/      # only used by this component
+│   │   │   │   ├── <component>.tsx
+│   │   │   │   └── index.ts         # export * from './<component>'
+│   │   │   └── <component>.tsx      # simple component — single file, no folder
+│   │   └── native/                  # native Text and constants for SwiftUI / Compose
 │   ├── hooks/                       # global hooks
 │   ├── providers/                   # global providers
 │   └── utils/                       # global helpers
 └── assets/                          # images, fonts, icons (@/assets/*)
 ```
+
+Every global component sits in one of the four groups; nothing loose at the root of `components/`.
 
 Constants live next to what uses them (`constants.ts` inside the screen or component folder), not in a global `constants/`.
 

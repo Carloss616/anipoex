@@ -18,7 +18,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { cn } from "panelui-native/utils/cn";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
