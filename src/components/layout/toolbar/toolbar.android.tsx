@@ -22,7 +22,8 @@ function ToolbarButton({
   tintColor?: ColorValue;
   onPress?: () => void;
 }) {
-  const colors = tintColor ? { contentColor: tintColor } : undefined;
+  // Always an object: Compose can't reset `colors` to null.
+  const colors = { contentColor: tintColor };
 
   if (icon == null) {
     return (
