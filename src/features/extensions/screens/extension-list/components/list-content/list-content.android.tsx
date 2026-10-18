@@ -17,7 +17,7 @@ import {
   verticalScroll,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -55,6 +55,12 @@ export function ListContent({
   const insets = useSafeAreaInsets();
   const rows = toRows(sections);
   const shown = sections.reduce((n, s) => n + s.data.length, 0);
+  const empty = sections.length === 0;
+
+  // The sentinel leaves with the list: with nothing to scroll, the header rests.
+  useEffect(() => {
+    if (empty) setHeaderScrolled(false);
+  }, [empty, setHeaderScrolled]);
 
   return (
     <Host className="flex-1" style={{ marginTop: headerHeight }}>
@@ -68,7 +74,7 @@ export function ListContent({
           contentAlignment="topCenter"
           modifiers={[fillMaxSize()]}
         >
-          {sections.length === 0 ? (
+          {empty ? (
             <EmptyState
               title="No extensions match this filter"
               modifiers={[verticalScroll()]}
@@ -132,7 +138,7 @@ export function ListContent({
 
         {counts.updates > 0 && (
           <ExtendedFloatingActionButton
-            expanded={atTop}
+            expanded={atTop || empty}
             onClick={updateAllExtensions}
             modifiers={[
               align("bottomEnd"),
