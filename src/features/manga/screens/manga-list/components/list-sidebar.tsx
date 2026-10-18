@@ -25,7 +25,7 @@ export const ListSidebar = memo(function ListSidebar({
   return (
     <View
       accessibilityRole="tablist"
-      className="gutters box-content w-48 gap-0.5 border-border border-r p-4 pb-gb pl-gx"
+      className="gutters box-content w-48 flex-1 gap-0.5 border-border border-r p-4 pb-gb pl-gx"
     >
       <Typography type="body-sm" muted className="px-4.25 pb-2.5">
         Lists
