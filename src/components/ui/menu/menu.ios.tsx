@@ -3,8 +3,8 @@ import { disabled as disabledModifier } from "@expo/ui/swift-ui/modifiers";
 import type { SFSymbol } from "expo-symbols";
 import { Dialog } from "../dialog";
 import { EnsureHost } from "../host";
+import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import type { MenuItem, MenuProps } from "./menu";
-import { useMenuDialogState } from "./use-menu-dialog";
 
 /** SwiftUI menu rows only take an SF Symbol; anything else has no slot here. */
 function symbolOf(icon: MenuItem["icon"]): SFSymbol | undefined {

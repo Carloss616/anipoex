@@ -3,7 +3,7 @@ import type { PopoverAlign } from "panelui-native/components/popover";
 import type { ReactElement } from "react";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
-import { useMenuDialogState } from "./use-menu-dialog";
+import { useMenuDialogState } from "./hooks/use-menu-dialog";
 
 export type MenuItemDialogConfig = Pick<
   DialogProps,

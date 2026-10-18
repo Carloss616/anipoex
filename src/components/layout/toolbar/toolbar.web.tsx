@@ -6,7 +6,7 @@ import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
-import { labelOf, readToolbar, type ToolbarItem } from "./toolbar-items";
+import { labelOf, readToolbar, type ToolbarItem } from "./utils";
 
 const SPIN: CSSAnimationProperties<ViewStyle> = {
   animationName: { to: { transform: [{ rotate: "360deg" }] } },

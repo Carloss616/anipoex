@@ -12,8 +12,8 @@ import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { ListEmpty } from "../list-empty";
 import { ListItem } from "../list-item";
-import { cellWidth, toRows } from "./grid";
 import type { ListGridProps } from "./list-grid";
+import { cellWidth, toRows } from "./utils";
 
 /** Between the cards of a row. */
 const GAP = 8;

@@ -2,8 +2,8 @@ import { Alert, Button, ConfirmationDialog } from "@expo/ui/swift-ui";
 import { useState } from "react";
 import { Text } from "@/components/native/swift-ui/text";
 import { EnsureHost } from "../host";
+import { extractTrigger, Trigger } from "./components/trigger";
 import type { DialogProps } from "./dialog";
-import { extractTrigger, Trigger } from "./trigger";
 
 /**
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/confirmationdialog/

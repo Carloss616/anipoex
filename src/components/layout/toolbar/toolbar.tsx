@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import type { StackToolbarProps } from "./toolbar-items";
+import type { StackToolbarProps } from "./utils";
 
 export type ToolbarProps = {
   children: ReactElement<StackToolbarProps>;

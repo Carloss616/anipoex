@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { MenuItem } from "./menu";
+import type { MenuItem } from "../menu";
 
 /**
  * Arms the `onPressMode: "dialog"` rows.

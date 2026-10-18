@@ -4,8 +4,8 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Dialog } from "../dialog";
 import { Icon, Icons } from "../icon";
+import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import type { MenuProps } from "./menu";
-import { useMenuDialogState } from "./use-menu-dialog";
 
 /**
  * Android Menu: a Material `DropdownMenu`. Its trigger stays in the React

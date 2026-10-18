@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { cellWidth, toRows } from "./grid";
+import { cellWidth, toRows } from "./utils";
 
 describe("toRows", () => {
   it("chunks into rows, the last one short", () => {

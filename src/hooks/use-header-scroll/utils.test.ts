@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { NativeScrollEvent } from "react-native";
-import { collapses } from "./collapses";
+import { collapses } from "./utils";
 
 const scroll = (y: number, content: number, layout: number) =>
   ({

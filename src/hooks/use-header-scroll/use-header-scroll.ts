@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { Platform, type ScrollViewProps } from "react-native";
 import { LARGE_TITLE_HEIGHT } from "@/components/layout/header/constants";
 import { useThemeM3Colors } from "@/hooks/use-theme";
-import { collapses } from "./collapses";
+import { collapses } from "./utils";
 
 /** What collapsing gives back to the scroller. Material's app bar never resizes. */
 const GIVES_BACK = Platform.OS === "web" ? LARGE_TITLE_HEIGHT : 0;
