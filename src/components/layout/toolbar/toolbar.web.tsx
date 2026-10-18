@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import type { ViewStyle } from "react-native";
 import Animated, { type CSSAnimationProperties } from "react-native-reanimated";
-import { CloseButton } from "@/components/ui/close-button";
+import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
@@ -44,7 +44,10 @@ function ToolbarItemView({
     );
 
   const trigger = (
-    <CloseButton
+    <Button
+      variant="secondary"
+      size="icon"
+      className="size-9"
       disabled={item.props.disabled}
       onPress={item.kind === "button" ? item.props.onPress : undefined}
       accessibilityLabel={label}
@@ -54,7 +57,7 @@ function ToolbarItemView({
       ) : (
         icon
       )}
-    </CloseButton>
+    </Button>
   );
 
   if (item.kind === "button") return trigger;

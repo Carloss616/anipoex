@@ -3,8 +3,7 @@ import { Field } from "panelui-native/components/field";
 import { View } from "react-native";
 import { formatDate } from "@/utils/utils";
 import { Button, type ButtonProps } from "./button";
-import { CloseButton } from "./close-button";
-import { Icon } from "./icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "./icon";
 import { Typography } from "./typography";
 
 export interface DatePickerProps {
@@ -90,14 +89,16 @@ function ButtonView({
         <View className="min-w-1 flex-1" />
       </Button>
       {!!value && (
-        <CloseButton
+        <Button
           variant="ghost"
+          size="icon"
           disabled={disabled}
           onPress={() => onValueChange(undefined)}
           accessibilityLabel={`Clear ${label}`}
-          className="absolute top-1/2 right-[7] -translate-y-1/2"
-          iconProps={{ muted: true }}
-        />
+          className="absolute top-1/2 right-[7] -translate-y-1/2 size-9"
+        >
+          <Icon name={Icons.close} size={BUTTON_ICON_SIZE} muted />
+        </Button>
       )}
     </View>
   );

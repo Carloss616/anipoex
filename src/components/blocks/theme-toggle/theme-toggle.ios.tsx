@@ -17,7 +17,7 @@ import { theme$ } from "@/state/theme";
  * Tap flips light/dark within the family; long press hands it to the system.
  *
  * A SwiftUI `Button` swallows long presses — its own gesture wins — so this is
- * a glass-styled `Image` carrying both gestures instead of our `CloseButton`.
+ * a glass-styled `Image` carrying both gestures instead of a `Button`.
  */
 export function ThemeToggle() {
   const preference = useValue(theme$.preference);

@@ -14,8 +14,8 @@ import {
   View,
 } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
-import { CloseButton } from "@/components/ui/close-button";
-import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
+import { Button } from "@/components/ui/button";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { LARGE_TITLE_HEIGHT } from "./constants";
@@ -166,8 +166,12 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           className={cn(!showBack && !options.headerLeft && "hidden")}
         >
           {showBack && (
-            <CloseButton
-              className={cn(!isMinimalBack && backLabel && "w-[unset]")}
+            <Button
+              variant="secondary"
+              className={cn(
+                "size-9",
+                !isMinimalBack && backLabel && "w-[unset]",
+              )}
               size={isMinimalBack || !backLabel ? "icon" : "sm"}
               onPress={navigation.goBack}
               accessibilityLabel={backLabel ?? "Back"}
@@ -178,7 +182,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 color={iconColor}
               />
               {!isMinimalBack && backLabel}
-            </CloseButton>
+            </Button>
           )}
           {options.headerLeft?.({ tintColor, canGoBack: !!back })}
         </ButtonGroup>
@@ -224,12 +228,20 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           {search &&
             !isStacked &&
             (isSearching ? (
-              <CloseButton
+              <Button
+                variant="secondary"
+                size="icon"
+                className="size-9"
                 onPress={closeSearch}
                 accessibilityLabel={search.cancelButtonText ?? "Cancel"}
-              />
+              >
+                <Icon name={Icons.close} size={BUTTON_ICON_SIZE} muted />
+              </Button>
             ) : (
-              <CloseButton
+              <Button
+                variant="secondary"
+                size="icon"
+                className="size-9"
                 onPress={openSearch}
                 accessibilityLabel={search.placeholder ?? "Search"}
               >
@@ -238,7 +250,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                   size={BUTTON_ICON_SIZE}
                   color={iconColor}
                 />
-              </CloseButton>
+              </Button>
             ))}
           {options.headerRight?.({ tintColor, canGoBack: !!back })}
         </ButtonGroup>

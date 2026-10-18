@@ -1,5 +1,5 @@
 import { useValue } from "@legendapp/state/react";
-import { CloseButton } from "@/components/ui/close-button";
+import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 import { theme$ } from "@/state/theme";
 
@@ -11,12 +11,14 @@ export function ThemeToggle() {
   const icon = preference === "system" ? "sun-moon" : isLight ? "sun" : "moon";
 
   return (
-    <CloseButton
+    <Button
       variant="outline"
+      size="icon"
+      className="size-9"
       onPress={() => theme$.preference.set(isLight ? "dark" : "light")}
       onLongPress={() => theme$.preference.set("system")}
     >
       <Icon name={icon} size={BUTTON_ICON_SIZE} />
-    </CloseButton>
+    </Button>
   );
 }
