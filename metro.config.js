@@ -1,3 +1,4 @@
+const path = require("node:path");
 const { getDefaultConfig } = require("expo/metro-config");
 const { withUniwindConfig } = require("uniwind/metro");
 const { EXTRA_THEMES } = require("./src/state/theme/constants.ts");
@@ -23,6 +24,16 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       moduleName,
       platform,
     );
+  }
+
+  // Uniwind swaps "react-native" for its component shim, which lacks
+  // AssetRegistry; expo-asset reads it, so useFonts never resolves.
+  // shortcut: drop once a uniwind release ships uni-stack/uniwind#740.
+  if (
+    moduleName === "react-native" &&
+    context.originModulePath.includes(`${path.sep}expo-asset${path.sep}`)
+  ) {
+    return context.resolveRequest(context, moduleName, platform);
   }
 
   return (resolveRequest ?? context.resolveRequest)(
