@@ -1,5 +1,12 @@
 import { Text as TextBase, type TextProps } from "@expo/ui/jetpack-compose";
+import {
+  background,
+  clip,
+  padding,
+  Shapes,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { useFontFamily } from "@/hooks/use-font";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 
 type Typography = NonNullable<NonNullable<TextProps["style"]>["typography"]>;
 
@@ -17,20 +24,35 @@ const MEDIUM = new Set<Typography>([
 ]);
 
 /**
- * Compose's `Text` in the app's font, and nothing else: size comes from
- * `style.typography` (M3's `bodyLarge` when unset), color from
- * `LocalContentColor` unless the caller passes one. The family ships one file
- * per weight, so `style.fontWeight` picks the file instead of reaching Compose,
- * which would bold it again. Nested spans are `@expo/ui`'s own `Text`.
+ * Compose's `Text` in the app's font, and nothing else: color stays
+ * `LocalContentColor` or the caller's. `typography` defaults to `bodyLarge`,
+ * which the Host doesn't provide. Nested spans are `@expo/ui`'s own `Text`.
  *
  * @see https://docs.expo.dev/versions/v58.0.0/sdk/ui/jetpack-compose/text/
  */
 export function Text({ style, ...props }: TextProps) {
-  const { fontWeight, ...rest } = style ?? {};
+  const { fontWeight, typography = "bodyLarge", ...rest } = style ?? {};
   const fontFamily = useFontFamily(
-    fontWeight ??
-      (MEDIUM.has(style?.typography ?? "bodyLarge") ? "medium" : "normal"),
+    fontWeight ?? (MEDIUM.has(typography) ? "medium" : "normal"),
   );
 
-  return <TextBase {...props} style={{ fontFamily, ...rest }} />;
+  return <TextBase {...props} style={{ typography, fontFamily, ...rest }} />;
+}
+
+/** A `bodyMedium` `Text` on a rounded chip, for a value read as data — `176/266`. */
+export function Code({ style, modifiers, ...props }: TextProps) {
+  const m3 = useThemeM3Colors();
+
+  return (
+    <Text
+      style={{ typography: "bodyMedium", ...style }}
+      modifiers={[
+        clip(Shapes.RoundedCorner(6)),
+        background(m3.surfaceContainer),
+        padding(6, 2, 6, 2),
+        ...(modifiers ?? []),
+      ]}
+      {...props}
+    />
+  );
 }

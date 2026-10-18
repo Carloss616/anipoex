@@ -2,9 +2,15 @@ import {
   Text as TextBase,
   type TextProps as TextBaseProps,
 } from "@expo/ui/swift-ui";
-import { font } from "@expo/ui/swift-ui/modifiers";
+import {
+  background,
+  cornerRadius,
+  font,
+  padding,
+} from "@expo/ui/swift-ui/modifiers";
 import type { TypographyWeight } from "@/components/ui/typography";
 import { useFontFamily } from "@/hooks/use-font";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 type Font = Parameters<typeof font>[0];
 export type TextStyle = NonNullable<Font["textStyle"]>;
@@ -78,6 +84,23 @@ export function Text({
   return (
     <TextBase
       modifiers={[useFont(textStyle, weight), ...(modifiers ?? [])]}
+      {...props}
+    />
+  );
+}
+
+/** A `Text` on a rounded chip, for a value read as data — `176/266`. */
+export function Code({ modifiers, ...props }: TextProps) {
+  const fill = useThemeColor("secondary");
+
+  return (
+    <Text
+      modifiers={[
+        padding({ horizontal: 6, vertical: 2 }),
+        background(fill),
+        cornerRadius(6),
+        ...(modifiers ?? []),
+      ]}
       {...props}
     />
   );

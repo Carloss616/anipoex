@@ -1,19 +1,17 @@
 import { Spacer } from "@expo/ui";
-import { useValue } from "@legendapp/state/react";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
-import { ScrollView } from "@/components/layout/scroll-view/scroll-view";
+import { ScrollView } from "@/components/layout/scroll-view";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
-import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import { MOCK_SOURCES, sourceColor } from "@/features/manga/sources";
-import { theme$ } from "@/state/theme";
+import { sourceColor } from "@/features/manga/sources";
+import { useSources } from "./use-sources";
 
 export interface SourceSheetProps {
   isPresented: boolean;
@@ -37,21 +35,10 @@ export function SourceSheet({
   onSelect,
   onDismiss,
 }: SourceSheetProps) {
-  const [query, setQuery] = useState("");
-  const mode = useValue(theme$.mode);
-  const progress = useTrackingEntry(entryId)?.progress;
-
-  const needle = query.trim().toLowerCase();
-  const matches = needle
-    ? MOCK_SOURCES.filter((source) =>
-        source.name.toLowerCase().includes(needle),
-      )
-    : MOCK_SOURCES;
-
-  const selected = matches.find((source) => source.id === selectedId);
-  const sources = selected
-    ? [selected, ...matches.filter((source) => source !== selected)]
-    : matches;
+  const { query, setQuery, mode, progress, sources } = useSources(
+    entryId,
+    selectedId,
+  );
 
   return (
     <BottomSheet
@@ -61,17 +48,14 @@ export function SourceSheet({
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"
     >
-      <Column className="web:flex-1 gap-4 py-4 android:pt-0">
+      <Column className="flex-1 gap-4 py-4">
         <Column className="gap-4 px-4">
           <Row alignment="center" className="gap-2">
             <Typography type="h4">Sources</Typography>
-            {/* M3's badge reads high; centered, this pads it 2dp down. */}
-            <Column className="android:pt-1">
-              <Badge>{sources.length}</Badge>
-            </Column>
+            <Badge>{sources.length}</Badge>
             <Spacer flexible />
             {!!progress && (
-              <Typography.Code className="web:self-auto">
+              <Typography.Code className="self-auto">
                 {progress}/{total ?? "_"}
               </Typography.Code>
             )}

@@ -1,17 +1,10 @@
 import { HStack, ScrollView, Spacer, VStack } from "@expo/ui/swift-ui";
-import {
-  background,
-  cornerRadius,
-  fixedSize,
-  lineLimit,
-  padding,
-} from "@expo/ui/swift-ui/modifiers";
+import { fixedSize, lineLimit, padding } from "@expo/ui/swift-ui/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Text } from "@/components/native/swift-ui/text";
+import { Code, Text } from "@/components/native/swift-ui/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { Footer } from "../footer";
 import type { ScoreProps } from "./score";
 import { useScore } from "./use-score";
@@ -19,7 +12,6 @@ import { useScore } from "./use-score";
 export function Score({ value, onCancel, onConfirm }: ScoreProps) {
   const { isLandscape } = useBreakpoint();
   const { scale, score, change } = useScore(value);
-  const secondary = useThemeColor("secondary");
   const RatingOrSlider = scale.max > 10 ? Slider : Rating;
 
   return (
@@ -33,15 +25,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
           Score
         </Text>
         <Spacer />
-        <Text
-          modifiers={[
-            padding({ horizontal: 6, vertical: 2 }),
-            background(secondary),
-            cornerRadius(6),
-          ]}
-        >
-          {`${score || "_"}/${scale.max}`}
-        </Text>
+        <Code>{`${score || "_"}/${scale.max}`}</Code>
       </HStack>
 
       <ScrollView
