@@ -95,7 +95,7 @@ function ButtonView({
           disabled={disabled}
           onPress={() => onValueChange(undefined)}
           accessibilityLabel={`Clear ${label}`}
-          className="absolute top-1/2 right-[7] -translate-y-1/2 size-9"
+          className="absolute top-1/2 right-[7] size-9 -translate-y-1/2"
         >
           <Icon name={Icons.close} size={BUTTON_ICON_SIZE} muted />
         </Button>

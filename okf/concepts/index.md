@@ -15,7 +15,7 @@ Domain ideas and rules. Read these before the [operations](../operations/) and
 * [List status](list-status.md) - The six places a manga can be filed, their labels, and the `?list=` param.
 * [Tracking rules](tracking-rules.md) - The side effects a status or progress change applies, shown before saving.
 * [Score format](score-format.md) - The viewer's scoring scale; scores are read and saved in it.
-* [Fuzzy date](fuzzy-date.md) - AniList's year/month/day dates, how the form reads them, and the partial-date loss.
+* [Fuzzy date](fuzzy-date.md) - AniList's year/month/day dates, how the form reads them, and why a save leaves a partial one alone.
 
 # Reading (scaffolding)
 

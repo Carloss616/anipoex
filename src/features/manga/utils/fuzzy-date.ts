@@ -5,7 +5,10 @@ export type PartialFuzzyDate =
   | null
   | undefined;
 
-/** A partial fuzzy date has no day to point a picker at, so it reads as unset. */
+/**
+ * A partial fuzzy date has no day to point a picker at, so it reads as unset;
+ * the save leaves it alone until the user picks a date.
+ */
 export function fromFuzzyDate(fuzzy: PartialFuzzyDate): Date | undefined {
   if (!fuzzy) return undefined;
   const { year, month, day } = fuzzy;

@@ -164,21 +164,23 @@ describe("setProgress", () => {
 
 describe("toSaveVariables", () => {
   it("sends the entry id when updating", () => {
+    const before = form();
     expect(
-      toSaveVariables(form({ score: 8.5 }), { mediaId: 30002, entryId: 77 }),
+      toSaveVariables(before, form({ score: 8.5 }), {
+        mediaId: 30002,
+        entryId: 77,
+      }),
     ).toEqual({
       id: 77,
       mediaId: 30002,
       status: MediaListStatus.Current,
       progress: 10,
       score: 8.5,
-      startedAt: { year: null, month: null, day: null },
-      completedAt: { year: null, month: null, day: null },
     });
   });
 
   it("omits the id when creating", () => {
-    const variables = toSaveVariables(form(), { mediaId: 30002 });
+    const variables = toSaveVariables(form(), form(), { mediaId: 30002 });
 
     expect(variables.id).toBeUndefined();
     expect(variables.mediaId).toBe(30002);
@@ -187,9 +189,47 @@ describe("toSaveVariables", () => {
   it("sends no status for an entry that never had one", () => {
     // `$status` is nullable in the mutation, so leaving it out asks AniList to
     // keep whatever it has rather than asserting a list the user never picked.
-    const variables = toSaveVariables(toTrackingForm(null), { mediaId: 30002 });
+    const empty = toTrackingForm(null);
+    const variables = toSaveVariables(empty, empty, { mediaId: 30002 });
 
     expect(variables.status).toBeUndefined();
+  });
+
+  it("leaves an untouched partial date alone", () => {
+    // Read as unset, it would otherwise go out as the null triple that erases it.
+    const before = toTrackingForm({
+      startedAt: { year: 2019, month: null, day: null },
+      completedAt: { year: 2020, month: 4, day: null },
+    });
+    const variables = toSaveVariables(
+      before,
+      { ...before, score: 7 },
+      { mediaId: 30002 },
+    );
+
+    expect(variables).not.toHaveProperty("startedAt");
+    expect(variables).not.toHaveProperty("completedAt");
+  });
+
+  it("sends a date the user changed", () => {
+    const variables = toSaveVariables(form(), form({ startedAt: TODAY }), {
+      mediaId: 30002,
+    });
+
+    expect(variables.startedAt).toEqual({ year: 2025, month: 6, day: 10 });
+    expect(variables).not.toHaveProperty("completedAt");
+  });
+
+  it("erases a date the user cleared", () => {
+    const variables = toSaveVariables(form({ completedAt: TODAY }), form(), {
+      mediaId: 30002,
+    });
+
+    expect(variables.completedAt).toEqual({
+      year: null,
+      month: null,
+      day: null,
+    });
   });
 });
 

@@ -16,7 +16,7 @@ Wraps AniList's `SaveMediaListEntry`.
 | `status` | The [list status](../concepts/list-status.md), or omitted. |
 | `progress` | Chapters read. |
 | `score` | In the viewer's [score format](../concepts/score-format.md). |
-| `startedAt`, `completedAt` | [Fuzzy dates](../concepts/fuzzy-date.md); unset is the null triple, which erases. |
+| `startedAt`, `completedAt` | [Fuzzy dates](../concepts/fuzzy-date.md), each only when the user changed it; a cleared one is the null triple, which erases. |
 
 - Returns the entry's `MangaTracking` fields; Apollo merges it by id. On a first save
   the app writes the `Media.mediaListEntry` link itself.

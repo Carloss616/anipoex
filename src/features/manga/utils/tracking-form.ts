@@ -32,8 +32,8 @@ export interface SaveVariables {
   status?: MediaListStatus;
   progress: number;
   score: number;
-  startedAt: FuzzyDateInput;
-  completedAt: FuzzyDateInput;
+  startedAt?: FuzzyDateInput;
+  completedAt?: FuzzyDateInput;
 }
 
 /** The statuses the auto-rules may move the entry into. */
@@ -105,18 +105,31 @@ export function setProgress(
   return next;
 }
 
+/**
+ * Dates go out only when they changed: AniList leaves an omitted date alone,
+ * while an untouched partial date (read as unset) would go out as the null
+ * triple that erases it.
+ */
 export function toSaveVariables(
+  before: TrackingForm,
   form: TrackingForm,
   { mediaId, entryId }: { mediaId: number; entryId?: number | null },
 ): SaveVariables {
+  const changed = (field: "startedAt" | "completedAt") =>
+    form[field]?.getTime() !== before[field]?.getTime();
+
   return {
     ...(entryId ? { id: entryId } : undefined),
     mediaId,
     status: form.status,
     progress: form.progress,
     score: form.score,
-    startedAt: toFuzzyDate(form.startedAt),
-    completedAt: toFuzzyDate(form.completedAt),
+    ...(changed("startedAt")
+      ? { startedAt: toFuzzyDate(form.startedAt) }
+      : undefined),
+    ...(changed("completedAt")
+      ? { completedAt: toFuzzyDate(form.completedAt) }
+      : undefined),
   };
 }
 

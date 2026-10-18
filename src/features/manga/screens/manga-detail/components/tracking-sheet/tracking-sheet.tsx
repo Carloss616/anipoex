@@ -49,7 +49,7 @@ export function TrackingSheet({
   const commit = (next: TrackingForm) => {
     setForm(next);
     setEditing(null);
-    save(toSaveVariables(next, { mediaId: manga.id, entryId }));
+    save(toSaveVariables(form, next, { mediaId: manga.id, entryId }));
   };
 
   const onRemove = async () => {
