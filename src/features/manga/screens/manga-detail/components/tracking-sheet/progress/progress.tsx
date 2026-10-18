@@ -1,19 +1,12 @@
-import { Spacer } from "@expo/ui";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { useState } from "react";
 import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
-import { Button } from "@/components/ui/button";
 import { NumberInput } from "@/components/ui/number-input";
 import { Typography } from "@/components/ui/typography";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
-import {
-  describeChanges,
-  setProgress,
-} from "@/features/manga/utils/tracking-form";
-import { tick } from "@/utils/haptics";
-import { ChangesPreview } from "./changes-preview";
+import { ChangesPreview } from "../changes-preview";
+import { Footer } from "../footer";
+import { useProgress } from "./use-progress";
 
 export interface ProgressProps {
   form: TrackingForm;
@@ -26,16 +19,10 @@ export interface ProgressProps {
 /** One stepper, no scroller: the control is shorter than the sheet. */
 export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
   const { isLandscape } = useBreakpoint();
-  const [today] = useState(() => new Date());
-  const [value, setValue] = useState(form.progress);
-
-  const next = setProgress(form, value, total, today);
-  // Nothing to apply, nothing to announce: the preview and OK rise together.
-  const dirty = next.progress !== form.progress;
-  const changes = dirty ? describeChanges(form, next, "progress", total) : [];
+  const { value, step, next, dirty, changes } = useProgress(form, total);
 
   return (
-    <Column className="py-4 android:pt-0">
+    <Column className="py-4">
       <Typography type="h4" className="px-4" numberOfLines={1}>
         Progress
       </Typography>
@@ -49,27 +36,18 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
             max={total ?? Number.MAX_SAFE_INTEGER}
             step={1}
             size="lg"
-            onValueChange={(next) => {
-              if (next === value) return;
-              setValue(next);
-              tick();
-            }}
-            className="ios:w-full"
+            onValueChange={step}
           />
         </Column>
       </ScrollView>
 
       <ChangesPreview changes={changes} />
 
-      <Row alignment="center" className="gap-4 px-4">
-        <Spacer flexible />
-        <Button variant="ghost" cancelRole onPress={onCancel}>
-          Cancel
-        </Button>
-        <Button disabled={!dirty} onPress={() => onConfirm(next)}>
-          OK
-        </Button>
-      </Row>
+      <Footer
+        onCancel={onCancel}
+        onConfirm={() => onConfirm(next)}
+        canConfirm={dirty}
+      />
     </Column>
   );
 }

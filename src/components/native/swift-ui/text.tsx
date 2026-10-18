@@ -44,6 +44,17 @@ const FILE = {
   black: "bold",
 } as const satisfies Record<TextWeight, TypographyWeight>;
 
+/**
+ * The app's font as a `font` modifier, for what SwiftUI labels itself — a
+ * `Button`'s `label`, a `Picker` — where there is no `Text` of ours to set it.
+ */
+export function useFont(textStyle: TextStyle = "body", weight?: TextWeight) {
+  const scale = SCALE[textStyle];
+  const family = useFontFamily(FILE[weight ?? scale.weight]);
+
+  return font({ textStyle, size: scale.size, family });
+}
+
 export interface TextProps extends TextBaseProps {
   /** @default "body" */
   textStyle?: TextStyle;
@@ -64,15 +75,9 @@ export function Text({
   modifiers,
   ...props
 }: TextProps) {
-  const scale = SCALE[textStyle];
-  const family = useFontFamily(FILE[weight ?? scale.weight]);
-
   return (
     <TextBase
-      modifiers={[
-        font({ textStyle, size: scale.size, family }),
-        ...(modifiers ?? []),
-      ]}
+      modifiers={[useFont(textStyle, weight), ...(modifiers ?? [])]}
       {...props}
     />
   );

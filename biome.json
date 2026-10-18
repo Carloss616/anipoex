@@ -26,7 +26,11 @@
     "rules": {
       "preset": "recommended",
       "a11y": {
-        "noSvgWithoutTitle": "off"
+        "noSvgWithoutTitle": "off",
+        "useValidAriaRole": {
+          "level": "error",
+          "options": { "ignoreNonDom": true }
+        }
       },
       "nursery": {
         "useSortedClasses": "warn"

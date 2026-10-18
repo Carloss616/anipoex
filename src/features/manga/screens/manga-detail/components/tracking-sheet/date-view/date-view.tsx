@@ -1,12 +1,10 @@
-import { Spacer } from "@expo/ui";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
 import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Typography } from "@/components/ui/typography";
+import { Footer } from "../footer";
 
 export interface DateViewProps {
   title: string;
@@ -17,7 +15,7 @@ export interface DateViewProps {
 
 /**
  * The month grid for a start or finish date. `undefined` is a real answer —
- * a fuzzy date is cleared about as often as it is picked, hence Clear.
+ * a fuzzy date is cleared about as often as it is picked, hence Remove.
  */
 export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
   const [date, setDate] = useState(value);
@@ -25,13 +23,13 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
   const { isLandscape } = useBreakpoint();
 
   return (
-    <Column className="py-4 android:pt-0">
+    <Column className="py-4">
       <Typography type="h4" className="px-4" numberOfLines={1}>
         {title}
       </Typography>
 
       <ScrollView fill={isLandscape} className="w-full">
-        <Column className="p-4 android:px-0">
+        <Column className="p-4">
           <Calendar
             selected={date}
             onSelect={setDate}
@@ -41,25 +39,13 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
         </Column>
       </ScrollView>
 
-      <Row alignment="center" className="gap-4 px-4">
-        <Button
-          variant="destructive"
-          disabled={!date}
-          onPress={() => onConfirm()}
-        >
-          Remove
-        </Button>
-        <Spacer flexible />
-        <Button variant="ghost" cancelRole onPress={onCancel}>
-          Cancel
-        </Button>
-        <Button
-          disabled={date?.getTime() === value?.getTime()}
-          onPress={() => onConfirm(date)}
-        >
-          OK
-        </Button>
-      </Row>
+      <Footer
+        onRemove={() => onConfirm()}
+        canRemove={!!date}
+        onCancel={onCancel}
+        onConfirm={() => onConfirm(date)}
+        canConfirm={date?.getTime() !== value?.getTime()}
+      />
     </Column>
   );
 }

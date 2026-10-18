@@ -1,6 +1,5 @@
 import { Spacer } from "@expo/ui";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Platform } from "react-native";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
@@ -13,6 +12,7 @@ import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { formatDate } from "@/utils/utils";
+import { removeItem } from "./remove-item";
 
 /** The cells that have a view of their own. Grows as each one lands. */
 export type Field =
@@ -45,34 +45,14 @@ export function Overview({
   const { isLandscape } = useBreakpoint();
 
   return (
-    <Column className="android:pt-0 pt-4">
+    <Column className="pt-4">
       <Row alignment="center" className="gap-2 px-4">
         <Typography type="h4" numberOfLines={1}>
           {title}
         </Typography>
         <Spacer flexible />
-        <Menu
-          items={[
-            {
-              label: "Remove from list",
-              onPress: onRemove,
-              onPressMode: "dialog",
-              dialogConfig: {
-                title: "Remove from list?",
-                description: "This action cannot be undone.",
-                confirmLabel: "Remove",
-              },
-              destructive: true,
-              disabled: !canRemove || removing,
-            },
-          ]}
-        >
-          <Button
-            variant={Platform.OS === "android" ? "ghost" : "outline"}
-            size="icon"
-            className="ios:size-5 web:size-9"
-            muted
-          >
+        <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
+          <Button variant="outline" size="icon" className="size-9" muted>
             <Icon
               name={Icons.more}
               size={BUTTON_ICON_SIZE}
@@ -88,23 +68,23 @@ export function Overview({
             <Row className="w-full">
               <Button
                 variant="ghost"
-                className="flex-1 ios:py-3"
+                className="flex-1"
                 onPress={() => onEdit("status")}
               >
                 {status ?? form.status ?? <Typography muted>Status</Typography>}
               </Button>
-              <Separator orientation="vertical" className="android:h-12" />
+              <Separator orientation="vertical" />
               <Button
                 variant="ghost"
-                className="flex-1 ios:py-3"
+                className="flex-1"
                 onPress={() => onEdit("progress")}
               >
                 {form.progress || <Typography muted>Progress</Typography>}
               </Button>
-              <Separator orientation="vertical" className="android:h-12" />
+              <Separator orientation="vertical" />
               <Button
                 variant="ghost"
-                className="flex-1 ios:py-3"
+                className="flex-1"
                 onPress={() => onEdit("score")}
               >
                 {form.score || <Typography muted>Score</Typography>}
@@ -114,17 +94,17 @@ export function Overview({
             <Row className="w-full">
               <Button
                 variant="ghost"
-                className="flex-1 ios:py-3"
+                className="flex-1"
                 onPress={() => onEdit("startedAt")}
               >
                 {formatDate(form.startedAt) || (
                   <Typography muted>Start date</Typography>
                 )}
               </Button>
-              <Separator orientation="vertical" className="android:h-12" />
+              <Separator orientation="vertical" />
               <Button
                 variant="ghost"
-                className="flex-1 ios:py-3"
+                className="flex-1"
                 onPress={() => onEdit("completedAt")}
               >
                 {formatDate(form.completedAt) || (

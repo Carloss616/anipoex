@@ -1,18 +1,14 @@
 import { Spacer } from "@expo/ui";
-import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { useState } from "react";
 import { Column } from "@/components/layout/column";
 import { Row } from "@/components/layout/row";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Button } from "@/components/ui/button";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
 import { Typography } from "@/components/ui/typography";
-import { scoreScale } from "@/features/manga/utils/score-scale";
-import { session$ } from "@/state/session";
-import { tick } from "@/utils/haptics";
+import { Footer } from "../footer";
+import { useScore } from "./use-score";
 
 export interface ScoreProps {
   value: number;
@@ -22,15 +18,12 @@ export interface ScoreProps {
 
 /** The viewer's own score format decides the control: stars, or a long scale. */
 export function Score({ value, onCancel, onConfirm }: ScoreProps) {
-  const scale = scoreScale(useValue(session$.user)?.scoreFormat);
-  const [score, setScore] = useState(value);
-
+  const { isLandscape } = useBreakpoint();
+  const { scale, score, change } = useScore(value);
   const RatingOrSlider = scale.max > 10 ? Slider : Rating;
 
-  const { isLandscape } = useBreakpoint();
-
   return (
-    <Column className="py-4 android:pt-0">
+    <Column className="py-4">
       <Row alignment="center" className="gap-2 px-4">
         <Typography type="h4" numberOfLines={1}>
           Score
@@ -49,27 +42,17 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
               max={scale.max}
               step={scale.step}
               precision={scale.step}
-              // The slider reports every frame; the detent is the rounded value.
-              onValueChange={(next) => {
-                const stepped = Number(next.toFixed(scale.step < 1 ? 1 : 0));
-                if (stepped === score) return;
-                setScore(stepped);
-                tick();
-              }}
+              onValueChange={change}
             />
           </BottomSheet.LockDrag>
         </Column>
       </ScrollView>
 
-      <Row alignment="center" className="gap-4 px-4">
-        <Spacer flexible />
-        <Button variant="ghost" cancelRole onPress={onCancel}>
-          Cancel
-        </Button>
-        <Button disabled={score === value} onPress={() => onConfirm(score)}>
-          OK
-        </Button>
-      </Row>
+      <Footer
+        onCancel={onCancel}
+        onConfirm={() => onConfirm(score)}
+        canConfirm={score !== value}
+      />
     </Column>
   );
 }
