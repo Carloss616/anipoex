@@ -1,0 +1,32 @@
+---
+type: Business Rule
+title: Tracking rules
+description: The side effects a status or progress change applies to a list entry, and how the sheet shows them before saving.
+tags: [tracking, rules]
+generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
+---
+
+The tracking sheet edits a form copy of the [list entry](list-entry.md). Two edits
+carry side effects; "today" is the device's local date.
+
+# Changing the status
+
+| New status | Effect |
+|---|---|
+| Reading | Start date ← today, if empty. |
+| Completed | Progress ← the manga's `chapters` (when known); start and finish dates ← today, if empty. |
+| Anything else, coming **from** Completed | Finish date cleared (it was stamped by Completed). Progress stays: there is nothing to restore it from. |
+
+# Changing the progress
+
+- Clamped to `0 … chapters` (no upper bound when `chapters` is null).
+- **From 0 to more than 0**: start date ← today, if empty. Further in, an empty start
+  date stays empty: the real day is unknown and today would invent one.
+- **Reaching `chapters`** while Reading or Planning: status → Completed, finish date
+  ← today if empty. Paused or Dropped keep their status: the user is correcting a number.
+
+# Showing it
+
+Before confirming, the sheet lists every field a rule is about to change except the
+one being edited ("Status → Completed", "Finish date cleared", …), so nothing changes
+behind the user's back.
