@@ -18,8 +18,7 @@ export type HeaderScrollProps = Pick<
 >;
 
 export function useHeaderScroll(): HeaderScrollProps {
-  const navigation = useNavigation();
-  const m3 = useThemeM3Colors(); // android only
+  const setScrolled = useSetHeaderScrolled();
   const scrolled = useRef(false);
 
   return {
@@ -32,14 +31,23 @@ export function useHeaderScroll(): HeaderScrollProps {
       if (next === scrolled.current) return;
 
       scrolled.current = next;
-      navigation.setOptions({
-        headerShadowVisible: Platform.OS === "web" ? next : false,
-        ...(m3 && {
-          headerStyle: {
-            backgroundColor: next ? m3.surfaceContainer : "transparent",
-          },
-        }),
-      } satisfies NativeStackNavigationOptions);
+      setScrolled(next);
     },
   };
+}
+
+/** The header's scrolled state, for scrollers with no `onScroll` (Compose lists). */
+export function useSetHeaderScrolled() {
+  const navigation = useNavigation();
+  const m3 = useThemeM3Colors(); // android only
+
+  return (scrolled: boolean) =>
+    navigation.setOptions({
+      headerShadowVisible: Platform.OS === "web" ? scrolled : false,
+      ...(m3 && {
+        headerStyle: {
+          backgroundColor: scrolled ? m3.surfaceContainer : "transparent",
+        },
+      }),
+    } satisfies NativeStackNavigationOptions);
 }

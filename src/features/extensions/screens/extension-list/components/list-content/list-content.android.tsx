@@ -32,11 +32,15 @@ import {
   toRows,
   updateAllExtensions,
 } from "@/features/extensions";
+import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ListItem } from "../list-item";
 import type { ListContentProps } from "./list-content";
 
-/** Pull to check for updates; the FAB installs them, collapsing once the list scrolls. */
+/**
+ * Pull to check for updates; the FAB installs them. Once the list scrolls the
+ * FAB collapses and the header fills.
+ */
 export function ListContent({
   sections,
   counts,
@@ -47,6 +51,7 @@ export function ListContent({
   const m3 = useThemeM3Colors();
   const [checking, setChecking] = useState(false);
   const [atTop, setAtTop] = useState(true);
+  const setHeaderScrolled = useSetHeaderScrolled();
   const insets = useSafeAreaInsets();
   const rows = toRows(sections);
   const shown = sections.reduce((n, s) => n + s.data.length, 0);
@@ -87,7 +92,13 @@ export function ListContent({
                 modifiers={[
                   fillMaxWidth(),
                   height(1),
-                  onVisibilityChanged(setAtTop, { minFractionVisible: 0 }),
+                  onVisibilityChanged(
+                    (visible) => {
+                      setAtTop(visible);
+                      setHeaderScrolled(!visible);
+                    },
+                    { minFractionVisible: 0 },
+                  ),
                 ]}
               />
               <ActiveFilters

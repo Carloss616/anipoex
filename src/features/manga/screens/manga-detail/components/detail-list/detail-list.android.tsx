@@ -12,7 +12,9 @@ import {
 import {
   fillMaxSize,
   fillMaxWidth,
+  height,
   offset,
+  onVisibilityChanged,
   padding,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
@@ -23,6 +25,7 @@ import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
+import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ChapterItem } from "../chapter-item";
 import type { DetailListProps } from "./detail-list";
@@ -46,6 +49,7 @@ export function DetailList({
   className,
 }: DetailListProps) {
   const m3 = useThemeM3Colors();
+  const setHeaderScrolled = useSetHeaderScrolled();
   const insets = useSafeAreaInsets();
   const last = chapters.length - 1;
   const start = GUTTER + insets.left;
@@ -68,6 +72,16 @@ export function DetailList({
           {/* Compose has no negative padding: the header is stacked over the
               hero and starts below the app bar, covering the art's last stretch. */}
           <Box modifiers={[fillMaxWidth()]}>
+            {/* Top sentinel, no scroll events: the header fills once it leaves. */}
+            <Box
+              modifiers={[
+                fillMaxWidth(),
+                height(1),
+                onVisibilityChanged((atTop) => setHeaderScrolled(!atTop), {
+                  minFractionVisible: 0,
+                }),
+              ]}
+            />
             {hero}
             <Column modifiers={[padding(0, maxHeaderHeight, 0, 0)]}>
               {header}
