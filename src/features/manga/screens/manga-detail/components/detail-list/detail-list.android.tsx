@@ -23,7 +23,6 @@ import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ChapterItem } from "../chapter-item";
 import type { DetailListProps } from "./detail-list";
@@ -41,11 +40,11 @@ export function DetailList({
   total,
   action,
   entryId,
+  maxHeaderHeight,
   refreshing,
   onRefresh,
   className,
 }: DetailListProps) {
-  const maxHeaderHeight = useMaxHeaderHeight();
   const m3 = useThemeM3Colors();
   const insets = useSafeAreaInsets();
   const last = chapters.length - 1;

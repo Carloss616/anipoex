@@ -21,6 +21,8 @@ export interface DetailListProps {
   /** The section header's trailing control (the source picker). */
   action: React.ReactElement;
   entryId: number | null | undefined;
+  /** The header at rest, from the screen's `useMaxHeaderHeight`; native only. */
+  maxHeaderHeight: number;
   /** Pull to refresh, iOS and Android only. */
   refreshing: boolean;
   onRefresh: () => Promise<unknown> | undefined;

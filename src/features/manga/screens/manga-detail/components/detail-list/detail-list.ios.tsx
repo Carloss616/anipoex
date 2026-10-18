@@ -16,7 +16,6 @@ import { EmptyState } from "@/components/empty-state";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ChapterItem } from "../chapter-item";
 import { ART_HEIGHT } from "../hero";
@@ -35,10 +34,10 @@ export function DetailList({
   total,
   action,
   entryId,
+  maxHeaderHeight,
   onRefresh,
   className,
 }: DetailListProps) {
-  const maxHeaderHeight = useMaxHeaderHeight();
   const rowBackground = listRowBackground(useThemeColor("muted"));
   const sectionHeader = (
     <HStack spacing={12}>

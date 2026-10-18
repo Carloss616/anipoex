@@ -1,32 +1,32 @@
 import { type NativeStackNavigationProp, useNavigation } from "expo-router";
-import { useHeaderHeight } from "expo-router/react-navigation";
-import { useEffect, useRef } from "react";
+import { HeaderHeightContext } from "expo-router/react-navigation";
+import { use, useEffect, useRef, useState } from "react";
 
 /**
- * The header at its tallest at rest. `useHeaderHeight` shrinks with the
- * collapsing title, and padding that followed it would drag the content up by
- * that same row. It also grows while a pull stretches iOS's large title, so the
- * max stops at the end of the push: past it, following the stretch relaid the
- * hero out mid-pull, which cancelled the refresh.
+ * The header height at rest, fixed once the push ends; scrolling and pulling
+ * don't change it.
+ *
+ * Call it from the screen and pass the value down: a component mounted after
+ * the push never gets it.
  */
 export function useMaxHeaderHeight() {
-  const height = useHeaderHeight();
   const navigation =
     useNavigation<
       NativeStackNavigationProp<Record<string, object | undefined>>
     >();
   const max = useRef(0);
-  const settled = useRef(false);
+  const [settled, setSettled] = useState(false);
 
   useEffect(
-    () =>
-      navigation.addListener("transitionEnd", () => {
-        settled.current = true;
-      }),
+    () => navigation.addListener("transitionEnd", () => setSettled(true)),
     [navigation],
   );
 
-  if (!settled.current) max.current = Math.max(max.current, height);
+  // Reading the context re-renders on every frame of a pull, which cancels
+  // the refresh, so it's only read until the push ends.
+  if (!settled) {
+    max.current = Math.max(max.current, use(HeaderHeightContext) ?? 0);
+  }
 
   return max.current;
 }

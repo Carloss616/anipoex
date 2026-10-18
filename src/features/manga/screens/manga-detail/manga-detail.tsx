@@ -5,6 +5,7 @@ import { LoadingState } from "@/components/loading-state";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
+import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openExternal } from "@/utils/open-external";
 import { noop } from "@/utils/utils";
@@ -35,6 +36,7 @@ const MENU_ACTIONS = [
 
 export function MangaDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const maxHeaderHeight = useMaxHeaderHeight();
   const mutedForeground = useThemeColor("muted-foreground");
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
 
@@ -88,7 +90,8 @@ export function MangaDetail() {
       <DetailList
         refreshing={refreshing}
         onRefresh={refresh}
-        hero={<Hero manga={manga} />}
+        maxHeaderHeight={maxHeaderHeight}
+        hero={<Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />}
         chapters={CHAPTERS}
         total={manga.chapters ?? CHAPTERS.length}
         action={
