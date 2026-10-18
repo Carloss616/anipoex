@@ -6,8 +6,6 @@ import { useSourcePicker } from "./hooks/use-source-picker";
 
 export interface SourcePickerProps {
   mangaId: number;
-  entryId: number | null | undefined;
-  total: number | null | undefined;
 }
 
 /**
@@ -15,7 +13,7 @@ export interface SourcePickerProps {
  * it changes. Named for the control rather than `Source`, which is the shape a
  * registry hands over.
  */
-export function SourcePicker({ mangaId, entryId, total }: SourcePickerProps) {
+export function SourcePicker({ mangaId }: SourcePickerProps) {
   const picker = useSourcePicker(mangaId);
 
   return (
@@ -29,8 +27,6 @@ export function SourcePicker({ mangaId, entryId, total }: SourcePickerProps) {
 
       <SourceSheet
         isPresented={picker.isPresented}
-        entryId={entryId}
-        total={total}
         selectedId={picker.sourceId}
         onSelect={picker.select}
         onDismiss={picker.close}

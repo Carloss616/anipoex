@@ -94,13 +94,7 @@ export function MangaDetail() {
         hero={<Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />}
         chapters={CHAPTERS}
         total={manga.chapters ?? CHAPTERS.length}
-        action={
-          <SourcePicker
-            mangaId={manga.id}
-            entryId={manga.mediaListEntry?.id}
-            total={manga.chapters}
-          />
-        }
+        action={<SourcePicker mangaId={manga.id} />}
         entryId={manga.mediaListEntry?.id}
         header={<DetailHeader manga={manga} />}
       />

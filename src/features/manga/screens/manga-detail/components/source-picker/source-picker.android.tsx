@@ -6,7 +6,7 @@ import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
-export function SourcePicker({ mangaId, entryId, total }: SourcePickerProps) {
+export function SourcePicker({ mangaId }: SourcePickerProps) {
   const picker = useSourcePicker(mangaId);
   const m3 = useThemeM3Colors();
 
@@ -26,8 +26,6 @@ export function SourcePicker({ mangaId, entryId, total }: SourcePickerProps) {
 
       <SourceSheet
         isPresented={picker.isPresented}
-        entryId={entryId}
-        total={total}
         selectedId={picker.sourceId}
         onSelect={picker.select}
         onDismiss={picker.close}

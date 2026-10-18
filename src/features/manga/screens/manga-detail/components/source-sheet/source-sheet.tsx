@@ -1,9 +1,9 @@
-import { Fragment } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
+import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
@@ -13,9 +13,6 @@ import { useSources } from "./hooks/use-sources";
 
 export interface SourceSheetProps {
   isPresented: boolean;
-  entryId: number | null | undefined;
-  /** Chapter count, when AniList knows it. */
-  total: number | null | undefined;
   selectedId: string | undefined;
   onSelect: (id: string) => void;
   onDismiss: () => void;
@@ -27,16 +24,12 @@ export interface SourceSheetProps {
  */
 export function SourceSheet({
   isPresented,
-  entryId,
-  total,
   selectedId,
   onSelect,
   onDismiss,
 }: SourceSheetProps) {
-  const { query, setQuery, mode, progress, sources } = useSources(
-    entryId,
-    selectedId,
-  );
+  const { query, setQuery, mode, sources, selected, selectedIndex } =
+    useSources(selectedId);
 
   return (
     <BottomSheet
@@ -52,10 +45,18 @@ export function SourceSheet({
             <Typography type="h4">Sources</Typography>
             <Badge>{sources.length}</Badge>
             <View className="flex-1" />
-            {!!progress && (
-              <Typography.Code className="self-auto">
-                {progress}/{total ?? "_"}
-              </Typography.Code>
+            {selected && (
+              <View className="shrink flex-row items-center gap-1">
+                <Icon name={Icons.check} size={14} className="text-primary" />
+                <Typography
+                  type="small"
+                  muted
+                  numberOfLines={1}
+                  className="shrink"
+                >
+                  {selected.name}
+                </Typography>
+              </View>
             )}
           </View>
           <SearchBar
@@ -66,35 +67,41 @@ export function SourceSheet({
           />
         </View>
 
-        <ScrollView className="min-h-0 w-full flex-1">
-          {sources.length === 0 ? (
-            <EmptyState title="No sources found" />
-          ) : (
-            <Item.Group>
-              {sources.map((source, index) => {
-                return (
-                  <Fragment key={source.id}>
-                    {index > 0 && <Item.Separator className="mx-4" />}
-                    <Item onPress={() => onSelect(source.id)}>
-                      <SourceTile
-                        initials={source.initials}
-                        color={sourceColor(source, mode)}
-                      />
-                      <Item.Content>
-                        <Item.Title>{source.name}</Item.Title>
-                      </Item.Content>
-                      {source.id === selectedId && (
-                        <Item.Actions>
-                          <Icon name={Icons.check} size={18} />
-                        </Item.Actions>
-                      )}
-                    </Item>
-                  </Fragment>
-                );
-              })}
-            </Item.Group>
+        <LegendList
+          data={sources}
+          keyExtractor={(source) => source.id}
+          extraData={selectedId}
+          // Read once, when the sheet opens; typing doesn't move it.
+          initialScrollIndex={
+            selectedIndex > 0
+              ? { index: selectedIndex, viewPosition: 0.5 }
+              : undefined
+          }
+          ListEmptyComponent={<EmptyState title="No sources found" />}
+          renderItem={({ item: source, index }) => (
+            <>
+              {index > 0 && <Item.Separator className="mx-4" />}
+              <Item onPress={() => onSelect(source.id)}>
+                <SourceTile
+                  initials={source.initials}
+                  color={sourceColor(source, mode)}
+                />
+                <Item.Content>
+                  <Item.Title>{source.name}</Item.Title>
+                </Item.Content>
+                {source.id === selectedId && (
+                  <Item.Actions>
+                    <Icon
+                      name={Icons.check}
+                      size={BUTTON_ICON_SIZE}
+                      className="text-primary"
+                    />
+                  </Item.Actions>
+                )}
+              </Item>
+            </>
           )}
-        </ScrollView>
+        />
       </View>
     </BottomSheet>
   );

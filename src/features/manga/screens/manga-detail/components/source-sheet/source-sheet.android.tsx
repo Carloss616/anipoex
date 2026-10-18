@@ -3,40 +3,38 @@ import {
   Column,
   HorizontalDivider,
   ListItem,
+  RadioButton,
   Row,
   Spacer,
 } from "@expo/ui/jetpack-compose";
 import {
-  clickable,
   fillMaxWidth,
   padding,
+  selectable,
+  selectableGroup,
   verticalScroll,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Fragment } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
-import { Code, Text } from "@/components/native/jetpack-compose/text";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
 import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useSources } from "./hooks/use-sources";
 import type { SourceSheetProps } from "./source-sheet";
 
 export function SourceSheet({
   isPresented,
-  entryId,
-  total,
   selectedId,
   onSelect,
   onDismiss,
 }: SourceSheetProps) {
-  const { query, setQuery, mode, progress, sources } = useSources(
-    entryId,
-    selectedId,
-  );
+  const { query, setQuery, mode, sources, selected } = useSources(selectedId);
+  const m3 = useThemeM3Colors();
 
   return (
     <BottomSheet
@@ -64,10 +62,21 @@ export function SourceSheet({
               <Badge>{sources.length}</Badge>
             </Box>
             <Spacer modifiers={[weight(1)]} />
-            {!!progress && (
-              <Code>
-                {progress}/{total ?? "_"}
-              </Code>
+            {selected && (
+              <Row
+                verticalAlignment="center"
+                horizontalArrangement={{ spacedBy: 4 }}
+              >
+                <Icon name={Icons.check} size={16} color={m3.primary} />
+                <Text
+                  style={{ typography: "labelLarge" }}
+                  color={m3.onSurfaceVariant}
+                  maxLines={1}
+                  overflow="ellipsis"
+                >
+                  {selected.name}
+                </Text>
+              </Row>
             )}
           </Row>
           <SearchBar
@@ -78,18 +87,34 @@ export function SourceSheet({
           />
         </Column>
 
-        <Column modifiers={[fillMaxWidth(), weight(1), verticalScroll()]}>
-          {sources.length === 0 ? (
-            <EmptyState title="No sources found" />
-          ) : (
-            sources.map((source, index) => (
-              <Fragment key={source.id}>
+        {sources.length === 0 ? (
+          <EmptyState
+            title="No sources found"
+            modifiers={[fillMaxWidth(), weight(1), verticalScroll()]}
+          />
+        ) : (
+          <Column
+            modifiers={[
+              fillMaxWidth(),
+              weight(1),
+              verticalScroll(),
+              selectableGroup(),
+            ]}
+          >
+            {sources.map((source, index) => (
+              <Column key={source.id}>
                 {index > 0 && (
                   <HorizontalDivider modifiers={[padding(16, 0, 16, 0)]} />
                 )}
                 <ListItem
                   colors={{ containerColor: "transparent" }}
-                  modifiers={[clickable(() => onSelect(source.id))]}
+                  modifiers={[
+                    selectable(
+                      source.id === selectedId,
+                      () => onSelect(source.id),
+                      "radioButton",
+                    ),
+                  ]}
                 >
                   <ListItem.LeadingContent>
                     <SourceTile
@@ -100,16 +125,14 @@ export function SourceSheet({
                   <ListItem.HeadlineContent>
                     <Text style={{ fontWeight: "500" }}>{source.name}</Text>
                   </ListItem.HeadlineContent>
-                  {source.id === selectedId && (
-                    <ListItem.TrailingContent>
-                      <Icon name={Icons.check} size={18} color="inherit" />
-                    </ListItem.TrailingContent>
-                  )}
+                  <ListItem.TrailingContent>
+                    <RadioButton selected={source.id === selectedId} />
+                  </ListItem.TrailingContent>
                 </ListItem>
-              </Fragment>
-            ))
-          )}
-        </Column>
+              </Column>
+            ))}
+          </Column>
+        )}
       </Column>
     </BottomSheet>
   );

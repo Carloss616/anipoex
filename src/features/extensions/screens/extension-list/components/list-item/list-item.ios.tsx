@@ -1,4 +1,4 @@
-import { Button, HStack, Spacer, VStack } from "@expo/ui/swift-ui";
+import { Button, HStack, Label, Spacer, VStack } from "@expo/ui/swift-ui";
 import {
   accessibilityLabel,
   buttonBorderShape,
@@ -11,7 +11,7 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
@@ -37,33 +37,36 @@ export function ListItem({ extension: e }: ListItemProps) {
   const primary = useThemeColor("primary");
 
   return (
-    <HStack spacing={12}>
-      <SourceTile initials={e.initials} color={sourceColor(e, mode)} />
-      <VStack alignment="leading" spacing={2}>
-        <HStack spacing={6}>
-          <Text weight="medium" modifiers={[lineLimit(1)]}>
-            {e.name}
-          </Text>
-          {e.nsfw && <Badge color="destructive">18+</Badge>}
-          {e.installed && (
-            <Icon
-              name={Icons.checkCircle}
-              size={14}
-              color={primary}
-              modifiers={[accessibilityLabel("Installed")]}
-            />
-          )}
-        </HStack>
-        <HStack spacing={6}>
-          <Badge>{e.language.code.toUpperCase()}</Badge>
-          <Text
-            textStyle="subheadline"
-            modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
-          >
-            {`· ${describeVersion(e)}`}
-          </Text>
-        </HStack>
-      </VStack>
+    <HStack>
+      <Label
+        icon={<SourceTile initials={e.initials} color={sourceColor(e, mode)} />}
+      >
+        <VStack alignment="leading" spacing={2}>
+          <HStack spacing={6}>
+            <Text weight="medium" modifiers={[lineLimit(1)]}>
+              {e.name}
+            </Text>
+            {e.nsfw && <Badge color="destructive">18+</Badge>}
+            {e.installed && (
+              <Icon
+                name={Icons.checkCircle}
+                size={14}
+                color={primary}
+                modifiers={[accessibilityLabel("Installed")]}
+              />
+            )}
+          </HStack>
+          <HStack spacing={6}>
+            <Badge>{e.language.code.toUpperCase()}</Badge>
+            <Text
+              textStyle="subheadline"
+              modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
+            >
+              {`· ${describeVersion(e)}`}
+            </Text>
+          </HStack>
+        </VStack>
+      </Label>
       <Spacer />
       <HStack spacing={6}>
         {!e.installed ? (
@@ -75,7 +78,11 @@ export function ListItem({ extension: e }: ListItemProps) {
               accessibilityLabel(`Install ${e.name}`),
             ]}
           >
-            <Icon name={Icons.download} size={18} color="inherit" />
+            <Icon
+              name={Icons.download}
+              size={BUTTON_ICON_SIZE}
+              color="inherit"
+            />
           </Button>
         ) : hasUpdate(e) ? (
           <Button
@@ -86,7 +93,7 @@ export function ListItem({ extension: e }: ListItemProps) {
               accessibilityLabel(`Update ${e.name}`),
             ]}
           >
-            <Icon name={Icons.update} size={18} color="inherit" />
+            <Icon name={Icons.update} size={BUTTON_ICON_SIZE} color="inherit" />
           </Button>
         ) : null}
         {e.installed && (
@@ -101,7 +108,7 @@ export function ListItem({ extension: e }: ListItemProps) {
             >
               <Icon
                 name={Icons.more}
-                size={18}
+                size={BUTTON_ICON_SIZE}
                 color="inherit"
                 modifiers={[frame({ width: 20, height: 20 })]}
               />

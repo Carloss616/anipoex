@@ -1,29 +1,21 @@
 import { useValue } from "@legendapp/state/react";
 import { useState } from "react";
-import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import { MOCK_SOURCES } from "@/features/manga/sources";
 import { theme$ } from "@/state/theme";
 
-/** The sources matching the query, the selected one first. */
-export function useSources(
-  entryId: number | null | undefined,
-  selectedId: string | undefined,
-) {
+/** The sources matching the query, in their own order; where the selected one sits. */
+export function useSources(selectedId: string | undefined) {
   const [query, setQuery] = useState("");
   const mode = useValue(theme$.mode);
-  const progress = useTrackingEntry(entryId)?.progress;
 
   const needle = query.trim().toLowerCase();
-  const matches = needle
+  const sources = needle
     ? MOCK_SOURCES.filter((source) =>
         source.name.toLowerCase().includes(needle),
       )
     : MOCK_SOURCES;
+  const selected = MOCK_SOURCES.find((source) => source.id === selectedId);
+  const selectedIndex = sources.findIndex((source) => source.id === selectedId);
 
-  const selected = matches.find((source) => source.id === selectedId);
-  const sources = selected
-    ? [selected, ...matches.filter((source) => source !== selected)]
-    : matches;
-
-  return { query, setQuery, mode, progress, sources };
+  return { query, setQuery, mode, sources, selected, selectedIndex };
 }

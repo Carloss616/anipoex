@@ -15,9 +15,7 @@ export function useSourcePicker(mangaId: number) {
     isPresented,
     open: () => setIsPresented(true),
     close: () => setIsPresented(false),
-    select: (nextId: string) => {
-      source$[mangaId].set(nextId);
-      setIsPresented(false);
-    },
+    // The sheet stays open: the check moves, and the header shows the new source.
+    select: (nextId: string) => source$[mangaId].set(nextId),
   };
 }

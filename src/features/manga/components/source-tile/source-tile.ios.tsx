@@ -2,6 +2,7 @@ import { ZStack } from "@expo/ui/swift-ui";
 import {
   background,
   clipShape,
+  foregroundStyle,
   frame,
   strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
@@ -31,7 +32,12 @@ export function SourceTile({ initials, color }: SourceTileProps) {
         }),
       ]}
     >
-      <Text textStyle="caption" weight="semibold">
+      {/* Its own color: as a `Label` icon in a `List` it would take the tint. */}
+      <Text
+        textStyle="caption"
+        weight="semibold"
+        modifiers={[foregroundStyle("primary")]}
+      >
         {initials}
       </Text>
     </ZStack>
