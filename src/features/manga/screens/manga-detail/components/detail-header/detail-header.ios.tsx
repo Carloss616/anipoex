@@ -6,7 +6,7 @@ import {
   padding,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { GUTTER_TOP, GUTTER_X } from "@/components/native/constants";
+import { GUTTER } from "@/components/native/constants";
 import { useFont } from "@/components/native/swift-ui/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -24,12 +24,12 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
     <VStack
       alignment="leading"
       spacing={0}
-      modifiers={[padding({ top: GUTTER_TOP })]}
+      modifiers={[padding({ top: GUTTER })]}
     >
       <HStack
         alignment="bottom"
         spacing={16}
-        modifiers={[padding({ horizontal: GUTTER_X })]}
+        modifiers={[padding({ horizontal: GUTTER })]}
       >
         <MangaCard
           cover={manga.coverImage?.large}
@@ -37,7 +37,6 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           coverColor={manga.coverImage?.color}
           accessibilityLabel={manga.title?.userPreferred ?? undefined}
           testID="manga-detail-cover"
-          // A style, not a class: the card reads its width back for its height.
           style={{ width: 144 }}
         />
         <Meta manga={manga} />
@@ -47,7 +46,7 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
         <ScrollView axes="horizontal" showsIndicators={false}>
           <HStack
             spacing={8}
-            modifiers={[padding({ horizontal: GUTTER_X, vertical: 24 })]}
+            modifiers={[padding({ horizontal: GUTTER, vertical: 24 })]}
           >
             {/* iOS has no chip: a mini glass capsule is the native tag. */}
             {manga.genres?.map((g) => (
@@ -72,7 +71,7 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
         spacing={24}
         modifiers={[
           padding({
-            horizontal: GUTTER_X,
+            horizontal: GUTTER,
             top: hasGenres ? 0 : 24,
             bottom: 24,
           }),

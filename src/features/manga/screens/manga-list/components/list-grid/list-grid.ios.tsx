@@ -6,7 +6,7 @@ import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/loading-state";
-import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/constants";
+import { GUTTER } from "@/components/native/constants";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { ListEmpty } from "../list-empty";
@@ -30,7 +30,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const titlePosition = toTitlePosition(useValue(listView$.title));
   // The Host already insets the safe area.
   const cell = cellWidth(
-    width - insets.left - insets.right - 2 * GUTTER_X,
+    width - insets.left - insets.right - 2 * GUTTER,
     columns,
     GAP,
   );
@@ -56,7 +56,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
         <LazyVStack
           alignment="leading"
           spacing={titlePosition === "below" ? 20 : 8}
-          modifiers={[padding({ bottom: GUTTER_BOTTOM })]}
+          modifiers={[padding({ bottom: GUTTER })]}
         >
           {header}
           <LazyVStack.ForEach
@@ -71,7 +71,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
               <HStack
                 alignment="top"
                 spacing={GAP}
-                modifiers={[padding({ horizontal: GUTTER_X })]}
+                modifiers={[padding({ horizontal: GUTTER })]}
               >
                 {row.map((item) => (
                   <ListItem

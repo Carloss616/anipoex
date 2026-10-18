@@ -6,7 +6,7 @@ import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/loading-state";
-import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/constants";
+import { GUTTER } from "@/components/native/constants";
 import { ALL } from "@/features/manga/hooks/use-manga-list";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
@@ -33,9 +33,8 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
 
   const columns = columnsFor(current, useValue(listView$.density));
   const titlePosition = toTitlePosition(useValue(listView$.title));
-  // The page inset clears a landscape cutout, like `px-safe-offset-gx`.
-  const start = GUTTER_X + insets.left;
-  const end = GUTTER_X + insets.right;
+  const start = GUTTER + insets.left;
+  const end = GUTTER + insets.right;
   const cell = cellWidth(width - start - end, columns, GAP);
   const below = titlePosition === "below";
   const rows = toRows(manga, columns);
@@ -62,9 +61,8 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
         modifiers={[fillMaxSize()]}
         verticalArrangement={{ spacedBy: below ? 20 : 8 }}
         contentPadding={{
-          // `pt-gt` outside `gutters`: the base 16, not the Android 24.
-          top: genre === ALL ? 16 : below ? 20 : 8,
-          bottom: GUTTER_BOTTOM,
+          top: genre === ALL ? GUTTER : below ? 20 : 8,
+          bottom: GUTTER,
         }}
       >
         {header}

@@ -21,7 +21,7 @@ import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActiveFilters } from "@/components/active-filters";
 import { EmptyState } from "@/components/empty-state";
-import { GUTTER_X } from "@/components/native/constants";
+import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
@@ -126,7 +126,7 @@ export function ListContent({
             modifiers={[
               align("bottomEnd"),
               // The tab bar below already clears the system inset.
-              offset(-(insets.right + GUTTER_X), -16),
+              offset(-(insets.right + GUTTER), -16),
             ]}
           >
             <ExtendedFloatingActionButton.Icon>

@@ -79,7 +79,6 @@ export function MangaList() {
             }))}
             page={page}
             fontFamily={fontFamily}
-            // Clears a landscape cutout, like `px-safe`.
             edgePadding={Math.max(insets.left, insets.right)}
             onPageChange={(index) => select(MANGA_STATUS_ENTRIES[index][0])}
             modifiers={[fillMaxSize()]}

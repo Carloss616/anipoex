@@ -75,7 +75,7 @@ export function ListContent({
           stickyHeaderConfig={{ offset: -16 }}
           stickyHeaderIndices={stickyIndices}
           {...headerScroll}
-          contentContainerClassName="gutters px-safe-offset-gx md:pl-4 md:pr-safe-offset-gx pb-gb"
+          contentContainerClassName="gutters px-gx md:pl-4 md:pr-gx pb-gb"
           ListHeaderComponent={
             <Row alignment="center" className="flex-wrap gap-3 py-4">
               {wide ? (

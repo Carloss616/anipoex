@@ -135,4 +135,4 @@ Native screens (`.ios.tsx` / `.android.tsx`) write SwiftUI / Jetpack Compose thr
 - **Inside a `Host`, no `className`.** Layout and styling are the platform's own stacks and `modifiers`. Uniwind classes are for React Native views (web, the `Host` itself, headers, lists).
 - **Text** comes from `@/components/native/swift-ui/text` or `@/components/native/jetpack-compose/text`: the native `Text` in the app's font. On Android it always takes a `typography` (default `bodyLarge`), since `@expo/ui`'s Compose `Text` never inherits a slot's text style; name the slot's style where M3 sets one (`labelLarge` in a button, `labelSmall` in a badge).
 - **Colors** on Android come from one `useThemeM3Colors()`; destructive actions use `m3.error` / `m3.onError`, not a second scheme seeded from `destructive`.
-- **Spacing** in dp: `GUTTER_*` from `@/components/native/constants`, plain numbers otherwise.
+- **Spacing** in dp: `GUTTER` from `@/components/native/constants`, plain numbers otherwise.

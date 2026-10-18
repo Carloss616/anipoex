@@ -1,6 +1,6 @@
 import { InputChip, LazyRow } from "@expo/ui/jetpack-compose";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { GUTTER_X } from "@/components/native/constants";
+import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -16,10 +16,9 @@ export function ActiveFilters({ filters, total }: ActiveFiltersProps) {
     <LazyRow
       verticalAlignment="center"
       horizontalArrangement={{ spacedBy: 8 }}
-      // The page inset clears a landscape cutout, like `px-safe-offset-gx`.
       contentPadding={{
-        start: GUTTER_X + insets.left,
-        end: GUTTER_X + insets.right,
+        start: GUTTER + insets.left,
+        end: GUTTER + insets.right,
       }}
     >
       {filters.map((f) => (

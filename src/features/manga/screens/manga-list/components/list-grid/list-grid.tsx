@@ -47,7 +47,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
       // Spacing units, one gap for both axes (see `LegendList`). Titles under the
       // covers need air between rows; on the cover they don't.
       columnWrapperStyle={{ gap: titlePosition === "below" ? 4 : 2 }}
-      contentContainerClassName="gutters px-safe-offset-gx md:pl-4 md:pr-safe-offset-gx pb-gb"
+      contentContainerClassName="gutters px-gx md:pl-4 md:pr-gx pb-gb"
       ListHeaderComponent={header}
       renderItem={({ item }) => (
         <ListItem item={item} titlePosition={titlePosition} />

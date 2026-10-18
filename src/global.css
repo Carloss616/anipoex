@@ -23,50 +23,24 @@
   --spacing-gb: calc(var(--spacing) * 4);
 }
 
+/* Web only: native screens take `GUTTER` from @/components/native/constants. */
 @utility gutters {
-  @variant ios {
-    --spacing-gt: calc(var(--spacing) * 2);
+  --spacing-gb: calc(var(--spacing) * 22.5);
+  @variant sm {
+    --spacing-gx: calc(var(--spacing) * 5);
   }
-  @variant android {
-    --spacing-gt: calc(var(--spacing) * 6);
+  @variant md {
+    --spacing-gx: calc(var(--spacing) * 6);
   }
-  @variant web {
-    --spacing-gb: calc(var(--spacing) * 22.5);
-    @variant sm {
-      --spacing-gx: calc(var(--spacing) * 5);
-    }
-    @variant md {
-      --spacing-gx: calc(var(--spacing) * 6);
-    }
-    @variant lg {
-      --spacing-gx: calc(var(--spacing) * 10);
-    }
-    @variant xl {
-      --spacing-gx: calc(var(--spacing) * 12);
-    }
-    @variant 2xl {
-      --spacing-gx: calc(var(--spacing) * 16);
-    }
+  @variant lg {
+    --spacing-gx: calc(var(--spacing) * 10);
   }
-}
-
-@utility mx-bleed-safe-* {
-  margin-left: calc(
-    (env(safe-area-inset-left) + --spacing(--value(integer))) *
-    -1
-  );
-  margin-left: calc(
-    (env(safe-area-inset-left) + --value([length], --spacing-*)) *
-    -1
-  );
-  margin-right: calc(
-    (env(safe-area-inset-right) + --spacing(--value(integer))) *
-    -1
-  );
-  margin-right: calc(
-    (env(safe-area-inset-right) + --value([length], --spacing-*)) *
-    -1
-  );
+  @variant xl {
+    --spacing-gx: calc(var(--spacing) * 12);
+  }
+  @variant 2xl {
+    --spacing-gx: calc(var(--spacing) * 16);
+  }
 }
 
 @layer base {

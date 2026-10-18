@@ -19,7 +19,7 @@ import {
 import { cn } from "panelui-native/utils/cn";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
-import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/constants";
+import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
@@ -49,9 +49,8 @@ export function DetailList({
   const m3 = useThemeM3Colors();
   const insets = useSafeAreaInsets();
   const last = chapters.length - 1;
-  // The page inset clears a landscape cutout, like `px-safe-offset-gx`.
-  const start = GUTTER_X + insets.left;
-  const end = GUTTER_X + insets.right;
+  const start = GUTTER + insets.left;
+  const end = GUTTER + insets.right;
 
   return (
     <Host className={cn("flex-1", className)}>
@@ -64,7 +63,7 @@ export function DetailList({
         modifiers={[fillMaxSize()]}
       >
         <LazyColumn
-          contentPadding={{ bottom: GUTTER_BOTTOM }}
+          contentPadding={{ bottom: GUTTER }}
           modifiers={[fillMaxSize()]}
         >
           {/* Compose has no negative padding: the header is stacked over the

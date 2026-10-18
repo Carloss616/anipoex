@@ -1,7 +1,7 @@
 import { Column, FilterChip, Row } from "@expo/ui/jetpack-compose";
 import { horizontalScroll, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { GUTTER_TOP, GUTTER_X } from "@/components/native/constants";
+import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -14,12 +14,11 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
   const insets = useSafeAreaInsets();
   const hasGenres = !!manga.genres?.length;
   const m3 = useThemeM3Colors();
-  // The page inset clears a landscape cutout, like `px-safe-offset-gx`.
-  const start = GUTTER_X + insets.left;
-  const end = GUTTER_X + insets.right;
+  const start = GUTTER + insets.left;
+  const end = GUTTER + insets.right;
 
   return (
-    <Column modifiers={[padding(0, GUTTER_TOP, 0, 0)]}>
+    <Column modifiers={[padding(0, GUTTER, 0, 0)]}>
       <Row
         verticalAlignment="bottom"
         horizontalArrangement={{ spacedBy: 16 }}
@@ -31,7 +30,6 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           coverColor={manga.coverImage?.color}
           accessibilityLabel={manga.title?.userPreferred ?? undefined}
           testID="manga-detail-cover"
-          // A style, not a class: the card reads its width back for its height.
           style={{ width: 144 }}
         />
         <Meta manga={manga} />
