@@ -1,7 +1,8 @@
 import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { HeaderInset } from "@/components/layout/header-inset";
+import { View } from "react-native";
+import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import {
   ALL,
   emptyMangaList,
@@ -56,17 +57,24 @@ export function MangaList() {
         {...searchBarTheme}
       />
       <ListToolbar status={status} list$={list$} onSelect={select} />
-      <HeaderInset className="flex-1 flex-row">
+      {/* The grid runs under the header, which blurs it once scrolled. */}
+      <View className="flex-1 flex-row">
         {wide && (
-          <ListSidebar status={status} counts={counts} onSelect={select} />
+          <HeaderInsetView>
+            <ListSidebar status={status} counts={counts} onSelect={select} />
+          </HeaderInsetView>
         )}
         <ListGrid
           list={mangaList}
           query$={query$}
           genre$={genre$}
-          header={<ListHeader genre$={genre$} list={mangaList} />}
+          header={
+            <HeaderInsetView>
+              <ListHeader genre$={genre$} list={mangaList} />
+            </HeaderInsetView>
+          }
         />
-      </HeaderInset>
+      </View>
       <ViewSheet />
     </>
   );

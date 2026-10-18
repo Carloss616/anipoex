@@ -6,10 +6,11 @@ import { View, type ViewProps } from "react-native";
 let lastHeight = 0;
 
 /**
- * Starts below the transparent header. On web its height lands a frame late,
- * so the inset starts from the last one seen and eases into the new one.
+ * A View padded by the header's height, so its content starts below the
+ * transparent header. On web that height lands a frame late, so the padding
+ * starts from the last one seen and eases into the new one.
  */
-export function HeaderInset({ className, style, ...props }: ViewProps) {
+export function HeaderInsetView({ className, style, ...props }: ViewProps) {
   const measured = useHeaderHeight();
   if (measured > 0) lastHeight = measured;
   const headerHeight = measured || lastHeight;

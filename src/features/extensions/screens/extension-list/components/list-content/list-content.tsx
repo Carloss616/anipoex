@@ -1,3 +1,4 @@
+import { useHeaderHeight } from "expo-router/react-navigation";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useMemo } from "react";
 import { View } from "react-native";
@@ -6,7 +7,7 @@ import {
   ActiveFilters,
 } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
-import { HeaderInset } from "@/components/layout/header-inset";
+import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -53,19 +54,23 @@ export function ListContent({
   activeFilters,
 }: ListContentProps) {
   const headerScroll = useHeaderScroll();
+  const headerHeight = useHeaderHeight();
   const wide = useBreakpoint().isAtLeast("md");
   const rows = useMemo(() => toRows(sections), [sections]);
   const stickyIndices = useMemo(() => headerIndices(rows), [rows]);
   const shown = sections.reduce((n, s) => n + s.data.length, 0);
 
   return (
-    <HeaderInset className="flex-1 flex-row">
+    // The list runs under the header, which blurs it once scrolled.
+    <View className="flex-1 flex-row">
       {wide && (
-        <ListSidebar
-          filter={filter}
-          counts={counts}
-          onSelect={onFilterChange}
-        />
+        <HeaderInsetView>
+          <ListSidebar
+            filter={filter}
+            counts={counts}
+            onSelect={onFilterChange}
+          />
+        </HeaderInsetView>
       )}
       <View className="flex-1">
         <LegendList
@@ -73,37 +78,40 @@ export function ListContent({
           data={rows}
           keyExtractor={(row) => row.key}
           getItemType={(row) => row.kind}
-          stickyHeaderConfig={{ offset: -16 }}
+          // Pinned below the header, minus the section row's top padding.
+          stickyHeaderConfig={{ offset: headerHeight - 16 }}
           stickyHeaderIndices={stickyIndices}
           {...headerScroll}
           contentContainerClassName="gutters px-gx md:pl-4 md:pr-gx pb-gb"
           ListHeaderComponent={
-            <View className="flex-row flex-wrap items-center gap-3 py-4">
-              {wide ? (
-                <>
-                  <LanguageMenu
-                    language={language}
-                    languages={languages}
-                    onSelect={onLanguageChange}
+            <HeaderInsetView>
+              <View className="flex-row flex-wrap items-center gap-3 py-4">
+                {wide ? (
+                  <>
+                    <LanguageMenu
+                      language={language}
+                      languages={languages}
+                      onSelect={onLanguageChange}
+                    />
+                    <ActiveFilters filters={[]} total={extensionCount(shown)} />
+                  </>
+                ) : (
+                  <ActiveFilters
+                    filters={activeFilters}
+                    total={extensionCount(shown)}
                   />
-                  <ActiveFilters filters={[]} total={extensionCount(shown)} />
-                </>
-              ) : (
-                <ActiveFilters
-                  filters={activeFilters}
-                  total={extensionCount(shown)}
-                />
-              )}
-              {counts.updates > 0 && (
-                <Button
-                  size="sm"
-                  onPress={updateAllExtensions}
-                  className="ml-auto"
-                >
-                  Update all
-                </Button>
-              )}
-            </View>
+                )}
+                {counts.updates > 0 && (
+                  <Button
+                    size="sm"
+                    onPress={updateAllExtensions}
+                    className="ml-auto"
+                  >
+                    Update all
+                  </Button>
+                )}
+              </View>
+            </HeaderInsetView>
           }
           ListEmptyComponent={
             <EmptyState title="No extensions match this filter" />
@@ -120,7 +128,7 @@ export function ListContent({
           }
         />
       </View>
-    </HeaderInset>
+    </View>
   );
 }
 
