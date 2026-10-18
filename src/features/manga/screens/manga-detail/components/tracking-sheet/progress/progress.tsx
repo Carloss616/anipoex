@@ -1,6 +1,6 @@
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Column } from "@/components/layout/column";
-import { ScrollView } from "@/components/layout/scroll-view";
+import { cn } from "panelui-native/utils/cn";
+import { ScrollView, View } from "react-native";
 import { NumberInput } from "@/components/ui/number-input";
 import { Typography } from "@/components/ui/typography";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
@@ -22,13 +22,13 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
   const { value, step, next, dirty, changes } = useProgress(form, total);
 
   return (
-    <Column className="py-4">
+    <View className="py-4">
       <Typography type="h4" className="px-4" numberOfLines={1}>
         Progress
       </Typography>
 
-      <ScrollView fill={isLandscape} className="w-full">
-        <Column className="p-4">
+      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
+        <View className="p-4">
           <NumberInput
             suffix={total ? `/${total}` : undefined}
             value={value}
@@ -38,7 +38,7 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
             size="lg"
             onValueChange={step}
           />
-        </Column>
+        </View>
       </ScrollView>
 
       <ChangesPreview changes={changes} />
@@ -48,6 +48,6 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
         onConfirm={() => onConfirm(next)}
         canConfirm={dirty}
       />
-    </Column>
+    </View>
   );
 }

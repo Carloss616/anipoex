@@ -4,7 +4,6 @@ import { isLiquidGlassAvailable } from "expo-glass-effect";
 import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
-import type { RefreshControlProps } from "react-native";
 import { header } from "@/components/layout/header";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
@@ -88,14 +87,4 @@ export function useStackSearchBarTheme(): ComponentProps<
   typeof Stack.SearchBar
 > {
   return {};
-}
-
-export function useRefreshControlTheme(): Partial<RefreshControlProps> {
-  const [primary, card] = useThemeColor(["primary", "card"]);
-
-  return {
-    tintColor: primary,
-    colors: [primary],
-    progressBackgroundColor: card,
-  };
 }

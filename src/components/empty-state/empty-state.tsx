@@ -1,6 +1,7 @@
+import type { UniversalBaseProps } from "@expo/ui";
+import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
-import { Center, type CenterProps } from "../layout/center";
 import { useFace } from "./hooks/use-face";
 
 export interface EmptyStateProps {
@@ -9,7 +10,8 @@ export interface EmptyStateProps {
   /** A way out of the empty state, as a small tonal button under the text. */
   action?: { label: string; onPress: () => void };
   children?: React.ReactNode;
-  modifiers?: CenterProps["modifiers"];
+  /** iOS and Android only. */
+  modifiers?: UniversalBaseProps["modifiers"];
 }
 
 export function EmptyState({
@@ -17,12 +19,11 @@ export function EmptyState({
   description,
   action,
   children,
-  modifiers,
 }: EmptyStateProps) {
   const face = useFace();
 
   return (
-    <Center className="gap-3 px-8 py-24" modifiers={modifiers}>
+    <View className="flex-1 items-center justify-center gap-3 px-8 py-24">
       <Typography align="center" muted className="text-5xl">
         {face}
       </Typography>
@@ -45,6 +46,6 @@ export function EmptyState({
         </Button>
       )}
       {children}
-    </Center>
+    </View>
   );
 }

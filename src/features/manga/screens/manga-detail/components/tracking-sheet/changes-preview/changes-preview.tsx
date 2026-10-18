@@ -1,4 +1,4 @@
-import { Column } from "@/components/layout/column";
+import { View } from "react-native";
 import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Typography } from "@/components/ui/typography";
 
@@ -11,13 +11,13 @@ export interface ChangesPreviewProps {
 export function ChangesPreview({ changes }: ChangesPreviewProps) {
   return (
     <AnimatedVisibility visible={changes.length > 0}>
-      <Column className="gap-1 px-4 pb-4">
+      <View className="gap-1 px-4 pb-4">
         {changes.map((line) => (
           <Typography key={line} type="small" muted>
             {line}
           </Typography>
         ))}
-      </Column>
+      </View>
     </AnimatedVisibility>
   );
 }

@@ -1,24 +1,19 @@
-import { Spacer } from "@expo/ui";
 import { cn } from "panelui-native/utils/cn";
-import { RefreshControl, View } from "react-native";
+import { View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
-import { Column } from "@/components/layout/column";
 import { LegendList } from "@/components/layout/legend-list";
-import { Row } from "@/components/layout/row";
 import { Badge } from "@/components/ui/badge";
-import { Host } from "@/components/ui/host";
 import { Item } from "@/components/ui/item";
 import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
-import { useRefreshControlTheme } from "@/hooks/use-theme";
 import { type Chapter, ChapterItem } from "../chapter-item";
 import { ART_HEIGHT } from "../hero";
 
 export interface DetailListProps {
   /** RN art drawn behind the header; the header overlaps its last `ART_HEIGHT`. */
   hero: React.ReactElement;
-  /** Native content above the chapters, laid out in a Host. */
+  /** Content above the chapters. */
   header: React.ReactElement;
   chapters: Chapter[];
   /** The count in the chapters' section header. */
@@ -26,6 +21,7 @@ export interface DetailListProps {
   /** The section header's trailing control (the source picker). */
   action: React.ReactElement;
   entryId: number | null | undefined;
+  /** Pull to refresh, iOS and Android only. */
   refreshing: boolean;
   onRefresh: () => Promise<unknown> | undefined;
   className?: string;
@@ -42,11 +38,8 @@ export function DetailList({
   total,
   action,
   entryId,
-  refreshing,
-  onRefresh,
   className,
 }: DetailListProps) {
-  const refreshControlTheme = useRefreshControlTheme();
   const headerScroll = useHeaderScroll();
   const last = chapters.length - 1;
 
@@ -62,19 +55,15 @@ export function DetailList({
       ListHeaderComponent={
         <>
           <View style={{ marginBottom: -ART_HEIGHT }}>{hero}</View>
-          <Host matchContents={{ vertical: true }} className="w-full">
-            <Column>
-              {header}
-              <Row alignment="center" className="gutters gap-2 px-gx pb-1">
-                <Typography weight="semibold" className="pl-4">
-                  Chapters
-                </Typography>
-                <Badge>{total}</Badge>
-                <Spacer flexible />
-                {action}
-              </Row>
-            </Column>
-          </Host>
+          {header}
+          <View className="gutters flex-row items-center gap-2 px-gx pb-1">
+            <Typography weight="semibold" className="pl-4">
+              Chapters
+            </Typography>
+            <Badge>{total}</Badge>
+            <View className="flex-1" />
+            {action}
+          </View>
         </>
       }
       renderItem={({ item, index }) => (
@@ -94,13 +83,6 @@ export function DetailList({
       )}
       ListEmptyComponent={<EmptyState title="No chapters available" />}
       {...headerScroll}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={() => void onRefresh()}
-          {...refreshControlTheme}
-        />
-      }
     />
   );
 }

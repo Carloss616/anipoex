@@ -5,9 +5,7 @@ import { type ActiveFilter, ActiveFilters } from "@/components/active-filters";
 import { EmptyState } from "@/components/empty-state";
 import { HeaderInset } from "@/components/layout/header-inset";
 import { LegendList } from "@/components/layout/legend-list";
-import { Row } from "@/components/layout/row";
 import { Button } from "@/components/ui/button";
-import { EnsureHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
@@ -77,7 +75,7 @@ export function ListContent({
           {...headerScroll}
           contentContainerClassName="gutters px-gx md:pl-4 md:pr-gx pb-gb"
           ListHeaderComponent={
-            <Row alignment="center" className="flex-wrap gap-3 py-4">
+            <View className="flex-row flex-wrap items-center gap-3 py-4">
               {wide ? (
                 <>
                   <LanguageMenu
@@ -102,7 +100,7 @@ export function ListContent({
                   Update all
                 </Button>
               )}
-            </Row>
+            </View>
           }
           ListEmptyComponent={
             <EmptyState title="No extensions match this filter" />
@@ -154,14 +152,12 @@ function LanguageMenu({
 
 function SectionHeader({ section }: { section: ExtensionSection }) {
   return (
-    <EnsureHost matchContents>
-      <Row className="pt-6 pb-2">
-        <Surface className="px-1.5 py-0.5" elevated>
-          <Typography type="small" weight="semibold" muted>
-            {`${section.title} · ${section.data.length}`}
-          </Typography>
-        </Surface>
-      </Row>
-    </EnsureHost>
+    <View className="flex-row items-start pt-6 pb-2">
+      <Surface className="px-1.5 py-0.5" elevated>
+        <Typography type="small" weight="semibold" muted>
+          {`${section.title} · ${section.data.length}`}
+        </Typography>
+      </Surface>
+    </View>
   );
 }

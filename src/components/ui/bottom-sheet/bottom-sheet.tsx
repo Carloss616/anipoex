@@ -1,6 +1,5 @@
 import type {
   BottomSheetProps as BottomSheetBaseProps,
-  ColumnProps,
   SnapPoint,
 } from "@expo/ui";
 import type { ModalBottomSheetProps } from "@expo/ui/jetpack-compose";
@@ -11,11 +10,9 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { View, type ViewProps } from "react-native";
 import { type DialogProps, Drawer } from "vaul";
-import { Column } from "@/components/layout/column";
 
 export interface BottomSheetProps
   extends BottomSheetBaseProps,
-    Pick<ColumnProps, "alignment">,
     Pick<ModalBottomSheetProps, "containerColor" | "scrimColor"> {
   className?: string;
   /** What the sheet shows. iOS only: SwiftUI animates a resize only against a value that changes. */
@@ -53,7 +50,6 @@ function BottomSheetRoot({
   testID,
   containerColor,
   scrimColor,
-  alignment,
   className,
   direction: directionProp,
   snapPointsDirection,
@@ -120,17 +116,12 @@ function BottomSheetRoot({
             {isRight || hasSnapPoints ? (
               // RNW Views don't shrink, so without this the column outgrows the
               // drawer and a scrollable child never gets a bounded box.
-              <Column
-                alignment={alignment}
-                className={cn("min-h-0 flex-1", className)}
-              >
+              <View className={cn("min-h-0 flex-1", className)}>
                 {children}
-              </Column>
+              </View>
             ) : (
               <AnimatedHeight>
-                <Column alignment={alignment} className={className}>
-                  {children}
-                </Column>
+                <View className={className}>{children}</View>
               </AnimatedHeight>
             )}
           </Drawer.Content>

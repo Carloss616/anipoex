@@ -1,7 +1,5 @@
-import { Spacer } from "@expo/ui";
 import { useState } from "react";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
+import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icon, Icons } from "@/components/ui/icon";
@@ -23,11 +21,11 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
         onPress={() => setIsPresented(true)}
         className="h-auto w-full rounded-full py-4"
       >
-        <Column className="w-full gap-2">
-          <Row alignment="center" className="gap-2">
+        <View className="w-full gap-2">
+          <View className="flex-row items-center gap-2">
             <Badge color={label ? "primary" : "secondary"} />
             <Typography>{label ?? "Not in list"}</Typography>
-            <Spacer flexible />
+            <View className="flex-1" />
             <Typography.Code className="self-auto">
               {progress}/{total ?? "_"}
             </Typography.Code>
@@ -41,9 +39,9 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
               size={18}
               className="text-primary"
             />
-          </Row>
+          </View>
           <Progress value={percent} />
-        </Column>
+        </View>
       </Button>
 
       <TrackingSheet

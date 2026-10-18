@@ -1,5 +1,4 @@
-import { Spacer } from "@expo/ui";
-import { Row } from "@/components/layout/row";
+import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 
 export interface FooterProps {
@@ -21,19 +20,19 @@ export function Footer({
   canRemove,
 }: FooterProps) {
   return (
-    <Row alignment="center" className="gap-4 px-4">
+    <View className="flex-row items-center gap-4 px-4">
       {onRemove && (
         <Button variant="destructive" disabled={!canRemove} onPress={onRemove}>
           Remove
         </Button>
       )}
-      <Spacer flexible />
+      <View className="flex-1" />
       <Button variant="ghost" onPress={onCancel}>
         Cancel
       </Button>
       <Button disabled={!canConfirm} onPress={onConfirm}>
         OK
       </Button>
-    </Row>
+    </View>
   );
 }

@@ -41,24 +41,12 @@
           "options": {
             "paths": {
               "@expo/ui": {
-                "importNames": [
-                  "BottomSheet",
-                  "Column",
-                  "Host",
-                  "RNHostView",
-                  "Icon",
-                  "Row",
-                  "ScrollView"
-                ],
+                "importNames": ["BottomSheet", "Host", "RNHostView", "Icon"],
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
               },
               "@expo/ui/community/bottom-sheet": "Import from @/components/ui/sheet",
               "react-native": {
-                "importNames": [
-                  "ScrollView",
-                  "ActivityIndicator",
-                  "TouchableNativeFeedback"
-                ],
+                "importNames": ["ActivityIndicator", "TouchableNativeFeedback"],
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
               },
               "panelui-native": "Import scoped: panelui-native/components/<component>",

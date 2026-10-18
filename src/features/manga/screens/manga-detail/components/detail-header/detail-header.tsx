@@ -1,7 +1,5 @@
 import { cn } from "panelui-native/utils/cn";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
-import { ScrollView } from "@/components/layout/scroll-view";
+import { ScrollView, View } from "react-native";
 import { Chip } from "@/components/ui/chip";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
@@ -16,8 +14,8 @@ export interface DetailHeaderProps {
 /** Everything above the chapters: cover and meta, genres, tracking, synopsis. */
 export function DetailHeader({ manga }: DetailHeaderProps) {
   return (
-    <Column className="gutters pt-gt">
-      <Row className="gutters gap-4 px-gx" alignment="end">
+    <View className="gutters pt-gt">
+      <View className="gutters flex-row items-end gap-4 px-gx">
         <MangaCard
           cover={manga.coverImage?.large}
           coverThumb={manga.coverImage?.medium}
@@ -26,22 +24,22 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           testID="manga-detail-cover"
           style={{ width: 144 }}
         />
-        <Meta manga={manga} className="self-auto! flex-1" />
-      </Row>
+        <Meta manga={manga} className="flex-1" />
+      </View>
 
       {!!manga.genres?.length && (
-        <ScrollView direction="horizontal" showsIndicators={false}>
-          <Row className="gutters gap-2 px-gx py-6">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View className="gutters flex-row gap-2 px-gx py-6">
             {manga.genres.map((g) => (
               <Chip key={g} size="sm">
                 <Chip.Label>{g}</Chip.Label>
               </Chip>
             ))}
-          </Row>
+          </View>
         </ScrollView>
       )}
 
-      <Column
+      <View
         className={cn(
           "gutters gap-6 px-gx pb-6",
           !manga.genres?.length && "pt-6",
@@ -49,7 +47,7 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
       >
         <Tracking manga={manga} />
         <Synopsis text={manga.description} />
-      </Column>
-    </Column>
+      </View>
+    </View>
   );
 }

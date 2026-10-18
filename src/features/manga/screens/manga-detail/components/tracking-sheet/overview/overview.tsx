@@ -1,8 +1,6 @@
-import { Spacer } from "@expo/ui";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
-import { ScrollView } from "@/components/layout/scroll-view";
+import { cn } from "panelui-native/utils/cn";
+import { ScrollView, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
@@ -45,12 +43,12 @@ export function Overview({
   const { isLandscape } = useBreakpoint();
 
   return (
-    <Column className="pt-4">
-      <Row alignment="center" className="gap-2 px-4">
+    <View className="pt-4">
+      <View className="flex-row items-center gap-2 px-4">
         <Typography type="h4" numberOfLines={1}>
           {title}
         </Typography>
-        <Spacer flexible />
+        <View className="flex-1" />
         <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
           <Button variant="outline" size="icon" className="size-9">
             <Icon
@@ -60,12 +58,12 @@ export function Overview({
             />
           </Button>
         </Menu>
-      </Row>
+      </View>
 
-      <ScrollView fill={isLandscape} className="w-full">
-        <Column className="p-4">
+      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
+        <View className="p-4">
           <Surface variant="tertiary" padding="none" className="w-full">
-            <Row className="w-full">
+            <View className="w-full flex-row">
               <Button
                 variant="ghost"
                 className="flex-1"
@@ -89,9 +87,9 @@ export function Overview({
               >
                 {form.score || <Typography muted>Score</Typography>}
               </Button>
-            </Row>
+            </View>
             <Separator />
-            <Row className="w-full">
+            <View className="w-full flex-row">
               <Button
                 variant="ghost"
                 className="flex-1"
@@ -111,10 +109,10 @@ export function Overview({
                   <Typography muted>Finish date</Typography>
                 )}
               </Button>
-            </Row>
+            </View>
           </Surface>
-        </Column>
+        </View>
       </ScrollView>
-    </Column>
+    </View>
   );
 }

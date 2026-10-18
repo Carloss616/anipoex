@@ -3,7 +3,6 @@ import { useValue } from "@legendapp/state/react";
 import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
-import type { RefreshControlProps } from "react-native";
 import { header } from "@/components/layout/header";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
@@ -73,14 +72,5 @@ export function useStackSearchBarTheme(): ComponentProps<
     textColor: m3.onSurface,
     hintTextColor: m3.onSurfaceVariant,
     headerIconColor: m3.onSurface,
-  };
-}
-
-export function useRefreshControlTheme(): Partial<RefreshControlProps> {
-  const m3 = useThemeM3Colors();
-
-  return {
-    colors: [m3.primary],
-    progressBackgroundColor: m3.surfaceContainerHigh,
   };
 }

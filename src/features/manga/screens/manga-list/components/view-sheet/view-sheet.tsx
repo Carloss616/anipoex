@@ -2,7 +2,7 @@ import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { ButtonGroup } from "panelui-native/components/button-group";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Column } from "@/components/layout/column";
+import { View } from "react-native";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
@@ -32,7 +32,7 @@ export function ViewSheet() {
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
-      <Column className="w-full gap-3 px-6 pt-6 pb-8">
+      <View className="w-full gap-3 px-6 pt-6 pb-8">
         <Typography type="h4">View</Typography>
         <Typography type="small" muted>
           Columns
@@ -70,7 +70,7 @@ export function ViewSheet() {
             );
           })}
         </ButtonGroup>
-      </Column>
+      </View>
     </BottomSheet>
   );
 }

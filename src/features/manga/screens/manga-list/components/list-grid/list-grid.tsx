@@ -2,14 +2,12 @@ import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import type { ReactElement } from "react";
-import { RefreshControl } from "react-native";
 import { LegendList } from "@/components/layout/legend-list";
 import { LoadingState } from "@/components/loading-state";
 import type { MangaListState } from "@/features/manga/hooks/use-manga-list";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
-import { useRefreshControlTheme } from "@/hooks/use-theme";
 import { ListEmpty } from "../list-empty";
 import { ListItem } from "../list-item";
 
@@ -24,8 +22,7 @@ export interface ListGridProps {
 /** The grid for one list; the caller owns the data (`useMangaList`). */
 export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const { current } = useBreakpoint();
-  const { manga$, loading, refetching, refetch } = list;
-  const refreshControlTheme = useRefreshControlTheme();
+  const { manga$, loading, refetching } = list;
   const headerScroll = useHeaderScroll();
   const manga = useValue(manga$);
 
@@ -54,13 +51,6 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
       )}
       ListEmptyComponent={<ListEmpty genre$={genre$} query$={query$} />}
       {...headerScroll}
-      refreshControl={
-        <RefreshControl
-          refreshing={refetching}
-          onRefresh={() => void refetch()}
-          {...refreshControlTheme}
-        />
-      }
     />
   );
 }

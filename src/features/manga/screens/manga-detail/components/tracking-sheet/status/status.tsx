@@ -1,6 +1,6 @@
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Column } from "@/components/layout/column";
-import { ScrollView } from "@/components/layout/scroll-view";
+import { cn } from "panelui-native/utils/cn";
+import { ScrollView, View } from "react-native";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
@@ -44,12 +44,12 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
   );
 
   return (
-    <Column className="py-4">
+    <View className="py-4">
       <Typography type="h4" className="px-4" numberOfLines={1}>
         Status
       </Typography>
 
-      <ScrollView fill={isLandscape} className="w-full">
+      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
         {options}
       </ScrollView>
 
@@ -60,6 +60,6 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
         onConfirm={() => onConfirm(next)}
         canConfirm={dirty}
       />
-    </Column>
+    </View>
   );
 }

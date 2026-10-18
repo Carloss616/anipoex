@@ -1,9 +1,6 @@
-import { Spacer } from "@expo/ui";
 import { Fragment } from "react";
+import { ScrollView, View } from "react-native";
 import { EmptyState } from "@/components/empty-state";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
-import { ScrollView } from "@/components/layout/scroll-view";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
@@ -49,27 +46,27 @@ export function SourceSheet({
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"
     >
-      <Column className="flex-1 gap-4 py-4">
-        <Column className="gap-4 px-4">
-          <Row alignment="center" className="gap-2">
+      <View className="flex-1 gap-4 py-4">
+        <View className="gap-4 px-4">
+          <View className="flex-row items-center gap-2">
             <Typography type="h4">Sources</Typography>
             <Badge>{sources.length}</Badge>
-            <Spacer flexible />
+            <View className="flex-1" />
             {!!progress && (
               <Typography.Code className="self-auto">
                 {progress}/{total ?? "_"}
               </Typography.Code>
             )}
-          </Row>
+          </View>
           <SearchBar
             value={query}
             onChangeText={setQuery}
             placeholder="Search sources..."
             shape="pill"
           />
-        </Column>
+        </View>
 
-        <ScrollView fill className="w-full">
+        <ScrollView className="min-h-0 w-full flex-1">
           {sources.length === 0 ? (
             <EmptyState title="No sources found" />
           ) : (
@@ -98,7 +95,7 @@ export function SourceSheet({
             </Item.Group>
           )}
         </ScrollView>
-      </Column>
+      </View>
     </BottomSheet>
   );
 }

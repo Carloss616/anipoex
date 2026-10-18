@@ -1,8 +1,6 @@
-import { Spacer } from "@expo/ui";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
-import { ScrollView } from "@/components/layout/scroll-view";
+import { cn } from "panelui-native/utils/cn";
+import { ScrollView, View } from "react-native";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
@@ -23,17 +21,17 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
   const RatingOrSlider = scale.max > 10 ? Slider : Rating;
 
   return (
-    <Column className="py-4">
-      <Row alignment="center" className="gap-2 px-4">
+    <View className="py-4">
+      <View className="flex-row items-center gap-2 px-4">
         <Typography type="h4" numberOfLines={1}>
           Score
         </Typography>
-        <Spacer flexible />
+        <View className="flex-1" />
         <Typography.Code>{`${score || "_"}/${scale.max}`}</Typography.Code>
-      </Row>
+      </View>
 
-      <ScrollView fill={isLandscape} className="w-full">
-        <Column className="p-4" alignment="center">
+      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
+        <View className="items-center p-4">
           {/* Dragging the control must not drag the sheet out from under it. */}
           <BottomSheet.LockDrag>
             <RatingOrSlider
@@ -45,7 +43,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
               onValueChange={change}
             />
           </BottomSheet.LockDrag>
-        </Column>
+        </View>
       </ScrollView>
 
       <Footer
@@ -53,6 +51,6 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
         onConfirm={() => onConfirm(score)}
         canConfirm={score !== value}
       />
-    </Column>
+    </View>
   );
 }

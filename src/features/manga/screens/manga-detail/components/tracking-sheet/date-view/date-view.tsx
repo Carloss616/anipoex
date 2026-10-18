@@ -1,7 +1,7 @@
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { cn } from "panelui-native/utils/cn";
 import { useState } from "react";
-import { Column } from "@/components/layout/column";
-import { ScrollView } from "@/components/layout/scroll-view";
+import { ScrollView, View } from "react-native";
 import { Calendar } from "@/components/ui/calendar";
 import { Typography } from "@/components/ui/typography";
 import { Footer } from "../footer";
@@ -23,20 +23,20 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
   const { isLandscape } = useBreakpoint();
 
   return (
-    <Column className="py-4">
+    <View className="py-4">
       <Typography type="h4" className="px-4" numberOfLines={1}>
         {title}
       </Typography>
 
-      <ScrollView fill={isLandscape} className="w-full">
-        <Column className="p-4">
+      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
+        <View className="p-4">
           <Calendar
             selected={date}
             onSelect={setDate}
             captionLayout="dropdown"
             className="w-full border-none bg-transparent p-0"
           />
-        </Column>
+        </View>
       </ScrollView>
 
       <Footer
@@ -46,6 +46,6 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
         onConfirm={() => onConfirm(date)}
         canConfirm={date?.getTime() !== value?.getTime()}
       />
-    </Column>
+    </View>
   );
 }

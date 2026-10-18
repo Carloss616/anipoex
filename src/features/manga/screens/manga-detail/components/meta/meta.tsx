@@ -1,6 +1,5 @@
 import { cn } from "panelui-native/utils/cn";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
+import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
@@ -18,7 +17,7 @@ export function Meta({
   const { synonyms, state } = metaLines(manga);
 
   return (
-    <Column className={cn("gap-2", className)} alignment="start">
+    <View className={cn("items-start gap-2", className)}>
       {!!synonyms && (
         <Typography type="body-sm" muted numberOfLines={3}>
           {synonyms}
@@ -26,37 +25,37 @@ export function Meta({
       )}
 
       {!!manga.author && (
-        <Row className="gap-2" alignment="center">
+        <View className="flex-row items-center gap-2">
           <Icon name={Icons.person} size={12} muted />
           <Typography type="body-sm" weight="medium">
             {manga.author}
           </Typography>
-        </Row>
+        </View>
       )}
 
       {!!state && (
-        <Row className="gap-2" alignment="center">
+        <View className="flex-row items-center gap-2">
           {manga.status ? (
-            <Column className="self-auto! w-3" alignment="center">
+            <View className="w-3 items-center">
               <Badge color={STATUS_COLOR[manga.status]} />
-            </Column>
+            </View>
           ) : (
             <Icon name={Icons.calendar} size={12} muted />
           )}
           <Typography type="body-sm" muted>
             {state}
           </Typography>
-        </Row>
+        </View>
       )}
 
       {!!manga.averageScore && (
-        <Row className="gap-2" alignment="center">
+        <View className="flex-row items-center gap-2">
           <Icon name={Icons.star} size={12} muted />
           <Typography type="body-sm" muted>
             {`${manga.averageScore}% community`}
           </Typography>
-        </Row>
+        </View>
       )}
-    </Column>
+    </View>
   );
 }

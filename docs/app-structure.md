@@ -25,7 +25,7 @@ anipoex/
 │   │
 │   ├── components/                  # global — reused across features
 │   │   ├── ui/                      # design system (button, icon, typography…)
-│   │   ├── layout/                  # structure (row, column, header, tabs…)
+│   │   ├── layout/                  # structure (header, tabs, toolbar…)
 │   │   ├── <component>/             # complex or multi-platform component
 │   │   │   ├── components/          # only used by this component
 │   │   │   ├── <component>.tsx

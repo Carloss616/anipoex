@@ -2,8 +2,8 @@ import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { memo } from "react";
+import { View } from "react-native";
 import { ActiveFilters } from "@/components/active-filters";
-import { Row } from "@/components/layout/row";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
@@ -32,7 +32,7 @@ export const ListHeader = memo(function ListHeader({
   const total = mangaCount(useValue(list.manga$).length);
 
   return (
-    <Row alignment="center" className="flex-wrap gap-3 py-4">
+    <View className="flex-row flex-wrap items-center gap-3 py-4">
       {wide ? (
         <>
           <Menu
@@ -63,6 +63,6 @@ export const ListHeader = memo(function ListHeader({
           total={total}
         />
       )}
-    </Row>
+    </View>
   );
 });
