@@ -49,7 +49,8 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
             await Promise.all([
               refetch(),
               client.refetchQueries({ include: ["MangaListCounts"] }),
-            ]);
+              // The error link already toasts it; a rejection here would just be unhandled.
+            ]).catch(() => {});
           }),
         ]}
       >

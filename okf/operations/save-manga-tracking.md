@@ -21,5 +21,6 @@ Wraps AniList's `SaveMediaListEntry`.
 - Returns the entry's `MangaTracking` fields; Apollo merges it by id. On a first save
   the app writes the `Media.mediaListEntry` link itself.
 - Refetches [MangaList](manga-list.md) and [MangaListCounts](manga-list-counts.md).
-- Success and failure each get a haptic; failure also toasts "Couldn't save your changes".
+- Success and failure each get a haptic; failure also toasts "Couldn't save your changes"
+  and puts the field back to what AniList still has.
 - `notes` is never sent, so AniList keeps it.

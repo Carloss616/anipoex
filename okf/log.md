@@ -2,6 +2,10 @@
 
 ## 2026-10-18
 
+* **Failed saves don't stick on screen**: a tracking field whose save fails goes back to
+  what AniList still has, and a failed removal leaves the sheet open. Updated
+  [SaveMangaTracking](operations/save-manga-tracking.md) and
+  [DeleteMangaTracking](operations/delete-manga-tracking.md).
 * **No score before the format is known**: while the viewer has no score format, the
   tracking sheet's score cell is disabled instead of running on a 10-point guess that
   saves on the wrong scale. The window is not always short: a failed viewer fetch keeps

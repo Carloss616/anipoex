@@ -52,12 +52,22 @@ export function TrackingSheet({
   const commit = (next: TrackingForm) => {
     setForm(next);
     setEditing(null);
-    save(toSaveVariables(form, next, { mediaId: manga.id, entryId }));
+    save(toSaveVariables(form, next, { mediaId: manga.id, entryId })).catch(
+      () => {
+        // Put back what AniList still has, unless another field was confirmed since.
+        setForm((current) => (current === next ? form : current));
+      },
+    );
   };
 
   const onRemove = async () => {
     if (entryId == null) return;
-    await remove(entryId);
+    try {
+      await remove(entryId);
+    } catch {
+      // The error link toasts it; the sheet stays open on the entry.
+      return;
+    }
     setEditing(null);
     onDismiss();
   };

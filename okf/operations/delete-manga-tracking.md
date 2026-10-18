@@ -15,4 +15,4 @@ mutation DeleteMangaTracking($id: Int!) { DeleteMediaListEntry(id: $id) { delete
 - When `deleted` is true: `Media.mediaListEntry` becomes null, the `MediaList` is
   evicted from the cache and garbage-collected.
 - Refetches [MangaList](manga-list.md) and [MangaListCounts](manga-list-counts.md).
-- Failure toasts "Couldn't remove this from your list".
+- Failure toasts "Couldn't remove this from your list" and leaves the sheet open on the entry.

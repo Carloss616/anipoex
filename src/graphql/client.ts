@@ -44,8 +44,7 @@ const errorLink = new ErrorLink(({ error, operation }) => {
   const { operationName, operationType, query, variables } = operation;
 
   toast.destructive(typeof message === "string" ? message : error.message, {
-    // Mutations get no Retry: re-sending one from here would skip the caller's
-    // `update` and haptics; the user redoes the change instead.
+    // No Retry for mutations: re-sending from here would skip the caller's `update`.
     ...(operationType === OperationTypeNode.QUERY && {
       actionLabel: "Retry",
       onAction: () => retryQuery({ operationName, query, variables, message }),
