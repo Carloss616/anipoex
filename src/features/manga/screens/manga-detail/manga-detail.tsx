@@ -1,10 +1,9 @@
 import { Stack, useLocalSearchParams } from "expo-router";
 import { EmptyState } from "@/components/empty-state";
-import { Center } from "@/components/layout/center";
 import { Toolbar } from "@/components/layout/toolbar";
+import { LoadingState } from "@/components/loading-state";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
-import { Loader } from "@/components/ui/loader";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openExternal } from "@/utils/open-external";
@@ -45,9 +44,7 @@ export function MangaDetail() {
         <Stack.Title large>{manga?.title?.userPreferred}</Stack.Title>
         <Host className="flex-1">
           {loading ? (
-            <Center>
-              <Loader variant="morph-ring" speed={3} size="lg" />
-            </Center>
+            <LoadingState />
           ) : (
             <EmptyState
               title="Manga not found"

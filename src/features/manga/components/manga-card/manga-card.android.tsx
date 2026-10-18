@@ -1,38 +1,40 @@
 import BookIcon from "@expo/material-symbols/book.xml";
-import { Box } from "@expo/ui/jetpack-compose";
+import { Box, Column } from "@expo/ui/jetpack-compose";
 import {
   align,
   clickable,
   clip,
   combinedClickable,
   fillMaxSize,
+  fillMaxWidth,
+  height as heightModifier,
   matchParentSize,
   padding,
   Shapes,
   semantics,
   testID as testIDModifier,
+  width as widthModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { StyleSheet } from "react-native";
-import { withUniwind } from "uniwind";
-import { Column } from "@/components/layout/column";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
-import { ScrimColumn } from "@/components/ui/scrim";
-import { Typography } from "@/components/ui/typography";
-import { dp } from "@/utils/utils";
+import { ScrimGradient } from "@/components/ui/scrim";
 import { CoverImage } from "./components/cover-image";
 import { STATUS_COLOR, STATUS_ICON } from "./constants";
 import type { MangaCardProps } from "./manga-card";
 
 const RADIUS = 12;
+/** Legible on any cover: a light caption over the dark wash. */
+const SHADOW = { color: "#000000b3", offsetX: 0, offsetY: 1, blurRadius: 3 };
 
 /**
  * Compose card, meant to sit inside a Host. Standalone it brings its own,
  * too heavy to repeat in an RN list.
  */
-function MangaCardBase({
+export function MangaCard({
   cover,
   coverThumb,
   coverColor,
@@ -94,22 +96,44 @@ function MangaCardBase({
       )}
       {titlePosition === "over" && (title || label) && (
         <Box modifiers={[matchParentSize()]} contentAlignment="bottomCenter">
-          <ScrimColumn className="p-2 pt-12" alignment="center">
-            <Typography
-              type="body-xs"
-              numberOfLines={1}
-              className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3]"
+          <Box modifiers={[fillMaxWidth()]}>
+            {/* `matchParentSize` keeps the ramp out of the box's measurement,
+                so the text is what sets the height. */}
+            <Column modifiers={[matchParentSize()]}>
+              <ScrimGradient color="#000000" />
+            </Column>
+            <Column
+              horizontalAlignment="center"
+              modifiers={[fillMaxWidth(), padding(8, 48, 8, 8)]}
             >
-              {label}
-            </Typography>
-            <Typography
-              type="body-sm"
-              numberOfLines={2}
-              className="text-center text-shadow-[0_1px_3px_#000000b3] text-white"
-            >
-              {title}
-            </Typography>
-          </ScrimColumn>
+              <Text
+                style={{
+                  typography: "bodySmall",
+                  textAlign: "center",
+                  shadow: SHADOW,
+                }}
+                color="#f9fafb"
+                maxLines={1}
+                overflow="ellipsis"
+                modifiers={[fillMaxWidth()]}
+              >
+                {label}
+              </Text>
+              <Text
+                style={{
+                  typography: "bodyMedium",
+                  textAlign: "center",
+                  shadow: SHADOW,
+                }}
+                color="#ffffff"
+                maxLines={2}
+                overflow="ellipsis"
+                modifiers={[fillMaxWidth()]}
+              >
+                {title}
+              </Text>
+            </Column>
+          </Box>
         </Box>
       )}
       {titlePosition === "over" && overlay}
@@ -117,32 +141,44 @@ function MangaCardBase({
   );
 
   const flat = StyleSheet.flatten(style) ?? {};
-  const width = dp(flat.width);
-  const height = dp(flat.height) ?? (width ? width * (3 / 2) : undefined);
+  const width = typeof flat.width === "number" ? flat.width : undefined;
+  const height =
+    typeof flat.height === "number"
+      ? flat.height
+      : width
+        ? width * (3 / 2)
+        : undefined;
+  const sized = [
+    ...(width ? [widthModifier(width)] : []),
+    ...(height ? [heightModifier(height)] : []),
+  ];
 
   // Needs a width in `style`: Compose has no `aspectRatio`, so the cover's height comes from it.
   const body =
     titlePosition === "below" ? (
       // A Box so the press overlay can cover the cover and the texts alike.
       <Box>
-        <Column className="gap-1.5" style={{ width: flat.width }}>
-          <Column style={{ width: flat.width, height }}>{content}</Column>
-          <Typography
-            type="body-sm"
-            weight="semibold"
-            numberOfLines={2}
+        <Column
+          verticalArrangement={{ spacedBy: 6 }}
+          modifiers={width ? [widthModifier(width)] : []}
+        >
+          <Column modifiers={sized}>{content}</Column>
+          <Text
+            style={{ typography: "bodyMedium", fontWeight: "600" }}
+            maxLines={2}
             // Always two lines tall, so captions and bars line up across a row.
             minLines={2}
+            overflow="ellipsis"
           >
             {title}
-          </Typography>
+          </Text>
           <Badge>{label}</Badge>
           {progress != null && <Progress value={progress * 100} size="sm" />}
         </Column>
         {overlay}
       </Box>
     ) : (
-      <Column style={{ ...flat, height }}>{content}</Column>
+      <Column modifiers={sized}>{content}</Column>
     );
 
   if (isInsideHost) return body;
@@ -153,5 +189,3 @@ function MangaCardBase({
     </Host>
   );
 }
-
-export const MangaCard = withUniwind(MangaCardBase);

@@ -3,9 +3,8 @@ import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import type { ReactElement } from "react";
 import { RefreshControl } from "react-native";
-import { Center } from "@/components/layout/center";
 import { LegendList } from "@/components/layout/legend-list";
-import { Loader } from "@/components/ui/loader";
+import { LoadingState } from "@/components/loading-state";
 import type { MangaListState } from "@/features/manga/hooks/use-manga-list";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
@@ -34,11 +33,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const titlePosition = toTitlePosition(useValue(listView$.title));
 
   if (loading && !refetching) {
-    return (
-      <Center>
-        <Loader variant="morph-ring" speed={3} size="lg" />
-      </Center>
-    );
+    return <LoadingState />;
   }
 
   return (

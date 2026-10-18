@@ -4,9 +4,9 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useEffect, useState } from "react";
 import { useWindowDimensions, View } from "react-native";
-import { Center } from "@/components/layout/center";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LoadingState } from "@/components/loading-state";
 import { Host } from "@/components/ui/host";
-import { Loader } from "@/components/ui/loader";
 import { TabbedPager } from "@/components/ui/tabbed-pager";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import {
@@ -31,6 +31,7 @@ export function MangaList() {
   const router = useRouter();
   const headerHeight = useHeaderHeight();
   const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { list } = useLocalSearchParams<{ list?: string }>();
   const status = parseList(list);
   const page = MANGA_STATUS_ENTRIES.findIndex(([key]) => key === status);
@@ -78,7 +79,8 @@ export function MangaList() {
             }))}
             page={page}
             fontFamily={fontFamily}
-            tabsClassName="px-safe"
+            // Clears a landscape cutout, like `px-safe`.
+            edgePadding={Math.max(insets.left, insets.right)}
             onPageChange={(index) => select(MANGA_STATUS_ENTRIES[index][0])}
             modifiers={[fillMaxSize()]}
           >
@@ -91,9 +93,7 @@ export function MangaList() {
                   list$={lists$[key]}
                 />
               ) : (
-                <Center key={key}>
-                  <Loader speed={3} size="lg" />
-                </Center>
+                <LoadingState key={key} variant="spinner" />
               ),
             )}
           </TabbedPager>

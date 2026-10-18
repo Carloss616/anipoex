@@ -1,35 +1,44 @@
-import { Spacer } from "@expo/ui";
-import { ZStack } from "@expo/ui/swift-ui";
+import { HStack, Rectangle, Spacer, VStack, ZStack } from "@expo/ui/swift-ui";
 import {
   accessibilityAddTraits,
   accessibilityElement,
   accessibilityHidden,
   accessibilityIdentifier,
   accessibilityLabel,
+  clipShape,
+  fixedSize,
   foregroundStyle,
   frame,
   glassEffect,
+  lineLimit,
+  multilineTextAlignment,
   onLongPressGesture,
   onTapGesture,
+  padding,
   shadow,
 } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
-import { withUniwind } from "uniwind";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
+import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host, RNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
-import { ScrimColumn } from "@/components/ui/scrim";
-import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { dp } from "@/utils/utils";
+import { ramp } from "@/utils/ramp";
 import { CoverImage } from "./components/cover-image";
 import { STATUS_COLOR, STATUS_ICON } from "./constants";
 import type { MangaCardProps } from "./manga-card";
 
-function MangaCardBase({
+const RADIUS = 24;
+const SCRIM = ramp("#000000");
+/** Legible on any cover: a light caption over the dark wash. */
+const OVER_COVER = [
+  multilineTextAlignment("center"),
+  shadow({ color: "#000000b3", radius: 3, x: 0, y: 1 }),
+  frame({ maxWidth: Infinity }),
+];
+
+export function MangaCard({
   cover,
   coverThumb,
   coverColor,
@@ -48,8 +57,13 @@ function MangaCardBase({
   const isInsideHost = useIsInsideHost();
 
   const flat = StyleSheet.flatten(style) ?? {};
-  const width = dp(flat.width);
-  const height = dp(flat.height) ?? (width ? width * (3 / 2) : undefined);
+  const width = typeof flat.width === "number" ? flat.width : undefined;
+  const height =
+    typeof flat.height === "number"
+      ? flat.height
+      : width
+        ? width * (3 / 2)
+        : undefined;
 
   const content = (
     <ZStack
@@ -63,7 +77,7 @@ function MangaCardBase({
             tint: coverColor ?? card,
           },
           shape: "roundedRectangle",
-          cornerRadius: 24,
+          cornerRadius: RADIUS,
         }),
         ...(onPress ? [onTapGesture(onPress)] : []),
         ...(onLongPress ? [onLongPressGesture(onLongPress)] : []),
@@ -78,7 +92,7 @@ function MangaCardBase({
               width && height
                 ? { position: "absolute", width, height }
                 : StyleSheet.absoluteFill,
-              { borderRadius: 24 },
+              { borderRadius: RADIUS },
             ]}
             cover={cover}
             coverThumb={coverThumb}
@@ -98,9 +112,9 @@ function MangaCardBase({
         />
       )}
       {status && (
-        <Row
-          className="p-2"
+        <HStack
           modifiers={[
+            padding({ all: 8 }),
             frame({
               maxWidth: Infinity,
               maxHeight: Infinity,
@@ -109,29 +123,65 @@ function MangaCardBase({
           ]}
         >
           <Badge color={STATUS_COLOR[status]} icon={STATUS_ICON[status]} />
-        </Row>
+        </HStack>
       )}
-      <Column className="flex-1">
+      <VStack
+        spacing={0}
+        modifiers={[frame({ maxWidth: Infinity, maxHeight: Infinity })]}
+      >
         <Spacer />
         {titlePosition === "over" && (title || label) && (
-          <ScrimColumn className="rounded-[24px] p-2 pt-12">
-            <Typography
-              type="body-xs"
-              numberOfLines={1}
-              className="text-center text-gray-50 text-shadow-[0_1px_3px_#000000b3]"
+          // A `Rectangle` takes every point it is offered, so without
+          // `fixedSize` the wash would claim the space its content leaves.
+          <ZStack
+            alignment="bottom"
+            modifiers={[
+              fixedSize({ horizontal: false, vertical: true }),
+              clipShape("roundedRectangle", RADIUS),
+            ]}
+          >
+            <Rectangle
+              modifiers={[
+                foregroundStyle({
+                  type: "linearGradient",
+                  colors: SCRIM.colors,
+                  startPoint: { x: 0.5, y: 0 },
+                  endPoint: { x: 0.5, y: 1 },
+                }),
+              ]}
+            />
+            <VStack
+              spacing={0}
+              modifiers={[
+                padding({ top: 48, leading: 8, trailing: 8, bottom: 8 }),
+                frame({ maxWidth: Infinity }),
+              ]}
             >
-              {label}
-            </Typography>
-            <Typography
-              type="body-sm"
-              numberOfLines={2}
-              className="text-center text-shadow-[0_1px_3px_#000000b3] text-white"
-            >
-              {title}
-            </Typography>
-          </ScrimColumn>
+              <Text
+                textStyle="caption"
+                modifiers={[
+                  foregroundStyle("#f9fafb"),
+                  lineLimit(1),
+                  ...OVER_COVER,
+                ]}
+              >
+                {label}
+              </Text>
+              <Text
+                textStyle="subheadline"
+                modifiers={[
+                  foregroundStyle("#ffffff"),
+                  fixedSize({ horizontal: false, vertical: true }),
+                  lineLimit(2),
+                  ...OVER_COVER,
+                ]}
+              >
+                {title}
+              </Text>
+            </VStack>
+          </ZStack>
         )}
-      </Column>
+      </VStack>
     </ZStack>
   );
 
@@ -149,16 +199,15 @@ function MangaCardBase({
   // Needs a width in `style`: the cover's height comes from it.
   const body =
     titlePosition === "below" ? (
-      <Column
-        alignment="start"
-        className="gap-1.5"
-        style={flat}
-        modifiers={modifiers}
+      <VStack
+        alignment="leading"
+        spacing={6}
+        modifiers={[...(width ? [frame({ width })] : []), ...(modifiers ?? [])]}
       >
-        <Column
-          style={{ width, height }}
-          // A faded glow in the cover's color: SwiftUI has no negative spread to tame it.
+        <VStack
           modifiers={[
+            frame({ width, height }),
+            // A faded glow in the cover's color: SwiftUI has no negative spread to tame it.
             shadow({
               radius: 9,
               y: 6,
@@ -167,23 +216,25 @@ function MangaCardBase({
           ]}
         >
           {content}
-        </Column>
-        <Typography
-          type="body-sm"
+        </VStack>
+        <Text
+          textStyle="subheadline"
           weight="semibold"
-          numberOfLines={2}
-          // Always two lines tall, so captions and bars line up across a row.
-          minLines={2}
+          modifiers={[
+            fixedSize({ horizontal: false, vertical: true }),
+            // Always two lines tall, so captions and bars line up across a row.
+            lineLimit({ min: 2, max: 2 }),
+          ]}
         >
           {title}
-        </Typography>
+        </Text>
         <Badge>{label}</Badge>
         {progress != null && <Progress value={progress * 100} size="sm" />}
-      </Column>
+      </VStack>
     ) : (
-      <Column style={{ height, ...flat }} modifiers={modifiers}>
+      <VStack modifiers={[frame({ width, height }), ...(modifiers ?? [])]}>
         {content}
-      </Column>
+      </VStack>
     );
 
   if (isInsideHost) return body;
@@ -207,5 +258,3 @@ function MangaCardBase({
     </View>
   );
 }
-
-export const MangaCard = withUniwind(MangaCardBase);

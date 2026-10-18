@@ -1,23 +1,21 @@
 import { useApolloClient } from "@apollo/client/react";
-import { ScrollView, ZStack } from "@expo/ui/swift-ui";
-import { refreshable } from "@expo/ui/swift-ui/modifiers";
+import { HStack, LazyVStack, ScrollView, ZStack } from "@expo/ui/swift-ui";
+import { padding, refreshable } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { cn } from "panelui-native/utils/cn";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Center } from "@/components/layout/center";
-import { LazyVStack } from "@/components/layout/lazy-v-stack";
-import { Row } from "@/components/layout/row";
-import { Loader } from "@/components/ui/loader";
+import { LoadingState } from "@/components/loading-state";
+import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/constants";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { ListEmpty } from "../list-empty";
-import { ListItem, useItemWidth } from "../list-item";
-import { toRows } from "./grid";
+import { ListItem } from "../list-item";
+import { cellWidth, toRows } from "./grid";
 import type { ListGridProps } from "./list-grid";
 
-const ROW = "gap-2 px-gx";
+/** Between the cards of a row. */
+const GAP = 8;
 
 /** Renders inside the screen's Host, which stacks it under the view sheet. */
 export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
@@ -31,15 +29,15 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const columns = columnsFor(current, useValue(listView$.density));
   const titlePosition = toTitlePosition(useValue(listView$.title));
   // The Host already insets the safe area.
-  const cell = useItemWidth(ROW, columns, width - insets.left - insets.right);
+  const cell = cellWidth(
+    width - insets.left - insets.right - 2 * GUTTER_X,
+    columns,
+    GAP,
+  );
   const rows = toRows(manga, columns);
 
   if (loading && !refetching) {
-    return (
-      <Center>
-        <Loader variant="morph-ring" speed={3} size="lg" />
-      </Center>
-    );
+    return <LoadingState />;
   }
 
   return (
@@ -56,8 +54,9 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
         ]}
       >
         <LazyVStack
-          className={cn("pb-gb", titlePosition === "below" ? "gap-5" : "gap-2")}
           alignment="leading"
+          spacing={titlePosition === "below" ? 20 : 8}
+          modifiers={[padding({ bottom: GUTTER_BOTTOM })]}
         >
           {header}
           <LazyVStack.ForEach
@@ -69,7 +68,11 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
             }
           >
             {({ item: row }) => (
-              <Row className={ROW}>
+              <HStack
+                alignment="top"
+                spacing={GAP}
+                modifiers={[padding({ horizontal: GUTTER_X })]}
+              >
                 {row.map((item) => (
                   <ListItem
                     key={item.id}
@@ -78,7 +81,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
                     titlePosition={titlePosition}
                   />
                 ))}
-              </Row>
+              </HStack>
             )}
           </LazyVStack.ForEach>
         </LazyVStack>

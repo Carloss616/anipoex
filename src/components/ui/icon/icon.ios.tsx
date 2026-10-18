@@ -1,10 +1,9 @@
 import { Icon as IconBase, type IconProps } from "@expo/ui";
 import { foregroundStyle } from "@expo/ui/swift-ui/modifiers";
-import { withUniwind } from "uniwind";
 import { EnsureHost } from "../host";
 import type { IconExtendProps } from "./icon";
 
-function IconRootBase({
+function IconRoot({
   muted,
   color,
   modifiers,
@@ -26,16 +25,6 @@ function IconRootBase({
     </EnsureHost>
   );
 }
-
-const IconRoot = withUniwind(IconRootBase, {
-  style: {
-    fromClassName: "className",
-  },
-  color: {
-    fromClassName: "className",
-    styleProperty: "color",
-  },
-});
 
 export const Icon = Object.assign(IconRoot, {
   select: IconBase.select,

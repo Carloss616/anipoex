@@ -1,8 +1,9 @@
+import { HStack } from "@expo/ui/swift-ui";
+import { frame } from "@expo/ui/swift-ui/modifiers";
 import {
   SearchBar as SearchBarBase,
   type SearchBarProps,
 } from "panelui-native/components/search-bar";
-import { Row } from "@/components/layout/row";
 import { EnsureHost, RNHostView } from "../host";
 
 /**
@@ -12,11 +13,15 @@ import { EnsureHost, RNHostView } from "../host";
 export function SearchBar(props: SearchBarProps) {
   return (
     <EnsureHost matchContents={{ vertical: true }} className="w-full">
-      <Row className="h-12 w-full">
+      <HStack
+        modifiers={[
+          frame({ maxWidth: Infinity, minHeight: 48, maxHeight: 48 }),
+        ]}
+      >
         <RNHostView>
           <SearchBarBase {...props} />
         </RNHostView>
-      </Row>
+      </HStack>
     </EnsureHost>
   );
 }

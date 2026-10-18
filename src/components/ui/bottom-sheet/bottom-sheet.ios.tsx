@@ -1,5 +1,9 @@
 import type { SnapPoint } from "@expo/ui";
-import { Group, BottomSheet as SwiftUIBottomSheet } from "@expo/ui/swift-ui";
+import {
+  Group,
+  BottomSheet as SwiftUIBottomSheet,
+  VStack,
+} from "@expo/ui/swift-ui";
 import {
   Animation,
   animation,
@@ -11,7 +15,6 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useState } from "react";
 import type { ViewProps } from "react-native";
-import { Column } from "@/components/layout/column";
 import { EnsureHost } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
 
@@ -31,8 +34,6 @@ function BottomSheetRoot({
   testID,
   modifiers,
   containerColor,
-  alignment,
-  className,
   contentKey,
 }: BottomSheetProps) {
   // `animation(_:value:)` takes a number, so count the swaps rather than pass the key.
@@ -69,9 +70,9 @@ function BottomSheetRoot({
             ),
           ]}
         >
-          <Column alignment={alignment} className={className}>
+          <VStack alignment="leading" spacing={0}>
             {children}
-          </Column>
+          </VStack>
         </Group>
       </SwiftUIBottomSheet>
     </EnsureHost>

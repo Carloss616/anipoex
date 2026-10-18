@@ -1,7 +1,6 @@
 import { useFragment } from "@apollo/client/react";
 import { useRouter } from "expo-router";
 import { memo } from "react";
-import { useResolveClassNames } from "uniwind";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
@@ -9,8 +8,6 @@ import type { TitlePosition } from "@/features/manga/utils/list-view";
 import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaStatus } from "@/graphql/types.generated";
-import { dp, paddingX } from "@/utils/utils";
-import { cellWidth } from "./list-grid/grid";
 
 /** Progress from the cache, so it updates without a refetch: shown, and spoken. */
 function useProgress({
@@ -23,22 +20,6 @@ function useProgress({
     from: { __typename, id },
   });
   return toProgress(data.mediaListEntry?.progress, data.chapters);
-}
-
-/**
- * Item width in a row styled by `rowClassName`, with padding and gap read from
- * the class. The native card needs it: Compose has no `aspectRatio`.
- */
-export function useItemWidth(
-  rowClassName: string,
-  columns: number,
-  width: number,
-) {
-  const s = useResolveClassNames(rowClassName);
-  const { left, right } = paddingX(s);
-  const gap = dp(s.columnGap) ?? dp(s.gap) ?? 0;
-
-  return cellWidth(width - left - right, columns, gap);
 }
 
 /**

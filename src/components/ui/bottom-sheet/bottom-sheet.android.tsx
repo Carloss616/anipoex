@@ -1,5 +1,6 @@
 import type { SnapPoint } from "@expo/ui";
 import {
+  Column,
   ModalBottomSheet,
   type ModalBottomSheetRef,
 } from "@expo/ui/jetpack-compose";
@@ -8,6 +9,7 @@ import {
   clickable,
   fillMaxHeight,
   fillMaxWidth,
+  testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import {
   createContext,
@@ -18,7 +20,6 @@ import {
   useState,
 } from "react";
 import type { ViewProps } from "react-native";
-import { Column } from "@/components/layout/column";
 import { dismissFocus } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
@@ -62,8 +63,6 @@ function BottomSheetRoot({
   modifiers,
   containerColor,
   scrimColor,
-  alignment,
-  className,
 }: BottomSheetProps) {
   const sheetRef = useRef<ModalBottomSheetRef>(null);
   const [mount, setMount] = useState(isPresented);
@@ -104,10 +103,8 @@ function BottomSheetRoot({
         scrimColor={scrimColor}
       >
         <Column
-          testID={testID}
-          alignment={alignment}
-          className={className}
           modifiers={[
+            ...(testID ? [testIDModifier(testID)] : []),
             clickable(dismissFocus, { indication: false }),
             fillMaxWidth(),
             animateContentSize(),

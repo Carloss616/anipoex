@@ -5,12 +5,10 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import type { SliderProps } from "panelui-native/components/slider";
 import { EnsureHost } from "../host";
-import { TrackHeader } from "../track-header";
 
 /**
- * iOS Slider: PanelUI's props on a SwiftUI `Slider`. The caption row is ours —
- * SwiftUI hides the slider's own `label`, so it becomes the accessibility name
- * instead. The range props have no SwiftUI equivalent and are ignored.
+ * iOS Slider: PanelUI's props on a SwiftUI `Slider`, track only. SwiftUI hides
+ * the slider's own `label`, so it becomes the accessibility name instead.
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/slider/
  */
 export function Slider({
@@ -22,35 +20,21 @@ export function Slider({
   onValueChange,
   disabled: isDisabled = false,
   label,
-  showValue = false,
-  formatValue,
-  headerClassName,
 }: SliderProps) {
   const current = value ?? defaultValue ?? min;
 
   return (
     <EnsureHost matchContents={{ vertical: true }} className="w-full">
-      <TrackHeader
-        label={label}
-        headerClassName={headerClassName}
-        valueLabel={
-          showValue
-            ? (formatValue?.(current) ?? String(Math.round(current)))
-            : undefined
-        }
-        track={
-          <SwiftUISlider
-            value={current}
-            min={min}
-            max={max}
-            step={step}
-            onValueChange={onValueChange}
-            modifiers={[
-              ...(label ? [accessibilityLabel(label)] : []),
-              ...(isDisabled ? [disabledModifier(true)] : []),
-            ]}
-          />
-        }
+      <SwiftUISlider
+        value={current}
+        min={min}
+        max={max}
+        step={step}
+        onValueChange={onValueChange}
+        modifiers={[
+          ...(label ? [accessibilityLabel(label)] : []),
+          ...(isDisabled ? [disabledModifier(true)] : []),
+        ]}
       />
     </EnsureHost>
   );

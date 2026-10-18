@@ -1,3 +1,4 @@
+import { VStack } from "@expo/ui/swift-ui";
 import {
   Animation,
   accessibilityHidden,
@@ -7,7 +8,6 @@ import {
   opacity,
 } from "@expo/ui/swift-ui/modifiers";
 import { useRef } from "react";
-import { Column } from "@/components/layout/column";
 import type { AnimatedVisibilityProps } from "./animated-visibility";
 
 /**
@@ -22,7 +22,9 @@ export function AnimatedVisibility({
   if (visible) last.current = children;
 
   return (
-    <Column
+    <VStack
+      alignment="leading"
+      spacing={0}
       modifiers={[
         frame({ maxHeight: visible ? Infinity : 0, alignment: "topLeading" }),
         clipped(),
@@ -37,6 +39,6 @@ export function AnimatedVisibility({
       ]}
     >
       {last.current}
-    </Column>
+    </VStack>
   );
 }

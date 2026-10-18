@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 
 export interface TabbedPagerProps {
   tabs: { title: string; count?: number }[];
-  /** Scrolling edge padding of the tabs from `px-*` (one value: the wider side). Default 16. */
-  tabsClassName?: string;
+  /** Scrolling edge padding of the tabs, in dp. Default 16. */
+  edgePadding?: number;
   /** The page to show; changing it scrolls the pager. */
   page: number;
   fontFamily?: string;

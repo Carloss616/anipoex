@@ -7,13 +7,9 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { EnsureHost } from "../host";
-import {
-  formatProgressValue,
-  fractionOf,
-  TRACK_HEIGHT,
-  TrackHeader,
-} from "../track-header";
+import { TRACK_HEIGHT } from "./constants";
 import type { ProgressProps } from "./progress";
+import { fractionOf } from "./utils";
 
 /** SwiftUI's linear `ProgressView` draws a fixed-thickness track. */
 const TRACK = 4;
@@ -32,11 +28,6 @@ export function Progress({
   indeterminate = false,
   color = "primary",
   size = "md",
-  label,
-  showValueLabel = false,
-  valueLabel,
-  formatOptions,
-  headerClassName,
   testID,
 }: ProgressProps) {
   const tintColor = useThemeColor(color);
@@ -45,29 +36,18 @@ export function Progress({
 
   return (
     <EnsureHost matchContents={{ vertical: true }} className="w-full">
-      <TrackHeader
-        label={label}
-        headerClassName={headerClassName}
-        valueLabel={
-          showValueLabel && !indeterminate
-            ? formatProgressValue(value, fraction, valueLabel, formatOptions)
-            : undefined
-        }
-        track={
-          <ProgressView
-            // Omitting the value is what makes SwiftUI's own bar indeterminate.
-            value={indeterminate ? undefined : fraction}
-            modifiers={[
-              progressViewStyle("linear"),
-              tint(tintColor),
-              // `.frame` can't thicken the track — only a scale can. The frame
-              // that follows hands the layout the height the scaled bar takes.
-              scaleEffect({ x: 1, y: height / TRACK }),
-              frame({ height }),
-            ]}
-            testID={testID}
-          />
-        }
+      <ProgressView
+        // Omitting the value is what makes SwiftUI's own bar indeterminate.
+        value={indeterminate ? undefined : fraction}
+        modifiers={[
+          progressViewStyle("linear"),
+          tint(tintColor),
+          // `.frame` can't thicken the track — only a scale can. The frame
+          // that follows hands the layout the height the scaled bar takes.
+          scaleEffect({ x: 1, y: height / TRACK }),
+          frame({ height }),
+        ]}
+        testID={testID}
       />
     </EnsureHost>
   );

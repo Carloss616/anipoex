@@ -1,27 +1,28 @@
 import {
+  Column,
   SegmentedButton,
   SingleChoiceSegmentedButtonRow,
-  Text,
 } from "@expo/ui/jetpack-compose";
-import { fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
+import { fillMaxWidth, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Column } from "@/components/layout/column";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Typography } from "@/components/ui/typography";
 import { listView$ } from "@/features/manga/state/list-view";
 import {
   columnOptions,
   columnsFor,
   toTitlePosition,
 } from "@/features/manga/utils/list-view";
-import { useFontFamily } from "@/hooks/use-font";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 
 const TITLES = [
   ["below", "Below cover"],
   ["over", "On cover"],
 ] as const;
+
+const LABEL = { typography: "labelLarge" } as const;
 
 const open$ = observable(false);
 
@@ -36,17 +37,26 @@ export const openViewSheet = () => open$.set(true);
 export function ViewSheet() {
   const isPresented = useValue(open$);
   const { current } = useBreakpoint();
-  const fontFamily = useFontFamily("medium");
+  const m3 = useThemeM3Colors();
+  const caption = (text: string) => (
+    <Text
+      style={{ typography: "bodySmall", fontWeight: "500" }}
+      color={m3.onSurfaceVariant}
+    >
+      {text}
+    </Text>
+  );
   const columns = columnsFor(current, useValue(listView$.density));
   const title = toTitlePosition(useValue(listView$.title));
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
-      <Column className="w-full gap-3 px-6 pb-8">
-        <Typography type="h4">View</Typography>
-        <Typography type="small" muted>
-          Columns
-        </Typography>
+      <Column
+        verticalArrangement={{ spacedBy: 12 }}
+        modifiers={[fillMaxWidth(), padding(24, 0, 24, 32)]}
+      >
+        <Text style={{ typography: "titleLarge" }}>View</Text>
+        {caption("Columns")}
         <SingleChoiceSegmentedButtonRow modifiers={[fillMaxWidth()]}>
           {columnOptions(current).map((option) => (
             <SegmentedButton
@@ -55,14 +65,12 @@ export function ViewSheet() {
               onClick={() => listView$.density.set(option.density)}
             >
               <SegmentedButton.Label>
-                <Text style={{ fontFamily }}>{String(option.columns)}</Text>
+                <Text style={LABEL}>{String(option.columns)}</Text>
               </SegmentedButton.Label>
             </SegmentedButton>
           ))}
         </SingleChoiceSegmentedButtonRow>
-        <Typography type="small" muted>
-          Title
-        </Typography>
+        {caption("Title")}
         <SingleChoiceSegmentedButtonRow modifiers={[fillMaxWidth()]}>
           {TITLES.map(([value, label]) => (
             <SegmentedButton
@@ -71,7 +79,7 @@ export function ViewSheet() {
               onClick={() => listView$.title.set(value)}
             >
               <SegmentedButton.Label>
-                <Text style={{ fontFamily }}>{label}</Text>
+                <Text style={LABEL}>{label}</Text>
               </SegmentedButton.Label>
             </SegmentedButton>
           ))}

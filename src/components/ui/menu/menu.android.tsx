@@ -1,9 +1,9 @@
 import { DropdownMenu, DropdownMenuItem } from "@expo/ui/jetpack-compose";
 import { cloneElement, useState } from "react";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Dialog } from "../dialog";
 import { Icon, Icons } from "../icon";
-import { Typography } from "../typography";
 import type { MenuProps } from "./menu";
 import { useMenuDialogState } from "./use-menu-dialog";
 
@@ -39,7 +39,7 @@ export function Menu({ items, children }: MenuProps) {
               }}
             >
               <DropdownMenuItem.Text>
-                <Typography className="text-inherit">{item.label}</Typography>
+                <Text style={{ typography: "labelLarge" }}>{item.label}</Text>
               </DropdownMenuItem.Text>
               {item.icon && (
                 <DropdownMenuItem.LeadingIcon>

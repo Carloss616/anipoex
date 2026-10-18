@@ -1,23 +1,22 @@
 import { useApolloClient } from "@apollo/client/react";
-import { PullToRefreshBox } from "@expo/ui/jetpack-compose";
-import { fillMaxSize } from "@expo/ui/jetpack-compose/modifiers";
+import { LazyColumn, PullToRefreshBox, Row } from "@expo/ui/jetpack-compose";
+import { fillMaxSize, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { cn } from "panelui-native/utils/cn";
 import { useWindowDimensions } from "react-native";
-import { Center } from "@/components/layout/center";
-import { LazyColumn } from "@/components/layout/lazy-column";
-import { Row } from "@/components/layout/row";
-import { Loader } from "@/components/ui/loader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LoadingState } from "@/components/loading-state";
+import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/constants";
 import { ALL } from "@/features/manga/hooks/use-manga-list";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { ListEmpty } from "../list-empty";
-import { ListItem, useItemWidth } from "../list-item";
-import { toRows } from "./grid";
+import { ListItem } from "../list-item";
+import { cellWidth, toRows } from "./grid";
 import type { ListGridProps } from "./list-grid";
 
-const ROW = "gap-2 px-safe-offset-gx";
+/** Between the cards of a row. */
+const GAP = 8;
 
 /**
  * Renders inside the pager's Host: one for the whole grid (a Host per card made
@@ -26,6 +25,7 @@ const ROW = "gap-2 px-safe-offset-gx";
 export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { manga$, loading, refetching, refetch } = list;
   const manga = useValue(manga$);
   const genre = useValue(genre$);
@@ -33,15 +33,15 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
 
   const columns = columnsFor(current, useValue(listView$.density));
   const titlePosition = toTitlePosition(useValue(listView$.title));
-  const cell = useItemWidth(ROW, columns, width);
+  // The page inset clears a landscape cutout, like `px-safe-offset-gx`.
+  const start = GUTTER_X + insets.left;
+  const end = GUTTER_X + insets.right;
+  const cell = cellWidth(width - start - end, columns, GAP);
+  const below = titlePosition === "below";
   const rows = toRows(manga, columns);
 
   if (loading && !refetching) {
-    return (
-      <Center>
-        <Loader variant="morph-ring" speed={3} size="lg" />
-      </Center>
-    );
+    return <LoadingState />;
   }
 
   return (
@@ -60,11 +60,12 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
         // Remount per genre, or the chip lands above Compose's kept scroll.
         key={genre}
         modifiers={[fillMaxSize()]}
-        className={cn(
-          "pb-gb",
-          genre === ALL ? "pt-gt" : titlePosition === "below" ? "pt-5" : "pt-2",
-          titlePosition === "below" ? "gap-5" : "gap-2",
-        )}
+        verticalArrangement={{ spacedBy: below ? 20 : 8 }}
+        contentPadding={{
+          // `pt-gt` outside `gutters`: the base 16, not the Android 24.
+          top: genre === ALL ? 16 : below ? 20 : 8,
+          bottom: GUTTER_BOTTOM,
+        }}
       >
         {header}
         <LazyColumn.Items
@@ -74,7 +75,11 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
           estimatedItemSize={cell * 1.5 + (titlePosition === "below" ? 68 : 0)}
         >
           {({ item: row }) => (
-            <Row className={ROW}>
+            <Row
+              verticalAlignment="top"
+              horizontalArrangement={{ spacedBy: GAP }}
+              modifiers={[padding(start, 0, end, 0)]}
+            >
               {row.map((item) => (
                 <ListItem
                   key={item.id}

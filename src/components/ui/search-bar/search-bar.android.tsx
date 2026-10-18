@@ -1,9 +1,9 @@
 import SearchIcon from "@expo/material-symbols/search.xml";
 import { DockedSearchBar } from "@expo/ui/jetpack-compose";
 import { fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
-import { Typography } from "../typography/typography";
 import type { SearchBarProps } from "./search-bar";
 
 /**
@@ -24,9 +24,7 @@ export function SearchBar({ placeholder, onChangeText, icon }: SearchBarProps) {
       >
         {placeholder ? (
           <DockedSearchBar.Placeholder>
-            <Typography type="body-sm" className="text-inherit">
-              {placeholder}
-            </Typography>
+            <Text style={{ typography: "bodyMedium" }}>{placeholder}</Text>
           </DockedSearchBar.Placeholder>
         ) : null}
         <DockedSearchBar.LeadingIcon>

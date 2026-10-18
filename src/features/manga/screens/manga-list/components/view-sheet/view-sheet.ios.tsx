@@ -1,11 +1,16 @@
-import { Picker } from "@expo/ui/swift-ui";
-import { pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
+import { Picker, VStack } from "@expo/ui/swift-ui";
+import {
+  foregroundStyle,
+  frame,
+  padding,
+  pickerStyle,
+  tag,
+} from "@expo/ui/swift-ui/modifiers";
 import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Column } from "@/components/layout/column";
+import { Text } from "@/components/native/swift-ui/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Typography } from "@/components/ui/typography";
 import { listView$ } from "@/features/manga/state/list-view";
 import {
   columnOptions,
@@ -17,6 +22,8 @@ const TITLES = [
   ["below", "Below cover"],
   ["over", "On cover"],
 ] as const;
+
+const SECONDARY = [foregroundStyle("secondary")];
 
 const open$ = observable(false);
 
@@ -36,11 +43,18 @@ export function ViewSheet() {
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
-      <Column className="w-full gap-3 px-6 pt-4 pb-8">
-        <Typography type="h4">View</Typography>
-        <Typography type="small" muted>
+      <VStack
+        alignment="leading"
+        spacing={12}
+        modifiers={[
+          padding({ horizontal: 24, top: 16, bottom: 32 }),
+          frame({ maxWidth: Infinity }),
+        ]}
+      >
+        <Text textStyle="title3">View</Text>
+        <Text textStyle="footnote" weight="medium" modifiers={SECONDARY}>
           Columns
-        </Typography>
+        </Text>
         <Picker
           selection={columns}
           onSelectionChange={(selected) => {
@@ -50,26 +64,26 @@ export function ViewSheet() {
           modifiers={[pickerStyle("segmented")]}
         >
           {options.map((option) => (
-            <Typography key={option.density} modifiers={[tag(option.columns)]}>
+            <Text key={option.density} modifiers={[tag(option.columns)]}>
               {String(option.columns)}
-            </Typography>
+            </Text>
           ))}
         </Picker>
-        <Typography type="small" muted>
+        <Text textStyle="footnote" weight="medium" modifiers={SECONDARY}>
           Title
-        </Typography>
+        </Text>
         <Picker
           selection={title}
           onSelectionChange={(selected) => listView$.title.set(selected)}
           modifiers={[pickerStyle("segmented")]}
         >
           {TITLES.map(([value, label]) => (
-            <Typography key={value} modifiers={[tag(value)]}>
+            <Text key={value} modifiers={[tag(value)]}>
               {label}
-            </Typography>
+            </Text>
           ))}
         </Picker>
-      </Column>
+      </VStack>
     </BottomSheet>
   );
 }
