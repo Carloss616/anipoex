@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
 import { MangaListDocument } from "../graphql/manga-list.generated";
+import { matchesQuery } from "../utils/matches-query";
 import { type MangaEntry, toEntries } from "../utils/to-entries";
 
 /** No genre filter; also its label, first in every genre menu. */
@@ -65,9 +66,7 @@ export function useMangaList(
         .filter(
           (m) =>
             (genre === ALL || m.genres?.includes(genre)) &&
-            [...Object.values(m.title ?? {}), ...(m.synonyms ?? [])].some((t) =>
-              t?.toLowerCase().includes(needle),
-            ),
+            matchesQuery(m, needle),
         );
     },
   });
