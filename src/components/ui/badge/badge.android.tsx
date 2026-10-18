@@ -7,19 +7,24 @@ import { EnsureHost } from "../host";
 import { Icon } from "../icon";
 import type { BadgeProps } from "./badge";
 
-/** Seeds an M3 scheme off the semantic color, so it harmonizes with the theme. */
+/**
+ * The app scheme's roles where M3 has one (`primary`, `error`, the neutral
+ * surface); `success` and `warning` have none, so those seed a scheme of
+ * their own, harmonized with the theme the way M3 builds custom colors.
+ */
 export function useColors(color: SemanticColor | "inherit") {
-  const themeColor =
-    SEMANTIC_COLOR[
-      color === "secondary" || color === "inherit" ? "primary" : color
-    ].token.fill;
-  const m3 = useThemeM3Colors(themeColor);
+  const custom = color === "success" || color === "warning";
+  const m3 = useThemeM3Colors(
+    custom ? SEMANTIC_COLOR[color].token.fill : "primary",
+  );
 
   if (color === "inherit") return { container: undefined, content: undefined };
-  // `secondary` is the neutral badge, so it takes the surface, not the seed.
-  return color === "secondary"
-    ? { container: m3.surfaceContainerHighest, content: m3.onSurface }
-    : { container: m3.primary, content: m3.onPrimary };
+  if (color === "destructive")
+    return { container: m3.error, content: m3.onError };
+  // `secondary` is the neutral badge, so it takes the surface, not a role.
+  if (color === "secondary")
+    return { container: m3.surfaceContainerHighest, content: m3.onSurface };
+  return { container: m3.primary, content: m3.onPrimary };
 }
 
 /**
