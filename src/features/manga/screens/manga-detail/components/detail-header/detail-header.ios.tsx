@@ -1,8 +1,15 @@
-import { HStack, ScrollView, VStack } from "@expo/ui/swift-ui";
-import { padding } from "@expo/ui/swift-ui/modifiers";
+import { Button, HStack, ScrollView, VStack } from "@expo/ui/swift-ui";
+import {
+  buttonBorderShape,
+  buttonStyle,
+  controlSize,
+  padding,
+  tint,
+} from "@expo/ui/swift-ui/modifiers";
 import { GUTTER_TOP, GUTTER_X } from "@/components/native/gutters";
-import { Chip } from "@/components/ui/chip";
+import { useFont } from "@/components/native/swift-ui/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { Meta } from "../meta";
 import { Synopsis } from "../synopsis";
 import { Tracking } from "../tracking";
@@ -10,6 +17,8 @@ import type { DetailHeaderProps } from "./detail-header";
 
 export function DetailHeader({ manga }: DetailHeaderProps) {
   const hasGenres = !!manga.genres?.length;
+  const primary = useThemeColor("primary");
+  const genreFont = useFont("caption", "regular");
 
   return (
     <VStack
@@ -40,10 +49,19 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
             spacing={8}
             modifiers={[padding({ horizontal: GUTTER_X, vertical: 24 })]}
           >
+            {/* iOS has no chip: a mini glass capsule is the native tag. */}
             {manga.genres?.map((g) => (
-              <Chip key={g} size="sm">
-                <Chip.Label>{g}</Chip.Label>
-              </Chip>
+              <Button
+                key={g}
+                label={g ?? undefined}
+                modifiers={[
+                  buttonStyle("glass"),
+                  buttonBorderShape("capsule"),
+                  controlSize("mini"),
+                  tint(primary),
+                  genreFont,
+                ]}
+              />
             ))}
           </HStack>
         </ScrollView>

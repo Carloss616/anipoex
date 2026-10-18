@@ -1,21 +1,22 @@
 import AddIcon from "@expo/material-symbols/add.xml";
 import RemoveIcon from "@expo/material-symbols/remove.xml";
 import {
+  Column,
+  FilledTonalIconButton,
   OutlinedTextField,
+  Row,
   type TextFieldRef,
   useNativeState,
 } from "@expo/ui/jetpack-compose";
 import { weight } from "@expo/ui/jetpack-compose/modifiers";
 import type { NumberInputProps } from "panelui-native/components/number-input";
 import { useEffect, useRef } from "react";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { useFontFamily } from "@/hooks/use-font";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { dismissFocus, registerField } from "@/utils/focus";
-import { Button } from "../button";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
-import { Typography } from "../typography";
 
 /**
  * Android NumberInput: M3 has no stepper, so it's two icon buttons around a
@@ -42,6 +43,7 @@ export function NumberInput({
 }: NumberInputProps) {
   const text = useNativeState(String(value));
   const fontFamily = useFontFamily("normal");
+  const m3 = useThemeM3Colors();
   const field = useRef<TextFieldRef>(null);
   const clamp = (next: number) => Math.min(Math.max(next, min), max);
 
@@ -70,15 +72,13 @@ export function NumberInput({
   };
 
   const content = (
-    <Row alignment="center" className="gap-2">
-      <Button
-        disabled={disabled || value <= min}
-        onPress={() => emit(value - step)}
-        variant="secondary"
-        size="icon"
+    <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 8 }}>
+      <FilledTonalIconButton
+        enabled={!disabled && value > min}
+        onClick={() => emit(value - step)}
       >
-        <Icon name={RemoveIcon} />
-      </Button>
+        <Icon name={RemoveIcon} color="inherit" />
+      </FilledTonalIconButton>
       <OutlinedTextField
         ref={field}
         modifiers={[weight(1)]}
@@ -96,56 +96,49 @@ export function NumberInput({
       >
         {labelVariant === "default" && label && (
           <OutlinedTextField.Label>
-            <Typography>{label}</Typography>
+            <Text>{label}</Text>
           </OutlinedTextField.Label>
         )}
         {placeholder && (
           <OutlinedTextField.Placeholder>
-            <Typography>{placeholder}</Typography>
+            <Text>{placeholder}</Text>
           </OutlinedTextField.Placeholder>
         )}
         {description && (
           <OutlinedTextField.SupportingText>
-            <Typography type="body-xs" muted>
+            <Text
+              style={{ typography: "bodySmall" }}
+              color={m3.onSurfaceVariant}
+            >
               {description}
-            </Typography>
+            </Text>
           </OutlinedTextField.SupportingText>
         )}
         {prefix && (
           <OutlinedTextField.Prefix>
-            {typeof prefix === "string" ? (
-              <Typography>{prefix}</Typography>
-            ) : (
-              prefix
-            )}
+            {typeof prefix === "string" ? <Text>{prefix}</Text> : prefix}
           </OutlinedTextField.Prefix>
         )}
         {suffix && (
           <OutlinedTextField.Suffix>
-            {typeof suffix === "string" ? (
-              <Typography>{suffix}</Typography>
-            ) : (
-              suffix
-            )}
+            {typeof suffix === "string" ? <Text>{suffix}</Text> : suffix}
           </OutlinedTextField.Suffix>
         )}
       </OutlinedTextField>
-      <Button
-        disabled={disabled || value >= max}
-        onPress={() => emit(value + step)}
-        variant="secondary"
-        size="icon"
+      <FilledTonalIconButton
+        enabled={!disabled && value < max}
+        onClick={() => emit(value + step)}
       >
-        <Icon name={AddIcon} />
-      </Button>
+        <Icon name={AddIcon} color="inherit" />
+      </FilledTonalIconButton>
     </Row>
   );
 
   return (
     <EnsureHost matchContents={{ vertical: true }} className="w-full">
       {labelVariant === "static" && label ? (
-        <Column className="gap-2">
-          <Typography weight="medium">{label}</Typography>
+        <Column verticalArrangement={{ spacedBy: 8 }}>
+          <Text style={{ fontWeight: "500" }}>{label}</Text>
           {content}
         </Column>
       ) : (

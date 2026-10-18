@@ -1,15 +1,16 @@
-import { Column } from "@expo/ui/jetpack-compose";
+import { Column, RadioButton, Row } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
+  height,
   padding,
+  selectable,
+  selectableGroup,
   verticalScroll,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { RadioGroup } from "@/components/ui/radio-group";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
-import type { MediaListStatus } from "@/graphql/types.generated";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
 import type { StatusProps } from "./status";
@@ -41,20 +42,30 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
           padding(0, 16, 0, 16),
         ]}
       >
-        <RadioGroup
-          value={selected}
-          onValueChange={(value) => setSelected(value as MediaListStatus)}
-        >
+        {/* M3's radio group: the whole row is the target, the disc only
+            reports state, and the group reads as one choice. */}
+        <Column modifiers={[selectableGroup()]}>
           {MANGA_STATUS_ENTRIES.map(([status, title]) => (
-            <RadioGroup.Item
+            <Row
               key={status}
-              value={status}
-              label={title}
-              // ponytail: the row's inset still rides the kept RadioGroup's className API.
-              className="px-4"
-            />
+              verticalAlignment="center"
+              horizontalArrangement={{ spacedBy: 16 }}
+              modifiers={[
+                fillMaxWidth(),
+                height(56),
+                selectable(
+                  selected === status,
+                  () => setSelected(status),
+                  "radioButton",
+                ),
+                padding(16, 0, 16, 0),
+              ]}
+            >
+              <RadioButton selected={selected === status} />
+              <Text>{title}</Text>
+            </Row>
           ))}
-        </RadioGroup>
+        </Column>
       </Column>
 
       <ChangesPreview changes={changes} />

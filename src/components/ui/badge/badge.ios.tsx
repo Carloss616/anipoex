@@ -6,11 +6,11 @@ import {
   padding,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
+import { Text } from "@/components/native/swift-ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { SEMANTIC_COLOR } from "../colors";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
-import { Typography } from "../typography";
 import type { BadgeProps } from "./badge";
 
 /** Matches the `size-2` dot the shared Badge draws. */
@@ -60,9 +60,9 @@ export function Badge({
             foregroundStyle(content),
           ]}
         >
-          <Typography type="body-xs" weight="medium" className="text-inherit">
+          <Text textStyle="caption" weight="medium">
             {children}
-          </Typography>
+          </Text>
         </HStack>
       )}
     </EnsureHost>

@@ -1,8 +1,14 @@
-import { ScrollView, VStack } from "@expo/ui/swift-ui";
-import { fixedSize, lineLimit, padding } from "@expo/ui/swift-ui/modifiers";
+import { Picker, ScrollView, VStack } from "@expo/ui/swift-ui";
+import {
+  fixedSize,
+  labelsHidden,
+  lineLimit,
+  padding,
+  pickerStyle,
+  tag,
+} from "@expo/ui/swift-ui/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/swift-ui/text";
-import { RadioGroup } from "@/components/ui/radio-group";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { ChangesPreview } from "../changes-preview";
@@ -34,14 +40,21 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
       >
         <VStack modifiers={[padding({ all: 16 })]}>
-          <RadioGroup
-            value={selected}
-            onValueChange={(value) => setSelected(value as MediaListStatus)}
+          {/* A wheel is iOS's own single choice; the rows are tagged Texts. */}
+          <Picker
+            selection={selected ?? null}
+            onSelectionChange={(value) => {
+              if (typeof value === "string")
+                setSelected(value as MediaListStatus);
+            }}
+            modifiers={[pickerStyle("wheel"), labelsHidden()]}
           >
             {MANGA_STATUS_ENTRIES.map(([status, title]) => (
-              <RadioGroup.Item key={status} value={status} label={title} />
+              <Text key={status} modifiers={[tag(status)]}>
+                {title}
+              </Text>
             ))}
-          </RadioGroup>
+          </Picker>
         </VStack>
       </ScrollView>
 

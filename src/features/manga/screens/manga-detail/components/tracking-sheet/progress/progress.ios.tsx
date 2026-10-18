@@ -37,8 +37,6 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
             step={1}
             size="lg"
             onValueChange={step}
-            // ponytail: the field's width still rides the kept NumberInput's className API.
-            className="w-full"
           />
         </VStack>
       </ScrollView>

@@ -1,10 +1,10 @@
 import { Badge as BadgeView } from "@expo/ui/jetpack-compose";
 import { testID as testIDModifier } from "@expo/ui/jetpack-compose/modifiers";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
-import { Typography } from "../typography";
 import type { BadgeProps } from "./badge";
 
 /** Seeds an M3 scheme off the semantic color, so it harmonizes with the theme. */
@@ -46,9 +46,8 @@ export function Badge({
         {icon ? (
           <Icon name={icon} size={12} color={content} />
         ) : children == null ? null : (
-          <Typography type="body-xs" weight="medium" className="text-inherit">
-            {children}
-          </Typography>
+          // What the BadgeView itself sets: @expo/ui's Text never reads it.
+          <Text style={{ typography: "labelSmall" }}>{children}</Text>
         )}
       </BadgeView>
     </EnsureHost>

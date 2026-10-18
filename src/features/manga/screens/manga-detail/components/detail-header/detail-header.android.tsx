@@ -1,9 +1,10 @@
-import { Column, Row } from "@expo/ui/jetpack-compose";
+import { Column, FilterChip, Row } from "@expo/ui/jetpack-compose";
 import { horizontalScroll, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GUTTER_TOP, GUTTER_X } from "@/components/native/gutters";
-import { Chip } from "@/components/ui/chip";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Meta } from "../meta";
 import { Synopsis } from "../synopsis";
 import { Tracking } from "../tracking";
@@ -12,6 +13,7 @@ import type { DetailHeaderProps } from "./detail-header";
 export function DetailHeader({ manga }: DetailHeaderProps) {
   const insets = useSafeAreaInsets();
   const hasGenres = !!manga.genres?.length;
+  const m3 = useThemeM3Colors();
   // The page inset clears a landscape cutout, like `px-safe-offset-gx`.
   const start = GUTTER_X + insets.left;
   const end = GUTTER_X + insets.right;
@@ -42,9 +44,19 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           modifiers={[horizontalScroll(), padding(start, 24, end, 24)]}
         >
           {manga.genres?.map((g) => (
-            <Chip key={g} size="sm">
-              <Chip.Label>{g}</Chip.Label>
-            </Chip>
+            <FilterChip
+              key={g}
+              selected={false}
+              colors={{
+                containerColor: m3.surfaceContainerLow,
+                labelColor: m3.onSurfaceVariant,
+              }}
+              border={{ color: m3.outlineVariant }}
+            >
+              <FilterChip.Label>
+                <Text style={{ typography: "labelLarge" }}>{g}</Text>
+              </FilterChip.Label>
+            </FilterChip>
           ))}
         </Row>
       )}

@@ -1,4 +1,5 @@
 import {
+  HStack,
   Stepper,
   TextField,
   type TextFieldRef,
@@ -6,8 +7,6 @@ import {
 } from "@expo/ui/swift-ui";
 import {
   disabled as disabledModifier,
-  font,
-  frame,
   keyboardType,
   labelsHidden,
   multilineTextAlignment,
@@ -16,23 +15,18 @@ import {
   textFieldStyle,
 } from "@expo/ui/swift-ui/modifiers";
 import type { NumberInputProps } from "panelui-native/components/number-input";
-import { cn } from "panelui-native/utils/cn";
 import { useEffect, useRef } from "react";
-import { useResolveClassNames } from "uniwind";
-import { Row } from "@/components/layout/row";
-import { useFontFamily } from "@/hooks/use-font";
+import { Text, useFont } from "@/components/native/swift-ui/text";
 import { dismissFocus, registerField } from "@/utils/focus";
-import { resolveFill } from "@/utils/resolve-fill";
 import { EnsureHost } from "../host";
-import { Typography } from "../typography";
-import { TYPOGRAPHY_IOS } from "../typography/constants";
 
 /**
  * iOS NumberInput: a SwiftUI `TextField` beside a label-less `Stepper`. The
  * field reports every keystroke, rewriting itself only when a typed number
  * lands outside the range, so ordinary typing is never interrupted. The
  * keyboard is the punctuation one, not the number pad: the pad has no return
- * key, which leaves no way to dismiss it.
+ * key, which leaves no way to dismiss it. The field takes the width the row
+ * leaves it, as a SwiftUI `TextField` does.
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/stepper/
  */
 export function NumberInput({
@@ -43,16 +37,13 @@ export function NumberInput({
   onValueChange,
   disabled: isDisabled = false,
   label = "",
-  className = "",
-  containerClassName,
   suffix,
   prefix,
 }: NumberInputProps) {
   const text = useNativeState(String(value));
-  const fontFamily = useFontFamily("normal");
+  const font = useFont();
   const field = useRef<TextFieldRef>(null);
   const clamp = (next: number) => Math.min(Math.max(next, min), max);
-  const style = useResolveClassNames(className) ?? {};
 
   useEffect(
     () => (field.current ? registerField(field.current) : undefined),
@@ -75,10 +66,9 @@ export function NumberInput({
 
   return (
     <EnsureHost matchContents={{ vertical: true }} className="w-full">
-      <Row
-        alignment="center"
+      <HStack
+        spacing={8}
         modifiers={isDisabled ? [disabledModifier(true)] : undefined}
-        className={cn("gap-2", containerClassName)}
       >
         <Stepper
           label={label}
@@ -90,22 +80,14 @@ export function NumberInput({
             dismissFocus();
             onValueChange?.(clamp(next));
           }}
-          modifiers={[
-            ...(label ? [] : [labelsHidden()]),
-            font({ ...TYPOGRAPHY_IOS.body, family: fontFamily }),
-          ]}
+          modifiers={[...(label ? [] : [labelsHidden()]), font]}
         />
-        {typeof prefix === "string" ? (
-          <Typography>{prefix}</Typography>
-        ) : (
-          prefix
-        )}
+        {typeof prefix === "string" ? <Text>{prefix}</Text> : prefix}
         <TextField
           ref={field}
           text={text}
           onTextChange={commit}
           modifiers={[
-            ...(resolveFill({ style }).modifiers ?? [frame({ width: 50 })]),
             keyboardType("numbers-and-punctuation"),
             submitLabel("done"),
             onSubmit(() => {
@@ -113,15 +95,11 @@ export function NumberInput({
             }),
             multilineTextAlignment("trailing"),
             textFieldStyle("roundedBorder"),
-            font({ ...TYPOGRAPHY_IOS.body, family: fontFamily }),
+            font,
           ]}
         />
-        {typeof suffix === "string" ? (
-          <Typography>{suffix}</Typography>
-        ) : (
-          suffix
-        )}
-      </Row>
+        {typeof suffix === "string" ? <Text>{suffix}</Text> : suffix}
+      </HStack>
     </EnsureHost>
   );
 }
