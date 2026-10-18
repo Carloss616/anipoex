@@ -7,33 +7,23 @@ import {
   Spacer,
 } from "@expo/ui/jetpack-compose";
 import {
-  background,
   clickable,
-  clip,
   fillMaxWidth,
   padding,
-  paddingAll,
-  Shapes,
-  size,
   verticalScroll,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Fragment } from "react";
-import { useCSSVariable } from "uniwind";
 import { EmptyState } from "@/components/empty-state";
 import { Code, Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
+import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { dp } from "@/utils/utils";
 import type { SourceSheetProps } from "./source-sheet";
 import { useSources } from "./use-sources";
-
-/** The initials tile's side, in dp. */
-const TILE = 40;
 
 export function SourceSheet({
   isPresented,
@@ -47,9 +37,6 @@ export function SourceSheet({
     entryId,
     selectedId,
   );
-  const border = useThemeColor("border");
-  // Each theme family sets its own rounding, so `rounded-lg` is read, not fixed.
-  const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
 
   return (
     <BottomSheet
@@ -105,25 +92,10 @@ export function SourceSheet({
                   modifiers={[clickable(() => onSelect(source.id))]}
                 >
                   <ListItem.LeadingContent>
-                    <Box
-                      contentAlignment="center"
-                      modifiers={[
-                        size(TILE, TILE),
-                        clip(Shapes.RoundedCorner(radius)),
-                        // Compose's `border()` takes no shape, so the rounded
-                        // border is its color showing through a hairline gap.
-                        background(border),
-                        paddingAll(1),
-                        clip(Shapes.RoundedCorner(radius - 1)),
-                        background(sourceColor(source, mode)),
-                      ]}
-                    >
-                      <Text
-                        style={{ typography: "bodySmall", fontWeight: "600" }}
-                      >
-                        {source.initials}
-                      </Text>
-                    </Box>
+                    <SourceTile
+                      initials={source.initials}
+                      color={sourceColor(source, mode)}
+                    />
                   </ListItem.LeadingContent>
                   <ListItem.HeadlineContent>
                     <Text style={{ fontWeight: "500" }}>{source.name}</Text>

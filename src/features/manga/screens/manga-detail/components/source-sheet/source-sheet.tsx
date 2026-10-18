@@ -10,6 +10,7 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
+import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
 import { useSources } from "./use-sources";
 
@@ -78,14 +79,10 @@ export function SourceSheet({
                   <Fragment key={source.id}>
                     {index > 0 && <Item.Separator className="mx-4" />}
                     <Item onPress={() => onSelect(source.id)}>
-                      <Item.Media
-                        variant="icon"
-                        style={{ backgroundColor: sourceColor(source, mode) }}
-                      >
-                        <Typography type="body-xs" weight="semibold">
-                          {source.initials}
-                        </Typography>
-                      </Item.Media>
+                      <SourceTile
+                        initials={source.initials}
+                        color={sourceColor(source, mode)}
+                      />
                       <Item.Content>
                         <Item.Title>{source.name}</Item.Title>
                       </Item.Content>

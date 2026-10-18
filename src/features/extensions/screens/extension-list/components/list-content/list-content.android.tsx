@@ -2,7 +2,9 @@ import {
   BadgedBox,
   Box,
   ExtendedFloatingActionButton,
+  LazyColumn,
   PullToRefreshBox,
+  Row,
 } from "@expo/ui/jetpack-compose";
 import {
   align,
@@ -11,20 +13,19 @@ import {
   height,
   offset,
   onVisibilityChanged,
+  padding,
   verticalScroll,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { cn } from "panelui-native/utils/cn";
 import { useState } from "react";
-import { useResolveClassNames } from "uniwind";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActiveFilters } from "@/components/active-filters";
 import { EmptyState } from "@/components/empty-state";
-import { LazyColumn } from "@/components/layout/lazy-column";
-import { Row } from "@/components/layout/row";
+import { GUTTER_X } from "@/components/native/gutters";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
-import { Typography } from "@/components/ui/typography";
 import {
   checkForUpdates,
   extensionCount,
@@ -32,7 +33,6 @@ import {
   updateAllExtensions,
 } from "@/features/extensions";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { contentPaddingOf } from "@/utils/utils";
 import { ListItem } from "../list-item";
 import type { ListContentProps } from "./list-content";
 
@@ -47,9 +47,7 @@ export function ListContent({
   const m3 = useThemeM3Colors();
   const [checking, setChecking] = useState(false);
   const [atTop, setAtTop] = useState(true);
-  const fab = contentPaddingOf(
-    useResolveClassNames("gutters pr-safe-offset-gx pb-safe-offset-4"),
-  );
+  const insets = useSafeAreaInsets();
   const rows = toRows(sections);
   const shown = sections.reduce((n, s) => n + s.data.length, 0);
 
@@ -77,7 +75,12 @@ export function ListContent({
               // Remount per filter, or Compose keeps the scroll on the old first key.
               key={filter}
               modifiers={[fillMaxSize()]}
-              className={cn("px-safe", counts.updates > 0 && "pb-20")}
+              contentPadding={{
+                start: insets.left,
+                end: insets.right,
+                // Room for the FAB under the last row.
+                bottom: counts.updates > 0 ? 80 : 0,
+              }}
             >
               {/* Top sentinel: Compose's `firstVisibleItemIndex == 0`, without scroll events. */}
               <Box
@@ -94,14 +97,17 @@ export function ListContent({
               <LazyColumn.Items data={rows} keyExtractor={(r) => r.key}>
                 {({ item: r }) =>
                   r.kind === "header" ? (
-                    <Row alignment="center" className="gap-2 px-4 pt-4 pb-1">
-                      <Typography
-                        type="body-sm"
-                        weight="medium"
-                        style={{ color: m3.primary }}
+                    <Row
+                      verticalAlignment="center"
+                      horizontalArrangement={{ spacedBy: 8 }}
+                      modifiers={[padding(16, 16, 16, 4)]}
+                    >
+                      <Text
+                        style={{ typography: "bodyMedium", fontWeight: "500" }}
+                        color={m3.primary}
                       >
                         {r.section.title}
-                      </Typography>
+                      </Text>
                       <Badge>{r.section.data.length}</Badge>
                     </Row>
                   ) : (
@@ -119,7 +125,8 @@ export function ListContent({
             onClick={updateAllExtensions}
             modifiers={[
               align("bottomEnd"),
-              offset(-(fab.end ?? 0), -(fab.bottom ?? 0)),
+              // The tab bar below already clears the system inset.
+              offset(-(insets.right + GUTTER_X), -16),
             ]}
           >
             <ExtendedFloatingActionButton.Icon>
@@ -130,14 +137,12 @@ export function ListContent({
                 <Icon
                   name={Icons.update}
                   accessibilityLabel={`Update all (${counts.updates})`}
-                  className="text-inherit"
+                  color="inherit"
                 />
               </BadgedBox>
             </ExtendedFloatingActionButton.Icon>
             <ExtendedFloatingActionButton.Text>
-              <Typography weight="medium" className="text-inherit">
-                Update all
-              </Typography>
+              <Text style={{ fontWeight: "500" }}>Update all</Text>
             </ExtendedFloatingActionButton.Text>
           </ExtendedFloatingActionButton>
         )}

@@ -6,35 +6,25 @@ import {
   ScrollView,
   Spacer,
   VStack,
-  ZStack,
 } from "@expo/ui/swift-ui";
 import {
-  background,
   buttonStyle,
-  clipShape,
   contentShape,
   foregroundStyle,
-  frame,
   padding,
   shapes,
-  strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
 import { Fragment } from "react";
-import { useCSSVariable } from "uniwind";
 import { EmptyState } from "@/components/empty-state";
 import { Code, Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
+import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { dp } from "@/utils/utils";
 import type { SourceSheetProps } from "./source-sheet";
 import { useSources } from "./use-sources";
-
-/** The initials tile's side, in points. */
-const TILE = 40;
 
 export function SourceSheet({
   isPresented,
@@ -48,9 +38,6 @@ export function SourceSheet({
     entryId,
     selectedId,
   );
-  const border = useThemeColor("border");
-  // Each theme family sets its own rounding, so `rounded-lg` is read, not fixed.
-  const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
 
   return (
     <BottomSheet
@@ -112,22 +99,10 @@ export function SourceSheet({
                         contentShape(shapes.rectangle()),
                       ]}
                     >
-                      <ZStack
-                        modifiers={[
-                          frame({ width: TILE, height: TILE }),
-                          background(sourceColor(source, mode)),
-                          clipShape("roundedRectangle", radius),
-                          strokeBorder({
-                            content: border,
-                            shape: "roundedRectangle",
-                            cornerRadius: radius,
-                          }),
-                        ]}
-                      >
-                        <Text textStyle="caption" weight="semibold">
-                          {source.initials}
-                        </Text>
-                      </ZStack>
+                      <SourceTile
+                        initials={source.initials}
+                        color={sourceColor(source, mode)}
+                      />
                       <Text weight="medium">{source.name}</Text>
                       <Spacer />
                       {source.id === selectedId && (

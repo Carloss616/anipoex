@@ -1,5 +1,14 @@
-import { List, Section, Spacer } from "@expo/ui/swift-ui";
 import {
+  Button,
+  HStack,
+  List,
+  ScrollView,
+  Section,
+  Spacer,
+} from "@expo/ui/swift-ui";
+import {
+  buttonStyle,
+  controlSize,
   defaultScrollAnchorForRole,
   listRowBackground,
   listStyle,
@@ -7,12 +16,9 @@ import {
   scrollContentBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { EmptyState } from "@/components/empty-state";
-import { Row } from "@/components/layout/row";
-import { ScrollView } from "@/components/layout/scroll-view";
+import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
-import { Typography } from "@/components/ui/typography";
 import { checkForUpdates, updateAllExtensions } from "@/features/extensions";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListItem } from "../list-item";
@@ -21,12 +27,12 @@ import type { ListContentProps } from "./list-content";
 /** An inset-grouped list per section, pull to check for updates. */
 export function ListContent({ sections, counts, language }: ListContentProps) {
   const rowBackground = listRowBackground(useThemeColor("muted"));
+  const buttonFont = useFont("subheadline", "medium");
 
   return (
     <Host className="flex-1">
       {sections.length === 0 ? (
         <ScrollView
-          fill
           modifiers={[
             defaultScrollAnchorForRole("center", "alignment"),
             refreshable(checkForUpdates),
@@ -47,23 +53,25 @@ export function ListContent({ sections, counts, language }: ListContentProps) {
               key={s.key}
               modifiers={[rowBackground]}
               header={
-                <Row alignment="center" className="gap-3">
-                  <Typography type="small" muted>
+                <HStack spacing={12}>
+                  <Text textStyle="footnote" weight="medium">
                     {s.title}
-                  </Typography>
+                  </Text>
                   <Badge>{s.data.length}</Badge>
                   {language && <Badge>{language.toUpperCase()}</Badge>}
                   <Spacer />
                   {s.key !== "available" && counts.updates > 0 && (
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      label="Update all"
                       onPress={updateAllExtensions}
-                    >
-                      Update all
-                    </Button>
+                      modifiers={[
+                        buttonStyle("borderless"),
+                        controlSize("small"),
+                        buttonFont,
+                      ]}
+                    />
                   )}
-                </Row>
+                </HStack>
               }
             >
               <List.ForEach data={s.data} keyExtractor={(e) => e.id}>
