@@ -49,7 +49,7 @@ function ToolbarItemView({
       onPress={item.kind === "button" ? item.props.onPress : undefined}
       accessibilityLabel={label}
     >
-      {spinning && item.kind === "button" ? (
+      {spinning && item.kind === "button" && item.props.disabled ? (
         <Animated.View style={SPIN}>{icon}</Animated.View>
       ) : (
         icon

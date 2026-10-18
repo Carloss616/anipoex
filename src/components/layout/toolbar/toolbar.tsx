@@ -4,8 +4,9 @@ import type { StackToolbarProps } from "./utils";
 export type ToolbarProps = {
   children: ReactElement<StackToolbarProps>;
   /**
-   * Web only: spins the mapped button icons while an action is in flight.
-   * Ignored elsewhere, where a `tintColor` on the item is the way to show it.
+   * Web only: while an action is in flight, spins the icon of the button it
+   * disabled — the one that started it. Ignored elsewhere, where a `tintColor`
+   * on the item is the way to show it.
    * @platform web
    */
   spinning?: boolean;
