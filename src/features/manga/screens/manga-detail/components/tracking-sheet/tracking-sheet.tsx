@@ -1,3 +1,4 @@
+import { useValue } from "@legendapp/state/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
@@ -9,6 +10,7 @@ import {
   toSaveVariables,
   toTrackingForm,
 } from "@/features/manga/utils/tracking-form";
+import { session$ } from "@/state/session";
 import { DateView } from "./date-view";
 import type { Field } from "./overview";
 import { Overview } from "./overview";
@@ -36,6 +38,7 @@ export function TrackingSheet({
   const [form, setForm] = useState(() => toTrackingForm(tracking));
   const [editing, setEditing] = useState<Field | null>(null);
   const { save, remove, removing } = useSaveTracking(manga.id);
+  const canScore = useValue(session$.user)?.scoreFormat != null;
 
   // The sheet stays mounted while closed, so the form seeds on every open;
   // seeding once would outlive any refetch that moves the entry ahead.
@@ -107,6 +110,7 @@ export function TrackingSheet({
           onRemove={onRemove}
           canRemove={entryId != null}
           removing={removing}
+          canScore={canScore}
         />
       )}
     </BottomSheet>

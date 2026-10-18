@@ -5,8 +5,8 @@ import { anilist } from "../trackers/anilist";
 
 /**
  * Backfills a viewer persisted before `scoreFormat` existed — without it the
- * score field silently runs on the fallback scale and can overwrite a score on
- * another one. Fetched in the background; a failure just keeps that fallback.
+ * score can't be edited, since any guessed scale could save it wrong. Fetched
+ * in the background; a failure keeps the score disabled until the next launch.
  */
 export function useRefreshViewer() {
   useEffect(() => {

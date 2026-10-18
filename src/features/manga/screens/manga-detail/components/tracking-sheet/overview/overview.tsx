@@ -27,6 +27,8 @@ export interface OverviewProps {
   onRemove: () => void;
   canRemove: boolean;
   removing: boolean;
+  /** Off until the viewer's score format is known: the fallback scale would save it wrong. */
+  canScore: boolean;
 }
 
 /** The sheet at rest: what the entry says, one cell per field. */
@@ -37,6 +39,7 @@ export function Overview({
   onRemove,
   canRemove,
   removing,
+  canScore,
 }: OverviewProps) {
   const status = form.status && MANGA_STATUSES[form.status];
 
@@ -83,6 +86,7 @@ export function Overview({
               <Button
                 variant="ghost"
                 className="flex-1"
+                disabled={!canScore}
                 onPress={() => onEdit("score")}
               >
                 {form.score || <Typography muted>Score</Typography>}

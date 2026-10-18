@@ -2,6 +2,11 @@
 
 ## 2026-10-18
 
+* **No score before the format is known**: while the viewer has no score format, the
+  tracking sheet's score cell is disabled instead of running on a 10-point guess that
+  saves on the wrong scale. The window is not always short: a failed viewer fetch keeps
+  it open for the whole session. Updated [score format](concepts/score-format.md) and
+  [viewer](concepts/viewer.md).
 * **Verification**: [Tracking rules](concepts/tracking-rules.md) and
   [List entry](concepts/list-entry.md) reviewed by a human; now human-reviewed.
 * **Partial dates survive a save**: the tracking sheet now sends a start or finish

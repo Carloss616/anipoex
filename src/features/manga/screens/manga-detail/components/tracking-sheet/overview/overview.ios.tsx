@@ -9,6 +9,7 @@ import {
 import {
   buttonBorderShape,
   buttonStyle,
+  disabled,
   fixedSize,
   foregroundStyle,
   frame,
@@ -31,14 +32,19 @@ interface CellProps {
   /** The field's name, dimmed, while it has no value. */
   placeholder: string;
   onPress: () => void;
+  isDisabled?: boolean;
 }
 
 /** A borderless button taking an even share of its row; the label wears the tint. */
-function Cell({ value, placeholder, onPress }: CellProps) {
+function Cell({ value, placeholder, onPress, isDisabled = false }: CellProps) {
   return (
     <Button
       onPress={onPress}
-      modifiers={[buttonStyle("borderless"), frame({ maxWidth: Infinity })]}
+      modifiers={[
+        buttonStyle("borderless"),
+        frame({ maxWidth: Infinity }),
+        disabled(isDisabled),
+      ]}
     >
       <Text
         modifiers={[
@@ -60,6 +66,7 @@ export function Overview({
   onRemove,
   canRemove,
   removing,
+  canScore,
 }: OverviewProps) {
   const { isLandscape } = useBreakpoint();
 
@@ -122,6 +129,7 @@ export function Overview({
               value={form.score}
               placeholder="Score"
               onPress={() => onEdit("score")}
+              isDisabled={!canScore}
             />
           </HStack>
           <Divider />

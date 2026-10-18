@@ -1,7 +1,7 @@
 ---
 type: Domain Concept
 title: Score format
-description: The viewer's AniList scoring scale; scores are read and saved in it, with a 10-point fallback until it is known.
+description: The viewer's AniList scoring scale; scores are read and saved in it, and the score can't be edited until it is known.
 tags: [tracking, score]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
@@ -18,6 +18,7 @@ it (the 100-point `scoreRaw` exists but the app does not use it).
 | `POINT_3` | 0–3 | 1 | integer (smileys on AniList) |
 
 - `0` means **unscored** and is shown as "—".
-- The format comes from the [viewer](viewer.md). While it is null the slider runs on
-  `POINT_10`, so a score saved then is read as 10-point; the viewer backfill is what
-  keeps that window short.
+- The format comes from the [viewer](viewer.md). While it is null the tracking sheet's
+  score cell is **disabled**: a score picked on a guessed scale would be saved on the
+  wrong one (8 on 10 points lands as 8/100 for a 100-point user). The other fields still
+  save; they send the score they read back unchanged, which is already on the right scale.

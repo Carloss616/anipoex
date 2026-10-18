@@ -22,6 +22,6 @@ in the [session](../stores/session.md), so later launches have it without a requ
 
 A viewer persisted before `scoreFormat` existed has it null. On launch, if there is a
 token and no `scoreFormat`, the viewer is fetched again in the background. Until it
-lands, the score field runs on the 10-point fallback, which could overwrite a score
-stored on another scale; that is why the backfill exists. A failed backfill keeps the
-fallback silently.
+lands, the score can't be edited ([score format](score-format.md)). A failed fetch, at
+sign-in or in the backfill, is not retried until the next launch, so the score stays
+disabled for the rest of that session; the backfill itself fails silently.

@@ -34,13 +34,18 @@ interface CellProps {
   /** The field's name, dimmed, while it has no value. */
   placeholder: string;
   onPress: () => void;
+  isDisabled?: boolean;
 }
 
-function Cell({ value, placeholder, onPress }: CellProps) {
+function Cell({ value, placeholder, onPress, isDisabled = false }: CellProps) {
   const m3 = useThemeM3Colors();
 
   return (
-    <TextButton onClick={onPress} modifiers={[weight(1), height(CELL_HEIGHT)]}>
+    <TextButton
+      enabled={!isDisabled}
+      onClick={onPress}
+      modifiers={[weight(1), height(CELL_HEIGHT)]}
+    >
       <Text color={value ? undefined : m3.onSurfaceVariant}>
         {value || placeholder}
       </Text>
@@ -70,6 +75,7 @@ export function Overview({
   onRemove,
   canRemove,
   removing,
+  canScore,
 }: OverviewProps) {
   const { isLandscape } = useBreakpoint();
   const rule = <VerticalDivider modifiers={[height(CELL_HEIGHT)]} />;
@@ -132,6 +138,7 @@ export function Overview({
                 value={form.score}
                 placeholder="Score"
                 onPress={() => onEdit("score")}
+                isDisabled={!canScore}
               />
             </Row>
             <HorizontalDivider />
