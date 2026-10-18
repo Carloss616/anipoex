@@ -7,7 +7,7 @@ import {
 import { useState } from "react";
 import { Code, Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -50,7 +50,11 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
                 {percent}%
               </Text>
             )}
-            <Icon name={Icons.chevronRight} size={18} color="inherit" />
+            <Icon
+              name={Icons.chevronRight}
+              size={BUTTON_ICON_SIZE}
+              color="inherit"
+            />
           </HStack>
           <Progress value={percent} />
         </VStack>

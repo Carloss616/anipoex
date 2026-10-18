@@ -8,7 +8,7 @@ import { semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
@@ -35,7 +35,7 @@ function MoreButton({ name, onPress }: { name: string; onPress?: () => void }) {
       colors={{ contentColor: m3.onSurfaceVariant }}
       modifiers={label(`More actions for ${name}`)}
     >
-      <Icon name={Icons.more} size={24} color="inherit" />
+      <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
     </IconButton>
   );
 }
@@ -84,14 +84,22 @@ export function ListItem({ extension: e }: ListItemProps) {
               onClick={() => installExtension(e.id)}
               modifiers={label(`Install ${e.name}`)}
             >
-              <Icon name={Icons.download} size={24} color="inherit" />
+              <Icon
+                name={Icons.download}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
             </IconButton>
           ) : hasUpdate(e) ? (
             <FilledTonalIconButton
               onClick={() => updateExtension(e.id)}
               modifiers={label(`Update ${e.name}`)}
             >
-              <Icon name={Icons.update} size={24} color="inherit" />
+              <Icon
+                name={Icons.update}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
             </FilledTonalIconButton>
           ) : null}
           {e.installed && (

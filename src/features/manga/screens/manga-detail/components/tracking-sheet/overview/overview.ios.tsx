@@ -19,7 +19,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/swift-ui/text";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import { formatDate } from "@/utils/utils";
@@ -81,7 +81,7 @@ export function Overview({
           >
             <Icon
               name={Icons.more}
-              size={18}
+              size={BUTTON_ICON_SIZE}
               color="inherit"
               modifiers={[frame({ width: 20, height: 20 })]}
             />

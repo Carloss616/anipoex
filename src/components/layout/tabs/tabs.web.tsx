@@ -15,6 +15,7 @@ import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
+import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
 const TabSlot = withUniwind(TabSlotBase);
@@ -105,7 +106,7 @@ function PanelTabTrigger({
       className="px-4"
       icon={
         <Lucide
-          size={18}
+          size={BUTTON_ICON_SIZE}
           name={isFocused ? item.icon.selected : item.icon.default}
           color={isFocused ? primaryForeground : mutedForeground}
         />

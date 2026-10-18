@@ -82,7 +82,7 @@ function ButtonView({
         testID={testID}
         onPress={onPress}
       >
-        <Icon name="calendar" size={18} muted />
+        <Icon name="calendar" size={BUTTON_ICON_SIZE} muted />
         <Typography weight="medium" muted={!value} numberOfLines={1}>
           {value ? formatDate(value) : placeholder}
         </Typography>

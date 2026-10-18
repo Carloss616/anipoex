@@ -9,7 +9,7 @@ import {
   padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { Text } from "@/components/native/swift-ui/text";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import { noop } from "@/utils/utils";
 import type { ChapterItemProps } from "./chapter-item";
@@ -42,7 +42,7 @@ export function ChapterItem({ chapter, entryId }: ChapterItemProps) {
           accessibilityLabel(`Download chapter ${chapter.title}`),
         ]}
       >
-        <Icon name={Icons.download} size={18} color="inherit" />
+        <Icon name={Icons.download} size={BUTTON_ICON_SIZE} color="inherit" />
       </Button>
     </HStack>
   );

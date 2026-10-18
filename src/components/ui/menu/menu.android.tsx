@@ -3,7 +3,7 @@ import { cloneElement, useState } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Dialog } from "../dialog";
-import { Icon, Icons } from "../icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import type { MenuProps } from "./menu";
 
@@ -43,12 +43,12 @@ export function Menu({ items, children }: MenuProps) {
               </DropdownMenuItem.Text>
               {item.icon && (
                 <DropdownMenuItem.LeadingIcon>
-                  <Icon name={item.icon} size={24} />
+                  <Icon name={item.icon} size={BUTTON_ICON_SIZE} />
                 </DropdownMenuItem.LeadingIcon>
               )}
               {item.checked && (
                 <DropdownMenuItem.TrailingIcon>
-                  <Icon name={Icons.check} size={24} />
+                  <Icon name={Icons.check} size={BUTTON_ICON_SIZE} />
                 </DropdownMenuItem.TrailingIcon>
               )}
             </DropdownMenuItem>

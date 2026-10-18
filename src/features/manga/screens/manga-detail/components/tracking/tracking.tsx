@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
@@ -36,7 +36,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
             )}
             <Icon
               name={Icons.chevronRight}
-              size={18}
+              size={BUTTON_ICON_SIZE}
               className="text-primary"
             />
           </View>

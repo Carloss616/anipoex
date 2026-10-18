@@ -3,7 +3,7 @@ import { DockedSearchBar } from "@expo/ui/jetpack-compose";
 import { fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { EnsureHost } from "../host";
-import { Icon } from "../icon";
+import { BUTTON_ICON_SIZE, Icon } from "../icon";
 import type { SearchBarProps } from "./search-bar";
 
 /**
@@ -28,7 +28,7 @@ export function SearchBar({ placeholder, onChangeText, icon }: SearchBarProps) {
           </DockedSearchBar.Placeholder>
         ) : null}
         <DockedSearchBar.LeadingIcon>
-          {icon ?? <Icon name={SearchIcon} size={24} muted />}
+          {icon ?? <Icon name={SearchIcon} size={BUTTON_ICON_SIZE} muted />}
         </DockedSearchBar.LeadingIcon>
       </DockedSearchBar>
     </EnsureHost>

@@ -1,7 +1,7 @@
 import { IconButton, ListItem } from "@expo/ui/jetpack-compose";
 import { alpha, semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import { noop } from "@/utils/utils";
 import type { ChapterItemProps } from "./chapter-item";
@@ -30,7 +30,7 @@ export function ChapterItem({ chapter, entryId }: ChapterItemProps) {
             }),
           ]}
         >
-          <Icon name={Icons.download} size={24} color="inherit" />
+          <Icon name={Icons.download} size={BUTTON_ICON_SIZE} color="inherit" />
         </IconButton>
       </ListItem.TrailingContent>
     </ListItem>

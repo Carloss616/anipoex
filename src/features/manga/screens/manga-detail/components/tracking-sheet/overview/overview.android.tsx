@@ -17,7 +17,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -57,7 +57,7 @@ function MoreButton({ onPress }: { onPress?: () => void }) {
       onClick={onPress}
       colors={{ contentColor: m3.onSurfaceVariant }}
     >
-      <Icon name={Icons.more} size={24} color="inherit" />
+      <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
     </IconButton>
   );
 }

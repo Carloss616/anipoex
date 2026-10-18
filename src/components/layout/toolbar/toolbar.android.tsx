@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 import type { ColorValue } from "react-native";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
-import { Icon, type IconName } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
@@ -36,7 +36,7 @@ function ToolbarButton({
     <IconButton enabled={!disabled} onClick={onPress} colors={colors}>
       <Icon
         name={icon as IconName}
-        size={24}
+        size={BUTTON_ICON_SIZE}
         accessibilityLabel={label}
         color="inherit"
       />
