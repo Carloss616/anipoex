@@ -1,8 +1,12 @@
-import { Spacer } from "@expo/ui";
 import {
   Box,
+  Column,
+  HorizontalDivider,
+  LazyColumn,
   PullToRefreshBox,
+  Row,
   Shape,
+  Spacer,
   Surface,
 } from "@expo/ui/jetpack-compose";
 import {
@@ -10,16 +14,15 @@ import {
   fillMaxWidth,
   offset,
   padding,
+  weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { cn } from "panelui-native/utils/cn";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
-import { Column } from "@/components/layout/column";
-import { LazyColumn } from "@/components/layout/lazy-column";
-import { Row } from "@/components/layout/row";
+import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/gutters";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { Item } from "@/components/ui/item";
-import { Typography } from "@/components/ui/typography";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ChapterItem } from "../chapter-item";
@@ -44,7 +47,11 @@ export function DetailList({
 }: DetailListProps) {
   const maxHeaderHeight = useMaxHeaderHeight();
   const m3 = useThemeM3Colors();
+  const insets = useSafeAreaInsets();
   const last = chapters.length - 1;
+  // The page inset clears a landscape cutout, like `px-safe-offset-gx`.
+  const start = GUTTER_X + insets.left;
+  const end = GUTTER_X + insets.right;
 
   return (
     <Host className={cn("flex-1", className)}>
@@ -56,7 +63,10 @@ export function DetailList({
         indicator={{ modifiers: [offset(0, maxHeaderHeight)] }}
         modifiers={[fillMaxSize()]}
       >
-        <LazyColumn modifiers={[fillMaxSize()]} className="gutters pb-gb">
+        <LazyColumn
+          contentPadding={{ bottom: GUTTER_BOTTOM }}
+          modifiers={[fillMaxSize()]}
+        >
           {/* Compose has no negative padding: the header is stacked over the
               hero and starts below the app bar, covering the art's last stretch. */}
           <Box modifiers={[fillMaxWidth()]}>
@@ -66,19 +76,19 @@ export function DetailList({
             </Column>
           </Box>
           <Row
-            alignment="center"
-            className="gutters gap-2 px-safe-offset-gx pb-1"
+            verticalAlignment="center"
+            horizontalArrangement={{ spacedBy: 8 }}
+            modifiers={[padding(start, 0, end, 4)]}
           >
-            <Typography
-              type="body-sm"
-              weight="medium"
-              style={{ color: m3.primary }}
-              className="pl-4"
+            <Text
+              style={{ typography: "titleSmall" }}
+              color={m3.primary}
+              modifiers={[padding(16, 0, 0, 0)]}
             >
               Chapters
-            </Typography>
+            </Text>
             <Badge>{total}</Badge>
-            <Spacer flexible />
+            <Spacer modifiers={[weight(1)]} />
             {action}
           </Row>
           {chapters.length === 0 && (
@@ -89,25 +99,25 @@ export function DetailList({
             keyExtractor={(chapter) => String(chapter.id)}
           >
             {({ item, index }) => (
-              <Column className="gutters px-safe-offset-gx">
-                <Surface
-                  tonalElevation={1}
-                  shape={Shape.RoundedCorner({
-                    cornerRadii: {
-                      topStart: index === 0 ? RADIUS : 0,
-                      topEnd: index === 0 ? RADIUS : 0,
-                      bottomStart: index === last ? RADIUS : 0,
-                      bottomEnd: index === last ? RADIUS : 0,
-                    },
-                  })}
-                  modifiers={[fillMaxWidth()]}
-                >
-                  <Column>
-                    {index > 0 && <Item.Separator className="mx-4" />}
-                    <ChapterItem chapter={item} entryId={entryId} />
-                  </Column>
-                </Surface>
-              </Column>
+              <Surface
+                tonalElevation={1}
+                shape={Shape.RoundedCorner({
+                  cornerRadii: {
+                    topStart: index === 0 ? RADIUS : 0,
+                    topEnd: index === 0 ? RADIUS : 0,
+                    bottomStart: index === last ? RADIUS : 0,
+                    bottomEnd: index === last ? RADIUS : 0,
+                  },
+                })}
+                modifiers={[padding(start, 0, end, 0), fillMaxWidth()]}
+              >
+                <Column>
+                  {index > 0 && (
+                    <HorizontalDivider modifiers={[padding(16, 0, 16, 0)]} />
+                  )}
+                  <ChapterItem chapter={item} entryId={entryId} />
+                </Column>
+              </Surface>
             )}
           </LazyColumn.Items>
         </LazyColumn>

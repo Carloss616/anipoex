@@ -1,4 +1,4 @@
-import { List, Section, Spacer } from "@expo/ui/swift-ui";
+import { HStack, List, Section, Spacer, VStack } from "@expo/ui/swift-ui";
 import {
   listRowBackground,
   listRowInsets,
@@ -13,11 +13,9 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { cn } from "panelui-native/utils/cn";
 import { EmptyState } from "@/components/empty-state";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
+import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { Typography } from "@/components/ui/typography";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ChapterItem } from "../chapter-item";
@@ -43,14 +41,14 @@ export function DetailList({
   const maxHeaderHeight = useMaxHeaderHeight();
   const rowBackground = listRowBackground(useThemeColor("muted"));
   const sectionHeader = (
-    <Row alignment="center" className="gap-3">
-      <Typography type="small" muted>
+    <HStack spacing={12}>
+      <Text textStyle="footnote" weight="medium">
         Chapters
-      </Typography>
+      </Text>
       <Badge>{total}</Badge>
       <Spacer />
       {action}
-    </Row>
+    </HStack>
   );
 
   return (
@@ -70,7 +68,9 @@ export function DetailList({
         <Section
           modifiers={[listSectionMargins({ length: 0, edges: "horizontal" })]}
         >
-          <Column
+          <VStack
+            alignment="leading"
+            spacing={0}
             modifiers={[
               NO_INSETS,
               listRowBackground("clear"),
@@ -79,15 +79,15 @@ export function DetailList({
           >
             {/* A row's top edge can't move up, so the hero is only drawn
                 higher (layout unchanged) and the header pulled up by as much. */}
-            <Column modifiers={[offset({ y: -maxHeaderHeight })]}>
+            <VStack modifiers={[offset({ y: -maxHeaderHeight })]}>
               {hero}
-            </Column>
-            <Column
+            </VStack>
+            <VStack
               modifiers={[padding({ top: -(ART_HEIGHT + maxHeaderHeight) })]}
             >
               {header}
-            </Column>
-          </Column>
+            </VStack>
+          </VStack>
         </Section>
 
         {chapters.length === 0 ? (
