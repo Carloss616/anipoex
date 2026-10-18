@@ -4,6 +4,7 @@ title: Tracking rules
 description: The side effects a status or progress change applies to a list entry, and how the sheet shows them before saving.
 tags: [tracking, rules]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
+verified: { by: human:carlos-espinoza, at: 2026-10-18T00:00:00Z }
 ---
 
 The tracking sheet edits a form copy of the [list entry](list-entry.md). Two edits

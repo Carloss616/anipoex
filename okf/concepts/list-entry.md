@@ -4,6 +4,7 @@ title: List entry
 description: The user's MediaList row for one manga — status, progress, score, start and finish dates — created on first save and deleted outright.
 tags: [tracking, anilist, list]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
+verified: { by: human:carlos-espinoza, at: 2026-10-18T00:00:00Z }
 ---
 
 A **list entry** is the user's AniList `MediaList` row for one [manga](manga.md). There

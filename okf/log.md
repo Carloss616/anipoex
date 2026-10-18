@@ -2,6 +2,8 @@
 
 ## 2026-10-18
 
+* **Verification**: [Tracking rules](concepts/tracking-rules.md) and
+  [List entry](concepts/list-entry.md) reviewed by a human; now human-reviewed.
 * **Partial dates survive a save**: the tracking sheet now sends a start or finish
   date only when the user changed or cleared it, so a partial AniList date it reads
   as unset is left alone. Updated [fuzzy date](concepts/fuzzy-date.md) and
