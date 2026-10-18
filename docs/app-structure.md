@@ -92,8 +92,18 @@ export default function AnimeDetailScreen() {
 
 ### Scope of internal folders
 
-- `components/`, `hooks/` nested inside a screen or component folder are **private** to it.
+- `components/`, `hooks/`, `utils/` nested inside a screen or component folder are **private** to it.
 - Anything reused across screens or features belongs in the global folders at the root of `src/`.
+
+### Hooks, utils and constants
+
+- A hook extracted from a screen or component goes in that folder's `hooks/` (`status/hooks/use-status.ts`), never loose next to the component.
+- A non-hook helper goes in that folder's `utils/` (`meta/utils/meta-lines.ts`).
+- The only loose files allowed are one generic `constants.ts` and/or one generic `utils.ts` at the folder root, while it's the only file of its kind there. A second helper moves them all into `utils/`.
+
+### Code style
+
+- Module-level constants (`const LABEL = …`) go after the last import, never between imports.
 
 ### Feature vs global
 
@@ -115,3 +125,14 @@ chart/
 ```
 
 Metro resolves the correct file at build time; `index.ts` always points to the unsuffixed one. Consumers import the folder (`@/components/ui/chart`) and never a platform file directly.
+
+A platform file can import **types** from `./chart`, but never runtime values: inside `chart.ios.tsx`, `./chart` resolves back to `chart.ios.tsx` itself. Logic shared by every platform lives in the folder's `hooks/` or `utils/`.
+
+### Native screens
+
+Native screens (`.ios.tsx` / `.android.tsx`) write SwiftUI / Jetpack Compose through `@expo/ui` directly; the web file keeps PanelUI and Uniwind. No shared component API translates one into the other.
+
+- **Inside a `Host`, no `className`.** Layout and styling are the platform's own stacks and `modifiers`. Uniwind classes are for React Native views (web, the `Host` itself, headers, lists).
+- **Text** comes from `@/components/native/swift-ui/text` or `@/components/native/jetpack-compose/text`: the native `Text` in the app's font. On Android it always takes a `typography` (default `bodyLarge`), since `@expo/ui`'s Compose `Text` never inherits a slot's text style; name the slot's style where M3 sets one (`labelLarge` in a button, `labelSmall` in a badge).
+- **Colors** on Android come from one `useThemeM3Colors()`; destructive actions use `m3.error` / `m3.onError`, not a second scheme seeded from `destructive`.
+- **Spacing** in dp: `GUTTER_*` from `@/components/native/constants`, plain numbers otherwise.
