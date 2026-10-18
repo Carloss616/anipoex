@@ -19,17 +19,15 @@ describe("ramp", () => {
     expect(locations).toEqual([0, 0.2, 0.4, 0.6, 0.8, 1]);
   });
 
-  // Within 1/255 of the hex `global.css` and `scrim.ios.tsx` used to carry by
-  // hand — those came off decimals CSS had already rounded, this is the curve.
-  it("walks 0.6·p² by default, the scrim's wash", () => {
+  it("walks 0.75·p² by default, the scrim's wash", () => {
     expect(ramp("#000000")).toEqual({
       colors: [
         "#00000000",
-        "#00000006",
-        "#00000018",
-        "#00000037",
-        "#00000062",
-        "#00000099",
+        "#00000008",
+        "#0000001f",
+        "#00000045",
+        "#0000007a",
+        "#000000bf",
       ],
       locations: [0, 0.2, 0.4, 0.6, 0.8, 1],
     });

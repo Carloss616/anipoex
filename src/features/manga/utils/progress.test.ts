@@ -4,7 +4,7 @@ import { toProgress } from "./progress";
 describe("toProgress", () => {
   it("names the chapter when the total is unknown", () => {
     expect(toProgress(363, null)).toEqual({
-      label: "Ch. 363",
+      label: "c.363",
       spoken: "363 chapters read",
       fraction: undefined,
     });
@@ -12,14 +12,14 @@ describe("toProgress", () => {
 
   it("shows read over total, with a fraction for the bar", () => {
     expect(toProgress(176, 266)).toEqual({
-      label: "176 / 266",
+      label: "c.176/266",
       spoken: "176 of 266 chapters read",
       fraction: 176 / 266,
     });
   });
 
   it("treats a missing read count as 0 and a 0 total as unknown", () => {
-    expect(toProgress(undefined, 0).label).toBe("Ch. 0");
+    expect(toProgress(undefined, 0).label).toBe("c.0");
   });
 
   it("never draws past a full bar", () => {

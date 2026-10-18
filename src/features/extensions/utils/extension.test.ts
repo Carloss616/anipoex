@@ -29,7 +29,7 @@ describe("countExtensions", () => {
 
 describe("describeVersion", () => {
   it("shows the jump when an update is pending", () => {
-    expect(describeVersion(LIST[1])).toBe("v1.0.0 → v1.1.0");
-    expect(describeVersion(LIST[0])).toBe("v1.0.0");
+    expect(describeVersion(LIST[1])).toBe("1.0.0 → 1.1.0");
+    expect(describeVersion(LIST[0])).toBe("1.0.0");
   });
 });
