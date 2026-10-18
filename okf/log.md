@@ -7,6 +7,9 @@
   saves on the wrong scale. The window is not always short: a failed viewer fetch keeps
   it open for the whole session. Updated [score format](concepts/score-format.md) and
   [viewer](concepts/viewer.md).
+* **Retry only where it works**: the error toast's **Retry** now re-runs a failed query
+  even when nothing on screen watches it, and is no longer offered for a failed
+  mutation, where it did nothing. Updated [operations](operations/index.md).
 * **Verification**: [Tracking rules](concepts/tracking-rules.md) and
   [List entry](concepts/list-entry.md) reviewed by a human; now human-reviewed.
 * **Partial dates survive a save**: the tracking sheet now sends a start or finish

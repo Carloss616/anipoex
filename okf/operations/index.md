@@ -5,8 +5,9 @@ Every GraphQL operation the app sends to AniList, one page each. Documents live 
 all of them:
 
 - Sent with the session token as `Authorization: Bearer`.
-- One retry, then a toast with the operation's own message and a **Retry** action,
-  unless the call is marked `silent`.
+- One retry, then a toast with the operation's own message, unless the call is marked
+  `silent`. A failed query's toast offers **Retry**, which runs the same query again; a
+  failed mutation's does not: the user redoes the change instead.
 - Results land in the [Apollo cache](../stores/apollo-cache.md), which is persisted.
 
 # Queries

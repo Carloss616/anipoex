@@ -8,6 +8,7 @@ import { SetContextLink } from "@apollo/client/link/context";
 import { ErrorLink } from "@apollo/client/link/error";
 import { RetryLink } from "@apollo/client/link/retry";
 import { CachePersistor } from "apollo3-cache-persist";
+import { OperationTypeNode } from "graphql";
 import { createMMKV } from "react-native-mmkv";
 import { toast } from "@/components/ui/toast";
 import { session$ } from "@/state/session";
@@ -40,17 +41,46 @@ const errorLink = new ErrorLink(({ error, operation }) => {
 
   if (silent) return;
 
-  const { operationName } = operation;
+  const { operationName, operationType, query, variables } = operation;
 
   toast.destructive(typeof message === "string" ? message : error.message, {
-    ...(operationName && {
+    // Mutations get no Retry: re-sending one from here would skip the caller's
+    // `update` and haptics; the user redoes the change instead.
+    ...(operationType === OperationTypeNode.QUERY && {
       actionLabel: "Retry",
-      onAction: () => {
-        client.refetchQueries({ include: [operationName] });
-      },
+      onAction: () => retryQuery({ operationName, query, variables, message }),
     }),
   });
 });
+
+/** Refetches the watchers of a failed query, or re-runs it when nothing watches it (a one-off `client.query`). */
+function retryQuery({
+  operationName,
+  query,
+  variables,
+  message,
+}: Pick<ApolloLink.Operation, "operationName" | "query" | "variables"> & {
+  message: unknown;
+}) {
+  const watched = [...client.getObservableQueries("active")].some(
+    (observable) => observable.queryName === operationName,
+  );
+
+  if (watched && operationName) {
+    client.refetchQueries({ include: [operationName] });
+    return;
+  }
+
+  client
+    .query({
+      query,
+      variables,
+      fetchPolicy: "network-only",
+      context: { errorMessage: message },
+    })
+    // A second failure toasts again through this link; the rejection has no one to catch it.
+    .catch(() => {});
+}
 
 export const client = new ApolloClient({
   // Error sits upstream of retry, so a failure toasts once, not once per attempt.
