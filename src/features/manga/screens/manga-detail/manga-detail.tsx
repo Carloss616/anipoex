@@ -1,12 +1,7 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { cn } from "panelui-native/utils/cn";
 import { EmptyState } from "@/components/empty-state";
 import { Center } from "@/components/layout/center";
-import { Column } from "@/components/layout/column";
-import { Row } from "@/components/layout/row";
-import { ScrollView } from "@/components/layout/scroll-view";
 import { Toolbar } from "@/components/layout/toolbar";
-import { Chip } from "@/components/ui/chip";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
@@ -14,14 +9,11 @@ import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openExternal } from "@/utils/open-external";
 import { noop } from "@/utils/utils";
-import { MangaCard } from "../../components/manga-card";
 import { CHAPTERS } from "../../mocks";
+import { DetailHeader } from "./components/detail-header";
 import { DetailList } from "./components/detail-list";
 import { Hero } from "./components/hero";
-import { Meta } from "./components/meta";
 import { SourcePicker } from "./components/source-picker";
-import { Synopsis } from "./components/synopsis";
-import { Tracking } from "./components/tracking";
 
 const MENU_ACTIONS = [
   {
@@ -110,48 +102,7 @@ export function MangaDetail() {
           />
         }
         entryId={manga.mediaListEntry?.id}
-        header={
-          <Column className="gutters pt-gt">
-            <Row
-              className="gutters gap-4 android:px-safe-offset-gx px-gx"
-              alignment="end"
-            >
-              <MangaCard
-                cover={manga.coverImage?.large}
-                coverThumb={manga.coverImage?.medium}
-                coverColor={manga.coverImage?.color}
-                accessibilityLabel={manga.title?.userPreferred ?? undefined}
-                testID="manga-detail-cover"
-                // Width as a style, not `w-36`: inside the Host the card has to read it
-                // back to work out its height, and a class never reaches it.
-                style={{ width: 144 }}
-              />
-              <Meta manga={manga} className="web:self-auto! web:flex-1" />
-            </Row>
-
-            {!!manga.genres?.length && (
-              <ScrollView direction="horizontal" showsIndicators={false}>
-                <Row className="gutters gap-2 android:px-safe-offset-gx px-gx py-6">
-                  {manga.genres.map((g) => (
-                    <Chip key={g} size="sm">
-                      <Chip.Label>{g}</Chip.Label>
-                    </Chip>
-                  ))}
-                </Row>
-              </ScrollView>
-            )}
-
-            <Column
-              className={cn(
-                "gutters gap-6 android:px-safe-offset-gx px-gx pb-6",
-                !manga.genres?.length && "pt-6",
-              )}
-            >
-              <Tracking manga={manga} />
-              <Synopsis text={manga.description} />
-            </Column>
-          </Column>
-        }
+        header={<DetailHeader manga={manga} />}
       />
     </>
   );

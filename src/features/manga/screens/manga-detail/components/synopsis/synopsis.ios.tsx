@@ -1,19 +1,22 @@
-import { Overlay } from "@expo/ui/swift-ui";
+import { Overlay, VStack } from "@expo/ui/swift-ui";
 import {
   Animation,
   accessibilityHidden,
   animation,
   background,
   clipped,
+  fixedSize,
+  foregroundStyle,
   frame,
   lineLimit,
+  multilineTextAlignment,
   onGeometryChange,
   opacity,
+  padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { useState } from "react";
-import { Column } from "@/components/layout/column";
+import { Text } from "@/components/native/swift-ui/text";
 import { Feedback } from "@/components/ui/feedback";
-import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
 /** Enough to tell what the book is about, short enough to leave the page scannable. */
@@ -33,7 +36,8 @@ export function Synopsis({ text }: { text: string | undefined }) {
 
   return (
     // Outside the button, or it snaps to its new height and centres the text.
-    <Column
+    <VStack
+      alignment="leading"
       modifiers={[
         // Drawer-scale travel, on a curve that leaves the start instead of front-loading it.
         animation(Animation.spring({ duration: 0.3, bounce: 0 }), expanded),
@@ -41,17 +45,24 @@ export function Synopsis({ text }: { text: string | undefined }) {
     >
       <Feedback onPress={() => setExpanded((e) => !e)}>
         <Overlay alignment="bottomTrailing">
-          <Typography
-            muted
+          <Text
             modifiers={
               collapsedHeight == null
                 ? [
+                    foregroundStyle("secondary"),
+                    // A button centres its label; the synopsis reads from the leading edge.
+                    multilineTextAlignment("leading"),
+                    // A tight height truncates mid-word: the text keeps its own.
+                    fixedSize({ horizontal: false, vertical: true }),
                     lineLimit(COLLAPSED_LINES),
                     onGeometryChange(({ height }) =>
                       setCollapsedHeight(height),
                     ),
                   ]
                 : [
+                    foregroundStyle("secondary"),
+                    multilineTextAlignment("leading"),
+                    fixedSize({ horizontal: false, vertical: true }),
                     // Before the frame, so it reads the text's own height.
                     onGeometryChange(({ height }) => setFullHeight(height)),
                     // Collapsed height is measured once, so a width change keeps it.
@@ -64,21 +75,22 @@ export function Synopsis({ text }: { text: string | undefined }) {
             }
           >
             {text}
-          </Typography>
+          </Text>
           <Overlay.Content>
-            <Typography
-              className="pl-6 text-inherit"
+            {/* No color of its own: it wears the button's tint. */}
+            <Text
               modifiers={[
+                padding({ leading: 24 }),
                 background(pageBackground),
                 opacity(expanded ? 0 : 1),
                 accessibilityHidden(true),
               ]}
             >
               more
-            </Typography>
+            </Text>
           </Overlay.Content>
         </Overlay>
       </Feedback>
-    </Column>
+    </VStack>
   );
 }

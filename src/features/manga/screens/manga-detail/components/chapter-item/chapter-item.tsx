@@ -1,4 +1,3 @@
-import { Platform } from "expo";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
@@ -28,15 +27,15 @@ export function ChapterItem({ chapter, entryId }: ChapterItemProps) {
       <Item.Actions>
         <Button
           size="icon"
-          className="web:size-9"
-          variant={Platform.OS === "android" ? "ghost" : "outline"}
+          className="size-9"
+          variant="outline"
           onPress={noop}
           accessibilityLabel={`Download chapter ${chapter.title}`}
         >
           <Icon
             name={Icons.download}
             size={BUTTON_ICON_SIZE}
-            className="text-inherit web:text-primary"
+            className="text-primary"
           />
         </Button>
       </Item.Actions>

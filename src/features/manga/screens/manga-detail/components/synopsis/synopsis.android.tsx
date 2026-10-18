@@ -3,9 +3,10 @@ import {
   animateContentSize,
   background,
   clickable,
+  padding,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useState } from "react";
-import { Typography } from "@/components/ui/typography";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 
 /** Enough to tell what the book is about, short enough to leave the page scannable. */
@@ -26,22 +27,23 @@ export function Synopsis({ text }: { text: string | undefined }) {
       contentAlignment="bottomEnd"
       modifiers={[clickable(() => setExpanded((e) => !e))]}
     >
-      <Typography
-        muted
-        numberOfLines={expanded ? undefined : COLLAPSED_LINES}
+      <Text
+        color={m3.onSurfaceVariant}
+        maxLines={expanded ? undefined : COLLAPSED_LINES}
+        overflow={expanded ? undefined : "ellipsis"}
         modifiers={[animateContentSize()]}
       >
         {text}
-      </Typography>
+      </Text>
       {!expanded && (
-        <Typography
-          weight="medium"
-          className="pl-6"
-          style={{ color: m3.primary }}
-          modifiers={[background(m3.surface)]}
+        <Text
+          style={{ fontWeight: "500" }}
+          color={m3.primary}
+          // The background first, so it reaches under the padding too.
+          modifiers={[background(m3.surface), padding(24, 0, 0, 0)]}
         >
           more
-        </Typography>
+        </Text>
       )}
     </Box>
   );
