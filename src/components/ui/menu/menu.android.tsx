@@ -17,7 +17,7 @@ import { useMenuDialogState } from "./use-menu-dialog";
 export function Menu({ items, children }: MenuProps) {
   const [open, setOpen] = useState(false);
   const { rows, pending, close } = useMenuDialogState(items);
-  const destructive = useThemeM3Colors("destructive");
+  const m3 = useThemeM3Colors();
 
   return (
     <>
@@ -31,9 +31,7 @@ export function Menu({ items, children }: MenuProps) {
               key={item.label}
               enabled={!item.disabled}
               elementColors={
-                item.destructive
-                  ? { textColor: destructive.primary }
-                  : undefined
+                item.destructive ? { textColor: m3.error } : undefined
               }
               onClick={() => {
                 setOpen(false);

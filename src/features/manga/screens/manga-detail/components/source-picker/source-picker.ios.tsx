@@ -7,8 +7,8 @@ import {
 import { Text } from "@/components/native/swift-ui/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { SourceSheet } from "../source-sheet";
+import { useSourcePicker } from "./hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
-import { useSourcePicker } from "./use-source-picker";
 
 export function SourcePicker({ mangaId, entryId, total }: SourcePickerProps) {
   const picker = useSourcePicker(mangaId);

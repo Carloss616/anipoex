@@ -24,7 +24,7 @@ import { sourceColor } from "@/features/manga/sources";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 import type { ListItemProps } from "./list-item";
-import { uninstallItem } from "./uninstall-item";
+import { uninstallItem } from "./utils/uninstall-item";
 
 const ICON_BUTTON = [
   buttonBorderShape("circle"),

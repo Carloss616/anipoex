@@ -7,7 +7,7 @@ import { THEME_FAMILIES, theme$ } from "@/state/theme";
 
 export function ThemePicker() {
   return (
-    <Row className="web:self-auto! flex-wrap gap-3">
+    <Row className="self-auto! flex-wrap gap-3">
       {THEME_FAMILIES.map((entry) => (
         <Memo key={entry.id}>
           {() => (

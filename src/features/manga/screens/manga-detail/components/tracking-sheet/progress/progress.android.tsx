@@ -10,8 +10,8 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { NumberInput } from "@/components/ui/number-input";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
+import { useProgress } from "./hooks/use-progress";
 import type { ProgressProps } from "./progress";
-import { useProgress } from "./use-progress";
 
 export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
   const { isLandscape } = useBreakpoint();

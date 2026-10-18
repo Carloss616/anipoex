@@ -6,7 +6,7 @@ import { Typography } from "@/components/ui/typography";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
-import { useProgress } from "./use-progress";
+import { useProgress } from "./hooks/use-progress";
 
 export interface ProgressProps {
   form: TrackingForm;

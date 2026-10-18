@@ -12,7 +12,7 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
 import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
-import { useSources } from "./use-sources";
+import { useSources } from "./hooks/use-sources";
 
 export interface SourceSheetProps {
   isPresented: boolean;

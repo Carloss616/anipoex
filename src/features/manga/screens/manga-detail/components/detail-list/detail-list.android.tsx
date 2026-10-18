@@ -19,7 +19,7 @@ import {
 import { cn } from "panelui-native/utils/cn";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/empty-state";
-import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/gutters";
+import { GUTTER_BOTTOM, GUTTER_X } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";

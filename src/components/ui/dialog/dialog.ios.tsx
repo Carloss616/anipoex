@@ -1,8 +1,7 @@
-import { Alert, ConfirmationDialog } from "@expo/ui/swift-ui";
+import { Alert, Button, ConfirmationDialog } from "@expo/ui/swift-ui";
 import { useState } from "react";
-import { Button } from "../button";
+import { Text } from "@/components/native/swift-ui/text";
 import { EnsureHost } from "../host";
-import { Typography } from "../typography";
 import type { DialogProps } from "./dialog";
 import { extractTrigger, Trigger } from "./trigger";
 
@@ -42,21 +41,22 @@ function DialogRoot({
         )}
         <Root.Actions>
           <Button
-            variant={destructive ? "destructive" : "primary"}
+            label={confirmLabel}
+            role={destructive ? "destructive" : undefined}
             onPress={() => {
               setOpen(false);
               onConfirm();
             }}
-          >
-            {confirmLabel}
-          </Button>
-          <Button cancelRole onPress={() => setOpen(false)}>
-            {cancelLabel}
-          </Button>
+          />
+          <Button
+            label={cancelLabel}
+            role="cancel"
+            onPress={() => setOpen(false)}
+          />
         </Root.Actions>
         {description && (
           <Root.Message>
-            <Typography>{description}</Typography>
+            <Text>{description}</Text>
           </Root.Message>
         )}
       </Root>

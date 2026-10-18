@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import { SourceSheet } from "../source-sheet";
-import { useSourcePicker } from "./use-source-picker";
+import { useSourcePicker } from "./hooks/use-source-picker";
 
 export interface SourcePickerProps {
   mangaId: number;

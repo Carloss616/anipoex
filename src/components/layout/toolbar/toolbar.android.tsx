@@ -1,9 +1,9 @@
+import { IconButton, Row, TextButton } from "@expo/ui/jetpack-compose";
 import { Stack } from "expo-router";
 import type { ColorValue } from "react-native";
-import { Row } from "@/components/layout/row";
-import { Button } from "@/components/ui/button";
+import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
+import { Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
@@ -22,25 +22,25 @@ function ToolbarButton({
   tintColor?: ColorValue;
   onPress?: () => void;
 }) {
+  const colors = tintColor ? { contentColor: tintColor } : undefined;
+
+  if (icon == null) {
+    return (
+      <TextButton enabled={!disabled} onClick={onPress} colors={colors}>
+        <Text style={{ typography: "labelLarge" }}>{label}</Text>
+      </TextButton>
+    );
+  }
+
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      disabled={disabled}
-      onPress={onPress}
-      colors={tintColor ? { contentColor: tintColor } : undefined}
-    >
-      {icon == null ? (
-        label
-      ) : (
-        <Icon
-          name={icon as IconName}
-          size={BUTTON_ICON_SIZE}
-          accessibilityLabel={label}
-          className="text-inherit"
-        />
-      )}
-    </Button>
+    <IconButton enabled={!disabled} onClick={onPress} colors={colors}>
+      <Icon
+        name={icon as IconName}
+        size={24}
+        accessibilityLabel={label}
+        color="inherit"
+      />
+    </IconButton>
   );
 }
 
@@ -82,8 +82,8 @@ function ToolbarItemView({ item }: { item: ToolbarItem }) {
  * Android draws toolbar items as Android Views, so each one can only be tinted
  * one prop at a time and its ripple never follows the app's palette — the ⋮
  * popup needed a patch of its own for that. `asChild` hands the whole header
- * slot over instead: one Compose `Host`, and from there the items are our own
- * `Button` and `Menu`, themed like the rest of the screen for free.
+ * slot over instead: one Compose `Host`, and from there the items are M3's
+ * `IconButton` and our `Menu`, themed like the rest of the screen for free.
  */
 export function Toolbar({ children: toolbar }: ToolbarProps) {
   const parsed = readToolbar(toolbar);
@@ -95,7 +95,7 @@ export function Toolbar({ children: toolbar }: ToolbarProps) {
   return (
     <Stack.Toolbar placement={parsed.placement} asChild>
       <Host matchContents>
-        <Row alignment="center">
+        <Row verticalAlignment="center">
           {parsed.items.map((item) => (
             <ToolbarItemView key={item.key} item={item} />
           ))}

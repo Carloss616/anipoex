@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { TrackingSheet } from "../tracking-sheet";
-import { useTrackingSummary } from "./use-tracking-summary";
+import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
 /** An outlined button summing the entry up; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {

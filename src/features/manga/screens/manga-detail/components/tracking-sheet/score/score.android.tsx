@@ -11,8 +11,8 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
 import { Footer } from "../footer";
+import { useScore } from "./hooks/use-score";
 import type { ScoreProps } from "./score";
-import { useScore } from "./use-score";
 
 export function Score({ value, onCancel, onConfirm }: ScoreProps) {
   const { isLandscape } = useBreakpoint();

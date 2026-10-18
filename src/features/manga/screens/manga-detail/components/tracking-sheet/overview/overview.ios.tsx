@@ -24,7 +24,7 @@ import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import { formatDate } from "@/utils/utils";
 import type { OverviewProps } from "./overview";
-import { removeItem } from "./remove-item";
+import { removeItem } from "./utils/remove-item";
 
 interface CellProps {
   value: string | number | null | undefined;

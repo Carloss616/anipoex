@@ -8,7 +8,7 @@ import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
-import { useStatus } from "./use-status";
+import { useStatus } from "./hooks/use-status";
 
 export interface StatusProps {
   form: TrackingForm;

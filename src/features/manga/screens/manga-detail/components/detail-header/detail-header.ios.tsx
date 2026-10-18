@@ -6,7 +6,7 @@ import {
   padding,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { GUTTER_TOP, GUTTER_X } from "@/components/native/gutters";
+import { GUTTER_TOP, GUTTER_X } from "@/components/native/constants";
 import { useFont } from "@/components/native/swift-ui/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeColor } from "@/hooks/use-theme-color";

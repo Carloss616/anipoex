@@ -12,7 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { TrackingSheet } from "../tracking-sheet";
-import { useTrackingSummary } from "./use-tracking-summary";
+import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
 /** A glass button summing the entry up; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {

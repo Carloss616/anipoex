@@ -2,10 +2,10 @@ import { DatePicker as PanelDatePicker } from "panelui-native/components/date-pi
 import { Field } from "panelui-native/components/field";
 import { View } from "react-native";
 import { formatDate } from "@/utils/utils";
-import { Button, type ButtonProps } from "../button";
-import { CloseButton } from "../close-button";
-import { Icon } from "../icon";
-import { Typography } from "../typography";
+import { Button, type ButtonProps } from "./button";
+import { CloseButton } from "./close-button";
+import { Icon } from "./icon";
+import { Typography } from "./typography";
 
 export interface DatePickerProps {
   label: string;

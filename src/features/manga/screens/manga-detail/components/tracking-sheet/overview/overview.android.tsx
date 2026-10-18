@@ -23,7 +23,7 @@ import { MANGA_STATUSES } from "@/features/manga/constants";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { formatDate } from "@/utils/utils";
 import type { OverviewProps } from "./overview";
-import { removeItem } from "./remove-item";
+import { removeItem } from "./utils/remove-item";
 
 /** The M3 minimum touch target: a cell's height, and the rule between cells. */
 const CELL_HEIGHT = 48;

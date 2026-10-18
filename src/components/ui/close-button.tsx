@@ -24,7 +24,6 @@ export function CloseButton({
       variant={variant}
       size={size}
       className={cn("web:size-9", className)}
-      muted
       {...props}
     >
       {children ?? (

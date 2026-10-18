@@ -6,7 +6,7 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { STATUS_COLOR } from "@/features/manga/components/manga-card/constants";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { metaLines } from "./meta-lines";
+import { metaLines } from "./utils/meta-lines";
 
 const BODY = { typography: "bodyMedium" } as const;
 

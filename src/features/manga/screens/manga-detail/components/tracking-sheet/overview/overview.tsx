@@ -12,7 +12,7 @@ import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { formatDate } from "@/utils/utils";
-import { removeItem } from "./remove-item";
+import { removeItem } from "./utils/remove-item";
 
 /** The cells that have a view of their own. Grows as each one lands. */
 export type Field =
@@ -52,7 +52,7 @@ export function Overview({
         </Typography>
         <Spacer flexible />
         <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
-          <Button variant="outline" size="icon" className="size-9" muted>
+          <Button variant="outline" size="icon" className="size-9">
             <Icon
               name={Icons.more}
               size={BUTTON_ICON_SIZE}

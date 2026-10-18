@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { STATUS_COLOR } from "@/features/manga/components/manga-card/constants";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { metaLines } from "./meta-lines";
+import { metaLines } from "./utils/meta-lines";
 
 const SECONDARY = foregroundStyle("secondary");
 

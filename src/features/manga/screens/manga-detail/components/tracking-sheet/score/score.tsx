@@ -8,7 +8,7 @@ import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
 import { Typography } from "@/components/ui/typography";
 import { Footer } from "../footer";
-import { useScore } from "./use-score";
+import { useScore } from "./hooks/use-score";
 
 export interface ScoreProps {
   value: number;

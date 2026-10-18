@@ -22,8 +22,8 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
 import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
+import { useSources } from "./hooks/use-sources";
 import type { SourceSheetProps } from "./source-sheet";
-import { useSources } from "./use-sources";
 
 export function SourceSheet({
   isPresented,

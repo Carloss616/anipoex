@@ -21,7 +21,7 @@ import { sourceColor } from "@/features/manga/sources";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { theme$ } from "@/state/theme";
 import type { ListItemProps } from "./list-item";
-import { uninstallItem } from "./uninstall-item";
+import { uninstallItem } from "./utils/uninstall-item";
 
 const label = (text: string) => [semantics({ contentDescription: text })];
 

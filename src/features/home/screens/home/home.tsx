@@ -1,39 +1,23 @@
-import { useValue } from "@legendapp/state/react";
 import { Center } from "@/components/layout/center";
 import { ScrollView } from "@/components/layout/scroll-view";
 import { ThemePicker } from "@/components/theme-picker";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Host } from "@/components/ui/host";
-import { toast } from "@/components/ui/toast";
 import { Typography } from "@/components/ui/typography";
-import { clearCache } from "@/graphql/client";
-import { clearSession, session$ } from "@/state/session";
+import { useSignOut } from "./hooks/use-sign-out";
 
 export function Home() {
-  const user = useValue(session$.user);
-
-  async function handleSignOut() {
-    const results = await Promise.allSettled([clearSession(), clearCache()]);
-    const failed = results.find((r) => r.status === "rejected");
-
-    if (failed) {
-      toast.destructive(
-        failed.reason instanceof Error
-          ? failed.reason.message
-          : "Something went wrong",
-      );
-    }
-  }
+  const { greeting, signOut } = useSignOut();
 
   return (
     <Host className="flex-1">
       <ScrollView>
         <Center className="gap-4 px-8 py-24">
           <Typography type="h5" align="center">
-            {user ? `Hi, ${user.name}` : "Signed in"}
+            {greeting}
           </Typography>
-          <Button variant="outline" onPress={handleSignOut}>
+          <Button variant="outline" onPress={signOut}>
             Sign out
           </Button>
           <ThemeToggle />

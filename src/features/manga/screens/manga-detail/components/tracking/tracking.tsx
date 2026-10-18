@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Typography } from "@/components/ui/typography";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { TrackingSheet } from "../tracking-sheet";
-import { useTrackingSummary } from "./use-tracking-summary";
+import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
 export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);

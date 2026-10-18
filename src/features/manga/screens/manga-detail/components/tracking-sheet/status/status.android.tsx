@@ -13,8 +13,8 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
+import { useStatus } from "./hooks/use-status";
 import type { StatusProps } from "./status";
-import { useStatus } from "./use-status";
 
 export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
   const { isLandscape } = useBreakpoint();

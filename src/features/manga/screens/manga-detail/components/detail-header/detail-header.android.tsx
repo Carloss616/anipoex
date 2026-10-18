@@ -1,7 +1,7 @@
 import { Column, FilterChip, Row } from "@expo/ui/jetpack-compose";
 import { horizontalScroll, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { GUTTER_TOP, GUTTER_X } from "@/components/native/gutters";
+import { GUTTER_TOP, GUTTER_X } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";

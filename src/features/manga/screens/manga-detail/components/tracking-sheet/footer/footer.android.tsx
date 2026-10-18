@@ -13,7 +13,7 @@ export function Footer({
   onRemove,
   canRemove,
 }: FooterProps) {
-  const destructive = useThemeM3Colors("destructive");
+  const m3 = useThemeM3Colors();
 
   return (
     <Row
@@ -25,7 +25,7 @@ export function Footer({
         <TextButton
           enabled={canRemove}
           onClick={onRemove}
-          colors={{ contentColor: destructive.primary }}
+          colors={{ contentColor: m3.error }}
         >
           <Text style={LABEL}>Remove</Text>
         </TextButton>

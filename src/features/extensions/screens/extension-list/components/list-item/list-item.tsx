@@ -15,7 +15,7 @@ import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
-import { uninstallItem } from "./uninstall-item";
+import { uninstallItem } from "./utils/uninstall-item";
 
 export interface ListItemProps {
   extension: Extension;
@@ -87,7 +87,6 @@ export function ListItem({ extension: e }: ListItemProps) {
               size="icon"
               variant="outline"
               className="size-9"
-              muted
               accessibilityLabel={`More actions for ${e.name}`}
             >
               <Icon
