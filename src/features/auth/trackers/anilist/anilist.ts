@@ -1,6 +1,7 @@
 import * as WebBrowser from "expo-web-browser";
 import { Platform } from "react-native";
 import { client } from "@/graphql/client";
+import { desktop } from "@/utils/desktop";
 import type { Tracker, User } from "../../types/tracker";
 import { parseFragment } from "../../utils/parse-fragment";
 import { CLIENT_ID, REDIRECT_URI } from "./constants";
@@ -28,11 +29,17 @@ export const anilist: Tracker = {
     // Implicit grant takes only these two params. The redirect URI comes from
     // the AniList app registration, not from the query string.
     const url = `${AUTHORIZE_URL}?client_id=${encodeURIComponent(CLIENT_ID)}&response_type=token`;
-    const result = await WebBrowser.openAuthSessionAsync(url, REDIRECT_URI);
+    // The desktop app runs the round trip in its own window; it stops on the redirect without loading it.
+    const redirect = desktop
+      ? await desktop.signIn(url)
+      : await WebBrowser.openAuthSessionAsync(url, REDIRECT_URI).then(
+          (result) => (result.type === "success" ? result.url : null),
+        );
 
-    if (result.type !== "success") return null;
+    // A denied grant comes back with `error=`; treat it like closing the window.
+    if (!redirect || /[?#&]error=/.test(redirect)) return null;
 
-    const accessToken = parseFragment(result.url).access_token;
+    const accessToken = parseFragment(redirect).access_token;
     if (!accessToken) {
       throw new Error("AniList did not return an access_token");
     }
