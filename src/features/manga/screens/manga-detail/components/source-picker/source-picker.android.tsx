@@ -24,7 +24,7 @@ export function SourcePicker({ manga }: SourcePickerProps) {
           <Icon name={Icons.chevronDown} size={16} color="inherit" />
         </Row>
       </TextButton>
-      {picker.match?.manga && (
+      {picker.hasWeb && (
         <IconButton
           onClick={picker.openWeb}
           colors={{ contentColor: m3.onSurfaceVariant }}

@@ -13,19 +13,23 @@ export function useSourcePicker(manga: SourcePickerManga) {
   const { match, matching } = useSourceMatch(manga.id);
   const source = sources.find((entry) => entry.id === match?.sourceId);
 
+  // Only a matched manga on an installed source has a page to open.
+  const webManga = source ? match?.manga : undefined;
+
   return {
     label: source?.name ?? "Source",
     sourceId: match?.sourceId,
     match,
+    hasWeb: !!webManga,
     matching,
     isPresented,
     open: () => setIsPresented(true),
     close: () => setIsPresented(false),
-    /** The manga's page on the source's site; only a matched manga has one. */
+    /** The manga's page on the source's site. */
     openWeb: async () => {
-      if (!match?.manga) return;
+      if (!webManga || !match) return;
       const url = await runtime
-        .mangaWebUrl(match.sourceId, match.manga.url)
+        .mangaWebUrl(match.sourceId, webManga.url)
         .catch(() => null);
       if (!url || !openExternal(url))
         toast.destructive("Couldn't open this manga's page");

@@ -1,30 +1,27 @@
 type Value = number | bigint | Uint8Array;
 type Fields = Map<number, Value[]>;
 
-export type StoreSource = {
+type StoreSource = {
   id?: string;
   name?: string;
   language?: string;
   homeUrl?: string;
-  mirrorUrls: string[];
 };
 
-export type StoreExtension = {
+type StoreExtension = {
   name?: string;
   packageName?: string;
   resources?: { apkUrl?: string; iconUrl?: string };
   extensionLib?: string;
-  versionCode?: string;
   versionName?: string;
   contentWarning?: string | number;
   sources: StoreSource[];
 };
 
-export type StoreExtensionList = { extensions: StoreExtension[] };
+type StoreExtensionList = { extensions: StoreExtension[] };
 
-export type Store = {
+type Store = {
   name?: string;
-  badgeLabel?: string;
   signingKey?: string;
   extensionList?: StoreExtensionList;
   extensionListUrl?: string;
@@ -102,11 +99,6 @@ const text = (fields: Fields, field: number) => {
   return value instanceof Uint8Array ? utf8.decode(value) : undefined;
 };
 
-const texts = (fields: Fields, field: number) =>
-  (fields.get(field) ?? []).flatMap((v) =>
-    v instanceof Uint8Array ? [utf8.decode(v)] : [],
-  );
-
 const messages = (fields: Fields, field: number) =>
   (fields.get(field) ?? []).flatMap((v) =>
     v instanceof Uint8Array ? [readFields(v)] : [],
@@ -137,7 +129,6 @@ const source = (fields: Fields): StoreSource => ({
   name: text(fields, 2),
   language: text(fields, 3),
   homeUrl: text(fields, 4),
-  mirrorUrls: texts(fields, 5),
 });
 
 const extension = (fields: Fields): StoreExtension => {
@@ -150,7 +141,6 @@ const extension = (fields: Fields): StoreExtension => {
       iconUrl: text(resources, 2),
     },
     extensionLib: text(fields, 4),
-    versionCode: int64(fields, 5),
     versionName: text(fields, 6),
     contentWarning: enumValue(fields, 7),
     sources: messages(fields, 8).map(source),
@@ -170,7 +160,6 @@ export const decodeStore = (bytes: Uint8Array): Store => {
   const list = message(fields, 101);
   return {
     name: text(fields, 1),
-    badgeLabel: text(fields, 2),
     signingKey: text(fields, 3),
     extensionList: list && extensionList(list),
     extensionListUrl: text(fields, 102),

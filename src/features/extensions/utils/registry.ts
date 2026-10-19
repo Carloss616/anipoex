@@ -7,6 +7,10 @@ import type { Repo, RepoEntry } from "./repo";
 const SUPPORTED_LIBS = ["1.4", "1.6"];
 const MULTI: Language = { code: "mul", name: "Multi" };
 
+// The first source with an http(s) homepage; an index is third-party.
+const siteOf = (sources: { homeUrl?: string | null }[]) =>
+  sources.find((s) => s.homeUrl && isWebUrl(s.homeUrl))?.homeUrl ?? undefined;
+
 export function languageName(code: string): string {
   if (code === "all" || code === "mul") return MULTI.name;
   try {
@@ -65,7 +69,7 @@ export function toExtensions(
         version: entry.version,
         nsfw: entry.nsfw,
         installed: false,
-        websiteUrl: entry.sources.find((s) => s.homeUrl)?.homeUrl,
+        websiteUrl: siteOf(entry.sources),
         apkUrl: entry.apkUrl,
         signingKey: repo.signingKey,
         repo: repo.name,
@@ -91,9 +95,7 @@ function fromInstalled(local: InstalledExtension, pick?: Listing): Extension {
     installed: true,
     signingKey: local.signingKey,
     iconUrl: local.icon ?? undefined,
-    websiteUrl:
-      local.sources.find((s) => s.homeUrl && isWebUrl(s.homeUrl))?.homeUrl ??
-      undefined,
+    websiteUrl: siteOf(local.sources),
   };
   if (!pick) return base;
   const { repo, entry } = pick;
@@ -102,8 +104,7 @@ function fromInstalled(local: InstalledExtension, pick?: Listing): Extension {
     nsfw: entry.nsfw,
     repo: repo.name,
     apkUrl: entry.apkUrl,
-    websiteUrl:
-      base.websiteUrl ?? entry.sources.find((s) => s.homeUrl)?.homeUrl,
+    websiteUrl: base.websiteUrl ?? siteOf(entry.sources),
     // The local file loads offline and always exists; the repo's url may 404.
     iconUrl: base.iconUrl ?? entry.iconUrl,
     ...(entry.version !== local.version && { latestVersion: entry.version }),

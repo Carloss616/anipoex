@@ -55,7 +55,6 @@ const EXPECTED_EXTENSION = {
     iconUrl: "https://example.com/example.png",
   },
   extensionLib: "1.6",
-  versionCode: "106004",
   versionName: "1.6.4",
   contentWarning: "CONTENT_WARNING_NSFW",
   sources: [
@@ -64,9 +63,8 @@ const EXPECTED_EXTENSION = {
       name: "Exämple 日本",
       language: "ja",
       homeUrl: "https://example.com",
-      mirrorUrls: ["https://a.example.com", "https://b.example.com"],
     },
-    { id: NEGATIVE_ID, name: "Other", language: "en", mirrorUrls: [] },
+    { id: NEGATIVE_ID, name: "Other", language: "en" },
   ],
 };
 
@@ -74,7 +72,6 @@ describe("decodeStore", () => {
   it("reads the store, its inline list and int64 ids as exact strings", () => {
     expect(decodeStore(new Uint8Array(STORE))).toEqual({
       name: "Example",
-      badgeLabel: "EX",
       signingKey: "a".repeat(64),
       extensionList: { extensions: [EXPECTED_EXTENSION] },
     });

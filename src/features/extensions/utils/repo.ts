@@ -228,12 +228,15 @@ export const fetchIndex = async (repo: Repo): Promise<RepoEntry[]> => {
   }
   const listUrl = repo.extensionListUrl;
   const body = await download(listUrl ?? repo.indexUrl);
-  if (body[0] === 0x7b) {
-    const value = json(body);
-    return parseIndex(listUrl ? { extensionList: value } : value, repo.baseUrl);
-  }
-  const extensionList = listUrl
-    ? decodeExtensionList(body)
-    : decodeStore(body).extensionList;
-  return parseIndex({ extensionList }, repo.baseUrl);
+  // Every decoder and the JSON parse yield an extension list, or a store holding one.
+  const decoded =
+    body[0] === 0x7b
+      ? json(body)
+      : listUrl
+        ? decodeExtensionList(body)
+        : decodeStore(body);
+  return parseIndex(
+    listUrl ? { extensionList: decoded } : decoded,
+    repo.baseUrl,
+  );
 };

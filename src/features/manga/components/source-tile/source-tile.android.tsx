@@ -30,8 +30,7 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
       modifiers={[
         size(SIDE, SIDE),
         clip(Shapes.RoundedCorner(radius)),
-        // Compose's `border()` takes no shape, so the rounded border is its
-        // color showing through a hairline gap; a loaded logo drops both.
+        // Compose's `border()` takes no shape: the border is the color showing through a hairline gap, dropped once loaded.
         ...(loaded
           ? []
           : [
