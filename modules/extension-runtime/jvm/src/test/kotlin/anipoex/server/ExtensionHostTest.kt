@@ -23,6 +23,7 @@ import kotlin.test.assertTrue
 
 private const val PKG = "eu.kanade.tachiyomi.extension.all.fixture"
 private const val ICON = "data:image/png;base64,iVBORw0KGgo="
+private val BADCLASS = File("src/test/fixtures/fixture-badclass.apk")
 
 class ExtensionHostTest {
     @TempDir
@@ -53,10 +54,12 @@ class ExtensionHostTest {
         seed()
         val host = ExtensionHost(dir)
         assertSeeded(host)
-        // (a) the signature fails, (b) it verifies but has no classes.dex to convert.
+        // (a) the signature fails, (b) it verifies but has no classes.dex to convert, (c) it converts but its class isn't a source.
         assertContains(installError(host, serve(tamper(FIXTURE, File(dir, "tampered.apk"))), FIXTURE_KEY), "doesn't verify")
         assertSeeded(host)
         assertContains(installError(host, serve(FIXTURE), FIXTURE_KEY), "classes.dex")
+        assertSeeded(host)
+        assertContains(installError(host, serve(BADCLASS), FIXTURE_KEY), "Unknown source class")
         assertSeeded(host)
         // A restart reads the stored files, so they must be the seeded ones.
         assertSeeded(ExtensionHost(dir))
@@ -69,6 +72,7 @@ class ExtensionHostTest {
         installError(host, serve(FIXTURE), "00".repeat(32))
         installError(host, serve(tamper(FIXTURE, File(dir, "tampered.apk"))), FIXTURE_KEY)
         installError(host, serve(FIXTURE), FIXTURE_KEY)
+        installError(host, serve(BADCLASS), FIXTURE_KEY)
         val leftovers = exts.list().orEmpty().filter {
             (it.startsWith("download") && it.endsWith(".apk")) || (it.startsWith("convert") && it.endsWith(".jar")) || it.startsWith("classes") || it.endsWith(".bak")
         }
