@@ -5,7 +5,7 @@ set -eu
 IOS="$(cd "$(dirname "$0")/.." && pwd)"
 SLICE="$IOS/Frameworks/AnipoexJDK.xcframework/ios-arm64-simulator"
 WORK="$(mktemp -d)"
-DATA="$WORK/datos de prueba ñ"
+DATA="$WORK/test data ñ"
 
 xcrun --sdk iphonesimulator clang -target arm64-apple-ios16.4-simulator -fobjc-arc -F "$SLICE" -I "$IOS" \
   "$IOS/scripts/smoke-main.m" "$IOS/JvmHost.m" -framework Foundation -o "$WORK/smoke"

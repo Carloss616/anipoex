@@ -4,7 +4,7 @@ import okhttp3.CompressionInterceptor
 import okio.BufferedSource
 import okio.Source
 
-// shortcut: sin zstd en iOS (zstd-kmp es JNI); un decodificador Java puro si un servidor exige zstd
+// shortcut: no zstd on iOS (zstd-kmp is JNI); add a pure-Java decoder if a server requires zstd
 object Zstd : CompressionInterceptor.DecompressionAlgorithm {
     override val encoding: String = "identity"
 
