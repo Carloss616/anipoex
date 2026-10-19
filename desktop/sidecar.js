@@ -3,10 +3,7 @@ import { closeSync, mkdirSync, openSync } from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 
-/**
- * Runs the JVM extension server on demand: one JSON line per request and per reply.
- * `call` resolves to the server's `{id, result}` or `{id, error}`, or `{error}` when the process stops; the next call starts a new one.
- */
+/** Runs the JVM extension server on demand, one JSON line per request and reply: `call` resolves to `{id, result}`, `{id, error}`, or `{error}` when the process stops (the next call starts a new one). */
 export function startSidecar({ java, args, logFile }) {
   let server = null;
   let nextId = 0;

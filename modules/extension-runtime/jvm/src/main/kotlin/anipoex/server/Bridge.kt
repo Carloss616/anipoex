@@ -13,10 +13,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import java.lang.reflect.InvocationTargetException
 
-/**
- * The one entry point every host calls (JNI on iOS, the stdin/stdout loop on desktop): JSON args in, `{"result":…}` or `{"error":…}` out.
- * Blocks the calling thread, so hosts call it off their UI thread.
- */
+/** The one entry point every host calls (JNI on iOS, the stdin/stdout loop on desktop): JSON args in, `{"result":…}` or `{"error":…}` out; it blocks, so hosts call it off their UI thread. */
 object Bridge {
     @Volatile private var host: ExtensionHost? = null
 

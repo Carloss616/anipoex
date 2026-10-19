@@ -9,10 +9,7 @@ const isFile = (file) => {
   }
 };
 
-/**
- * Maps a URL path to a file of the static web export: the exact file, `<path>.html`, `<path>/index.html`, else `index.html` (a client route).
- * `null` when the decoded path leaves `root`.
- */
+/** Maps a URL path to a file of the static web export (the exact file, `<path>.html`, `<path>/index.html`, else `index.html` for a client route); `null` when the decoded path leaves `root`. */
 export function resolveAsset(root, pathname) {
   let decoded;
   try {

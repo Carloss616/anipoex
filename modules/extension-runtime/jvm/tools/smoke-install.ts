@@ -1,5 +1,4 @@
-// Usage: bun smoke-install.ts <index.json url> <count> <seed>
-// Installs a seeded sample of a v2 extension index into a fresh server and prints how many installed, with errors grouped.
+// `bun smoke-install.ts <index.json url> <count> <seed>`: installs a seeded sample of a v2 extension index into a fresh server and prints how many installed, with errors grouped.
 import { mkdtempSync, openSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

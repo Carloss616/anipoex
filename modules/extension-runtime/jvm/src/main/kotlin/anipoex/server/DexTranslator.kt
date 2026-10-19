@@ -81,9 +81,7 @@ internal fun translate(dex: DexFileNode, version: Int, classes: Path) {
         .to(classes)
 }
 
-// R8 inlines trivial constructors, leaving calls ART runs and the JVM verifier rejects: `new X` then `Y.<init>` on it, or a
-// constructor of X calling `Y.<init>` on itself, with Y a superclass further up than X's direct one. dex2jar turns the first
-// into `new Y`, losing X. Each call is pointed at a constructor that reaches Y.<init> through every class in between.
+// R8 inlines trivial constructors into `Y.<init>` calls on an X (Y above X's direct super) that ART runs and the JVM verifier rejects, so each is pointed at a constructor reaching Y.<init> through every class in between.
 internal fun fixInlinedConstructors(dex: DexFileNode) {
     val classes = dex.clzs.associateBy { it.className }
     // Added after the walk: the class being fixed is often the one whose code is walked.
@@ -132,7 +130,7 @@ internal fun remapUtilObject(classFile: ByteArray): ByteArray {
 }
 
 // Registers a method's arguments take, `this` included: long and double take two.
-private fun registersOf(method: Method) = 1 + method.parameterTypes.sumOf { if (it == "J" || it == "D") 2 else 1 as Int }
+private fun registersOf(method: Method) = 1 + method.parameterTypes.sumOf { if (it == "J" || it == "D") 2 else 1 }
 
 private fun delegatingConstructor(constructor: Method, superConstructor: Method) =
     DexMethodNode(DexConstants.ACC_PUBLIC or DexConstants.ACC_CONSTRUCTOR, constructor).apply {
