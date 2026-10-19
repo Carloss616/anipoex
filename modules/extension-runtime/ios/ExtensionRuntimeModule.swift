@@ -1,0 +1,23 @@
+import ExpoModulesCore
+
+public class ExtensionRuntimeModule: Module {
+  public func definition() -> ModuleDefinition {
+    Name("ExtensionRuntime")
+
+    // Resolves the raw `{result}`/`{error}` envelope; the JS bridge turns it into a value or an Error.
+    AsyncFunction("call") { (method: String, argsJson: String, promise: Promise) in
+      guard let jars = Bundle(for: ExtensionRuntimeModule.self).url(forResource: "ExtensionRuntime", withExtension: "bundle") else {
+        promise.resolve(#"{"error":"ExtensionRuntime.bundle is missing from the app"}"#)
+        return
+      }
+      let framework = Bundle.main.privateFrameworksURL!.appendingPathComponent("AnipoexJDK.framework")
+      let data = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("extensions")
+      // Zero turns a stack overflow into a crash instead of a StackOverflowError, and a GCD thread has only 512 KiB.
+      let thread = Thread {
+        promise.resolve(AnipoexJvmCall(method, argsJson, framework, jars, data))
+      }
+      thread.stackSize = 8 << 20
+      thread.start()
+    }
+  }
+}

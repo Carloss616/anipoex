@@ -21,11 +21,11 @@ is stable across launches.
   an extension is the choice. There is no language filter or setting.
 - **Names**: when an extension has more than one source, each name carries its language
   (`Example (ES-419)`); with one, just the name. Nothing installed, nothing listed.
-- **Empty sheet**: with no search, the source sheet says why nothing is listed: on iOS and
-  the web app in a browser "Sources run in the Android and desktop apps"; on Android and desktop, "No sources installed", pointing to
+- **Empty sheet**: with no search, the source sheet says why nothing is listed: in
+  the web app in a browser "Sources run in the Android, iOS and desktop apps"; on Android, iOS (sideload) and desktop, "No sources installed", pointing to
   the Extensions tab. A search with no hits says
-  "No sources found". On iOS and web in a browser the detail's "Pick a source" says extensions run in the
-  Android and desktop apps.
+  "No sources found". In the web app in a browser the detail's "Pick a source" says extensions run in the
+  Android, iOS and desktop apps.
 
 - **Website**: an installed source reports its own site (none when it can't). On Android, the
   detail shows an "Open on <source>" button next to the source picker once the manga has a

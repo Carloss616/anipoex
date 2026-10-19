@@ -2,6 +2,11 @@
 
 ## 2026-10-19
 
+* **Extensions run on iOS too**: a sideloaded iOS build installs and runs extensions like
+  the desktop app, in a Java runtime built into the app; only the web app in a browser still
+  lists nothing and says "Extensions run in the Android, iOS and desktop apps." and "Sources
+  run in the Android, iOS and desktop apps". Updated [extension](concepts/extension.md),
+  [source](concepts/source.md) and the [concepts index](concepts/index.md).
 * **Desktop sign-in**: the desktop app signs in to AniList with the web client ID in its
   own window, and the registered redirect is never loaded. Updated
   [tracker](concepts/tracker.md).

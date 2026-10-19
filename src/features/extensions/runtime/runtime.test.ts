@@ -13,7 +13,7 @@ describe("runtime fallback", () => {
 
   it("refuses to install with the unavailable message", async () => {
     await expect(runtime.install("https://x/a.apk", "key")).rejects.toThrow(
-      "Extensions run in the Android and desktop apps.",
+      "Extensions run in the Android, iOS and desktop apps.",
     );
   });
 });

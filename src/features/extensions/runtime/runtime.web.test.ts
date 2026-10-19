@@ -19,6 +19,6 @@ describe("runtime.web", () => {
     expect(isRuntimeAvailable).toBe(false);
     await expect(
       runtime.install("https://example.com/a.apk", "k"),
-    ).rejects.toThrow("Extensions run in the Android and desktop apps.");
+    ).rejects.toThrow("Extensions run in the Android, iOS and desktop apps.");
   });
 });

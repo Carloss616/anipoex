@@ -1,6 +1,6 @@
 import type { RuntimeApi } from "../runtime";
 
-const UNAVAILABLE = "Extensions run in the Android and desktop apps.";
+const UNAVAILABLE = "Extensions run in the Android, iOS and desktop apps.";
 
 const unavailable = (): Promise<never> =>
   Promise.reject(new Error(UNAVAILABLE));

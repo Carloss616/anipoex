@@ -19,7 +19,7 @@ export function useSources(selectedId: string | undefined) {
   const empty = needle
     ? { title: "No sources found" }
     : !isRuntimeAvailable
-      ? { title: "Sources run in the Android and desktop apps" }
+      ? { title: "Sources run in the Android, iOS and desktop apps" }
       : {
           title: "No sources installed",
           description: "Install an extension from the Extensions tab.",

@@ -52,7 +52,7 @@ export interface RuntimeApi {
   mangaWebUrl(sourceId: string, mangaUrl: string): Promise<string | null>;
 }
 
-/** Android (`expo-module` `ExtensionRuntime`) and the desktop app run extensions; other platforms list nothing. */
+/** Android, iOS (`expo-module` `ExtensionRuntime`) and the desktop app run extensions; a plain browser lists nothing. */
 export const isRuntimeAvailable: boolean = false;
 
 export const runtime: RuntimeApi = unavailableRuntime;
