@@ -86,7 +86,7 @@ export function MangaDetail() {
         title: "Pick a source",
         description: isRuntimeAvailable
           ? "Choose where to read this manga."
-          : "Extensions run on Android only for now.",
+          : "Extensions run in the Android and desktop apps.",
       }
     : match.manga === undefined
       ? {

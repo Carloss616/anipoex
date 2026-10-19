@@ -2,6 +2,11 @@
 
 ## 2026-10-19
 
+* **Extensions run in the desktop app too**: the desktop app (macOS) installs and runs
+  extensions like Android does; iOS and the web app in a browser still list nothing and say
+  "Extensions run in the Android and desktop apps." and "Sources run in the Android and
+  desktop apps". Updated [extension](concepts/extension.md), [source](concepts/source.md)
+  and the [concepts index](concepts/index.md).
 * **Every installed source shows, in any language**: the source picker and sheet no longer
   keep only `all`, `en` and the device language; an extension installed in another language
   is listed too. Updated [source](concepts/source.md).

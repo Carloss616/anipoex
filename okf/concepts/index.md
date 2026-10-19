@@ -20,5 +20,5 @@ Domain ideas and rules. Read these before the [operations](../operations/) and
 # Reading (scaffolding)
 
 * [Source](source.md) - A site chapters come from, from an installed extension in any language; each manga remembers one.
-* [Extension](extension.md) - A source as an installable, versioned package from an added repo. Android only.
+* [Extension](extension.md) - A source as an installable, versioned package from an added repo. Android and the desktop app (macOS).
 * [Chapter](chapter.md) - A chapter row on the detail screen, read from the matched manga in the chosen source.

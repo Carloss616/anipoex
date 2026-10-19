@@ -14,7 +14,7 @@ export interface InstalledExtension {
   version: string;
   lib: number;
   signingKey: string;
-  /** `file://` PNG of the APK's app icon; null when it couldn't be read. */
+  /** Image URL (`file://` on Android, `data:` on desktop) of the APK's app icon; null when it couldn't be read. */
   icon: string | null;
   sources: InstalledSource[];
 }

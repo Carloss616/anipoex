@@ -1,7 +1,7 @@
 ---
 type: Domain Concept
 title: Extension
-description: A source as an installable package from a repo the user added; the Extensions tab installs, updates and uninstalls them. Android only.
+description: A source as an installable package from a repo the user added; the Extensions tab installs, updates and uninstalls them. Android and the desktop app (macOS).
 tags: [extensions, sources]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
@@ -25,8 +25,10 @@ app label (minus the `Tachiyomi: ` prefix), else by its package name, so it alwa
 **Has an update** ⇔ installed, and `latestVersion` is set and differs from `version`.
 
 **Where it lives**: an installed extension is an APK kept in the app's private storage and
-run inside the app, so it only works on Android. iOS and web list nothing installed and
-refuse to install. Only extensions built against library 1.4 or 1.6 are offered. The app
+run inside the app, so it only works on Android and in the desktop app (macOS), which keeps
+them in its own storage and runs them in a Java process it starts. iOS and the web app in a
+browser list nothing installed and refuse to install ("Extensions run in the Android and
+desktop apps."). Only extensions built against library 1.4 or 1.6 are offered. The app
 provides what those extensions commonly use, not all of it yet: rate limiting, the
 JavaScript engine some sites need, and a source fetching its own images are missing, so
 an extension that relies on one of them fails when it reaches that step. Each
