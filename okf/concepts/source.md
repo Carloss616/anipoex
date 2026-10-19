@@ -1,7 +1,7 @@
 ---
 type: Domain Concept
 title: Source
-description: A source of an installed extension, in a language the picker shows; each manga remembers the one picked for it.
+description: A source of an installed extension, in any language; each manga remembers the one picked for it.
 tags: [sources, reading]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
@@ -17,13 +17,13 @@ is stable across launches.
 
 - **Per manga**: the detail's source picker stores the choice keyed by the manga's
   AniList id (see [chosen source](../stores/manga-source.md)). No choice shows "Source".
-- **Which show**: only sources in the languages `all`, `en` and the device's own
-  (`es-MX` shows `es`; a regional `es-419` counts as `es`). There is no setting for it.
-- **Names**: when an extension keeps more than one source in view, each name carries
-  its language (`Example (ES-419)`); with one, just the name. Nothing installed, nothing listed.
+- **Which show**: every source of every installed extension, in any language; installing
+  an extension is the choice. There is no language filter or setting.
+- **Names**: when an extension has more than one source, each name carries its language
+  (`Example (ES-419)`); with one, just the name. Nothing installed, nothing listed.
 - **Empty sheet**: with no search, the source sheet says why nothing is listed: on iOS and
   web "Sources run on Android only for now"; on Android, "No sources installed", pointing to
-  the Extensions tab (also when none is in a shown language). A search with no hits says
+  the Extensions tab. A search with no hits says
   "No sources found". On iOS and web the detail's "Pick a source" says extensions run on
   Android only.
 

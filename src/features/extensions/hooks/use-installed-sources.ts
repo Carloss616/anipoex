@@ -2,9 +2,9 @@ import { useValue } from "@legendapp/state/react";
 import { useEffect, useMemo } from "react";
 import type { Source } from "@/features/manga/utils/source";
 import { installed$, refreshInstalled } from "../state/extensions";
-import { enabledLanguages, toSources } from "../utils/sources";
+import { toSources } from "../utils/sources";
 
-/** The sources of the installed extensions in the enabled languages; empty until loaded. */
+/** Every source of the installed extensions; empty until loaded. */
 export function useInstalledSources(): Source[] {
   const installed = useValue(installed$);
 
@@ -12,12 +12,5 @@ export function useInstalledSources(): Source[] {
     refreshInstalled();
   }, []);
 
-  return useMemo(
-    () =>
-      toSources(
-        installed,
-        enabledLanguages(Intl.DateTimeFormat().resolvedOptions().locale),
-      ),
-    [installed],
-  );
+  return useMemo(() => toSources(installed), [installed]);
 }

@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Every installed source shows, in any language**: the source picker and sheet no longer
+  keep only `all`, `en` and the device language; an extension installed in another language
+  is listed too. Updated [source](concepts/source.md).
 * **Picking a source is immediate, finding the manga is separate**: the pick is stored before
   the search, so a source with no `manga` yet is a pending (or failed) search that resumes on
   open and retries on refresh. Updated [chosen source](stores/manga-source.md).

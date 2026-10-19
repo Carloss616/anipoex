@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { InstalledExtension } from "../runtime";
-import { enabledLanguages, hasSource, toSources } from "./sources";
+import { hasSource, toSources } from "./sources";
 
 const ext = (
   name: string,
@@ -15,50 +15,31 @@ const ext = (
   sources: sources.map(([id, lang]) => ({ id, name, lang, homeUrl: null })),
 });
 
-describe("enabledLanguages", () => {
-  it("adds the device language to all and en", () => {
-    expect(enabledLanguages("es-MX")).toEqual(["all", "en", "es"]);
-  });
-
-  it("does not repeat en", () => {
-    expect(enabledLanguages("en-US")).toEqual(["all", "en"]);
-  });
-});
-
 describe("toSources", () => {
   const dex = ext("Example", [
     ["1", "en"],
-    ["2", "es"],
-    ["3", "es-419"],
-    ["4", "ja"],
+    ["2", "es-419"],
+    ["3", "ja"],
   ]);
 
-  it("keeps es-419 under es and drops ja, with the language in the name", () => {
-    expect(toSources([dex], ["all", "en", "es"])).toEqual([
+  it("lists every language, with the language in the name", () => {
+    expect(toSources([dex])).toEqual([
       { id: "1", name: "Example (EN)", initials: "EX" },
-      { id: "2", name: "Example (ES)", initials: "EX" },
-      { id: "3", name: "Example (ES-419)", initials: "EX" },
+      { id: "2", name: "Example (ES-419)", initials: "EX" },
+      { id: "3", name: "Example (JA)", initials: "EX" },
     ]);
   });
 
-  it("drops the suffix when one source is left", () => {
-    const other = ext("Other Site (Comics)", [["9", "all"]]);
-    expect(toSources([dex, other], ["all", "en"])).toEqual([
-      { id: "1", name: "Example", initials: "EX" },
-      { id: "9", name: "Other Site (Comics)", initials: "OS" },
+  it("keeps a single source's name as is, whatever its language", () => {
+    const single = ext("Single", [["9", "es"]]);
+    expect(toSources([single])).toEqual([
+      { id: "9", name: "Single", initials: "SI" },
     ]);
   });
 
   it("carries the installed icon", () => {
     const icon = "file:///exts/pkg.png";
-    expect(toSources([{ ...dex, icon }], ["en"])[0].iconUrl).toBe(icon);
-  });
-
-  it("matches the language case-insensitively", () => {
-    const upper = ext("Upper", [["5", "ES"]]);
-    expect(toSources([upper], ["es"])).toEqual([
-      { id: "5", name: "Upper", initials: "UP" },
-    ]);
+    expect(toSources([{ ...dex, icon }])[0].iconUrl).toBe(icon);
   });
 });
 
