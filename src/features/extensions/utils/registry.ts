@@ -1,4 +1,5 @@
 import { initialsOf } from "@/features/manga/sources";
+import { isWebUrl } from "@/utils/is-web-url";
 import type { InstalledExtension } from "../runtime/runtime";
 import type { Extension, Language } from "./extension";
 import type { Repo, RepoEntry } from "./repo";
@@ -90,7 +91,9 @@ function fromInstalled(local: InstalledExtension, pick?: Listing): Extension {
     installed: true,
     signingKey: local.signingKey,
     iconUrl: local.icon ?? undefined,
-    websiteUrl: local.sources.find((s) => s.homeUrl)?.homeUrl ?? undefined,
+    websiteUrl:
+      local.sources.find((s) => s.homeUrl && isWebUrl(s.homeUrl))?.homeUrl ??
+      undefined,
   };
   if (!pick) return base;
   const { repo, entry } = pick;

@@ -130,6 +130,15 @@ describe("parseIndex", () => {
     );
   });
 
+  it("drops a source website that isn't http(s)", () => {
+    const entry = {
+      ...V2_ENTRY,
+      sources: [{ ...V2_ENTRY.sources[0], homeUrl: "javascript:alert(1)" }],
+    };
+    const list = { extensionList: { extensions: [entry] } };
+    expect(parseIndex(list, "https://b")[0].sources[0].homeUrl).toBeUndefined();
+  });
+
   it("returns nothing for an unknown shape", () => {
     expect(parseIndex("nope", EXAMPLE)).toEqual([]);
     expect(parseIndex({}, EXAMPLE)).toEqual([]);

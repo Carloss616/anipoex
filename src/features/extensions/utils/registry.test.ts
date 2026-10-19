@@ -182,6 +182,13 @@ describe("toExtensions", () => {
     expect(toExtensions([], [inst()])[0].websiteUrl).toBeUndefined();
   });
 
+  it("ignores an installed website that isn't http(s)", () => {
+    const local = inst({
+      sources: [{ id: "1", name: "Foo", lang: "en", homeUrl: "intent://x" }],
+    });
+    expect(toExtensions([], [local])[0].websiteUrl).toBeUndefined();
+  });
+
   it("keeps an installed extension that no index lists", () => {
     const [e] = toExtensions(
       [],

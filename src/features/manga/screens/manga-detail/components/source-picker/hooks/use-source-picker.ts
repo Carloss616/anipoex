@@ -27,8 +27,8 @@ export function useSourcePicker(manga: SourcePickerManga) {
       const url = await runtime
         .mangaWebUrl(match.sourceId, match.manga.url)
         .catch(() => null);
-      if (url) openExternal(url);
-      else toast.destructive("Couldn't open this manga's page");
+      if (!url || !openExternal(url))
+        toast.destructive("Couldn't open this manga's page");
     },
     // The sheet closes on pick so the detail's loading state answers the tap while the search runs.
     select: (nextId: string) => {

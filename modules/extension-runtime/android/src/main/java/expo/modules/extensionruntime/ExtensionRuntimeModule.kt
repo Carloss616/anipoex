@@ -27,6 +27,7 @@ import eu.kanade.tachiyomi.source.online.HttpSource
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -105,13 +106,17 @@ class ExtensionRuntimeModule : Module() {
     AsyncFunction("mangaWebUrl") Coroutine { sourceId: String, mangaUrl: String ->
       withContext(Dispatchers.IO) {
         // Null when the source isn't an HttpSource or can't build the url.
-        runCatching {
+        try {
           val manga = SManga.create().apply {
             url = mangaUrl
             title = ""
           }
           (source(sourceId) as? HttpSource)?.getMangaUrl(manga)
-        }.getOrNull()
+        } catch (e: CancellationException) {
+          throw e
+        } catch (e: Throwable) {
+          null
+        }
       }
     }
 

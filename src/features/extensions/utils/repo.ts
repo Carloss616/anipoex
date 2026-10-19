@@ -1,3 +1,4 @@
+import { isWebUrl } from "@/utils/is-web-url";
 import { gunzip } from "./gzip";
 import { decodeExtensionList, decodeStore } from "./protobuf";
 
@@ -43,6 +44,12 @@ const isObject = (value: unknown): value is Json =>
 
 const str = (value: unknown): string | undefined =>
   typeof value === "string" && value !== "" ? value : undefined;
+
+// A repo index is third-party: only an http(s) website is kept.
+const webUrl = (value: unknown): string | undefined => {
+  const url = str(value);
+  return url && isWebUrl(url) ? url : undefined;
+};
 
 /** The file to read for what a user pastes: a file url as is, a folder's `repo.json`. */
 export const repoUrl = (url: string): string => {
@@ -146,7 +153,7 @@ const parseSources = (value: unknown, langKey: string, homeKey: string) =>
     const name = str(raw.name);
     const lang = str(raw[langKey]);
     return id && name && lang
-      ? [{ id, name, lang, homeUrl: str(raw[homeKey]) }]
+      ? [{ id, name, lang, homeUrl: webUrl(raw[homeKey]) }]
       : [];
   });
 
