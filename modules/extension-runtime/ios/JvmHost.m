@@ -129,7 +129,8 @@ NSString *AnipoexJvmCall(NSString *method, NSString *argsJson, NSURL *frameworkU
     bootError = boot(frameworkURL, jarsURL, dataURL);
   }
   pthread_mutex_unlock(&bootLock);
-  if (bootError) return errorEnvelope([@"Extension runtime failed to start: " stringByAppendingString:bootError]);
+  // A nil message with no VM (e.g. a non-UTF-8 dlerror) must not fall through to a NULL vm.
+  if (bootError || !vm) return errorEnvelope([@"Extension runtime failed to start: " stringByAppendingString:bootError ?: @"the JVM did not start"]);
 
   JNIEnv *env;
   if ((*vm)->AttachCurrentThreadAsDaemon(vm, (void **)&env, NULL) != JNI_OK) return errorEnvelope(@"Could not attach to the extension runtime");

@@ -7,7 +7,7 @@ public class ExtensionRuntimeModule: Module {
     // Resolves the raw `{result}`/`{error}` envelope; the JS bridge turns it into a value or an Error.
     AsyncFunction("call") { (method: String, argsJson: String, promise: Promise) in
       guard let jars = Bundle(for: ExtensionRuntimeModule.self).url(forResource: "ExtensionRuntime", withExtension: "bundle") else {
-        promise.resolve(#"{"error":"ExtensionRuntime.bundle is missing from the app"}"#)
+        promise.resolve(#"{"error":"Extension runtime failed to start: ExtensionRuntime.bundle is missing from the app"}"#)
         return
       }
       let framework = Bundle.main.privateFrameworksURL!.appendingPathComponent("AnipoexJDK.framework")

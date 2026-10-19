@@ -1,6 +1,6 @@
 # The JDK framework and the jars are built locally, never committed.
 unless File.directory?(File.join(__dir__, 'Frameworks/AnipoexJDK.xcframework')) && File.directory?(File.join(__dir__, 'Runtime'))
-  raise "Run bun run extensions:ios-runtime first"
+  raise "Run bun run extensions:ios-runtime first (needs JAVA_HOME >= 17 and android/gradlew or GRADLEW=...); see modules/extension-runtime/ios/README.md"
 end
 
 Pod::Spec.new do |s|
