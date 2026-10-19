@@ -1,0 +1,14 @@
+-keep class eu.kanade.tachiyomi.** { *; }
+-keep class kotlin.** { *; }
+-keep class kotlinx.coroutines.** { *; }
+-keep class kotlinx.serialization.** { *; }
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
+-keep class org.jsoup.** { *; }
+-keep class rx.** { *; }
+-keep class uy.kohesive.injekt.** { *; }
+-keep class androidx.preference.** { *; }
+-keep class com.squareup.zstd.** { *; }
+# Injekt's TypeReference reads its generic type argument from the subclass signature at runtime.
+-keepattributes Signature,InnerClasses,EnclosingMethod
+-keep class * extends uy.kohesive.injekt.api.TypeReference { *; }
