@@ -47,7 +47,11 @@ export function ListItem({ extension: e }: ListItemProps) {
   return (
     <ListItemView colors={{ containerColor: "transparent" }}>
       <ListItemView.LeadingContent>
-        <SourceTile initials={e.initials} color={sourceColor(e, mode)} />
+        <SourceTile
+          initials={e.initials}
+          iconUrl={e.iconUrl}
+          color={sourceColor(e, mode)}
+        />
       </ListItemView.LeadingContent>
       <ListItemView.HeadlineContent>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>

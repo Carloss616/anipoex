@@ -39,7 +39,13 @@ export function ListItem({ extension: e }: ListItemProps) {
   return (
     <HStack>
       <Label
-        icon={<SourceTile initials={e.initials} color={sourceColor(e, mode)} />}
+        icon={
+          <SourceTile
+            initials={e.initials}
+            iconUrl={e.iconUrl}
+            color={sourceColor(e, mode)}
+          />
+        }
       >
         <VStack alignment="leading" spacing={2}>
           <HStack spacing={6}>

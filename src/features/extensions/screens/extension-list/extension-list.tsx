@@ -1,6 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import type { ActiveFilter } from "@/components/blocks/active-filters";
 import {
@@ -9,22 +9,35 @@ import {
   extensions$,
   FILTER_TITLES,
   languagesOf,
+  loadExtensions,
   parseFilter,
   parseLanguage,
+  repos$,
   toSections,
 } from "@/features/extensions";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { ListContent } from "./components/list-content";
 import { ListToolbar } from "./components/list-toolbar";
 
+const NO_MATCH = { title: "No extensions match this filter" };
+const NO_REPOS = {
+  title: "No repositories",
+  description: "Add an extension repository to browse extensions.",
+};
+
 export function ExtensionList() {
   const router = useRouter();
   const params = useLocalSearchParams<{ filter?: string; language?: string }>();
   const extensions = useValue(extensions$);
+  const repos = useValue(repos$);
   const [search, setSearch] = useState("");
   const { height } = useWindowDimensions();
   const searchBarTheme = useStackSearchBarTheme();
   const large = height > 640;
+
+  useEffect(() => {
+    void loadExtensions();
+  }, []);
 
   const languages = useMemo(() => languagesOf(extensions), [extensions]);
   const filter = parseFilter(params.filter);
@@ -79,6 +92,9 @@ export function ExtensionList() {
         languages={languages}
         onLanguageChange={setLanguage}
         activeFilters={activeFilters}
+        emptyState={
+          repos.length === 0 && extensions.length === 0 ? NO_REPOS : NO_MATCH
+        }
       />
     </>
   );

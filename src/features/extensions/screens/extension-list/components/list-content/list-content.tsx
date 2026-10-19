@@ -6,7 +6,10 @@ import {
   type ActiveFilter,
   ActiveFilters,
 } from "@/components/blocks/active-filters";
-import { EmptyState } from "@/components/blocks/empty-state";
+import {
+  EmptyState,
+  type EmptyStateProps,
+} from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { Button } from "@/components/ui/button";
@@ -40,6 +43,8 @@ export interface ListContentProps {
   onLanguageChange: (language: string | undefined) => void;
   /** Shown as chips on Android and narrow web. */
   activeFilters: ActiveFilter[];
+  /** What an empty list says: no match for the filter, or no repository yet. */
+  emptyState: Pick<EmptyStateProps, "title" | "description">;
 }
 
 /** Web, laid out like the manga list. */
@@ -52,6 +57,7 @@ export function ListContent({
   languages,
   onLanguageChange,
   activeFilters,
+  emptyState,
 }: ListContentProps) {
   const headerScroll = useHeaderScroll();
   const headerHeight = useHeaderHeight();
@@ -113,9 +119,7 @@ export function ListContent({
               </View>
             </HeaderInsetView>
           }
-          ListEmptyComponent={
-            <EmptyState title="No extensions match this filter" />
-          }
+          ListEmptyComponent={<EmptyState {...emptyState} />}
           renderItem={({ item: row }) =>
             row.kind === "header" ? (
               <SectionHeader section={row.section} />

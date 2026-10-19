@@ -4,8 +4,20 @@ import type { ThemeMode } from "@/state/theme";
 export interface Source {
   id: string;
   name: string;
-  /** Drawn on the tile until sources carry their own icon. */
+  /** Drawn on the tile while there is no logo, or it fails to load. */
   initials: string;
+  /** The source's logo, shown on the tile instead of the initials. */
+  iconUrl?: string;
+}
+
+/** Two letters for the tile: the first two words' initials, else the first two capitals, else the first two letters. */
+export function initialsOf(name: string): string {
+  const words = name.trim().split(/\s+/);
+  const letters =
+    words.length > 1
+      ? words[0][0] + words[1][0]
+      : (name.match(/[A-Z]/g) ?? []).slice(0, 2).join("");
+  return (letters.length === 2 ? letters : name.slice(0, 2)).toUpperCase();
 }
 
 /** The tile's tint, hashed from the name; a pastel of it in light mode. */

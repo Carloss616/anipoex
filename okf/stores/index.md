@@ -17,7 +17,8 @@ nothing persists during web's server render.
 * [Manga list view](manga-list-view.md) - Grid density and title position.
 * [Chosen source](manga-source.md) - The source picked for each manga.
 * [Theme](theme.md) - Theme family and light / dark / system preference.
+* [Extension repos](extension-repos.md) - The repos extensions are installed from; none until the user adds one.
 
 # In memory only
 
-* [Extensions](extensions.md) - Installed extensions; reset on reload. Scaffolding.
+* [Extensions](extensions.md) - The extension list, rebuilt from the added repos and what is installed.

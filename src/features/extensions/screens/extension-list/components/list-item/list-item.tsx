@@ -27,7 +27,11 @@ export function ListItem({ extension: e }: ListItemProps) {
 
   return (
     <Item className="px-0">
-      <SourceTile initials={e.initials} color={sourceColor(e, mode)} />
+      <SourceTile
+        initials={e.initials}
+        iconUrl={e.iconUrl}
+        color={sourceColor(e, mode)}
+      />
       <Item.Content>
         <Item.Title numberOfLines={1}>
           {e.name}

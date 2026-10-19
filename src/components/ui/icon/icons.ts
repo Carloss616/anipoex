@@ -65,6 +65,12 @@ export const Icons = {
     web: "chevron-down",
   }),
 
+  repos: Icon.select({
+    ios: "shippingbox",
+    android: require("@expo/material-symbols/inventory_2.xml"),
+    web: "package",
+  }),
+
   // State
   check: Icon.select({
     ios: "checkmark",

@@ -1,37 +1,100 @@
 import { observable } from "@legendapp/state";
-import { MOCK_EXTENSIONS } from "../mock-extensions";
+import { toast } from "@/components/ui/toast";
+import { type InstalledExtension, runtime } from "../runtime";
 import { type Extension, hasUpdate } from "../utils/extension";
+import { toExtensions } from "../utils/registry";
+import { fetchIndex } from "../utils/repo";
+import { repos$ } from "./repos";
 
-/**
- * SCAFFOLDING. In memory only: installs reset on reload.
- */
-export const extensions$ = observable<Extension[]>(MOCK_EXTENSIONS);
+/** Catalog of the added repos merged with what the runtime has installed. */
+export const extensions$ = observable<Extension[]>([]);
 
-const patch = (id: string, change: (e: Extension) => Partial<Extension>) =>
-  extensions$.set((list) =>
-    list.map((e) => (e.id === id ? { ...e, ...change(e) } : e)),
+/** What the native runtime has installed; the one list the source picker reads. */
+export const installed$ = observable<InstalledExtension[]>([]);
+
+/** Reads the installed list from the runtime; a failure is logged and keeps the old list. */
+export async function refreshInstalled(): Promise<void> {
+  try {
+    installed$.set(await runtime.installed());
+  } catch (error) {
+    console.warn("Couldn't read installed extensions", error);
+  }
+}
+
+const message = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
+let latest = 0;
+
+export async function loadExtensions(): Promise<void> {
+  const mine = ++latest;
+  const installed = await runtime.installed().catch((error) => {
+    toast.destructive(message(error));
+    return [];
+  });
+  const repos = await Promise.all(
+    repos$.peek().map(async (repo) => {
+      try {
+        return { repo, entries: await fetchIndex(repo) };
+      } catch {
+        toast.destructive(`Couldn't load ${repo.name}`);
+        return { repo, entries: [] };
+      }
+    }),
   );
+  // A slower, older load must not overwrite a newer one.
+  if (mine === latest) {
+    installed$.set(installed);
+    extensions$.set(toExtensions(repos, installed));
+  }
+}
 
-export const installExtension = (id: string) =>
-  patch(id, () => ({ installed: true }));
+const running = new Set<string>();
+
+// Never rejects: the buttons call these without awaiting. One run per id at a time.
+async function perform(
+  id: string,
+  task: (e: Extension) => Promise<unknown>,
+): Promise<boolean> {
+  if (running.has(id)) return false;
+  running.add(id);
+  try {
+    const extension = extensions$.peek().find((e) => e.id === id);
+    if (!extension) throw new Error("Extension not found");
+    await task(extension);
+    return true;
+  } catch (error) {
+    toast.destructive(message(error));
+    return false;
+  } finally {
+    running.delete(id);
+  }
+}
+
+async function run(id: string, task: (e: Extension) => Promise<unknown>) {
+  if (await perform(id, task)) await loadExtensions();
+}
+
+const download = (e: Extension) => {
+  if (!e.apkUrl || !e.signingKey)
+    throw new Error(`No repo lists ${e.name} to download`);
+  return runtime.install(e.apkUrl, e.signingKey);
+};
+
+export const installExtension = (id: string) => run(id, download);
+
+export const updateExtension = (id: string) => run(id, download);
 
 export const uninstallExtension = (id: string) =>
-  patch(id, () => ({ installed: false }));
+  run(id, (e) => runtime.uninstall(e.id));
 
-export const updateExtension = (id: string) =>
-  patch(id, (e) => ({ version: e.latestVersion ?? e.version }));
-
-export function updateAllExtensions() {
-  for (const e of extensions$.peek()) if (hasUpdate(e)) updateExtension(e.id);
+// One after another (each takes the native install lock), then a single reload.
+export async function updateAllExtensions() {
+  let changed = false;
+  for (const e of extensions$.peek().filter(hasUpdate)) {
+    if (await perform(e.id, download)) changed = true;
+  }
+  if (changed) await loadExtensions();
 }
 
-// no registry yet, so a check resets to the mock after a fake round-trip
-// (the spinners need one). Wire the real fetch.
-export function checkForUpdates() {
-  return new Promise<void>((resolve) =>
-    setTimeout(() => {
-      extensions$.set(MOCK_EXTENSIONS);
-      resolve();
-    }, 800),
-  );
-}
+export const checkForUpdates = loadExtensions;

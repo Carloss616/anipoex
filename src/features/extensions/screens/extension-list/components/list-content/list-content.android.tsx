@@ -46,6 +46,7 @@ export function ListContent({
   counts,
   filter,
   activeFilters,
+  emptyState,
 }: ListContentProps) {
   const headerHeight = useHeaderHeight();
   const m3 = useThemeM3Colors();
@@ -75,10 +76,7 @@ export function ListContent({
           modifiers={[fillMaxSize()]}
         >
           {empty ? (
-            <EmptyState
-              title="No extensions match this filter"
-              modifiers={[verticalScroll()]}
-            >
+            <EmptyState {...emptyState} modifiers={[verticalScroll()]}>
               <ActiveFilters filters={activeFilters} />
             </EmptyState>
           ) : (

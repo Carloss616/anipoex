@@ -1,11 +1,13 @@
-import { Box } from "@expo/ui/jetpack-compose";
+import { Box, Image } from "@expo/ui/jetpack-compose";
 import {
   background,
   clip,
+  matchParentSize,
   paddingAll,
   Shapes,
   size,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { useState } from "react";
 import { useCSSVariable } from "uniwind";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -14,10 +16,13 @@ import type { SourceTileProps } from "./source-tile";
 
 const SIDE = 40;
 
-export function SourceTile({ initials, color }: SourceTileProps) {
+export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
   const border = useThemeColor("border");
   // Each theme family sets its own rounding, so `rounded-lg` is read, not fixed.
   const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
+  // The url that loaded, so a recycled row with another source starts over.
+  const [loadedUrl, setLoadedUrl] = useState<string>();
+  const loaded = !!iconUrl && loadedUrl === iconUrl;
 
   return (
     <Box
@@ -33,9 +38,20 @@ export function SourceTile({ initials, color }: SourceTileProps) {
         background(color),
       ]}
     >
-      <Text style={{ typography: "bodySmall", fontWeight: "600" }}>
-        {initials}
-      </Text>
+      {!loaded && (
+        <Text style={{ typography: "bodySmall", fontWeight: "600" }}>
+          {initials}
+        </Text>
+      )}
+      {iconUrl && (
+        <Image
+          source={{ uri: iconUrl }}
+          contentScale="crop"
+          contentDescription={null}
+          onLoad={() => setLoadedUrl(iconUrl)}
+          modifiers={[matchParentSize()]}
+        />
+      )}
     </Box>
   );
 }

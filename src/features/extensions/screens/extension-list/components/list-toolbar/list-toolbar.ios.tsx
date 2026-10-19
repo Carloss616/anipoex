@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import type { SFSymbol } from "expo-symbols";
 import {
   EXTENSION_FILTERS,
@@ -29,6 +29,7 @@ export function ListToolbar({
   languages,
   onLanguageChange,
 }: ListToolbarProps) {
+  const router = useRouter();
   const primary = useThemeColor("primary");
 
   return (
@@ -63,6 +64,11 @@ export function ListToolbar({
           ))}
         </Stack.Toolbar.Menu>
       </Stack.Toolbar.Menu>
+      <Stack.Toolbar.Button
+        icon="shippingbox"
+        onPress={() => router.push("/extensions/repos")}
+        accessibilityLabel="Repositories"
+      />
     </Stack.Toolbar>
   );
 }

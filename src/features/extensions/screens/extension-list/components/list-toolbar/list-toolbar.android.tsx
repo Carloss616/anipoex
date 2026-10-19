@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icons } from "@/components/ui/icon";
 import { EXTENSION_FILTERS, FILTER_TITLES } from "@/features/extensions";
@@ -13,6 +13,7 @@ export function ListToolbar({
   languages,
   onLanguageChange,
 }: ListToolbarProps) {
+  const router = useRouter();
   const m3 = useThemeM3Colors();
 
   return (
@@ -48,6 +49,11 @@ export function ListToolbar({
             </Stack.Toolbar.MenuAction>
           ))}
         </Stack.Toolbar.Menu>
+        <Stack.Toolbar.Button
+          icon={Icons.repos}
+          onPress={() => router.push("/extensions/repos")}
+          accessibilityLabel="Repositories"
+        />
       </Stack.Toolbar>
     </Toolbar>
   );

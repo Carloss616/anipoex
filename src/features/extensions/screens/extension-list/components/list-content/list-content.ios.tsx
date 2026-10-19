@@ -25,7 +25,12 @@ import { ListItem } from "../list-item";
 import type { ListContentProps } from "./list-content";
 
 /** An inset-grouped list per section, pull to check for updates. */
-export function ListContent({ sections, counts, language }: ListContentProps) {
+export function ListContent({
+  sections,
+  counts,
+  language,
+  emptyState,
+}: ListContentProps) {
   const rowBackground = listRowBackground(useThemeColor("muted"));
   const buttonFont = useFont("subheadline", "medium");
 
@@ -38,7 +43,7 @@ export function ListContent({ sections, counts, language }: ListContentProps) {
             refreshable(checkForUpdates),
           ]}
         >
-          <EmptyState title="No extensions match this filter" />
+          <EmptyState {...emptyState} />
         </ScrollView>
       ) : (
         <List

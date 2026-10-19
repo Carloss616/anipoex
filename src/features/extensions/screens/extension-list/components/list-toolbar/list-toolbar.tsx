@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
 import { Toolbar } from "@/components/layout/toolbar";
@@ -32,6 +32,7 @@ export function ListToolbar({
   languages,
   onLanguageChange,
 }: ListToolbarProps) {
+  const router = useRouter();
   const wide = useBreakpoint().isAtLeast("md");
   const primary = useThemeColor("primary");
   const [checking, setChecking] = useState(false);
@@ -79,6 +80,11 @@ export function ListToolbar({
           }}
           disabled={checking}
           accessibilityLabel="Check for updates"
+        />
+        <Stack.Toolbar.Button
+          icon={Icons.repos}
+          onPress={() => router.push("/extensions/repos")}
+          accessibilityLabel="Repositories"
         />
       </Stack.Toolbar>
     </Toolbar>
