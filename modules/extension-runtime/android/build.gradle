@@ -13,7 +13,7 @@ android {
   }
 }
 
-// Host side of Mihon's extensions-lib 1.4 and 1.6 (eu.kanade.tachiyomi.*, adapted from Mihon, Apache-2.0): extensions only compile against these, so the app ships them.
+// Host side of Mihon's extensions-lib 1.4/1.6 (eu.kanade.tachiyomi.*, adapted from Mihon, Apache-2.0, see NOTICE): covers what those extensions commonly call; rateLimit/rateLimitHost, JavaScriptEngine (QuickJS) and HttpSource.fetchImage are not provided yet, so an extension fails when it reaches them.
 // Versions follow the extensions-lib build, capped where a newer one needs a Kotlin compiler past the app's 2.2.
 dependencies {
   // The BOM lifts React Native's OkHttp 4 (and okhttp-urlconnection) to the 5.x extensions call into.

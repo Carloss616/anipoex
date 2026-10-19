@@ -1,0 +1,8 @@
+extension-runtime
+
+The host classes under android/src/main/java/eu/kanade/tachiyomi/ are adapted
+from Mihon (https://github.com/mihonapp/mihon), commit
+deeb9b2584b6e246135cbd31da49a39e6b6e1e52, licensed under the Apache License,
+Version 2.0, with modifications to run inside this module.
+
+See LICENSE for the full license text.

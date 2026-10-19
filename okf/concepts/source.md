@@ -7,7 +7,7 @@ generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
 
 A **source** is a site the app reads chapters from, as exposed by an installed
-[extension](extension.md): `id` (the extension's own id), `name`, and `initials`. Its
+[extension](extension.md): `id` (the source's own id; one extension can have several sources), `name`, and `initials`. Its
 tile shows the source's **logo** when it has one, else (or while the logo loads, or if it
 fails) the initials. The logo is the icon of the installed APK (a local file, so it
 shows offline); an extension not installed yet shows the icon its repo lists. The tile's colour is hashed from the name, so it

@@ -25,7 +25,10 @@ app label (minus the `Tachiyomi: ` prefix), else by its package name, so it alwa
 
 **Where it lives**: an installed extension is an APK kept in the app's private storage and
 run inside the app, so it only works on Android. iOS and web list nothing installed and
-refuse to install. Only extensions built against library 1.4 or 1.6 are offered. Each
+refuse to install. Only extensions built against library 1.4 or 1.6 are offered. The app
+provides what those extensions commonly use, not all of it yet: rate limiting, the
+JavaScript engine some sites need, and a source fetching its own images are missing, so
+an extension that relies on one of them fails when it reaches that step. Each
 repo signs its APKs; an install is accepted only if the APK carries the repo's signing
 key, and an installed build is matched to the repo that signed it.
 

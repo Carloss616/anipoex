@@ -2,6 +2,10 @@
 
 ## 2026-10-19
 
+* **What extensions can run is stated honestly**: library 1.4/1.6 extensions work as far
+  as what they commonly use; rate limiting, the JavaScript engine and source-side image
+  fetching are not provided yet. A source's `id` is its own, not its extension's. Updated
+  [extension](concepts/extension.md) and [source](concepts/source.md).
 * **Empty source lists say why**: the source sheet tells iOS and web that sources run on
   Android only, and Android with nothing installed to install an extension from the
   Extensions tab; the detail's "Pick a source" says the same on iOS and web. A source whose
