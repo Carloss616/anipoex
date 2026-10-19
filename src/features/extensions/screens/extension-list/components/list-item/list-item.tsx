@@ -1,12 +1,21 @@
 import { useValue } from "@legendapp/state/react";
+import type { ComponentProps } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import {
+  BUTTON_ICON_SIZE,
+  Icon,
+  type IconName,
+  Icons,
+} from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
+import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
   type Extension,
+  type ExtensionOperation,
+  extensionOperations$,
   hasUpdate,
   installExtension,
   updateExtension,
@@ -20,6 +29,41 @@ import { uninstallItem } from "./utils/uninstall-item";
 
 export interface ListItemProps {
   extension: Extension;
+}
+
+interface ActionButtonProps extends ComponentProps<typeof Button> {
+  id: string;
+  /** What this button starts: its icon turns into a loader while that runs. */
+  operation: ExtensionOperation;
+  icon: IconName;
+  iconClassName: string;
+}
+
+/** Reads the operation itself so only this button re-renders; every action is off while one runs. Spreads the rest so a menu trigger keeps its props and ref. */
+function ActionButton({
+  id,
+  operation,
+  icon,
+  iconClassName,
+  ...props
+}: ActionButtonProps) {
+  const current = useValue(extensionOperations$[id]);
+
+  return (
+    <Button
+      size="icon"
+      variant="outline"
+      className="size-9"
+      {...props}
+      disabled={!!current}
+    >
+      {current === operation ? (
+        <Loader size="sm" />
+      ) : (
+        <Icon name={icon} size={BUTTON_ICON_SIZE} className={iconClassName} />
+      )}
+    </Button>
+  );
 }
 
 export function ListItem({ extension: e }: ListItemProps) {
@@ -74,48 +118,34 @@ export function ListItem({ extension: e }: ListItemProps) {
           </Button>
         )}
         {!e.installed ? (
-          <Button
-            size="icon"
-            variant="outline"
-            className="size-9"
+          <ActionButton
+            id={e.id}
+            operation="installing"
+            icon={Icons.download}
+            iconClassName="text-primary"
             onPress={() => installExtension(e.id)}
             accessibilityLabel={`Install ${e.name}`}
-          >
-            <Icon
-              name={Icons.download}
-              size={BUTTON_ICON_SIZE}
-              className="text-primary"
-            />
-          </Button>
+          />
         ) : hasUpdate(e) ? (
-          <Button
-            size="icon"
+          <ActionButton
+            id={e.id}
+            operation="updating"
+            icon={Icons.update}
+            iconClassName="text-primary-foreground"
             variant="primary"
-            className="size-9"
             onPress={() => updateExtension(e.id)}
             accessibilityLabel={`Update ${e.name}`}
-          >
-            <Icon
-              name={Icons.update}
-              size={BUTTON_ICON_SIZE}
-              className="text-primary-foreground"
-            />
-          </Button>
+          />
         ) : null}
         {e.installed && (
           <Menu items={[uninstallItem(e)]}>
-            <Button
-              size="icon"
-              variant="outline"
-              className="size-9"
+            <ActionButton
+              id={e.id}
+              operation="uninstalling"
+              icon={Icons.more}
+              iconClassName="text-foreground"
               accessibilityLabel={`More actions for ${e.name}`}
-            >
-              <Icon
-                name={Icons.more}
-                size={BUTTON_ICON_SIZE}
-                className="text-foreground"
-              />
-            </Button>
+            />
           </Menu>
         )}
       </Item.Actions>

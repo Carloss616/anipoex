@@ -15,6 +15,13 @@ export const installed$ = observable<InstalledExtension[]>([]);
 /** Whether `installed$` has been read from the runtime at least once. */
 export const installedLoaded$ = observable(false);
 
+export type ExtensionOperation = "installing" | "updating" | "uninstalling";
+
+/** The in-flight operation for each extension, used to replace its action with progress. */
+export const extensionOperations$ = observable<
+  Record<string, ExtensionOperation | undefined>
+>({});
+
 /** Reads the installed list from the runtime; a failure is logged, keeps the old list and still counts as loaded. */
 export async function refreshInstalled(): Promise<void> {
   try {
@@ -62,15 +69,11 @@ export async function loadExtensions(): Promise<void> {
   }
 }
 
-const running = new Set<string>();
-
-// Never rejects: the buttons call these without awaiting. One run per id at a time.
+// Never rejects: the buttons call these without awaiting.
 async function perform(
   id: string,
   task: (e: Extension) => Promise<unknown>,
 ): Promise<boolean> {
-  if (running.has(id)) return false;
-  running.add(id);
   try {
     const extension = extensions$.peek().find((e) => e.id === id);
     if (!extension) throw new Error("Extension not found");
@@ -79,13 +82,24 @@ async function perform(
   } catch (error) {
     toast.destructive(message(error));
     return false;
-  } finally {
-    running.delete(id);
   }
 }
 
-async function run(id: string, task: (e: Extension) => Promise<unknown>) {
-  if (await perform(id, task)) await loadExtensions();
+// One at a time (native install lock), one reload; rows show progress until it lands, so no stale action flashes back.
+async function run(
+  ids: string[],
+  operation: ExtensionOperation,
+  task: (e: Extension) => Promise<unknown>,
+) {
+  const mine = ids.filter((id) => !extensionOperations$[id].peek());
+  for (const id of mine) extensionOperations$[id].set(operation);
+  try {
+    let changed = false;
+    for (const id of mine) if (await perform(id, task)) changed = true;
+    if (changed) await loadExtensions();
+  } finally {
+    for (const id of mine) extensionOperations$[id].delete();
+  }
 }
 
 const download = (e: Extension) => {
@@ -94,20 +108,22 @@ const download = (e: Extension) => {
   return runtime.install(e.apkUrl, e.signingKey);
 };
 
-export const installExtension = (id: string) => run(id, download);
+export const installExtension = (id: string) =>
+  run([id], "installing", download);
 
-export const updateExtension = (id: string) => run(id, download);
+export const updateExtension = (id: string) => run([id], "updating", download);
 
 export const uninstallExtension = (id: string) =>
-  run(id, (e) => runtime.uninstall(e.id));
+  run([id], "uninstalling", (e) => runtime.uninstall(e.id));
 
-// One after another (each takes the native install lock), then a single reload.
-export async function updateAllExtensions() {
-  let changed = false;
-  for (const e of extensions$.peek().filter(hasUpdate)) {
-    if (await perform(e.id, download)) changed = true;
-  }
-  if (changed) await loadExtensions();
-}
+export const updateAllExtensions = () =>
+  run(
+    extensions$
+      .peek()
+      .filter(hasUpdate)
+      .map((e) => e.id),
+    "updating",
+    download,
+  );
 
 export const checkForUpdates = loadExtensions;

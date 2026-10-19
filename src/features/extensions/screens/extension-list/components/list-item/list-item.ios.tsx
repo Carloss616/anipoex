@@ -3,6 +3,7 @@ import {
   accessibilityLabel,
   buttonBorderShape,
   buttonStyle,
+  disabled,
   foregroundStyle,
   frame,
   labelStyle,
@@ -11,10 +12,18 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import {
+  BUTTON_ICON_SIZE,
+  Icon,
+  type IconName,
+  Icons,
+} from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
+  type ExtensionOperation,
+  extensionOperations$,
   hasUpdate,
   installExtension,
   updateExtension,
@@ -31,6 +40,55 @@ const ICON_BUTTON = [
   buttonBorderShape("circle"),
   labelStyle("iconOnly"),
 ] as const;
+
+interface ActionButtonProps {
+  id: string;
+  /** What this button starts: its icon turns into a loader while that runs. */
+  operation: ExtensionOperation;
+  icon: IconName;
+  label: string;
+  variant?: "standard" | "prominent" | "muted";
+  onPress?: () => void;
+}
+
+/** Reads the operation itself so only this button re-renders; every action is off while one runs. */
+function ActionButton({
+  id,
+  operation,
+  icon,
+  label,
+  variant = "standard",
+  onPress,
+}: ActionButtonProps) {
+  const current = useValue(extensionOperations$[id]);
+
+  return (
+    <Button
+      onPress={onPress}
+      modifiers={[
+        buttonStyle(variant === "prominent" ? "glassProminent" : "glass"),
+        ...ICON_BUTTON,
+        ...(variant === "muted" ? [foregroundStyle("secondary")] : []),
+        accessibilityLabel(label),
+        disabled(!!current),
+      ]}
+    >
+      {current === operation ? (
+        <Loader size="sm" />
+      ) : (
+        <Icon
+          name={icon}
+          size={BUTTON_ICON_SIZE}
+          color="inherit"
+          // The narrow ⋮ glyph needs a square frame to keep the button round.
+          modifiers={
+            icon === Icons.more ? [frame({ width: 20, height: 20 })] : undefined
+          }
+        />
+      )}
+    </Button>
+  );
+}
 
 /** A `List` row: it already insets its content, so this draws none of its own. */
 export function ListItem({ extension: e }: ListItemProps) {
@@ -76,7 +134,7 @@ export function ListItem({ extension: e }: ListItemProps) {
         </VStack>
       </Label>
       <Spacer />
-      <HStack spacing={6}>
+      <HStack>
         {websiteUrl && (
           <Button
             onPress={() => openExternal(websiteUrl)}
@@ -95,49 +153,32 @@ export function ListItem({ extension: e }: ListItemProps) {
           </Button>
         )}
         {!e.installed ? (
-          <Button
+          <ActionButton
+            id={e.id}
+            operation="installing"
+            icon={Icons.download}
+            label={`Install ${e.name}`}
             onPress={() => installExtension(e.id)}
-            modifiers={[
-              buttonStyle("glass"),
-              ...ICON_BUTTON,
-              accessibilityLabel(`Install ${e.name}`),
-            ]}
-          >
-            <Icon
-              name={Icons.download}
-              size={BUTTON_ICON_SIZE}
-              color="inherit"
-            />
-          </Button>
+          />
         ) : hasUpdate(e) ? (
-          <Button
+          <ActionButton
+            id={e.id}
+            operation="updating"
+            icon={Icons.update}
+            label={`Update ${e.name}`}
+            variant="prominent"
             onPress={() => updateExtension(e.id)}
-            modifiers={[
-              buttonStyle("glassProminent"),
-              ...ICON_BUTTON,
-              accessibilityLabel(`Update ${e.name}`),
-            ]}
-          >
-            <Icon name={Icons.update} size={BUTTON_ICON_SIZE} color="inherit" />
-          </Button>
+          />
         ) : null}
         {e.installed && (
           <Menu items={[uninstallItem(e)]}>
-            <Button
-              modifiers={[
-                buttonStyle("glass"),
-                ...ICON_BUTTON,
-                foregroundStyle("secondary"),
-                accessibilityLabel(`More actions for ${e.name}`),
-              ]}
-            >
-              <Icon
-                name={Icons.more}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-                modifiers={[frame({ width: 20, height: 20 })]}
-              />
-            </Button>
+            <ActionButton
+              id={e.id}
+              operation="uninstalling"
+              icon={Icons.more}
+              label={`More actions for ${e.name}`}
+              variant="muted"
+            />
           </Menu>
         )}
       </HStack>

@@ -8,10 +8,18 @@ import { semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import {
+  BUTTON_ICON_SIZE,
+  Icon,
+  type IconName,
+  Icons,
+} from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
+  type ExtensionOperation,
+  extensionOperations$,
   hasUpdate,
   installExtension,
   updateExtension,
@@ -26,18 +34,45 @@ import { uninstallItem } from "./utils/uninstall-item";
 
 const label = (text: string) => [semantics({ contentDescription: text })];
 
-/** The menu hands its trigger an `onPress` to open it. */
-function MoreButton({ name, onPress }: { name: string; onPress?: () => void }) {
+interface ActionButtonProps {
+  id: string;
+  /** What this button starts: its icon turns into a loader while that runs. */
+  operation: ExtensionOperation;
+  icon: IconName;
+  label: string;
+  variant?: "standard" | "tonal" | "muted";
+  /** The menu hands its trigger an `onPress` to open it. */
+  onPress?: () => void;
+}
+
+/** Reads the operation itself so only this button re-renders; every action is off while one runs. */
+function ActionButton({
+  id,
+  operation,
+  icon,
+  label: text,
+  variant = "standard",
+  onPress,
+}: ActionButtonProps) {
+  const current = useValue(extensionOperations$[id]);
   const m3 = useThemeM3Colors();
+  const Button = variant === "tonal" ? FilledTonalIconButton : IconButton;
 
   return (
-    <IconButton
+    <Button
+      enabled={!current}
       onClick={onPress}
-      colors={{ contentColor: m3.onSurfaceVariant }}
-      modifiers={label(`More actions for ${name}`)}
+      colors={
+        variant === "muted" ? { contentColor: m3.onSurfaceVariant } : undefined
+      }
+      modifiers={label(text)}
     >
-      <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
-    </IconButton>
+      {current === operation ? (
+        <Loader size="sm" />
+      ) : (
+        <Icon name={icon} size={BUTTON_ICON_SIZE} color="inherit" />
+      )}
+    </Button>
   );
 }
 
@@ -84,7 +119,7 @@ export function ListItem({ extension: e }: ListItemProps) {
         </Row>
       </ListItemView.SupportingContent>
       <ListItemView.TrailingContent>
-        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+        <Row verticalAlignment="center">
           {websiteUrl && (
             <IconButton
               onClick={() => openExternal(websiteUrl)}
@@ -99,31 +134,32 @@ export function ListItem({ extension: e }: ListItemProps) {
             </IconButton>
           )}
           {!e.installed ? (
-            <IconButton
-              onClick={() => installExtension(e.id)}
-              modifiers={label(`Install ${e.name}`)}
-            >
-              <Icon
-                name={Icons.download}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
-            </IconButton>
+            <ActionButton
+              id={e.id}
+              operation="installing"
+              icon={Icons.download}
+              label={`Install ${e.name}`}
+              onPress={() => installExtension(e.id)}
+            />
           ) : hasUpdate(e) ? (
-            <FilledTonalIconButton
-              onClick={() => updateExtension(e.id)}
-              modifiers={label(`Update ${e.name}`)}
-            >
-              <Icon
-                name={Icons.update}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
-            </FilledTonalIconButton>
+            <ActionButton
+              id={e.id}
+              operation="updating"
+              icon={Icons.update}
+              label={`Update ${e.name}`}
+              variant="tonal"
+              onPress={() => updateExtension(e.id)}
+            />
           ) : null}
           {e.installed && (
             <Menu items={[uninstallItem(e)]}>
-              <MoreButton name={e.name} />
+              <ActionButton
+                id={e.id}
+                operation="uninstalling"
+                icon={Icons.more}
+                label={`More actions for ${e.name}`}
+                variant="muted"
+              />
             </Menu>
           )}
         </Row>

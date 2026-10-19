@@ -53,6 +53,7 @@ mock.module("./repos", () => ({ repos$ }));
 
 const {
   extensions$,
+  extensionOperations$,
   installed$,
   installedLoaded$,
   installExtension,
@@ -72,6 +73,7 @@ beforeEach(() => {
   destructive.mockClear();
   fetched.length = 0;
   hold = undefined;
+  extensionOperations$.set({});
   globalThis.fetch = (async (url: string) => {
     fetched.push(url);
     await hold;
@@ -162,7 +164,11 @@ describe("updateAllExtensions", () => {
       active--;
       return {};
     });
-    await updateAllExtensions();
+    const updating = updateAllExtensions();
+    // Both rows show progress right away, the queued one included.
+    expect(extensionOperations$["pkg.b"].peek()).toBe("updating");
+    await updating;
+    expect(extensionOperations$.peek()).toEqual({});
     install.mockImplementation(async () => ({}));
     expect(install).toHaveBeenCalledTimes(2);
     expect(overlap).toBe(false);
@@ -172,6 +178,23 @@ describe("updateAllExtensions", () => {
 });
 
 describe("installExtension", () => {
+  it("exposes progress while the install is in flight", async () => {
+    await loadExtensions();
+    let release: () => void = () => {};
+    install.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = () => resolve({});
+        }),
+    );
+
+    const pending = installExtension("pkg.foo");
+    expect(extensionOperations$["pkg.foo"].peek()).toBe("installing");
+    release();
+    await pending;
+    expect(extensionOperations$["pkg.foo"].peek()).toBeUndefined();
+  });
+
   it("runs once for the same id and passes apkUrl and signingKey", async () => {
     await loadExtensions();
     const apkUrl = extensions$.peek().find((e) => e.id === "pkg.foo")?.apkUrl;

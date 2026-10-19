@@ -1,15 +1,16 @@
 import { ContainedLoadingIndicator } from "@expo/ui/jetpack-compose";
-import { graphicsLayer } from "@expo/ui/jetpack-compose/modifiers";
+import { size as sizeModifier } from "@expo/ui/jetpack-compose/modifiers";
 import type { LoaderSize } from "panelui-native/components/loader";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { EnsureHost } from "../host";
 import type { LoaderProps } from "./loader";
 
-export const SCALES = {
-  sm: 0.8,
-  md: 1,
-  lg: 1.2,
-} as const satisfies Record<LoaderSize, number | null>;
+// Diameter in dp; 48 is M3's default.
+const SIZES = {
+  sm: 24,
+  md: 48,
+  lg: 58,
+} as const satisfies Record<LoaderSize, number>;
 
 /**
  * Android Loader: same props as [the web one](./loader.tsx), rendered as
@@ -19,16 +20,14 @@ export const SCALES = {
  */
 export function Loader({ size = "md" }: LoaderProps) {
   const m3 = useThemeM3Colors();
-  const scale = SCALES[size];
+  const dp = SIZES[size];
 
   return (
     <EnsureHost matchContents>
       <ContainedLoadingIndicator
         containerColor={m3.surfaceContainerHighest}
         color={m3.primary}
-        modifiers={
-          scale ? [graphicsLayer({ scaleX: scale, scaleY: scale })] : []
-        }
+        modifiers={[sizeModifier(dp, dp)]}
       />
     </EnsureHost>
   );
