@@ -75,7 +75,8 @@
     "check": "biome check",
     "check:fix": "biome check --write --unsafe",
     "typecheck": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test",
+    "extensions:ios-runtime": "sh modules/extension-runtime/ios/scripts/prepare-runtime.sh"
   },
   "private": true,
   "expo": {
