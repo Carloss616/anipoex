@@ -3,7 +3,8 @@ import {
   LegendList as LegendListBase,
   type LegendListProps as LegendListBaseProps,
 } from "@legendapp/list/react-native";
-import { createElement, isValidElement } from "react";
+import { useIsFocused } from "expo-router";
+import { Activity, createElement, isValidElement } from "react";
 import { Platform, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { resolveSpacing } from "@/utils/resolve-spacing";
@@ -70,79 +71,83 @@ export function LegendList<T>({
     columnWrapperStyle?.columnGap ??
     0;
   const halfGap = gap / 2;
+  const focused = useIsFocused();
 
   return (
-    // The top margin sits on a wrapper because rn-web puts `style` on both the
-    // RefreshControl and the ScrollView it wraps, so on the list it would land twice
-    <View
-      style={{
-        flexGrow: 1,
-        flexShrink: 1,
-        marginTop: gap && !ListHeaderComponent ? resolveSpacing(-gap) : 0,
-      }}
-    >
-      <LegendListRoot
-        // Flattened: the web build's <div>s take one style object, not arrays.
-        style={StyleSheet.flatten([
-          // a hidden screen measures 0 wide, and the list would size to its widest item
-          { width: "auto", flexGrow: 1 },
-          // the content's negative `marginInline` would otherwise scroll sideways
-          Platform.OS === "web" && ({ overflowX: "hidden" } as ViewStyle),
-          style,
-        ])}
-        contentContainerStyle={StyleSheet.flatten([
-          {
-            flexGrow: 1,
-            marginInline: halfGap ? resolveSpacing(-halfGap) : 0,
-            // a column, so the empty component can fill the height left under the header
-            display: "flex",
-            flexDirection: "column",
-          },
-          contentContainerStyle,
-        ])}
-        ListHeaderComponent={classedSlot(
-          ListHeaderComponent,
-          ListHeaderComponentClassName,
-        )}
-        ListFooterComponent={classedSlot(
-          ListFooterComponent,
-          ListFooterComponentClassName,
-        )}
-        {...(Platform.OS === "web"
-          ? {}
-          : {
-              ListHeaderComponentClassName,
-              ListFooterComponentClassName,
-              // the browser build would put it on a <div> as an unknown attribute
-              keyboardShouldPersistTaps,
-            })}
-        ListHeaderComponentStyle={StyleSheet.flatten([
-          halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
-          gap ? { marginBottom: resolveSpacing(-gap), zIndex: 1 } : {},
-          ListHeaderComponentStyle,
-        ])}
-        renderItem={(props) => {
-          if (!renderItem) return null;
-
-          return (
-            <View
-              style={{
-                paddingHorizontal: resolveSpacing(halfGap),
-                paddingTop: resolveSpacing(gap),
-              }}
-            >
-              {renderItem(
-                props as LegendListRenderItemProps<T, string | undefined>,
-              )}
-            </View>
-          );
+    // Web: a blurred screen is display: none, where the list measures its rows as 0 and keeps adding more
+    <Activity mode={Platform.OS === "web" && !focused ? "hidden" : "visible"}>
+      {/* The top margin sits on a wrapper because rn-web puts `style` on both the
+      RefreshControl and the ScrollView it wraps, so on the list it would land twice */}
+      <View
+        style={{
+          flexGrow: 1,
+          flexShrink: 1,
+          marginTop: gap && !ListHeaderComponent ? resolveSpacing(-gap) : 0,
         }}
-        ListFooterComponentStyle={StyleSheet.flatten([
-          halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
-          ListFooterComponentStyle,
-        ])}
-        {...(props as LegendListBaseProps<unknown>)}
-      />
-    </View>
+      >
+        <LegendListRoot
+          // Flattened: the web build's <div>s take one style object, not arrays.
+          style={StyleSheet.flatten([
+            // a hidden screen measures 0 wide, and the list would size to its widest item
+            { width: "auto", flexGrow: 1 },
+            // the content's negative `marginInline` would otherwise scroll sideways
+            Platform.OS === "web" && ({ overflowX: "hidden" } as ViewStyle),
+            style,
+          ])}
+          contentContainerStyle={StyleSheet.flatten([
+            {
+              flexGrow: 1,
+              marginInline: halfGap ? resolveSpacing(-halfGap) : 0,
+              // a column, so the empty component can fill the height left under the header
+              display: "flex",
+              flexDirection: "column",
+            },
+            contentContainerStyle,
+          ])}
+          ListHeaderComponent={classedSlot(
+            ListHeaderComponent,
+            ListHeaderComponentClassName,
+          )}
+          ListFooterComponent={classedSlot(
+            ListFooterComponent,
+            ListFooterComponentClassName,
+          )}
+          {...(Platform.OS === "web"
+            ? {}
+            : {
+                ListHeaderComponentClassName,
+                ListFooterComponentClassName,
+                // the browser build would put it on a <div> as an unknown attribute
+                keyboardShouldPersistTaps,
+              })}
+          ListHeaderComponentStyle={StyleSheet.flatten([
+            halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
+            gap ? { marginBottom: resolveSpacing(-gap), zIndex: 1 } : {},
+            ListHeaderComponentStyle,
+          ])}
+          renderItem={(props) => {
+            if (!renderItem) return null;
+
+            return (
+              <View
+                style={{
+                  paddingHorizontal: resolveSpacing(halfGap),
+                  paddingTop: resolveSpacing(gap),
+                }}
+              >
+                {renderItem(
+                  props as LegendListRenderItemProps<T, string | undefined>,
+                )}
+              </View>
+            );
+          }}
+          ListFooterComponentStyle={StyleSheet.flatten([
+            halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
+            ListFooterComponentStyle,
+          ])}
+          {...(props as LegendListBaseProps<unknown>)}
+        />
+      </View>
+    </Activity>
   );
 }

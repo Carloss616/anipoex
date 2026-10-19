@@ -84,8 +84,5 @@
         "typescript"
       ]
     }
-  },
-  "patchedDependencies": {
-    "@legendapp/list@3.6.0": "patches/@legendapp%2Flist@3.6.0.patch"
   }
 }
