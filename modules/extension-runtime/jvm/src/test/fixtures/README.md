@@ -4,10 +4,12 @@
 
 `fixture-badclass.apk` is the same APK plus a `classes.dex` built with `d8` from `Fixture.java`, a plain class that isn't a `Source` or `SourceFactory`: it verifies and converts, then fails to load.
 
-`make-fixture.sh` builds both with `aapt2` and `d8` from the newest build-tools and platform under `$ANDROID_HOME` (default `~/Library/Android/sdk`) and signs both (v2 only) with `apksigner` and one throwaway keystore that isn't kept; it needs `javac` and `keytool` on the `PATH`. Running it again makes a new key, so update the digest below, which `ApkReaderTest` reads.
+`fixture-noname.apk` is `fixture.apk` built from `AndroidManifest-noname.xml`: no `tachiyomix.name`, and `android:label` `Tachiyomi: Fixture Label`, for the name an extension gets from its app label.
+
+`make-fixture.sh` builds all three with `aapt2` and `d8` from the newest build-tools and platform under `$ANDROID_HOME` (default `~/Library/Android/sdk`) and signs them (v2 only) with `apksigner` and one throwaway keystore that isn't kept; it needs `javac` and `keytool` on the `PATH`. Running it again makes a new key, so update the digest below, which `ApkReaderTest` reads.
 
 Signing certificate SHA-256:
 
 ```
-9c32f490b4db5d6f14ee7371c7ff603d2712ab5ba71f9e3a5b081c778f30e5fb
+2e7af2d2b3e9ecdde46b8be3af81b00f34d21e4e6de0265c8b492233dab016e1
 ```

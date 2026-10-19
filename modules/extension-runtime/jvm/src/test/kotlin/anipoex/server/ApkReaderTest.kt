@@ -26,6 +26,23 @@ class ApkReaderTest {
         assertEquals("eu.kanade.tachiyomi.extension.all.fixture", apk.packageName)
         assertEquals("1.4.1", apk.versionName)
         assertEquals("Fixture", apk.metaData["tachiyomix.name"])
+        assertEquals("Fixture", apk.label)
+        assertEquals("Fixture", extensionName(apk))
+    }
+
+    @Test
+    fun nameFromLabel() {
+        val apk = readApk(File(FIXTURES, "fixture-noname.apk"))
+        assertNull(apk.metaData["tachiyomix.name"])
+        assertEquals("Tachiyomi: Fixture Label", apk.label)
+        assertEquals("Fixture Label", extensionName(apk))
+    }
+
+    @Test
+    fun nameFallsBackToPackage() {
+        val blank = ApkInfo("eu.kanade.tachiyomi.extension.all.fixture", "1.4.1", "Tachiyomi: ", emptyMap(), emptyList())
+        assertEquals("eu.kanade.tachiyomi.extension.all.fixture", extensionName(blank))
+        assertEquals("eu.kanade.tachiyomi.extension.all.fixture", extensionName(ApkInfo(blank.packageName, null, null, emptyMap(), emptyList())))
     }
 
     @Test

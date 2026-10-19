@@ -71,7 +71,7 @@ class ExtensionHost(dataDir: File) {
                     put("version", JsonPrimitive(apk.versionName.orEmpty()))
                     put("lib", JsonPrimitive(lib.toString()))
                     put("signingKey", JsonPrimitive(apk.signers.first()))
-                    put("name", JsonPrimitive(apk.metaData["tachiyomix.name"] ?: apk.packageName))
+                    put("name", JsonPrimitive(extensionName(apk)))
                     put("classes", JsonPrimitive(requireNotNull(apk.metaData["tachiyomi.extension.class"]) { "${apk.packageName} has no extension class" }))
                     // Kept in the meta, so installed() has it after a restart without the APK.
                     apkIcon(download)?.let { put("icon", JsonPrimitive(it)) }
@@ -234,6 +234,10 @@ private class DelegateLastClassLoader(jar: File, parent: ClassLoader) : URLClass
 
     private fun tryLoad(load: () -> Class<*>): Class<*>? = try { load() } catch (e: ClassNotFoundException) { null }
 }
+
+// Like Android's host: the metadata name, else the app label without Mihon's prefix, else the package.
+internal fun extensionName(apk: ApkInfo): String =
+    apk.metaData["tachiyomix.name"] ?: apk.label?.substringAfter("Tachiyomi: ")?.ifBlank { null } ?: apk.packageName
 
 private fun ms(nanos: Long) = "${nanos / 1_000_000} ms"
 

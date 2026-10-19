@@ -9,7 +9,7 @@ import java.util.Base64
 import java.util.zip.ZipFile
 
 /** What the host needs from an extension APK, read without Android's PackageManager. */
-class ApkInfo(val packageName: String, val versionName: String?, val metaData: Map<String, String>, val signers: List<String>)
+class ApkInfo(val packageName: String, val versionName: String?, val label: String?, val metaData: Map<String, String>, val signers: List<String>)
 
 /** Verifies the APK's signature (v1-v3) and reads its manifest; throws when the signature doesn't verify. */
 fun readApk(apk: File): ApkInfo {
@@ -26,6 +26,7 @@ fun readApk(apk: File): ApkInfo {
     val parser = AndroidBinXmlParser(ByteBuffer.wrap(manifest))
     var packageName: String? = null
     var versionName: String? = null
+    var label: String? = null
     val metaData = mutableMapOf<String, String>()
     var event = parser.eventType
     while (event != AndroidBinXmlParser.EVENT_END_DOCUMENT) {
@@ -36,6 +37,8 @@ fun readApk(apk: File): ApkInfo {
                     packageName = attributes["package"]
                     versionName = attributes["versionName"]
                 }
+                // A label that is a resource reference stays null: there's no resources table to resolve it.
+                parser.name == "application" && parser.depth == 2 -> label = attributes["label"]
                 parser.name == "meta-data" && parser.depth == 3 -> {
                     val name = attributes["name"]
                     val value = attributes["value"]
@@ -45,7 +48,7 @@ fun readApk(apk: File): ApkInfo {
         }
         event = parser.next()
     }
-    return ApkInfo(requireNotNull(packageName) { "${apk.name} has no package name" }, versionName, metaData, signers)
+    return ApkInfo(requireNotNull(packageName) { "${apk.name} has no package name" }, versionName, label, metaData, signers)
 }
 
 // Null for value types the parser doesn't decode (floats, references); callers fall back like Mihon does.
