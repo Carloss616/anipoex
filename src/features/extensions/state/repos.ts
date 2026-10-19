@@ -6,8 +6,21 @@ import type { Repo } from "../utils/repo";
 /** Repos the user installs extensions from; the app ships with none. */
 export const repos$ = observable<Repo[]>([]);
 
+/** A repo saved before stores had index urls was always a legacy repo.json one. */
+export const storedRepo = (
+  repo: Omit<Repo, "indexUrl" | "legacy"> & Partial<Repo>,
+): Repo => ({
+  indexUrl: `${repo.baseUrl}/repo.json`,
+  legacy: true,
+  ...repo,
+});
+
 syncObservable(repos$, {
-  persist: { name: "extension-repos", plugin: ObservablePersist },
+  persist: {
+    name: "extension-repos",
+    plugin: ObservablePersist,
+    transform: { load: (list: Repo[]) => list.map(storedRepo) },
+  },
 });
 
 export const addRepo = (repo: Repo) => {

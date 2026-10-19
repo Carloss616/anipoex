@@ -1,4 +1,19 @@
-export type Repo = { baseUrl: string; name: string; signingKey: string };
+import { gunzip } from "./gzip";
+import { decodeExtensionList, decodeStore } from "./protobuf";
+
+/**
+ * A repo as the user added it: legacy (`repo.json` + `index.min.json`) or a v2 store.
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkExtensionStore.kt
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkLegacyExtensionRepo.kt
+ */
+export type Repo = {
+  baseUrl: string;
+  name: string;
+  signingKey: string;
+  indexUrl: string;
+  legacy: boolean;
+  extensionListUrl?: string;
+};
 
 export type RepoEntry = {
   pkg: string;
@@ -11,11 +26,17 @@ export type RepoEntry = {
   sources: { id: string; name: string; lang: string }[];
 };
 
-const NO_REPO_JSON = "This repository has no repo.json";
-const REPO_FILE = /\/(repo\.json|index(\.min)?\.(json|pb))$/;
-const GITHUB_RAW = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/raw\//;
-
 type Json = Record<string, unknown>;
+
+const NOT_A_REPO = "This isn't an extension repository";
+const HTTPS_ONLY = "Repository URLs must use https";
+const LEGACY_LIST = "Add this repository by its index.min.json URL";
+const GITHUB_RAW = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/raw\//;
+const FILE_URL = /^[a-z]+:\/\/[^/]+\/(.*\/)?[^/?#]+\.[a-z0-9]+([?#].*)?$/i;
+// A repo.json may point at another store; a chain this long is a loop.
+const MAX_HOPS = 3;
+const NSFW = /^CONTENT_WARNING_(MIXED|NSFW)$/;
+const utf8 = new TextDecoder();
 
 const isObject = (value: unknown): value is Json =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -23,22 +44,100 @@ const isObject = (value: unknown): value is Json =>
 const str = (value: unknown): string | undefined =>
   typeof value === "string" && value !== "" ? value : undefined;
 
-/** Folder that holds repo.json and the index, from any url a user pastes. */
-export const repoBaseUrl = (url: string): string =>
-  url
+/** The file to read for what a user pastes: a file url as is, a folder's `repo.json`. */
+export const repoUrl = (url: string): string => {
+  const clean = url
     .trim()
-    .replace(REPO_FILE, "")
     .replace(/\/+$/, "")
     .replace(GITHUB_RAW, "https://raw.githubusercontent.com/$1/$2/");
-
-export const parseRepoMeta = (json: unknown, baseUrl: string): Repo => {
-  const meta = isObject(json) && isObject(json.meta) ? json.meta : {};
-  const name = str(meta.name);
-  // Native reports lowercase hex; normalize so keys compare and install consistently.
-  const signingKey = str(meta.signingKeyFingerprint)?.trim().toLowerCase();
-  if (!name || !signingKey) throw new Error(NO_REPO_JSON);
-  return { baseUrl, name, signingKey };
+  return FILE_URL.test(clean) ? clean : `${clean}/repo.json`;
 };
+
+const folder = (url: string) => url.replace(/\/[^/]*$/, "");
+
+// Over plain http, someone on the network could hand over their own signing key.
+const download = async (url: string): Promise<Uint8Array> => {
+  if (!/^https:\/\//i.test(url)) throw new Error(HTTPS_ONLY);
+  const response = await fetch(url);
+  if (!response.ok)
+    throw new Error(`Couldn't read ${url} (${response.status})`);
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  return bytes[0] === 0x1f && bytes[1] === 0x8b ? gunzip(bytes) : bytes;
+};
+
+const json = (bytes: Uint8Array): unknown => {
+  try {
+    return JSON.parse(utf8.decode(bytes));
+  } catch {
+    throw new Error(NOT_A_REPO);
+  }
+};
+
+// Native reports lowercase hex; normalize so keys compare and install consistently.
+const key = (value: unknown) => str(value)?.trim().toLowerCase();
+
+/**
+ * A legacy `repo.json`: `meta.name`, `meta.signingKeyFingerprint` and an optional `index_v2`.
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkLegacyExtensionRepo.kt
+ */
+const legacyMeta = (value: unknown) => {
+  if (!isObject(value) || !isObject(value.meta)) return undefined;
+  const name = str(value.meta.name);
+  const signingKey = key(value.meta.signingKeyFingerprint);
+  if (!name || !signingKey) return undefined;
+  return { name, signingKey, indexV2: str(value.index_v2) };
+};
+
+const protobufStore = (body: Uint8Array): Json => {
+  try {
+    return decodeStore(body);
+  } catch {
+    throw new Error(NOT_A_REPO);
+  }
+};
+
+const resolve = async (url: string, hops: number): Promise<Repo> => {
+  if (hops > MAX_HOPS) throw new Error(NOT_A_REPO);
+  let indexUrl = url;
+  let body = await download(url);
+  // "[": a v1 list, read through the repo.json next to it.
+  if (body[0] === 0x5b) {
+    if (!url.endsWith("/index.min.json")) throw new Error(LEGACY_LIST);
+    indexUrl = url.replace(/\/index\.min\.json$/, "/repo.json");
+    body = await download(indexUrl);
+  }
+  const value = body[0] === 0x7b ? json(body) : undefined;
+  const legacy = legacyMeta(value);
+  if (legacy?.indexV2) return resolve(repoUrl(legacy.indexV2), hops + 1);
+  const base = { baseUrl: folder(indexUrl), indexUrl };
+  if (legacy)
+    return {
+      ...base,
+      name: legacy.name,
+      signingKey: legacy.signingKey,
+      legacy: true,
+    };
+  if (indexUrl !== url || body.length === 0) throw new Error(NOT_A_REPO);
+  const store = isObject(value) ? value : protobufStore(body);
+  const name = str(store.name);
+  const signingKey = key(store.signingKey);
+  if (!name || !signingKey) throw new Error(NOT_A_REPO);
+  const extensionListUrl = str(store.extensionListUrl);
+  return {
+    ...base,
+    name,
+    signingKey,
+    legacy: false,
+    ...(extensionListUrl && { extensionListUrl }),
+  };
+};
+
+/**
+ * Reads a repo from any pasted url by the body's first byte: `[` v1 list, `{` legacy repo.json (following `index_v2`) or JSON store, else protobuf store.
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/service/ExtensionStoreService.kt
+ */
+export const fetchRepo = (url: string): Promise<Repo> =>
+  resolve(repoUrl(url), 0);
 
 const parseSources = (value: unknown, langKey: string) =>
   (Array.isArray(value) ? value : []).flatMap((raw) => {
@@ -49,6 +148,10 @@ const parseSources = (value: unknown, langKey: string) =>
     return id && name && lang ? [{ id, name, lang }] : [];
   });
 
+/**
+ * A v2 store entry, from JSON or protobuf.
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkExtensionStore.kt
+ */
 const parseV2 = (raw: unknown): RepoEntry | undefined => {
   if (!isObject(raw)) return undefined;
   const resources = isObject(raw.resources) ? raw.resources : {};
@@ -65,11 +168,16 @@ const parseV2 = (raw: unknown): RepoEntry | undefined => {
     lib,
     apkUrl,
     iconUrl: str(resources.iconUrl),
-    nsfw: raw.contentWarning !== "CONTENT_WARNING_SAFE",
+    // Unspecified counts as safe, as in Mihon.
+    nsfw: NSFW.test(String(raw.contentWarning)),
     sources: parseSources(raw.sources, "language"),
   };
 };
 
+/**
+ * A v1 `index.min.json` entry; its APK and icon sit under the repo's folder.
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkLegacyExtension.kt
+ */
 const parseV1 = (raw: unknown, baseUrl: string): RepoEntry | undefined => {
   if (!isObject(raw)) return undefined;
   const pkg = str(raw.pkg);
@@ -100,23 +208,23 @@ export const parseIndex = (json: unknown, baseUrl: string): RepoEntry[] => {
   });
 };
 
-export const fetchRepo = async (url: string): Promise<Repo> => {
-  const baseUrl = repoBaseUrl(url);
-  // Over plain http, someone on the network could hand over their own signing key.
-  if (!/^https:\/\//i.test(baseUrl))
-    throw new Error("Repository URLs must use https");
-  const response = await fetch(`${baseUrl}/repo.json`);
-  if (!response.ok) throw new Error(NO_REPO_JSON);
-  const json: unknown = await response.json().catch(() => undefined);
-  return parseRepoMeta(json, baseUrl);
-};
-
+/**
+ * Lists a repo's extensions: a v2 store's `extensionListUrl` or inline list, a legacy repo's `index.min.json`.
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/service/ExtensionStoreService.kt
+ */
 export const fetchIndex = async (repo: Repo): Promise<RepoEntry[]> => {
-  let response = await fetch(`${repo.baseUrl}/index.json`);
-  if (response.status === 404) {
-    response = await fetch(`${repo.baseUrl}/index.min.json`);
+  if (repo.legacy) {
+    const body = await download(`${repo.baseUrl}/index.min.json`);
+    return parseIndex(json(body), repo.baseUrl);
   }
-  if (!response.ok)
-    throw new Error(`Could not read ${repo.name} (${response.status})`);
-  return parseIndex(await response.json(), repo.baseUrl);
+  const listUrl = repo.extensionListUrl;
+  const body = await download(listUrl ?? repo.indexUrl);
+  if (body[0] === 0x7b) {
+    const value = json(body);
+    return parseIndex(listUrl ? { extensionList: value } : value, repo.baseUrl);
+  }
+  const extensionList = listUrl
+    ? decodeExtensionList(body)
+    : decodeStore(body).extensionList;
+  return parseIndex({ extensionList }, repo.baseUrl);
 };

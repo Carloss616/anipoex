@@ -2,6 +2,13 @@
 
 ## 2026-10-19
 
+* **Repos resolve the way Mihon does**: a repo can be added by its folder, `repo.json`,
+  `index.min.json` or `index.pb`; the format is told by the first byte, a `repo.json` with
+  `index_v2` leads to the v2 store, v2 stores are read in JSON or protobuf (gzip or not)
+  and may keep their list at a separate address. Saved repos gained `indexUrl`, `legacy`
+  and `extensionListUrl`; older ones read as legacy. Unspecified content warnings count as
+  safe. Updated [extension](concepts/extension.md) and
+  [extension repos store](stores/extension-repos.md).
 * **Logos fill their tile**: the installed APK's icon is cut to its opaque body (no
   launcher padding, shadow or mask) and the tile's colour shows only behind the initials,
   so no colour frames a loaded logo. Updated [source](concepts/source.md).

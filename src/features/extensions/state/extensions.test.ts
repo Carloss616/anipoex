@@ -3,8 +3,20 @@ import { observable } from "@legendapp/state";
 import type { Extension } from "../utils/extension";
 import type { Repo } from "../utils/repo";
 
-const GOOD: Repo = { baseUrl: "https://good", name: "Good", signingKey: "k1" };
-const BAD: Repo = { baseUrl: "https://bad", name: "Bad", signingKey: "k2" };
+const GOOD: Repo = {
+  baseUrl: "https://good",
+  name: "Good",
+  signingKey: "k1",
+  indexUrl: "https://good/repo.json",
+  legacy: true,
+};
+const BAD: Repo = {
+  baseUrl: "https://bad",
+  name: "Bad",
+  signingKey: "k2",
+  indexUrl: "https://bad/repo.json",
+  legacy: true,
+};
 
 const INDEX = [
   {

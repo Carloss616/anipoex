@@ -1,3 +1,4 @@
+/** @see https://github.com/mihonapp/mihon/blob/main/source-api/src/main/kotlin/eu/kanade/tachiyomi/util/JsoupExtensions.kt */
 package eu.kanade.tachiyomi.util
 
 import okhttp3.Response

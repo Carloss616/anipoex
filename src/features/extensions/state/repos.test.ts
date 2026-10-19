@@ -1,7 +1,13 @@
 import { expect, mock, test } from "bun:test";
 import type { Repo } from "../utils/repo";
 
-const NEW: Repo = { baseUrl: "https://new", name: "New", signingKey: "k" };
+const NEW: Repo = {
+  baseUrl: "https://new",
+  name: "New",
+  signingKey: "k",
+  indexUrl: "https://new/index.pb",
+  legacy: false,
+};
 
 // The persistence plugin needs a device; the store only needs it to exist.
 mock.module("@/state/observable-persist", () => ({
@@ -15,7 +21,7 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { addRepo, removeRepo, repos$ } = await import("./repos");
+const { addRepo, removeRepo, repos$, storedRepo } = await import("./repos");
 
 test("starts with no repository", () => {
   expect(repos$.get()).toEqual([]);
@@ -41,4 +47,14 @@ test("removeRepo drops the repo by baseUrl", () => {
   removeRepo(NEW.baseUrl);
 
   expect(repos$.get().some((r) => r.baseUrl === NEW.baseUrl)).toBe(false);
+});
+
+test("a repo saved before index urls existed reads as legacy", () => {
+  const old = { baseUrl: "https://old", name: "Old", signingKey: "k" };
+  expect(storedRepo(old)).toEqual({
+    ...old,
+    indexUrl: "https://old/repo.json",
+    legacy: true,
+  });
+  expect(storedRepo(NEW)).toEqual(NEW);
 });

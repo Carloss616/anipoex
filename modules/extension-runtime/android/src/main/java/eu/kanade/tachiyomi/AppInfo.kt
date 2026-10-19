@@ -1,3 +1,4 @@
+/** @see https://github.com/mihonapp/mihon/blob/main/app/src/main/java/eu/kanade/tachiyomi/AppInfo.kt */
 package eu.kanade.tachiyomi
 
 import android.app.Application

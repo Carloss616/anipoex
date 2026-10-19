@@ -1,3 +1,4 @@
+/** @see https://github.com/mihonapp/mihon/blob/main/source-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/SManga.kt */
 package eu.kanade.tachiyomi.source.model
 
 import kotlinx.serialization.json.JsonObject

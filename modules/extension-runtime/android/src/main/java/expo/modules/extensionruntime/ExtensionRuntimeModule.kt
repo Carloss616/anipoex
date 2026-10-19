@@ -44,6 +44,10 @@ private const val ICON_SIZE = 96
 // Bumped when the extraction changes, so icons written by an older one are redrawn on the next load.
 private const val ICON_FILE = ".v2.png"
 
+/**
+ * Installs and loads extension APKs: metadata, supported libs, class loader and signatures.
+ * @see https://github.com/mihonapp/mihon/blob/main/app/src/main/java/eu/kanade/tachiyomi/extension/util/ExtensionLoader.kt
+ */
 class ExtensionRuntimeModule : Module() {
   private val app get() = requireNotNull(appContext.reactContext).applicationContext as Application
   private val extensionsDir get() = File(app.filesDir, "exts")

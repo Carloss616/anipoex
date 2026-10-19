@@ -51,3 +51,24 @@ appears as installed, but can't be updated until a repo lists it again.
   signing key before it counts; an address that isn't a repo shows a toast and adds
   nothing. Removing one only stops listing its extensions: what is already installed
   stays installed. Both reload the list.
+
+# Repository formats
+
+A repo is read the way Mihon reads it, so any address Mihon accepts works here:
+
+- **Which address**: a folder means its `repo.json`; an address ending in a file
+  (`repo.json`, `index.min.json`, `index.pb`, …) is read as given. Only `https`.
+- **What it is** is told by the first byte of what comes back, not by the file name:
+  - `[`: a v1 list. Only accepted at an `index.min.json` address; the repo's name and key
+    come from the `repo.json` next to it.
+  - `{`: a legacy `repo.json` (name and signing key under `meta`) or a v2 store in JSON.
+  - anything else: a v2 store in protobuf.
+- A legacy `repo.json` that names a v2 index (`index_v2`) is followed, and the v2 store
+  is what gets added.
+- A **v2 store** carries its name, signing key and either its extension list or the address
+  of that list (JSON or protobuf, again by first byte). A **legacy** repo lists its
+  extensions in `index.min.json`, with each APK under `apk/` and its icon under `icon/`.
+- Something without a name or a signing key isn't a repository.
+- A gzip-compressed index (most published `index.pb` files are) is unzipped first.
+- Content warning: mixed and adult extensions count as `nsfw`; safe or unspecified don't.
+- A source's id is a 64-bit number, kept exact as text.

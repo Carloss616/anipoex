@@ -1,3 +1,4 @@
+/** @see https://github.com/mihonapp/mihon/blob/main/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/HttpException.kt */
 package eu.kanade.tachiyomi.network
 
 import okhttp3.Response

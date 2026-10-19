@@ -8,11 +8,15 @@ const REPO_A: Repo = {
   baseUrl: "https://example.com/a",
   name: "Example",
   signingKey: "a-key",
+  indexUrl: "https://example.com/a/repo.json",
+  legacy: true,
 };
 const REPO_B: Repo = {
   baseUrl: "https://example.com/b",
   name: "Other",
   signingKey: "b-key",
+  indexUrl: "https://example.com/b/repo.json",
+  legacy: true,
 };
 
 const entry = (over: Partial<RepoEntry> = {}): RepoEntry => ({
