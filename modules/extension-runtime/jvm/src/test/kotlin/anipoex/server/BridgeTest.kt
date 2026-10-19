@@ -6,6 +6,7 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class BridgeTest {
     @BeforeEach
@@ -23,8 +24,11 @@ class BridgeTest {
     }
 
     @Test
-    fun badJson() {
-        assertContains(Bridge.call("installed", "{"), "\"error\"")
+    fun badJson(@TempDir dir: File) {
+        Bridge.call("init", """{"dataDir":"${dir.path}"}""")
+        val response = Bridge.call("installed", "{")
+        assertContains(response, "\"error\"")
+        assertFalse(response.contains("Call init first"))
     }
 
     @Test
