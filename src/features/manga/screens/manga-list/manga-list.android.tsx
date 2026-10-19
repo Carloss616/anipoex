@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
+import { TabbedPager } from "@/components/native/jetpack-compose/tabbed-pager";
 import { Host } from "@/components/ui/host";
-import { TabbedPager } from "@/components/ui/tabbed-pager";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import {
   emptyMangaList,
