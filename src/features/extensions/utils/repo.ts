@@ -1,5 +1,5 @@
+import { gunzipSync } from "fflate";
 import { isWebUrl } from "@/utils/is-web-url";
-import { gunzip } from "./gzip";
 import { decodeExtensionList, decodeStore } from "./protobuf";
 
 /**
@@ -29,6 +29,7 @@ export type RepoEntry = {
 
 type Json = Record<string, unknown>;
 
+const CORRUPT = "This repository index is corrupt";
 const NOT_A_REPO = "This isn't an extension repository";
 const HTTPS_ONLY = "Repository URLs must use https";
 const LEGACY_LIST = "Add this repository by its index.min.json URL";
@@ -62,7 +63,18 @@ export const repoUrl = (url: string): string => {
 
 const folder = (url: string) => url.replace(/\/[^/]*$/, "");
 
-// Over plain http, someone on the network could hand over their own signing key.
+const gunzip = (bytes: Uint8Array): Uint8Array => {
+  try {
+    return gunzipSync(bytes);
+  } catch {
+    throw new Error(CORRUPT);
+  }
+};
+
+/**
+ * Reads a body over https, gunzipping it when it starts with the gzip magic bytes (plain http could hand over someone's own signing key).
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/service/ExtensionStoreService.kt
+ */
 const download = async (url: string): Promise<Uint8Array> => {
   if (!/^https:\/\//i.test(url)) throw new Error(HTTPS_ONLY);
   const response = await fetch(url);

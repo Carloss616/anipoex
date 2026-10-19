@@ -334,6 +334,14 @@ describe("fetch", () => {
     }
   });
 
+  it("reports a truncated gzip body as a corrupt index", async () => {
+    const gz = Bun.gzipSync(pbStore(pb.bytes(101, PB_LIST)));
+    respond({ [`${V2}/index.pb`]: gz.subarray(0, gz.length / 2) });
+    await expect(fetchRepo(`${V2}/index.pb`)).rejects.toThrow(
+      "This repository index is corrupt",
+    );
+  });
+
   it("rejects a 404 with the url it read", async () => {
     respond({});
     await expect(fetchRepo(EXAMPLE)).rejects.toThrow(
