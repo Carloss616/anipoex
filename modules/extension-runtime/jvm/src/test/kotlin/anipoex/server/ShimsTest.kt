@@ -3,14 +3,20 @@ package anipoex.server
 import android.net.Uri
 import android.text.Html
 import android.util.Base64
+import android.util.Log
 import android.util.LruCache
 import android.webkit.CookieManager
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ShimsTest {
     @Test
@@ -88,5 +94,32 @@ class ShimsTest {
         assertEquals("a\nb & c", Html.fromHtml("a<br>b &amp; c", 0).toString())
         assertEquals("x\n\ny", Html.fromHtml("<p>x</p><p>y</p>", 0).toString())
         assertEquals("plain", Html.fromHtml("<b>plain</b>").toString())
+    }
+
+    @Test
+    fun log() {
+        val error = IllegalStateException("boom")
+        assertEquals("", Log.getStackTraceString(null))
+        assertContains(Log.getStackTraceString(error), "IllegalStateException: boom")
+        assertContains(Log.getStackTraceString(error), "at anipoex.server.ShimsTest.log")
+        assertTrue(Log.isLoggable("t", Log.WARN))
+        assertTrue(Log.isLoggable("t", Log.ASSERT))
+        assertFalse(Log.isLoggable("t", Log.INFO))
+        val captured = ByteArrayOutputStream()
+        val stderr = System.err
+        System.setErr(PrintStream(captured, true))
+        try {
+            val results = listOf(
+                Log.v("t", "v", error), Log.d("t", "d", error), Log.i("t", "i", error), Log.w("t", "w", error), Log.w("t", error),
+                Log.wtf("t", "wtf"), Log.wtf("t", "wtf", error), Log.wtf("t", error),
+            )
+            assertEquals(List(8) { 0 }, results)
+        } finally {
+            System.setErr(stderr)
+        }
+        val log = captured.toString()
+        assertContains(log, "V/t: v\njava.lang.IllegalStateException: boom")
+        assertContains(log, "W/t: java.lang.IllegalStateException: boom")
+        assertContains(log, "A/t: wtf\n")
     }
 }
