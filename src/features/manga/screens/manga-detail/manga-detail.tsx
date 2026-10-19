@@ -1,5 +1,5 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
@@ -58,15 +58,15 @@ export function MangaDetail() {
   } = useSourceChapters(match);
 
   const { resume } = useSourceSearch(manga);
-  const resumed = useRef(false);
+  const [resumed, setResumed] = useState(false);
   const pendingId = match?.manga === undefined ? match?.sourceId : undefined;
 
-  // A pick whose search was cut short resumes once on open; a failed one waits for a refresh.
+  // A pick without a manga is searched once each time the detail opens; Refresh retries it after that.
   useEffect(() => {
-    if (!pendingId || !manga || resumed.current) return;
-    resumed.current = true;
+    if (!pendingId || !manga || resumed) return;
+    setResumed(true);
     resume(pendingId);
-  }, [pendingId, manga, resume]);
+  }, [pendingId, manga, resume, resumed]);
 
   // A new pick hides the previous source's rows so the loading state shows.
   const rows = matching ? [] : chapters;
@@ -95,12 +95,12 @@ export function MangaDetail() {
         }
       : match.manga === null
         ? {
-          title: "No match",
-          description: `This title wasn't found in ${sourceName}.`,
-        }
-      : error
-        ? { title: "Couldn't load chapters", description: error }
-        : { title: "No chapters available" };
+            title: "No match",
+            description: `This title wasn't found in ${sourceName}.`,
+          }
+        : error
+          ? { title: "Couldn't load chapters", description: error }
+          : { title: "No chapters available" };
 
   if (loading || !manga) {
     return (
@@ -156,7 +156,7 @@ export function MangaDetail() {
         hero={<Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />}
         chapters={rows}
         total={manga.chapters ?? rows.length}
-        loading={matching || chaptersLoading}
+        loading={matching || chaptersLoading || (!!pendingId && !resumed)}
         empty={empty}
         action={<SourcePicker manga={manga} />}
         entryId={manga.mediaListEntry?.id}

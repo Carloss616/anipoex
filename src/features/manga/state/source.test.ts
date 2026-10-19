@@ -30,7 +30,9 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { matching$, resumeSource, selectSource, source$ } = await import("./source");
+const { matching$, resumeSource, selectSource, source$ } = await import(
+  "./source"
+);
 
 const A = { id: "a", name: "Alpha" };
 const B = { id: "b", name: "Beta" };
@@ -98,6 +100,24 @@ describe("selectSource", () => {
     expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
     expect(source$[4].get()).toEqual({ sourceId: "a" });
     expect(matching$[4].get()).toBe(false);
+  });
+});
+
+describe("search timeout", () => {
+  it("ends a hung search like a failed one so a retry can run", async () => {
+    await selectSource(10, A, { search: ["hang"], all: ["hang"] }, 10);
+    expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
+    expect(source$[10].get()).toEqual({ sourceId: "a" });
+    expect(matching$[10].get()).toBe(false);
+    const retry = resumeSource(10, A, { search: ["ok"], all: ["ok"] });
+    expect(retry).toBeDefined();
+    await flush();
+    pending["a:ok"]([{ ...hit, title: "ok" }]);
+    await retry;
+    expect(source$[10].get()).toEqual({
+      sourceId: "a",
+      manga: { url: "/1", title: "ok" },
+    });
   });
 });
 

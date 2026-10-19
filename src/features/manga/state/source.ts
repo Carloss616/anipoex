@@ -17,6 +17,17 @@ syncObservable(source$, {
 
 const tickets: Record<number, number> = {};
 
+const SEARCH_TIMEOUT_MS = 30_000;
+
+/** Rejects when the source does not answer in time, so a hung search ends like a failed one. */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error("Search timed out")), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 interface Titles {
   search: (string | null | undefined)[];
   all: (string | null | undefined)[];
@@ -27,6 +38,7 @@ export async function selectSource(
   mangaId: number,
   source: { id: string; name: string },
   titles: Titles,
+  timeoutMs = SEARCH_TIMEOUT_MS,
 ) {
   const ticket = (tickets[mangaId] = (tickets[mangaId] ?? 0) + 1);
   source$[mangaId].set({ sourceId: source.id });
@@ -35,7 +47,10 @@ export async function selectSource(
   try {
     let manga = null;
     for (const query of new Set(titles.search.filter(Boolean))) {
-      const { mangas } = await runtime.search(source.id, query as string, 1);
+      const { mangas } = await withTimeout(
+        runtime.search(source.id, query as string, 1),
+        timeoutMs,
+      );
       manga = pickMatch(mangas, titles.all);
       if (manga) break;
     }
