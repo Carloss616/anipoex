@@ -1,0 +1,3 @@
+[test]
+# Native trees have no JS tests; scanning them leaves thousands of fds open and child processes' stdout then reads empty.
+pathIgnorePatterns = ["ios/**", "android/**", "modules/**"]
