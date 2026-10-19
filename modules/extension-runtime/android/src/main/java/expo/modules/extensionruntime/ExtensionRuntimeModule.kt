@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -40,6 +41,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val SUPPORTED_LIBS = setOf(1.4f, 1.6f)
 private const val ICON_SIZE = 96
+// Bumped when the extraction changes, so icons written by an older one are redrawn on the next load.
+private const val ICON_FILE = ".v2.png"
 
 class ExtensionRuntimeModule : Module() {
   private val app get() = requireNotNull(appContext.reactContext).applicationContext as Application
@@ -168,9 +171,10 @@ class ExtensionRuntimeModule : Module() {
 
   // The APK's launcher icon as a PNG next to it; null when it can't be read, so a bad icon never fails a load.
   private fun icon(info: PackageInfo, apk: File, overwrite: Boolean): String? {
-    val png = File(extensionsDir, "${info.packageName}.png")
+    val png = File(extensionsDir, info.packageName + ICON_FILE)
     return try {
       if (overwrite || !png.exists()) {
+        File(extensionsDir, "${info.packageName}.png").delete()
         val drawable = app.packageManager.getApplicationIcon(applicationInfo(info, apk))
         png.outputStream().use { toBitmap(drawable).compress(Bitmap.CompressFormat.PNG, 100, it) }
       }
@@ -182,13 +186,43 @@ class ExtensionRuntimeModule : Module() {
     }
   }
 
+  // The icon edge to edge: tiles clip their own shape, so the launcher's mask and padding would show as a frame.
   private fun toBitmap(drawable: Drawable): Bitmap {
     val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else ICON_SIZE
     val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else ICON_SIZE
-    return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
+      // Unmasked layers, scaled so the 72dp safe zone of the 108dp canvas fills the bitmap like a maskless launcher.
+      val side = width * 2 / 3
+      return Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888).also { bitmap ->
+        listOfNotNull(drawable.background, drawable.foreground).forEach {
+          it.setBounds(-side / 4, -side / 4, side + side / 4, side + side / 4)
+          it.draw(Canvas(bitmap))
+        }
+      }
+    }
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
       drawable.setBounds(0, 0, width, height)
       drawable.draw(Canvas(it))
     }
+    return opaqueCrop(bitmap)
+  }
+
+  // Legacy icons draw their shape inside a transparent margin with a soft shadow; keeps only the fully opaque body.
+  private fun opaqueCrop(bitmap: Bitmap): Bitmap {
+    val pixels = IntArray(bitmap.width * bitmap.height)
+    bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+    var left = bitmap.width; var top = bitmap.height; var right = -1; var bottom = -1
+    pixels.forEachIndexed { i, pixel ->
+      if (pixel ushr 24 == 0xFF) {
+        left = minOf(left, i % bitmap.width)
+        right = maxOf(right, i % bitmap.width)
+        top = minOf(top, i / bitmap.width)
+        bottom = maxOf(bottom, i / bitmap.width)
+      }
+    }
+    // Nothing fully opaque (a translucent or empty icon): kept as drawn.
+    if (right < 0) return bitmap
+    return Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1)
   }
 
   private fun load(apk: File, overwriteIcon: Boolean = false): Map<String, Any?> {
@@ -263,7 +297,7 @@ class ExtensionRuntimeModule : Module() {
     val file = File(extensionsDir, "$pkg.ext")
     file.setWritable(true)
     file.delete()
-    File(extensionsDir, "$pkg.png").delete()
+    File(extensionsDir, pkg + ICON_FILE).delete()
     Unit
   }
 

@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Logos fill their tile**: the installed APK's icon is cut to its opaque body (no
+  launcher padding, shadow or mask) and the tile's colour shows only behind the initials,
+  so no colour frames a loaded logo. Updated [source](concepts/source.md).
 * **What extensions can run is stated honestly**: library 1.4/1.6 extensions work as far
   as what they commonly use; rate limiting, the JavaScript engine and source-side image
   fetching are not provided yet. A source's `id` is its own, not its extension's. Updated

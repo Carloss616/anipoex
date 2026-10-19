@@ -10,7 +10,9 @@ A **source** is a site the app reads chapters from, as exposed by an installed
 [extension](extension.md): `id` (the source's own id; one extension can have several sources), `name`, and `initials`. Its
 tile shows the source's **logo** when it has one, else (or while the logo loads, or if it
 fails) the initials. The logo is the icon of the installed APK (a local file, so it
-shows offline); an extension not installed yet shows the icon its repo lists. The tile's colour is hashed from the name, so it
+shows offline), cut to its opaque body without the launcher's padding, shadow or mask so
+it fills the tile edge to edge; an extension not installed yet shows the icon its repo lists, as
+the repo draws it. The tile's colour, shown only behind the initials, is hashed from the name, so it
 is stable across launches.
 
 - **Per manga**: the detail's source picker stores the choice keyed by the manga's

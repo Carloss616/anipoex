@@ -20,10 +20,10 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
 
   return (
     <Item.Media
-      // The outline only frames the initials; a loaded logo fills the tile.
+      // The color and outline only frame the initials; a loaded logo fills the tile.
       variant={loaded ? "image" : "icon"}
-      className={loaded ? "size-10" : "overflow-hidden"}
-      style={{ backgroundColor: color }}
+      className={loaded ? "size-10 bg-transparent" : "overflow-hidden"}
+      style={loaded ? undefined : { backgroundColor: color }}
     >
       {!loaded && (
         <Typography type="body-xs" weight="semibold">

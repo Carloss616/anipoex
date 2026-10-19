@@ -29,9 +29,9 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
     <ZStack
       modifiers={[
         frame({ width: SIDE, height: SIDE }),
-        background(color),
+        // The color and outline only frame the initials; a loaded logo fills the tile.
+        ...(loaded ? [] : [background(color)]),
         clipShape("roundedRectangle", radius),
-        // The outline only frames the initials; a loaded logo fills the tile.
         ...(loaded
           ? []
           : [
