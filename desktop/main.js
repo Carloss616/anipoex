@@ -1,18 +1,31 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { pathToFileURL } from "node:url";
+import { app, BrowserWindow, ipcMain, net, protocol, shell } from "electron";
 import { authRedirect } from "./auth.js";
+import { resolveAsset } from "./serve.js";
 import { startSidecar } from "./sidecar.js";
 
-// shortcut: dev paths (Metro and the Gradle build); a packaged app ships the web export, the jre and the server inside it.
-const APP_URL = process.env.ANIPOEX_URL ?? "http://localhost:8081";
-const APP_ORIGIN = new URL(APP_URL).origin;
+// Packaged, electron-builder puts the web export, the server and the jre in Resources; in development they come from Metro and the Gradle build.
 const BUILD = path.join(
   import.meta.dirname,
   "../modules/extension-runtime/jvm/build",
 );
-const SERVER = path.join(BUILD, "install/extension-runtime");
-const BUNDLED_JAVA = path.join(BUILD, "jre/bin/java");
+const PATHS = app.isPackaged
+  ? {
+      web: path.join(process.resourcesPath, "web"),
+      server: path.join(process.resourcesPath, "server"),
+      jre: path.join(process.resourcesPath, "jre"),
+    }
+  : {
+      web: path.join(import.meta.dirname, "../dist"),
+      server: path.join(BUILD, "install/extension-runtime"),
+      jre: path.join(BUILD, "jre"),
+    };
+const APP_URL = app.isPackaged
+  ? "app://anipoex/"
+  : (process.env.ANIPOEX_URL ?? "http://localhost:8081");
+const BUNDLED_JAVA = path.join(PATHS.jre, "bin/java");
 const JAVA = existsSync(BUNDLED_JAVA) ? BUNDLED_JAVA : "java";
 // The only site the sign-in window opens.
 const AUTH_ORIGIN = "https://anilist.co";
@@ -26,17 +39,43 @@ const METHODS = new Set([
   "mangaWebUrl",
 ]);
 
-const originOf = (url) => URL.parse(url ?? "")?.origin;
+// Not `URL.origin`: a custom scheme's origin is the opaque "null", which every `data:` or `about:` frame shares.
+const originOf = (url) => {
+  const parsed = URL.parse(url ?? "");
+  return parsed && `${parsed.protocol}//${parsed.host}`;
+};
+const APP_ORIGIN = originOf(APP_URL);
+
+// Before `ready`: a standard, secure scheme gets real origins, fetch, CORS and storage like https.
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "app",
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
+  },
+]);
 
 app.whenReady().then(() => {
+  // `net.fetch` of the file sets the Content-Type from its extension.
+  protocol.handle("app", (request) => {
+    const file = resolveAsset(PATHS.web, new URL(request.url).pathname);
+    return file
+      ? net.fetch(pathToFileURL(file).toString())
+      : new Response("Not found", { status: 404 });
+  });
+
   const extensions = path.join(app.getPath("userData"), "extensions");
   const sidecar = startSidecar({
     java: JAVA,
     args: [
       "-Xmx512m",
-      `-Xbootclasspath/a:${path.join(SERVER, "boot/jul-shim.jar")}`,
+      `-Xbootclasspath/a:${path.join(PATHS.server, "boot/jul-shim.jar")}`,
       "-cp",
-      path.join(SERVER, "lib", "*"),
+      path.join(PATHS.server, "lib", "*"),
       "anipoex.server.MainKt",
       extensions,
     ],

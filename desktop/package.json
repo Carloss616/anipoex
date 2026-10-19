@@ -1,15 +1,52 @@
 {
   "name": "anipoex-desktop",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build:web": "cd .. && bunx expo export -p web",
+    "build:runtime": "../android/gradlew -p ../modules/extension-runtime/jvm installDist jlinkRuntime",
+    "dist": "bun run build:web && bun run build:runtime && electron-builder --mac"
   },
   "devDependencies": {
-    "electron": "44.9.0"
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3"
   },
   "trustedDependencies": [
     "electron"
-  ]
+  ],
+  "build": {
+    "appId": "app.anipoex.desktop",
+    "productName": "anipoex",
+    "extraMetadata": {
+      "productName": "anipoex"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "identity": null
+    },
+    "extraResources": [
+      {
+        "from": "../dist",
+        "to": "web"
+      },
+      {
+        "from": "../modules/extension-runtime/jvm/build/install/extension-runtime",
+        "to": "server"
+      },
+      {
+        "from": "../modules/extension-runtime/jvm/build/jre",
+        "to": "jre"
+      }
+    ]
+  }
 }
