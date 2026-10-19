@@ -71,3 +71,29 @@ val jlinkRuntime by tasks.registering(Exec::class) {
         args("--add-modules", "java.base,jdk.crypto.ec", "--strip-debug", "--no-header-files", "--no-man-pages", "--output", output.get().asFile.path)
     }
 }
+
+// Stands in for okhttp-zstd on iOS, whose JNI library can't load there; the main build keeps the real one.
+val zstdStub by sourceSets.creating
+val zstdStubTest by sourceSets.creating {
+    compileClasspath += zstdStub.output
+    runtimeClasspath += zstdStub.output
+}
+dependencies {
+    "zstdStubCompileOnly"(platform("com.squareup.okhttp3:okhttp-bom:5.4.0"))
+    "zstdStubCompileOnly"("com.squareup.okhttp3:okhttp")
+    "zstdStubTestImplementation"(platform("com.squareup.okhttp3:okhttp-bom:5.4.0"))
+    "zstdStubTestImplementation"("com.squareup.okhttp3:okhttp")
+    "zstdStubTestImplementation"("com.squareup.okhttp3:mockwebserver3")
+    "zstdStubTestImplementation"(kotlin("test-junit5"))
+}
+val zstdStubJar by tasks.registering(Jar::class) {
+    archiveFileName = "zstd-stub.jar"
+    from(zstdStub.output)
+}
+val zstdStubTestRun = tasks.register<Test>("zstdStubTest") {
+    group = "verification"
+    testClassesDirs = zstdStubTest.output.classesDirs
+    classpath = zstdStubTest.runtimeClasspath
+    useJUnitPlatform()
+}
+tasks.check { dependsOn(zstdStubTestRun) }
