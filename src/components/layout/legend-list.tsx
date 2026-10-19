@@ -61,6 +61,7 @@ export function LegendList<T>({
   renderItem,
   // never forwarded: its own gap handling is web-only, and would stack on the padding below
   columnWrapperStyle,
+  keyboardShouldPersistTaps,
   ...props
 }: LegendListBaseProps<T> & UniwindClassNameProps) {
   const gap =
@@ -109,7 +110,12 @@ export function LegendList<T>({
         )}
         {...(Platform.OS === "web"
           ? {}
-          : { ListHeaderComponentClassName, ListFooterComponentClassName })}
+          : {
+              ListHeaderComponentClassName,
+              ListFooterComponentClassName,
+              // the browser build would put it on a <div> as an unknown attribute
+              keyboardShouldPersistTaps,
+            })}
         ListHeaderComponentStyle={StyleSheet.flatten([
           halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
           gap ? { marginBottom: resolveSpacing(-gap), zIndex: 1 } : {},

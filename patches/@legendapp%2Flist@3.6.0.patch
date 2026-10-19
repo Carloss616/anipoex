@@ -1,0 +1,24 @@
+diff --git a/react-native.web.js b/react-native.web.js
+index a0f962c42b7b28a49e7480ed3e16056b9e154a4c..f8c6127e8bca329e34ce5c5ea56b62a98b178a0e 100644
+--- a/react-native.web.js
++++ b/react-native.web.js
+@@ -5278,6 +5278,7 @@ function measureContainersInLayoutEffect(ctx, targetContainerIds = null) {
+     const element = viewRef == null ? void 0 : viewRef.current;
+     if (itemKey !== void 0 && element) {
+       const rect = element.getBoundingClientRect();
++      if (rect.width === 0 && rect.height === 0) continue;
+       setContainerLayoutBaseline(element, rect);
+       measurements.push({
+         containerId,
+diff --git a/react-native.web.mjs b/react-native.web.mjs
+index 9338287159778f842fa05b5a0467336bf5f50fe8..5618c67bfe4c5fecf42cbce47e3c032fa5845b9b 100644
+--- a/react-native.web.mjs
++++ b/react-native.web.mjs
+@@ -5257,6 +5257,7 @@ function measureContainersInLayoutEffect(ctx, targetContainerIds = null) {
+     const element = viewRef == null ? void 0 : viewRef.current;
+     if (itemKey !== void 0 && element) {
+       const rect = element.getBoundingClientRect();
++      if (rect.width === 0 && rect.height === 0) continue;
+       setContainerLayoutBaseline(element, rect);
+       measurements.push({
+         containerId,
