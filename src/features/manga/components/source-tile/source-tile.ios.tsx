@@ -4,18 +4,21 @@ import {
   clipShape,
   foregroundStyle,
   frame,
+  strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
 import { Image } from "expo-image";
 import { useState } from "react";
 import { useCSSVariable } from "uniwind";
 import { Text } from "@/components/native/swift-ui/text";
 import { RNHostView } from "@/components/ui/host";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
 import type { SourceTileProps } from "./source-tile";
 
 const SIDE = 40;
 
 export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
+  const border = useThemeColor("border");
   // Each theme family sets its own rounding, so `rounded-lg` is read, not fixed.
   const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
   // The url that loaded, so a recycled row with another source starts over.
@@ -28,6 +31,16 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
         frame({ width: SIDE, height: SIDE }),
         background(color),
         clipShape("roundedRectangle", radius),
+        // The outline only frames the initials; a loaded logo fills the tile.
+        ...(loaded
+          ? []
+          : [
+              strokeBorder({
+                content: border,
+                shape: "roundedRectangle",
+                cornerRadius: radius,
+              }),
+            ]),
       ]}
     >
       {!loaded && (

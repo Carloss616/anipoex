@@ -94,7 +94,8 @@ export function SourceSheet({
         {sources.length === 0 ? (
           // A fixed height, not the sheet's: centred in the full sheet it sits below the half snap.
           <Box modifiers={[fillMaxWidth(), height(EMPTY_HEIGHT)]}>
-            <EmptyState {...empty} />
+            {/* Scrolls inside the box, so the description variant never clips silently. */}
+            <EmptyState {...empty} modifiers={[verticalScroll()]} />
           </Box>
         ) : (
           <Column
