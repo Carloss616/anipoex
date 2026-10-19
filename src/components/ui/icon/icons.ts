@@ -42,6 +42,11 @@ export const Icons = {
     android: require("@expo/material-symbols/more_vert.xml"),
     web: "ellipsis-vertical",
   }),
+  search: Icon.select({
+    ios: "magnifyingglass",
+    android: require("@expo/material-symbols/search.xml"),
+    web: "search",
+  }),
   filter: Icon.select({
     ios: "line.3.horizontal.decrease",
     android: require("@expo/material-symbols/filter_list.xml"),

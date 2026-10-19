@@ -19,7 +19,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { ViewProps } from "react-native";
+import { Keyboard, type ViewProps } from "react-native";
 import { dismissFocus } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
@@ -72,6 +72,14 @@ function BottomSheetRoot({
     setLockCount((count) => count + delta);
   }, []);
 
+  // M3 leaves a half-open sheet under the keyboard; any field that opens it is in this modal sheet.
+  useEffect(() => {
+    const sub = Keyboard.addListener("keyboardDidShow", () => {
+      void sheetRef.current?.expand();
+    });
+    return () => sub.remove();
+  }, []);
+
   useEffect(() => {
     if (isPresented) {
       setMount(true);
@@ -107,8 +115,10 @@ function BottomSheetRoot({
             ...(testID ? [testIDModifier(testID)] : []),
             clickable(dismissFocus, { indication: false }),
             fillMaxWidth(),
-            animateContentSize(),
-            ...(shouldFillMaxHeight(snapPoints) ? [fillMaxHeight()] : []),
+            // A filled sheet only changes size with the keyboard, and animating that fights M3's own resettle.
+            shouldFillMaxHeight(snapPoints)
+              ? fillMaxHeight()
+              : animateContentSize(),
           ]}
         >
           <LockDragContext.Provider value={trackLock}>

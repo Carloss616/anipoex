@@ -81,7 +81,7 @@ export function SourceSheet({
             value={query}
             onChangeText={setQuery}
             placeholder="Search sources..."
-            shape="pill"
+            cancel="focus"
           />
         </VStack>
 
