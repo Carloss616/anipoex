@@ -47,10 +47,19 @@ export function MangaDetail() {
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
   const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(Number(id));
-  const source = useSourceChapters(match);
+  // Destructured so `refreshAll` only changes with the match: each new toolbar re-renders the whole stack.
+  const {
+    chapters,
+    loading: chaptersLoading,
+    error,
+    refresh: refreshChapters,
+  } = useSourceChapters(match);
+
+  // A new pick hides the previous source's rows so the loading state shows.
+  const rows = matching ? [] : chapters;
 
   const refreshAll = () =>
-    Promise.all([refresh(), source.refresh(), refreshInstalled()]);
+    Promise.all([refresh(), refreshChapters(), refreshInstalled()]);
   const sourceName =
     sources.find((entry) => entry.id === match?.sourceId)?.name ??
     "this source";
@@ -66,8 +75,8 @@ export function MangaDetail() {
           title: "No match",
           description: `This title wasn't found in ${sourceName}.`,
         }
-      : source.error
-        ? { title: "Couldn't load chapters", description: source.error }
+      : error
+        ? { title: "Couldn't load chapters", description: error }
         : { title: "No chapters available" };
 
   if (loading || !manga) {
@@ -122,9 +131,9 @@ export function MangaDetail() {
         onRefresh={refreshAll}
         maxHeaderHeight={maxHeaderHeight}
         hero={<Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />}
-        chapters={source.chapters}
-        total={manga.chapters ?? source.chapters.length}
-        loading={matching || source.loading}
+        chapters={rows}
+        total={manga.chapters ?? rows.length}
+        loading={matching || chaptersLoading}
         empty={empty}
         action={<SourcePicker manga={manga} />}
         entryId={manga.mediaListEntry?.id}

@@ -19,10 +19,11 @@ export function useSourcePicker(manga: SourcePickerManga) {
     isPresented,
     open: () => setIsPresented(true),
     close: () => setIsPresented(false),
-    // The sheet stays open: the check moves once the search answers, and the header shows the new source.
+    // The sheet closes on pick so the detail's loading state answers the tap while the search runs.
     select: (nextId: string) => {
       const next = sources.find((entry) => entry.id === nextId);
       if (!next) return;
+      setIsPresented(false);
       const { title, synonyms = [] } = manga;
       selectSource(manga.id, next, {
         search: [title?.romaji, title?.english],
