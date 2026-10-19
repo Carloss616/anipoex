@@ -12,10 +12,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
-/**
- * Desktop sidecar: one JSON request per stdin line `{"id","method","args"}`, one response per stdout line `{"id","result"|"error"}`.
- * Usage: extension-runtime <dataDir>
- */
+/** Desktop sidecar (`extension-runtime <dataDir>`): one JSON request per stdin line `{"id","method","args"}`, one response per stdout line `{"id","result"|"error"}`. */
 fun main(args: Array<String>) {
     // stdout carries the protocol only, so a println from an extension or library lands on stderr.
     val protocol = PrintStream(FileOutputStream(FileDescriptor.out), true, Charsets.UTF_8)
@@ -30,9 +27,9 @@ fun main(args: Array<String>) {
             synchronized(protocol) { protocol.println(response) }
         }
     }
-    // stdin closed: the app is gone; finish what is running and exit.
+    // stdin closed: the app is gone, so in-flight requests get a few seconds and nobody reads what they'd answer.
     pool.shutdown()
-    pool.awaitTermination(1, TimeUnit.MINUTES)
+    pool.awaitTermination(5, TimeUnit.SECONDS)
     // Library threads (OkHttp, coroutines) would keep the VM alive.
     exitProcess(0)
 }
