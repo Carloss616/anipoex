@@ -14,6 +14,10 @@ import com.googlecode.d2j.reader.DexFileReader
 import com.googlecode.d2j.reader.MultiDexFileReader
 import com.googlecode.d2j.reader.Op
 import com.googlecode.d2j.visitors.DexFileVisitor
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.commons.ClassRemapper
+import org.objectweb.asm.commons.SimpleRemapper
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -34,7 +38,7 @@ fun dexToJar(apk: File, jar: File) {
             Files.walk(classes).use { paths ->
                 paths.filter { Files.isRegularFile(it) }.forEach { path ->
                     zip.putNextEntry(ZipEntry(classes.relativize(path).joinToString("/")))
-                    Files.copy(path, zip)
+                    zip.write(remapUtilObject(Files.readAllBytes(path)))
                     zip.closeEntry()
                 }
             }
@@ -59,7 +63,12 @@ private fun translate(apk: File, classes: Path) {
     val dex = DexFileNode()
     reader.accept(dex, DexFileReader.SKIP_DEBUG)
     fixInlinedConstructors(dex)
-    Dex2jar.from(NodeReader(dex, reader.dexVersion))
+    translate(dex, reader.dexVersion, classes)
+}
+
+/** Writes the tree's classes under [classes], one `.class` per class. */
+internal fun translate(dex: DexFileNode, version: Int, classes: Path) {
+    Dex2jar.from(NodeReader(dex, version))
         .reUseReg(false)
         .topoLogicalSort()
         .skipDebug(true)
@@ -75,7 +84,7 @@ private fun translate(apk: File, classes: Path) {
 // R8 inlines trivial constructors, leaving calls ART runs and the JVM verifier rejects: `new X` then `Y.<init>` on it, or a
 // constructor of X calling `Y.<init>` on itself, with Y a superclass further up than X's direct one. dex2jar turns the first
 // into `new Y`, losing X. Each call is pointed at a constructor that reaches Y.<init> through every class in between.
-private fun fixInlinedConstructors(dex: DexFileNode) {
+internal fun fixInlinedConstructors(dex: DexFileNode) {
     val classes = dex.clzs.associateBy { it.className }
     // Added after the walk: the class being fixed is often the one whose code is walked.
     val added = mutableMapOf<Method, Pair<DexClassNode, DexMethodNode>>()
@@ -112,6 +121,14 @@ private fun fixInlinedConstructors(dex: DexFileNode) {
     added.values.forEach { (target, constructor) ->
         (target.methods ?: mutableListOf<DexMethodNode>().also { target.methods = it }) += constructor
     }
+}
+
+// dex2jar 2.4.38's getCommonSuperClass answers "java/util/Object" for a class it can't load, which lands in StackMapTable frames.
+internal fun remapUtilObject(classFile: ByteArray): ByteArray {
+    // No ClassReader passed to the writer: copying its constant pool would keep the "java/util/Object" entry.
+    val writer = ClassWriter(0)
+    ClassReader(classFile).accept(ClassRemapper(writer, SimpleRemapper("java/util/Object", "java/lang/Object")), 0)
+    return writer.toByteArray()
 }
 
 // Registers a method's arguments take, `this` included: long and double take two.
