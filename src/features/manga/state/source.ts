@@ -40,7 +40,8 @@ export async function selectSource(
   titles: Titles,
   timeoutMs = SEARCH_TIMEOUT_MS,
 ) {
-  const ticket = (tickets[mangaId] = (tickets[mangaId] ?? 0) + 1);
+  const ticket = (tickets[mangaId] ?? 0) + 1;
+  tickets[mangaId] = ticket;
   source$[mangaId].set({ sourceId: source.id });
   matching$[mangaId].set(true);
 
