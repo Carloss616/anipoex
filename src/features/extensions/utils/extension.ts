@@ -20,6 +20,8 @@ export interface Extension extends Source {
   signingKey?: string;
   /** Name of the repo that supplied this entry. */
   repo?: string;
+  /** The first source's website: the installed build's, else the index's. */
+  websiteUrl?: string;
   installed: boolean;
 }
 

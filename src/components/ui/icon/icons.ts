@@ -32,6 +32,11 @@ export const Icons = {
     android: require("@expo/material-symbols/open_in_new.xml"),
     web: "external-link",
   }),
+  website: Icon.select({
+    ios: "globe",
+    android: require("@expo/material-symbols/language.xml"),
+    web: "globe",
+  }),
   more: Icon.select({
     ios: "ellipsis",
     android: require("@expo/material-symbols/more_vert.xml"),
@@ -67,7 +72,7 @@ export const Icons = {
 
   repos: Icon.select({
     ios: "shippingbox",
-    android: require("@expo/material-symbols/inventory_2.xml"),
+    android: require("@expo/material-symbols/package_2.xml"),
     web: "package",
   }),
 

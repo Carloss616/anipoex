@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { useInstalledSources } from "@/features/extensions";
+import { toast } from "@/components/ui/toast";
+import { runtime, useInstalledSources } from "@/features/extensions";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { selectSource } from "@/features/manga/state/source";
+import { openExternal } from "@/utils/open-external";
 import type { SourcePickerManga } from "../source-picker";
 
 /** The picked source, its match and the sheet that changes it. */
@@ -19,6 +21,15 @@ export function useSourcePicker(manga: SourcePickerManga) {
     isPresented,
     open: () => setIsPresented(true),
     close: () => setIsPresented(false),
+    /** The manga's page on the source's site; only a matched manga has one. */
+    openWeb: async () => {
+      if (!match?.manga) return;
+      const url = await runtime
+        .mangaWebUrl(match.sourceId, match.manga.url)
+        .catch(() => null);
+      if (url) openExternal(url);
+      else toast.destructive("Couldn't open this manga's page");
+    },
     // The sheet closes on pick so the detail's loading state answers the tap while the search runs.
     select: (nextId: string) => {
       const next = sources.find((entry) => entry.id === nextId);

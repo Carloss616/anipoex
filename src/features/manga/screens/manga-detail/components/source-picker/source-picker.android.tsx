@@ -1,4 +1,5 @@
-import { Row, TextButton } from "@expo/ui/jetpack-compose";
+import { IconButton, Row, TextButton } from "@expo/ui/jetpack-compose";
+import { semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -23,6 +24,17 @@ export function SourcePicker({ manga }: SourcePickerProps) {
           <Icon name={Icons.chevronDown} size={16} color="inherit" />
         </Row>
       </TextButton>
+      {picker.match?.manga && (
+        <IconButton
+          onClick={picker.openWeb}
+          colors={{ contentColor: m3.onSurfaceVariant }}
+          modifiers={[
+            semantics({ contentDescription: `Open on ${picker.label}` }),
+          ]}
+        >
+          <Icon name={Icons.website} size={20} color="inherit" />
+        </IconButton>
+      )}
 
       <SourceSheet
         isPresented={picker.isPresented}

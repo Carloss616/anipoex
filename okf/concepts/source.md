@@ -27,4 +27,8 @@ is stable across launches.
   "No sources found". On iOS and web the detail's "Pick a source" says extensions run on
   Android only.
 
+- **Website**: an installed source reports its own site (none when it can't). On Android, the
+  detail shows an "Open on <source>" button next to the source picker once the manga has a
+  match; it opens the manga's page on that source's site, or says it couldn't.
+
 Sources come only from [extensions](extension.md); the app ships none of its own.

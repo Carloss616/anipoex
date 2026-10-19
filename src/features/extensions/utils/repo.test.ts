@@ -28,7 +28,7 @@ const V1_INDEX = [
         name: "Example (1)",
         lang: "all",
         id: "1234567890123456789",
-        baseUrl: "",
+        baseUrl: "https://example.com",
       },
     ],
   },
@@ -51,7 +51,7 @@ const V2_ENTRY = {
       id: "6289731484943315811",
       name: "Sample",
       language: "all",
-      homeUrl: "x",
+      homeUrl: "https://example.com/home",
     },
   ],
 };
@@ -89,7 +89,14 @@ describe("parseIndex", () => {
       apkUrl: V2_ENTRY.resources.apkUrl,
       iconUrl: "https://example.com/ic.png",
       nsfw: true,
-      sources: [{ id: "6289731484943315811", name: "Sample", lang: "all" }],
+      sources: [
+        {
+          id: "6289731484943315811",
+          name: "Sample",
+          lang: "all",
+          homeUrl: "https://example.com/home",
+        },
+      ],
     });
     expect(safe.nsfw).toBe(false);
     expect(mixed.nsfw).toBe(true);
@@ -109,7 +116,12 @@ describe("parseIndex", () => {
         iconUrl: `${EXAMPLE}/icon/eu.kanade.tachiyomi.extension.all.example.png`,
         nsfw: false,
         sources: [
-          { id: "1234567890123456789", name: "Example (1)", lang: "all" },
+          {
+            id: "1234567890123456789",
+            name: "Example (1)",
+            lang: "all",
+            homeUrl: "https://example.com",
+          },
         ],
       },
     ]);

@@ -12,7 +12,7 @@ const ext = (
   lib: 1,
   signingKey: "k",
   icon: null,
-  sources: sources.map(([id, lang]) => ({ id, name, lang })),
+  sources: sources.map(([id, lang]) => ({ id, name, lang, homeUrl: null })),
 });
 
 describe("enabledLanguages", () => {

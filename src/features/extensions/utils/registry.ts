@@ -64,6 +64,7 @@ export function toExtensions(
         version: entry.version,
         nsfw: entry.nsfw,
         installed: false,
+        websiteUrl: entry.sources.find((s) => s.homeUrl)?.homeUrl,
         apkUrl: entry.apkUrl,
         signingKey: repo.signingKey,
         repo: repo.name,
@@ -89,6 +90,7 @@ function fromInstalled(local: InstalledExtension, pick?: Listing): Extension {
     installed: true,
     signingKey: local.signingKey,
     iconUrl: local.icon ?? undefined,
+    websiteUrl: local.sources.find((s) => s.homeUrl)?.homeUrl ?? undefined,
   };
   if (!pick) return base;
   const { repo, entry } = pick;
@@ -97,6 +99,8 @@ function fromInstalled(local: InstalledExtension, pick?: Listing): Extension {
     nsfw: entry.nsfw,
     repo: repo.name,
     apkUrl: entry.apkUrl,
+    websiteUrl:
+      base.websiteUrl ?? entry.sources.find((s) => s.homeUrl)?.homeUrl,
     // The local file loads offline and always exists; the repo's url may 404.
     iconUrl: base.iconUrl ?? entry.iconUrl,
     ...(entry.version !== local.version && { latestVersion: entry.version }),

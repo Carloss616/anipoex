@@ -23,6 +23,7 @@ import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
+import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
 import { uninstallItem } from "./utils/uninstall-item";
 
@@ -34,6 +35,7 @@ const ICON_BUTTON = [
 /** A `List` row: it already insets its content, so this draws none of its own. */
 export function ListItem({ extension: e }: ListItemProps) {
   const mode = useValue(theme$.mode);
+  const { websiteUrl } = e;
   const primary = useThemeColor("primary");
 
   return (
@@ -75,6 +77,23 @@ export function ListItem({ extension: e }: ListItemProps) {
       </Label>
       <Spacer />
       <HStack spacing={6}>
+        {websiteUrl && (
+          <Button
+            onPress={() => openExternal(websiteUrl)}
+            modifiers={[
+              buttonStyle("glass"),
+              ...ICON_BUTTON,
+              foregroundStyle("secondary"),
+              accessibilityLabel("Open website"),
+            ]}
+          >
+            <Icon
+              name={Icons.website}
+              size={BUTTON_ICON_SIZE}
+              color="inherit"
+            />
+          </Button>
+        )}
         {!e.installed ? (
           <Button
             onPress={() => installExtension(e.id)}

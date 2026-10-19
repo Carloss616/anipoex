@@ -20,6 +20,7 @@ import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { theme$ } from "@/state/theme";
+import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
 import { uninstallItem } from "./utils/uninstall-item";
 
@@ -42,6 +43,7 @@ function MoreButton({ name, onPress }: { name: string; onPress?: () => void }) {
 
 export function ListItem({ extension: e }: ListItemProps) {
   const mode = useValue(theme$.mode);
+  const { websiteUrl } = e;
   const m3 = useThemeM3Colors();
 
   return (
@@ -83,6 +85,19 @@ export function ListItem({ extension: e }: ListItemProps) {
       </ListItemView.SupportingContent>
       <ListItemView.TrailingContent>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+          {websiteUrl && (
+            <IconButton
+              onClick={() => openExternal(websiteUrl)}
+              colors={{ contentColor: m3.onSurfaceVariant }}
+              modifiers={label("Open website")}
+            >
+              <Icon
+                name={Icons.website}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
+            </IconButton>
+          )}
           {!e.installed ? (
             <IconButton
               onClick={() => installExtension(e.id)}

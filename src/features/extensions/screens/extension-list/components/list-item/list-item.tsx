@@ -15,6 +15,7 @@ import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/sources";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
+import { openExternal } from "@/utils/open-external";
 import { uninstallItem } from "./utils/uninstall-item";
 
 export interface ListItemProps {
@@ -23,6 +24,7 @@ export interface ListItemProps {
 
 export function ListItem({ extension: e }: ListItemProps) {
   const mode = useValue(theme$.mode);
+  const { websiteUrl } = e;
   const primary = useThemeColor("primary");
 
   return (
@@ -56,6 +58,21 @@ export function ListItem({ extension: e }: ListItemProps) {
         </Item.Description>
       </Item.Content>
       <Item.Actions>
+        {websiteUrl && (
+          <Button
+            size="icon"
+            variant="outline"
+            className="size-9"
+            onPress={() => openExternal(websiteUrl)}
+            accessibilityLabel="Open website"
+          >
+            <Icon
+              name={Icons.website}
+              size={BUTTON_ICON_SIZE}
+              className="text-foreground"
+            />
+          </Button>
+        )}
         {!e.installed ? (
           <Button
             size="icon"

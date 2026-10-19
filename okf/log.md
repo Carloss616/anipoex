@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Open a source's website**: each extension row opens its source's site, and the Android
+  manga detail opens the matched manga's page on its source. Updated
+  [extension](concepts/extension.md) and [source](concepts/source.md).
 * **Repos resolve the way Mihon does**: a repo can be added by its folder, `repo.json`,
   `index.min.json` or `index.pb`; the format is told by the first byte, a `repo.json` with
   `index_v2` leads to the v2 store, v2 stores are read in JSON or protobuf (gzip or not)

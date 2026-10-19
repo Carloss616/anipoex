@@ -16,6 +16,7 @@ An **extension** is a [source](source.md) shipped as an APK by a repo the user a
 | `latestVersion` | The repo's newest build, when it differs. |
 | `repo` | The repo it came from; absent for an installed build no added repo lists. |
 | `nsfw` | Adult content. |
+| `websiteUrl` | The first source's website: the installed build's own, else the one its repo lists; none when neither has one. |
 | `installed` | Whether the app has it installed. |
 
 An installed build is named by its own metadata; an older build without one goes by its
@@ -41,6 +42,7 @@ appears as installed, but can't be updated until a repo lists it again.
   `?filter=` param; plus `?language=`. Unknown values fall back to All / every
   language. Search matches the name.
 - Installed extensions with a pending update are listed first.
+- Each row with a `websiteUrl` has an "Open website" button that opens the source's site; without one, no button.
 - Install, Update, Update all, Uninstall; "Check for updates" and opening the tab reload
   the list from the repos.
 - With no repo added and nothing installed, the tab says there are no repositories and points
@@ -71,4 +73,5 @@ A repo is read the way Mihon reads it, so any address Mihon accepts works here:
 - Something without a name or a signing key isn't a repository.
 - A gzip-compressed index (most published `index.pb` files are) is unzipped first.
 - Content warning: mixed and adult extensions count as `nsfw`; safe or unspecified don't.
+- A source's website is its `homeUrl` in a v2 store and its `baseUrl` in a legacy list.
 - A source's id is a 64-bit number, kept exact as text.

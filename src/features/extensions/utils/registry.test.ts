@@ -36,7 +36,7 @@ const inst = (over: Partial<InstalledExtension> = {}): InstalledExtension => ({
   version: "1.6.0",
   lib: 14,
   signingKey: "a-key",
-  sources: [{ id: "1", name: "Foo", lang: "en" }],
+  sources: [{ id: "1", name: "Foo", lang: "en", homeUrl: null }],
   icon: null,
   ...over,
 });
@@ -158,10 +158,34 @@ describe("toExtensions", () => {
     expect(toExtensions([], [inst()])[0].iconUrl).toBeUndefined();
   });
 
+  it("exposes the first source's website: installed first, then the index", () => {
+    const indexed = entry({
+      sources: [
+        { id: "1", name: "Foo", lang: "en" },
+        { id: "2", name: "Foo 2", lang: "en", homeUrl: "https://index.test" },
+      ],
+    });
+    const listed = [{ repo: REPO_A, entries: [indexed] }];
+    const local = inst({
+      sources: [
+        { id: "1", name: "Foo", lang: "en", homeUrl: "https://local.test" },
+      ],
+    });
+    expect(toExtensions(listed, [])[0].websiteUrl).toBe("https://index.test");
+    expect(toExtensions(listed, [local])[0].websiteUrl).toBe(
+      "https://local.test",
+    );
+    expect(toExtensions(listed, [inst()])[0].websiteUrl).toBe(
+      "https://index.test",
+    );
+    expect(toExtensions([], [local])[0].websiteUrl).toBe("https://local.test");
+    expect(toExtensions([], [inst()])[0].websiteUrl).toBeUndefined();
+  });
+
   it("keeps an installed extension that no index lists", () => {
     const [e] = toExtensions(
       [],
-      [inst({ sources: [{ id: "1", name: "F", lang: "ko" }] })],
+      [inst({ sources: [{ id: "1", name: "F", lang: "ko", homeUrl: null }] })],
     );
     expect(e).toMatchObject({
       id: inst().pkg,

@@ -2,6 +2,8 @@ export interface InstalledSource {
   id: string;
   name: string;
   lang: string;
+  /** The source's website, `HttpSource.getHomeUrl()`; null when it has none. */
+  homeUrl: string | null;
 }
 
 export interface InstalledExtension {
@@ -44,6 +46,8 @@ export interface RuntimeApi {
     mangaUrl: string,
     title: string,
   ): Promise<{ chapters: SourceChapter[] }>;
+  /** The manga's page on the source's website; null when the source has none. */
+  mangaWebUrl(sourceId: string, mangaUrl: string): Promise<string | null>;
 }
 
 /** Android only (`expo-module` `ExtensionRuntime`); other platforms list nothing. */
@@ -60,4 +64,5 @@ export const runtime: RuntimeApi = {
   uninstall: unavailable,
   search: unavailable,
   chapters: unavailable,
+  mangaWebUrl: async () => null,
 };

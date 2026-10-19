@@ -23,7 +23,7 @@ export type RepoEntry = {
   apkUrl: string;
   iconUrl?: string;
   nsfw: boolean;
-  sources: { id: string; name: string; lang: string }[];
+  sources: { id: string; name: string; lang: string; homeUrl?: string }[];
 };
 
 type Json = Record<string, unknown>;
@@ -139,13 +139,15 @@ const resolve = async (url: string, hops: number): Promise<Repo> => {
 export const fetchRepo = (url: string): Promise<Repo> =>
   resolve(repoUrl(url), 0);
 
-const parseSources = (value: unknown, langKey: string) =>
+const parseSources = (value: unknown, langKey: string, homeKey: string) =>
   (Array.isArray(value) ? value : []).flatMap((raw) => {
     if (!isObject(raw)) return [];
     const id = str(raw.id);
     const name = str(raw.name);
     const lang = str(raw[langKey]);
-    return id && name && lang ? [{ id, name, lang }] : [];
+    return id && name && lang
+      ? [{ id, name, lang, homeUrl: str(raw[homeKey]) }]
+      : [];
   });
 
 /**
@@ -170,7 +172,7 @@ const parseV2 = (raw: unknown): RepoEntry | undefined => {
     iconUrl: str(resources.iconUrl),
     // Unspecified counts as safe, as in Mihon.
     nsfw: NSFW.test(String(raw.contentWarning)),
-    sources: parseSources(raw.sources, "language"),
+    sources: parseSources(raw.sources, "language", "homeUrl"),
   };
 };
 
@@ -193,7 +195,7 @@ const parseV1 = (raw: unknown, baseUrl: string): RepoEntry | undefined => {
     apkUrl: `${baseUrl}/apk/${apk}`,
     iconUrl: `${baseUrl}/icon/${pkg}.png`,
     nsfw: raw.nsfw === 1,
-    sources: parseSources(raw.sources, "lang"),
+    sources: parseSources(raw.sources, "lang", "baseUrl"),
   };
 };
 

@@ -39,7 +39,10 @@ const CONTENT_WARNINGS = [
 ];
 const utf8 = new TextDecoder();
 
-// Splits one message into its fields; varints up to 7 bytes stay numbers, longer ones (int64 ids) become BigInt.
+/**
+ * Splits one message into its fields; varints up to 7 bytes stay numbers, longer ones (int64 ids) become BigInt.
+ * @see https://protobuf.dev/programming-guides/encoding/
+ */
 const readFields = (bytes: Uint8Array): Fields => {
   const fields: Fields = new Map();
   let pos = 0;
@@ -125,6 +128,10 @@ const enumValue = (fields: Fields, field: number) => {
   return CONTENT_WARNINGS[value] ?? value;
 };
 
+/**
+ * The store messages' field numbers.
+ * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkExtensionStore.kt
+ */
 const source = (fields: Fields): StoreSource => ({
   id: int64(fields, 1),
   name: text(fields, 2),

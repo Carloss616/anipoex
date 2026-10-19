@@ -102,6 +102,19 @@ class ExtensionRuntimeModule : Module() {
       }
     }
 
+    AsyncFunction("mangaWebUrl") Coroutine { sourceId: String, mangaUrl: String ->
+      withContext(Dispatchers.IO) {
+        // Null when the source isn't an HttpSource or can't build the url.
+        runCatching {
+          val manga = SManga.create().apply {
+            url = mangaUrl
+            title = ""
+          }
+          (source(sourceId) as? HttpSource)?.getMangaUrl(manga)
+        }.getOrNull()
+      }
+    }
+
     AsyncFunction("pages") Coroutine { sourceId: String, chapterUrl: String ->
       withContext(Dispatchers.IO) {
         val source = source(sourceId) as HttpSource
@@ -259,7 +272,11 @@ class ExtensionRuntimeModule : Module() {
       "lib" to libVersion(info, meta).toString().toDouble(),
       "signingKey" to signatures(info).firstOrNull().orEmpty(),
       "icon" to icon(info, apk, overwriteIcon),
-      "sources" to loaded.map { mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang) },
+      "sources" to loaded.map {
+        // Some extensions throw here (an unset baseUrl); no website then.
+        val homeUrl = runCatching { (it as? HttpSource)?.getHomeUrl() }.getOrNull()
+        mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang, "homeUrl" to homeUrl)
+      },
     )
     extensions[info.packageName] = extension
     return extension

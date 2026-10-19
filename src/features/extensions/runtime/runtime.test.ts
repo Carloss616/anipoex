@@ -7,6 +7,10 @@ describe("runtime fallback", () => {
     expect(await runtime.installed()).toEqual([]);
   });
 
+  it("has no manga page to open", async () => {
+    expect(await runtime.mangaWebUrl("1", "/manga/1")).toBeNull();
+  });
+
   it("refuses to install with the Android-only message", async () => {
     await expect(runtime.install("https://x/a.apk", "key")).rejects.toThrow(
       "Extensions run on Android only for now.",
