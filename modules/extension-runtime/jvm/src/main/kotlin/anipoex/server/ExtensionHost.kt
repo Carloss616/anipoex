@@ -66,14 +66,16 @@ class ExtensionHost(dataDir: File) {
             dexToJar(download, converted)
             val translated = System.nanoTime()
             val meta = JsonObject(
-                mapOf(
-                    "pkg" to JsonPrimitive(apk.packageName),
-                    "version" to JsonPrimitive(apk.versionName.orEmpty()),
-                    "lib" to JsonPrimitive(lib.toString()),
-                    "signingKey" to JsonPrimitive(apk.signers.first()),
-                    "name" to JsonPrimitive(apk.metaData["tachiyomix.name"] ?: apk.packageName),
-                    "classes" to JsonPrimitive(requireNotNull(apk.metaData["tachiyomi.extension.class"]) { "${apk.packageName} has no extension class" }),
-                ),
+                buildMap {
+                    put("pkg", JsonPrimitive(apk.packageName))
+                    put("version", JsonPrimitive(apk.versionName.orEmpty()))
+                    put("lib", JsonPrimitive(lib.toString()))
+                    put("signingKey", JsonPrimitive(apk.signers.first()))
+                    put("name", JsonPrimitive(apk.metaData["tachiyomix.name"] ?: apk.packageName))
+                    put("classes", JsonPrimitive(requireNotNull(apk.metaData["tachiyomi.extension.class"]) { "${apk.packageName} has no extension class" }))
+                    // Kept in the meta, so installed() has it after a restart without the APK.
+                    apkIcon(download)?.let { put("icon", JsonPrimitive(it)) }
+                },
             )
             val jar = File(extensionsDir, "${apk.packageName}.jar")
             val json = File(extensionsDir, "${apk.packageName}.json")
@@ -187,8 +189,7 @@ class ExtensionHost(dataDir: File) {
             "version" to meta.getValue("version"),
             "lib" to meta.getValue("lib").toDouble(),
             "signingKey" to meta.getValue("signingKey"),
-            // shortcut: no icon, the APK's launcher icon needs resources.arsc; read it when the desktop UI shows installed icons.
-            "icon" to null,
+            "icon" to meta["icon"],
             "sources" to loaded.map {
                 // Some extensions throw here (an unset baseUrl); no website then.
                 val homeUrl = runCatching { (it as? HttpSource)?.getHomeUrl() }.getOrNull()

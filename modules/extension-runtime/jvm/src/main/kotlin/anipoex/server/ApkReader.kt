@@ -5,6 +5,7 @@ import com.android.apksig.internal.apk.AndroidBinXmlParser
 import java.io.File
 import java.nio.ByteBuffer
 import java.security.MessageDigest
+import java.util.Base64
 import java.util.zip.ZipFile
 
 /** What the host needs from an extension APK, read without Android's PackageManager. */
@@ -53,4 +54,10 @@ private fun attributeValue(parser: AndroidBinXmlParser, index: Int): String? = w
     AndroidBinXmlParser.VALUE_TYPE_INT -> parser.getAttributeIntValue(index).toString()
     AndroidBinXmlParser.VALUE_TYPE_BOOLEAN -> parser.getAttributeBooleanValue(index).toString()
     else -> null
+}
+
+/** The largest PNG under res/ as a data URL, null when there's none: extension APKs carry only their icon, under obfuscated paths. */
+fun apkIcon(apk: File): String? = ZipFile(apk).use { zip ->
+    val entry = zip.entries().asSequence().filter { it.name.startsWith("res/") && it.name.endsWith(".png") }.maxByOrNull { it.size }
+    entry?.let { "data:image/png;base64," + Base64.getEncoder().encodeToString(zip.getInputStream(it).use { input -> input.readBytes() }) }
 }

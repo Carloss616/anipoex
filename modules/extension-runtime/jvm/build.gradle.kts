@@ -39,6 +39,7 @@ dependencies {
     implementation("de.femtopedia.dex2jar:dex-translator:2.4.38")
 
     testImplementation(kotlin("test"))
+    testImplementation("com.squareup.okhttp3:mockwebserver3")
 }
 
 tasks.test { useJUnitPlatform() }
