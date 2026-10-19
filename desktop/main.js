@@ -45,6 +45,15 @@ const originOf = (url) => {
   return parsed && `${parsed.protocol}//${parsed.host}`;
 };
 const APP_ORIGIN = originOf(APP_URL);
+// Only web links leave the app: `file:`, custom schemes and the like would open local apps or files.
+const openInBrowser = (url) => {
+  if (["http:", "https:"].includes(URL.parse(url ?? "")?.protocol))
+    shell.openExternal(url);
+};
+
+// A second launch would start a second sidecar on the same extension files.
+const PRIMARY = app.requestSingleInstanceLock();
+if (!PRIMARY) app.quit();
 
 // Before `ready`: a standard, secure scheme gets real origins, fetch, CORS and storage like https.
 protocol.registerSchemesAsPrivileged([
@@ -60,6 +69,8 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 app.whenReady().then(() => {
+  // `quit` is asynchronous, so `ready` can still arrive in the instance that is leaving.
+  if (!PRIMARY) return;
   // `net.fetch` of the file sets the Content-Type from its extension.
   protocol.handle("app", (request) => {
     const file = resolveAsset(PATHS.web, new URL(request.url).pathname);
@@ -73,6 +84,7 @@ app.whenReady().then(() => {
     java: JAVA,
     args: [
       "-Xmx512m",
+      "-XX:+ExitOnOutOfMemoryError",
       `-Xbootclasspath/a:${path.join(PATHS.server, "boot/jul-shim.jar")}`,
       "-cp",
       path.join(PATHS.server, "lib", "*"),
@@ -109,10 +121,10 @@ app.whenReady().then(() => {
         webPreferences: { contextIsolation: true, sandbox: true },
       });
       // The registered redirect is never loaded: its URL already carries the token or the error.
-      const stopOnRedirect = (navigation, target) => {
-        if (!authRedirect(target)) return;
+      const stopOnRedirect = (navigation) => {
+        if (!navigation.isMainFrame || !authRedirect(navigation.url)) return;
         navigation.preventDefault();
-        resolve(target);
+        resolve(navigation.url);
         signInWindow.close();
       };
       signInWindow.webContents.on("will-redirect", stopOnRedirect);
@@ -136,13 +148,17 @@ app.whenReady().then(() => {
   });
   // Links to other sites open in the browser, so the preload's bridge never runs on a page we don't serve.
   window.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    openInBrowser(url);
     return { action: "deny" };
   });
   window.webContents.on("will-navigate", (event, url) => {
     if (originOf(url) === APP_ORIGIN) return;
     event.preventDefault();
-    shell.openExternal(url);
+    openInBrowser(url);
+  });
+  app.on("second-instance", () => {
+    if (window.isMinimized()) window.restore();
+    window.focus();
   });
   window.loadURL(APP_URL);
 });
