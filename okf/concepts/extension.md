@@ -18,6 +18,9 @@ An **extension** is a [source](source.md) shipped as an APK by a repo the user a
 | `nsfw` | Adult content. |
 | `installed` | Whether the app has it installed. |
 
+An installed build is named by its own metadata; an older build without one goes by its
+app label (minus the `Tachiyomi: ` prefix), else by its package name, so it always lists.
+
 **Has an update** ⇔ installed, and `latestVersion` is set and differs from `version`.
 
 **Where it lives**: an installed extension is an APK kept in the app's private storage and

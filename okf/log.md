@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Every installed extension has a name**: an older APK without a name in its metadata
+  goes by its app label, else its package, instead of breaking the Extensions tab.
+  Updated [extension](concepts/extension.md).
 * **Source logo**: a source's tile shows its logo instead of the initials when it has
   one (the installed APK's icon, else the repo's), falling back to the initials while it
   loads or if it fails. Updated [source](concepts/source.md).

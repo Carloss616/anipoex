@@ -4,7 +4,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
 
-// KeiSource refuses a client without these three, matched by simple class name.
+// Some extensions refuse a client without these three, matched by simple class name.
 
 class UncaughtExceptionInterceptor : Interceptor {
 

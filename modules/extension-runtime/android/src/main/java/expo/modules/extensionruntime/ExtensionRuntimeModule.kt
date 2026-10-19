@@ -183,8 +183,8 @@ class ExtensionRuntimeModule : Module() {
   }
 
   private fun toBitmap(drawable: Drawable): Bitmap {
-    val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: ICON_SIZE
-    val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: ICON_SIZE
+    val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else ICON_SIZE
+    val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else ICON_SIZE
     return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
       drawable.setBounds(0, 0, width, height)
       drawable.draw(Canvas(it))
@@ -215,7 +215,7 @@ class ExtensionRuntimeModule : Module() {
 
     val extension = mapOf(
       "pkg" to info.packageName,
-      "name" to meta.getString("tachiyomix.name"),
+      "name" to name(info, apk, meta),
       "version" to info.versionName.orEmpty(),
       // Via string so 1.6f reaches JS as 1.6, not 1.600000023841858.
       "lib" to libVersion(info, meta).toString().toDouble(),
@@ -226,6 +226,13 @@ class ExtensionRuntimeModule : Module() {
     extensions[info.packageName] = extension
     return extension
   }
+
+  // Like Mihon: builds without tachiyomix.name are named by their app label, else the package.
+  private fun name(info: PackageInfo, apk: File, meta: Bundle): String =
+    meta.getString("tachiyomix.name")
+      ?: app.packageManager.getApplicationLabel(applicationInfo(info, apk)).toString()
+        .substringAfter("Tachiyomi: ").ifBlank { null }
+      ?: info.packageName
 
   // Extensions live in memory: after a restart, the first call reloads the stored ones.
   private fun loadStored(): Map<String, Map<String, Any?>> = synchronized(lock) {
@@ -250,6 +257,8 @@ class ExtensionRuntimeModule : Module() {
   }
 
   private fun uninstall(pkg: String) = synchronized(lock) {
+    // The package names a file in extensionsDir, so it must not reach outside it.
+    require(pkg.isNotEmpty() && '/' !in pkg && pkg != "." && pkg != "..") { "Invalid package name" }
     unregister(pkg)
     val file = File(extensionsDir, "$pkg.ext")
     file.setWritable(true)
