@@ -35,11 +35,6 @@ export function ListItem({ extension: e }: ListItemProps) {
       <Item.Content>
         <Item.Title numberOfLines={1}>
           {e.name}
-          {e.nsfw && (
-            <Badge color="destructive" className="ml-1.5">
-              18+
-            </Badge>
-          )}
           {e.installed && (
             <Icon
               name={Icons.checkCircle}
@@ -52,6 +47,11 @@ export function ListItem({ extension: e }: ListItemProps) {
         </Item.Title>
         <Item.Description numberOfLines={1}>
           <Badge>{e.language.code.toUpperCase()}</Badge>
+          {e.nsfw && (
+            <Badge color="destructive" className="ml-1.5">
+              18+
+            </Badge>
+          )}
           {` · ${describeVersion(e)}`}
         </Item.Description>
       </Item.Content>

@@ -52,7 +52,6 @@ export function ListItem({ extension: e }: ListItemProps) {
             <Text weight="medium" modifiers={[lineLimit(1)]}>
               {e.name}
             </Text>
-            {e.nsfw && <Badge color="destructive">18+</Badge>}
             {e.installed && (
               <Icon
                 name={Icons.checkCircle}
@@ -64,6 +63,7 @@ export function ListItem({ extension: e }: ListItemProps) {
           </HStack>
           <HStack spacing={6}>
             <Badge>{e.language.code.toUpperCase()}</Badge>
+            {e.nsfw && <Badge color="destructive">18+</Badge>}
             <Text
               textStyle="subheadline"
               modifiers={[foregroundStyle("secondary"), lineLimit(1)]}

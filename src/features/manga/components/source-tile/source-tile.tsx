@@ -20,8 +20,8 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
 
   return (
     <Item.Media
-      variant="icon"
-      className="overflow-hidden"
+      variant="image"
+      className="size-10"
       style={{ backgroundColor: color }}
     >
       {!loaded && (

@@ -58,7 +58,6 @@ export function ListItem({ extension: e }: ListItemProps) {
           <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
             {e.name}
           </Text>
-          {e.nsfw && <Badge color="destructive">18+</Badge>}
           {e.installed && (
             <Icon
               name={Icons.checkCircle}
@@ -72,6 +71,7 @@ export function ListItem({ extension: e }: ListItemProps) {
       <ListItemView.SupportingContent>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
           <Badge>{e.language.code.toUpperCase()}</Badge>
+          {e.nsfw && <Badge color="destructive">18+</Badge>}
           <Text
             style={{ typography: "bodyMedium" }}
             maxLines={1}
