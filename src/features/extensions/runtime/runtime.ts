@@ -1,3 +1,5 @@
+import { unavailableRuntime } from "./utils/unavailable";
+
 export interface InstalledSource {
   id: string;
   name: string;
@@ -50,19 +52,7 @@ export interface RuntimeApi {
   mangaWebUrl(sourceId: string, mangaUrl: string): Promise<string | null>;
 }
 
-/** Android only (`expo-module` `ExtensionRuntime`); other platforms list nothing. */
+/** Android (`expo-module` `ExtensionRuntime`) and the desktop app run extensions; other platforms list nothing. */
 export const isRuntimeAvailable: boolean = false;
 
-const UNAVAILABLE = "Extensions run on Android only for now.";
-
-const unavailable = (): Promise<never> =>
-  Promise.reject(new Error(UNAVAILABLE));
-
-export const runtime: RuntimeApi = {
-  install: unavailable,
-  installed: async () => [],
-  uninstall: unavailable,
-  search: unavailable,
-  chapters: unavailable,
-  mangaWebUrl: async () => null,
-};
+export const runtime: RuntimeApi = unavailableRuntime;

@@ -36,6 +36,8 @@ anipoex/
 │   ├── hooks/                       # global hooks
 │   ├── providers/                   # global providers
 │   └── utils/                       # global helpers
+├── modules/extension-runtime/{android,jvm}  # Mihon extension host: Android module, shared JVM core (desktop + iOS)
+├── desktop/                         # Electron app (macOS) that runs the JVM core as a sidecar
 └── assets/                          # images, fonts, icons (@/assets/*)
 ```
 

@@ -1,0 +1,12 @@
+{
+  "name": "anipoex-desktop",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "44.9.0"
+  },
+  "trustedDependencies": ["electron"]
+}
