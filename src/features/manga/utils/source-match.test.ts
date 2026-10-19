@@ -18,6 +18,11 @@ describe("readMatch", () => {
     expect(readMatch(value)).toEqual(value);
   });
 
+  it("reads a pick whose search is pending", () => {
+    const value = { sourceId: "1" };
+    expect(readMatch(value)).toEqual(value);
+  });
+
   it("reads a match with a manga", () => {
     const value = { sourceId: "1", manga: { url: "/a", title: "A" } };
     expect(readMatch(value)).toEqual(value);

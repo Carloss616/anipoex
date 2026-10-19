@@ -1,9 +1,9 @@
 import type { SourceManga } from "@/features/extensions";
 
-/** What a source answered for a manga; `manga: null` means it was searched and nothing matched. */
+/** The picked source and what it answered: `manga` absent means the search is pending, `null` that it found nothing. */
 export interface SourceMatch {
   sourceId: string;
-  manga: { url: string; title: string } | null;
+  manga?: { url: string; title: string } | null;
 }
 
 function isSourceManga(
@@ -18,8 +18,8 @@ function isSourceManga(
 export function readMatch(value: unknown): SourceMatch | undefined {
   if (typeof value !== "object" || value === null) return undefined;
   const { sourceId, manga } = value as Partial<SourceMatch>;
-  if (typeof sourceId !== "string" || manga === undefined) return undefined;
-  if (manga !== null && !isSourceManga(manga)) return undefined;
+  if (typeof sourceId !== "string") return undefined;
+  if (manga != null && !isSourceManga(manga)) return undefined;
   return value as SourceMatch;
 }
 

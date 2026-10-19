@@ -30,7 +30,7 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { matching$, selectSource, source$ } = await import("./source");
+const { matching$, resumeSource, selectSource, source$ } = await import("./source");
 
 const A = { id: "a", name: "Alpha" };
 const B = { id: "b", name: "Beta" };
@@ -61,6 +61,15 @@ describe("selectSource", () => {
     expect(matching$[1].get()).toBe(false);
   });
 
+  it("stores the pick before the search resolves", async () => {
+    const done = selectSource(5, A, { search: ["p"], all: ["p"] });
+    expect(source$[5].get()).toEqual({ sourceId: "a" });
+    await flush();
+    pending["a:p"]([]);
+    await done;
+    expect(source$[5].get()).toEqual({ sourceId: "a", manga: null });
+  });
+
   it("stores null when nothing matches", async () => {
     const done = selectSource(2, A, { search: ["x", null], all: ["x"] });
     await flush();
@@ -83,11 +92,40 @@ describe("selectSource", () => {
     });
   });
 
-  it("toasts and keeps the stored match when the search fails", async () => {
+  it("toasts and keeps the pick without a manga when the search fails", async () => {
     source$[4].set({ sourceId: "b", manga: null });
     await selectSource(4, A, { search: ["boom"], all: ["boom"] });
     expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
-    expect(source$[4].get()).toEqual({ sourceId: "b", manga: null });
+    expect(source$[4].get()).toEqual({ sourceId: "a" });
     expect(matching$[4].get()).toBe(false);
+  });
+});
+
+describe("resumeSource", () => {
+  const titles = { search: ["r"], all: ["r"] };
+
+  it("searches a pick that has no manga yet", async () => {
+    source$[6].set({ sourceId: "a" });
+    const done = resumeSource(6, A, titles);
+    await flush();
+    pending["a:r"]([{ ...hit, title: "r" }]);
+    await done;
+    expect(source$[6].get()).toEqual({
+      sourceId: "a",
+      manga: { url: "/1", title: "r" },
+    });
+  });
+
+  it("leaves a finished match, another source's pick and a running search alone", async () => {
+    search.mockClear();
+    source$[7].set({ sourceId: "a", manga: null });
+    source$[8].set({ sourceId: "b" });
+    source$[9].set({ sourceId: "a" });
+    matching$[9].set(true);
+    await resumeSource(7, A, titles);
+    await resumeSource(8, A, titles);
+    await resumeSource(9, A, titles);
+    expect(search).not.toHaveBeenCalled();
+    matching$[9].set(false);
   });
 });

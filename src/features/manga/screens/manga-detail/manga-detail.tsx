@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
@@ -11,6 +12,7 @@ import {
 } from "@/features/extensions";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
+import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openExternal } from "@/utils/open-external";
@@ -55,11 +57,27 @@ export function MangaDetail() {
     refresh: refreshChapters,
   } = useSourceChapters(match);
 
+  const { resume } = useSourceSearch(manga);
+  const resumed = useRef(false);
+  const pendingId = match?.manga === undefined ? match?.sourceId : undefined;
+
+  // A pick whose search was cut short resumes once on open; a failed one waits for a refresh.
+  useEffect(() => {
+    if (!pendingId || !manga || resumed.current) return;
+    resumed.current = true;
+    resume(pendingId);
+  }, [pendingId, manga, resume]);
+
   // A new pick hides the previous source's rows so the loading state shows.
   const rows = matching ? [] : chapters;
 
   const refreshAll = () =>
-    Promise.all([refresh(), refreshChapters(), refreshInstalled()]);
+    Promise.all([
+      refresh(),
+      refreshChapters(),
+      refreshInstalled(),
+      pendingId && resume(pendingId),
+    ]);
   const sourceName =
     sources.find((entry) => entry.id === match?.sourceId)?.name ??
     "this source";
@@ -70,8 +88,13 @@ export function MangaDetail() {
           ? "Choose where to read this manga."
           : "Extensions run on Android only for now.",
       }
-    : match.manga === null
+    : match.manga === undefined
       ? {
+          title: `Couldn't search ${sourceName}`,
+          description: "Pull to refresh to try again.",
+        }
+      : match.manga === null
+        ? {
           title: "No match",
           description: `This title wasn't found in ${sourceName}.`,
         }

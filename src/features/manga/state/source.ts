@@ -3,7 +3,7 @@ import { syncObservable } from "@legendapp/state/sync";
 import { toast } from "@/components/ui/toast";
 import { runtime } from "@/features/extensions";
 import { ObservablePersist } from "@/state/observable-persist";
-import { pickMatch } from "../utils/source-match";
+import { pickMatch, readMatch } from "../utils/source-match";
 
 /** Which source each manga's chapter list reads and what it matched, keyed by its AniList id; read through `readMatch`. */
 export const source$ = observable<Record<number, unknown>>({});
@@ -17,16 +17,19 @@ syncObservable(source$, {
 
 const tickets: Record<number, number> = {};
 
-/** Searches the source for the manga by its titles; the last pick per manga wins and a failed search keeps the stored match. */
+interface Titles {
+  search: (string | null | undefined)[];
+  all: (string | null | undefined)[];
+}
+
+/** Stores the pick at once, then searches the source for the manga; the last pick per manga wins and a failed search leaves the pick unmatched. */
 export async function selectSource(
   mangaId: number,
   source: { id: string; name: string },
-  titles: {
-    search: (string | null | undefined)[];
-    all: (string | null | undefined)[];
-  },
+  titles: Titles,
 ) {
   const ticket = (tickets[mangaId] = (tickets[mangaId] ?? 0) + 1);
+  source$[mangaId].set({ sourceId: source.id });
   matching$[mangaId].set(true);
 
   try {
@@ -47,4 +50,20 @@ export async function selectSource(
   } finally {
     if (ticket === tickets[mangaId]) matching$[mangaId].set(false);
   }
+}
+
+/** Searches a pick whose search never finished, unless one is running. */
+export function resumeSource(
+  mangaId: number,
+  source: { id: string; name: string },
+  titles: Titles,
+) {
+  const stored = readMatch(source$[mangaId].get());
+  if (
+    stored?.sourceId !== source.id ||
+    stored.manga !== undefined ||
+    matching$[mangaId].get()
+  )
+    return;
+  return selectSource(mangaId, source, titles);
 }

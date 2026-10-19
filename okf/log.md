@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Picking a source is immediate, finding the manga is separate**: the pick is stored before
+  the search, so a source with no `manga` yet is a pending (or failed) search that resumes on
+  open and retries on refresh. Updated [chosen source](stores/manga-source.md).
 * **Repos are keyed by their index address**: two v2 stores in one folder are two repos, and
   removing one keeps the other. Updated [extension repos](stores/extension-repos.md).
 * **Open a source's website**: each extension row opens its source's site, and the Android
