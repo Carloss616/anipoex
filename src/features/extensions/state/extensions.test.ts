@@ -214,4 +214,16 @@ describe("installed$", () => {
     expect(warn).toHaveBeenCalled();
     expect(installed$.peek().map((e) => e.pkg)).toEqual(["pkg.local"]);
   });
+
+  it("a failed refresh still marks the list loaded", async () => {
+    installedLoaded$.set(false);
+    installed.mockImplementationOnce(async () => {
+      throw new Error("boom");
+    });
+    const real = console.warn;
+    console.warn = mock(() => {});
+    await refreshInstalled();
+    console.warn = real;
+    expect(installedLoaded$.peek()).toBe(true);
+  });
 });

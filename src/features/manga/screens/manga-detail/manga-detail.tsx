@@ -4,7 +4,11 @@ import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
-import { isRuntimeAvailable, useInstalledSources } from "@/features/extensions";
+import {
+  isRuntimeAvailable,
+  refreshInstalled,
+  useInstalledSources,
+} from "@/features/extensions";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
@@ -45,7 +49,8 @@ export function MangaDetail() {
   const { match, matching } = useSourceMatch(Number(id));
   const source = useSourceChapters(match);
 
-  const refreshAll = () => Promise.all([refresh(), source.refresh()]);
+  const refreshAll = () =>
+    Promise.all([refresh(), source.refresh(), refreshInstalled()]);
   const sourceName =
     sources.find((entry) => entry.id === match?.sourceId)?.name ??
     "this source";

@@ -15,13 +15,15 @@ export const installed$ = observable<InstalledExtension[]>([]);
 /** Whether `installed$` has been read from the runtime at least once. */
 export const installedLoaded$ = observable(false);
 
-/** Reads the installed list from the runtime; a failure is logged and keeps the old list. */
+/** Reads the installed list from the runtime; a failure is logged, keeps the old list and still counts as loaded. */
 export async function refreshInstalled(): Promise<void> {
   try {
     installed$.set(await runtime.installed());
     installedLoaded$.set(true);
   } catch (error) {
     console.warn("Couldn't read installed extensions", error);
+    // Otherwise a screen waiting on the list would load forever.
+    installedLoaded$.set(true);
   }
 }
 

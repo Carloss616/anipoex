@@ -9,6 +9,7 @@ import {
 } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
+  height,
   padding,
   selectable,
   selectableGroup,
@@ -26,6 +27,8 @@ import { sourceColor } from "@/features/manga/sources";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useSources } from "./hooks/use-sources";
 import type { SourceSheetProps } from "./source-sheet";
+
+const EMPTY_HEIGHT = 320;
 
 export function SourceSheet({
   isPresented,
@@ -89,10 +92,10 @@ export function SourceSheet({
         </Column>
 
         {sources.length === 0 ? (
-          <EmptyState
-            {...empty}
-            modifiers={[fillMaxWidth(), weight(1), verticalScroll()]}
-          />
+          // A fixed height, not the sheet's: centred in the full sheet it sits below the half snap.
+          <Box modifiers={[fillMaxWidth(), height(EMPTY_HEIGHT)]}>
+            <EmptyState {...empty} />
+          </Box>
         ) : (
           <Column
             modifiers={[
