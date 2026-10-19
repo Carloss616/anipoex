@@ -35,9 +35,15 @@ export function startSidecar({ java, args, logFile }) {
     // A dead process fails the write; its `close` already answers the pending calls.
     child.stdin.on("error", () => {});
     readline.createInterface({ input: child.stdout }).on("line", (line) => {
-      const reply = JSON.parse(line);
-      pending.get(reply.id)?.(reply);
-      pending.delete(reply.id);
+      let reply;
+      // The JVM itself can print to stdout (a fatal-error banner); those lines aren't replies.
+      try {
+        reply = JSON.parse(line);
+      } catch {
+        return;
+      }
+      pending.get(reply?.id)?.(reply);
+      pending.delete(reply?.id);
     });
     return current;
   };

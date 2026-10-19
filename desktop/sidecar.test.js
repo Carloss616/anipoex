@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { startSidecar } from "./sidecar.js";
 
-// Speaks the server's protocol: `wait` replies after args.ms, `pid` names the process, `crash` exits with code 1.
+// Speaks the server's protocol: `wait` replies after args.ms, `pid` names the process, `noise` prints a non-JSON line first, `crash` exits with code 1.
 const FAKE_SERVER = `
 const readline = require("node:readline");
 readline.createInterface({ input: process.stdin })
@@ -13,6 +13,10 @@ readline.createInterface({ input: process.stdin })
     const reply = (result) => process.stdout.write(JSON.stringify({ id, result }) + "\\n");
     if (method === "wait") setTimeout(() => reply(args.ms), args.ms);
     if (method === "pid") reply(process.pid);
+    if (method === "noise") {
+      process.stdout.write("not json\\n");
+      reply("ok");
+    }
     if (method === "crash") process.exit(1);
   })
   .on("close", () => {
@@ -66,6 +70,11 @@ describe("startSidecar", () => {
     const after = (await call("pid", {})).result;
     expect(after).toBeNumber();
     expect(after).not.toBe(before);
+  });
+
+  test("ignoresNonJsonLines", async () => {
+    const { call } = fake();
+    expect(await call("noise", {})).toEqual({ id: 1, result: "ok" });
   });
 
   test("missingJava", async () => {
