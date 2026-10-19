@@ -1,4 +1,4 @@
-import type { Source } from "@/features/manga/sources";
+import type { Source } from "@/features/manga/utils/source";
 import type { ExtensionFilter } from "./filters";
 
 /** `code` is ISO 639: two letters, or `mul` for multi-language sources. */

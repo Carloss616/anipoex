@@ -1,4 +1,4 @@
-import { initialsOf, type Source } from "@/features/manga/sources";
+import { initialsOf, type Source } from "@/features/manga/utils/source";
 import type { InstalledExtension } from "../runtime";
 
 /** The languages the source picker shows: all, English and the device's own. */

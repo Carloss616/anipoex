@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { initialsOf } from "@/features/manga/sources";
 import type { InstalledExtension } from "../runtime/runtime";
 import { languageName, toExtensions } from "./registry";
 import type { Repo, RepoEntry } from "./repo";
@@ -39,19 +38,6 @@ const inst = (over: Partial<InstalledExtension> = {}): InstalledExtension => ({
   sources: [{ id: "1", name: "Foo", lang: "en", homeUrl: null }],
   icon: null,
   ...over,
-});
-
-describe("initialsOf", () => {
-  it("takes the capitals, or the first letters of two words", () => {
-    expect(initialsOf("ExampleSource")).toBe("ES");
-    expect(initialsOf("Example Scans")).toBe("ES");
-    expect(initialsOf("ExampleX")).toBe("EX");
-    expect(initialsOf("Example")).toBe("EX");
-  });
-
-  it("gives nothing for an empty name", () => {
-    expect(initialsOf("")).toBe("");
-  });
 });
 
 describe("languageName", () => {

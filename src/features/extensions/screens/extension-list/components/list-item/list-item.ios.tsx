@@ -29,7 +29,7 @@ import {
   updateExtension,
 } from "@/features/extensions";
 import { SourceTile } from "@/features/manga/components/source-tile";
-import { sourceColor } from "@/features/manga/sources";
+import { sourceColor } from "@/features/manga/utils/source";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 import { openExternal } from "@/utils/open-external";

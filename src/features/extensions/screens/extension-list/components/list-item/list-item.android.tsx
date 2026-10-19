@@ -25,7 +25,7 @@ import {
   updateExtension,
 } from "@/features/extensions";
 import { SourceTile } from "@/features/manga/components/source-tile";
-import { sourceColor } from "@/features/manga/sources";
+import { sourceColor } from "@/features/manga/utils/source";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { theme$ } from "@/state/theme";
 import { openExternal } from "@/utils/open-external";

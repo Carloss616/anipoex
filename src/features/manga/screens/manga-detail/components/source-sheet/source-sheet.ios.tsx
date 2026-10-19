@@ -28,7 +28,7 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
 import { SourceTile } from "@/features/manga/components/source-tile";
-import { sourceColor } from "@/features/manga/sources";
+import { sourceColor } from "@/features/manga/utils/source";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useSources } from "./hooks/use-sources";
 import type { SourceSheetProps } from "./source-sheet";

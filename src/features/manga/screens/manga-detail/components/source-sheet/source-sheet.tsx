@@ -8,7 +8,7 @@ import { Item } from "@/components/ui/item";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
 import { SourceTile } from "@/features/manga/components/source-tile";
-import { sourceColor } from "@/features/manga/sources";
+import { sourceColor } from "@/features/manga/utils/source";
 import { useSources } from "./hooks/use-sources";
 
 export interface SourceSheetProps {

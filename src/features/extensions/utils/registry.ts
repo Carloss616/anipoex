@@ -1,4 +1,4 @@
-import { initialsOf } from "@/features/manga/sources";
+import { initialsOf } from "@/features/manga/utils/source";
 import { isWebUrl } from "@/utils/is-web-url";
 import type { InstalledExtension } from "../runtime/runtime";
 import type { Extension, Language } from "./extension";
