@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Desktop sign-in**: the desktop app signs in to AniList with the web client ID in its
+  own window, and the registered redirect is never loaded. Updated
+  [tracker](concepts/tracker.md).
 * **Extensions run in the desktop app too**: the desktop app (macOS) installs and runs
   extensions like Android does; iOS and the web app in a browser still list nothing and say
   "Extensions run in the Android and desktop apps." and "Sources run in the Android and

@@ -20,6 +20,9 @@ touching callers; today `id` can only be `"anilist"`.
 - **Two AniList client IDs**, because AniList allows one redirect URL per registered
   app: native redirects to `anipoex://auth`, web to `<origin>/auth`. AniList matches
   the redirect exactly, so web must run on the origin registered for its ID.
+- **The desktop app signs in with the web client ID**, in a window of its own: the
+  sign-in ends at the first redirect carrying the token or the error, which is read from
+  its URL and never loaded, so the desktop app needs no origin of its own registered.
 - **Cancelling is not an error**: `authorize()` resolves `null`.
 - After the token, `fetchViewer()` loads the [viewer](viewer.md). Both end up in the
   [session](../stores/session.md).
