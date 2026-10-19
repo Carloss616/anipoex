@@ -48,7 +48,7 @@ export function RepoList() {
   };
 
   const remove = (repo: Repo) => {
-    removeRepo(repo.baseUrl);
+    removeRepo(repo.indexUrl);
     void loadExtensions();
   };
 
@@ -58,7 +58,7 @@ export function RepoList() {
       <LegendList
         recycleItems
         data={repos}
-        keyExtractor={(repo) => repo.baseUrl}
+        keyExtractor={(repo) => repo.indexUrl}
         keyboardShouldPersistTaps="handled"
         {...headerScroll}
         contentContainerClassName="gutters px-gx pb-gb"
@@ -87,7 +87,7 @@ export function RepoList() {
             <Item.Content>
               <Item.Title numberOfLines={1}>{repo.name}</Item.Title>
               <Item.Description numberOfLines={1}>
-                {repo.baseUrl}
+                {repo.indexUrl}
               </Item.Description>
             </Item.Content>
             <Item.Actions>

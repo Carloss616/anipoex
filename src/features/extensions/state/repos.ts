@@ -24,10 +24,10 @@ syncObservable(repos$, {
 });
 
 export const addRepo = (repo: Repo) => {
-  if (repos$.get().some((r) => r.baseUrl === repo.baseUrl)) return;
+  if (repos$.get().some((r) => r.indexUrl === repo.indexUrl)) return;
   repos$.set((list) => [...list, repo]);
 };
 
-export const removeRepo = (baseUrl: string) => {
-  repos$.set((list) => list.filter((r) => r.baseUrl !== baseUrl));
+export const removeRepo = (indexUrl: string) => {
+  repos$.set((list) => list.filter((r) => r.indexUrl !== indexUrl));
 };

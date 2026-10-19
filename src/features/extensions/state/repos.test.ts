@@ -33,7 +33,7 @@ test("addRepo replaces the array so subscribers see the change", () => {
   const after = repos$.get();
 
   expect(after).not.toBe(before);
-  expect(after.map((r) => r.baseUrl)).toContain(NEW.baseUrl);
+  expect(after.map((r) => r.indexUrl)).toContain(NEW.indexUrl);
 });
 
 test("addRepo ignores a repo already added", () => {
@@ -43,10 +43,24 @@ test("addRepo ignores a repo already added", () => {
   expect(repos$.get()).toBe(before);
 });
 
-test("removeRepo drops the repo by baseUrl", () => {
-  removeRepo(NEW.baseUrl);
+test("removeRepo drops the repo by index address", () => {
+  removeRepo(NEW.indexUrl);
 
-  expect(repos$.get().some((r) => r.baseUrl === NEW.baseUrl)).toBe(false);
+  expect(repos$.get()).toEqual([]);
+});
+
+test("two stores in one folder are two repos and removing one keeps the other", () => {
+  const second = { ...NEW, name: "Second", indexUrl: "https://new/other.pb" };
+  addRepo(NEW);
+  addRepo(second);
+  expect(repos$.get().map((r) => r.indexUrl)).toEqual([
+    NEW.indexUrl,
+    second.indexUrl,
+  ]);
+
+  removeRepo(NEW.indexUrl);
+  expect(repos$.get()).toEqual([second]);
+  removeRepo(second.indexUrl);
 });
 
 test("a repo saved before index urls existed reads as legacy", () => {

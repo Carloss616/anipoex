@@ -2,6 +2,8 @@
 
 ## 2026-10-19
 
+* **Repos are keyed by their index address**: two v2 stores in one folder are two repos, and
+  removing one keeps the other. Updated [extension repos](stores/extension-repos.md).
 * **Open a source's website**: each extension row opens its source's site, and the Android
   manga detail opens the matched manga's page on its source. Updated
   [extension](concepts/extension.md) and [source](concepts/source.md).
