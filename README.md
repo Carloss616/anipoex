@@ -25,6 +25,12 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Docs
+
+- [Mihon extensions](docs/extensions.md): how extensions run on Android, iOS and the macOS desktop app, with diagrams.
+- [App structure](docs/app-structure.md): folder layout and conventions.
+- [Desktop app](desktop/README.md): run and package the macOS app.
+
 ## Get a fresh project
 
 When you're ready, run:
