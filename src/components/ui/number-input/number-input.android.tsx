@@ -17,10 +17,11 @@ import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { dismissFocus, registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
+import { useStepRepeat } from "./hooks/use-step-repeat";
 
 /**
- * Android NumberInput: M3 has no stepper, so it's two icon buttons around a
- * field that reports every keystroke, rewriting itself only when a typed
+ * Android NumberInput: M3 has no stepper, so it's two icon buttons,
+ * which repeat while held, around a field that reports every keystroke, rewriting itself only when a typed
  * number lands outside the range, so ordinary typing is never interrupted.
  * The IME carries a Done key, the only way out of a numeric keyboard.
  * `label` is dropped: the sheet renders the caption above the control, and
@@ -58,10 +59,17 @@ export function NumberInput({
       text.value = String(value);
   }, [value, text]);
 
-  const emit = (next: number) => {
-    dismissFocus();
-    onValueChange?.(clamp(next));
-  };
+  const stepButton = useStepRepeat(
+    value,
+    clamp,
+    (next) => {
+      dismissFocus();
+      onValueChange?.(next);
+    },
+    disabled,
+  );
+  const decrement = stepButton(-step);
+  const increment = stepButton(step);
 
   const commit = (next: string) => {
     const parsed = Number.parseInt(next, 10);
@@ -75,7 +83,8 @@ export function NumberInput({
     <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 8 }}>
       <FilledTonalIconButton
         enabled={!disabled && value > min}
-        onClick={() => emit(value - step)}
+        onClick={decrement.onPress}
+        modifiers={[decrement.modifier]}
       >
         <Icon name={RemoveIcon} color="inherit" />
       </FilledTonalIconButton>
@@ -127,7 +136,8 @@ export function NumberInput({
       </OutlinedTextField>
       <FilledTonalIconButton
         enabled={!disabled && value < max}
-        onClick={() => emit(value + step)}
+        onClick={increment.onPress}
+        modifiers={[increment.modifier]}
       >
         <Icon name={AddIcon} color="inherit" />
       </FilledTonalIconButton>
