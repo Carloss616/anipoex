@@ -33,7 +33,8 @@ export function SourceSheet({
   onSelect,
   onDismiss,
 }: SourceSheetProps) {
-  const { query, setQuery, mode, sources, selected } = useSources(selectedId);
+  const { query, setQuery, mode, sources, selected, empty } =
+    useSources(selectedId);
   const m3 = useThemeM3Colors();
 
   return (
@@ -89,7 +90,7 @@ export function SourceSheet({
 
         {sources.length === 0 ? (
           <EmptyState
-            title="No sources found"
+            {...empty}
             modifiers={[fillMaxWidth(), weight(1), verticalScroll()]}
           />
         ) : (

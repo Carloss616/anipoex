@@ -42,6 +42,7 @@ mock.module("./repos", () => ({ repos$ }));
 const {
   extensions$,
   installed$,
+  installedLoaded$,
   installExtension,
   loadExtensions,
   refreshInstalled,
@@ -81,6 +82,30 @@ describe("loadExtensions", () => {
         .sort(),
     ).toEqual(["pkg.foo", "pkg.local"]);
     expect(destructive).toHaveBeenCalledWith("Couldn't load Bad");
+  });
+});
+
+describe("loadExtensions failures", () => {
+  it("keeps the previous list when an installed entry can't be read", async () => {
+    await loadExtensions();
+    const before = extensions$.peek();
+    installed.mockImplementationOnce(
+      async () => [{ pkg: "pkg.broken" }] as never,
+    );
+    await loadExtensions();
+    expect(extensions$.peek()).toEqual(before);
+    expect(destructive).toHaveBeenCalled();
+  });
+
+  it("keeps the installed list when the runtime fails", async () => {
+    await loadExtensions();
+    installed.mockImplementationOnce(async () => {
+      throw new Error("boom");
+    });
+    await loadExtensions();
+    expect(destructive).toHaveBeenCalledWith("boom");
+    expect(installed$.peek().map((e) => e.pkg)).toEqual(["pkg.local"]);
+    expect(extensions$.peek().some((e) => e.id === "pkg.local")).toBe(true);
   });
 });
 
@@ -155,6 +180,11 @@ describe("installExtension", () => {
 });
 
 describe("installed$", () => {
+  it("is marked loaded once read", async () => {
+    await refreshInstalled();
+    expect(installedLoaded$.peek()).toBe(true);
+  });
+
   it("follows a successful install", async () => {
     await loadExtensions();
     installed.mockImplementationOnce(async () => [

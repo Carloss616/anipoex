@@ -19,5 +19,10 @@ is stable across launches.
   (`es-MX` shows `es`; a regional `es-419` counts as `es`). There is no setting for it.
 - **Names**: when an extension keeps more than one source in view, each name carries
   its language (`Example (ES-419)`); with one, just the name. Nothing installed, nothing listed.
+- **Empty sheet**: with no search, the source sheet says why nothing is listed: on iOS and
+  web "Sources run on Android only for now"; on Android, "No sources installed", pointing to
+  the Extensions tab (also when none is in a shown language). A search with no hits says
+  "No sources found". On iOS and web the detail's "Pick a source" says extensions run on
+  Android only.
 
 Sources come only from [extensions](extension.md); the app ships none of its own.

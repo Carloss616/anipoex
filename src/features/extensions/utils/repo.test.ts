@@ -210,6 +210,16 @@ describe("fetch", () => {
     );
   });
 
+  it("fetchRepo refuses a url that isn't https without fetching it", async () => {
+    const urls = respond({
+      "http://example.com/repo/repo.json": EXAMPLE_META,
+    });
+    await expect(fetchRepo("http://example.com/repo")).rejects.toThrow(
+      "Repository URLs must use https",
+    );
+    expect(urls).toEqual([]);
+  });
+
   it("fetchIndex falls back to index.min.json on a 404", async () => {
     const urls = respond({ [`${EXAMPLE}/index.min.json`]: V1_INDEX });
     const repo = { baseUrl: EXAMPLE, name: "K", signingKey: EXAMPLE_KEY };

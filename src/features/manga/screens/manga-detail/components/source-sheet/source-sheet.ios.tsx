@@ -39,7 +39,8 @@ export function SourceSheet({
   onSelect,
   onDismiss,
 }: SourceSheetProps) {
-  const { query, setQuery, mode, sources, selected } = useSources(selectedId);
+  const { query, setQuery, mode, sources, selected, empty } =
+    useSources(selectedId);
   const primary = useThemeColor("primary");
 
   return (
@@ -88,7 +89,7 @@ export function SourceSheet({
           <ScrollView
             modifiers={[defaultScrollAnchorForRole("center", "alignment")]}
           >
-            <EmptyState title="No sources found" />
+            <EmptyState {...empty} />
           </ScrollView>
         ) : (
           <List

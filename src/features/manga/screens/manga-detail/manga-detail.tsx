@@ -4,7 +4,7 @@ import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
-import { useInstalledSources } from "@/features/extensions";
+import { isRuntimeAvailable, useInstalledSources } from "@/features/extensions";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
@@ -52,7 +52,9 @@ export function MangaDetail() {
   const empty = !match
     ? {
         title: "Pick a source",
-        description: "Choose where to read this manga.",
+        description: isRuntimeAvailable
+          ? "Choose where to read this manga."
+          : "Extensions run on Android only for now.",
       }
     : match.manga === null
       ? {

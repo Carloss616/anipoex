@@ -28,7 +28,7 @@ export function SourceSheet({
   onSelect,
   onDismiss,
 }: SourceSheetProps) {
-  const { query, setQuery, mode, sources, selected, selectedIndex } =
+  const { query, setQuery, mode, sources, selected, selectedIndex, empty } =
     useSources(selectedId);
 
   return (
@@ -77,7 +77,7 @@ export function SourceSheet({
               ? { index: selectedIndex, viewPosition: 0.5 }
               : undefined
           }
-          ListEmptyComponent={<EmptyState title="No sources found" />}
+          ListEmptyComponent={<EmptyState {...empty} />}
           renderItem={({ item: source, index }) => (
             <>
               {index > 0 && <Item.Separator className="mx-4" />}

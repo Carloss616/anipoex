@@ -23,3 +23,7 @@ export function toSources(
     }));
   });
 }
+
+/** Whether an installed extension provides the source, in any language. */
+export const hasSource = (installed: InstalledExtension[], sourceId: string) =>
+  installed.some(({ sources }) => sources.some(({ id }) => id === sourceId));

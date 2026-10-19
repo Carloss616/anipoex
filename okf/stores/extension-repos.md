@@ -16,7 +16,8 @@ Key `extension-repos`: the list of repos [extensions](../concepts/extension.md) 
 | `signingKey` | The key the repo's APKs must be signed with; the user accepts it when adding the repo. |
 
 - **Default**: empty. The app ships with no repo; the user adds each one by its URL.
-- **Adding** a repo reads it first (an address that isn't a repo is rejected), then asks
+- **Adding** a repo reads it first (an address that isn't a repo, or isn't `https`, is
+  rejected: over plain http someone on the network could swap in their own key), then asks
   the user to trust its signing key: its extensions run inside the app.
 - **Removing** a repo only stops listing what it offers; an extension already installed
   from it stays installed.

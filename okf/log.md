@@ -2,6 +2,12 @@
 
 ## 2026-10-19
 
+* **Empty source lists say why**: the source sheet tells iOS and web that sources run on
+  Android only, and Android with nothing installed to install an extension from the
+  Extensions tab; the detail's "Pick a source" says the same on iOS and web. A source whose
+  extension was uninstalled reads as no choice. Repos must be added over `https`. Updated
+  [source](concepts/source.md), [chosen source](stores/manga-source.md) and
+  [extension repos store](stores/extension-repos.md).
 * **Every installed extension has a name**: an older APK without a name in its metadata
   goes by its app label, else its package, instead of breaking the Extensions tab.
   Updated [extension](concepts/extension.md).

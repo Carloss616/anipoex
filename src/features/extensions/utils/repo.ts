@@ -102,6 +102,9 @@ export const parseIndex = (json: unknown, baseUrl: string): RepoEntry[] => {
 
 export const fetchRepo = async (url: string): Promise<Repo> => {
   const baseUrl = repoBaseUrl(url);
+  // Over plain http, someone on the network could hand over their own signing key.
+  if (!/^https:\/\//i.test(baseUrl))
+    throw new Error("Repository URLs must use https");
   const response = await fetch(`${baseUrl}/repo.json`);
   if (!response.ok) throw new Error(NO_REPO_JSON);
   const json: unknown = await response.json().catch(() => undefined);

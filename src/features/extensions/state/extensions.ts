@@ -12,10 +12,14 @@ export const extensions$ = observable<Extension[]>([]);
 /** What the native runtime has installed; the one list the source picker reads. */
 export const installed$ = observable<InstalledExtension[]>([]);
 
+/** Whether `installed$` has been read from the runtime at least once. */
+export const installedLoaded$ = observable(false);
+
 /** Reads the installed list from the runtime; a failure is logged and keeps the old list. */
 export async function refreshInstalled(): Promise<void> {
   try {
     installed$.set(await runtime.installed());
+    installedLoaded$.set(true);
   } catch (error) {
     console.warn("Couldn't read installed extensions", error);
   }
@@ -30,7 +34,7 @@ export async function loadExtensions(): Promise<void> {
   const mine = ++latest;
   const installed = await runtime.installed().catch((error) => {
     toast.destructive(message(error));
-    return [];
+    return undefined;
   });
   const repos = await Promise.all(
     repos$.peek().map(async (repo) => {
@@ -43,9 +47,16 @@ export async function loadExtensions(): Promise<void> {
     }),
   );
   // A slower, older load must not overwrite a newer one.
-  if (mine === latest) {
+  if (mine !== latest) return;
+  if (installed) {
     installed$.set(installed);
-    extensions$.set(toExtensions(repos, installed));
+    installedLoaded$.set(true);
+  }
+  try {
+    extensions$.set(toExtensions(repos, installed ?? installed$.peek()));
+  } catch (error) {
+    // A malformed entry keeps the previous list instead of rejecting unseen.
+    toast.destructive(message(error));
   }
 }
 

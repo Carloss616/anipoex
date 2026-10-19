@@ -44,6 +44,10 @@ describe("initialsOf", () => {
     expect(initialsOf("ExampleX")).toBe("EX");
     expect(initialsOf("Example")).toBe("EX");
   });
+
+  it("gives nothing for an empty name", () => {
+    expect(initialsOf("")).toBe("");
+  });
 });
 
 describe("languageName", () => {
@@ -55,6 +59,18 @@ describe("languageName", () => {
 });
 
 describe("toExtensions", () => {
+  it("names an installed build without a name after its package", () => {
+    const [unnamed] = toExtensions(
+      [],
+      [inst({ name: null as unknown as string })],
+    );
+    expect(unnamed.name).toBe("eu.kanade.tachiyomi.extension.en.foo");
+    expect(unnamed.initials).toBe("EU");
+    expect(toExtensions([], [inst({ name: "" })])[0].name).toBe(
+      "eu.kanade.tachiyomi.extension.en.foo",
+    );
+  });
+
   it("derives the language from the sources", () => {
     const sources = (...langs: string[]) =>
       langs.map((lang, i) => ({ id: `${i}`, name: "S", lang }));

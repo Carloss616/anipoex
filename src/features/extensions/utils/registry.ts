@@ -78,10 +78,12 @@ export function toExtensions(
 }
 
 function fromInstalled(local: InstalledExtension, pick?: Listing): Extension {
+  // An APK with no name of its own goes by its package.
+  const name = local.name || local.pkg;
   const base: Extension = {
     id: local.pkg,
-    name: local.name,
-    initials: initialsOf(local.name),
+    name,
+    initials: initialsOf(name),
     language: languageOf(local.sources),
     version: local.version,
     installed: true,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { InstalledExtension } from "../runtime";
-import { enabledLanguages, toSources } from "./sources";
+import { enabledLanguages, hasSource, toSources } from "./sources";
 
 const ext = (
   name: string,
@@ -59,5 +59,14 @@ describe("toSources", () => {
     expect(toSources([upper], ["es"])).toEqual([
       { id: "5", name: "Upper", initials: "UP" },
     ]);
+  });
+});
+
+describe("hasSource", () => {
+  it("finds a source of any installed extension, in any language", () => {
+    const installed = [ext("A", [["1", "en"]]), ext("B", [["2", "ja"]])];
+    expect(hasSource(installed, "2")).toBe(true);
+    expect(hasSource(installed, "3")).toBe(false);
+    expect(hasSource([], "1")).toBe(false);
   });
 });

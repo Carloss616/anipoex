@@ -13,4 +13,6 @@ AniList title or synonym once case, diacritics and punctuation are ignored; `man
 means the source was searched and nothing matched exactly, never an approximate result.
 The search tries the romaji title, then the English one. Values from before matching
 (a bare source id) are ignored, so the user picks the source again. A missing key means no
-source chosen. Survives sign-out (it is not cleared) and does not sync anywhere.
+source chosen; so does a match whose source no installed extension provides any more
+(it was uninstalled), once the installed list has been read, so the detail asks to pick
+a source again instead of failing to load chapters. Survives sign-out (it is not cleared) and does not sync anywhere.
