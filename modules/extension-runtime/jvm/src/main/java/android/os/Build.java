@@ -7,6 +7,7 @@ public class Build {
     public static final String MODEL = "Pixel 8";
     public static final String DEVICE = "shiba";
     public static final String PRODUCT = "shiba";
+    public static final String ID = "AP1A.240405.002";
 
     public static class VERSION {
         public static final int SDK_INT = 34;

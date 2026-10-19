@@ -11,6 +11,10 @@ public abstract class Context {
 
     public abstract File getFilesDir();
 
+    public File getExternalCacheDir() {
+        return getCacheDir();
+    }
+
     public abstract String getPackageName();
 
     public abstract PackageManager getPackageManager();
