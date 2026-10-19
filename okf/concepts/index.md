@@ -19,6 +19,6 @@ Domain ideas and rules. Read these before the [operations](../operations/) and
 
 # Reading (scaffolding)
 
-* [Source](source.md) - A site chapters come from; each manga remembers one. Mocked list.
-* [Extension](extension.md) - A source as an installable, versioned package. Mocked registry, in-memory installs.
-* [Chapter](chapter.md) - A chapter row on the detail screen. Mocked.
+* [Source](source.md) - A site chapters come from, from an installed extension in an enabled language; each manga remembers one.
+* [Extension](extension.md) - A source as an installable, versioned package from an added repo. Android only.
+* [Chapter](chapter.md) - A chapter row on the detail screen, read from the matched manga in the chosen source.

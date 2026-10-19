@@ -10,8 +10,8 @@ import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
-export function SourcePicker({ mangaId }: SourcePickerProps) {
-  const picker = useSourcePicker(mangaId);
+export function SourcePicker({ manga }: SourcePickerProps) {
+  const picker = useSourcePicker(manga);
 
   return (
     <>

@@ -1,13 +1,15 @@
 import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
+import { LoadingState } from "@/components/blocks/loading-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { Item } from "@/components/ui/item";
 import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
+import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
-import { type Chapter, ChapterItem } from "../chapter-item";
+import { ChapterItem } from "../chapter-item";
 import { ART_HEIGHT } from "../hero";
 
 export interface DetailListProps {
@@ -23,6 +25,10 @@ export interface DetailListProps {
   entryId: number | null | undefined;
   /** The header at rest, from the screen's `useMaxHeaderHeight`; native only. */
   maxHeaderHeight: number;
+  /** Shown instead of `empty` while the chapters are loading and none are listed. */
+  loading?: boolean;
+  /** What an empty list says. */
+  empty: { title: string; description?: string };
   /** Pull to refresh, iOS and Android only. */
   refreshing: boolean;
   onRefresh: () => Promise<unknown> | undefined;
@@ -38,6 +44,8 @@ export function DetailList({
   header,
   chapters,
   total,
+  loading,
+  empty,
   action,
   entryId,
   className,
@@ -83,7 +91,9 @@ export function DetailList({
           </Surface>
         </View>
       )}
-      ListEmptyComponent={<EmptyState title="No chapters available" />}
+      ListEmptyComponent={
+        loading ? <LoadingState /> : <EmptyState {...empty} />
+      }
       {...headerScroll}
     />
   );

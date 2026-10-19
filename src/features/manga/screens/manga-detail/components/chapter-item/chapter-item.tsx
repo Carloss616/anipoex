@@ -2,10 +2,8 @@ import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import type { CHAPTERS } from "@/features/manga/mocks";
+import { type Chapter, isRead } from "@/features/manga/utils/to-chapters";
 import { noop } from "@/utils/utils";
-
-export type Chapter = (typeof CHAPTERS)[number];
 
 export interface ChapterItemProps {
   chapter: Chapter;
@@ -19,7 +17,7 @@ export function ChapterItem({ chapter, entryId }: ChapterItemProps) {
   const progress = useTrackingEntry(entryId)?.progress ?? 0;
 
   return (
-    <Item disabled={progress > chapter.id}>
+    <Item disabled={isRead(progress, chapter.number)}>
       <Item.Content>
         <Item.Title>{chapter.title}</Item.Title>
         <Item.Description>{chapter.date}</Item.Description>

@@ -28,8 +28,8 @@ the record of truth; the app keeps no data of its own beyond a session, a
    [SaveMangaTracking](operations/save-manga-tracking.md), which also refetches the
    list and its counts.
 5. **Pick where chapters come from.** Each manga remembers its [source](concepts/source.md);
-   the [Extensions](concepts/extension.md) tab is where sources get installed.
-   **Both are scaffolding today** and so are the [chapters](concepts/chapter.md).
+   the [Extensions](concepts/extension.md) tab is where sources get installed. The
+   detail then lists the [chapters](concepts/chapter.md) of the manga matched in that source.
 
 # Vocabulary
 

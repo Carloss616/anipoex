@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
+import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 
+export type SourcePickerManga = Pick<MangaDetail, "id" | "title" | "synonyms">;
+
 export interface SourcePickerProps {
-  mangaId: number;
+  manga: SourcePickerManga;
 }
 
 /**
@@ -13,8 +16,8 @@ export interface SourcePickerProps {
  * it changes. Named for the control rather than `Source`, which is the shape a
  * registry hands over.
  */
-export function SourcePicker({ mangaId }: SourcePickerProps) {
-  const picker = useSourcePicker(mangaId);
+export function SourcePicker({ manga }: SourcePickerProps) {
+  const picker = useSourcePicker(manga);
 
   return (
     <>

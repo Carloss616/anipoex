@@ -1,7 +1,38 @@
 # Bundle Update Log
 
+## 2026-10-19
+
+* **Source logo**: a source's tile shows its logo instead of the initials when it has
+  one (the installed APK's icon, else the repo's), falling back to the initials while it
+  loads or if it fails. Updated [source](concepts/source.md).
+* **No repository of its own**: the app ships with no extension repo; the store starts
+  empty and the user adds each one by URL. With no repo and nothing installed the
+  Extensions tab says so. Updated [extension repos store](stores/extension-repos.md) and
+  [extension](concepts/extension.md).
+
 ## 2026-10-18
 
+* **Chapters come from the source**: the detail lists the chapters of the manga matched
+  in the chosen source, no longer eight mocked ones; the number is the source's or, when
+  it gives none, read from the name, and a row with no number is never dimmed as read.
+  Rewrote [chapter](concepts/chapter.md).
+* **Picking a source matches the manga in it**: the source is searched by the manga's
+  romaji then English title and only an exact title (or synonym) match is kept; no match
+  is remembered as such. Old bare source ids are ignored. Updated
+  [chosen source](stores/manga-source.md).
+* **Sources are the installed extensions' own**: the source picker and sheet list the
+  sources of installed extensions in `all`, `en` and the device language, no longer a
+  mocked list. Updated [source](concepts/source.md).
+* **Extension repos can be added and removed**: the Extensions tab has a Repositories
+  screen where the user adds a repo by URL (accepting its signing key) or removes one;
+  removing a repo does not uninstall what came from it. New
+  [extension repos store](stores/extension-repos.md); updated
+  [extension](concepts/extension.md).
+* **Extensions are real**: the Extensions tab lists what the added repos offer, merged
+  with what is installed on the device, and Install / Update / Uninstall act on the
+  device (Android only; iOS and web install nothing). An unreachable repo is skipped
+  with a toast. Updated [extension](concepts/extension.md) and
+  [extensions store](stores/extensions.md).
 * **Failed saves don't stick on screen**: a tracking field whose save fails goes back to
   what AniList still has, and a failed removal leaves the sheet open. Updated
   [SaveMangaTracking](operations/save-manga-tracking.md) and

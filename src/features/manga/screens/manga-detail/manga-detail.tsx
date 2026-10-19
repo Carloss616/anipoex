@@ -4,16 +4,18 @@ import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
+import { useInstalledSources } from "@/features/extensions";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
+import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openExternal } from "@/utils/open-external";
 import { noop } from "@/utils/utils";
-import { CHAPTERS } from "../../mocks";
 import { DetailHeader } from "./components/detail-header";
 import { DetailList } from "./components/detail-list";
 import { Hero } from "./components/hero";
 import { SourcePicker } from "./components/source-picker";
+import { useSourceChapters } from "./hooks/use-source-chapters";
 
 const MENU_ACTIONS = [
   {
@@ -39,6 +41,27 @@ export function MangaDetail() {
   const maxHeaderHeight = useMaxHeaderHeight();
   const mutedForeground = useThemeColor("muted-foreground");
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
+  const sources = useInstalledSources();
+  const { match, matching } = useSourceMatch(Number(id));
+  const source = useSourceChapters(match);
+
+  const refreshAll = () => Promise.all([refresh(), source.refresh()]);
+  const sourceName =
+    sources.find((entry) => entry.id === match?.sourceId)?.name ??
+    "this source";
+  const empty = !match
+    ? {
+        title: "Pick a source",
+        description: "Choose where to read this manga.",
+      }
+    : match.manga === null
+      ? {
+          title: "No match",
+          description: `This title wasn't found in ${sourceName}.`,
+        }
+      : source.error
+        ? { title: "Couldn't load chapters", description: source.error }
+        : { title: "No chapters available" };
 
   if (loading || !manga) {
     return (
@@ -65,7 +88,7 @@ export function MangaDetail() {
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
             icon={Icons.refresh}
-            onPress={refresh}
+            onPress={refreshAll}
             disabled={refreshing}
             tintColor={refreshing ? mutedForeground : undefined}
             accessibilityLabel="Refresh"
@@ -89,12 +112,14 @@ export function MangaDetail() {
 
       <DetailList
         refreshing={refreshing}
-        onRefresh={refresh}
+        onRefresh={refreshAll}
         maxHeaderHeight={maxHeaderHeight}
         hero={<Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />}
-        chapters={CHAPTERS}
-        total={manga.chapters ?? CHAPTERS.length}
-        action={<SourcePicker mangaId={manga.id} />}
+        chapters={source.chapters}
+        total={manga.chapters ?? source.chapters.length}
+        loading={matching || source.loading}
+        empty={empty}
+        action={<SourcePicker manga={manga} />}
         entryId={manga.mediaListEntry?.id}
         header={<DetailHeader manga={manga} />}
       />

@@ -119,6 +119,7 @@ export function SourceSheet({
                   <ListItem.LeadingContent>
                     <SourceTile
                       initials={source.initials}
+                      iconUrl={source.iconUrl}
                       color={sourceColor(source, mode)}
                     />
                   </ListItem.LeadingContent>

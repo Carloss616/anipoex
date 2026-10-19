@@ -84,6 +84,7 @@ export function SourceSheet({
               <Item onPress={() => onSelect(source.id)}>
                 <SourceTile
                   initials={source.initials}
+                  iconUrl={source.iconUrl}
                   color={sourceColor(source, mode)}
                 />
                 <Item.Content>

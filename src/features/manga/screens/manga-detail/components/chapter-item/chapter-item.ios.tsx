@@ -11,12 +11,13 @@ import {
 import { Text } from "@/components/native/swift-ui/text";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
+import { isRead } from "@/features/manga/utils/to-chapters";
 import { noop } from "@/utils/utils";
 import type { ChapterItemProps } from "./chapter-item";
 
 export function ChapterItem({ chapter, entryId }: ChapterItemProps) {
   // Per row, not per screen: a progress change re-renders the rows only.
-  const read = (useTrackingEntry(entryId)?.progress ?? 0) > chapter.id;
+  const read = isRead(useTrackingEntry(entryId)?.progress ?? 0, chapter.number);
 
   return (
     <HStack

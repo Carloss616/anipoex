@@ -13,6 +13,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { cn } from "panelui-native/utils/cn";
 import { EmptyState } from "@/components/blocks/empty-state";
+import { LoadingState } from "@/components/blocks/loading-state";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
@@ -32,6 +33,8 @@ export function DetailList({
   header,
   chapters,
   total,
+  loading,
+  empty,
   action,
   entryId,
   maxHeaderHeight,
@@ -94,7 +97,7 @@ export function DetailList({
             header={sectionHeader}
             modifiers={[listRowBackground("clear")]}
           >
-            <EmptyState title="No chapters available" />
+            {loading ? <LoadingState /> : <EmptyState {...empty} />}
           </Section>
         ) : (
           <Section header={sectionHeader} modifiers={[rowBackground]}>

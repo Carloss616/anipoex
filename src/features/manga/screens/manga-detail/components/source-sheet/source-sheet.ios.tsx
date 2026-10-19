@@ -112,6 +112,7 @@ export function SourceSheet({
                   icon={
                     <SourceTile
                       initials={source.initials}
+                      iconUrl={source.iconUrl}
                       color={sourceColor(source, mode)}
                     />
                   }

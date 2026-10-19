@@ -21,6 +21,7 @@ import {
 import { cn } from "panelui-native/utils/cn";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/blocks/empty-state";
+import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +42,8 @@ export function DetailList({
   header,
   chapters,
   total,
+  loading,
+  empty,
   action,
   entryId,
   maxHeaderHeight,
@@ -103,9 +106,8 @@ export function DetailList({
             <Spacer modifiers={[weight(1)]} />
             {action}
           </Row>
-          {chapters.length === 0 && (
-            <EmptyState title="No chapters available" />
-          )}
+          {chapters.length === 0 &&
+            (loading ? <LoadingState /> : <EmptyState {...empty} />)}
           <LazyColumn.Items
             data={chapters}
             keyExtractor={(chapter) => String(chapter.id)}

@@ -1,19 +1,23 @@
 ---
 type: Domain Concept
 title: Source
-description: A site chapters are read from; each manga remembers the one picked for it. Scaffolding — the list is mocked.
-tags: [sources, reading, scaffolding]
-status: draft
+description: A source of an installed extension, in a language the picker shows; each manga remembers the one picked for it.
+tags: [sources, reading]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
 
-A **source** is a site the app reads chapters from: `id` (stable slug, e.g.
-`example`), `name`, and `initials` drawn on its tile until sources carry icons. The
-tile's colour is hashed from the name, so it is stable across launches.
+A **source** is a site the app reads chapters from, as exposed by an installed
+[extension](extension.md): `id` (the extension's own id), `name`, and `initials`. Its
+tile shows the source's **logo** when it has one, else (or while the logo loads, or if it
+fails) the initials. The logo is the icon of the installed APK (a local file, so it
+shows offline); an extension not installed yet shows the icon its repo lists. The tile's colour is hashed from the name, so it
+is stable across launches.
 
 - **Per manga**: the detail's source picker stores the choice keyed by the manga's
   AniList id (see [chosen source](../stores/manga-source.md)). No choice shows "Source".
-- **Scaffolding**: `MOCK_SOURCES` (50 names) stands in for a registry; nothing is
-  fetched, and a name in it does not mean the app can read that site.
+- **Which show**: only sources in the languages `all`, `en` and the device's own
+  (`es-MX` shows `es`; a regional `es-419` counts as `es`). There is no setting for it.
+- **Names**: when an extension keeps more than one source in view, each name carries
+  its language (`Example (ES-419)`); with one, just the name. Nothing installed, nothing listed.
 
-An installable source is an [extension](extension.md).
+Sources come only from [extensions](extension.md); the app ships none of its own.
