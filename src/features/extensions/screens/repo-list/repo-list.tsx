@@ -117,6 +117,7 @@ export function RepoList() {
         description={`Its extensions will run inside the app. Signing key ${pending?.signingKey.slice(0, KEY_PREVIEW_LENGTH)}…`}
         confirmLabel="Trust"
         onConfirm={() => pending && trust(pending)}
+        alert
       />
     </>
   );

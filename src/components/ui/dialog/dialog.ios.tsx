@@ -1,4 +1,4 @@
-import { Alert, Button, ConfirmationDialog } from "@expo/ui/swift-ui";
+import { Alert, Button, ConfirmationDialog, Spacer } from "@expo/ui/swift-ui";
 import { useState } from "react";
 import { Text } from "@/components/native/swift-ui/text";
 import { EnsureHost } from "../host";
@@ -34,11 +34,14 @@ function DialogRoot({
         onIsPresentedChange={setOpen}
         {...(alert ? null : { titleVisibility: "visible" as const })}
       >
-        {children && (
-          <Root.Trigger>
-            {extractTrigger(children, () => setOpen(true))}
-          </Root.Trigger>
-        )}
+        <Root.Trigger>
+          {/* Without a trigger the modifier sits on an EmptyView and never presents. */}
+          {children ? (
+            extractTrigger(children, () => setOpen(true))
+          ) : (
+            <Spacer minLength={0} />
+          )}
+        </Root.Trigger>
         <Root.Actions>
           <Button
             label={confirmLabel}
