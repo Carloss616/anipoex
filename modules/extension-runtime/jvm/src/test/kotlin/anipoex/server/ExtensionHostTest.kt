@@ -80,6 +80,32 @@ class ExtensionHostTest {
         assertEquals(setOf("$PKG.jar", "$PKG.json"), exts.list().orEmpty().toSet())
     }
 
+    @Test
+    fun interruptedInstallCleanedUp() {
+        seed()
+        File(exts, "download123.apk").writeText("partial")
+        File(exts, "convert456.jar").writeText("partial")
+        File(exts, "classes789").mkdirs()
+        File(exts, "classes789/A.class").writeText("partial")
+        File(exts, "$PKG.jar").copyTo(File(exts, "$PKG.jar.bak"))
+        File(exts, "$PKG.json").copyTo(File(exts, "$PKG.json.bak"))
+        val host = ExtensionHost(dir)
+        assertEquals(setOf("$PKG.jar", "$PKG.json"), exts.list().orEmpty().toSet())
+        assertSeeded(host)
+    }
+
+    @Test
+    fun interruptedInstallRestoresBackup() {
+        seed()
+        // Died after storing the new jar but before writing its meta: both backups are the only good copy.
+        File(exts, "$PKG.jar").renameTo(File(exts, "$PKG.jar.bak"))
+        File(exts, "$PKG.json").renameTo(File(exts, "$PKG.json.bak"))
+        File(exts, "$PKG.jar").writeText("not a jar")
+        val host = ExtensionHost(dir)
+        assertEquals(setOf("$PKG.jar", "$PKG.json"), exts.list().orEmpty().toSet())
+        assertSeeded(host)
+    }
+
     private fun serve(apk: File): String {
         server.enqueue(MockResponse.Builder().body(Buffer().write(apk.readBytes())).build())
         return server.url("/${apk.name}").toString()

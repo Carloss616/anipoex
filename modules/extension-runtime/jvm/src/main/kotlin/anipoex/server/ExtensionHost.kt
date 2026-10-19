@@ -40,6 +40,7 @@ class ExtensionHost(dataDir: File) {
     private val lock = Any()
 
     init {
+        recoverInterruptedInstalls()
         val app = Application(dataDir, "1.0.0", 1)
         Injekt.addSingleton<Application>(app)
         Injekt.addSingleton(NetworkHelper(app))
@@ -106,6 +107,27 @@ class ExtensionHost(dataDir: File) {
         } finally {
             download.delete()
             converted.delete()
+        }
+    }
+
+    // A server that died mid-install leaves its temporaries, and backups that are the only copy until the new jar and meta are both stored.
+    private fun recoverInterruptedInstalls() {
+        val files = extensionsDir.listFiles().orEmpty()
+        files.forEach {
+            val name = it.name
+            if ((name.startsWith("download") && name.endsWith(".apk")) || (name.startsWith("convert") && name.endsWith(".jar"))) it.delete()
+            if (name.startsWith("classes") && it.isDirectory) it.deleteRecursively()
+        }
+        files.filter { it.name.endsWith(".bak") }.groupBy { it.name.removeSuffix(".bak").substringBeforeLast('.') }.forEach { (pkg, backups) ->
+            val replaced = File(extensionsDir, "$pkg.jar").exists() && File(extensionsDir, "$pkg.json").exists()
+            backups.forEach { backup ->
+                val live = File(backup.path.removeSuffix(".bak"))
+                if (!replaced) {
+                    live.delete()
+                    backup.renameTo(live)
+                }
+                backup.delete()
+            }
         }
     }
 
