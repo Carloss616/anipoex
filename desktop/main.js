@@ -3,6 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { app, BrowserWindow, ipcMain, net, protocol, shell } from "electron";
 import { authRedirect } from "./auth.js";
+import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
 import { resolveAsset } from "./serve.js";
 import { startSidecar } from "./sidecar.js";
 
@@ -37,6 +38,7 @@ const METHODS = new Set([
   "search",
   "chapters",
   "mangaWebUrl",
+  "pages",
 ]);
 
 // Not `URL.origin`: a custom scheme's origin is the opaque "null", which every `data:` or `about:` frame shares.
@@ -65,6 +67,11 @@ protocol.registerSchemesAsPrivileged([
       supportFetchAPI: true,
       corsEnabled: true,
     },
+  },
+  // The renderer loads source pages through it: an `<img>` can't send the source's headers.
+  {
+    scheme: PAGE_SCHEME,
+    privileges: { standard: true, secure: true, supportFetchAPI: true },
   },
 ]);
 
@@ -95,10 +102,19 @@ app.whenReady().then(() => {
   });
   app.on("will-quit", () => sidecar.stop());
 
-  ipcMain.handle("runtime", (event, method, args) => {
+  // Only what `pages` returned is served, never a URL the renderer picks.
+  const pages = pageStore();
+  protocol.handle(PAGE_SCHEME, (request) =>
+    servePage(pages, request.url, net.fetch),
+  );
+
+  ipcMain.handle("runtime", async (event, method, args) => {
     if (originOf(event.senderFrame?.url) !== APP_ORIGIN || !METHODS.has(method))
       return { error: "Not allowed" };
-    return sidecar.call(method, args ?? {});
+    const reply = await sidecar.call(method, args ?? {});
+    return method === "pages" && reply?.result
+      ? { result: pages.rewrite(reply.result) }
+      : reply;
   });
 
   let signInWindow;
