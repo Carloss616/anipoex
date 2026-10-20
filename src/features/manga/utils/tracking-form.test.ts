@@ -270,6 +270,15 @@ describe("describeChanges", () => {
     ]);
   });
 
+  it("lists every changed field when none is being edited", () => {
+    const before = form({ progress: 12 });
+    const after = setProgress(before, 13, 48, TODAY);
+
+    expect(describeChanges(before, after, undefined, 48)).toEqual([
+      "Progress \u2192 13/48",
+    ]);
+  });
+
   it("never repeats the field being edited", () => {
     const before = form({ status: MediaListStatus.Planning, progress: 0 });
     const after = setStatus(before, MediaListStatus.Current, 245, TODAY);

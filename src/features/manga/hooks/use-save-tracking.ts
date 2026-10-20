@@ -69,7 +69,8 @@ export function useSaveTracking(mediaId: number) {
     saving,
     removing,
     save: async (variables: SaveVariables) => {
-      await felt(saveEntry({ variables }));
+      const result = await felt(saveEntry({ variables }));
+      return result.data?.SaveMediaListEntry?.id;
     },
     remove: async (entryId: number) => {
       await felt(deleteEntry({ variables: { id: entryId } }));

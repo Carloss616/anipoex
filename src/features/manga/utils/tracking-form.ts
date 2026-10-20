@@ -18,7 +18,7 @@ export interface TrackingForm {
   completedAt?: Date;
 }
 
-interface PartialEntry {
+export interface PartialEntry {
   status?: MediaListStatus | null;
   progress?: number | null;
   score?: number | null;
@@ -147,13 +147,13 @@ const CHANGED_FIELDS = Object.keys(
 
 /**
  * The side effects a rule is about to apply, as lines the sheet can show
- * before the user confirms. The field being edited is left out — it is the
- * control they are already looking at.
+ * before the user confirms. The field being edited, if any, is left out — it
+ * is the control they are already looking at.
  */
 export function describeChanges(
   before: TrackingForm,
   after: TrackingForm,
-  edited: keyof TrackingForm,
+  edited?: keyof TrackingForm,
   total?: number | null,
 ): string[] {
   return CHANGED_FIELDS.filter((field) => field !== edited).flatMap((field) => {

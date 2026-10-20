@@ -31,3 +31,10 @@ carry side effects; "today" is the device's local date.
 Before confirming, the sheet lists every field a rule is about to change except the
 one being edited ("Status → Completed", "Finish date cleared", …), so nothing changes
 behind the user's back.
+
+# Reading a chapter
+
+Reaching the end of a chapter in the reader sets progress to the chapter's whole number
+when that is higher, with the progress rules above; a manga not in the list is added as
+Reading only after the user confirms; the reader lists the changed fields like the sheet
+does and offers Undo.

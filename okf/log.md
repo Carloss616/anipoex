@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Reading a chapter sets progress**: reaching the end of a chapter in the reader raises
+  progress with the usual rules; a manga not in the list is added as Reading only after
+  confirmation. Updated [tracking rules](concepts/tracking-rules.md).
 * **Chapter at the progress counts as read**: AniList progress is the last chapter read, so
   a chapter whose number is at or below it is read (progress 0 reads nothing); chapters
   also carry their scanlator. Updated [chapter](concepts/chapter.md).
