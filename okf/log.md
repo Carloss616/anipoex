@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-10-20
+
+* **Chapter numbers are read like Mihon**: a chapter whose source gives no number is numbered the way Mihon numbers it today, over the whole chapter list: from its name without the manga title (volume/season ignored, Mihon's extra/omake/special, letter and part rules), with numbers every similar name shares ignored, repeated chapter urls counted once, and unnumbered rows filled from the chapters around them (after the newest only bonus rows, before the oldest only a prologue). Names like "Capítulo 51" now count; a negative number the source gives on purpose is kept and never read. Updated [chapter](concepts/chapter.md).
+
 ## 2026-10-19
 
 * **A chapter keeps its source's memo**: the data a source stores on a chapter now reaches

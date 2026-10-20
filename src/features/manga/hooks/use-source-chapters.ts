@@ -36,7 +36,7 @@ export function useSourceChapters(match: SourceMatch | undefined) {
         const { chapters } = await fetchChapters(sourceId, url, title);
         if (current === ticket.current)
           setState({
-            chapters: toChapters(chapters),
+            chapters: toChapters(chapters, title),
             loading: false,
             error: null,
           });
