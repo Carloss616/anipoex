@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "@/components/ui/toast";
 import { session$ } from "@/state/session";
 import { anilist } from "../../../trackers/anilist";
@@ -12,8 +12,12 @@ function close() {
 /** AniList's OAuth round trip; the root guard redirects once a token lands. */
 export function useSignIn() {
   const [isBusy, setIsBusy] = useState(false);
+  const inFlight = useRef(false);
 
   async function signIn() {
+    // A second tap lands before `disabled` re-renders and the browser rejects it as already open.
+    if (inFlight.current) return;
+    inFlight.current = true;
     setIsBusy(true);
     try {
       const result = await anilist.authorize();
@@ -35,6 +39,7 @@ export function useSignIn() {
         cause instanceof Error ? cause.message : "Something went wrong",
       );
     } finally {
+      inFlight.current = false;
       setIsBusy(false);
     }
   }
