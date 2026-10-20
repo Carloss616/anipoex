@@ -159,7 +159,9 @@ export function MangaDetail() {
         total={manga.chapters ?? rows.length}
         loading={matching || chaptersLoading || (!!pendingId && !resumed)}
         empty={empty}
-        action={<SourcePicker manga={manga} />}
+        action={
+          <SourcePicker manga={manga} entryId={manga.mediaListEntry?.id} />
+        }
         mediaId={manga.id}
         entryId={manga.mediaListEntry?.id}
         header={<DetailHeader manga={manga} />}

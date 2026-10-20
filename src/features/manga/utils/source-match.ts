@@ -1,4 +1,5 @@
 import type { SourceManga } from "@/features/extensions";
+import type { MangaDetail } from "./to-detail";
 
 /** The picked source and what it answered: `manga` absent means the search is pending, `null` that it found nothing. */
 export interface SourceMatch {
@@ -45,4 +46,26 @@ export function pickMatch(
   return (
     results.find((result) => wanted.has(normalizeTitle(result.title))) ?? null
   );
+}
+
+/** The titles a manga is searched by (`search`, in order) and matched against (`all`). */
+export interface Titles {
+  search: (string | null | undefined)[];
+  all: (string | null | undefined)[];
+}
+
+export function searchTitles({
+  title,
+  synonyms,
+}: Pick<MangaDetail, "title" | "synonyms">): Titles {
+  return {
+    search: [title?.romaji, title?.english],
+    all: [
+      title?.romaji,
+      title?.english,
+      title?.userPreferred,
+      title?.native,
+      ...(synonyms ?? []),
+    ],
+  };
 }

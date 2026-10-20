@@ -10,8 +10,8 @@ import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
-export function SourcePicker({ manga }: SourcePickerProps) {
-  const picker = useSourcePicker(manga);
+export function SourcePicker({ manga, entryId }: SourcePickerProps) {
+  const picker = useSourcePicker(manga, entryId);
 
   return (
     <>
@@ -31,6 +31,8 @@ export function SourcePicker({ manga }: SourcePickerProps) {
       </Button>
 
       <SourceSheet
+        manga={manga}
+        read={picker.read}
         isPresented={picker.isPresented}
         selectedId={picker.sourceId}
         onSelect={picker.select}

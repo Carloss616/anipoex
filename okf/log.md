@@ -3,6 +3,11 @@
 ## 2026-10-20
 
 * **Chapter numbers are read like Mihon**: a chapter whose source gives no number is numbered the way Mihon numbers it today, over the whole chapter list: from its name without the manga title (volume/season ignored, Mihon's extra/omake/special, letter and part rules), with numbers every similar name shares ignored, repeated chapter urls counted once, and unnumbered rows filled from the chapters around them (after the newest only bonus rows, before the oldest only a prologue). Names like "Capítulo 51" now count; a negative number the source gives on purpose is kept and never read. Updated [chapter](concepts/chapter.md).
+* **The source sheet keeps its order while open, auto-exclusion reads the latest progress, and a hung chapter load fails**: the available order is set on every open and never moves while the sheet stays open, even through a first scan; a scan judges its bad outcomes against the progress when it ends; a chapter load that doesn't answer in 30 s fails, so the next one asks again. Updated [source](concepts/source.md), [source exclusion](concepts/source-exclusion.md) and [chapter](concepts/chapter.md).
+* **A source picked mid-scan is spared**: auto-exclusion skips the source chosen when the scan ends, not the one chosen when it started. Updated [source exclusion](concepts/source-exclusion.md).
+* **Sources are probed and can be excluded**: added [source exclusions](stores/source-exclusions.md), [source pins](stores/source-pins.md) and [source probes](stores/source-probes.md) (MSU's gist layout); scanning from the source sheet probes the installed sources for the manga (never on open); [source](concepts/source.md) now splits available / excluded with a stable order; [unread chapters](metrics/unread-chapters.md) adds suspicious numbering and probe age.
+* **Source exclusions**: added [source exclusion](concepts/source-exclusion.md) — reasons, pins, retry/reset, and auto-exclusion after a scan; MSU's records, with two departures (an error must repeat, auto-exclusions are rechecked after 7 days).
+* **Source probes and unread count**: added [source probe](concepts/source-probe.md) (the five outcomes of a scan) and [unread chapters](metrics/unread-chapters.md) (the +N per source), in MSU's terms.
 
 ## 2026-10-19
 

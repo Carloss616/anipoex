@@ -20,7 +20,25 @@ describe("fetchChapters", () => {
 
     for (const resolve of pending.splice(0)) resolve({ chapters: [] });
     await Promise.all([first, other]);
-    fetchChapters("1", "/m", "M");
+    const again = fetchChapters("1", "/m", "M");
     expect(chapters).toHaveBeenCalledTimes(3);
+    // Settle it, so its 30 s timeout is cleared instead of rejecting after the test.
+    for (const resolve of pending.splice(0)) resolve({ chapters: [] });
+    await again;
+  });
+
+  it("a load that never answers is evicted after the timeout", async () => {
+    chapters.mockClear();
+    const hung = fetchChapters("2", "/h", "H", 20);
+    const outcome = await Promise.race([
+      hung.then(
+        () => "settled",
+        () => "rejected",
+      ),
+      new Promise((resolve) => setTimeout(() => resolve("hung"), 200)),
+    ]);
+    expect(outcome).toBe("rejected");
+    fetchChapters("2", "/h", "H", 20).catch(() => {});
+    expect(chapters).toHaveBeenCalledTimes(2);
   });
 });

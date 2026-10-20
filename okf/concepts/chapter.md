@@ -38,8 +38,8 @@ are fetched when the match changes and on refresh.
   nothing is read.
 - **Total**: the manga's `chapters` count; when AniList has none, the number of rows listed.
 - **Empty states**: no source picked asks to pick one; a manga the source doesn't have
-  says so ("No match"); a failed load shows the error; a source that answers with no
-  chapters says none are available. While the source is searched or the chapters load,
-  a loader shows instead.
+  says so ("No match"); a failed load shows the error (a source that doesn't answer in
+  30 s has failed); a source that answers with no chapters says none are available. While
+  the source is searched or the chapters load, a loader shows instead.
 
 Chapter numbers are what [list entry](list-entry.md) progress counts.

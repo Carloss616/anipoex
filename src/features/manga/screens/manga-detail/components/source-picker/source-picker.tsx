@@ -9,6 +9,7 @@ export type SourcePickerManga = Pick<MangaDetail, "id" | "title" | "synonyms">;
 
 export interface SourcePickerProps {
   manga: SourcePickerManga;
+  entryId: number | null | undefined;
 }
 
 /**
@@ -16,8 +17,8 @@ export interface SourcePickerProps {
  * it changes. Named for the control rather than `Source`, which is the shape a
  * registry hands over.
  */
-export function SourcePicker({ manga }: SourcePickerProps) {
-  const picker = useSourcePicker(manga);
+export function SourcePicker({ manga, entryId }: SourcePickerProps) {
+  const picker = useSourcePicker(manga, entryId);
 
   return (
     <>
@@ -29,6 +30,8 @@ export function SourcePicker({ manga }: SourcePickerProps) {
       </Button>
 
       <SourceSheet
+        manga={manga}
+        read={picker.read}
         isPresented={picker.isPresented}
         selectedId={picker.sourceId}
         onSelect={picker.select}

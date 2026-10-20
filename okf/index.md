@@ -13,7 +13,7 @@ Start with the [product overview](overview.md); [README](README.md) explains the
 
 # Domain concepts
 
-* [Concepts](concepts/) - Tracker and viewer, manga, list entry, statuses, tracking rules, score format, fuzzy dates, sources, extensions, chapters.
+* [Concepts](concepts/) - Tracker and viewer, manga, list entry, statuses, tracking rules, score format, fuzzy dates, sources, source probes, source exclusions, extensions, chapters.
 
 # AniList operations
 
@@ -21,11 +21,11 @@ Start with the [product overview](overview.md); [README](README.md) explains the
 
 # On-device state
 
-* [Stores](stores/) - Session, Apollo cache, list view, chosen source, theme, extensions; where each lives and what clears it.
+* [Stores](stores/) - Session, Apollo cache, list view, chosen source, source exclusions, pins and probes, theme, extensions; where each lives and what clears it.
 
 # Metrics
 
-* [Metrics](metrics/) - Per-status list counts and the reading-progress caption.
+* [Metrics](metrics/) - Per-status list counts, the reading-progress caption, and the unread count per source.
 
 # History
 

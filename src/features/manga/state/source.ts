@@ -1,9 +1,10 @@
 import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import { toast } from "@/components/ui/toast";
-import { runtime } from "@/features/extensions";
+import { runtime, type SourceManga } from "@/features/extensions";
 import { ObservablePersist } from "@/state/observable-persist";
-import { pickMatch, readMatch } from "../utils/source-match";
+import { pickMatch, readMatch, type Titles } from "../utils/source-match";
+import { SEARCH_TIMEOUT_MS, withTimeout } from "../utils/with-timeout";
 
 /** Which source each manga's chapter list reads and what it matched, keyed by its AniList id; read through `readMatch`. */
 export const source$ = observable<Record<number, unknown>>({});
@@ -17,20 +18,21 @@ syncObservable(source$, {
 
 const tickets: Record<number, number> = {};
 
-const SEARCH_TIMEOUT_MS = 30_000;
-
-/** Rejects when the source does not answer in time, so a hung search ends like a failed one. */
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  let timer: ReturnType<typeof setTimeout>;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error("Search timed out")), ms);
-  });
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
-}
-
-interface Titles {
-  search: (string | null | undefined)[];
-  all: (string | null | undefined)[];
+/** The source's page for the manga, or null when no result equals a title; rejects when the search fails or times out. */
+export async function findManga(
+  sourceId: string,
+  titles: Titles,
+  timeoutMs = SEARCH_TIMEOUT_MS,
+): Promise<SourceManga | null> {
+  for (const query of new Set(titles.search.filter(Boolean))) {
+    const { mangas } = await withTimeout(
+      runtime.search(sourceId, query as string, 1),
+      timeoutMs,
+    );
+    const manga = pickMatch(mangas, titles.all);
+    if (manga) return manga;
+  }
+  return null;
 }
 
 /** Stores the pick at once, then searches the source for the manga; the last pick per manga wins and a failed search leaves the pick unmatched. */
@@ -46,15 +48,7 @@ export async function selectSource(
   matching$[mangaId].set(true);
 
   try {
-    let manga = null;
-    for (const query of new Set(titles.search.filter(Boolean))) {
-      const { mangas } = await withTimeout(
-        runtime.search(source.id, query as string, 1),
-        timeoutMs,
-      );
-      manga = pickMatch(mangas, titles.all);
-      if (manga) break;
-    }
+    const manga = await findManga(source.id, titles, timeoutMs);
     if (ticket !== tickets[mangaId]) return;
     source$[mangaId].set({
       sourceId: source.id,

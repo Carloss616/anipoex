@@ -15,9 +15,15 @@ nothing persists during web's server render.
 # Preferences
 
 * [Manga list view](manga-list-view.md) - Grid density and title position.
-* [Chosen source](manga-source.md) - The source picked for each manga.
 * [Theme](theme.md) - Theme family and light / dark / system preference.
 * [Extension repos](extension-repos.md) - The repos extensions are installed from; none until the user adds one.
+
+# Sources
+
+* [Chosen source](manga-source.md) - The source picked for each manga.
+* [Source exclusions](source-exclusions.md) - Sources dropped from a manga's list, and why.
+* [Source pins](source-pins.md) - Exclusions and inclusions the user decided by hand.
+* [Source probes](source-probes.md) - What the last scan found for each source and manga.
 
 # In memory only
 

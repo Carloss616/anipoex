@@ -1,5 +1,6 @@
 import { useInstalledSources } from "@/features/extensions";
 import { resumeSource, selectSource } from "../state/source";
+import { searchTitles } from "../utils/source-match";
 import type { MangaDetail } from "../utils/to-detail";
 
 /** Searches an installed source for the manga: `select` stores a new pick, `resume` finishes one that has no manga yet. */
@@ -13,17 +14,7 @@ export function useSourceSearch(
     (sourceId: string) => {
       const source = sources.find((entry) => entry.id === sourceId);
       if (!manga || !source) return;
-      const { title, synonyms } = manga;
-      return action(manga.id, source, {
-        search: [title?.romaji, title?.english],
-        all: [
-          title?.romaji,
-          title?.english,
-          title?.userPreferred,
-          title?.native,
-          ...(synonyms ?? []),
-        ],
-      });
+      return action(manga.id, source, searchTitles(manga));
     };
 
   return { select: run(selectSource), resume: run(resumeSource) };
