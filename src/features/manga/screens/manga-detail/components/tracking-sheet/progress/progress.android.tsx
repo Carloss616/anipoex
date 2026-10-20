@@ -3,9 +3,7 @@ import {
   fillMaxWidth,
   padding,
   verticalScroll,
-  weight,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { NumberInput } from "@/components/ui/number-input";
 import { ChangesPreview } from "../changes-preview";
@@ -14,11 +12,12 @@ import { useProgress } from "./hooks/use-progress";
 import type { ProgressProps } from "./progress";
 
 export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
-  const { isLandscape } = useBreakpoint();
   const { value, step, next, dirty, changes } = useProgress(form, total);
 
   return (
-    <Column modifiers={[padding(0, 0, 0, 16)]}>
+    // The whole view scrolls: in landscape the keyboard leaves no room
+    // for a pinned title and footer around the field.
+    <Column modifiers={[verticalScroll(), padding(0, 0, 0, 16)]}>
       <Text
         style={{ typography: "titleLarge" }}
         maxLines={1}
@@ -29,12 +28,7 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
       </Text>
 
       <Column
-        modifiers={[
-          fillMaxWidth(),
-          ...(isLandscape ? [weight(1)] : []),
-          verticalScroll(),
-          padding(16, 16, 16, 16),
-        ]}
+        modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}
       >
         <NumberInput
           suffix={total ? `/${total}` : undefined}

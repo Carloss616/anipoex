@@ -11,6 +11,7 @@ import {
   fillMaxWidth,
   testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import {
   createContext,
   useCallback,
@@ -64,6 +65,7 @@ function BottomSheetRoot({
   containerColor,
   scrimColor,
 }: BottomSheetProps) {
+  const { isLandscape } = useBreakpoint();
   const sheetRef = useRef<ModalBottomSheetRef>(null);
   const [mount, setMount] = useState(isPresented);
   const [lockCount, setLockCount] = useState(0);
@@ -115,10 +117,18 @@ function BottomSheetRoot({
             ...(testID ? [testIDModifier(testID)] : []),
             clickable(dismissFocus, { indication: false }),
             fillMaxWidth(),
-            // A filled sheet only changes size with the keyboard, and animating that fights M3's own resettle.
-            shouldFillMaxHeight(snapPoints)
-              ? fillMaxHeight()
-              : animateContentSize(),
+            // A filled sheet only changes size with the keyboard, and animating
+            // that fights M3's own resettle. In landscape, views weight their
+            // scroll area, so they fill the sheet too.
+            // shortcut: landscape stands in for "the content fills the expanded
+            // sheet", which a tall portrait view would miss. Key off that instead
+            // once @expo/ui exposes the sheet's expanded state, or with a local
+            // Compose modifier that skips the animation at max height.
+            ...(shouldFillMaxHeight(snapPoints)
+              ? [fillMaxHeight()]
+              : isLandscape
+                ? []
+                : [animateContentSize()]),
           ]}
         >
           <LockDragContext.Provider value={trackLock}>
