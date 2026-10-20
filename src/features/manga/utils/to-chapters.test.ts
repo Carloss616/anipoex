@@ -55,6 +55,11 @@ describe("toChapters", () => {
     ).not.toBe("");
   });
 
+  it("copies the scanlator", () => {
+    expect(toChapters([chapter({ scanlator: "A" })])[0].scanlator).toBe("A");
+    expect(toChapters([chapter({ scanlator: null })])[0].scanlator).toBeNull();
+  });
+
   it("titles the row with the source's name", () => {
     expect(toChapters([chapter({ name: "Ch.4 - Hello" })])[0].title).toBe(
       "Ch.4 - Hello",
@@ -65,11 +70,18 @@ describe("toChapters", () => {
 describe("isRead", () => {
   it("never reads a chapter without a number", () => {
     expect(isRead(0, -1)).toBe(false);
-    expect(isRead(82, -1)).toBe(false);
+    expect(isRead(5, -1)).toBe(false);
   });
 
-  it("reads only chapters below the progress", () => {
-    expect(isRead(82, 82)).toBe(false);
-    expect(isRead(83, 82)).toBe(true);
+  it("reads chapters up to the progress", () => {
+    expect(isRead(13, 13)).toBe(true);
+    expect(isRead(13, 14)).toBe(false);
+    expect(isRead(13, 12.5)).toBe(true);
+    expect(isRead(12, 12.5)).toBe(false);
+  });
+
+  it("reads nothing at progress 0 but chapter 0 once started", () => {
+    expect(isRead(0, 0)).toBe(false);
+    expect(isRead(1, 0)).toBe(true);
   });
 });

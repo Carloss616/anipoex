@@ -7,7 +7,7 @@ import { noop } from "@/utils/utils";
 
 export interface ChapterItemProps {
   chapter: Chapter;
-  /** The list entry; chapters under its progress are dimmed. */
+  /** The list entry; chapters up to its progress are dimmed. */
   entryId: number | null | undefined;
 }
 

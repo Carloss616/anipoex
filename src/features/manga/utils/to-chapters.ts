@@ -7,6 +7,7 @@ export interface Chapter {
   number: number;
   title: string;
   date: string;
+  scanlator: string | null;
 }
 
 /** "Ch.4", "Chapter 12.5" and "Vol.2 Ch.10" read as 4, 12.5 and 10. */
@@ -28,10 +29,11 @@ export function toChapters(chapters: SourceChapter[]): Chapter[] {
       formatDate(
         chapter.dateUpload ? new Date(chapter.dateUpload) : undefined,
       ) ?? "",
+    scanlator: chapter.scanlator,
   }));
 }
 
-/** A chapter without a number (-1) is never read. */
+/** A chapter without a number (-1) is never read; progress 0 reads nothing, else chapters up to it. */
 export function isRead(progress: number, number: number): boolean {
-  return number >= 0 && progress > number;
+  return number >= 0 && progress > 0 && number <= progress;
 }

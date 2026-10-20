@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **Chapter at the progress counts as read**: AniList progress is the last chapter read, so
+  a chapter whose number is at or below it is read (progress 0 reads nothing); chapters
+  also carry their scanlator. Updated [chapter](concepts/chapter.md).
 * **Extensions run on iOS too**: a sideloaded iOS build installs and runs extensions like
   the desktop app, in a Java runtime built into the app; only the web app in a browser still
   lists nothing and says "Extensions run in the Android, iOS and desktop apps." and "Sources
