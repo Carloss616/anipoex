@@ -1,5 +1,6 @@
 import { Button, HStack, VStack } from "@expo/ui/swift-ui";
 import {
+  accessibilityLabel,
   background,
   buttonBorderShape,
   buttonStyle,
@@ -14,6 +15,7 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import type { ReaderBarProps } from "./reader-bar";
 
 const MATERIAL = { type: "material", material: "bar" } as const;
@@ -46,15 +48,16 @@ export function ReaderBar({
           ]}
         >
           <Button
-            label="Back"
-            systemImage="chevron.left"
             onPress={onBack}
             modifiers={[
               buttonStyle("glass"),
               buttonBorderShape("circle"),
               labelStyle("iconOnly"),
+              accessibilityLabel("Back"),
             ]}
-          />
+          >
+            <Icon name={Icons.back} size={BUTTON_ICON_SIZE} color="inherit" />
+          </Button>
           <VStack alignment="leading" spacing={2}>
             <Text
               textStyle="subheadline"
