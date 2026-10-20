@@ -8,6 +8,7 @@ const chapter = (overrides: Partial<SourceChapter>): SourceChapter => ({
   number: 1,
   scanlator: null,
   dateUpload: 0,
+  memo: null,
   ...overrides,
 });
 

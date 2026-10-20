@@ -19,7 +19,7 @@ describe("bridgeRuntime", () => {
     await runtime.search("1", "q", 2);
     await runtime.chapters("1", "/m", "T");
     await runtime.mangaWebUrl("1", "/m");
-    await runtime.pages("1", "/c");
+    await runtime.pages("1", "/c", '{"slug":"s"}');
     expect(calls).toEqual([
       ["installed", {}],
       ["install", { apkUrl: "https://example.com/a.apk", signingKey: "k" }],
@@ -27,7 +27,7 @@ describe("bridgeRuntime", () => {
       ["search", { sourceId: "1", query: "q", page: 2 }],
       ["chapters", { sourceId: "1", mangaUrl: "/m", title: "T" }],
       ["mangaWebUrl", { sourceId: "1", mangaUrl: "/m" }],
-      ["pages", { sourceId: "1", chapterUrl: "/c" }],
+      ["pages", { sourceId: "1", chapterUrl: "/c", memo: '{"slug":"s"}' }],
     ]);
   });
 

@@ -24,7 +24,12 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
         clickable(() =>
           router.push({
             pathname: "/reader",
-            params: { mediaId, chapter: chapter.id, title: chapter.title },
+            params: {
+              mediaId,
+              chapter: chapter.id,
+              title: chapter.title,
+              memo: chapter.memo ?? undefined,
+            },
           }),
         ),
         ...(read ? [alpha(0.64)] : []),

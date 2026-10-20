@@ -8,6 +8,7 @@ export interface Chapter {
   title: string;
   date: string;
   scanlator: string | null;
+  memo: string | null;
 }
 
 /** "Ch.4", "Chapter 12.5" and "Vol.2 Ch.10" read as 4, 12.5 and 10. */
@@ -30,6 +31,7 @@ export function toChapters(chapters: SourceChapter[]): Chapter[] {
         chapter.dateUpload ? new Date(chapter.dateUpload) : undefined,
       ) ?? "",
     scanlator: chapter.scanlator,
+    memo: chapter.memo,
   }));
 }
 

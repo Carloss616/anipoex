@@ -8,7 +8,9 @@ generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-18T00:00:00Z }
 
 A **chapter** row has an `id` (the chapter's url in the source), a `number`, a `title`
 (the source's chapter name), a release `date` (empty when the source gives none) and
-the `scanlator` that translated it (none when the source doesn't say).
+the `scanlator` that translated it (none when the source doesn't say). A source may also
+keep its own data on the chapter (its *memo*, never shown); opening the chapter hands it
+back to the source, which may need it to find the pages.
 The detail lists the chapters of the manga [matched](../stores/manga-source.md) in the
 chosen [source](source.md), in the order the source answers; nothing is stored, they
 are fetched when the match changes and on refresh.

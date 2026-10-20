@@ -8,6 +8,7 @@ const row = (number: number, scanlator: string | null = null): Chapter => ({
   title: "",
   date: "",
   scanlator,
+  memo: null,
 });
 
 const c15 = row(15);

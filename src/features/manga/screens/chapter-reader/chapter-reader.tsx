@@ -37,11 +37,14 @@ export function ChapterReader() {
     mediaId,
     chapter: chapterUrl,
     title,
+    memo: memoParam,
   } = useLocalSearchParams<{
     mediaId: string;
     chapter: string;
     /** The row's title, until the chapter list loads (or if it no longer has this chapter). */
     title?: string;
+    /** The row's memo, so the pages load without waiting for the chapter list. */
+    memo?: string;
   }>();
   const router = useRouter();
   const { manga, loading: mangaLoading } = useMangaEntry(mediaId);
@@ -49,9 +52,11 @@ export function ChapterReader() {
   const { match, matching } = useSourceMatch(Number(mediaId));
   // Fetched again here rather than handed over: the detail keeps its list in local state.
   const { chapters } = useSourceChapters(match);
+  const current = chapters.find((chapter) => chapter.id === chapterUrl);
   const { pages, loading, error, reload } = useChapterPages(
     match?.sourceId,
     chapterUrl,
+    memoParam ?? current?.memo ?? undefined,
   );
   const [visible, setVisible] = useState(true);
   const [page, setPage] = useState(1);
@@ -60,7 +65,6 @@ export function ChapterReader() {
     chapterUrl,
   );
 
-  const current = chapters.find((chapter) => chapter.id === chapterUrl);
   const next = current && nextChapter(chapters, current);
   const name = chapterName(current) || (title ?? "");
   const sourceName = sources.find(
@@ -140,7 +144,11 @@ export function ChapterReader() {
                     : "Load next chapter",
                 onPress: () => {
                   setPage(1);
-                  router.setParams({ chapter: next.id, title: next.title });
+                  router.setParams({
+                    chapter: next.id,
+                    title: next.title,
+                    memo: next.memo ?? undefined,
+                  });
                 },
               }
             }

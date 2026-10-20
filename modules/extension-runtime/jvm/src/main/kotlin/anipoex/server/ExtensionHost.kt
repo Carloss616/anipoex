@@ -171,11 +171,12 @@ class ExtensionHost(dataDir: File) {
         null
     }
 
-    suspend fun pages(sourceId: String, chapterUrl: String): List<Map<String, Any?>> {
+    suspend fun pages(sourceId: String, chapterUrl: String, memo: String?): List<Map<String, Any?>> {
         val source = source(sourceId) as HttpSource
         val chapter = SChapter.create().apply {
             url = chapterUrl
             name = ""
+            if (memo != null) this.memo = Json.parseToJsonElement(memo).jsonObject
         }
         return source.getPageList(chapter).map { page ->
             if (page.imageUrl == null) page.imageUrl = source.getImageUrl(page)
@@ -282,4 +283,6 @@ private fun SChapter.toMap() = mapOf(
     "number" to chapter_number,
     "scanlator" to scanlator,
     "dateUpload" to date_upload,
+    // Opaque to the app: lib 1.6 sources read it back in getPageList; null when the source keeps none.
+    "memo" to memo.takeIf { it.isNotEmpty() }?.toString(),
 )

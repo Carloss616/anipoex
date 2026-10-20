@@ -67,7 +67,7 @@ flowchart LR
 
 Repos, the catalog and the picked source are JavaScript (`src/features/extensions`, `src/features/manga`); only installing and calling a source cross into the runtime.
 
-`pages(sourceId, chapterUrl)` returns `[{ index, imageUrl, headers }]`: the chapter's images with the headers each one needs (Referer, for example). Android and iOS load them with expo-image, sending those headers. Known limit: sources that rewrite or unscramble images in their OkHttp client interceptors don't work yet, since the app downloads with the URL and headers only.
+`pages(sourceId, chapterUrl, memo?)` returns `[{ index, imageUrl, headers }]`: the chapter's images with the headers each one needs (Referer, for example). Android and iOS load them with expo-image, sending those headers. `memo` is the chapter's `SChapter.memo` from `chapters`, as an opaque JSON string (null when empty): lib 1.6 sources store data there while listing and read it back in `getPageList`, so the reader passes it along. Known limit: sources that rewrite or unscramble images in their OkHttp client interceptors don't work yet, since the app downloads with the URL and headers only.
 
 ## Installing an APK on the JVM (desktop and iOS)
 

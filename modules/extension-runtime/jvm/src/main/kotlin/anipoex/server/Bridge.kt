@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -47,7 +48,7 @@ object Bridge {
             "search" -> host.search(string("sourceId"), string("query"), int("page"))
             "chapters" -> host.chapters(string("sourceId"), string("mangaUrl"), string("title"))
             "mangaWebUrl" -> host.mangaWebUrl(string("sourceId"), string("mangaUrl"))
-            "pages" -> host.pages(string("sourceId"), string("chapterUrl"))
+            "pages" -> host.pages(string("sourceId"), string("chapterUrl"), args["memo"]?.jsonPrimitive?.contentOrNull)
             else -> error("Unknown method $method")
         }
     }

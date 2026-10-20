@@ -25,6 +25,7 @@ export const bridgeRuntime = (send: Send): RuntimeApi => {
       call("chapters", { sourceId, mangaUrl, title }),
     mangaWebUrl: (sourceId, mangaUrl) =>
       call("mangaWebUrl", { sourceId, mangaUrl }),
-    pages: (sourceId, chapterUrl) => call("pages", { sourceId, chapterUrl }),
+    pages: (sourceId, chapterUrl, memo) =>
+      call("pages", { sourceId, chapterUrl, memo }),
   };
 };

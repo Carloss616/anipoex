@@ -33,7 +33,12 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
         onPress={() =>
           router.push({
             pathname: "/reader",
-            params: { mediaId, chapter: chapter.id, title: chapter.title },
+            params: {
+              mediaId,
+              chapter: chapter.id,
+              title: chapter.title,
+              memo: chapter.memo ?? undefined,
+            },
           })
         }
         modifiers={[buttonStyle("plain")]}

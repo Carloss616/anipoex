@@ -2,10 +2,17 @@ package anipoex.server
 
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.model.MangasPage
+import eu.kanade.tachiyomi.source.model.Page
+import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
+import eu.kanade.tachiyomi.source.model.SMangaUpdate
+import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import okio.Buffer
@@ -106,6 +113,16 @@ class ExtensionHostTest {
         assertSeeded(host)
     }
 
+    @Test
+    fun chapterMemoReachesPages() {
+        seed(MemoSource::class.java)
+        val host = ExtensionHost(dir)
+        val id = ((host.installed().single()["sources"] as List<*>).single() as Map<*, *>)["id"] as String
+        val chapter = (runBlocking { host.chapters(id, "/m", "M") }["chapters"] as List<*>).single() as Map<*, *>
+        val page = runBlocking { host.pages(id, "/c", chapter["memo"] as String?) }.single()
+        assertEquals("https://example.com/slug", page["imageUrl"])
+    }
+
     private fun serve(apk: File): String {
         server.enqueue(MockResponse.Builder().body(Buffer().write(apk.readBytes())).build())
         return server.url("/${apk.name}").toString()
@@ -114,10 +131,10 @@ class ExtensionHostTest {
     private fun installError(host: ExtensionHost, url: String, key: String): String =
         assertFailsWith<Throwable> { runBlocking { host.install(url, key) } }.toString()
 
-    // An installed previous version: a jar with SeededSource's compiled class and the meta ExtensionHost writes.
-    private fun seed() {
+    // An installed previous version: a jar with the source's compiled class and the meta ExtensionHost writes.
+    private fun seed(source: Class<*> = SeededSource::class.java) {
         exts.mkdirs()
-        val name = SeededSource::class.java.name
+        val name = source.name
         val path = name.replace('.', '/') + ".class"
         ZipOutputStream(File(exts, "$PKG.jar").outputStream()).use { zip ->
             zip.putNextEntry(ZipEntry(path))
@@ -153,4 +170,25 @@ class SeededSource : CatalogueSource {
         }),
         false,
     )
+}
+
+/** Like a lib 1.6 source that keeps a slug in the chapter's memo and reads it back for the pages. */
+class MemoSource : HttpSource() {
+    override val name = "Memo"
+    override val lang = "en"
+    override val supportsLatest = false
+    override val baseUrl = "https://example.com"
+
+    override suspend fun getMangaUpdate(manga: SManga, chapters: List<SChapter>, fetchDetails: Boolean, fetchChapters: Boolean) =
+        SMangaUpdate(
+            manga,
+            listOf(SChapter.create().apply {
+                url = "/c"
+                name = "Ch.1"
+                memo = buildJsonObject { put("slug", "slug") }
+            }),
+        )
+
+    override suspend fun getPageList(chapter: SChapter) =
+        listOf(Page(0, imageUrl = "$baseUrl/${chapter.memo.getValue("slug").jsonPrimitive.content}"))
 }

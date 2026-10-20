@@ -2,6 +2,9 @@
 
 ## 2026-10-19
 
+* **A chapter keeps its source's memo**: the data a source stores on a chapter now reaches
+  the source again when the chapter's pages load, so sources that rely on it no longer
+  fail with "Refresh Chapter List". Updated [chapter](concepts/chapter.md).
 * **The reader shows a save as it starts**: the changed fields appear while the save is in
   flight, so leaving the chapter early never hides a write; adding an unlisted manga at its
   last chapter adds it as Completed. Updated [tracking rules](concepts/tracking-rules.md)

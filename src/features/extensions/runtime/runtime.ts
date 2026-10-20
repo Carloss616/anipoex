@@ -36,6 +36,8 @@ export interface SourceChapter {
   number: number;
   scanlator: string | null;
   dateUpload: number;
+  /** The source's own data for the chapter, as JSON, handed back to `pages`; null when it keeps none. */
+  memo: string | null;
 }
 
 export interface SourcePage {
@@ -58,7 +60,11 @@ export interface RuntimeApi {
   /** The manga's page on the source's website; null when the source has none. */
   mangaWebUrl(sourceId: string, mangaUrl: string): Promise<string | null>;
   /** The chapter's page images, in reading order. */
-  pages(sourceId: string, chapterUrl: string): Promise<SourcePage[]>;
+  pages(
+    sourceId: string,
+    chapterUrl: string,
+    memo?: string,
+  ): Promise<SourcePage[]>;
 }
 
 /** Android, iOS (`expo-module` `ExtensionRuntime`) and the desktop app run extensions; a plain browser lists nothing. */

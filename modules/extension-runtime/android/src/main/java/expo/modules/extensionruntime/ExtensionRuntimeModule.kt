@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.protobuf.ProtoBuf
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.addSingleton
@@ -120,12 +121,13 @@ class ExtensionRuntimeModule : Module() {
       }
     }
 
-    AsyncFunction("pages") Coroutine { sourceId: String, chapterUrl: String ->
+    AsyncFunction("pages") Coroutine { sourceId: String, chapterUrl: String, memo: String? ->
       withContext(Dispatchers.IO) {
         val source = source(sourceId) as HttpSource
         val chapter = SChapter.create().apply {
           url = chapterUrl
           name = ""
+          if (memo != null) this.memo = Json.parseToJsonElement(memo).jsonObject
         }
         // shortcut: hands JS the url and headers; a source that rewrites images in client interceptors needs the module to fetch them itself.
         source.getPageList(chapter).map { page ->
@@ -367,4 +369,6 @@ private fun SChapter.toMap() = mapOf(
   "number" to chapter_number,
   "scanlator" to scanlator,
   "dateUpload" to date_upload,
+  // Opaque to the app: lib 1.6 sources read it back in getPageList; null when the source keeps none.
+  "memo" to memo.takeIf { it.isNotEmpty() }?.toString(),
 )

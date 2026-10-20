@@ -16,6 +16,7 @@ const LOADING: State = { pages: [], loading: true, error: null };
 export function useChapterPages(
   sourceId: string | undefined,
   chapterUrl: string | undefined,
+  memo: string | undefined,
 ) {
   const [state, setState] = useState<State>(EMPTY);
   const ticket = useRef(0);
@@ -35,7 +36,7 @@ export function useChapterPages(
         error: null,
       }));
       try {
-        const pages = await runtime.pages(sourceId, chapterUrl);
+        const pages = await runtime.pages(sourceId, chapterUrl, memo);
         if (current === ticket.current)
           setState({ chapterUrl, pages, loading: false, error: null });
       } catch (error) {
@@ -48,7 +49,7 @@ export function useChapterPages(
           }));
       }
     },
-    [sourceId, chapterUrl],
+    [sourceId, chapterUrl, memo],
   );
 
   useEffect(() => {
