@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { runtime } from "@/features/extensions";
+import { fetchChapters } from "@/features/manga/utils/fetch-chapters";
 import type { SourceMatch } from "@/features/manga/utils/source-match";
 import { type Chapter, toChapters } from "@/features/manga/utils/to-chapters";
 
@@ -33,7 +33,7 @@ export function useSourceChapters(match: SourceMatch | undefined) {
         error: null,
       }));
       try {
-        const { chapters } = await runtime.chapters(sourceId, url, title);
+        const { chapters } = await fetchChapters(sourceId, url, title);
         if (current === ticket.current)
           setState({
             chapters: toChapters(chapters),
