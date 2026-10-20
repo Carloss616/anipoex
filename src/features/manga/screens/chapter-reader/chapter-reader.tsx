@@ -117,6 +117,8 @@ export function ChapterReader() {
         key={chapterUrl}
         data={pages}
         keyExtractor={(item) => String(item.index)}
+        // Each page keeps its own measured ratio and failed state; a recycled row would show another page's.
+        recycleItems={false}
         contentContainerStyle={COLUMN}
         renderItem={renderItem}
         onViewableItemsChanged={onViewableItemsChanged}
