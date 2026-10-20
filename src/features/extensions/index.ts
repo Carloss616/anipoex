@@ -1,5 +1,6 @@
 export * from "./hooks/use-installed-sources";
 export * from "./runtime";
+export { RUNTIME_UNAVAILABLE } from "./runtime/utils/unavailable";
 export * from "./state/extensions";
 export * from "./state/repos";
 export * from "./utils/extension";

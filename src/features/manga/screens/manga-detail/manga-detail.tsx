@@ -7,6 +7,7 @@ import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
 import {
   isRuntimeAvailable,
+  RUNTIME_UNAVAILABLE,
   refreshInstalled,
   useInstalledSources,
 } from "@/features/extensions";
@@ -86,7 +87,7 @@ export function MangaDetail() {
         title: "Pick a source",
         description: isRuntimeAvailable
           ? "Choose where to read this manga."
-          : "Extensions run in the Android, iOS and desktop apps.",
+          : RUNTIME_UNAVAILABLE,
       }
     : match.manga === undefined
       ? {

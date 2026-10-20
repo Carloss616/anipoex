@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Pressable, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
@@ -15,8 +15,12 @@ export interface PageImageProps {
   onRetry: () => void;
 }
 
-/** One page at full width, as tall as its image. */
-export function PageImage({ page, onPress, onRetry }: PageImageProps) {
+/** One page at full width, as tall as its image; memoized so the page counter does not redraw every visible page. */
+export const PageImage = memo(function PageImage({
+  page,
+  onPress,
+  onRetry,
+}: PageImageProps) {
   const [ratio, setRatio] = useState(PLACEHOLDER_RATIO);
   // The page that failed: a reload hands new page objects, which mount a fresh image.
   const [failed, setFailed] = useState<SourcePage>();
@@ -58,4 +62,4 @@ export function PageImage({ page, onPress, onRetry }: PageImageProps) {
       />
     </Pressable>
   );
-}
+});

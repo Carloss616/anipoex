@@ -2,12 +2,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { runtime, type SourcePage } from "@/features/extensions";
 
 interface State {
+  /** The chapter these pages belong to. */
+  chapterUrl?: string;
   pages: SourcePage[];
   loading: boolean;
   error: string | null;
 }
 
 const EMPTY: State = { pages: [], loading: false, error: null };
+const LOADING: State = { pages: [], loading: true, error: null };
 
 /** The chapter's page images from its source; reloads when the chapter changes, nothing is persisted. */
 export function useChapterPages(
@@ -26,6 +29,7 @@ export function useChapterPages(
         return;
       }
       setState((prev) => ({
+        chapterUrl,
         pages: reset ? [] : prev.pages,
         loading: true,
         error: null,
@@ -33,10 +37,11 @@ export function useChapterPages(
       try {
         const pages = await runtime.pages(sourceId, chapterUrl);
         if (current === ticket.current)
-          setState({ pages, loading: false, error: null });
+          setState({ chapterUrl, pages, loading: false, error: null });
       } catch (error) {
         if (current === ticket.current)
           setState({
+            chapterUrl,
             pages: [],
             loading: false,
             error: error instanceof Error ? error.message : String(error),
@@ -54,5 +59,8 @@ export function useChapterPages(
     load(false);
   }, [load]);
 
-  return { ...state, reload };
+  // Until the effect runs, the state still holds the previous chapter (or nothing): never hand those pages out.
+  const { pages, loading, error } =
+    state.chapterUrl === chapterUrl ? state : LOADING;
+  return { pages, loading, error, reload };
 }
