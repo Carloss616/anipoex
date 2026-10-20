@@ -85,6 +85,16 @@ test("upstreamStatusPassesThrough", async () => {
   expect(await response.text()).toBe("");
 });
 
+test("nonImageIs415", async () => {
+  const response = await served(
+    pageStore(),
+    async () =>
+      new Response("<script>", { headers: { "Content-Type": "text/html" } }),
+  );
+  expect(response.status).toBe(415);
+  expect(await response.text()).toBe("");
+});
+
 test("networkFailureIs502", async () => {
   const response = await served(pageStore(), async () => {
     throw new Error("offline");

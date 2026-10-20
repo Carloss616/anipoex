@@ -41,8 +41,8 @@ export async function servePage(store, url, fetch) {
     return empty(502);
   }
   if (!upstream.ok) return empty(upstream.status);
-  const type = upstream.headers.get("Content-Type");
-  return new Response(upstream.body, {
-    headers: type ? { "Content-Type": type } : {},
-  });
+  const type = upstream.headers.get("Content-Type") ?? "";
+  // The scheme serves images only, never a page the renderer could run.
+  if (!type.toLowerCase().startsWith("image/")) return empty(415);
+  return new Response(upstream.body, { headers: { "Content-Type": type } });
 }

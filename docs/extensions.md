@@ -166,7 +166,7 @@ sequenceDiagram
 
 - Requests carry an `id` and run concurrently; replies can come back in any order.
 - If the JVM exits, pending calls get an error and the next call starts it again.
-- Page images: the renderer can't send headers, so the main process rewrites each page's `imageUrl` to `anipoex-page://p/<random id>` and serves it itself with the source's headers (`desktop/pages.js`). It serves only URLs a `pages` reply returned (the latest 1000, in memory), only http(s) upstream, passes the upstream `Content-Type` through, and drops `Origin` (Electron's `net.fetch` fails any request that carries one).
+- Page images: the renderer can't send headers, so the main process rewrites each page's `imageUrl` to `anipoex-page://p/<random id>` and serves it itself with the source's headers (`desktop/pages.js`). It serves only URLs a `pages` reply returned (the latest 1000, in memory), only http(s) upstream, only `image/*` responses (415 otherwise) with their `Content-Type`, and drops `Origin` (Electron's `net.fetch` fails any request that carries one). The page URLs are unguessable capability URLs (random ids), so the scheme needs no origin check.
 - AniList sign-in opens its own window; the main process reads the token from the redirect without loading it.
 - Data lives in `~/Library/Application Support/anipoex/` (`anipoex-desktop/` in development). See [desktop/README.md](../desktop/README.md).
 
