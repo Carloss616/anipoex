@@ -59,9 +59,21 @@ test("sendsHeadersAndPassesContentType", async () => {
   });
   expect(call.url).toBe("https://example.com/0.png");
   expect(call.init.headers).toEqual(HEADERS);
-  expect(call.init.referrer).toBe("https://example.com/");
   expect(response.headers.get("Content-Type")).toBe("image/webp");
   expect(await response.text()).toBe("img");
+});
+
+test("dropsOrigin", async () => {
+  const store = pageStore();
+  const [{ imageUrl }] = store.rewrite([
+    { ...page(0), headers: { ...HEADERS, Origin: "https://example.com" } },
+  ]);
+  let headers;
+  await servePage(store, imageUrl, async (_, init) => {
+    headers = init.headers;
+    return new Response("img");
+  });
+  expect(headers).toEqual(HEADERS);
 });
 
 test("upstreamStatusPassesThrough", async () => {

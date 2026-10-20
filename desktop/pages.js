@@ -29,11 +29,13 @@ export async function servePage(store, url, fetch) {
   let upstream;
   try {
     // shortcut: sources that rewrite images in OkHttp interceptors are not covered, handle them in the extension runtime if one needs it.
-    // `referrer` too: a fetch can drop the Referer header it is given.
+    // Without `Origin`: net.fetch fails a request that carries one (some sources send it) with net::ERR_FAILED.
     upstream = await fetch(page.imageUrl, {
-      headers: page.headers,
-      referrer: page.headers.Referer ?? page.headers.referer,
-      referrerPolicy: "unsafe-url",
+      headers: Object.fromEntries(
+        Object.entries(page.headers).filter(
+          ([name]) => name.toLowerCase() !== "origin",
+        ),
+      ),
     });
   } catch {
     return empty(502);
