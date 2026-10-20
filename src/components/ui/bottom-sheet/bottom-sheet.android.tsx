@@ -82,6 +82,11 @@ function BottomSheetRoot({
     return () => sub.remove();
   }, []);
 
+  // A locked sheet can't be dragged open, so a half-open one would hide the rest of its content.
+  useEffect(() => {
+    if (lockCount > 0) void sheetRef.current?.expand();
+  }, [lockCount]);
+
   useEffect(() => {
     if (isPresented) {
       setMount(true);
