@@ -38,9 +38,12 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
       <ListItem.HeadlineContent>
         <Text style={{ fontWeight: "500" }}>{chapter.title}</Text>
       </ListItem.HeadlineContent>
-      <ListItem.SupportingContent>
-        <Text style={{ typography: "bodyMedium" }}>{chapter.date}</Text>
-      </ListItem.SupportingContent>
+      {/* An empty slot still takes a line and lifts the title off center. */}
+      {chapter.date !== "" && (
+        <ListItem.SupportingContent>
+          <Text style={{ typography: "bodyMedium" }}>{chapter.date}</Text>
+        </ListItem.SupportingContent>
+      )}
       <ListItem.TrailingContent>
         <IconButton
           onClick={noop}

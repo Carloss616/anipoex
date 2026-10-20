@@ -206,8 +206,9 @@ export function SourceSheet({
               <Badge color={status.color}>{status.label}</Badge>
             )}
             {detail !== "" && (
+              // The badge's labelSmall: a second baseline makes M3's ListItem a top-aligned three-line row.
               <Text
-                style={{ typography: "bodySmall" }}
+                style={{ typography: "labelSmall", fontWeight: "400" }}
                 color={m3.onSurfaceVariant}
                 maxLines={1}
                 overflow="ellipsis"
