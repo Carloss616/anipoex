@@ -33,9 +33,15 @@ const chapterName = (chapter: Chapter | undefined) =>
 
 /** A chapter as one continuous vertical scroll of its pages, the end block under the last. */
 export function ChapterReader() {
-  const { mediaId, chapter: chapterUrl } = useLocalSearchParams<{
+  const {
+    mediaId,
+    chapter: chapterUrl,
+    title,
+  } = useLocalSearchParams<{
     mediaId: string;
     chapter: string;
+    /** The row's title, until the chapter list loads (or if it no longer has this chapter). */
+    title?: string;
   }>();
   const router = useRouter();
   const { manga, loading: mangaLoading } = useMangaEntry(mediaId);
@@ -56,7 +62,7 @@ export function ChapterReader() {
 
   const current = chapters.find((chapter) => chapter.id === chapterUrl);
   const next = current && nextChapter(chapters, current);
-  const name = chapterName(current);
+  const name = chapterName(current) || (title ?? "");
   const sourceName = sources.find(
     (source) => source.id === match?.sourceId,
   )?.name;
@@ -99,7 +105,7 @@ export function ChapterReader() {
       />
     ) : pages.length === 0 && (loading || matching) ? (
       <LoadingState />
-    ) : error ? (
+    ) : error && pages.length === 0 ? (
       <EmptyState
         title="Couldn't load this chapter"
         description={error}
@@ -132,7 +138,7 @@ export function ChapterReader() {
                     : "Load next chapter",
                 onPress: () => {
                   setPage(1);
-                  router.setParams({ chapter: next.id });
+                  router.setParams({ chapter: next.id, title: next.title });
                 },
               }
             }

@@ -8,8 +8,8 @@ import { Typography } from "@/components/ui/typography";
 export interface ChapterEndProps {
   /** "Chapter 13". */
   chapter: string;
-  /** What reaching the end saved, or would add once confirmed; "none" shows neither. */
-  save: { state: "saved" | "confirm" | "none"; changes: string[] };
+  /** What reaching the end is saving or saved, or would add once confirmed; "none" shows nothing. */
+  save: { state: "saved" | "saving" | "confirm" | "none"; changes: string[] };
   onUndo: () => void;
   onAdd: () => void;
   onNotNow: () => void;
@@ -38,6 +38,7 @@ export function ChapterEnd({
 }: ChapterEndProps) {
   const insets = useSafeAreaInsets();
   const confirming = save.state === "confirm";
+  const saving = save.state === "saving";
 
   return (
     <View
@@ -52,11 +53,13 @@ export function ChapterEnd({
         <Typography type="h4">{chapter}</Typography>
       </View>
 
-      {save.state === "saved" && (
-        <Alert variant="success" className="items-start">
+      {(save.state === "saved" || saving) && (
+        <Alert variant={saving ? "default" : "success"} className="items-start">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Saved to AniList</Alert.Title>
+            <Alert.Title>
+              {saving ? "Saving to AniList…" : "Saved to AniList"}
+            </Alert.Title>
             <Lines changes={save.changes} />
           </Alert.Content>
           <Button
@@ -64,6 +67,7 @@ export function ChapterEnd({
             size="sm"
             className="-my-2"
             onPress={onUndo}
+            disabled={saving}
             accessibilityLabel="Undo the AniList save"
           >
             Undo
@@ -84,7 +88,7 @@ export function ChapterEnd({
           </View>
           <View className="flex-row gap-2">
             <Button className="flex-1" size="sm" onPress={onAdd}>
-              Add as Reading
+              Add to list
             </Button>
             <Button
               className="flex-1"

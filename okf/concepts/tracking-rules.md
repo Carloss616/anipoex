@@ -1,7 +1,7 @@
 ---
 type: Business Rule
 title: Tracking rules
-description: The side effects a status or progress change applies to a list entry, and how the sheet shows them before saving.
+description: The side effects a status or progress change applies to a list entry, shown by the sheet before saving and by the reader as soon as it saves.
 tags: [tracking, rules]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 verified: { by: human:carlos-espinoza, at: 2026-10-18T00:00:00Z }
@@ -35,6 +35,7 @@ behind the user's back.
 # Reading a chapter
 
 Reaching the end of a chapter in the reader sets progress to the chapter's whole number
-when that is higher, with the progress rules above; a manga not in the list is added as
-Reading only after the user confirms; the reader lists the changed fields like the sheet
-does and offers Undo.
+when that is higher, with the progress rules above; a manga not in the list is added (as
+Reading, or Completed at its last chapter) only after the user confirms. The reader lists
+the changed fields like the sheet does as soon as the save starts, not when it lands, and
+offers Undo once it has.

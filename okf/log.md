@@ -2,6 +2,10 @@
 
 ## 2026-10-19
 
+* **The reader shows a save as it starts**: the changed fields appear while the save is in
+  flight, so leaving the chapter early never hides a write; adding an unlisted manga at its
+  last chapter adds it as Completed. Updated [tracking rules](concepts/tracking-rules.md)
+  and the [concepts index](concepts/index.md).
 * **Reading a chapter sets progress**: reaching the end of a chapter in the reader raises
   progress with the usual rules; a manga not in the list is added as Reading only after
   confirmation. Updated [tracking rules](concepts/tracking-rules.md).

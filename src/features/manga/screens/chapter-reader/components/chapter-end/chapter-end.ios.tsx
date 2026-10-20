@@ -1,9 +1,17 @@
-import { Button, HStack, Image, Spacer, VStack } from "@expo/ui/swift-ui";
+import {
+  Button,
+  HStack,
+  Image,
+  ProgressView,
+  Spacer,
+  VStack,
+} from "@expo/ui/swift-ui";
 import {
   accessibilityLabel,
   background,
   buttonStyle,
   controlSize,
+  disabled,
   foregroundStyle,
   frame,
   glassEffect,
@@ -68,6 +76,7 @@ export function ChapterEnd({
   const successSoft = useThemeColor("success-soft");
   const undoFont = useFont("subheadline", "medium");
   const confirming = save.state === "confirm";
+  const saving = save.state === "saving";
 
   return (
     <Host matchContents={{ vertical: true }} className="w-full">
@@ -92,7 +101,7 @@ export function ChapterEnd({
           </Text>
         </VStack>
 
-        {save.state === "saved" && (
+        {(save.state === "saved" || saving) && (
           <HStack
             alignment="top"
             spacing={12}
@@ -104,9 +113,15 @@ export function ChapterEnd({
               ),
             ]}
           >
-            <Image systemName="checkmark.circle.fill" color={success} />
+            {saving ? (
+              <ProgressView />
+            ) : (
+              <Image systemName="checkmark.circle.fill" color={success} />
+            )}
             <VStack alignment="leading" spacing={4}>
-              <Text weight="semibold">Saved to AniList</Text>
+              <Text weight="semibold">
+                {saving ? "Saving to AniList…" : "Saved to AniList"}
+              </Text>
               <Lines changes={save.changes} />
             </VStack>
             <Spacer />
@@ -116,6 +131,7 @@ export function ChapterEnd({
               modifiers={[
                 buttonStyle("borderless"),
                 undoFont,
+                disabled(saving),
                 accessibilityLabel("Undo the AniList save"),
               ]}
             />
@@ -148,7 +164,7 @@ export function ChapterEnd({
             </VStack>
             <HStack spacing={8}>
               <Wide
-                label="Add as Reading"
+                label="Add to list"
                 style="glassProminent"
                 onPress={onAdd}
               />

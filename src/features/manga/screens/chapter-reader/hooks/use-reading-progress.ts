@@ -11,18 +11,15 @@ import type { ChapterEndProps } from "../components/chapter-end";
 
 interface Notice {
   chapterId: string;
-  state: "saved" | "confirm";
+  state: "saving" | "saved" | "confirm";
   result: ReadingSave;
-  /** The entry "Add as Reading" created, which Undo deletes. */
+  /** The entry "Add to list" created, which Undo deletes. */
   createdId?: number;
 }
 
 const NONE: ChapterEndProps["save"] = { state: "none", changes: [] };
 
-/**
- * Saves AniList progress when a chapter's end is reached, with the tracking
- * sheet's rules; each chapter saves once per reader session, Undo included.
- */
+/** Saves AniList progress at a chapter's end with the tracking sheet's rules, once per chapter per reader session. */
 export function useReadingProgress(
   manga: {
     id: number;
@@ -38,7 +35,13 @@ export function useReadingProgress(
   const [notice, setNotice] = useState<Notice>();
   const done = useRef(new Set<string>());
   const notNow = useRef(false);
+  // A second tap lands before the re-render that hides or disables the button.
+  const busy = useRef(false);
   const ids = { mediaId: manga.id, entryId };
+
+  // A write settles only the notice it started from: another chapter's may have replaced it meanwhile.
+  const settle = (from: Notice, to?: Notice) =>
+    setNotice((shown) => (shown === from ? to : shown));
 
   const reached = (chapter: Chapter) => {
     // Every list entry has a status: without one the entry hasn't loaded, and saving would blank its fields.
@@ -59,31 +62,46 @@ export function useReadingProgress(
         setNotice({ chapterId: chapter.id, state: "confirm", result });
       return;
     }
+    // Shown before the write lands, so leaving early never hides it.
+    const saving: Notice = { chapterId: chapter.id, state: "saving", result };
+    setNotice(saving);
     save(toSaveVariables(result.before, result.after, ids)).then(
-      () => setNotice({ chapterId: chapter.id, state: "saved", result }),
+      () => settle(saving, { ...saving, state: "saved" }),
       // useSaveTracking already toasted it.
-      () => {},
+      () => settle(saving),
     );
   };
 
   const add = () => {
-    if (!notice) return;
-    save(toSaveVariables(notice.result.before, notice.result.after, ids)).then(
-      (createdId) => setNotice({ ...notice, state: "saved", createdId }),
-      () => {},
-    );
+    if (notice?.state !== "confirm" || busy.current) return;
+    busy.current = true;
+    const saving: Notice = { ...notice, state: "saving" };
+    setNotice(saving);
+    save(toSaveVariables(notice.result.before, notice.result.after, ids))
+      .then(
+        (createdId) => settle(saving, { ...saving, state: "saved", createdId }),
+        () => settle(saving, notice),
+      )
+      .finally(() => {
+        busy.current = false;
+      });
   };
 
   const undo = () => {
-    if (!notice) return;
+    if (notice?.state !== "saved" || busy.current) return;
+    busy.current = true;
     const { before, after } = notice.result;
     (notice.createdId != null
       ? remove(notice.createdId)
       : save(toSaveVariables(after, before, ids))
-    ).then(
-      () => setNotice(undefined),
-      () => {},
-    );
+    )
+      .then(
+        () => settle(notice),
+        () => {},
+      )
+      .finally(() => {
+        busy.current = false;
+      });
   };
 
   return {

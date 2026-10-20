@@ -1,5 +1,6 @@
 import {
   Button,
+  CircularProgressIndicator,
   Column,
   OutlinedButton,
   Row,
@@ -13,6 +14,7 @@ import {
   paddingAll,
   Shapes,
   semantics,
+  size,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -38,6 +40,7 @@ export function ChapterEnd({
   const insets = useSafeAreaInsets();
   const m3 = useThemeM3Colors();
   const confirming = save.state === "confirm";
+  const saving = save.state === "saving";
 
   const lines = save.changes.map((line) => (
     <Text
@@ -69,7 +72,7 @@ export function ChapterEnd({
           <Text style={{ typography: "titleMedium" }}>{chapter}</Text>
         </Column>
 
-        {save.state === "saved" && (
+        {(save.state === "saved" || saving) && (
           <Row
             verticalAlignment="top"
             horizontalArrangement={{ spacedBy: 12 }}
@@ -80,7 +83,15 @@ export function ChapterEnd({
               paddingAll(16),
             ]}
           >
-            <Icon name={Icons.checkCircle} size={24} color={m3.secondary} />
+            {saving ? (
+              <CircularProgressIndicator
+                color={m3.secondary}
+                strokeWidth={3}
+                modifiers={[size(24, 24)]}
+              />
+            ) : (
+              <Icon name={Icons.checkCircle} size={24} color={m3.secondary} />
+            )}
             <Column
               verticalArrangement={{ spacedBy: 4 }}
               modifiers={[weight(1)]}
@@ -89,12 +100,13 @@ export function ChapterEnd({
                 style={{ typography: "titleMedium" }}
                 color={m3.onSecondaryContainer}
               >
-                Saved to AniList
+                {saving ? "Saving to AniList…" : "Saved to AniList"}
               </Text>
               {lines}
             </Column>
             <TextButton
               onClick={onUndo}
+              enabled={!saving}
               modifiers={[
                 semantics({ contentDescription: "Undo the AniList save" }),
               ]}
@@ -128,7 +140,7 @@ export function ChapterEnd({
             </Column>
             <Row horizontalArrangement={{ spacedBy: 8 }}>
               <Button onClick={onAdd} modifiers={[weight(1)]}>
-                <Text style={LABEL}>Add as Reading</Text>
+                <Text style={LABEL}>Add to list</Text>
               </Button>
               <OutlinedButton onClick={onNotNow} modifiers={[weight(1)]}>
                 <Text style={LABEL}>Not now</Text>

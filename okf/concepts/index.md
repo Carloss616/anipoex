@@ -13,7 +13,7 @@ Domain ideas and rules. Read these before the [operations](../operations/) and
 * [Manga](manga.md) - An AniList media of type MANGA: titles, cover, genres, publication status, chapter total.
 * [List entry](list-entry.md) - The user's row for one manga: status, progress, score, dates; created on first save.
 * [List status](list-status.md) - The six places a manga can be filed, their labels, and the `?list=` param.
-* [Tracking rules](tracking-rules.md) - The side effects a status or progress change applies, shown before saving.
+* [Tracking rules](tracking-rules.md) - The side effects a status or progress change applies, shown before or as they are saved.
 * [Score format](score-format.md) - The viewer's scoring scale; scores are read and saved in it.
 * [Fuzzy date](fuzzy-date.md) - AniList's year/month/day dates, how the form reads them, and why a save leaves a partial one alone.
 

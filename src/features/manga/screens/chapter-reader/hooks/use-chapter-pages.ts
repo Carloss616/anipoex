@@ -39,13 +39,13 @@ export function useChapterPages(
         if (current === ticket.current)
           setState({ chapterUrl, pages, loading: false, error: null });
       } catch (error) {
+        // A failed reload keeps what it had on screen; a failed first load has nothing to keep.
         if (current === ticket.current)
-          setState({
-            chapterUrl,
-            pages: [],
+          setState((prev) => ({
+            ...prev,
             loading: false,
             error: error instanceof Error ? error.message : String(error),
-          });
+          }));
       }
     },
     [sourceId, chapterUrl],

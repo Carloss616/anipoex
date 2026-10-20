@@ -49,6 +49,16 @@ describe("readingSave", () => {
     expect(readingSave(entry(), -1, 48, TODAY)).toBeNull();
   });
 
+  it("changes nothing past the total of a completed entry", () => {
+    const save = readingSave(
+      entry({ status: MediaListStatus.Completed, progress: 48 }),
+      49,
+      48,
+      TODAY,
+    );
+    expect(save?.changes).toEqual([]);
+  });
+
   it("adds an unlisted manga as Reading", () => {
     const save = readingSave(null, 1, 62, TODAY);
     expect(save?.changes).toEqual([
@@ -57,5 +67,14 @@ describe("readingSave", () => {
       `Start date → ${DAY}`,
     ]);
     expect(save?.listed).toBe(false);
+  });
+
+  it("adds an unlisted manga at its last chapter as Completed", () => {
+    expect(readingSave(null, 48, 48, TODAY)?.changes).toEqual([
+      "Status → Completed",
+      "Progress → 48/48",
+      `Start date → ${DAY}`,
+      `Finish date → ${DAY}`,
+    ]);
   });
 });
