@@ -22,6 +22,8 @@ export interface DetailListProps {
   total: number;
   /** The section header's trailing control (the source picker). */
   action: React.ReactElement;
+  /** The AniList id the rows open the reader with. */
+  mediaId: number;
   entryId: number | null | undefined;
   /** The header at rest, from the screen's `useMaxHeaderHeight`; native only. */
   maxHeaderHeight: number;
@@ -47,6 +49,7 @@ export function DetailList({
   loading,
   empty,
   action,
+  mediaId,
   entryId,
   className,
 }: DetailListProps) {
@@ -87,7 +90,7 @@ export function DetailList({
             )}
           >
             {index > 0 && <Item.Separator className="mx-4" />}
-            <ChapterItem chapter={item} entryId={entryId} />
+            <ChapterItem chapter={item} mediaId={mediaId} entryId={entryId} />
           </Surface>
         </View>
       )}

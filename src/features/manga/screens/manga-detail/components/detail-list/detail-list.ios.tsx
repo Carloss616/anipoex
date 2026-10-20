@@ -36,6 +36,7 @@ export function DetailList({
   loading,
   empty,
   action,
+  mediaId,
   entryId,
   maxHeaderHeight,
   onRefresh,
@@ -106,7 +107,13 @@ export function DetailList({
               keyExtractor={(chapter) => String(chapter.id)}
               modifiers={[NO_INSETS]}
             >
-              {({ item }) => <ChapterItem chapter={item} entryId={entryId} />}
+              {({ item }) => (
+                <ChapterItem
+                  chapter={item}
+                  mediaId={mediaId}
+                  entryId={entryId}
+                />
+              )}
             </List.ForEach>
           </Section>
         )}

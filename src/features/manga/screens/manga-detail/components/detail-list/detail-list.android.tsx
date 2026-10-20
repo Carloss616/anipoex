@@ -45,6 +45,7 @@ export function DetailList({
   loading,
   empty,
   action,
+  mediaId,
   entryId,
   maxHeaderHeight,
   refreshing,
@@ -129,7 +130,11 @@ export function DetailList({
                   {index > 0 && (
                     <HorizontalDivider modifiers={[padding(16, 0, 16, 0)]} />
                   )}
-                  <ChapterItem chapter={item} entryId={entryId} />
+                  <ChapterItem
+                    chapter={item}
+                    mediaId={mediaId}
+                    entryId={entryId}
+                  />
                 </Column>
               </Surface>
             )}

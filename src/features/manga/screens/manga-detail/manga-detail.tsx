@@ -11,6 +11,7 @@ import {
   useInstalledSources,
 } from "@/features/extensions";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
+import { useSourceChapters } from "@/features/manga/hooks/use-source-chapters";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
@@ -21,7 +22,6 @@ import { DetailHeader } from "./components/detail-header";
 import { DetailList } from "./components/detail-list";
 import { Hero } from "./components/hero";
 import { SourcePicker } from "./components/source-picker";
-import { useSourceChapters } from "./hooks/use-source-chapters";
 
 const MENU_ACTIONS = [
   {
@@ -159,6 +159,7 @@ export function MangaDetail() {
         loading={matching || chaptersLoading || (!!pendingId && !resumed)}
         empty={empty}
         action={<SourcePicker manga={manga} />}
+        mediaId={manga.id}
         entryId={manga.mediaListEntry?.id}
         header={<DetailHeader manga={manga} />}
       />

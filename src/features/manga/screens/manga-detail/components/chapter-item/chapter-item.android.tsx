@@ -1,5 +1,10 @@
 import { IconButton, ListItem } from "@expo/ui/jetpack-compose";
-import { alpha, semantics } from "@expo/ui/jetpack-compose/modifiers";
+import {
+  alpha,
+  clickable,
+  semantics,
+} from "@expo/ui/jetpack-compose/modifiers";
+import { useRouter } from "expo-router";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
@@ -7,14 +12,23 @@ import { isRead } from "@/features/manga/utils/to-chapters";
 import { noop } from "@/utils/utils";
 import type { ChapterItemProps } from "./chapter-item";
 
-export function ChapterItem({ chapter, entryId }: ChapterItemProps) {
+export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
+  const router = useRouter();
   // Per row, not per screen: a progress change re-renders the rows only.
   const read = isRead(useTrackingEntry(entryId)?.progress ?? 0, chapter.number);
 
   return (
     <ListItem
       colors={{ containerColor: "transparent" }}
-      modifiers={read ? [alpha(0.64)] : []}
+      modifiers={[
+        clickable(() =>
+          router.push({
+            pathname: "/reader",
+            params: { mediaId, chapter: chapter.id },
+          }),
+        ),
+        ...(read ? [alpha(0.64)] : []),
+      ]}
     >
       <ListItem.HeadlineContent>
         <Text style={{ fontWeight: "500" }}>{chapter.title}</Text>

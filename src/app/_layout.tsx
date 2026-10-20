@@ -62,6 +62,10 @@ function Layout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!token} redirectTo="/sign-in">
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="reader"
+          options={{ presentation: "fullScreenModal" }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!token} redirectTo="/">
         <Stack.Screen name="sign-in" options={{ presentation: "modal" }} />
