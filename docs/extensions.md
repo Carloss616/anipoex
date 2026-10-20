@@ -62,6 +62,7 @@ flowchart LR
     I --> S["Manga detail → Source:<br/>pick one of the installed sources"]
     S --> M["Match the AniList manga<br/>by title in that source"]
     M --> L["Chapter list<br/>from the source"]
+    L --> P["Read a chapter<br/>pages from the source"]
 ```
 
 Repos, the catalog and the picked source are JavaScript (`src/features/extensions`, `src/features/manga`); only installing and calling a source cross into the runtime.
