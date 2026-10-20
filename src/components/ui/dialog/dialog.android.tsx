@@ -4,31 +4,28 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { EnsureHost } from "../host";
 import { extractTrigger, Trigger } from "./components/trigger";
-import type { DialogProps } from "./dialog";
+import type { DialogAction, DialogProps } from "./dialog";
+import { dialogActions } from "./utils";
 
 const LABEL = { typography: "labelLarge" } as const;
 
 /**
- * M3's dialog: both actions are text buttons, the confirming one in the
- * error color when it destroys something.
+ * M3's dialog: every action is a text button, in the error color when it
+ * destroys something.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/alertdialog/
  */
-function DialogRoot({
-  children,
-  title,
-  description,
-  confirmLabel,
-  onConfirm,
-  cancelLabel = "Cancel",
-  destructive = false,
-  open,
-  onOpenChange,
-}: DialogProps) {
+function DialogRoot(props: DialogProps) {
+  const { children, title, description, open, onOpenChange } = props;
   const [uncontrolled, setUncontrolled] = useState(false);
   const isOpen = open ?? uncontrolled;
   const setOpen = onOpenChange ?? setUncontrolled;
   const m3 = useThemeM3Colors();
+  const { actions, cancel } = dialogActions(props);
+  const run = (action: DialogAction) => () => {
+    setOpen(false);
+    action.onPress();
+  };
 
   return (
     <EnsureHost matchContents>
@@ -49,20 +46,25 @@ function DialogRoot({
             </AlertDialog.Text>
           )}
           <AlertDialog.DismissButton>
-            <TextButton onClick={() => setOpen(false)}>
-              <Text style={LABEL}>{cancelLabel}</Text>
+            <TextButton onClick={run(cancel)}>
+              <Text style={LABEL}>{cancel.label}</Text>
             </TextButton>
           </AlertDialog.DismissButton>
+          {/* M3 flows every button in the slot onto the action row. */}
           <AlertDialog.ConfirmButton>
-            <TextButton
-              onClick={() => {
-                setOpen(false);
-                onConfirm();
-              }}
-              colors={destructive ? { contentColor: m3.error } : undefined}
-            >
-              <Text style={LABEL}>{confirmLabel}</Text>
-            </TextButton>
+            {actions.map((action) => (
+              <TextButton
+                key={action.label}
+                onClick={run(action)}
+                colors={
+                  action.role === "destructive"
+                    ? { contentColor: m3.error }
+                    : undefined
+                }
+              >
+                <Text style={LABEL}>{action.label}</Text>
+              </TextButton>
+            ))}
           </AlertDialog.ConfirmButton>
         </AlertDialog>
       )}

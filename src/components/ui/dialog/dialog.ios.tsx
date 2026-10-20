@@ -4,27 +4,26 @@ import { Text } from "@/components/native/swift-ui/text";
 import { EnsureHost } from "../host";
 import { extractTrigger, Trigger } from "./components/trigger";
 import type { DialogProps } from "./dialog";
+import { dialogActions } from "./utils";
 
 /**
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/confirmationdialog/
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/alert/
  */
-function DialogRoot({
-  children,
-  title,
-  description,
-  confirmLabel,
-  onConfirm,
-  cancelLabel = "Cancel",
-  destructive = false,
-  alert = false,
-  open,
-  onOpenChange,
-}: DialogProps) {
+function DialogRoot(props: DialogProps) {
+  const {
+    children,
+    title,
+    description,
+    alert = false,
+    open,
+    onOpenChange,
+  } = props;
   const [uncontrolled, setUncontrolled] = useState(false);
   const isOpen = open ?? uncontrolled;
   const setOpen = onOpenChange ?? setUncontrolled;
   const Root = alert ? Alert : ConfirmationDialog;
+  const { actions, cancel } = dialogActions(props);
 
   return (
     <EnsureHost matchContents>
@@ -43,19 +42,17 @@ function DialogRoot({
           )}
         </Root.Trigger>
         <Root.Actions>
-          <Button
-            label={confirmLabel}
-            role={destructive ? "destructive" : undefined}
-            onPress={() => {
-              setOpen(false);
-              onConfirm();
-            }}
-          />
-          <Button
-            label={cancelLabel}
-            role="cancel"
-            onPress={() => setOpen(false)}
-          />
+          {[...actions, cancel].map((action) => (
+            <Button
+              key={action.label}
+              label={action.label}
+              role={action.role}
+              onPress={() => {
+                setOpen(false);
+                action.onPress();
+              }}
+            />
+          ))}
         </Root.Actions>
         {description && (
           <Root.Message>

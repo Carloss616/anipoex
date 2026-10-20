@@ -45,6 +45,14 @@
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
               },
               "@expo/ui/community/bottom-sheet": "Import from @/components/ui/sheet",
+              "@expo/ui/jetpack-compose": {
+                "importNames": ["AlertDialog", "BasicAlertDialog"],
+                "message": "Use Dialog from @/components/ui/dialog"
+              },
+              "@expo/ui/swift-ui": {
+                "importNames": ["Alert", "ConfirmationDialog"],
+                "message": "Use Dialog from @/components/ui/dialog"
+              },
               "react-native": {
                 "importNames": ["ActivityIndicator", "TouchableNativeFeedback"],
                 "message": "Import from @/components/layout/<component> or @/components/ui/<component>"

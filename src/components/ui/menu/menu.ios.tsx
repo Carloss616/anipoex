@@ -74,7 +74,7 @@ export function Menu({ items, children }: MenuProps) {
       title={config?.title ?? ""}
       description={config?.description}
       confirmLabel={config?.confirmLabel ?? ""}
-      destructive={pending?.destructive}
+      role={pending?.destructive ? "destructive" : undefined}
       onConfirm={() => pending?.onPress()}
       open={!!config}
       onOpenChange={(next) => {

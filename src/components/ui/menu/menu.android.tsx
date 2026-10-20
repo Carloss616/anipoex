@@ -63,7 +63,7 @@ export function Menu({ items, children }: MenuProps) {
           onOpenChange={(next) => {
             if (!next) close();
           }}
-          destructive={pending.destructive}
+          role={pending.destructive ? "destructive" : undefined}
           onConfirm={pending.onPress}
         />
       )}

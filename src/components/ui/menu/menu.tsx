@@ -5,8 +5,9 @@ import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 
+// The single-confirm form: a menu row confirms one action.
 export type MenuItemDialogConfig = Pick<
-  DialogProps,
+  Extract<DialogProps, { confirmLabel: string }>,
   "title" | "description" | "confirmLabel"
 >;
 
@@ -108,7 +109,7 @@ export function Menu({ items, children, align = "end" }: MenuProps) {
           onOpenChange={(next) => {
             if (!next) close();
           }}
-          destructive={pending.destructive}
+          role={pending.destructive ? "destructive" : undefined}
           onConfirm={pending.onPress}
         />
       )}
