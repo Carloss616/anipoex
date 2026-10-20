@@ -64,6 +64,11 @@ export const Icons = {
   }),
 
   // Navigation
+  back: Icon.select({
+    ios: "chevron.left",
+    android: require("@expo/material-symbols/arrow_back.xml"),
+    web: "chevron-left",
+  }),
   chevronRight: Icon.select({
     ios: "chevron.right",
     android: require("@expo/material-symbols/chevron_right.xml"),

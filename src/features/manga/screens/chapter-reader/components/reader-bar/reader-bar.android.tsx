@@ -13,11 +13,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ReaderBarProps } from "./reader-bar";
-
-const BACK = require("@expo/material-symbols/arrow_back.xml");
 
 export function ReaderBar({
   chapter,
@@ -51,7 +49,7 @@ export function ReaderBar({
             onClick={onBack}
             modifiers={[semantics({ contentDescription: "Back" })]}
           >
-            <Icon name={BACK} size={BUTTON_ICON_SIZE} color="inherit" />
+            <Icon name={Icons.back} size={BUTTON_ICON_SIZE} color="inherit" />
           </IconButton>
           <Column modifiers={[weight(1)]}>
             <Text

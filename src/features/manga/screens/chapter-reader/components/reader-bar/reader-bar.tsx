@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 
 export interface ReaderBarProps {
@@ -41,7 +41,7 @@ export function ReaderBar({
           onPress={onBack}
           accessibilityLabel="Back"
         >
-          <Icon name="chevron-left" size={BUTTON_ICON_SIZE} />
+          <Icon name={Icons.back} size={BUTTON_ICON_SIZE} />
         </Button>
         <View className="min-w-0 flex-1">
           <Typography type="body-sm" weight="semibold" numberOfLines={1}>
