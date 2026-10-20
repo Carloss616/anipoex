@@ -6,8 +6,8 @@
 
 static NSURL *frameworkURL, *jarsURL, *dataURL;
 
-// Starts every call at once, each on its own 8 MiB thread as the app does, and waits for all of them.
-static NSArray<NSString *> *callAll(NSArray<NSArray<NSString *> *> *calls) {
+// Starts every call at once, each on its own thread with that stack, and waits for all of them.
+static NSArray<NSString *> *callAllWithStack(NSArray<NSArray<NSString *> *> *calls, NSUInteger stackSize) {
   NSMutableArray<NSString *> *results = [NSMutableArray array];
   dispatch_group_t group = dispatch_group_create();
   for (NSUInteger i = 0; i < calls.count; i++) {
@@ -18,12 +18,15 @@ static NSArray<NSString *> *callAll(NSArray<NSArray<NSString *> *> *calls) {
       @synchronized(results) { results[i] = envelope; }
       dispatch_group_leave(group);
     }];
-    thread.stackSize = 8 << 20;
+    thread.stackSize = stackSize;
     [thread start];
   }
   dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
   return results;
 }
+
+// 8 MiB, as the app does.
+static NSArray<NSString *> *callAll(NSArray<NSArray<NSString *> *> *calls) { return callAllWithStack(calls, 8 << 20); }
 
 static NSString *call(NSString *method, NSString *argsJson) { return callAll(@[@[method, argsJson]])[0]; }
 
@@ -38,6 +41,10 @@ static void report(const char *name, BOOL ok, NSString *envelope) {
 }
 
 static void runMain(void) {
+  // Before the boot, which the guard must not reach.
+  NSString *small = callAllWithStack(@[@[@"installed", @"{}"]], 512 << 10)[0];
+  report("smallStack", [small hasPrefix:@"{\"error\":\"The extension runtime needs a thread with an 8 MiB stack"], small);
+
   // First, so both requests race the lazy boot.
   NSArray<NSString *> *both = callAll(@[@[@"installed", @"{}"], @[@"installed", @"{}"]]);
   report("concurrent", hasResult(both[0]) && hasResult(both[1]), [both componentsJoinedByString:@" | "]);

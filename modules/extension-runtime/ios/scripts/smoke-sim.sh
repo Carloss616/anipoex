@@ -22,7 +22,7 @@ run "$WORK/no-jars" "$WORK/no-jars-data" missingJars
 grep -aoE '(PASS|FAIL|SKIP) .*' "$WORK/out" > "$WORK/results" || true
 cat "$WORK/results"
 failed=0
-for name in concurrent installedEmpty utf16RoundTrip missingJars; do grep -qx "PASS $name" "$WORK/results" || failed=1; done
+for name in smallStack concurrent installedEmpty utf16RoundTrip missingJars; do grep -qx "PASS $name" "$WORK/results" || failed=1; done
 grep -qxE '(PASS|SKIP) install' "$WORK/results" || failed=1
 if grep -q '^FAIL' "$WORK/results" || [ "$failed" = 1 ]; then
   echo "smoke failed; output in $WORK" >&2

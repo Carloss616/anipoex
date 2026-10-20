@@ -10,7 +10,11 @@ public class ExtensionRuntimeModule: Module {
         promise.resolve(#"{"error":"Extension runtime failed to start: ExtensionRuntime.bundle is missing from the app"}"#)
         return
       }
-      let framework = Bundle.main.privateFrameworksURL!.appendingPathComponent("AnipoexJDK.framework")
+      guard let frameworks = Bundle.main.privateFrameworksURL else {
+        promise.resolve(#"{"error":"Extension runtime failed to start: the app has no Frameworks folder"}"#)
+        return
+      }
+      let framework = frameworks.appendingPathComponent("AnipoexJDK.framework")
       let data = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("extensions")
       // Zero turns a stack overflow into a crash instead of a StackOverflowError, and a GCD thread has only 512 KiB.
       let thread = Thread {

@@ -14,7 +14,8 @@ static jmethodID bridgeCall;
 
 static NSString *toJson(NSDictionary *object) {
   NSData *data = [NSJSONSerialization dataWithJSONObject:object options:NSJSONWritingWithoutEscapingSlashes error:nil];
-  return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  NSString *json = data ? [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] : nil;
+  return json ?: @"{\"error\":\"The extension runtime's message could not be encoded as JSON\"}";
 }
 
 static NSString *errorEnvelope(NSString *message) { return toJson(@{@"error": message}); }
@@ -27,8 +28,13 @@ static jstring toJava(JNIEnv *env, NSString *string) {
   return (*env)->NewString(env, chars.bytes, (jsize)length);
 }
 
+// Returns nil when the VM can't hand over the characters (out of memory).
 static NSString *fromJava(JNIEnv *env, jstring string) {
   const jchar *chars = (*env)->GetStringChars(env, string, NULL);
+  if (!chars) {
+    (*env)->ExceptionClear(env);
+    return nil;
+  }
   NSString *result = [NSString stringWithCharacters:chars length:(NSUInteger)(*env)->GetStringLength(env, string)];
   (*env)->ReleaseStringChars(env, string, chars);
   return result;
@@ -45,14 +51,19 @@ static NSString *takeException(JNIEnv *env) {
     (*env)->ExceptionClear(env);
     return @"Java exception";
   }
-  return fromJava(env, text);
+  return fromJava(env, text) ?: @"Java exception";
 }
 
 static NSString *callBridge(JNIEnv *env, NSString *method, NSString *argsJson) {
-  jstring out = (*env)->CallStaticObjectMethod(env, bridge, bridgeCall, toJava(env, method), toJava(env, argsJson));
+  jstring javaMethod = toJava(env, method);
+  jstring javaArgs = javaMethod ? toJava(env, argsJson) : NULL;
+  // A failed NewString leaves an exception pending, and no JNI call may run on top of it.
+  if (!javaArgs) return errorEnvelope(takeException(env) ?: @"Could not pass the request to the extension runtime");
+  jstring out = (*env)->CallStaticObjectMethod(env, bridge, bridgeCall, javaMethod, javaArgs);
   NSString *exception = takeException(env);
   if (exception) return errorEnvelope(exception);
-  return out ? fromJava(env, out) : errorEnvelope(@"Bridge.call returned null");
+  if (!out) return errorEnvelope(@"Bridge.call returned null");
+  return fromJava(env, out) ?: errorEnvelope(@"Could not read the extension runtime's reply");
 }
 
 // Finds Bridge and runs init on the thread that created the VM; returns the failure, or nil.
@@ -80,8 +91,11 @@ static NSString *boot(NSURL *frameworkURL, NSURL *jarsURL, NSURL *dataURL) {
 
   NSFileManager *files = NSFileManager.defaultManager;
   NSString *tmp = [NSTemporaryDirectory() stringByAppendingString:@"extensions"];
-  [files createDirectoryAtPath:tmp withIntermediateDirectories:YES attributes:nil error:nil];
-  [files createDirectoryAtURL:dataURL withIntermediateDirectories:YES attributes:nil error:nil];
+  NSError *folderError;
+  if (![files createDirectoryAtPath:tmp withIntermediateDirectories:YES attributes:nil error:&folderError] ||
+      ![files createDirectoryAtURL:dataURL withIntermediateDirectories:YES attributes:nil error:&folderError]) {
+    return [@"could not create its folders: " stringByAppendingString:folderError.localizedDescription];
+  }
 
   NSMutableArray<NSString *> *classPath = [NSMutableArray array];
   NSArray<NSString *> *names = [[files contentsOfDirectoryAtPath:jarsURL.path error:nil] sortedArrayUsingSelector:@selector(compare:)];
@@ -108,6 +122,7 @@ static NSString *boot(NSURL *frameworkURL, NSURL *jarsURL, NSURL *dataURL) {
   JavaVMInitArgs args = {.version = JNI_VERSION_1_8, .nOptions = (jint)options.count, .options = vmOptions, .ignoreUnrecognized = JNI_FALSE};
 
   // The VM takes its path encoding (sun.jnu.encoding) from the C locale, which is ASCII in an app without LANG; non-ASCII paths would fail.
+  // shortcut: LC_CTYPE is process-wide (set only when unset), so other C code sees UTF-8 too; scope it to the VM if native code that depends on the C locale ever shares the process.
   setenv("LC_CTYPE", "en_US.UTF-8", 0);
   loadFunctions();
   JNIEnv *env;
@@ -123,6 +138,8 @@ static NSString *boot(NSURL *frameworkURL, NSURL *jarsURL, NSURL *dataURL) {
 }
 
 NSString *AnipoexJvmCall(NSString *method, NSString *argsJson, NSURL *frameworkURL, NSURL *jarsURL, NSURL *dataURL) {
+  // Zero crashes the app on a stack overflow instead of throwing StackOverflowError, so a smaller stack is refused up front.
+  if (pthread_get_stacksize_np(pthread_self()) < (8 << 20)) return errorEnvelope(@"The extension runtime needs a thread with an 8 MiB stack");
   pthread_mutex_lock(&bootLock);
   if (!bootAttempted) {
     bootAttempted = YES;
