@@ -1,11 +1,4 @@
-import {
-  Button,
-  HStack,
-  Image,
-  ProgressView,
-  Spacer,
-  VStack,
-} from "@expo/ui/swift-ui";
+import { Button, HStack, Image, Spacer, VStack } from "@expo/ui/swift-ui";
 import {
   accessibilityLabel,
   background,
@@ -23,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GUTTER } from "@/components/native/constants";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
+import { Loader } from "@/components/ui/loader";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { ChapterEndProps } from "./chapter-end";
 
@@ -114,7 +108,7 @@ export function ChapterEnd({
             ]}
           >
             {saving ? (
-              <ProgressView />
+              <Loader size="md" />
             ) : (
               <Image systemName="checkmark.circle.fill" color={success} />
             )}

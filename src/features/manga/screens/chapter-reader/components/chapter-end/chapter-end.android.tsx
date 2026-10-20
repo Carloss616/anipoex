@@ -1,6 +1,5 @@
 import {
   Button,
-  CircularProgressIndicator,
   Column,
   OutlinedButton,
   Row,
@@ -14,7 +13,6 @@ import {
   paddingAll,
   Shapes,
   semantics,
-  size,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,6 +20,7 @@ import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ChapterEndProps } from "./chapter-end";
 
@@ -84,11 +83,7 @@ export function ChapterEnd({
             ]}
           >
             {saving ? (
-              <CircularProgressIndicator
-                color={m3.secondary}
-                strokeWidth={3}
-                modifiers={[size(24, 24)]}
-              />
+              <Loader size="sm" />
             ) : (
               <Icon name={Icons.checkCircle} size={24} color={m3.secondary} />
             )}
