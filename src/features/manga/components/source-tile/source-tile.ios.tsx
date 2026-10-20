@@ -6,11 +6,10 @@ import {
   frame,
   strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
-import { Image } from "expo-image";
 import { useState } from "react";
 import { useCSSVariable } from "uniwind";
+import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
-import { RNHostView } from "@/components/ui/host";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
 import type { SourceTileProps } from "./source-tile";
@@ -54,15 +53,11 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
         </Text>
       )}
       {iconUrl && (
-        <RNHostView>
-          <Image
-            // Sized up front: expo-image skips a load while it measures 0×0.
-            style={{ width: SIDE, height: SIDE }}
-            source={iconUrl}
-            contentFit="cover"
-            onLoad={() => setLoadedUrl(iconUrl)}
-          />
-        </RNHostView>
+        <Image
+          url={iconUrl}
+          modifiers={[frame({ width: SIDE, height: SIDE })]}
+          onLoad={() => setLoadedUrl(iconUrl)}
+        />
       )}
     </ZStack>
   );

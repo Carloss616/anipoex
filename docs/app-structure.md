@@ -32,7 +32,7 @@ anipoex/
 │   │   │   │   ├── <component>.tsx
 │   │   │   │   └── index.ts         # export * from './<component>'
 │   │   │   └── <component>.tsx      # simple component — single file, no folder
-│   │   └── native/                  # native Text, TabbedPager and constants for SwiftUI / Compose
+│   │   └── native/                  # native Text, Image, TabbedPager and constants for SwiftUI / Compose
 │   ├── hooks/                       # global hooks
 │   ├── providers/                   # global providers
 │   └── utils/                       # global helpers

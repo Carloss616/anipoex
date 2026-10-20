@@ -41,8 +41,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   }
 
   return (
-    // Keyed: re-parented covers miss their expo-image load; a fresh grid doesn't.
-    <ZStack key={titlePosition}>
+    <ZStack>
       <ScrollView
         modifiers={[
           refreshable(async () => {

@@ -5,6 +5,7 @@ import {
   accessibilityHidden,
   accessibilityIdentifier,
   accessibilityLabel,
+  background,
   clipShape,
   fixedSize,
   foregroundStyle,
@@ -18,14 +19,14 @@ import {
   shadow,
 } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
+import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { Host, RNHostView, useIsInsideHost } from "@/components/ui/host";
+import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ramp } from "@/utils/ramp";
-import { CoverImage } from "./components/cover-image";
 import { STATUS_COLOR, STATUS_ICON } from "./constants";
 import type { MangaCardProps } from "./manga-card";
 
@@ -54,7 +55,9 @@ export function MangaCard({
   onLongPress,
 }: MangaCardProps) {
   const card = useThemeColor("card");
+  const overlay = useThemeColor("overlay");
   const isInsideHost = useIsInsideHost();
+  const coverUrl = typeof cover === "string" ? cover : cover?.uri;
 
   const flat = StyleSheet.flatten(style) ?? {};
   const width = typeof flat.width === "number" ? flat.width : undefined;
@@ -83,22 +86,17 @@ export function MangaCard({
         ...(onLongPress ? [onLongPressGesture(onLongPress)] : []),
       ]}
     >
-      {cover ? (
-        <RNHostView className="flex-1">
-          <CoverImage
-            // Sized up front when the card knows its size: the host gets its frame from
-            // SwiftUI a beat later, and expo-image skips a load while it measures 0×0.
-            style={[
-              width && height
-                ? { position: "absolute", width, height }
-                : StyleSheet.absoluteFill,
-              { borderRadius: RADIUS },
-            ]}
-            cover={cover}
-            coverThumb={coverThumb}
-            coverColor={coverColor}
-          />
-        </RNHostView>
+      {coverUrl ? (
+        // The thumb shows through until the cover fades in over it.
+        <ZStack
+          modifiers={[
+            background(coverColor ?? overlay),
+            clipShape("roundedRectangle", RADIUS),
+          ]}
+        >
+          {coverThumb && <Image url={coverThumb} />}
+          <Image url={coverUrl} />
+        </ZStack>
       ) : (
         <Icon
           name="book"
