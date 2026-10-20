@@ -100,7 +100,7 @@ export function NumberInput({
             field.current?.blur();
           },
         }}
-        textStyle={{ fontFamily }}
+        textStyle={{ fontFamily, textAlign: "right" }}
         onValueChange={commit}
       >
         {labelVariant === "default" && label && (
