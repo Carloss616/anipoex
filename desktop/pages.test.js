@@ -85,7 +85,7 @@ test("upstreamStatusPassesThrough", async () => {
   expect(await response.text()).toBe("");
 });
 
-test("nonImageIs415", async () => {
+test("documentIs415", async () => {
   const response = await served(
     pageStore(),
     async () =>
@@ -93,6 +93,19 @@ test("nonImageIs415", async () => {
   );
   expect(response.status).toBe(415);
   expect(await response.text()).toBe("");
+});
+
+test("untypedIsOctetStream", async () => {
+  for (const headers of [{}, { "Content-Type": "application/octet-stream" }]) {
+    const response = await served(
+      pageStore(),
+      async () => new Response(new Uint8Array([1, 2]), { headers }),
+    );
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe(
+      "application/octet-stream",
+    );
+  }
 });
 
 test("networkFailureIs502", async () => {

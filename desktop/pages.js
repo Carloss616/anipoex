@@ -41,8 +41,12 @@ export async function servePage(store, url, fetch) {
     return empty(502);
   }
   if (!upstream.ok) return empty(upstream.status);
-  const type = upstream.headers.get("Content-Type") ?? "";
-  // The scheme serves images only, never a page the renderer could run.
-  if (!type.toLowerCase().startsWith("image/")) return empty(415);
-  return new Response(upstream.body, { headers: { "Content-Type": type } });
+  const type = upstream.headers.get("Content-Type")?.toLowerCase() ?? "";
+  if (type.startsWith("image/"))
+    return new Response(upstream.body, { headers: { "Content-Type": type } });
+  // Never a document the renderer could run; untyped bytes (S3-style CDNs) still reach the <img>, which sniffs them.
+  if (/^text\/|html|javascript|xml/.test(type)) return empty(415);
+  return new Response(upstream.body, {
+    headers: { "Content-Type": "application/octet-stream" },
+  });
 }
