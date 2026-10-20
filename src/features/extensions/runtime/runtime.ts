@@ -38,6 +38,13 @@ export interface SourceChapter {
   dateUpload: number;
 }
 
+export interface SourcePage {
+  index: number;
+  imageUrl: string;
+  /** Request headers the image needs (referer, cookies). */
+  headers: Record<string, string>;
+}
+
 export interface RuntimeApi {
   install(apkUrl: string, signingKey: string): Promise<InstalledExtension>;
   installed(): Promise<InstalledExtension[]>;
@@ -50,6 +57,8 @@ export interface RuntimeApi {
   ): Promise<{ chapters: SourceChapter[] }>;
   /** The manga's page on the source's website; null when the source has none. */
   mangaWebUrl(sourceId: string, mangaUrl: string): Promise<string | null>;
+  /** The chapter's page images, in reading order. */
+  pages(sourceId: string, chapterUrl: string): Promise<SourcePage[]>;
 }
 
 /** Android, iOS (`expo-module` `ExtensionRuntime`) and the desktop app run extensions; a plain browser lists nothing. */

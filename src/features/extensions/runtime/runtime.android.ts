@@ -23,4 +23,5 @@ export const runtime: RuntimeApi = {
     clean(native.chapters(sourceId, mangaUrl, title)),
   mangaWebUrl: (sourceId, mangaUrl) =>
     clean(native.mangaWebUrl(sourceId, mangaUrl)),
+  pages: (sourceId, chapterUrl) => clean(native.pages(sourceId, chapterUrl)),
 };

@@ -13,4 +13,5 @@ export const unavailableRuntime: RuntimeApi = {
   search: unavailable,
   chapters: unavailable,
   mangaWebUrl: async () => null,
+  pages: unavailable,
 };
