@@ -60,6 +60,7 @@ const {
   isScanning,
 } = await import("./probes");
 const { fetchChapters } = await import("../utils/fetch-chapters");
+const { setManual } = await import("./manual-matches");
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 const sources = (...ids: string[]) =>
@@ -126,6 +127,16 @@ describe("probeSource", () => {
       manga: { url: "/a", title: "T" },
       chapters: [ch("Ch.12", 12), ch("Chapter 13", -1)],
     });
+  });
+
+  it("reads the manual page instead of searching", async () => {
+    setManual(1005, "m", { url: "/mine", title: "Mine", thumbnailUrl: null });
+    const done = probeSource(1005, { id: "m", name: "M" }, titles);
+    await flush();
+    expect(searchCalls).not.toContain("m");
+    expect(chaptersCalls).toContain("m/mine");
+    chaptersPending.m.resolve({ chapters: [ch("Ch.3", 3)] });
+    expect(await done).toMatchObject({ matched: true, latest: 3 });
   });
 
   it("no equal title is a no-match probe", async () => {

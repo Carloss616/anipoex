@@ -6,6 +6,7 @@ import { ObservablePersist } from "@/state/observable-persist";
 import { pickMatch, readMatch, type Titles } from "../utils/source-match";
 import { SEARCH_TIMEOUT_MS, withTimeout } from "../utils/with-timeout";
 import { readChapters } from "./chapters";
+import { readManual } from "./manual-matches";
 
 /** Which source each manga's chapter list reads and what it matched, keyed by its AniList id; read through `readMatch`. */
 export const source$ = observable<Record<number, unknown>>({});
@@ -36,7 +37,7 @@ export async function findManga(
   return null;
 }
 
-/** Stores the pick at once, then searches the source for the manga unless its chapters are stored; the last pick per manga wins and a failed search leaves the pick unmatched. Resolves to the stored match (null for none), `{ error }` when the search failed, or undefined when a later pick took over. */
+/** Stores the pick at once, then searches the source for the manga unless a page was set by hand or its chapters are stored; the last pick per manga wins and a failed search leaves the pick unmatched. Resolves to the stored match (null for none), `{ error }` when the search failed, or undefined when a later pick took over. */
 export async function selectSource(
   mangaId: number,
   source: { id: string; name: string },
@@ -49,8 +50,9 @@ export async function selectSource(
   matching$[mangaId].set(true);
 
   try {
-    // A source whose chapters are stored keeps the page it matched then.
+    // A page set by hand wins; a source whose chapters are stored keeps the page it matched then.
     const manga =
+      readManual(mangaId, source.id) ??
       (await readChapters(mangaId, source.id))?.manga ??
       (await findManga(source.id, titles, timeoutMs));
     if (ticket !== tickets[mangaId]) return;

@@ -16,7 +16,8 @@ so a probe can sync through its gist later; the error message is anipoex's own a
 ## How a probe reads
 
 The source is searched for the manga by title, the same way picking a source
-matches (see [chosen source](../stores/source-matches.md)); then its
+matches (see [chosen source](../stores/source-matches.md)), unless the user set its page by
+hand ([manual match](../stores/manual-matches.md)), which is read instead; then its
 [chapters](chapter.md) are read. The latest chapter is the highest chapter number,
 ignoring unnumbered rows. No matching title, or no chapters, is *no match*; a failure or a
 30 s timeout is *error*.

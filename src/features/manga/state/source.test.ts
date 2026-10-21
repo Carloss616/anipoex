@@ -40,6 +40,7 @@ memoryStorage.entries["9/a"] = {
 
 const { deselectSource, matching$, resumeSource, selectSource, source$ } =
   await import("./source");
+const { setManual } = await import("./manual-matches");
 
 const A = { id: "a", name: "Alpha" };
 const B = { id: "b", name: "Beta" };
@@ -78,6 +79,29 @@ describe("selectSource", () => {
       manga: { url: "/9", title: "Stored" },
     });
     expect(matching$[9].get()).toBe(false);
+  });
+
+  it("uses the manual page without searching", async () => {
+    setManual(1003, "a", { url: "/m", title: "Mine", thumbnailUrl: null });
+    await selectSource(1003, A, { search: ["p"], all: ["p"] });
+    expect(search).not.toHaveBeenCalled();
+    expect(source$[1003].get()).toEqual({
+      sourceId: "a",
+      manga: { url: "/m", title: "Mine" },
+    });
+  });
+
+  it("prefers the manual page over the stored chapters' page", async () => {
+    memoryStorage.entries["1004/a"] = {
+      manga: { url: "/stored", title: "Stored" },
+      chapters: [],
+    };
+    setManual(1004, "a", { url: "/m", title: "Mine", thumbnailUrl: null });
+    await selectSource(1004, A, { search: ["p"], all: ["p"] });
+    expect(source$[1004].get()).toEqual({
+      sourceId: "a",
+      manga: { url: "/m", title: "Mine" },
+    });
   });
 
   it("stores the pick before the search resolves", async () => {

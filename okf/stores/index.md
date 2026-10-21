@@ -21,6 +21,7 @@ IndexedDB), and nothing persists during web's server render.
 # Sources
 
 * [Chosen source](source-matches.md) - The source picked for each manga.
+* [Manual matches](manual-matches.md) - A manga's page on a source, picked by hand from a title search.
 * [Source exclusions](source-exclusions.md) - Sources dropped from a manga's list, and why.
 * [Source pins](source-pins.md) - Exclusions and inclusions the user decided by hand.
 * [Source probes](source-probes.md) - What the last scan found for each source and manga.

@@ -21,7 +21,7 @@ Start with the [product overview](overview.md); [README](README.md) explains the
 
 # On-device state
 
-* [Stores](stores/) - Session, Apollo cache, list view, theme, extension repos, chosen source, source exclusions, pins, probes and chapters, extensions; where each lives and what clears it.
+* [Stores](stores/) - Session, Apollo cache, list view, theme, extension repos, chosen source, manual matches, source exclusions, pins, probes and chapters, extensions; where each lives and what clears it.
 
 # Metrics
 

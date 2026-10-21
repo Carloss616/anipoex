@@ -19,7 +19,8 @@ novel. `manga: null` means the source was searched and nothing matched, never an
 approximate result: a similarity score would take `Monsters` for `Monster` or a sequel's
 `2`, and list the wrong manga's chapters. The search reads the first page of up to four
 queries, in order, until one matches: the romaji title, the English one, then synonyms in
-Latin script, each once; a source whose
+Latin script, each once. A page the user set by hand ([manual match](manual-matches.md))
+comes first and isn't searched; then a source whose
 [chapters are stored](source-chapters.md) for the manga isn't searched again, its stored page is the match. Values from before matching
 (a bare source id) are ignored, so the user picks the source again. A missing key means no
 source chosen; so does a match whose source no installed extension provides any more

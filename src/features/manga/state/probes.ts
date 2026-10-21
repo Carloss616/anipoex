@@ -23,6 +23,7 @@ import { toChapters } from "../utils/to-chapters";
 import { SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
 import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
+import { readManual } from "./manual-matches";
 import { deselectSource, findManga, source$ } from "./source";
 
 /** Per manga, what each source's last scan found: MSU's `probes` map (gist file `seanime-msu-probes.json`). */
@@ -54,7 +55,9 @@ export async function probeSource(
   timeoutMs = SEARCH_TIMEOUT_MS,
 ): Promise<ProviderProbe> {
   try {
-    const manga = await findManga(source.id, titles, timeoutMs);
+    const manga =
+      readManual(mangaId, source.id) ??
+      (await findManga(source.id, titles, timeoutMs));
     if (!manga) return toProbe(source, "no-match", Date.now());
     const { chapters } = await fetchChapters(
       source.id,
