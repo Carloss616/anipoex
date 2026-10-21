@@ -179,9 +179,10 @@ class MemoSource : HttpSource() {
     override val supportsLatest = false
     override val baseUrl = "https://example.com"
 
+    // Like a details parse, the returned manga has no url; chapters must not read it.
     override suspend fun getMangaUpdate(manga: SManga, chapters: List<SChapter>, fetchDetails: Boolean, fetchChapters: Boolean) =
         SMangaUpdate(
-            manga,
+            SManga.create(),
             listOf(SChapter.create().apply {
                 url = "/c"
                 name = "Ch.1"

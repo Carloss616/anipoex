@@ -99,8 +99,9 @@ class ExtensionRuntimeModule : Module() {
           url = mangaUrl
           this.title = title
         }
-        val update = source(sourceId).getMangaUpdate(manga, emptyList(), fetchDetails = true, fetchChapters = true)
-        mapOf("manga" to update.manga.toMap(), "chapters" to update.chapters.map { it.toMap() })
+        // No details: the app doesn't use them, and a parsed details SManga has no url (Mihon keeps the stored one).
+        val update = source(sourceId).getMangaUpdate(manga, emptyList(), fetchDetails = false, fetchChapters = true)
+        mapOf("chapters" to update.chapters.map { it.toMap() })
       }
     }
 
