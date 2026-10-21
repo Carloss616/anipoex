@@ -35,16 +35,8 @@ const WIDTH = 80;
 const HEIGHT = 120;
 const COVER_SHAPE = clip(Shapes.RoundedCorner(8));
 
-/** Tap uses or removes the match, hold opens the menu: the menu hands the card both presses (`onPrimaryAction`). */
-function Card({
-  item,
-  onPress,
-  onLongPress,
-}: {
-  item: RailItem;
-  onPress?: () => void;
-  onLongPress?: () => void;
-}) {
+/** A tap opens the card's menu, which holds every action: the menu hands the card its press. */
+function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
   return (
     <MangaCard
       cover={item.manga.thumbnailUrl}
@@ -56,14 +48,13 @@ function Card({
       }
       style={{ width: WIDTH }}
       onPress={onPress}
-      onLongPress={onLongPress}
     />
   );
 }
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
   const m3 = useThemeM3Colors();
-  const { rail, items, notice, menu, tap, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -116,12 +107,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
         contentPadding={{ start: GUTTER, end: GUTTER, bottom: 12 }}
       >
         {items.map((item, i) => [
-          <Menu
-            key={item.manga.url}
-            items={menu(item)}
-            // Always set, so tap and hold never swap; during a scan the tap does nothing.
-            onPrimaryAction={() => tap(item)?.()}
-          >
+          <Menu key={item.manga.url} items={menu(item)}>
             <Card item={item} />
           </Menu>,
           item.current && i === 0 && items.length > 1 && (

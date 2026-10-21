@@ -36,7 +36,7 @@ const HEIGHT = 120;
 const RADIUS = 6;
 const COVER = frame({ width: WIDTH, height: HEIGHT });
 
-/** Tap uses or removes the match, hold opens the menu (`onPrimaryAction`); a context menu would be taken over by the list row. */
+/** A tap opens the card's menu, which holds every action; a context menu would be taken over by the list row. */
 function Card({ item, color }: { item: RailItem; color: string }) {
   return (
     // A menu label takes the tint and centres its text: the card keeps its own look.
@@ -59,7 +59,7 @@ function Card({ item, color }: { item: RailItem; color: string }) {
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
   const [muted, foreground] = useThemeColor(["muted", "foreground"]);
-  const { rail, items, notice, menu, tap, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -108,12 +108,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           modifiers={[padding({ bottom: 6 })]}
         >
           {items.map((item, i) => [
-            <Menu
-              key={item.manga.url}
-              items={menu(item)}
-              // Always set, so tap and hold never swap; during a scan the tap does nothing.
-              onPrimaryAction={() => tap(item)?.()}
-            >
+            <Menu key={item.manga.url} items={menu(item)}>
               <Card item={item} color={foreground} />
             </Menu>,
             item.current && i === 0 && items.length > 1 && (

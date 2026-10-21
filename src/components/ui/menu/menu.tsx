@@ -9,6 +9,8 @@ import { isSubmenu } from "./utils";
 
 // The panel fits its rows when it opens, before a submenu adds wider ones.
 const SUBMENU_MIN_WIDTH = 224;
+// A long row (a full manga title) wraps instead of stretching the panel.
+const MAX_WIDTH = 288;
 
 // The single-confirm form: a menu row confirms one action.
 export type MenuItemDialogConfig = Pick<
@@ -179,6 +181,7 @@ export function Menu({
         <PanelMenu.Content
           align={align}
           minWidth={items.some(isSubmenu) ? SUBMENU_MIN_WIDTH : undefined}
+          style={{ maxWidth: MAX_WIDTH }}
         >
           {rows.map((item) => (
             <RowItem key={item.label} {...item} />

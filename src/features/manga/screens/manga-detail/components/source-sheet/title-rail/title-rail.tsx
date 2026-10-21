@@ -27,16 +27,8 @@ const CARD_SPAN = COVER.width + GAP;
 // The cover, two title lines and the label badge.
 const RAIL_HEIGHT = COVER.height + 72;
 
-/** Tap uses or removes the match, hold opens the menu: the menu hands the card both presses (`onPrimaryAction`). */
-function Card({
-  item,
-  onPress,
-  onLongPress,
-}: {
-  item: RailItem;
-  onPress?: () => void;
-  onLongPress?: () => void;
-}) {
+/** A tap opens the card's menu, which holds every action: the menu hands the card its press. */
+function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
   return (
     <MangaCard
       cover={item.manga.thumbnailUrl}
@@ -48,13 +40,12 @@ function Card({
       }
       style={{ width: COVER.width }}
       onPress={onPress}
-      onLongPress={onLongPress}
     />
   );
 }
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
-  const { rail, items, notice, menu, tap, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -84,12 +75,15 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           onEndReached={loadMore}
           // The list spaces and insets its cards itself (it reads only these
           // keys): a card's own padding can be measured late, so cards touch.
-          contentContainerStyle={{ paddingLeft: 16, paddingRight: 16, gap: GAP }}
+          contentContainerStyle={{
+            paddingLeft: 16,
+            paddingRight: 16,
+            gap: GAP,
+          }}
           style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
-              {/* Always set, so tap and hold never swap; during a scan the tap does nothing. */}
-              <Menu items={menu(item)} onPrimaryAction={() => tap(item)?.()}>
+              <Menu items={menu(item)}>
                 <Card item={item} />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (

@@ -51,8 +51,8 @@ is stable across launches.
   romaji title at first; a new title is searched on submit) and each searching source shows its
   results under its row as cover cards, first page first, the next page loading as the end comes
   into view. The source's current match comes first, marked in the cover's corner. Tapping a card
-  uses it as the source's match (or removes a match set by hand); holding it (or right-clicking on
-  web) opens its menu: its full title, the same action, and *Open website*. A match is kept as a
+  opens its menu: its full title, *Use as match* (or *Remove match* on a match set by hand), and
+  *Open website*; a match changes only from that menu. A match is kept as a
   [manual match](../stores/manual-matches.md) and the list stays open; a failed or empty search
   says so beside the current match. Closing the list or Done ends the search; nothing searched is
   stored.

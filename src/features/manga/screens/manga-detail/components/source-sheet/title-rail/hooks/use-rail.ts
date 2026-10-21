@@ -8,7 +8,7 @@ import {
 } from "@/features/manga/state/title-search";
 import type { SourceActions } from "../../hooks/use-source-actions";
 import { type RailItem, railItems, railNotice } from "../../utils/rail-items";
-import { cardMenu, cardTap } from "../utils/card-menu";
+import { cardMenu } from "../utils/card-menu";
 
 /** One source's rail: its results with the current match first, and each card's menu. */
 export function useRail(
@@ -40,16 +40,6 @@ export function useRail(
           setMatch: (manga) => actions.setMatch(sourceId, manga),
           removeMatch: () => actions.removeMatch(sourceId),
           openPage: (url) => actions.openPage(sourceId, url),
-        },
-        scanning,
-      ),
-    tap: (item: RailItem) =>
-      cardTap(
-        item,
-        !!manual,
-        {
-          setMatch: (manga) => actions.setMatch(sourceId, manga),
-          removeMatch: () => actions.removeMatch(sourceId),
         },
         scanning,
       ),
