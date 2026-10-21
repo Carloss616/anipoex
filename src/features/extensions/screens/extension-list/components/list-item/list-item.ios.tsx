@@ -10,6 +10,7 @@ import {
   lineLimit,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
+import { memo } from "react";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -91,7 +92,9 @@ function ActionButton({
 }
 
 /** A `List` row: it already insets its content, so this draws none of its own. */
-export function ListItem({ extension: e }: ListItemProps) {
+export const ListItem = memo(function ListItem({
+  extension: e,
+}: ListItemProps) {
   const mode = useValue(theme$.mode);
   const { websiteUrl } = e;
   const primary = useThemeColor("primary");
@@ -184,4 +187,4 @@ export function ListItem({ extension: e }: ListItemProps) {
       </HStack>
     </HStack>
   );
-}
+});

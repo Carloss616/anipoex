@@ -1,7 +1,7 @@
 import { observable } from "@legendapp/state";
 import { toast } from "@/components/ui/toast";
 import { type InstalledExtension, runtime } from "../runtime";
-import { type Extension, hasUpdate } from "../utils/extension";
+import { type Extension, hasUpdate, keepUnchanged } from "../utils/extension";
 import { toExtensions } from "../utils/registry";
 import { fetchIndex } from "../utils/repo";
 import { repos$ } from "./repos";
@@ -62,7 +62,12 @@ export async function loadExtensions(): Promise<void> {
     installedLoaded$.set(true);
   }
   try {
-    extensions$.set(toExtensions(repos, installed ?? installed$.peek()));
+    extensions$.set(
+      keepUnchanged(
+        extensions$.peek(),
+        toExtensions(repos, installed ?? installed$.peek()),
+      ),
+    );
   } catch (error) {
     // A malformed entry keeps the previous list instead of rejecting unseen.
     toast.destructive(message(error));

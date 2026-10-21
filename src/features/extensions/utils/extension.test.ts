@@ -1,5 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { countExtensions, describeVersion, hasUpdate } from "./extension";
+import {
+  countExtensions,
+  describeVersion,
+  hasUpdate,
+  keepUnchanged,
+} from "./extension";
 import { ext, LIST } from "./fixtures";
 
 describe("hasUpdate", () => {
@@ -31,5 +36,15 @@ describe("describeVersion", () => {
   it("shows the jump when an update is pending", () => {
     expect(describeVersion(LIST[1])).toBe("1.0.0 → 1.1.0");
     expect(describeVersion(LIST[0])).toBe("1.0.0");
+  });
+});
+
+describe("keepUnchanged", () => {
+  it("keeps equal entries as the previous objects and takes changed ones", () => {
+    const prev = [ext({ id: "a" }), ext({ id: "b" })];
+    const next = [ext({ id: "a" }), ext({ id: "b", installed: true })];
+    const kept = keepUnchanged(prev, next);
+    expect(kept[0]).toBe(prev[0]);
+    expect(kept[1]).toBe(next[1]);
   });
 });

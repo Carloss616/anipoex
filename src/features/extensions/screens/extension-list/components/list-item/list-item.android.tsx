@@ -6,6 +6,7 @@ import {
 } from "@expo/ui/jetpack-compose";
 import { semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
+import { memo } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -76,7 +77,9 @@ function ActionButton({
   );
 }
 
-export function ListItem({ extension: e }: ListItemProps) {
+export const ListItem = memo(function ListItem({
+  extension: e,
+}: ListItemProps) {
   const mode = useValue(theme$.mode);
   const { websiteUrl } = e;
   const m3 = useThemeM3Colors();
@@ -166,4 +169,4 @@ export function ListItem({ extension: e }: ListItemProps) {
       </ListItemView.TrailingContent>
     </ListItemView>
   );
-}
+});

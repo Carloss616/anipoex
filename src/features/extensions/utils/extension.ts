@@ -45,3 +45,15 @@ export function countExtensions(extensions: Extension[]): ExtensionCounts {
 export function describeVersion(e: Extension): string {
   return hasUpdate(e) ? `${e.version} → ${e.latestVersion}` : `${e.version}`;
 }
+
+/** `next`, keeping each entry equal to its previous one as that same object. */
+export function keepUnchanged(
+  prev: Extension[],
+  next: Extension[],
+): Extension[] {
+  const byId = new Map(prev.map((e) => [e.id, e]));
+  return next.map((e) => {
+    const old = byId.get(e.id);
+    return old && JSON.stringify(old) === JSON.stringify(e) ? old : e;
+  });
+}

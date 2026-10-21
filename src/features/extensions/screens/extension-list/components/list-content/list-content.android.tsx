@@ -16,8 +16,9 @@ import {
   padding,
   verticalScroll,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { Computed, useObservable } from "@legendapp/state/react";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -38,6 +39,23 @@ import { ListItem } from "../list-item";
 import { useSections } from "./hooks/use-sections";
 import type { ListContentProps } from "./list-content";
 
+function RefreshBox({ children }: { children: ReactNode }) {
+  const [checking, setChecking] = useState(false);
+  return (
+    <PullToRefreshBox
+      isRefreshing={checking}
+      onRefresh={() => {
+        setChecking(true);
+        void checkForUpdates().finally(() => setChecking(false));
+      }}
+      contentAlignment="topCenter"
+      modifiers={[fillMaxSize()]}
+    >
+      {children}
+    </PullToRefreshBox>
+  );
+}
+
 /**
  * Pull to check for updates; the FAB installs them. Once the list scrolls the
  * FAB collapses and the header fills.
@@ -54,8 +72,7 @@ export function ListContent({
   const sections = useSections({ extensions, filter, language, query$ });
   const headerHeight = useHeaderHeight();
   const m3 = useThemeM3Colors();
-  const [checking, setChecking] = useState(false);
-  const [atTop, setAtTop] = useState(true);
+  const atTop$ = useObservable(true);
   const setHeaderScrolled = useSetHeaderScrolled();
   const insets = useSafeAreaInsets();
   const rows = toRows(sections);
@@ -70,15 +87,7 @@ export function ListContent({
   return (
     <Host className="flex-1" style={{ marginTop: headerHeight }}>
       <Box modifiers={[fillMaxSize()]}>
-        <PullToRefreshBox
-          isRefreshing={checking}
-          onRefresh={() => {
-            setChecking(true);
-            void checkForUpdates().finally(() => setChecking(false));
-          }}
-          contentAlignment="topCenter"
-          modifiers={[fillMaxSize()]}
-        >
+        <RefreshBox>
           {empty ? (
             <EmptyState {...emptyState} modifiers={[verticalScroll()]}>
               <ActiveFilters filters={activeFilters} />
@@ -102,7 +111,7 @@ export function ListContent({
                   height(1),
                   onVisibilityChanged(
                     (visible) => {
-                      setAtTop(visible);
+                      atTop$.set(visible);
                       setHeaderScrolled(!visible);
                     },
                     { minFractionVisible: 0 },
@@ -136,34 +145,38 @@ export function ListContent({
               </LazyColumn.Items>
             </LazyColumn>
           )}
-        </PullToRefreshBox>
+        </RefreshBox>
 
         {counts.updates > 0 && (
-          <ExtendedFloatingActionButton
-            expanded={atTop || empty}
-            onClick={updateAllExtensions}
-            modifiers={[
-              align("bottomEnd"),
-              // The tab bar below already clears the system inset.
-              offset(-(insets.right + GUTTER), -16),
-            ]}
-          >
-            <ExtendedFloatingActionButton.Icon>
-              <BadgedBox>
-                <BadgedBox.Badge>
-                  <Badge color="inherit">{String(counts.updates)}</Badge>
-                </BadgedBox.Badge>
-                <Icon
-                  name={Icons.update}
-                  accessibilityLabel={`Update all (${counts.updates})`}
-                  color="inherit"
-                />
-              </BadgedBox>
-            </ExtendedFloatingActionButton.Icon>
-            <ExtendedFloatingActionButton.Text>
-              <Text style={{ fontWeight: "500" }}>Update all</Text>
-            </ExtendedFloatingActionButton.Text>
-          </ExtendedFloatingActionButton>
+          <Computed>
+            {() => (
+              <ExtendedFloatingActionButton
+                expanded={atTop$.get() || empty}
+                onClick={updateAllExtensions}
+                modifiers={[
+                  align("bottomEnd"),
+                  // The tab bar below already clears the system inset.
+                  offset(-(insets.right + GUTTER), -16),
+                ]}
+              >
+                <ExtendedFloatingActionButton.Icon>
+                  <BadgedBox>
+                    <BadgedBox.Badge>
+                      <Badge color="inherit">{String(counts.updates)}</Badge>
+                    </BadgedBox.Badge>
+                    <Icon
+                      name={Icons.update}
+                      accessibilityLabel={`Update all (${counts.updates})`}
+                      color="inherit"
+                    />
+                  </BadgedBox>
+                </ExtendedFloatingActionButton.Icon>
+                <ExtendedFloatingActionButton.Text>
+                  <Text style={{ fontWeight: "500" }}>Update all</Text>
+                </ExtendedFloatingActionButton.Text>
+              </ExtendedFloatingActionButton>
+            )}
+          </Computed>
         )}
       </Box>
     </Host>

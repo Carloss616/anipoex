@@ -1,5 +1,5 @@
 import { useValue } from "@legendapp/state/react";
-import type { ComponentProps } from "react";
+import { type ComponentProps, memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,7 +66,9 @@ function ActionButton({
   );
 }
 
-export function ListItem({ extension: e }: ListItemProps) {
+export const ListItem = memo(function ListItem({
+  extension: e,
+}: ListItemProps) {
   const mode = useValue(theme$.mode);
   const { websiteUrl } = e;
   const primary = useThemeColor("primary");
@@ -151,4 +153,4 @@ export function ListItem({ extension: e }: ListItemProps) {
       </Item.Actions>
     </Item>
   );
-}
+});
