@@ -14,15 +14,13 @@ import {
 import { useRouter } from "expo-router";
 import { Text } from "@/components/native/swift-ui/text";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import { isRead } from "@/features/manga/utils/to-chapters";
 import { noop } from "@/utils/utils";
 import type { ChapterItemProps } from "./chapter-item";
+import { useChapterRead } from "./hooks/use-chapter-read";
 
 export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
   const router = useRouter();
-  // Per row, not per screen: a progress change re-renders the rows only.
-  const read = isRead(useTrackingEntry(entryId)?.progress ?? 0, chapter.number);
+  const read = useChapterRead(entryId, chapter.number);
 
   return (
     <HStack

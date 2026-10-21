@@ -1,3 +1,4 @@
+import { useObservable } from "@legendapp/state/react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { View } from "react-native";
@@ -59,7 +60,7 @@ export function ChapterReader() {
     memoParam ?? current?.memo ?? undefined,
   );
   const [visible, setVisible] = useState(true);
-  const [page, setPage] = useState(1);
+  const page$ = useObservable(1);
   const progress = useReadingProgress(
     manga ?? { id: Number(mediaId) },
     chapterUrl,
@@ -86,9 +87,9 @@ export function ChapterReader() {
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: { index: number }[] }) => {
       const first = Math.min(...viewableItems.map((token) => token.index));
-      if (Number.isFinite(first)) setPage(first + 1);
+      if (Number.isFinite(first)) page$.set(first + 1);
     },
-    [],
+    [page$.set],
   );
   // Only the current chapter's own pages, with the manga's entry loaded, count as reading it.
   // shortcut: an end reached before the chapter list or manga loads is not retried until the user scrolls back to it; retry on load if that shows up.
@@ -143,7 +144,7 @@ export function ChapterReader() {
                     ? `Load chapter ${next.number}`
                     : "Load next chapter",
                 onPress: () => {
-                  setPage(1);
+                  page$.set(1);
                   router.setParams({
                     chapter: next.id,
                     title: next.title,
@@ -165,7 +166,7 @@ export function ChapterReader() {
         chapter={name}
         subtitle={subtitle}
         visible={visible}
-        page={page}
+        page$={page$}
         count={pages.length}
         onBack={back}
       />

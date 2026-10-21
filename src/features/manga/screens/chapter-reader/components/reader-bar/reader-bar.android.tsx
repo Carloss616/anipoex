@@ -8,6 +8,7 @@ import {
   semantics,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { Computed } from "@legendapp/state/react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GUTTER } from "@/components/native/constants";
@@ -21,7 +22,7 @@ export function ReaderBar({
   chapter,
   subtitle,
   visible,
-  page,
+  page$,
   count,
   onBack,
 }: ReaderBarProps) {
@@ -77,17 +78,21 @@ export function ReaderBar({
           style={{ bottom: insets.bottom + 24 }}
         >
           <Host matchContents>
-            <Text
-              style={{ typography: "labelMedium" }}
-              color={m3.onSurfaceVariant}
-              modifiers={[
-                clip(Shapes.Circle),
-                background(m3.surfaceContainer),
-                padding(12, 6, 12, 6),
-              ]}
-            >
-              {`${page} / ${count}`}
-            </Text>
+            <Computed>
+              {() => (
+                <Text
+                  style={{ typography: "labelMedium" }}
+                  color={m3.onSurfaceVariant}
+                  modifiers={[
+                    clip(Shapes.Circle),
+                    background(m3.surfaceContainer),
+                    padding(12, 6, 12, 6),
+                  ]}
+                >
+                  {page$.get()} / {count}
+                </Text>
+              )}
+            </Computed>
           </Host>
         </View>
       )}

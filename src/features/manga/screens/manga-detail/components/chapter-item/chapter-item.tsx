@@ -3,9 +3,9 @@ import { Pressable } from "react-native";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
-import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import { type Chapter, isRead } from "@/features/manga/utils/to-chapters";
+import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { noop } from "@/utils/utils";
+import { useChapterRead } from "./hooks/use-chapter-read";
 
 export interface ChapterItemProps {
   chapter: Chapter;
@@ -18,15 +18,12 @@ export interface ChapterItemProps {
 /** One chapter row; the list around it draws the card. */
 export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
   const router = useRouter();
-  // Per row, not per screen: a progress change re-renders the rows only.
-  const progress = useTrackingEntry(entryId)?.progress ?? 0;
+  const read = useChapterRead(entryId, chapter.number);
 
   return (
     <Item
       // Dimmed, not `disabled`: a read chapter still opens.
-      className={
-        isRead(progress, chapter.number) ? "opacity-[0.64]" : undefined
-      }
+      className={read ? "opacity-[0.64]" : undefined}
     >
       {/* Under the row rather than around it: a <button> can't hold the download button. */}
       <Pressable

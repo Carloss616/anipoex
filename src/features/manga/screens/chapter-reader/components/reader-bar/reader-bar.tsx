@@ -1,3 +1,5 @@
+import type { Observable } from "@legendapp/state";
+import { Memo } from "@legendapp/state/react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
@@ -11,7 +13,7 @@ export interface ReaderBarProps {
   subtitle: string;
   visible: boolean;
   /** The page at the top of the screen, from 1. */
-  page: number;
+  page$: Observable<number>;
   count: number;
   onBack: () => void;
 }
@@ -21,7 +23,7 @@ export function ReaderBar({
   chapter,
   subtitle,
   visible,
-  page,
+  page$,
   count,
   onBack,
 }: ReaderBarProps) {
@@ -59,7 +61,7 @@ export function ReaderBar({
         >
           <View className="rounded-full bg-background/88 px-3 py-1.5">
             <Typography type="body-xs" muted>
-              {page} / {count}
+              <Memo>{page$}</Memo> / {count}
             </Typography>
           </View>
         </View>

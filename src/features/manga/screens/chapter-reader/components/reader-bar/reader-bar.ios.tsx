@@ -11,6 +11,7 @@ import {
   padding,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
+import { Computed } from "@legendapp/state/react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/native/swift-ui/text";
@@ -24,7 +25,7 @@ export function ReaderBar({
   chapter,
   subtitle,
   visible,
-  page,
+  page$,
   count,
   onBack,
 }: ReaderBarProps) {
@@ -82,16 +83,20 @@ export function ReaderBar({
           style={{ bottom: insets.bottom + 24 }}
         >
           <Host matchContents>
-            <Text
-              textStyle="caption"
-              modifiers={[
-                foregroundStyle("secondary"),
-                padding({ horizontal: 12, vertical: 6 }),
-                background(MATERIAL, shapes.capsule()),
-              ]}
-            >
-              {`${page} / ${count}`}
-            </Text>
+            <Computed>
+              {() => (
+                <Text
+                  textStyle="caption"
+                  modifiers={[
+                    foregroundStyle("secondary"),
+                    padding({ horizontal: 12, vertical: 6 }),
+                    background(MATERIAL, shapes.capsule()),
+                  ]}
+                >
+                  {page$.get()} / {count}
+                </Text>
+              )}
+            </Computed>
           </Host>
         </View>
       )}
