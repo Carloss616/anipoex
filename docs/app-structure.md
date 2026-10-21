@@ -28,7 +28,7 @@ anipoex/
 │   │   ├── layout/                  # structure (header, tabs, toolbar…)
 │   │   ├── blocks/                  # product pieces built from ui/ (empty-state, theme-toggle…)
 │   │   │   ├── <component>/         # complex or multi-platform component
-│   │   │   │   ├── components/      # only used by this component
+│   │   │   │   ├── <sub-component>/ # only used by this component (no nested components/)
 │   │   │   │   ├── <component>.tsx
 │   │   │   │   └── index.ts         # export * from './<component>'
 │   │   │   └── <component>.tsx      # simple component — single file, no folder
@@ -61,7 +61,11 @@ anime/
         ├── hooks/                   # extracted logic if the screen is complex
         │   └── use-anime.ts
         ├── components/              # private sub-components
-        │   └── episode-list.tsx
+        │   ├── episode-list.tsx
+        │   └── episode-sheet/       # its own pieces sit beside it, not in components/
+        │       ├── episode-row/
+        │       ├── episode-sheet.tsx
+        │       └── index.ts
         └── index.ts                 # export * from './anime-detail'
 ```
 
@@ -98,6 +102,7 @@ export default function AnimeDetailScreen() {
 ### Scope of internal folders
 
 - `components/`, `hooks/`, `utils/` nested inside a screen or component folder are **private** to it.
+- **One `components/` per path.** A component that already sits under a `components/` folder (global, a feature's or a screen's) keeps its private pieces directly in its own folder (`tracking-sheet/status/`, `manga-card/cover-image/`), never in another `components/`.
 - Anything reused across screens or features belongs in the global folders at the root of `src/`.
 
 ### Hooks, utils and constants

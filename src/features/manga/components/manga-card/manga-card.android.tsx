@@ -22,8 +22,8 @@ import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
-import { CoverImage } from "./components/cover-image";
 import { STATUS_COLOR, STATUS_ICON } from "./constants";
+import { CoverImage } from "./cover-image";
 import type { MangaCardProps } from "./manga-card";
 
 const RADIUS = 12;

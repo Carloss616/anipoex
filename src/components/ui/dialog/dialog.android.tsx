@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { EnsureHost } from "../host";
-import { extractTrigger, Trigger } from "./components/trigger";
 import type { DialogAction, DialogProps } from "./dialog";
+import { extractTrigger, Trigger } from "./trigger";
 import { dialogActions } from "./utils";
 
 const LABEL = { typography: "labelLarge" } as const;

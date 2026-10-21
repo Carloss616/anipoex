@@ -2,8 +2,8 @@ import { Alert, Button, ConfirmationDialog, Spacer } from "@expo/ui/swift-ui";
 import { useState } from "react";
 import { Text } from "@/components/native/swift-ui/text";
 import { EnsureHost } from "../host";
-import { extractTrigger, Trigger } from "./components/trigger";
 import type { DialogProps } from "./dialog";
+import { extractTrigger, Trigger } from "./trigger";
 import { dialogActions } from "./utils";
 
 /**

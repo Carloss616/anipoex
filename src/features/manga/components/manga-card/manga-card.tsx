@@ -12,8 +12,8 @@ import { Typography } from "@/components/ui/typography";
 import type { TitlePosition } from "@/features/manga/utils/list-view";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { dp } from "@/utils/utils";
-import { CoverImage } from "./components/cover-image";
 import { STATUS_COLOR, STATUS_ICON } from "./constants";
+import { CoverImage } from "./cover-image";
 
 export interface MangaCardProps {
   cover?: string | ImageSource | null;
