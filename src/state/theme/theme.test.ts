@@ -1,6 +1,7 @@
 import { expect, mock, test } from "bun:test";
 
 const setTheme = mock((_: string) => {});
+const setColorScheme = mock((_: string) => {});
 let osScheme: "light" | "dark" = "light";
 let notifyOS = () => {};
 
@@ -10,7 +11,7 @@ mock.module("react-native", () => ({
   Platform: { OS: "ios" },
   Appearance: {
     getColorScheme: () => osScheme,
-    setColorScheme: () => {},
+    setColorScheme,
     addChangeListener: (listener: () => void) => {
       notifyOS = listener;
 
@@ -56,6 +57,8 @@ test("an explicit mode wins over the OS", () => {
   theme$.preference.set("dark");
 
   expect(setTheme).toHaveBeenLastCalledWith("moon-dark");
+  // Uniwind leaves a custom family unpinned, so the store pins it.
+  expect(setColorScheme).toHaveBeenLastCalledWith("dark");
 });
 
 test("keeps the mode when the family changes", () => {

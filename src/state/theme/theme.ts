@@ -62,6 +62,10 @@ observe(() => {
     Uniwind.setTheme(family[mode]);
   }
 
+  // Uniwind pins Appearance only for `light`/`dark`; native sheets follow it.
+  if (Platform.OS !== "web" && theme$.preference.get() !== "system")
+    Appearance.setColorScheme(mode);
+
   const hasWindow = typeof window !== "undefined";
   if (Platform.OS === "web" && hasWindow)
     document.documentElement.style.colorScheme = mode;
