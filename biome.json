@@ -43,10 +43,7 @@
           "options": {
             "paths": {
               "@expo/ui/community/bottom-sheet": "Import from @/components/ui/bottom-sheet",
-              "panelui-native": {
-                "message": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
-                "allowImportNames": ["PortalHost", "PortalProvider"]
-              },
+              "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
               "panelui-native/components/bottom-sheet": "Import from @/components/ui/bottom-sheet",
               "panelui-native/components/button": "Import from @/components/ui/button",
               "panelui-native/components/chip": "Import from @/components/ui/chip",
@@ -184,10 +181,7 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "panelui-native": {
-                    "message": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
-                    "allowImportNames": ["PortalHost", "PortalProvider"]
-                  }
+                  "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>"
                 }
               }
             }

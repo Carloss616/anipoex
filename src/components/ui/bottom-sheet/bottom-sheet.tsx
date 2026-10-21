@@ -3,8 +3,8 @@ import type {
   SnapPoint,
 } from "@expo/ui";
 import type { ModalBottomSheetProps } from "@expo/ui/jetpack-compose";
-import { PortalHost, PortalProvider } from "panelui-native";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { PortalHost, PortalProvider } from "panelui-native/primitives/portal";
 import { cn } from "panelui-native/utils/cn";
 import type { ReactNode } from "react";
 import { useState } from "react";
