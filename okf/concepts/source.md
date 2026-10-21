@@ -43,9 +43,10 @@ is stable across launches.
   Android, iOS and desktop apps.
 
 - **Search by hand**: when matching by title finds nothing or the wrong manga, a source can
-  be searched with the user's own title. "Search on <source>" (in any row's menu, on iOS also a
-  right swipe, and in the detail's *No match* state, beside "Choose another source") opens the
-  list with that source searching; the header's search-titles toggle searches every source,
+  be searched with the user's own title. "Search on <source>" (in any row's menu, on iOS also
+  among the row's right-edge swipe actions, and in the detail's *No match* state, beside
+  "Choose another source") opens the list with that source searching; the header's
+  search-titles toggle searches every source,
   excluded ones too. While any source searches, the list's search field holds the title (the
   romaji title at first; a new title is searched on submit) and each searching source shows its
   results under its row as cover cards, first page first, the next page loading as the end comes

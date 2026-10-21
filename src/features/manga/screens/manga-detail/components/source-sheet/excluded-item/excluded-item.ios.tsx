@@ -96,17 +96,14 @@ export const ExcludedItem = memo(function ExcludedItem({
           actions={actions}
         />
       </VStack>
-      {/* Swipe right: search and include, as Available rows search there; swipe left: include. */}
-      <SwipeActions.Actions edge="leading">
+      {/* Right edge only: search and include, where Available rows search. */}
+      <SwipeActions.Actions edge="trailing">
         <Button
           label={searching ? "Stop" : "Search"}
           systemImage="text.magnifyingglass"
           modifiers={[tint(primary)]}
           onPress={search.onPress}
         />
-        {include(primary)}
-      </SwipeActions.Actions>
-      <SwipeActions.Actions edge="trailing">
         {include(primary)}
       </SwipeActions.Actions>
     </SwipeActions>

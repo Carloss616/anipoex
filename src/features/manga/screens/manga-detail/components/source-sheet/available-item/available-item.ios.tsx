@@ -177,8 +177,8 @@ export const AvailableItem = memo(function AvailableItem({
           actions={actions}
         />
       </VStack>
-      {/* Swipe right: search and rescan. No full swipe on either edge: a long drag shouldn't start one. */}
-      <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
+      {/* Right edge: search and rescan. No full swipe on either edge: a long drag shouldn't start one. */}
+      <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
         <Button
           label={searching ? "Stop" : "Search"}
           systemImage="text.magnifyingglass"
@@ -187,8 +187,8 @@ export const AvailableItem = memo(function AvailableItem({
         />
         {rescan}
       </SwipeActions.Actions>
-      {/* Swipe left: exclude. */}
-      <SwipeActions.Actions allowsFullSwipe={false}>
+      {/* Left edge: exclude. */}
+      <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
         <Button
           label="Exclude"
           systemImage="eye.slash"
