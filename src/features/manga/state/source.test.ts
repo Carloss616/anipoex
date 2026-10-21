@@ -115,9 +115,9 @@ describe("selectSource", () => {
 
   it("toasts and keeps the pick without a manga when the search fails", async () => {
     source$[4].set({ sourceId: "b", manga: null });
-    expect(await selectSource(4, A, { search: ["boom"], all: ["boom"] })).toBe(
-      "error",
-    );
+    expect(
+      await selectSource(4, A, { search: ["boom"], all: ["boom"] }),
+    ).toHaveProperty("error");
     expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
     expect(source$[4].get()).toEqual({ sourceId: "a" });
     expect(matching$[4].get()).toBe(false);

@@ -42,6 +42,7 @@ export const AvailableItem = memo(function AvailableItem({
   actions,
   onSelect,
   onExclude,
+  onError,
 }: AvailableItemProps) {
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
   const { probe, scanning, suspicious } = useSourceScan(
@@ -57,6 +58,8 @@ export const AvailableItem = memo(function AvailableItem({
     openedAt,
   );
   const detail = statusDetail(status);
+  // The last read's failure, hidden while the source is read again.
+  const error = scanning ? undefined : probe?.error;
   // Off only while this source scans: rescans of other rows run beside it.
   const rescan = (
     <Button
@@ -72,6 +75,13 @@ export const AvailableItem = memo(function AvailableItem({
       <ContextMenu>
         <ContextMenu.Items>
           {rescan}
+          {error && (
+            <Button
+              label="See error"
+              systemImage="exclamationmark.triangle"
+              onPress={() => onError?.({ source, error })}
+            />
+          )}
           {/* The selected source can't be excluded. */}
           {!selected && (
             // Inside a context menu, a menu is its submenu row.

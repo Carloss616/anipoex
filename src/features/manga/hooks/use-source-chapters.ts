@@ -73,7 +73,7 @@ export function useSourceChapters(
         if (current === ticket.current)
           setState({ chapters: rows, loading: false, error: null });
       } catch (error) {
-        recordProbe(mangaId, source, "error");
+        recordProbe(mangaId, source, { error });
         if (current !== ticket.current) return;
         const message = error instanceof Error ? error.message : String(error);
         if (!reset) toast.destructive("Couldn't refresh chapters");

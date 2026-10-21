@@ -55,6 +55,17 @@ export const excludeMenu = (
   })),
 });
 
+/** A failed row's See error: what the source said, then Rescan, or Include on an excluded row. */
+export const errorDialog = (
+  name: string,
+  error: string,
+  excluded = false,
+): MenuItemDialogConfig => ({
+  title: `Couldn't read ${name}`,
+  description: error,
+  confirmLabel: excluded ? "Include" : "Rescan",
+});
+
 /** What follows the badge on an available row: `c.{chapter}` (`?` when suspicious) and the age, each when present. */
 export const statusDetail = ({ chapter, suspicious, age }: SourceStatus) =>
   [chapter !== undefined && `c.${chapter}${suspicious ? "?" : ""}`, age]

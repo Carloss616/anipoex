@@ -19,5 +19,10 @@ Rescan is off only while that source is being probed, and Scan all only starts w
 runs. Closing the sheet doesn't stop a scan. Android, iOS and
 desktop probe; the web app in a browser doesn't.
 
+An error probe keeps what the source threw. A row with one, available or excluded, offers
+**See error** in its menu (the ⋯ button, the iOS context menu or the Android long-press),
+which shows the message with Rescan, or Include on an excluded row. Probes from before
+the message was kept have none and offer nothing until the next read.
+
 Mirrors the plugin's `probes` map and its gist file `seanime-msu-probes.json`. Survives
 sign-out and doesn't sync yet.

@@ -14,15 +14,20 @@ import {
   fillMaxWidth,
   semantics,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
 import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
-import { excludeReasons, statusDetail } from "../utils/row-content";
+import {
+  errorDialog,
+  excludeReasons,
+  statusDetail,
+} from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
 import type { AvailableItemProps } from "./available-item";
 
@@ -53,6 +58,11 @@ export const AvailableItem = memo(function AvailableItem({
   );
   const detail = statusDetail(status);
   const select = () => onSelect(source.id);
+  const [showError, setShowError] = useState(false);
+  // The last read's failure, hidden while the source is read again.
+  const error = scanning ? undefined : probe?.error;
+  // The selected source can't be excluded, so its menu only shows a failure.
+  const menu = !selected || error !== undefined;
 
   const item = (
     <ListItem
@@ -60,8 +70,7 @@ export const AvailableItem = memo(function AvailableItem({
       modifiers={[
         combinedClickable({
           onClick: select,
-          // The selected source can't be excluded, so its long-press has no menu.
-          onLongClick: selected ? undefined : () => onMenu?.(source.id),
+          onLongClick: menu ? () => onMenu?.(source.id) : undefined,
         }),
       ]}
     >
@@ -111,12 +120,21 @@ export const AvailableItem = memo(function AvailableItem({
           </IconButton>
           {/* Its own click, so TalkBack still finds a radio next to the row's long-press. */}
           <RadioButton selected={selected} onClick={select} />
+          {/* A dialog window, not laid out in the row. */}
+          {error && (
+            <Dialog
+              {...errorDialog(source.name, error)}
+              open={showError}
+              onOpenChange={setShowError}
+              onConfirm={() => actions.rescan(source.id)}
+            />
+          )}
         </Row>
       </ListItem.TrailingContent>
     </ListItem>
   );
 
-  return selected ? (
+  return !menu ? (
     item
   ) : (
     <DropdownMenu
@@ -126,7 +144,19 @@ export const AvailableItem = memo(function AvailableItem({
     >
       <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
       <DropdownMenu.Items>
-        {excludeReasons(suspicious).map((reason) => (
+        {error && (
+          <DropdownMenuItem
+            onClick={() => {
+              onMenu?.(null);
+              setShowError(true);
+            }}
+          >
+            <DropdownMenuItem.Text>
+              <Text style={{ typography: "labelLarge" }}>See error</Text>
+            </DropdownMenuItem.Text>
+          </DropdownMenuItem>
+        )}
+        {(selected ? [] : excludeReasons(suspicious)).map((reason) => (
           <DropdownMenuItem
             key={reason}
             onClick={() => {

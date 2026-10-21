@@ -8,12 +8,12 @@ import {
   VStack,
 } from "@expo/ui/swift-ui";
 import { disabled, lineLimit, tint } from "@expo/ui/swift-ui/modifiers";
-import { Computed } from "@legendapp/state/react";
+import { Computed, useValue } from "@legendapp/state/react";
 import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { isScanBusy } from "@/features/manga/state/probes";
+import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Tile } from "../tile";
@@ -26,8 +26,10 @@ export const ExcludedItem = memo(function ExcludedItem({
   pinned,
   mangaKey,
   actions,
+  onError,
 }: ExcludedItemProps) {
   const primary = useThemeColor("primary");
+  const error = useValue(() => probes$[mangaKey][source.id].error.get());
   const include = (color?: string) => (
     <Computed>
       {() => (
@@ -47,7 +49,16 @@ export const ExcludedItem = memo(function ExcludedItem({
   return (
     <SwipeActions>
       <ContextMenu>
-        <ContextMenu.Items>{include()}</ContextMenu.Items>
+        <ContextMenu.Items>
+          {include()}
+          {error && (
+            <Button
+              label="See error"
+              systemImage="exclamationmark.triangle"
+              onPress={() => onError?.({ source, error, excluded: true })}
+            />
+          )}
+        </ContextMenu.Items>
         <ContextMenu.Trigger>
           <HStack modifiers={ROW_FILL}>
             <Label icon={<Tile source={source} />}>

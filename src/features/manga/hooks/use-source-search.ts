@@ -18,7 +18,7 @@ export function useSourceSearch(
       const found = await action(manga.id, source, searchTitles(manga));
       // A search that finds nothing or fails loads no chapters, so its probe is recorded here.
       if (found === null) recordProbe(manga.id, source, "no-match");
-      else if (found === "error") recordProbe(manga.id, source, "error");
+      else if (found && "error" in found) recordProbe(manga.id, source, found);
     };
 
   return { select: run(selectSource), resume: run(resumeSource) };

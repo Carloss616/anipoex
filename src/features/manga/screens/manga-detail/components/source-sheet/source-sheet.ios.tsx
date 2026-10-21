@@ -37,12 +37,20 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { AvailableItem, type ExcludeRequest } from "./available-item";
+import {
+  AvailableItem,
+  type ErrorRequest,
+  type ExcludeRequest,
+} from "./available-item";
 import { ExcludedItem } from "./excluded-item";
 import { useSourceActions } from "./hooks/use-source-actions";
 import { useSources } from "./hooks/use-sources";
 import type { SourceSheetProps } from "./source-sheet";
-import { excludedMenuItems, excludeReasons } from "./utils/row-content";
+import {
+  errorDialog,
+  excludedMenuItems,
+  excludeReasons,
+} from "./utils/row-content";
 
 /** A glass circle's icon slot, as on the tracking overview's menu button. */
 const ICON_FRAME = frame({ width: 20, height: 20 });
@@ -66,7 +74,14 @@ export function SourceSheet({
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
-  const [excluding, setExcluding] = useState<ExcludeRequest | null>(null);
+  // One dialog for both row requests: a view presents one alert.
+  const [request, setRequest] = useState<ExcludeRequest | ErrorRequest | null>(
+    null,
+  );
+  const failed = request && "error" in request ? request : null;
+  const excluding = request && "suspicious" in request ? request : null;
+  const failure =
+    failed && errorDialog(failed.source.name, failed.error, failed.excluded);
   const muted = useThemeColor("muted");
   // Rows as in the extension list: inset-grouped cards on the sheet, default row insets.
   const rowBackground = listRowBackground(muted);
@@ -89,20 +104,32 @@ export function SourceSheet({
           spacing={16}
           modifiers={[padding({ horizontal: GUTTER })]}
         >
-          {/* The reason dialog hangs off the header: `.alert` needs a view that outlives the swiped row. */}
+          {/* The reason and error dialogs hang off the header: `.alert` needs a view that outlives the swiped row. */}
           <Dialog
             alert
-            title={`Exclude ${excluding?.source.name ?? ""}`}
-            open={excluding !== null}
-            onOpenChange={(open) => !open && setExcluding(null)}
+            title={failure?.title ?? `Exclude ${excluding?.source.name ?? ""}`}
+            description={failure?.description}
+            open={request !== null}
+            onOpenChange={(open) => !open && setRequest(null)}
             actions={
-              excluding
-                ? excludeReasons(excluding.suspicious).map((reason) => ({
-                    label: REASONS[reason].menu,
-                    role: "destructive",
-                    onPress: () => actions.exclude(excluding.source.id, reason),
-                  }))
-                : []
+              failed && failure
+                ? [
+                    {
+                      label: failure.confirmLabel,
+                      onPress: () =>
+                        failed.excluded
+                          ? actions.include(failed.source.id)
+                          : actions.rescan(failed.source.id),
+                    },
+                  ]
+                : excluding
+                  ? excludeReasons(excluding.suspicious).map((reason) => ({
+                      label: REASONS[reason].menu,
+                      role: "destructive",
+                      onPress: () =>
+                        actions.exclude(excluding.source.id, reason),
+                    }))
+                  : []
             }
           >
             <Dialog.Trigger>
@@ -201,7 +228,8 @@ export function SourceSheet({
                       selected={row.source.id === selectedId}
                       actions={actions}
                       onSelect={onSelect}
-                      onExclude={setExcluding}
+                      onExclude={setRequest}
+                      onError={setRequest}
                     />
                   )}
                 </List.ForEach>
@@ -248,6 +276,7 @@ export function SourceSheet({
                       pinned={row.pinned}
                       mangaKey={key}
                       actions={actions}
+                      onError={setRequest}
                     />
                   )}
                 </List.ForEach>

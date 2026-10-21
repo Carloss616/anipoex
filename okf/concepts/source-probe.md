@@ -8,10 +8,10 @@ generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-20T00:00:00Z }
 ---
 
 A **probe** is what one scan learned about one [source](source.md) for one manga: its
-latest chapter, chapter count, whether it matched, whether it errored, and when it was
-checked. Its fields match the record of the
+latest chapter, chapter count, whether it matched, whether it errored (and then the
+error's message), and when it was checked. Its fields match the record of the
 [manga-source-updates plugin](https://github.com/Carloss616/seanime-extensions/tree/main/src/plugins/manga-source-updates),
-so a probe can sync through its gist later.
+so a probe can sync through its gist later; the error message is anipoex's own addition.
 
 ## How a probe reads
 

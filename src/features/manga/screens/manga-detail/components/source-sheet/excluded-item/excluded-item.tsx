@@ -1,14 +1,17 @@
-import { Computed } from "@legendapp/state/react";
+import { Computed, useValue } from "@legendapp/state/react";
 import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
-import { isScanBusy } from "@/features/manga/state/probes";
+import { Menu } from "@/components/ui/menu";
+import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { type ExcludeReason, REASONS } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
+import type { ErrorRequest } from "../available-item";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { Tile } from "../tile";
-import { excludedBadge } from "../utils/row-content";
+import { errorDialog, excludedBadge } from "../utils/row-content";
 
 export interface ExcludedItemProps {
   source: Source;
@@ -16,6 +19,8 @@ export interface ExcludedItemProps {
   pinned: boolean;
   mangaKey: string;
   actions: SourceActions;
+  /** iOS: See error shows the message in the sheet's dialog. */
+  onError?: (row: ErrorRequest) => void;
 }
 
 export const ExcludedItem = memo(function ExcludedItem({
@@ -25,6 +30,7 @@ export const ExcludedItem = memo(function ExcludedItem({
   mangaKey,
   actions,
 }: ExcludedItemProps) {
+  const error = useValue(() => probes$[mangaKey][source.id].error.get());
   return (
     <Item>
       <Tile source={source} />
@@ -40,6 +46,31 @@ export const ExcludedItem = memo(function ExcludedItem({
         </Item.Description>
       </Item.Content>
       <Item.Actions>
+        {error && (
+          <Menu
+            items={[
+              {
+                label: "See error",
+                onPressMode: "dialog",
+                dialogConfig: errorDialog(source.name, error, true),
+                onPress: () => actions.include(source.id),
+              },
+            ]}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-9"
+              accessibilityLabel={`More actions for ${source.name}`}
+            >
+              <Icon
+                name={Icons.more}
+                size={BUTTON_ICON_SIZE}
+                className="text-foreground"
+              />
+            </Button>
+          </Menu>
+        )}
         <Computed>
           {() => (
             <Button

@@ -4,18 +4,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
-import { Menu } from "@/components/ui/menu";
+import { Menu, type MenuItem } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
-import { excludeMenu, statusDetail } from "../utils/row-content";
+import { errorDialog, excludeMenu, statusDetail } from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
 
 /** What the iOS swipe hands the sheet's reason dialog. */
 export type ExcludeRequest = { source: Source; suspicious: boolean };
+
+/** What an iOS context menu's See error hands the sheet's dialog. */
+export type ErrorRequest = { source: Source; error: string; excluded?: true };
 
 export interface AvailableItemProps {
   source: Source;
@@ -30,6 +33,8 @@ export interface AvailableItemProps {
   onSelect: (id: string) => void;
   /** iOS: the swipe's Exclude asks for a reason in the sheet's dialog. */
   onExclude?: (row: ExcludeRequest) => void;
+  /** iOS: See error shows the message in the sheet's dialog. */
+  onError?: (row: ErrorRequest) => void;
   /** Android: the long-press menu is open on this row. */
   menuOpen?: boolean;
   onMenu?: (id: string | null) => void;
@@ -58,9 +63,28 @@ export const AvailableItem = memo(function AvailableItem({
     openedAt,
   );
   const detail = statusDetail(status);
-  const exclude = excludeMenu(suspicious, (reason) =>
-    actions.exclude(source.id, reason),
-  );
+  // The last read's failure, hidden while the source is read again.
+  const error = scanning ? undefined : probe?.error;
+  const items: MenuItem[] = [
+    ...(error
+      ? [
+          {
+            label: "See error",
+            onPressMode: "dialog" as const,
+            dialogConfig: errorDialog(source.name, error),
+            onPress: () => actions.rescan(source.id),
+          },
+        ]
+      : []),
+    // The selected source can't be excluded.
+    ...(selected
+      ? []
+      : [
+          excludeMenu(suspicious, (reason) =>
+            actions.exclude(source.id, reason),
+          ),
+        ]),
+  ];
 
   // Siblings, not nested: the row and its trailing actions are all <button>s on web. Same spacing as one Item with its Actions.
   return (
@@ -114,9 +138,8 @@ export const AvailableItem = memo(function AvailableItem({
         >
           <RefreshIcon spinning={scanning} />
         </Button>
-        {/* The selected source can't be excluded, so its menu would be empty. */}
-        {!selected && (
-          <Menu items={[exclude]}>
+        {items.length > 0 && (
+          <Menu items={items}>
             <Button
               variant="ghost"
               size="icon"

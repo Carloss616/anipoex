@@ -40,10 +40,13 @@ it("no equal title is no match", () =>
     latest: 0,
     errored: false,
   }));
-it("a failed read is an error", () =>
-  expect(toProbe(MD, "error", 5)).toMatchObject({
+it("a failed read is an error and keeps its message", () =>
+  expect(toProbe(MD, { error: new Error("HTTP 403") }, 5)).toMatchObject({
     matched: false,
     count: 0,
     latest: 0,
     errored: true,
+    error: "HTTP 403",
   }));
+it("a read that threw a non-Error keeps it as text", () =>
+  expect(toProbe(MD, { error: "boom" }, 5).error).toBe("boom"));

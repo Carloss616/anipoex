@@ -24,6 +24,8 @@ export interface ProviderProbe extends TimestampMeta {
   count: number;
   matched: boolean;
   errored: boolean;
+  /** anipoex-only, not in MSU: what the failed read said. */
+  error?: string;
 }
 
 export type ProbeMap = Record<string, ProviderProbe>;

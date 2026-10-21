@@ -71,8 +71,8 @@ export async function probeSource(
       { chapters: toChapters(chapters, manga.title) },
       Date.now(),
     );
-  } catch {
-    return toProbe(source, "error", Date.now());
+  } catch (error) {
+    return toProbe(source, { error }, Date.now());
   }
 }
 
