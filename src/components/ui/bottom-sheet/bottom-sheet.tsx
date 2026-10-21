@@ -17,6 +17,8 @@ export interface BottomSheetProps
   className?: string;
   /** What the sheet shows. iOS only: SwiftUI animates a resize only against a value that changes. */
   contentKey?: string | number;
+  /** Each time it turns true the sheet moves to its last snap point; the user can still drag it down. */
+  expanded?: boolean;
   /**
    * Direction of the drawer.
    * @platform web
@@ -53,6 +55,7 @@ function BottomSheetRoot({
   className,
   direction: directionProp,
   snapPointsDirection,
+  expanded = false,
 }: BottomSheetProps) {
   const { isAtLeast } = useBreakpoint();
   const direction = directionProp ?? (isAtLeast("md") ? "right" : "bottom");
@@ -64,6 +67,15 @@ function BottomSheetRoot({
       ? snapPoints.map(snapPointToVaul)
       : undefined;
   const hasSnapPoints = vaulSnapPoints != null;
+  const [snap, setSnap] = useState(vaulSnapPoints?.[0] ?? null);
+  // Raised when `expanded` turns true; back to the first snap point once closed.
+  const [last, setLast] = useState({ expanded, isPresented });
+  if (expanded !== last.expanded || isPresented !== last.isPresented) {
+    setLast({ expanded, isPresented });
+    if (!isPresented) setSnap(vaulSnapPoints?.[0] ?? null);
+    else if (expanded && !last.expanded)
+      setSnap(vaulSnapPoints?.at(-1) ?? null);
+  }
 
   return (
     <Drawer.Root
@@ -72,6 +84,9 @@ function BottomSheetRoot({
         if (!open) onDismiss();
       }}
       snapPoints={vaulSnapPoints}
+      {...(hasSnapPoints
+        ? { activeSnapPoint: snap, setActiveSnapPoint: setSnap }
+        : {})}
       direction={direction}
     >
       <PortalProvider>

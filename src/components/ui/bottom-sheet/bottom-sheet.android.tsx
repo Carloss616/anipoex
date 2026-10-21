@@ -64,6 +64,7 @@ function BottomSheetRoot({
   modifiers,
   containerColor,
   scrimColor,
+  expanded = false,
 }: BottomSheetProps) {
   const { isLandscape } = useBreakpoint();
   const sheetRef = useRef<ModalBottomSheetRef>(null);
@@ -81,6 +82,10 @@ function BottomSheetRoot({
     });
     return () => sub.remove();
   }, []);
+
+  useEffect(() => {
+    if (expanded) void sheetRef.current?.expand();
+  }, [expanded]);
 
   // A locked sheet can't be dragged open, so a half-open one would hide the rest of its content.
   useEffect(() => {
@@ -112,6 +117,8 @@ function BottomSheetRoot({
         onDismissRequest={onDismiss}
         showDragHandle={showDragIndicator}
         skipPartiallyExpanded={shouldSkipPartiallyExpanded(snapPoints)}
+        // Opened already raised, before the ref exists.
+        initialFullyExpanded={expanded}
         sheetGesturesEnabled={lockCount === 0}
         modifiers={modifiers}
         containerColor={containerColor}

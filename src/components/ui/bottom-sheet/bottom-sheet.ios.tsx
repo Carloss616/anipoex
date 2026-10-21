@@ -35,11 +35,22 @@ function BottomSheetRoot({
   modifiers,
   containerColor,
   contentKey,
+  expanded = false,
 }: BottomSheetProps) {
   // `animation(_:value:)` takes a number, so count the swaps rather than pass the key.
   const [content, setContent] = useState({ key: contentKey, revision: 0 });
   if (contentKey !== content.key) {
     setContent({ key: contentKey, revision: content.revision + 1 });
+  }
+
+  const detents = snapPoints?.map(snapPointToDetent);
+  const [detent, setDetent] = useState(detents?.[0]);
+  // Raised when `expanded` turns true; back to the first detent once closed.
+  const [last, setLast] = useState({ expanded, isPresented });
+  if (expanded !== last.expanded || isPresented !== last.isPresented) {
+    setLast({ expanded, isPresented });
+    if (!isPresented) setDetent(detents?.[0]);
+    else if (expanded && !last.expanded) setDetent(detents?.at(-1));
   }
 
   return (
@@ -59,8 +70,13 @@ function BottomSheetRoot({
               ? [presentationBackground(containerColor)]
               : []),
             ...(showDragIndicator ? [padding({ top: 10 })] : []),
-            ...(snapPoints?.length
-              ? [presentationDetents(snapPoints.map(snapPointToDetent))]
+            ...(detents?.length
+              ? [
+                  presentationDetents(detents, {
+                    selection: detent,
+                    onSelectionChange: setDetent,
+                  }),
+                ]
               : []),
             ...(modifiers ?? []),
             // Without this the sheet jumps from one content height to the next.
