@@ -5,6 +5,7 @@ import { runtime, type SourceManga } from "@/features/extensions";
 import { ObservablePersist } from "@/state/observable-persist";
 import { pickMatch, readMatch, type Titles } from "../utils/source-match";
 import { SEARCH_TIMEOUT_MS, withTimeout } from "../utils/with-timeout";
+import { readChapters } from "./chapters";
 
 /** Which source each manga's chapter list reads and what it matched, keyed by its AniList id; read through `readMatch`. */
 export const source$ = observable<Record<number, unknown>>({});
@@ -35,7 +36,7 @@ export async function findManga(
   return null;
 }
 
-/** Stores the pick at once, then searches the source for the manga; the last pick per manga wins and a failed search leaves the pick unmatched. */
+/** Stores the pick at once, then searches the source for the manga unless its chapters are stored; the last pick per manga wins and a failed search leaves the pick unmatched. Resolves to the stored match (null for none), "error" when the search failed, or undefined when a later pick took over. */
 export async function selectSource(
   mangaId: number,
   source: { id: string; name: string },
@@ -48,15 +49,18 @@ export async function selectSource(
   matching$[mangaId].set(true);
 
   try {
-    const manga = await findManga(source.id, titles, timeoutMs);
+    // A source whose chapters are stored keeps the page it matched then.
+    const manga =
+      (await readChapters(mangaId, source.id))?.manga ??
+      (await findManga(source.id, titles, timeoutMs));
     if (ticket !== tickets[mangaId]) return;
-    source$[mangaId].set({
-      sourceId: source.id,
-      manga: manga && { url: manga.url, title: manga.title },
-    });
+    const match = manga && { url: manga.url, title: manga.title };
+    source$[mangaId].set({ sourceId: source.id, manga: match });
+    return match;
   } catch {
-    if (ticket === tickets[mangaId])
-      toast.destructive(`Couldn't search ${source.name}`);
+    if (ticket !== tickets[mangaId]) return;
+    toast.destructive(`Couldn't search ${source.name}`);
+    return "error" as const;
   } finally {
     if (ticket === tickets[mangaId]) matching$[mangaId].set(false);
   }

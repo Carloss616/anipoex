@@ -7,6 +7,8 @@ export function toSources(installed: InstalledExtension[]): Source[] {
     sources.map(({ id, name, lang }) => ({
       id,
       name: sources.length > 1 ? `${name} (${lang.toUpperCase()})` : name,
+      baseName: name,
+      lang,
       initials: initialsOf(name),
       iconUrl: icon ?? undefined,
     })),

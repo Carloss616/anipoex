@@ -8,6 +8,10 @@ export interface Source {
   initials: string;
   /** The source's logo, shown on the tile instead of the initials. */
   iconUrl?: string;
+  /** The source's language code (`en`, `es-419`, `all`), for an installed source. */
+  lang?: string;
+  /** `name` without the language it carries when an extension has several, for where the language shows apart. */
+  baseName?: string;
 }
 
 /** Two letters for the tile: the first two words' initials, else the first two capitals, else the first two letters. */

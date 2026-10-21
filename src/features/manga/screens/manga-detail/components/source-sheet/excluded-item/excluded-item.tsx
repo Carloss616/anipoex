@@ -29,8 +29,11 @@ export const ExcludedItem = memo(function ExcludedItem({
     <Item>
       <Tile source={source} />
       <Item.Content>
-        <Item.Title>{source.name}</Item.Title>
+        <Item.Title>{source.baseName ?? source.name}</Item.Title>
         <Item.Description numberOfLines={1}>
+          {source.lang && (
+            <Badge className="mr-1.5">{source.lang.toUpperCase()}</Badge>
+          )}
           <Badge color={REASONS[reason].color}>
             {excludedBadge(reason, pinned)}
           </Badge>

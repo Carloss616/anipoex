@@ -17,7 +17,6 @@ import {
   lineLimit,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { Computed } from "@legendapp/state/react";
 import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
@@ -25,7 +24,6 @@ import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
-import { isScanBusy } from "@/features/manga/state/probes";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useSourceScan } from "../hooks/use-source-scan";
@@ -59,17 +57,14 @@ export const AvailableItem = memo(function AvailableItem({
     openedAt,
   );
   const detail = statusDetail(status);
+  // Off only while this source scans: rescans of other rows run beside it.
   const rescan = (
-    <Computed>
-      {() => (
-        <Button
-          label="Rescan"
-          systemImage="arrow.clockwise"
-          modifiers={[disabled(isScanBusy(mangaKey))]}
-          onPress={() => actions.rescan(source.id)}
-        />
-      )}
-    </Computed>
+    <Button
+      label="Rescan"
+      systemImage="arrow.clockwise"
+      modifiers={[disabled(scanning)]}
+      onPress={() => actions.rescan(source.id)}
+    />
   );
 
   return (
@@ -104,9 +99,10 @@ export const AvailableItem = memo(function AvailableItem({
               <Label icon={<Tile source={source} />}>
                 <VStack alignment="leading" spacing={2}>
                   <Text weight="medium" modifiers={[lineLimit(1)]}>
-                    {source.name}
+                    {source.baseName ?? source.name}
                   </Text>
                   <HStack spacing={6}>
+                    {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
                     {scanning ? (
                       <Badge>scanning…</Badge>
                     ) : (

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 const pending: Record<string, (mangas: unknown[]) => void> = {};
 const search = mock(
@@ -29,6 +30,13 @@ mock.module("@/state/observable-persist", () => ({
     deleteMetadata() {}
   },
 }));
+
+mock.module("../utils/chapter-storage", () => memoryStorage);
+// A source picked before keeps the page stored with its chapters.
+memoryStorage.entries["9/a"] = {
+  manga: { url: "/9", title: "Stored" },
+  chapters: [],
+};
 
 const { matching$, resumeSource, selectSource, source$ } = await import(
   "./source"
@@ -63,6 +71,16 @@ describe("selectSource", () => {
     expect(matching$[1].get()).toBe(false);
   });
 
+  it("reuses the page stored with the source's chapters instead of searching", async () => {
+    await selectSource(9, A, { search: ["p"], all: ["p"] });
+    expect(search).not.toHaveBeenCalled();
+    expect(source$[9].get()).toEqual({
+      sourceId: "a",
+      manga: { url: "/9", title: "Stored" },
+    });
+    expect(matching$[9].get()).toBe(false);
+  });
+
   it("stores the pick before the search resolves", async () => {
     const done = selectSource(5, A, { search: ["p"], all: ["p"] });
     expect(source$[5].get()).toEqual({ sourceId: "a" });
@@ -76,7 +94,8 @@ describe("selectSource", () => {
     const done = selectSource(2, A, { search: ["x", null], all: ["x"] });
     await flush();
     pending["a:x"]([{ ...hit, title: "x party" }]);
-    await done;
+    // Null tells the caller the source was searched and has no match.
+    expect(await done).toBeNull();
     expect(source$[2].get()).toEqual({ sourceId: "a", manga: null });
   });
 
@@ -96,7 +115,9 @@ describe("selectSource", () => {
 
   it("toasts and keeps the pick without a manga when the search fails", async () => {
     source$[4].set({ sourceId: "b", manga: null });
-    await selectSource(4, A, { search: ["boom"], all: ["boom"] });
+    expect(await selectSource(4, A, { search: ["boom"], all: ["boom"] })).toBe(
+      "error",
+    );
     expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
     expect(source$[4].get()).toEqual({ sourceId: "a" });
     expect(matching$[4].get()).toBe(false);

@@ -13,9 +13,9 @@ keep its own data on the chapter (its *memo*, never shown); opening the chapter 
 back to the source, which may need it to find the pages.
 The detail lists the chapters of the manga [matched](../stores/source-matches.md) in the
 chosen [source](source.md), in the order the source answers. The list is
-[stored](../stores/source-chapters.md) once loaded and never expires: it is fetched only
-when the manga has no stored list for its match, and again on refresh (a failed refresh
-keeps the rows and says so).
+[stored](../stores/source-chapters.md) per source once loaded and never expires: it is
+fetched only when that source has no stored list for the manga, and again on refresh (a
+failed refresh keeps the rows and says so); an excluded source loses its list.
 
 - **Number**: the source's own; when it gives none (`-1`, or any lower number but -2) it is read the way
   [Mihon reads it](https://github.com/mihonapp/mihon/blob/main/domain/src/main/java/tachiyomi/domain/chapter/service/ChapterRecognition.kt)

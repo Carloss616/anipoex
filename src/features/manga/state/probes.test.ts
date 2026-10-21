@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 const searchCalls: string[] = [];
 const searchPending: Record<string, (titles: string[]) => void> = {};
@@ -32,6 +33,7 @@ const chapters = mock((sourceId: string, url: string, _title: string) => {
 
 mock.module("@/features/extensions", () => ({ runtime: { search, chapters } }));
 mock.module("@/components/ui/toast", () => ({ toast: { destructive() {} } }));
+mock.module("../utils/chapter-storage", () => memoryStorage);
 mock.module("@/state/observable-persist", () => ({
   ObservablePersist: class {
     getTable() {
@@ -73,7 +75,7 @@ const ch = (name: string, number: number) => ({
 });
 const scan = (over: Record<string, unknown> = {}) =>
   scanSources({
-    mangaId: 1,
+    mangaId: 201,
     sources: sources("a"),
     titles,
     read: () => 0,
@@ -105,7 +107,7 @@ beforeEach(() => {
 
 describe("probeSource", () => {
   it("a matched source becomes a probe with its latest chapter", async () => {
-    const done = probeSource({ id: "a", name: "A" }, titles);
+    const done = probeSource(201, { id: "a", name: "A" }, titles);
     await flush();
     searchPending.a(["T"]);
     await flush();
@@ -118,10 +120,16 @@ describe("probeSource", () => {
       latest: 13,
       errored: false,
     });
+    await flush();
+    // Stored, so picking the source later neither searches nor loads.
+    expect(memoryStorage.entries["201/a"]).toEqual({
+      manga: { url: "/a", title: "T" },
+      chapters: [ch("Ch.12", 12), ch("Chapter 13", -1)],
+    });
   });
 
   it("no equal title is a no-match probe", async () => {
-    const done = probeSource({ id: "a", name: "A" }, titles);
+    const done = probeSource(201, { id: "a", name: "A" }, titles);
     await flush();
     searchPending.a(["Other"]);
     expect(await done).toMatchObject({
@@ -134,7 +142,7 @@ describe("probeSource", () => {
   });
 
   it("a thrown chapters read is an error probe", async () => {
-    const done = probeSource({ id: "a", name: "A" }, titles);
+    const done = probeSource(201, { id: "a", name: "A" }, titles);
     await flush();
     searchPending.a(["T"]);
     await flush();
@@ -143,7 +151,7 @@ describe("probeSource", () => {
   });
 
   it("a chapter read that never answers ends as an error probe", async () => {
-    const done = probeSource({ id: "h", name: "H" }, titles, 20);
+    const done = probeSource(201, { id: "h", name: "H" }, titles, 20);
     await flush();
     // its own source id, so the hung read never meets another test's load
     searchPending.h(["T"]);
@@ -152,7 +160,7 @@ describe("probeSource", () => {
 
   it("a probe shares the detail's chapter load", async () => {
     const detail = fetchChapters("a", "/a", "T");
-    const done = probeSource({ id: "a", name: "A" }, titles);
+    const done = probeSource(201, { id: "a", name: "A" }, titles);
     await flush();
     searchPending.a(["T"]);
     await flush();
@@ -168,15 +176,15 @@ describe("scanSources", () => {
     const done = scan({ sources: sources("a", "b") });
     await answer("a", [3]);
     await flush();
-    expect(probes$["1"].a.get()?.latest).toBe(3);
-    expect(scanning$["1"].a.get()).toBeUndefined();
-    expect(scanning$["1"].b.get()).toBe(true);
+    expect(probes$["201"].a.get()?.latest).toBe(3);
+    expect(scanning$["201"].a.get()).toBeUndefined();
+    expect(scanning$["201"].b.get()).toBe(true);
     searchPending.b([]);
     await done;
-    expect(scanning$["1"].get()).toEqual({});
+    expect(scanning$["201"].get()).toEqual({});
   });
 
-  it("a second scan of the same manga is ignored", async () => {
+  it("a second Scan all of the same manga is ignored", async () => {
     const first = scan({ sources: sources("a", "b") });
     await flush();
     const second = scan({ sources: sources("a", "b") });
@@ -187,40 +195,63 @@ describe("scanSources", () => {
     await Promise.all([first, second]);
   });
 
+  it("rescans of different sources run together", async () => {
+    const first = scan({ sources: sources("a", "b"), only: ["a"] });
+    await flush();
+    const second = scan({ sources: sources("a", "b"), only: ["b"] });
+    await flush();
+    expect(search).toHaveBeenCalledTimes(2);
+    expect(scanning$["201"].get()).toEqual({ a: true, b: true });
+    searchPending.a([]);
+    searchPending.b([]);
+    await Promise.all([first, second]);
+    expect(scanning$["201"].get()).toEqual({});
+  });
+
+  it("a rescan of a source already scanning is ignored", async () => {
+    const first = scan({ sources: sources("a", "b"), only: ["a"] });
+    await flush();
+    const second = scan({ sources: sources("a", "b"), only: ["a"] });
+    await flush();
+    expect(search).toHaveBeenCalledTimes(1);
+    searchPending.a([]);
+    await Promise.all([first, second]);
+  });
+
   it("isScanning holds while the scan runs, read at call time", async () => {
-    expect(isScanning(1)).toBe(false);
+    expect(isScanning(201)).toBe(false);
     const done = scan({ sources: sources("a") });
     await flush();
-    expect(isScanning(1)).toBe(true);
+    expect(isScanning(201)).toBe(true);
     expect(isScanning(2)).toBe(false);
     searchPending.a([]);
     await done;
-    expect(isScanning(1)).toBe(false);
+    expect(isScanning(201)).toBe(false);
   });
 
   it("a scan all flags the manga until it ends", async () => {
     const done = scan({ sources: sources("a", "b") });
     await flush();
-    expect(scanningAll$["1"].get()).toBe(true);
+    expect(scanningAll$["201"].get()).toBe(true);
     searchPending.a([]);
     await flush();
-    expect(scanningAll$["1"].get()).toBe(true);
+    expect(scanningAll$["201"].get()).toBe(true);
     searchPending.b([]);
     await done;
-    expect(scanningAll$["1"].get()).toBeUndefined();
+    expect(scanningAll$["201"].get()).toBeUndefined();
   });
 
   it("a scan with only never flags a scan all", async () => {
     const done = scan({ sources: sources("a", "b"), only: ["a"] });
     await flush();
-    expect(scanningAll$["1"].get()).toBeUndefined();
+    expect(scanningAll$["201"].get()).toBeUndefined();
     searchPending.a([]);
     await done;
-    expect(scanningAll$["1"].get()).toBeUndefined();
+    expect(scanningAll$["201"].get()).toBeUndefined();
   });
 
   it("a recent probe is probed again", async () => {
-    probes$["1"].a.set({
+    probes$["201"].a.set({
       provider: "a",
       providerName: "A",
       latest: 1,
@@ -245,10 +276,10 @@ describe("scanSources", () => {
     await answer("a", [5]);
     await answer("b", [5]);
     await done;
-    const ex = exclusions$["1"].get();
+    const ex = exclusions$["201"].get();
     expect(ex.a).toBeUndefined();
     expect(ex.b.reason).toBe("outdated");
-    expect(ex.b.updatedAt).toBe(probes$["1"].b.get().updatedAt);
+    expect(ex.b.updatedAt).toBe(probes$["201"].b.get().updatedAt);
   });
 
   it("a source picked during the scan is never auto-excluded", async () => {
@@ -257,11 +288,11 @@ describe("scanSources", () => {
       read: () => 50,
       keep: "a",
     });
-    source$[1].set({ sourceId: "b" });
+    source$[201].set({ sourceId: "b" });
     await answer("a", [5]);
     await answer("b", [5]);
     await done;
-    const ex = exclusions$["1"].get();
+    const ex = exclusions$["201"].get();
     expect(ex.b).toBeUndefined();
     expect(ex.a.reason).toBe("outdated");
   });
@@ -278,11 +309,11 @@ describe("scanSources", () => {
     await answer("a", [5]);
     await answer("b", [5]);
     await done;
-    expect(exclusions$["1"].get()?.b?.reason).toBe("outdated");
+    expect(exclusions$["201"].get()?.b?.reason).toBe("outdated");
   });
 
   it("an error must repeat", async () => {
-    probes$["1"].a.set({
+    probes$["201"].a.set({
       provider: "a",
       providerName: "A",
       latest: 0,
@@ -291,7 +322,7 @@ describe("scanSources", () => {
       errored: true,
       updatedAt: 1,
     });
-    probes$["1"].b.set({
+    probes$["201"].b.set({
       provider: "b",
       providerName: "B",
       latest: 9,
@@ -309,7 +340,7 @@ describe("scanSources", () => {
     chaptersPending.a.reject(new Error("x"));
     chaptersPending.b.reject(new Error("x"));
     await done;
-    const ex = exclusions$["1"].get();
+    const ex = exclusions$["201"].get();
     expect(ex.a.reason).toBe("error-found");
     expect(ex.b).toBeUndefined();
   });
@@ -319,23 +350,23 @@ describe("scanSources", () => {
       reason: "outdated" as const,
       updatedAt: Date.now() - 8 * 86_400_000,
     };
-    exclusions$["1"].b.set(old);
+    exclusions$["201"].b.set(old);
     const done = scan({ sources: sources("a", "b"), only: ["a"] });
     await flush();
     expect(searchCalls).toEqual(["a"]);
     searchPending.a([]);
     await done;
-    expect(exclusions$["1"].b.get()).toEqual(old);
+    expect(exclusions$["201"].b.get()).toEqual(old);
   });
 
   it("scan all rechecks an expired auto-exclusion", async () => {
-    exclusions$["1"].a.set({
+    exclusions$["201"].a.set({
       reason: "outdated",
       updatedAt: Date.now() - 8 * 86_400_000,
     });
     const done = scan({ sources: sources("a") });
     await answer("a", [40]);
     await done;
-    expect(exclusions$["1"].a.get().deletedAt).toBeDefined();
+    expect(exclusions$["201"].a.get().deletedAt).toBeDefined();
   });
 });

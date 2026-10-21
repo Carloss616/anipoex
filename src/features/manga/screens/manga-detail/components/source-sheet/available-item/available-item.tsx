@@ -1,4 +1,3 @@
-import { Computed } from "@legendapp/state/react";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
-import { isScanBusy } from "@/features/manga/state/probes";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import type { SourceActions } from "../hooks/use-source-actions";
@@ -74,8 +72,11 @@ export const AvailableItem = memo(function AvailableItem({
       >
         <Tile source={source} />
         <Item.Content>
-          <Item.Title>{source.name}</Item.Title>
+          <Item.Title>{source.baseName ?? source.name}</Item.Title>
           <Item.Description numberOfLines={1}>
+            {source.lang && (
+              <Badge className="mr-1.5">{source.lang.toUpperCase()}</Badge>
+            )}
             {scanning ? (
               <Badge>scanning…</Badge>
             ) : (
@@ -102,20 +103,17 @@ export const AvailableItem = memo(function AvailableItem({
             />
           </Button>
         )}
-        <Computed>
-          {() => (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-9"
-              disabled={isScanBusy(mangaKey)}
-              onPress={() => actions.rescan(source.id)}
-              accessibilityLabel={`Rescan ${source.name}`}
-            >
-              <RefreshIcon spinning={scanning} />
-            </Button>
-          )}
-        </Computed>
+        {/* Off only while this source scans: rescans of other rows run beside it. */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-9"
+          disabled={scanning}
+          onPress={() => actions.rescan(source.id)}
+          accessibilityLabel={`Rescan ${source.name}`}
+        >
+          <RefreshIcon spinning={scanning} />
+        </Button>
         {/* The selected source can't be excluded, so its menu would be empty. */}
         {!selected && (
           <Menu items={[exclude]}>

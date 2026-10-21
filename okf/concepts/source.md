@@ -34,6 +34,8 @@ is stable across launches.
   an extension is the choice. There is no language filter or setting.
 - **Names**: when an extension has more than one source, each name carries its language
   (`Example (ES-419)`); with one, just the name. Nothing installed, nothing listed.
+  In the source sheet the name goes without it, and every row shows the language as its
+  first badge (`EN`, `ES-419`, `ALL`), before the status.
 - **Empty sheet**: with no search, the source sheet says why nothing is listed: in
   the web app in a browser "Sources run in the Android, iOS and desktop apps"; on Android, iOS (sideload) and desktop, "No sources installed", pointing to
   the Extensions tab. A search with no hits says

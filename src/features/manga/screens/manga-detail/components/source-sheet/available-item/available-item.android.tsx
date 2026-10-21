@@ -14,11 +14,9 @@ import {
   fillMaxWidth,
   semantics,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Computed } from "@legendapp/state/react";
 import { memo } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { isScanBusy } from "@/features/manga/state/probes";
 import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useSourceScan } from "../hooks/use-source-scan";
@@ -71,10 +69,13 @@ export const AvailableItem = memo(function AvailableItem({
         <Tile source={source} />
       </ListItem.LeadingContent>
       <ListItem.HeadlineContent>
-        <Text style={{ fontWeight: "500" }}>{source.name}</Text>
+        <Text style={{ fontWeight: "500" }}>
+          {source.baseName ?? source.name}
+        </Text>
       </ListItem.HeadlineContent>
       <ListItem.SupportingContent>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+          {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
           {scanning ? (
             <Badge>scanning…</Badge>
           ) : (
@@ -95,28 +96,19 @@ export const AvailableItem = memo(function AvailableItem({
       </ListItem.SupportingContent>
       <ListItem.TrailingContent>
         <Row verticalAlignment="center">
-          <Computed>
-            {() => {
-              const busy = isScanBusy(mangaKey);
-              return (
-                // Its own click, consumed before the row's, so rescanning never selects.
-                <IconButton
-                  enabled={!busy}
-                  onClick={() => actions.rescan(source.id)}
-                  colors={{ contentColor: m3.onSurfaceVariant }}
-                  modifiers={[
-                    // A disabled button passes the tap to the row; this outer no-op takes it on the same node, so TalkBack still reads one disabled button.
-                    ...(busy
-                      ? [clickable(() => {}, { indication: false })]
-                      : []),
-                    semantics({ contentDescription: `Rescan ${source.name}` }),
-                  ]}
-                >
-                  <RefreshIcon spinning={scanning} />
-                </IconButton>
-              );
-            }}
-          </Computed>
+          {/* Its own click, consumed before the row's, so rescanning never selects; off only while this source scans. */}
+          <IconButton
+            enabled={!scanning}
+            onClick={() => actions.rescan(source.id)}
+            colors={{ contentColor: m3.onSurfaceVariant }}
+            modifiers={[
+              // A disabled button passes the tap to the row; this outer no-op takes it on the same node, so TalkBack still reads one disabled button.
+              ...(scanning ? [clickable(() => {}, { indication: false })] : []),
+              semantics({ contentDescription: `Rescan ${source.name}` }),
+            ]}
+          >
+            <RefreshIcon spinning={scanning} />
+          </IconButton>
           {/* Its own click, so TalkBack still finds a radio next to the row's long-press. */}
           <RadioButton selected={selected} onClick={select} />
         </Row>

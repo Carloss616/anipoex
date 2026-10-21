@@ -24,16 +24,40 @@ describe("toSources", () => {
 
   it("lists every language, with the language in the name", () => {
     expect(toSources([dex])).toEqual([
-      { id: "1", name: "Example (EN)", initials: "EX" },
-      { id: "2", name: "Example (ES-419)", initials: "EX" },
-      { id: "3", name: "Example (JA)", initials: "EX" },
+      {
+        id: "1",
+        name: "Example (EN)",
+        baseName: "Example",
+        lang: "en",
+        initials: "EX",
+      },
+      {
+        id: "2",
+        name: "Example (ES-419)",
+        baseName: "Example",
+        lang: "es-419",
+        initials: "EX",
+      },
+      {
+        id: "3",
+        name: "Example (JA)",
+        baseName: "Example",
+        lang: "ja",
+        initials: "EX",
+      },
     ]);
   });
 
   it("keeps a single source's name as is, whatever its language", () => {
     const single = ext("Single", [["9", "es"]]);
     expect(toSources([single])).toEqual([
-      { id: "9", name: "Single", initials: "SI" },
+      {
+        id: "9",
+        name: "Single",
+        baseName: "Single",
+        lang: "es",
+        initials: "SI",
+      },
     ]);
   });
 

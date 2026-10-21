@@ -53,11 +53,14 @@ export const ExcludedItem = memo(function ExcludedItem({
             <Label icon={<Tile source={source} />}>
               <VStack alignment="leading" spacing={2}>
                 <Text weight="medium" modifiers={[lineLimit(1)]}>
-                  {source.name}
+                  {source.baseName ?? source.name}
                 </Text>
-                <Badge color={REASONS[reason].color}>
-                  {excludedBadge(reason, pinned)}
-                </Badge>
+                <HStack spacing={6}>
+                  {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+                  <Badge color={REASONS[reason].color}>
+                    {excludedBadge(reason, pinned)}
+                  </Badge>
+                </HStack>
               </VStack>
             </Label>
             <Spacer />

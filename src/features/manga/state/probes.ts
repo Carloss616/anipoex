@@ -18,9 +18,10 @@ import {
   recheckExclusions,
 } from "../utils/source-exclusions";
 import { readMatch, type Titles } from "../utils/source-match";
-import { toProbe } from "../utils/source-probe";
+import { type ProbeRead, toProbe } from "../utils/source-probe";
 import { toChapters } from "../utils/to-chapters";
 import { SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
+import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
 import { findManga, source$ } from "./source";
 
@@ -45,8 +46,9 @@ syncObservable(probes$, {
   persist: { name: "source-probes", plugin: ObservablePersist },
 });
 
-/** A real read of one source for the manga; never rejects, a failure is an error probe. */
+/** A real read of one source for the manga, which stores the chapters it finds; never rejects, a failure is an error probe. */
 export async function probeSource(
+  mangaId: number,
   source: { id: string; name: string },
   titles: Titles,
   timeoutMs = SEARCH_TIMEOUT_MS,
@@ -60,6 +62,10 @@ export async function probeSource(
       manga.title,
       timeoutMs,
     );
+    chapters$[chaptersKey(mangaId, source.id)].set({
+      manga: { url: manga.url, title: manga.title },
+      chapters,
+    });
     return toProbe(
       source,
       { chapters: toChapters(chapters, manga.title) },
@@ -70,7 +76,16 @@ export async function probeSource(
   }
 }
 
-/** Probes the manga's sources (all not excluded, or `only`) and writes each probe as it lands; one scan per manga at a time. */
+/** A read of the chosen source outside a scan (its chapters, or no match) is a probe too, so the source sheet shows what it found. */
+export function recordProbe(
+  mangaId: number,
+  source: { id: string; name: string },
+  read: ProbeRead,
+) {
+  probes$[mediaKey(mangaId)][source.id].set(toProbe(source, read, Date.now()));
+}
+
+/** Probes the manga's sources (all not excluded, or `only`) and writes each probe as it lands; rescans of different sources run together, a Scan all alone. */
 export async function scanSources(args: {
   mangaId: number;
   sources: Source[];
@@ -82,7 +97,9 @@ export async function scanSources(args: {
 }): Promise<void> {
   const { mangaId, sources, titles, read, keep, only } = args;
   const key = mediaKey(mangaId);
-  if (isScanning(mangaId)) return;
+  // A Scan all waits for every scan to end; a rescan only for its own source's.
+  if (only ? only.some((id) => scanning$[key][id].peek()) : isScanning(mangaId))
+    return;
 
   const excluded = exclusions$[key].peek() ?? {};
   const pinned = pins$[key].peek() ?? {};
@@ -103,9 +120,8 @@ export async function scanSources(args: {
   if (targets.length === 0) return;
 
   const prev = { ...probes$[key].peek() };
-  scanning$[key].set(
-    Object.fromEntries(targets.map((s) => [s.id, true as const])),
-  );
+  // Added beside the sources other rescans are probing, not over them.
+  for (const s of targets) scanning$[key][s.id].set(true);
   if (!only) scanningAll$[key].set(true);
 
   try {
@@ -113,7 +129,7 @@ export async function scanSources(args: {
     for (let i = 0; i < targets.length; i += PARALLEL_BATCH) {
       await Promise.all(
         targets.slice(i, i + PARALLEL_BATCH).map(async (source) => {
-          const probe = await probeSource(source, titles);
+          const probe = await probeSource(mangaId, source, titles);
           landed[source.id] = probe;
           probes$[key][source.id].set(probe);
           scanning$[key][source.id].delete();

@@ -14,7 +14,8 @@ opens and retries on refresh, and a failed search leaves it that way. `manga` is
 [source](../concepts/source.md) answered with (its `url` and `title`) when it equals an
 AniList title or synonym once case, diacritics and punctuation are ignored; `manga: null`
 means the source was searched and nothing matched exactly, never an approximate result.
-The search tries the romaji title, then the English one. Values from before matching
+The search tries the romaji title, then the English one; a source whose
+[chapters are stored](source-chapters.md) for the manga isn't searched again, its stored page is the match. Values from before matching
 (a bare source id) are ignored, so the user picks the source again. A missing key means no
 source chosen; so does a match whose source no installed extension provides any more
 (it was uninstalled), once the installed list has been read, so the detail asks to pick

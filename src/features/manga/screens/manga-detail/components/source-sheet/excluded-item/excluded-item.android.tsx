@@ -22,10 +22,13 @@ export const ExcludedItem = memo(function ExcludedItem({
         <Tile source={source} />
       </ListItem.LeadingContent>
       <ListItem.HeadlineContent>
-        <Text style={{ fontWeight: "500" }}>{source.name}</Text>
+        <Text style={{ fontWeight: "500" }}>
+          {source.baseName ?? source.name}
+        </Text>
       </ListItem.HeadlineContent>
       <ListItem.SupportingContent>
-        <Row>
+        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+          {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
           <Badge color={REASONS[reason].color}>
             {excludedBadge(reason, pinned)}
           </Badge>
