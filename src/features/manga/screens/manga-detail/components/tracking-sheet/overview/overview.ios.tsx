@@ -23,6 +23,7 @@ import { Text } from "@/components/native/swift-ui/text";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { formatDate } from "@/utils/utils";
 import type { OverviewProps } from "./overview";
 import { removeItem } from "./utils/remove-item";
@@ -69,6 +70,7 @@ export function Overview({
   canScore,
 }: OverviewProps) {
   const { isLandscape } = useBreakpoint();
+  const muted = useThemeColor("muted");
 
   return (
     <VStack alignment="leading" spacing={0} modifiers={[padding({ top: 16 })]}>
@@ -105,7 +107,7 @@ export function Overview({
           modifiers={[
             frame({ maxWidth: Infinity }),
             glassEffect({
-              glass: { variant: "regular" },
+              glass: { variant: "regular", tint: muted },
               shape: "roundedRectangle",
               cornerRadius: 24,
             }),

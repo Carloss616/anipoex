@@ -2,7 +2,6 @@ import { Picker, ScrollView, VStack } from "@expo/ui/swift-ui";
 import {
   fixedSize,
   labelsHidden,
-  lineLimit,
   padding,
   pickerStyle,
   tag,
@@ -12,7 +11,7 @@ import { Text } from "@/components/native/swift-ui/text";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { ChangesPreview } from "../changes-preview";
-import { Footer } from "../footer";
+import { Header } from "../header.ios";
 import { useStatus } from "./hooks/use-status";
 import type { StatusProps } from "./status";
 
@@ -29,12 +28,12 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
       spacing={0}
       modifiers={[padding({ vertical: 16 })]}
     >
-      <Text
-        textStyle="title3"
-        modifiers={[lineLimit(1), padding({ horizontal: 16 })]}
-      >
-        Status
-      </Text>
+      <Header
+        title="Status"
+        onCancel={onCancel}
+        onConfirm={() => onConfirm(next)}
+        canConfirm={dirty}
+      />
 
       <ScrollView
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
@@ -59,12 +58,6 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
       </ScrollView>
 
       <ChangesPreview changes={changes} />
-
-      <Footer
-        onCancel={onCancel}
-        onConfirm={() => onConfirm(next)}
-        canConfirm={dirty}
-      />
     </VStack>
   );
 }

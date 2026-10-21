@@ -1,11 +1,10 @@
-import { HStack, ScrollView, Spacer, VStack } from "@expo/ui/swift-ui";
-import { fixedSize, lineLimit, padding } from "@expo/ui/swift-ui/modifiers";
+import { ScrollView, VStack } from "@expo/ui/swift-ui";
+import { fixedSize, padding } from "@expo/ui/swift-ui/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { Code, Text } from "@/components/native/swift-ui/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
-import { Footer } from "../footer";
+import { Header } from "../header.ios";
 import { useScore } from "./hooks/use-score";
 import type { ScoreProps } from "./score";
 
@@ -20,13 +19,13 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
       spacing={0}
       modifiers={[padding({ vertical: 16 })]}
     >
-      <HStack spacing={8} modifiers={[padding({ horizontal: 16 })]}>
-        <Text textStyle="title3" modifiers={[lineLimit(1)]}>
-          Score
-        </Text>
-        <Spacer />
-        <Code>{`${score || "_"}/${scale.max}`}</Code>
-      </HStack>
+      <Header
+        title="Score"
+        subtitle={`${score || "_"}/${scale.max}`}
+        onCancel={onCancel}
+        onConfirm={() => onConfirm(score)}
+        canConfirm={score !== value}
+      />
 
       <ScrollView
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
@@ -44,12 +43,6 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
           </BottomSheet.LockDrag>
         </VStack>
       </ScrollView>
-
-      <Footer
-        onCancel={onCancel}
-        onConfirm={() => onConfirm(score)}
-        canConfirm={score !== value}
-      />
     </VStack>
   );
 }

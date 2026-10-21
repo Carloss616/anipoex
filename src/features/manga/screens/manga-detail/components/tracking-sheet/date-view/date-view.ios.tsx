@@ -1,16 +1,24 @@
-import { ScrollView, VStack } from "@expo/ui/swift-ui";
-import { fixedSize, lineLimit, padding } from "@expo/ui/swift-ui/modifiers";
+import { Button, ScrollView, VStack } from "@expo/ui/swift-ui";
+import {
+  disabled,
+  fixedSize,
+  padding,
+  tint,
+} from "@expo/ui/swift-ui/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
-import { Text } from "@/components/native/swift-ui/text";
+import { useFont } from "@/components/native/swift-ui/text";
 import { Calendar } from "@/components/ui/calendar";
-import { Footer } from "../footer";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { Header } from "../header.ios";
 import type { DateViewProps } from "./date-view";
 
 export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
   const [date, setDate] = useState(value);
 
   const { isLandscape } = useBreakpoint();
+  const font = useFont("body", "medium");
+  const destructive = useThemeColor("destructive");
 
   return (
     <VStack
@@ -18,12 +26,12 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
       spacing={0}
       modifiers={[padding({ vertical: 16 })]}
     >
-      <Text
-        textStyle="title3"
-        modifiers={[lineLimit(1), padding({ horizontal: 16 })]}
-      >
-        {title}
-      </Text>
+      <Header
+        title={title}
+        onCancel={onCancel}
+        onConfirm={() => onConfirm(date)}
+        canConfirm={date?.getTime() !== value?.getTime()}
+      />
 
       <ScrollView
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
@@ -37,12 +45,17 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
         </VStack>
       </ScrollView>
 
-      <Footer
-        onRemove={() => onConfirm()}
-        canRemove={!!date}
-        onCancel={onCancel}
-        onConfirm={() => onConfirm(date)}
-        canConfirm={date?.getTime() !== value?.getTime()}
+      {/* Clearing sits under the calendar, like Delete under an iOS form. */}
+      <Button
+        label="Remove"
+        role="destructive"
+        onPress={() => onConfirm()}
+        modifiers={[
+          font,
+          tint(destructive),
+          disabled(!date),
+          padding({ horizontal: 16 }),
+        ]}
       />
     </VStack>
   );
