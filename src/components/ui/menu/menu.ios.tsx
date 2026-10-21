@@ -1,18 +1,11 @@
 import { Button, Menu as SwiftUIMenu, Toggle } from "@expo/ui/swift-ui";
 import { disabled as disabledModifier } from "@expo/ui/swift-ui/modifiers";
-import type { SFSymbol } from "expo-symbols";
 import { Dialog } from "../dialog";
 import { EnsureHost } from "../host";
+import { sfSymbol } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
-import type { MenuAction, MenuItem, MenuProps } from "./menu";
+import type { MenuAction, MenuProps } from "./menu";
 import { isSubmenu } from "./utils";
-
-/** SwiftUI menu rows only take an SF Symbol; anything else has no slot here. */
-function symbolOf(icon: MenuItem["icon"]): SFSymbol | undefined {
-  const name =
-    icon && typeof icon === "object" && "ios" in icon ? icon.ios : icon;
-  return typeof name === "string" ? (name as SFSymbol) : undefined;
-}
 
 function actionRow(item: MenuAction) {
   const modifiers = item.disabled ? [disabledModifier(true)] : undefined;
@@ -21,7 +14,7 @@ function actionRow(item: MenuAction) {
     <Button
       key={item.label}
       label={item.label}
-      systemImage={symbolOf(item.icon)}
+      systemImage={sfSymbol(item.icon)}
       role={item.destructive ? "destructive" : undefined}
       modifiers={modifiers}
       onPress={item.onPress}
@@ -30,7 +23,7 @@ function actionRow(item: MenuAction) {
     <Toggle
       key={item.label}
       label={item.label}
-      systemImage={symbolOf(item.icon)}
+      systemImage={sfSymbol(item.icon)}
       isOn={item.checked}
       onIsOnChange={item.onPress}
       modifiers={modifiers}
@@ -66,7 +59,7 @@ export function Menu({ items, children, onPrimaryAction }: MenuProps) {
           <SwiftUIMenu
             key={item.label}
             label={item.label}
-            systemImage={symbolOf(item.icon)}
+            systemImage={sfSymbol(item.icon)}
             modifiers={item.disabled ? [disabledModifier(true)] : undefined}
           >
             {item.items.map(actionRow)}

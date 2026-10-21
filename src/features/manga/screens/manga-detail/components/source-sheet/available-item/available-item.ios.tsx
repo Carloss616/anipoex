@@ -21,7 +21,7 @@ import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
@@ -68,7 +68,7 @@ export const AvailableItem = memo(function AvailableItem({
   const rescan = (
     <Button
       label="Rescan"
-      systemImage="arrow.clockwise"
+      systemImage={sfSymbol(Icons.refresh)}
       modifiers={[disabled(scanning)]}
       onPress={() => actions.rescan(source.id)}
     />
@@ -81,7 +81,7 @@ export const AvailableItem = memo(function AvailableItem({
           <ContextMenu.Items>
             <Button
               label={search.label}
-              systemImage="text.magnifyingglass"
+              systemImage={sfSymbol(Icons.searchTitles)}
               onPress={search.onPress}
             />
             {rescan}
@@ -181,7 +181,7 @@ export const AvailableItem = memo(function AvailableItem({
       <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
         <Button
           label={searching ? "Stop" : "Search"}
-          systemImage="text.magnifyingglass"
+          systemImage={sfSymbol(Icons.searchTitles)}
           modifiers={[tint(primary)]}
           onPress={search.onPress}
         />

@@ -1,5 +1,6 @@
 import { Stack, useRouter } from "expo-router";
 import type { SFSymbol } from "expo-symbols";
+import { Icons } from "@/components/ui/icon";
 import {
   EXTENSION_FILTERS,
   type ExtensionFilter,
@@ -35,7 +36,7 @@ export function ListToolbar({
   return (
     <Stack.Toolbar placement="right">
       <Stack.Toolbar.Menu
-        icon="line.3.horizontal.decrease"
+        icon={Icons.filter}
         tintColor={filter !== "all" || language ? primary : undefined}
         accessibilityLabel="Filter and language"
       >
@@ -52,7 +53,7 @@ export function ListToolbar({
             </Stack.Toolbar.MenuAction>
           ))}
         </Stack.Toolbar.Menu>
-        <Stack.Toolbar.Menu title="Language" icon="globe">
+        <Stack.Toolbar.Menu title="Language" icon={Icons.language}>
           {[undefined, ...languages].map((l) => (
             <Stack.Toolbar.MenuAction
               key={l?.code ?? "all"}
@@ -65,7 +66,7 @@ export function ListToolbar({
         </Stack.Toolbar.Menu>
       </Stack.Toolbar.Menu>
       <Stack.Toolbar.Button
-        icon="shippingbox"
+        icon={Icons.repos}
         onPress={() => router.push("/extensions/repos")}
         accessibilityLabel="Repositories"
       />

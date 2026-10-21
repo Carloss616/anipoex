@@ -11,7 +11,6 @@ import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
-import { searchingCount } from "@/features/manga/state/title-search";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
@@ -152,31 +151,13 @@ export function SheetContent({
             </Typography>
           </View>
           {title.searching ? (
-            <View className="gap-1">
-              <View className="flex-row items-center">
-                <Computed>
-                  {() => (
-                    <Typography type="small" className="flex-1">
-                      {`Titles · ${searchingCount(key)}`}
-                    </Typography>
-                  )}
-                </Computed>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onPress={() => actions.stopSearch()}
-                >
-                  Done
-                </Button>
-              </View>
-              <SearchBar
-                key="titles"
-                defaultValue={title.query}
-                onSubmit={title.submit}
-                placeholder="Title to search"
-                shape="pill"
-              />
-            </View>
+            <SearchBar
+              key="titles"
+              defaultValue={title.query}
+              onSubmit={title.submit}
+              placeholder="Title to search"
+              shape="pill"
+            />
           ) : (
             <SearchBar
               defaultValue={query}

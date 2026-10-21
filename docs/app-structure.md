@@ -114,6 +114,7 @@ export default function AnimeDetailScreen() {
 ### Code style
 
 - Module-level constants (`const LABEL = …`) go after the last import, never between imports.
+- An icon in `Icons` (`src/components/ui/icon/icons.ts`) is always referenced from there, never as its glyph name, so changing the registry changes every place: also SwiftUI `systemImage` (`sfSymbol(Icons.refresh)`) and toolbar `icon` props. Only glyphs it doesn't hold stay inline.
 
 ### Feature vs global
 

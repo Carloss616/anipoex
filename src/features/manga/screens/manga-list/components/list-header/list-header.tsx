@@ -5,7 +5,7 @@ import { memo } from "react";
 import { View } from "react-native";
 import { ActiveFilters } from "@/components/blocks/active-filters";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { mangaCount } from "@/features/manga/constants";
 import {
@@ -46,7 +46,7 @@ export const ListHeader = memo(function ListHeader({
             <Button
               variant="outline"
               size="sm"
-              endContent={<Icon name="chevron-down" size={16} />}
+              endContent={<Icon name={Icons.chevronDown} size={16} />}
             >
               {genre}
             </Button>

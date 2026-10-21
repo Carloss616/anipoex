@@ -14,7 +14,7 @@ import {
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
 import { Surface } from "@/components/ui/surface";
@@ -164,7 +164,7 @@ function LanguageMenu({
       <Button
         variant="outline"
         size="sm"
-        endContent={<Icon name="chevron-down" size={16} />}
+        endContent={<Icon name={Icons.chevronDown} size={16} />}
       >
         {languages.find((l) => l.code === language)?.name ?? "All languages"}
       </Button>

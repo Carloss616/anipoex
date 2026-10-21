@@ -48,9 +48,9 @@ export const Icons = {
     web: "search",
   }),
   searchTitles: Icon.select({
-    ios: "text.magnifyingglass",
-    android: require("@expo/material-symbols/manage_search.xml"),
-    web: "text-search",
+    ios: "doc.text.magnifyingglass",
+    android: require("@expo/material-symbols/find_in_page.xml"),
+    web: "book-search",
   }),
   searchTitlesOff: Icon.select({
     ios: "minus.magnifyingglass",

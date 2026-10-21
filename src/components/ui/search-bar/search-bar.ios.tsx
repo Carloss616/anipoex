@@ -24,7 +24,7 @@ import { useFont } from "@/components/native/swift-ui/text";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
-import { Icon, Icons } from "../icon";
+import { Icon, Icons, sfSymbol } from "../icon";
 import type { SearchBarProps } from "./search-bar";
 
 const HEIGHT = 48;
@@ -147,7 +147,7 @@ export function SearchBar({
           {showCancel ? (
             <Button
               label={cancelLabel}
-              systemImage="xmark"
+              systemImage={sfSymbol(Icons.close)}
               onPress={dismiss}
               modifiers={[
                 labelStyle("iconOnly"),

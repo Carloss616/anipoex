@@ -54,8 +54,8 @@ is stable across launches.
   opens its menu: its full title, *Use as match* (or *Remove match* on a match set by hand), and
   *Open website*; a match changes only from that menu. A match is kept as a
   [manual match](../stores/manual-matches.md) and the list stays open; a failed or empty search
-  says so beside the current match. Closing the list or Done ends the search; nothing searched is
-  stored.
+  says so beside the current match. Closing the list or the search-titles toggle ends the
+  search; nothing searched is stored.
 - **Website**: an installed source reports its own site (none when it can't). On Android, the
   detail shows an "Open on <source>" button next to the source picker once the manga has a
   match; it opens the manga's page on that source's site, or says it couldn't.

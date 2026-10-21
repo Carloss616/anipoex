@@ -1,5 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
+import { Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES, mangaCount } from "@/features/manga/constants";
 import { ALL, genresOf } from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
@@ -22,7 +23,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   return (
     <Stack.Toolbar placement="right">
       <Stack.Toolbar.Menu
-        icon="line.3.horizontal.decrease"
+        icon={Icons.filter}
         tintColor={genre !== ALL ? primary : undefined}
         accessibilityLabel="List and genre"
       >
@@ -42,7 +43,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
             );
           })}
         </Stack.Toolbar.Menu>
-        <Stack.Toolbar.Menu title="Genre" icon="tag">
+        <Stack.Toolbar.Menu title="Genre" icon={Icons.tag}>
           {genres.map((name) => (
             <Stack.Toolbar.MenuAction
               key={name}
@@ -55,7 +56,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
         </Stack.Toolbar.Menu>
       </Stack.Toolbar.Menu>
       <Stack.Toolbar.Button
-        icon="square.grid.2x2"
+        icon={Icons.grid}
         onPress={openViewSheet}
         accessibilityLabel="View options"
       />

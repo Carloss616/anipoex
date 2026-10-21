@@ -35,7 +35,6 @@ import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
-import { searchingCount } from "@/features/manga/state/title-search";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
@@ -212,30 +211,12 @@ export function SheetContent({
             </Dialog.Trigger>
           </Dialog>
           {title.searching ? (
-            <VStack alignment="leading" spacing={8}>
-              <HStack>
-                {/* `@expo/ui` Text takes only a string child: the whole Text is the Computed. */}
-                <Computed>
-                  {() => (
-                    <Text textStyle="subheadline" weight="medium">
-                      {`Titles · ${searchingCount(key)}`}
-                    </Text>
-                  )}
-                </Computed>
-                <Spacer />
-                <Button
-                  label="Done"
-                  onPress={() => actions.stopSearch()}
-                  modifiers={[buttonStyle("borderless")]}
-                />
-              </HStack>
-              <SearchBar
-                key="titles"
-                defaultValue={title.query}
-                onSubmit={title.submit}
-                placeholder="Title to search"
-              />
-            </VStack>
+            <SearchBar
+              key="titles"
+              defaultValue={title.query}
+              onSubmit={title.submit}
+              placeholder="Title to search"
+            />
           ) : (
             <SearchBar
               defaultValue={query}

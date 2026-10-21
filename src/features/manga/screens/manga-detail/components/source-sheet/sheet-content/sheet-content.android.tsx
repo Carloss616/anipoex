@@ -6,7 +6,6 @@ import {
   LazyColumn,
   Row,
   Spacer,
-  TextButton,
 } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
@@ -29,7 +28,6 @@ import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
-import { searchingCount } from "@/features/manga/state/title-search";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
@@ -203,28 +201,13 @@ export function SheetContent({
             </Text>
           </Column>
           {title.searching ? (
-            <Column verticalArrangement={{ spacedBy: 4 }}>
-              <Row verticalAlignment="center">
-                <Computed>
-                  {() => (
-                    <Text style={{ typography: "titleSmall" }}>
-                      {`Titles · ${searchingCount(key)}`}
-                    </Text>
-                  )}
-                </Computed>
-                <Spacer modifiers={[weight(1)]} />
-                <TextButton onClick={() => actions.stopSearch()}>
-                  <Text style={{ typography: "labelLarge" }}>Done</Text>
-                </TextButton>
-              </Row>
-              <SearchBar
-                key="titles"
-                defaultValue={title.query}
-                onSubmit={title.submit}
-                placeholder="Title to search"
-                shape="pill"
-              />
-            </Column>
+            <SearchBar
+              key="titles"
+              defaultValue={title.query}
+              onSubmit={title.submit}
+              placeholder="Title to search"
+              shape="pill"
+            />
           ) : (
             <SearchBar
               defaultValue={query}

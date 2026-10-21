@@ -13,6 +13,7 @@ import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
+import { Icons, sfSymbol } from "@/components/ui/icon";
 import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -58,7 +59,7 @@ export const ExcludedItem = memo(function ExcludedItem({
             {/* A source excluded for finding nothing can be searched by hand. */}
             <Button
               label={search.label}
-              systemImage="text.magnifyingglass"
+              systemImage={sfSymbol(Icons.searchTitles)}
               onPress={search.onPress}
             />
             {include()}
@@ -100,7 +101,7 @@ export const ExcludedItem = memo(function ExcludedItem({
       <SwipeActions.Actions edge="trailing">
         <Button
           label={searching ? "Stop" : "Search"}
-          systemImage="text.magnifyingglass"
+          systemImage={sfSymbol(Icons.searchTitles)}
           modifiers={[tint(primary)]}
           onPress={search.onPress}
         />

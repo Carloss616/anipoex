@@ -1,5 +1,4 @@
 import { Memo, useObservable } from "@legendapp/state/react";
-import { Lucide } from "@react-native-vector-icons/lucide";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
 import { ButtonGroup } from "panelui-native/components/button-group";
@@ -176,8 +175,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
               onPress={navigation.goBack}
               accessibilityLabel={backLabel ?? "Back"}
             >
-              <Lucide
-                name="chevron-left"
+              <Icon
+                name={Icons.back}
                 size={BUTTON_ICON_SIZE}
                 color={iconColor}
               />
@@ -245,8 +244,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 onPress={openSearch}
                 accessibilityLabel={search.placeholder ?? "Search"}
               >
-                <Lucide
-                  name="search"
+                <Icon
+                  name={Icons.search}
                   size={BUTTON_ICON_SIZE}
                   color={iconColor}
                 />
