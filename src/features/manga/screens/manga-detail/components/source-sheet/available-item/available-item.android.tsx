@@ -23,9 +23,9 @@ import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
+import { Rail } from "../rail";
 import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
-import { TitleRail } from "../title-rail";
 import {
   errorDialog,
   excludeReasons,
@@ -197,7 +197,7 @@ export const AvailableItem = memo(function AvailableItem({
           ))}
         </DropdownMenu.Items>
       </DropdownMenu>
-      <TitleRail
+      <Rail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}
         source={source}

@@ -10,9 +10,9 @@ import type { Source } from "@/features/manga/utils/source";
 import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { useSourceScan } from "../hooks/use-source-scan";
+import { Rail } from "../rail";
 import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
-import { TitleRail } from "../title-rail";
 import {
   errorDialog,
   excludeMenu,
@@ -160,7 +160,7 @@ export const AvailableItem = memo(function AvailableItem({
           </Menu>
         </Item.Actions>
       </View>
-      <TitleRail
+      <Rail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}
         source={source}

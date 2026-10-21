@@ -19,45 +19,20 @@ import {
   onAppear,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
-import { memo } from "react";
 import { Text } from "@/components/native/swift-ui/text";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
-import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useSearching } from "../hooks/use-searching";
-import type { RailItem } from "../utils/rail-items";
-import { CURRENT_MARK } from "./constants";
+import { COVER } from "../constants";
+import type { RailProps } from "../rail";
+import { RailCard } from "../rail-card";
 import { useRail } from "./hooks/use-rail";
-import type { TitleRailProps } from "./title-rail";
 
-const WIDTH = 80;
-const HEIGHT = 120;
 const RADIUS = 6;
-const COVER = frame({ width: WIDTH, height: HEIGHT });
+const COVER_FRAME = frame(COVER);
 
-/** A tap opens the card's menu, which holds every action; a context menu would be taken over by the list row. */
-function Card({ item, color }: { item: RailItem; color: string }) {
-  return (
-    // A menu label takes the tint and centres its text: the card keeps its own look.
-    <VStack
-      modifiers={[foregroundStyle(color), multilineTextAlignment("leading")]}
-    >
-      <MangaCard
-        cover={item.manga.thumbnailUrl}
-        title={item.manga.title}
-        mark={item.current ? CURRENT_MARK : undefined}
-        titlePosition="below"
-        accessibilityLabel={
-          item.current ? `${item.manga.title}, current match` : item.manga.title
-        }
-        style={{ width: WIDTH }}
-      />
-    </VStack>
-  );
-}
-
-function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
+/** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
+export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const [muted, foreground] = useThemeColor(["muted", "foreground"]);
   const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
@@ -74,7 +49,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           <RoundedRectangle
             key={i}
             cornerRadius={RADIUS}
-            modifiers={[COVER, foregroundStyle(muted)]}
+            modifiers={[COVER_FRAME, foregroundStyle(muted)]}
           />
         ))}
       </HStack>
@@ -109,10 +84,21 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
         >
           {items.map((item, i) => [
             <Menu key={item.manga.url} items={menu(item)}>
-              <Card item={item} color={foreground} />
+              {/* A menu label takes the tint and centres its text: the card keeps its own look. */}
+              <VStack
+                modifiers={[
+                  foregroundStyle(foreground),
+                  multilineTextAlignment("leading"),
+                ]}
+              >
+                <RailCard item={item} />
+              </VStack>
             </Menu>,
             item.current && i === 0 && items.length > 1 && (
-              <Divider key="divider" modifiers={[frame({ height: HEIGHT })]} />
+              <Divider
+                key="divider"
+                modifiers={[frame({ height: COVER.height })]}
+              />
             ),
           ])}
           {(rail.hasNextPage || rail.loadingMore) && (
@@ -127,7 +113,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
             >
               <ZStack
                 modifiers={[
-                  COVER,
+                  COVER_FRAME,
                   background(muted),
                   clipShape("roundedRectangle", RADIUS),
                 ]}
@@ -148,10 +134,3 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
     </VStack>
   );
 }
-
-/** A source's title results under its row, while it searches. */
-export const TitleRail = memo(function TitleRail(props: TitleRailProps) {
-  return useSearching(props.mangaKey, props.source.id) ? (
-    <Rail {...props} />
-  ) : null;
-});

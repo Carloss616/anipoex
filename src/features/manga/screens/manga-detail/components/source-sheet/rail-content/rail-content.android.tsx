@@ -18,41 +18,20 @@ import {
   semantics,
   size,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
-import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { useSearching } from "../hooks/use-searching";
-import type { RailItem } from "../utils/rail-items";
-import { CURRENT_MARK } from "./constants";
+import { COVER } from "../constants";
+import type { RailProps } from "../rail";
+import { RailCard } from "../rail-card";
 import { useRail } from "./hooks/use-rail";
-import type { TitleRailProps } from "./title-rail";
 
-const WIDTH = 80;
-const HEIGHT = 120;
 const COVER_SHAPE = clip(Shapes.RoundedCorner(8));
 
-/** A tap opens the card's menu, which holds every action: the menu hands the card its press. */
-function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
-  return (
-    <MangaCard
-      cover={item.manga.thumbnailUrl}
-      title={item.manga.title}
-      mark={item.current ? CURRENT_MARK : undefined}
-      titlePosition="below"
-      accessibilityLabel={
-        item.current ? `${item.manga.title}, current match` : item.manga.title
-      }
-      style={{ width: WIDTH }}
-      onPress={onPress}
-    />
-  );
-}
-
-function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
+/** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
+export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const m3 = useThemeM3Colors();
   const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
@@ -70,7 +49,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           <Box
             key={i}
             modifiers={[
-              size(WIDTH, HEIGHT),
+              size(COVER.width, COVER.height),
               COVER_SHAPE,
               background(m3.surfaceContainerHighest),
             ]}
@@ -108,17 +87,17 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
       >
         {items.map((item, i) => [
           <Menu key={item.manga.url} items={menu(item)}>
-            <Card item={item} />
+            <RailCard item={item} />
           </Menu>,
           item.current && i === 0 && items.length > 1 && (
-            <VerticalDivider key="divider" modifiers={[height(HEIGHT)]} />
+            <VerticalDivider key="divider" modifiers={[height(COVER.height)]} />
           ),
         ])}
         {(rail.hasNextPage || rail.loadingMore) && (
           // Loads as it scrolls into view; a tap retries a page that failed.
           <Box
             modifiers={[
-              size(WIDTH, HEIGHT),
+              size(COVER.width, COVER.height),
               COVER_SHAPE,
               background(m3.surfaceContainerHighest),
               clickable(loadMore),
@@ -142,10 +121,3 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
     </Column>
   );
 }
-
-/** A source's title results under its row, while it searches. */
-export const TitleRail = memo(function TitleRail(props: TitleRailProps) {
-  return useSearching(props.mangaKey, props.source.id) ? (
-    <Rail {...props} />
-  ) : null;
-});

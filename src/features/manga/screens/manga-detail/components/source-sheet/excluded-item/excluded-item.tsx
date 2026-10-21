@@ -12,8 +12,8 @@ import type { Source } from "@/features/manga/utils/source";
 import type { ErrorRequest } from "../available-item";
 import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
+import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { TitleRail } from "../title-rail";
 import { errorDialog, excludedBadge, searchItem } from "../utils/row-content";
 
 export interface ExcludedItemProps {
@@ -94,7 +94,7 @@ export const ExcludedItem = memo(function ExcludedItem({
           </Menu>
         </Item.Actions>
       </Item>
-      <TitleRail
+      <Rail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}
         source={source}

@@ -6,3 +6,6 @@ export const CURRENT_MARK: CornerMark = {
   icon: Icons.checkCircle,
   color: "primary",
 };
+
+/** A card's cover, in points (dp on Android, px on web). */
+export const COVER = { width: 80, height: 120 };

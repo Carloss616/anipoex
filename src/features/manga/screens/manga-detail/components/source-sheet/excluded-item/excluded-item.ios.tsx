@@ -17,8 +17,8 @@ import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useSearching } from "../hooks/use-searching";
+import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { TitleRail } from "../title-rail";
 import { excludedBadge, searchItem } from "../utils/row-content";
 import type { ExcludedItemProps } from "./excluded-item";
 
@@ -89,7 +89,7 @@ export const ExcludedItem = memo(function ExcludedItem({
             </HStack>
           </ContextMenu.Trigger>
         </ContextMenu>
-        <TitleRail
+        <Rail
           mangaKey={mangaKey}
           mangaId={Number(mangaKey)}
           source={source}

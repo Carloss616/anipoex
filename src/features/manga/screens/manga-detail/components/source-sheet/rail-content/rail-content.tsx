@@ -1,50 +1,22 @@
 import { LegendList } from "@legendapp/list/react";
-import { memo } from "react";
 import { Pressable, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { Typography } from "@/components/ui/typography";
-import { MangaCard } from "@/features/manga/components/manga-card";
-import type { Source } from "@/features/manga/utils/source";
-import { useSearching } from "../hooks/use-searching";
-import type { SourceActions } from "../hooks/use-source-actions";
-import type { RailItem } from "../utils/rail-items";
-import { CURRENT_MARK } from "./constants";
+import { COVER } from "../constants";
+import type { RailProps } from "../rail";
+import { RailCard } from "../rail-card";
 import { useRail } from "./hooks/use-rail";
 
-export interface TitleRailProps {
-  mangaKey: string;
-  mangaId: number;
-  source: Source;
-  actions: SourceActions;
-}
-
-const COVER = { width: 80, height: 120 };
 const GAP = 10;
 // One card and the gap after it, so the list lays out before measuring.
 const CARD_SPAN = COVER.width + GAP;
 // The cover, two title lines and the label badge.
 const RAIL_HEIGHT = COVER.height + 72;
 
-/** A tap opens the card's menu, which holds every action: the menu hands the card its press. */
-function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
-  return (
-    <MangaCard
-      cover={item.manga.thumbnailUrl}
-      title={item.manga.title}
-      mark={item.current ? CURRENT_MARK : undefined}
-      titlePosition="below"
-      accessibilityLabel={
-        item.current ? `${item.manga.title}, current match` : item.manga.title
-      }
-      style={{ width: COVER.width }}
-      onPress={onPress}
-    />
-  );
-}
-
-function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
+/** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
+export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
@@ -84,7 +56,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
               <Menu items={menu(item)}>
-                <Card item={item} />
+                <RailCard item={item} />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (
                 <View
@@ -132,10 +104,3 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
     </View>
   );
 }
-
-/** A source's title results under its row, while it searches. */
-export const TitleRail = memo(function TitleRail(props: TitleRailProps) {
-  return useSearching(props.mangaKey, props.source.id) ? (
-    <Rail {...props} />
-  ) : null;
-});

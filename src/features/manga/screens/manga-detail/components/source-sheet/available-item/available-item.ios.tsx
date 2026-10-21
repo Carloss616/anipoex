@@ -28,8 +28,8 @@ import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
+import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { TitleRail } from "../title-rail";
 import { excludeMenu, searchItem, statusDetail } from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
 import type { AvailableItemProps } from "./available-item";
@@ -170,7 +170,7 @@ export const AvailableItem = memo(function AvailableItem({
             </Button>
           </ContextMenu.Trigger>
         </ContextMenu>
-        <TitleRail
+        <Rail
           mangaKey={mangaKey}
           mangaId={Number(mangaKey)}
           source={source}
