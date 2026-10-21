@@ -15,10 +15,10 @@ so a probe can sync through its gist later.
 
 ## How a probe reads
 
-The source is searched for the manga by equal title, the same way picking a source
+The source is searched for the manga by title, the same way picking a source
 matches (see [chosen source](../stores/source-matches.md)); then its
 [chapters](chapter.md) are read. The latest chapter is the highest chapter number,
-ignoring unnumbered rows. No equal title, or no chapters, is *no match*; a failure or a
+ignoring unnumbered rows. No matching title, or no chapters, is *no match*; a failure or a
 30 s timeout is *error*.
 
 ## The five outcomes
