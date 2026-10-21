@@ -1,4 +1,4 @@
-import { useValue } from "@legendapp/state/react";
+import { useObservable, useValue } from "@legendapp/state/react";
 import { useState } from "react";
 import { toast } from "@/components/ui/toast";
 import {
@@ -12,26 +12,31 @@ import {
 
 export function useRepoList() {
   const repos = useValue(repos$);
-  const [url, setUrl] = useState("");
-  const [adding, setAdding] = useState(false);
+  const url$ = useObservable("");
+  const adding$ = useObservable(false);
+  // Under a plain root: a root computed freezes under Fast Refresh.
+  const derived$ = useObservable({
+    canAdd: () => !adding$.get() && url$.get().trim() !== "",
+  });
   // The repo fetched and waiting for the user to trust it.
   const [pending, setPending] = useState<Repo>();
 
   const add = async () => {
-    if (adding || url.trim() === "") return;
-    setAdding(true);
+    const url = url$.peek();
+    if (adding$.peek() || url.trim() === "") return;
+    adding$.set(true);
     try {
       setPending(await fetchRepo(url));
     } catch (error) {
       toast.destructive(error instanceof Error ? error.message : String(error));
     } finally {
-      setAdding(false);
+      adding$.set(false);
     }
   };
 
   const trust = (repo: Repo) => {
     addRepo(repo);
-    setUrl("");
+    url$.set("");
     void loadExtensions();
   };
 
@@ -42,10 +47,9 @@ export function useRepoList() {
 
   return {
     repos,
-    url,
-    setUrl,
-    adding,
-    canAdd: !adding && url.trim() !== "",
+    url$,
+    setUrl: (text: string) => url$.set(text),
+    canAdd$: derived$.canAdd,
     add,
     pending,
     dismiss: () => setPending(undefined),

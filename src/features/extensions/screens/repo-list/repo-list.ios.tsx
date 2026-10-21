@@ -21,6 +21,7 @@ import {
   submitLabel,
   textInputAutocapitalization,
 } from "@expo/ui/swift-ui/modifiers";
+import { Computed, useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import { Text, useFont } from "@/components/native/swift-ui/text";
@@ -31,17 +32,18 @@ import { useRepoList } from "./hooks/use-repo-list";
 
 /** An inset-grouped list: the URL field on top, the repos below, swipe to remove. */
 export function RepoList() {
-  const { repos, url, setUrl, canAdd, add, pending, dismiss, trust, remove } =
+  const { repos, url$, setUrl, canAdd$, add, pending, dismiss, trust, remove } =
     useRepoList();
-  const text = useNativeState(url);
+  const text = useNativeState("");
+  const empty = useValue(() => url$.get() === "");
   const font = useFont();
   const buttonFont = useFont("body", "medium");
   const rowBackground = listRowBackground(useThemeColor("muted"));
 
   // Trusting a repo clears the url; only that is mirrored, so typing is never rewritten.
   useEffect(() => {
-    if (url === "") text.value = "";
-  }, [url, text]);
+    if (empty) text.value = "";
+  }, [empty, text]);
 
   return (
     <>
@@ -68,15 +70,19 @@ export function RepoList() {
                   font,
                 ]}
               />
-              <Button
-                label="Add"
-                onPress={add}
-                modifiers={[
-                  buttonStyle("borderless"),
-                  buttonFont,
-                  disabled(!canAdd),
-                ]}
-              />
+              <Computed>
+                {() => (
+                  <Button
+                    label="Add"
+                    onPress={add}
+                    modifiers={[
+                      buttonStyle("borderless"),
+                      buttonFont,
+                      disabled(!canAdd$.get()),
+                    ]}
+                  />
+                )}
+              </Computed>
             </HStack>
           </Section>
           {repos.length > 0 && (

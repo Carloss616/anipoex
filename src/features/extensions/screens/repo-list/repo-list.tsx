@@ -1,3 +1,4 @@
+import { Memo } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { View } from "react-native";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
@@ -12,7 +13,7 @@ import { useRepoList } from "./hooks/use-repo-list";
 
 export function RepoList() {
   const headerScroll = useHeaderScroll();
-  const { repos, url, setUrl, canAdd, add, pending, dismiss, trust, remove } =
+  const { repos, url$, setUrl, canAdd$, add, pending, dismiss, trust, remove } =
     useRepoList();
 
   return (
@@ -27,22 +28,26 @@ export function RepoList() {
         contentContainerClassName="gutters px-gx pb-gb"
         ListHeaderComponent={
           <HeaderInsetView>
-            <View className="flex-row items-center gap-3 py-4">
-              <Input
-                containerClassName="flex-1"
-                placeholder="Repository URL"
-                value={url}
-                onChangeText={setUrl}
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="url"
-                returnKeyType="done"
-                onSubmitEditing={add}
-              />
-              <Button onPress={add} disabled={!canAdd}>
-                Add
-              </Button>
-            </View>
+            <Memo>
+              {() => (
+                <View className="flex-row items-center gap-3 py-4">
+                  <Input
+                    containerClassName="flex-1"
+                    placeholder="Repository URL"
+                    value={url$.get()}
+                    onChangeText={setUrl}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="url"
+                    returnKeyType="done"
+                    onSubmitEditing={add}
+                  />
+                  <Button onPress={add} disabled={!canAdd$.get()}>
+                    Add
+                  </Button>
+                </View>
+              )}
+            </Memo>
           </HeaderInsetView>
         }
         renderItem={({ item: repo }) => (

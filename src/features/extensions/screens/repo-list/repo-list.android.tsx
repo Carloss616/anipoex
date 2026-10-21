@@ -13,6 +13,7 @@ import {
   semantics,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { Memo, useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useEffect } from "react";
@@ -28,9 +29,10 @@ import { useRepoList } from "./hooks/use-repo-list";
 
 /** The URL field and its Add button on top, one M3 list item per repo below. */
 export function RepoList() {
-  const { repos, url, setUrl, canAdd, add, pending, dismiss, trust, remove } =
+  const { repos, url$, setUrl, canAdd$, add, pending, dismiss, trust, remove } =
     useRepoList();
-  const text = useNativeState(url);
+  const text = useNativeState("");
+  const empty = useValue(() => url$.get() === "");
   const fontFamily = useFontFamily("normal");
   const m3 = useThemeM3Colors();
   const headerHeight = useHeaderHeight();
@@ -38,8 +40,8 @@ export function RepoList() {
 
   // Trusting a repo clears the url; only that is mirrored, so typing is never rewritten.
   useEffect(() => {
-    if (url === "") text.value = "";
-  }, [url, text]);
+    if (empty) text.value = "";
+  }, [empty, text]);
 
   return (
     <>
@@ -72,9 +74,13 @@ export function RepoList() {
                 <Text>Repository URL</Text>
               </OutlinedTextField.Label>
             </OutlinedTextField>
-            <Button enabled={canAdd} onClick={add}>
-              <Text style={{ typography: "labelLarge" }}>Add</Text>
-            </Button>
+            <Memo>
+              {() => (
+                <Button enabled={canAdd$.get()} onClick={add}>
+                  <Text style={{ typography: "labelLarge" }}>Add</Text>
+                </Button>
+              )}
+            </Memo>
           </Row>
           <LazyColumn.Items data={repos} keyExtractor={(repo) => repo.indexUrl}>
             {({ item: repo }) => (
