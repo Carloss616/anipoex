@@ -42,6 +42,18 @@ is stable across launches.
   "No sources found". In the web app in a browser the detail's "Pick a source" says extensions run in the
   Android, iOS and desktop apps.
 
+- **Search by hand**: when matching by title finds nothing or the wrong manga, a source can
+  be searched with the user's own title. "Search on <source>" (in a row's menu, on an excluded
+  row only for a no match, and in the detail's *No match* state, beside "Choose another
+  source") opens the list with that source searching; the header's search-titles toggle
+  searches every available source at once. While any source searches, the list's search field
+  holds the title (the romaji title at first; a new title is searched on submit) and each
+  searching source shows its results under its row as cover cards, first page first, the next
+  page loading as the end comes into view. The source's current match comes first. A card's
+  menu shows its full title and offers *Use as match* (or *Remove match* on a match set by
+  hand) and *Open website*; using one stores it as a
+  [manual match](../stores/manual-matches.md) and keeps the list open. Closing the list or
+  Done ends the search; nothing searched is stored.
 - **Website**: an installed source reports its own site (none when it can't). On Android, the
   detail shows an "Open on <source>" button next to the source picker once the manga has a
   match; it opens the manga's page on that source's site, or says it couldn't.

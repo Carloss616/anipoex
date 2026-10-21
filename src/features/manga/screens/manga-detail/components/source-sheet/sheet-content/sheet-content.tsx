@@ -11,11 +11,13 @@ import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
+import { searchingCount } from "@/features/manga/state/title-search";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
+import { useTitleMode } from "../hooks/use-title-mode";
 import { RefreshIcon } from "../refresh-icon";
 import { excludedMenuItems } from "../utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "../utils/sheet-items";
@@ -41,6 +43,7 @@ export function SheetContent({
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
+  const title = useTitleMode(manga.id, key);
   const installed = all.length > 0;
 
   // Both sections in one list, so they scroll together (both empty: none, and the empty state shows).
@@ -93,6 +96,7 @@ export function SheetContent({
     <BottomSheet
       isPresented={isPresented}
       onDismiss={onDismiss}
+      expanded={title.searching}
       contentKey={`${available.length}-${excluded.length}`}
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"
@@ -104,6 +108,24 @@ export function SheetContent({
               <Typography type="h4">Sources</Typography>
               <Badge>{available.length}</Badge>
               <View className="flex-1" />
+              {/* A toggle: filled while title search is on. */}
+              <Button
+                variant={title.searching ? "secondary" : "ghost"}
+                size="icon"
+                className="size-9"
+                disabled={!installed}
+                aria-pressed={title.searching}
+                onPress={() =>
+                  actions.searchAll(available.map((row) => row.source.id))
+                }
+                accessibilityLabel="Search titles in all sources"
+              >
+                <Icon
+                  name={Icons.searchTitles}
+                  size={BUTTON_ICON_SIZE}
+                  className="text-foreground"
+                />
+              </Button>
               <Computed>
                 {() => (
                   <Button
@@ -124,13 +146,41 @@ export function SheetContent({
               {read > 0 ? `Read c.${read}` : "Not started"}
             </Typography>
           </View>
-          <SearchBar
-            defaultValue={query}
-            debounce={150}
-            onDebouncedChange={setQuery}
-            placeholder="Search sources..."
-            shape="pill"
-          />
+          {title.searching ? (
+            <View className="gap-1">
+              <View className="flex-row items-center">
+                <Computed>
+                  {() => (
+                    <Typography type="small" className="flex-1">
+                      {`Titles · ${searchingCount(key)}`}
+                    </Typography>
+                  )}
+                </Computed>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onPress={() => actions.stopSearch()}
+                >
+                  Done
+                </Button>
+              </View>
+              <SearchBar
+                key="titles"
+                defaultValue={title.query}
+                onSubmit={title.submit}
+                placeholder="Title to search"
+                shape="pill"
+              />
+            </View>
+          ) : (
+            <SearchBar
+              defaultValue={query}
+              debounce={150}
+              onDebouncedChange={setQuery}
+              placeholder="Search sources..."
+              shape="pill"
+            />
+          )}
         </View>
 
         <LegendList

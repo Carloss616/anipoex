@@ -1,4 +1,5 @@
 import {
+  Column,
   // biome-ignore lint/style/noRestrictedImports: opened by long-press, held by the sheet
   DropdownMenu,
   // biome-ignore lint/style/noRestrictedImports: as above
@@ -20,12 +21,15 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
+import { TitleRail } from "../title-rail";
 import {
   errorDialog,
   excludeReasons,
+  searchItem,
   statusDetail,
 } from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
@@ -61,6 +65,7 @@ export const AvailableItem = memo(function AvailableItem({
   const [showError, setShowError] = useState(false);
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
+  const search = searchItem(source, useSearching(mangaKey, source.id), actions);
 
   const item = (
     <ListItem
@@ -133,53 +138,71 @@ export const AvailableItem = memo(function AvailableItem({
   );
 
   return (
-    <DropdownMenu
-      expanded={menuOpen}
-      onDismissRequest={() => onMenu?.(null)}
-      modifiers={[fillMaxWidth()]}
-    >
-      <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
-      <DropdownMenu.Items>
-        {error && (
+    <Column>
+      <DropdownMenu
+        expanded={menuOpen}
+        onDismissRequest={() => onMenu?.(null)}
+        modifiers={[fillMaxWidth()]}
+      >
+        <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
+        <DropdownMenu.Items>
           <DropdownMenuItem
             onClick={() => {
               onMenu?.(null);
-              setShowError(true);
+              search.onPress();
             }}
           >
             <DropdownMenuItem.Text>
-              <Text style={{ typography: "labelLarge" }}>See error</Text>
+              <Text style={{ typography: "labelLarge" }}>{search.label}</Text>
             </DropdownMenuItem.Text>
           </DropdownMenuItem>
-        )}
-        {selected && (
-          <DropdownMenuItem
-            onClick={() => {
-              onMenu?.(null);
-              actions.deselect(source.id);
-            }}
-          >
-            <DropdownMenuItem.Text>
-              <Text style={{ typography: "labelLarge" }}>Deselect</Text>
-            </DropdownMenuItem.Text>
-          </DropdownMenuItem>
-        )}
-        {excludeReasons(suspicious).map((reason) => (
-          <DropdownMenuItem
-            key={reason}
-            onClick={() => {
-              onMenu?.(null);
-              actions.exclude(source.id, reason);
-            }}
-          >
-            <DropdownMenuItem.Text>
-              <Text style={{ typography: "labelLarge" }}>
-                {`Exclude: ${REASONS[reason].menu}`}
-              </Text>
-            </DropdownMenuItem.Text>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenu.Items>
-    </DropdownMenu>
+          {error && (
+            <DropdownMenuItem
+              onClick={() => {
+                onMenu?.(null);
+                setShowError(true);
+              }}
+            >
+              <DropdownMenuItem.Text>
+                <Text style={{ typography: "labelLarge" }}>See error</Text>
+              </DropdownMenuItem.Text>
+            </DropdownMenuItem>
+          )}
+          {selected && (
+            <DropdownMenuItem
+              onClick={() => {
+                onMenu?.(null);
+                actions.deselect(source.id);
+              }}
+            >
+              <DropdownMenuItem.Text>
+                <Text style={{ typography: "labelLarge" }}>Deselect</Text>
+              </DropdownMenuItem.Text>
+            </DropdownMenuItem>
+          )}
+          {excludeReasons(suspicious).map((reason) => (
+            <DropdownMenuItem
+              key={reason}
+              onClick={() => {
+                onMenu?.(null);
+                actions.exclude(source.id, reason);
+              }}
+            >
+              <DropdownMenuItem.Text>
+                <Text style={{ typography: "labelLarge" }}>
+                  {`Exclude: ${REASONS[reason].menu}`}
+                </Text>
+              </DropdownMenuItem.Text>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenu.Items>
+      </DropdownMenu>
+      <TitleRail
+        mangaKey={mangaKey}
+        mangaId={Number(mangaKey)}
+        source={source}
+        actions={actions}
+      />
+    </Column>
   );
 });

@@ -81,3 +81,19 @@ export const excludeReasons = (suspicious: boolean): ExcludeReason[] =>
 /** An excluded row's badge: the reason, then whether you or a scan chose it. */
 export const excludedBadge = (reason: ExcludeReason, pinned: boolean) =>
   `${REASONS[reason].badge} · ${pinned ? "you" : "auto"}`;
+
+/** The row menu's title-search item: start searching the source, or stop. */
+export const searchItem = (
+  source: { id: string; name: string },
+  searching: boolean,
+  actions: Pick<SourceActions, "searchOn" | "stopSearch">,
+) =>
+  searching
+    ? {
+        label: `Stop searching ${source.name}`,
+        onPress: () => actions.stopSearch(source.id),
+      }
+    : {
+        label: `Search on ${source.name}`,
+        onPress: () => actions.searchOn(source.id),
+      };

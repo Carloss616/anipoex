@@ -9,10 +9,6 @@ import type { SourceActions } from "../../hooks/use-source-actions";
 import { type RailItem, railItems } from "../../utils/rail-items";
 import { cardMenu } from "../utils/card-menu";
 
-/** Whether the source searches by title: its row mounts a rail only then. */
-export const useSearching = (mangaKey: string, sourceId: string) =>
-  useValue(() => titleSearch$[mangaKey][sourceId].get() !== undefined);
-
 /** One source's rail: its results with the current match first, and each card's menu. */
 export function useRail(
   mangaKey: string,

@@ -226,7 +226,7 @@ export function MangaCard({
         >
           {title}
         </Text>
-        <Badge>{label}</Badge>
+        {label && <Badge>{label}</Badge>}
         {progress != null && <Progress value={progress * 100} size="sm" />}
       </VStack>
     ) : (

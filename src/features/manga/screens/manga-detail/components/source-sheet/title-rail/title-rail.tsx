@@ -1,15 +1,15 @@
-import { cn } from "panelui-native/utils/cn";
 import { memo } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { Typography } from "@/components/ui/typography";
-import { CoverImage } from "@/features/manga/components/manga-card/cover-image";
+import { MangaCard } from "@/features/manga/components/manga-card";
 import type { Source } from "@/features/manga/utils/source";
+import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
 import type { RailItem } from "../utils/rail-items";
-import { useRail, useSearching } from "./hooks/use-rail";
+import { useRail } from "./hooks/use-rail";
 
 export interface TitleRailProps {
   mangaKey: string;
@@ -18,32 +18,24 @@ export interface TitleRailProps {
   actions: SourceActions;
 }
 
-const COVER = { width: 80, height: 114 };
+const COVER = { width: 80, height: 120 };
 // How close to the end, in px, scrolling loads the next page.
 const END_GAP = 120;
 
+/** A result as a manga card; the menu hands it `onPress`. */
 function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
+    <MangaCard
+      cover={item.manga.thumbnailUrl}
+      title={item.manga.title}
+      label={item.current ? "Current match" : undefined}
+      titlePosition="below"
       accessibilityLabel={
         item.current ? `${item.manga.title}, current match` : item.manga.title
       }
-      className="w-20 gap-1.5"
-    >
-      <View
-        className={cn(
-          "overflow-hidden rounded-md",
-          item.current && "border-2 border-foreground",
-        )}
-      >
-        <CoverImage cover={item.manga.thumbnailUrl} style={COVER} />
-      </View>
-      <Typography type="body-xs" weight="medium" numberOfLines={2}>
-        {item.manga.title}
-      </Typography>
-    </Pressable>
+      style={{ width: COVER.width }}
+      onPress={onPress}
+    />
   );
 }
 

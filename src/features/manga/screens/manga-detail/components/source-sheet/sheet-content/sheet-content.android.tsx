@@ -6,6 +6,7 @@ import {
   LazyColumn,
   Row,
   Spacer,
+  TextButton,
 } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
@@ -28,11 +29,13 @@ import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
+import { searchingCount } from "@/features/manga/state/title-search";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
+import { useTitleMode } from "../hooks/use-title-mode";
 import { RefreshIcon } from "../refresh-icon";
 import { excludedMenuItems } from "../utils/row-content";
 import { sheetItemKey, sheetItems } from "../utils/sheet-items";
@@ -72,6 +75,7 @@ export function SheetContent({
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
+  const title = useTitleMode(manga.id, key);
   const [menuId, setMenuId] = useState<string | null>(null);
   const m3 = useThemeM3Colors();
 
@@ -122,6 +126,7 @@ export function SheetContent({
     <BottomSheet
       isPresented={isPresented}
       onDismiss={onDismiss}
+      expanded={title.searching}
       contentKey={`${available.length}-${excluded.length}`}
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"
@@ -145,6 +150,31 @@ export function SheetContent({
                 <Badge>{available.length}</Badge>
               </Box>
               <Spacer modifiers={[weight(1)]} />
+              {/* A toggle: filled while title search is on. */}
+              <IconButton
+                onClick={() =>
+                  actions.searchAll(available.map((row) => row.source.id))
+                }
+                colors={
+                  title.searching
+                    ? {
+                        containerColor: m3.secondaryContainer,
+                        contentColor: m3.onSecondaryContainer,
+                      }
+                    : { contentColor: m3.onSurfaceVariant }
+                }
+                modifiers={[
+                  semantics({
+                    contentDescription: "Search titles in all sources",
+                  }),
+                ]}
+              >
+                <Icon
+                  name={Icons.searchTitles}
+                  size={BUTTON_ICON_SIZE}
+                  color="inherit"
+                />
+              </IconButton>
               <Computed>
                 {() => (
                   <IconButton
@@ -167,13 +197,38 @@ export function SheetContent({
               {read > 0 ? `Read c.${read}` : "Not started"}
             </Text>
           </Column>
-          <SearchBar
-            defaultValue={query}
-            debounce={150}
-            onDebouncedChange={setQuery}
-            placeholder="Search sources..."
-            shape="pill"
-          />
+          {title.searching ? (
+            <Column verticalArrangement={{ spacedBy: 4 }}>
+              <Row verticalAlignment="center">
+                <Computed>
+                  {() => (
+                    <Text style={{ typography: "titleSmall" }}>
+                      {`Titles · ${searchingCount(key)}`}
+                    </Text>
+                  )}
+                </Computed>
+                <Spacer modifiers={[weight(1)]} />
+                <TextButton onClick={() => actions.stopSearch()}>
+                  <Text style={{ typography: "labelLarge" }}>Done</Text>
+                </TextButton>
+              </Row>
+              <SearchBar
+                key="titles"
+                defaultValue={title.query}
+                onSubmit={title.submit}
+                placeholder="Title to search"
+                shape="pill"
+              />
+            </Column>
+          ) : (
+            <SearchBar
+              defaultValue={query}
+              debounce={150}
+              onDebouncedChange={setQuery}
+              placeholder="Search sources..."
+              shape="pill"
+            />
+          )}
         </Column>
 
         {items.length === 0 ? (

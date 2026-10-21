@@ -1,5 +1,7 @@
 import type { Observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
+import { useEffect } from "react";
+import { stopTitleSearch } from "@/features/manga/state/title-search";
 import { useSourcePicker } from "../../hooks/use-source-picker";
 import type { SourcePickerManga } from "../source-picker";
 import { SheetContent } from "./sheet-content";
@@ -20,6 +22,11 @@ export interface SourceSheetProps {
 export function SourceSheet({ manga, entryId, open$ }: SourceSheetProps) {
   const picker = useSourcePicker(manga, entryId, open$);
   const isPresented = useValue(open$);
+
+  // Title results live while the sheet is open, however it closes (a pick closes it too).
+  useEffect(() => {
+    if (!isPresented) stopTitleSearch(manga.id);
+  }, [isPresented, manga.id]);
 
   return (
     <SheetContent

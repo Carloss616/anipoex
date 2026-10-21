@@ -16,6 +16,8 @@ import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceChapters } from "@/features/manga/hooks/use-source-chapters";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
+import { startTitleSearch } from "@/features/manga/state/title-search";
+import { searchTitles } from "@/features/manga/utils/source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openExternal } from "@/utils/open-external";
@@ -103,6 +105,19 @@ export function MangaDetail() {
             title: "No match",
             description: `This title wasn't found in ${sourceName}.`,
             actions: [
+              {
+                label: `Search on ${sourceName}`,
+                // The sheet opens raised, with this source searching.
+                onPress: () => {
+                  if (manga)
+                    void startTitleSearch(
+                      manga.id,
+                      [match.sourceId],
+                      searchTitles(manga).search[0] ?? "",
+                    );
+                  sourceSheet$.set(true);
+                },
+              },
               {
                 label: "Choose another source",
                 onPress: () => sourceSheet$.set(true),

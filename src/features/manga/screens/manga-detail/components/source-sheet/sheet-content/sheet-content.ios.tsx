@@ -35,6 +35,7 @@ import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
+import { searchingCount } from "@/features/manga/state/title-search";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
@@ -45,6 +46,7 @@ import {
 import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
+import { useTitleMode } from "../hooks/use-title-mode";
 import {
   errorDialog,
   excludedMenuItems,
@@ -74,6 +76,7 @@ export function SheetContent({
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
+  const title = useTitleMode(manga.id, key);
   // One dialog for both row requests: a view presents one alert.
   const [request, setRequest] = useState<ExcludeRequest | ErrorRequest | null>(
     null,
@@ -90,6 +93,7 @@ export function SheetContent({
     <BottomSheet
       isPresented={isPresented}
       onDismiss={onDismiss}
+      expanded={title.searching}
       contentKey={`${available.length}-${excluded.length}`}
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"
@@ -147,6 +151,25 @@ export function SheetContent({
                   </Text>
                 </VStack>
                 <Spacer />
+                <Button
+                  onPress={() =>
+                    actions.searchAll(available.map((row) => row.source.id))
+                  }
+                  modifiers={[
+                    buttonStyle(title.searching ? "glassProminent" : "glass"),
+                    buttonBorderShape("circle"),
+                    labelStyle("iconOnly"),
+                    ...(title.searching ? [] : [foregroundStyle("secondary")]),
+                    accessibilityLabel("Search titles in all sources"),
+                  ]}
+                >
+                  <Icon
+                    name={Icons.searchTitles}
+                    size={BUTTON_ICON_SIZE}
+                    color="inherit"
+                    modifiers={[ICON_FRAME]}
+                  />
+                </Button>
                 <Computed>
                   {() => (
                     <Button
@@ -181,13 +204,40 @@ export function SheetContent({
               </HStack>
             </Dialog.Trigger>
           </Dialog>
-          <SearchBar
-            defaultValue={query}
-            debounce={150}
-            onDebouncedChange={setQuery}
-            placeholder="Search sources..."
-            cancel="focus"
-          />
+          {title.searching ? (
+            <VStack alignment="leading" spacing={8}>
+              <HStack>
+                {/* `@expo/ui` Text takes only a string child: the whole Text is the Computed. */}
+                <Computed>
+                  {() => (
+                    <Text textStyle="subheadline" weight="medium">
+                      {`Titles · ${searchingCount(key)}`}
+                    </Text>
+                  )}
+                </Computed>
+                <Spacer />
+                <Button
+                  label="Done"
+                  onPress={() => actions.stopSearch()}
+                  modifiers={[buttonStyle("borderless")]}
+                />
+              </HStack>
+              <SearchBar
+                key="titles"
+                defaultValue={title.query}
+                onSubmit={title.submit}
+                placeholder="Title to search"
+              />
+            </VStack>
+          ) : (
+            <SearchBar
+              defaultValue={query}
+              debounce={150}
+              onDebouncedChange={setQuery}
+              placeholder="Search sources..."
+              cancel="focus"
+            />
+          )}
         </VStack>
 
         {available.length === 0 && excluded.length === 0 ? (

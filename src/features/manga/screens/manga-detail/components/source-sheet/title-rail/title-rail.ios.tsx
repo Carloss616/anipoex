@@ -11,70 +11,53 @@ import {
 import {
   accessibilityLabel,
   background,
-  border,
   buttonStyle,
   clipShape,
   foregroundStyle,
   frame,
-  lineLimit,
+  multilineTextAlignment,
   onAppear,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { memo } from "react";
-import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
+import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useSearching } from "../hooks/use-searching";
 import type { RailItem } from "../utils/rail-items";
-import { useRail, useSearching } from "./hooks/use-rail";
+import { useRail } from "./hooks/use-rail";
 import type { TitleRailProps } from "./title-rail";
 
 const WIDTH = 80;
-const HEIGHT = 114;
+const HEIGHT = 120;
 const RADIUS = 6;
 const COVER = frame({ width: WIDTH, height: HEIGHT });
 
-function Card({ item, muted }: { item: RailItem; muted: string }) {
+/** A result as a manga card; the menu owns the tap. */
+function Card({ item, color }: { item: RailItem; color: string }) {
   return (
+    // A menu label takes the tint and centres its text: the card keeps its own look.
     <VStack
-      alignment="leading"
-      spacing={6}
-      modifiers={[
-        frame({ width: WIDTH }),
-        accessibilityLabel(
-          item.current
-            ? `${item.manga.title}, current match`
-            : item.manga.title,
-        ),
-      ]}
+      modifiers={[foregroundStyle(color), multilineTextAlignment("leading")]}
     >
-      <ZStack
-        modifiers={[
-          COVER,
-          background(muted),
-          clipShape("roundedRectangle", RADIUS),
-          ...(item.current ? [border({ content: "primary", width: 2 })] : []),
-        ]}
-      >
-        {item.manga.thumbnailUrl && <Image url={item.manga.thumbnailUrl} />}
-      </ZStack>
-      <Text
-        textStyle="caption"
-        weight="medium"
-        modifiers={[
-          lineLimit(2),
-          frame({ width: WIDTH, alignment: "topLeading" }),
-        ]}
-      >
-        {item.manga.title}
-      </Text>
+      <MangaCard
+        cover={item.manga.thumbnailUrl}
+        title={item.manga.title}
+        label={item.current ? "Current match" : undefined}
+        titlePosition="below"
+        accessibilityLabel={
+          item.current ? `${item.manga.title}, current match` : item.manga.title
+        }
+        style={{ width: WIDTH }}
+      />
     </VStack>
   );
 }
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
-  const muted = useThemeColor("muted");
+  const [muted, foreground] = useThemeColor(["muted", "foreground"]);
   const { rail, items, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
@@ -124,7 +107,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
       >
         {items.map((item, i) => [
           <Menu key={item.manga.url} items={menu(item)}>
-            <Card item={item} muted={muted} />
+            <Card item={item} color={foreground} />
           </Menu>,
           item.current && i === 0 && items.length > 1 && (
             <Divider key="divider" modifiers={[frame({ height: HEIGHT })]} />

@@ -122,7 +122,7 @@ export function MangaCard({
             >
               {title}
             </Typography>
-            <Badge className="self-start">{label}</Badge>
+            {label && <Badge className="self-start">{label}</Badge>}
             {progress != null && <Progress value={progress * 100} size="sm" />}
           </View>
         </Feedback>

@@ -2,6 +2,7 @@
 
 ## 2026-10-21
 
+* **Search a source by hand**: the source list can search one source, or all, with the user's own title and show each source's results as cover cards under its row; a result can be used as that source's match, which is kept as a manual match. The detail's No match state offers Search on <source> beside Choose another source. Updated [source](concepts/source.md).
 * **Manual matches**: a manga's page on a source can be set by hand; picking that source and every scan read it before searching by title, so a scan never reports it as no match. Added [manual matches](stores/manual-matches.md); updated [chosen source](stores/source-matches.md) and [source probe](concepts/source-probe.md).
 * **No match offers another source**: when the chosen source finds no match, the detail's empty state has a Choose another source button that opens the source list; a pick by hand is never excluded for finding nothing, only a scan does that. Updated [source exclusion](concepts/source-exclusion.md).
 * **The chosen source can be excluded and deselected**: its row offers Deselect, which clears the choice, and Exclude, which clears it too; a scan that finds no match for the chosen source auto-excludes and unchooses it (an error or a lag still spares it). The detail then asks to pick a source. Updated [source exclusion](concepts/source-exclusion.md) and [chosen source](stores/source-matches.md).

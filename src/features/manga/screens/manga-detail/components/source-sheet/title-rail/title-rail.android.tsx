@@ -1,7 +1,5 @@
 import {
   Box,
-  Column,
-  Image,
   LazyRow,
   Row,
   TextButton,
@@ -10,73 +8,45 @@ import {
 import {
   align,
   background,
-  border,
   clickable,
   clip,
   height,
-  matchParentSize,
   onVisibilityChanged,
   padding,
   Shapes,
   semantics,
   size,
-  width,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
+import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { useSearching } from "../hooks/use-searching";
 import type { RailItem } from "../utils/rail-items";
-import { useRail, useSearching } from "./hooks/use-rail";
+import { useRail } from "./hooks/use-rail";
 import type { TitleRailProps } from "./title-rail";
 
 const WIDTH = 80;
-const HEIGHT = 114;
+const HEIGHT = 120;
 const COVER_SHAPE = clip(Shapes.RoundedCorner(8));
 
-/** The menu hands its trigger an `onPress` to open it. */
+/** A result as a manga card; the menu hands it `onPress`. */
 function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
-  const m3 = useThemeM3Colors();
   return (
-    <Column
-      verticalArrangement={{ spacedBy: 6 }}
-      modifiers={[
-        width(WIDTH),
-        ...(onPress ? [clickable(onPress)] : []),
-        semantics({
-          contentDescription: item.current
-            ? `${item.manga.title}, current match`
-            : item.manga.title,
-        }),
-      ]}
-    >
-      <Box
-        modifiers={[
-          size(WIDTH, HEIGHT),
-          COVER_SHAPE,
-          background(m3.surfaceContainerHighest),
-          ...(item.current ? [border(2, m3.onSurface)] : []),
-        ]}
-      >
-        {item.manga.thumbnailUrl && (
-          <Image
-            source={{ uri: item.manga.thumbnailUrl }}
-            contentScale="crop"
-            contentDescription={null}
-            modifiers={[matchParentSize()]}
-          />
-        )}
-      </Box>
-      <Text
-        style={{ typography: "bodySmall", fontWeight: "500" }}
-        maxLines={2}
-        overflow="ellipsis"
-      >
-        {item.manga.title}
-      </Text>
-    </Column>
+    <MangaCard
+      cover={item.manga.thumbnailUrl}
+      title={item.manga.title}
+      label={item.current ? "Current match" : undefined}
+      titlePosition="below"
+      accessibilityLabel={
+        item.current ? `${item.manga.title}, current match` : item.manga.title
+      }
+      style={{ width: WIDTH }}
+      onPress={onPress}
+    />
   );
 }
 

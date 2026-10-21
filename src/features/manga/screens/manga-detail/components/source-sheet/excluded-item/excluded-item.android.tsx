@@ -1,4 +1,5 @@
 import {
+  Column,
   // biome-ignore lint/style/noRestrictedImports: opened by long-press, as on Available rows
   DropdownMenu,
   // biome-ignore lint/style/noRestrictedImports: as above
@@ -18,8 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
+import { useSearching } from "../hooks/use-searching";
 import { Tile } from "../tile";
-import { errorDialog, excludedBadge } from "../utils/row-content";
+import { TitleRail } from "../title-rail";
+import { errorDialog, excludedBadge, searchItem } from "../utils/row-content";
 import type { ExcludedItemProps } from "./excluded-item";
 
 export const ExcludedItem = memo(function ExcludedItem({
@@ -32,13 +35,17 @@ export const ExcludedItem = memo(function ExcludedItem({
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
   const [menuOpen, setMenuOpen] = useState(false);
   const [showError, setShowError] = useState(false);
+  const search = searchItem(source, useSearching(mangaKey, source.id), actions);
+  // A source excluded for finding nothing can be searched by hand.
+  const searchable = reason === "not-matched";
+  const hasMenu = searchable || !!error;
 
   const item = (
     <ListItem
       colors={{ containerColor: "transparent" }}
-      // While there is an error to show, a tap or long-press opens its menu, as on Available rows.
+      // While it has a menu, a tap or long-press opens it, as on Available rows.
       modifiers={
-        error
+        hasMenu
           ? [
               combinedClickable({
                 onClick: () => setMenuOpen(true),
@@ -88,27 +95,53 @@ export const ExcludedItem = memo(function ExcludedItem({
     </ListItem>
   );
 
-  return error ? (
-    <DropdownMenu
-      expanded={menuOpen}
-      onDismissRequest={() => setMenuOpen(false)}
-      modifiers={[fillMaxWidth()]}
-    >
-      <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
-      <DropdownMenu.Items>
-        <DropdownMenuItem
-          onClick={() => {
-            setMenuOpen(false);
-            setShowError(true);
-          }}
+  return (
+    <Column>
+      {hasMenu ? (
+        <DropdownMenu
+          expanded={menuOpen}
+          onDismissRequest={() => setMenuOpen(false)}
+          modifiers={[fillMaxWidth()]}
         >
-          <DropdownMenuItem.Text>
-            <Text style={{ typography: "labelLarge" }}>See error</Text>
-          </DropdownMenuItem.Text>
-        </DropdownMenuItem>
-      </DropdownMenu.Items>
-    </DropdownMenu>
-  ) : (
-    item
+          <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
+          <DropdownMenu.Items>
+            {searchable && (
+              <DropdownMenuItem
+                onClick={() => {
+                  setMenuOpen(false);
+                  search.onPress();
+                }}
+              >
+                <DropdownMenuItem.Text>
+                  <Text style={{ typography: "labelLarge" }}>
+                    {search.label}
+                  </Text>
+                </DropdownMenuItem.Text>
+              </DropdownMenuItem>
+            )}
+            {error && (
+              <DropdownMenuItem
+                onClick={() => {
+                  setMenuOpen(false);
+                  setShowError(true);
+                }}
+              >
+                <DropdownMenuItem.Text>
+                  <Text style={{ typography: "labelLarge" }}>See error</Text>
+                </DropdownMenuItem.Text>
+              </DropdownMenuItem>
+            )}
+          </DropdownMenu.Items>
+        </DropdownMenu>
+      ) : (
+        item
+      )}
+      <TitleRail
+        mangaKey={mangaKey}
+        mangaId={Number(mangaKey)}
+        source={source}
+        actions={actions}
+      />
+    </Column>
   );
 });

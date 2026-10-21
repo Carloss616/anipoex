@@ -16,8 +16,10 @@ import { Badge } from "@/components/ui/badge";
 import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useSearching } from "../hooks/use-searching";
 import { Tile } from "../tile";
-import { excludedBadge } from "../utils/row-content";
+import { TitleRail } from "../title-rail";
+import { excludedBadge, searchItem } from "../utils/row-content";
 import type { ExcludedItemProps } from "./excluded-item";
 
 export const ExcludedItem = memo(function ExcludedItem({
@@ -30,6 +32,7 @@ export const ExcludedItem = memo(function ExcludedItem({
 }: ExcludedItemProps) {
   const primary = useThemeColor("primary");
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
+  const search = searchItem(source, useSearching(mangaKey, source.id), actions);
   const include = (color?: string) => (
     <Computed>
       {() => (
@@ -48,36 +51,52 @@ export const ExcludedItem = memo(function ExcludedItem({
 
   return (
     <SwipeActions>
-      <ContextMenu>
-        <ContextMenu.Items>
-          {include()}
-          {error && (
-            <Button
-              label="See error"
-              systemImage="exclamationmark.triangle"
-              onPress={() => onError?.({ source, error, excluded: true })}
-            />
-          )}
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
-          <HStack modifiers={ROW_FILL}>
-            <Label icon={<Tile source={source} />}>
-              <VStack alignment="leading" spacing={2}>
-                <Text weight="medium" modifiers={[lineLimit(1)]}>
-                  {source.baseName ?? source.name}
-                </Text>
-                <HStack spacing={6}>
-                  {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
-                  <Badge color={REASONS[reason].color}>
-                    {excludedBadge(reason, pinned)}
-                  </Badge>
-                </HStack>
-              </VStack>
-            </Label>
-            <Spacer />
-          </HStack>
-        </ContextMenu.Trigger>
-      </ContextMenu>
+      <VStack alignment="leading" spacing={10}>
+        <ContextMenu>
+          <ContextMenu.Items>
+            {/* A source excluded for finding nothing can be searched by hand. */}
+            {reason === "not-matched" && (
+              <Button
+                label={search.label}
+                systemImage="text.magnifyingglass"
+                onPress={search.onPress}
+              />
+            )}
+            {include()}
+            {error && (
+              <Button
+                label="See error"
+                systemImage="exclamationmark.triangle"
+                onPress={() => onError?.({ source, error, excluded: true })}
+              />
+            )}
+          </ContextMenu.Items>
+          <ContextMenu.Trigger>
+            <HStack modifiers={ROW_FILL}>
+              <Label icon={<Tile source={source} />}>
+                <VStack alignment="leading" spacing={2}>
+                  <Text weight="medium" modifiers={[lineLimit(1)]}>
+                    {source.baseName ?? source.name}
+                  </Text>
+                  <HStack spacing={6}>
+                    {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+                    <Badge color={REASONS[reason].color}>
+                      {excludedBadge(reason, pinned)}
+                    </Badge>
+                  </HStack>
+                </VStack>
+              </Label>
+              <Spacer />
+            </HStack>
+          </ContextMenu.Trigger>
+        </ContextMenu>
+        <TitleRail
+          mangaKey={mangaKey}
+          mangaId={Number(mangaKey)}
+          source={source}
+          actions={actions}
+        />
+      </VStack>
       {/* Both edges: a left swipe works here as on Available rows. */}
       {(["leading", "trailing"] as const).map((edge) => (
         <SwipeActions.Actions key={edge} edge={edge}>
