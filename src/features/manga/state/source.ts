@@ -68,6 +68,17 @@ export async function selectSource(
   }
 }
 
+/** Stores the chosen source's match as given, dropping a search still running for the manga. */
+export function storeMatch(
+  mangaId: number,
+  sourceId: string,
+  manga: { url: string; title: string },
+) {
+  tickets[mangaId] = (tickets[mangaId] ?? 0) + 1;
+  source$[mangaId].set({ sourceId, manga });
+  matching$[mangaId].set(false);
+}
+
 /** Clears the manga's chosen source when it is `sourceId`, dropping a search still running for it. */
 export function deselectSource(mangaId: number, sourceId: string) {
   if (readMatch(source$[mangaId].peek())?.sourceId !== sourceId) return;

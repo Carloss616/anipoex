@@ -37,6 +37,10 @@ function drop(key: string) {
   else writeStoredChapters(key, undefined);
 }
 
+/** Forgets the list stored for the manga in the source. */
+export const dropChapters = (mangaId: number, sourceId: string) =>
+  drop(chaptersKey(mangaId, sourceId));
+
 // A source that becomes excluded loses its stored list.
 exclusions$.onChange(({ changes, getPrevious, isFromPersist }) => {
   if (isFromPersist) return;

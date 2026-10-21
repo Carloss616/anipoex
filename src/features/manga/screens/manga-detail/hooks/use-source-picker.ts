@@ -1,10 +1,9 @@
 import type { Observable } from "@legendapp/state";
-import { toast } from "@/components/ui/toast";
-import { runtime, useInstalledSources } from "@/features/extensions";
+import { useInstalledSources } from "@/features/extensions";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import { openExternal } from "@/utils/open-external";
+import { openSourcePage } from "@/features/manga/utils/open-source-page";
 import type { SourcePickerManga } from "../components/source-picker";
 
 /** The picked source, its match and the sheet that changes it, open while `open$` is true. */
@@ -34,11 +33,7 @@ export function useSourcePicker(
     /** The manga's page on the source's site. */
     openWeb: async () => {
       if (!webManga || !match) return;
-      const url = await runtime
-        .mangaWebUrl(match.sourceId, webManga.url)
-        .catch(() => null);
-      if (!url || !openExternal(url))
-        toast.destructive("Couldn't open this manga's page");
+      await openSourcePage(match.sourceId, webManga.url);
     },
     // The sheet closes on pick; the button already shows it while the search runs. Re-picking a found match only closes it; no match or pending retries.
     select: (nextId: string) => {

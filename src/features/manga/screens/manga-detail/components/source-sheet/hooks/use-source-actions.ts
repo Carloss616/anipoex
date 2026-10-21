@@ -1,13 +1,28 @@
 import { useEffect, useRef } from "react";
 import { useInstalledSources } from "@/features/extensions";
-import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
+import {
+  decideByHand,
+  exclusions$,
+  pins$,
+} from "@/features/manga/state/exclusions";
+import type { ManualMatch } from "@/features/manga/state/manual-matches";
+import {
+  removeMatchByHand,
+  setMatchByHand,
+} from "@/features/manga/state/match-by-hand";
 import { isScanning, scanSources } from "@/features/manga/state/probes";
 import { deselectSource } from "@/features/manga/state/source";
+import {
+  isTitleSearching,
+  startTitleSearch,
+  stopTitleSearch,
+  titleQuery$,
+} from "@/features/manga/state/title-search";
 import { type ExcludeReason, mediaKey } from "@/features/manga/utils/msu";
+import { openSourcePage } from "@/features/manga/utils/open-source-page";
 import {
   clearAutoExclusions,
   clearExclusions,
-  toggleExcluded,
 } from "@/features/manga/utils/source-exclusions";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
@@ -44,22 +59,34 @@ export function useSourceActions({
   const scanAll = () => void scan();
   const rescan = (id: string) => void scan([id]);
 
-  const toggle = (id: string, exclude: boolean, reason: ExcludeReason) => {
-    const next = toggleExcluded(
-      exclusions$[key].peek() ?? {},
-      pins$[key].peek() ?? {},
-      id,
-      exclude,
-      reason,
-      Date.now(),
-    );
-    exclusions$[key].set(next.excluded);
-    pins$[key].set(next.pinned);
-  };
+  const toggle = (id: string, exclude: boolean, reason: ExcludeReason) =>
+    decideByHand(manga.id, id, exclude, reason);
+  const source = (id: string) =>
+    sources.find((entry) => entry.id === id) ?? { id, name: id };
+  // The title being searched, else the first one a pick searches by.
+  const query = () =>
+    titleQuery$[key].peek() ?? searchTitles(manga).search[0] ?? "";
 
   return {
     scanAll,
     rescan,
+    searchOn: (id: string) => void startTitleSearch(manga.id, [id], query()),
+    stopSearch: (id?: string) => stopTitleSearch(manga.id, id),
+    // On while any source searches: then it stops them all.
+    searchAll: (ids: string[]) =>
+      isTitleSearching(key)
+        ? stopTitleSearch(manga.id)
+        : void startTitleSearch(manga.id, ids, query()),
+    // The sheet stays open; the row's status follows the new page.
+    setMatch: (id: string, match: ManualMatch) => {
+      setMatchByHand(manga.id, source(id), match);
+      rescan(id);
+    },
+    removeMatch: (id: string) =>
+      void removeMatchByHand(manga.id, source(id), searchTitles(manga)).then(
+        () => rescan(id),
+      ),
+    openPage: (id: string, url: string) => void openSourcePage(id, url),
     // An excluded source isn't read, so it stops being the chosen one.
     exclude: (id: string, reason: ExcludeReason) => {
       toggle(id, true, reason);
