@@ -37,6 +37,10 @@ export const scanningAll$ = observable<Record<string, true>>({});
 export const isScanning = (mangaId: number) =>
   Object.keys(scanning$[mediaKey(mangaId)].peek() ?? {}).length > 0;
 
+/** The same, tracked: a `Computed` or `useValue` reading it updates when a scan starts or ends. */
+export const isScanBusy = (key: string) =>
+  Object.keys(scanning$[key].get() ?? {}).length > 0;
+
 syncObservable(probes$, {
   persist: { name: "msu-probes", plugin: ObservablePersist },
 });

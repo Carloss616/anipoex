@@ -29,6 +29,26 @@ const median = (values: number[]) => {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 };
 
+/** Whether a matched source's latest chapter runs far ahead of the other live matches. */
+export function isSuspicious(
+  id: string,
+  sources: Source[],
+  excluded: Excluded,
+  probes: ProbeMap,
+): boolean {
+  const p = probes[id];
+  if (!p?.matched) return false;
+  const others = sources
+    .filter(
+      (s) => s.id !== id && !isLive(excluded[s.id]) && probes[s.id]?.matched,
+    )
+    .map((s) => probes[s.id].latest);
+  return (
+    others.length >= 2 &&
+    p.latest - median(others) > SUSPICIOUS_FACTOR * FAR_BEHIND_GAP
+  );
+}
+
 /** Installed sources split into available (best first) and excluded (by name), both filtered by the query. */
 export function splitSources(
   sources: Source[],
@@ -40,26 +60,13 @@ export function splitSources(
   const needle = query.trim().toLowerCase();
   const shown = (s: Source) => s.name.toLowerCase().includes(needle);
   const live = sources.filter((s) => !isLive(excluded[s.id]));
-  const matched = live.filter((s) => probes[s.id]?.matched);
-
-  const isSuspicious = (s: Source) => {
-    const p = probes[s.id];
-    if (!p?.matched) return false;
-    const others = matched
-      .filter((m) => m.id !== s.id)
-      .map((m) => probes[m.id].latest);
-    return (
-      others.length >= 2 &&
-      p.latest - median(others) > SUSPICIOUS_FACTOR * FAR_BEHIND_GAP
-    );
-  };
 
   const rank = (r: SourceRow) => (r.suspicious ? 1 : r.probe?.matched ? 0 : 2);
   const available = live
     .map((source) => ({
       source,
       probe: probes[source.id],
-      suspicious: isSuspicious(source),
+      suspicious: isSuspicious(source.id, sources, excluded, probes),
     }))
     .filter((r) => shown(r.source))
     .sort(

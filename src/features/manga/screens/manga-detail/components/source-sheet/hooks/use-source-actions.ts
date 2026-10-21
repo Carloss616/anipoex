@@ -1,13 +1,7 @@
-import { useValue } from "@legendapp/state/react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useInstalledSources } from "@/features/extensions";
 import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
-import {
-  isScanning,
-  scanning$,
-  scanningAll$,
-  scanSources,
-} from "@/features/manga/state/probes";
+import { isScanning, scanSources } from "@/features/manga/state/probes";
 import { type ExcludeReason, mediaKey } from "@/features/manga/utils/msu";
 import {
   clearAutoExclusions,
@@ -29,11 +23,13 @@ export function useSourceActions({
 }) {
   const sources = useInstalledSources();
   const key = mediaKey(manga.id);
-  const scanning = new Set(Object.keys(useValue(scanning$[key]) ?? {}));
-  const scanningAll = useValue(scanningAll$[key]) === true;
   // A scan outlives the sheet; it reads the latest progress when it ends.
+  // Synced in an effect: a ref written in render makes the Compiler skip
+  // this hook, and every memoized row would get new actions.
   const readRef = useRef(read);
-  readRef.current = read;
+  useEffect(() => {
+    readRef.current = read;
+  }, [read]);
 
   const scan = (only?: string[]) =>
     scanSources({
@@ -61,9 +57,6 @@ export function useSourceActions({
   };
 
   return {
-    scanning: scanning as ReadonlySet<string>,
-    busy: scanning.size > 0,
-    scanningAll,
     scanAll,
     rescan,
     exclude: (id: string, reason: ExcludeReason) => toggle(id, true, reason),
@@ -97,3 +90,5 @@ export function useSourceActions({
     },
   };
 }
+
+export type SourceActions = ReturnType<typeof useSourceActions>;
