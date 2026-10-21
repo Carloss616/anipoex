@@ -10,6 +10,7 @@ import type { Source } from "@/features/manga/utils/source";
 import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
 import type { RailItem } from "../utils/rail-items";
+import { CURRENT_MARK } from "./constants";
 import { useRail } from "./hooks/use-rail";
 
 export interface TitleRailProps {
@@ -25,25 +26,34 @@ const CARD_SPAN = COVER.width + 10;
 // The cover, two title lines and the label badge.
 const RAIL_HEIGHT = COVER.height + 72;
 
-/** A result as a manga card; the menu hands it `onPress`. */
-function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
+/** Tap uses or removes the match, hold opens the menu: the menu hands the card both presses (`onPrimaryAction`). */
+function Card({
+  item,
+  onPress,
+  onLongPress,
+}: {
+  item: RailItem;
+  onPress?: () => void;
+  onLongPress?: () => void;
+}) {
   return (
     <MangaCard
       cover={item.manga.thumbnailUrl}
       title={item.manga.title}
-      label={item.current ? "Current match" : undefined}
+      mark={item.current ? CURRENT_MARK : undefined}
       titlePosition="below"
       accessibilityLabel={
         item.current ? `${item.manga.title}, current match` : item.manga.title
       }
       style={{ width: COVER.width }}
       onPress={onPress}
+      onLongPress={onLongPress}
     />
   );
 }
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
-  const { rail, items, notice, menu, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, tap, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -75,7 +85,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5 pe-2.5">
-              <Menu items={menu(item)}>
+              <Menu items={menu(item)} onPrimaryAction={tap(item)}>
                 <Card item={item} />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (

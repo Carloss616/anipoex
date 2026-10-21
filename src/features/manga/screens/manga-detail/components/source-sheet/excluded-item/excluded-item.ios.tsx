@@ -32,7 +32,8 @@ export const ExcludedItem = memo(function ExcludedItem({
 }: ExcludedItemProps) {
   const primary = useThemeColor("primary");
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
-  const search = searchItem(source, useSearching(mangaKey, source.id), actions);
+  const searching = useSearching(mangaKey, source.id);
+  const search = searchItem(source, searching, actions);
   const include = (color?: string) => (
     <Computed>
       {() => (
@@ -55,13 +56,11 @@ export const ExcludedItem = memo(function ExcludedItem({
         <ContextMenu>
           <ContextMenu.Items>
             {/* A source excluded for finding nothing can be searched by hand. */}
-            {reason === "not-matched" && (
-              <Button
-                label={search.label}
-                systemImage="text.magnifyingglass"
-                onPress={search.onPress}
-              />
-            )}
+            <Button
+              label={search.label}
+              systemImage="text.magnifyingglass"
+              onPress={search.onPress}
+            />
             {include()}
             {error && (
               <Button
@@ -97,12 +96,19 @@ export const ExcludedItem = memo(function ExcludedItem({
           actions={actions}
         />
       </VStack>
-      {/* Both edges: a left swipe works here as on Available rows. */}
-      {(["leading", "trailing"] as const).map((edge) => (
-        <SwipeActions.Actions key={edge} edge={edge}>
-          {include(primary)}
-        </SwipeActions.Actions>
-      ))}
+      {/* Swipe right: search and include, as Available rows search there; swipe left: include. */}
+      <SwipeActions.Actions edge="leading">
+        <Button
+          label={searching ? "Stop" : "Search"}
+          systemImage="text.magnifyingglass"
+          modifiers={[tint(primary)]}
+          onPress={search.onPress}
+        />
+        {include(primary)}
+      </SwipeActions.Actions>
+      <SwipeActions.Actions edge="trailing">
+        {include(primary)}
+      </SwipeActions.Actions>
     </SwipeActions>
   );
 });

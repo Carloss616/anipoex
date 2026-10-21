@@ -35,11 +35,8 @@ export const ExcludedItem = memo(function ExcludedItem({
 }: ExcludedItemProps) {
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
   const searching = useSearching(mangaKey, source.id);
-  // A source excluded for finding nothing can be searched by hand.
   const items: MenuItem[] = [
-    ...(reason === "not-matched"
-      ? [searchItem(source, searching, actions)]
-      : []),
+    searchItem(source, searching, actions),
     ...(error
       ? [
           {
@@ -67,22 +64,6 @@ export const ExcludedItem = memo(function ExcludedItem({
           </Item.Description>
         </Item.Content>
         <Item.Actions>
-          {items.length > 0 && (
-            <Menu items={items}>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-9"
-                accessibilityLabel={`More actions for ${source.name}`}
-              >
-                <Icon
-                  name={Icons.more}
-                  size={BUTTON_ICON_SIZE}
-                  className="text-foreground"
-                />
-              </Button>
-            </Menu>
-          )}
           <Computed>
             {() => (
               <Button
@@ -96,6 +77,21 @@ export const ExcludedItem = memo(function ExcludedItem({
               </Button>
             )}
           </Computed>
+          {/* Last, as on Available rows. */}
+          <Menu items={items}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-9"
+              accessibilityLabel={`More actions for ${source.name}`}
+            >
+              <Icon
+                name={Icons.more}
+                size={BUTTON_ICON_SIZE}
+                className="text-foreground"
+              />
+            </Button>
+          </Menu>
         </Item.Actions>
       </Item>
       <TitleRail

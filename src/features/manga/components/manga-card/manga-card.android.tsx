@@ -22,9 +22,9 @@ import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
-import { STATUS_COLOR, STATUS_ICON } from "./constants";
 import { CoverImage } from "./cover-image";
 import type { MangaCardProps } from "./manga-card";
+import { cornerBadge } from "./utils";
 
 const RADIUS = 12;
 /** Legible on any cover: a light caption over the dark wash. */
@@ -39,6 +39,7 @@ export function MangaCard({
   coverThumb,
   coverColor,
   status,
+  mark,
   title,
   label,
   titlePosition = "over",
@@ -50,6 +51,7 @@ export function MangaCard({
   onLongPress,
 }: MangaCardProps) {
   const isInsideHost = useIsInsideHost();
+  const corner = cornerBadge(status, mark);
 
   // On top: takes the press and carries the name TalkBack reads.
   const overlay = (
@@ -89,9 +91,9 @@ export function MangaCard({
       ) : (
         <Icon name={BookIcon} size={22} muted />
       )}
-      {status && (
+      {corner && (
         <Box modifiers={[align("topStart"), padding(8, 8, 8, 8)]}>
-          <Badge color={STATUS_COLOR[status]} icon={STATUS_ICON[status]} />
+          <Badge color={corner.color} icon={corner.icon} />
         </Box>
       )}
       {titlePosition === "over" && (title || label) && (

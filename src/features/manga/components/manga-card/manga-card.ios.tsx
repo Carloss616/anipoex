@@ -27,8 +27,8 @@ import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ramp } from "@/utils/ramp";
-import { STATUS_COLOR, STATUS_ICON } from "./constants";
 import type { MangaCardProps } from "./manga-card";
+import { cornerBadge } from "./utils";
 
 const RADIUS = 24;
 const SCRIM = ramp("#000000");
@@ -44,6 +44,7 @@ export function MangaCard({
   coverThumb,
   coverColor,
   status,
+  mark,
   title,
   label,
   titlePosition = "over",
@@ -55,6 +56,7 @@ export function MangaCard({
   onLongPress,
 }: MangaCardProps) {
   const card = useThemeColor("card");
+  const corner = cornerBadge(status, mark);
   const overlay = useThemeColor("overlay");
   const isInsideHost = useIsInsideHost();
   const coverUrl = typeof cover === "string" ? cover : cover?.uri;
@@ -109,7 +111,7 @@ export function MangaCard({
           ]}
         />
       )}
-      {status && (
+      {corner && (
         <HStack
           modifiers={[
             padding({ all: 8 }),
@@ -120,7 +122,7 @@ export function MangaCard({
             }),
           ]}
         >
-          <Badge color={STATUS_COLOR[status]} icon={STATUS_ICON[status]} />
+          <Badge color={corner.color} icon={corner.icon} />
         </HStack>
       )}
       <VStack

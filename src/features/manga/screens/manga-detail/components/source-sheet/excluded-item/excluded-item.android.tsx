@@ -36,24 +36,17 @@ export const ExcludedItem = memo(function ExcludedItem({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showError, setShowError] = useState(false);
   const search = searchItem(source, useSearching(mangaKey, source.id), actions);
-  // A source excluded for finding nothing can be searched by hand.
-  const searchable = reason === "not-matched";
-  const hasMenu = searchable || !!error;
 
   const item = (
     <ListItem
       colors={{ containerColor: "transparent" }}
-      // While it has a menu, a tap or long-press opens it, as on Available rows.
-      modifiers={
-        hasMenu
-          ? [
-              combinedClickable({
-                onClick: () => setMenuOpen(true),
-                onLongClick: () => setMenuOpen(true),
-              }),
-            ]
-          : []
-      }
+      // A tap or long-press opens its menu, as on Available rows.
+      modifiers={[
+        combinedClickable({
+          onClick: () => setMenuOpen(true),
+          onLongClick: () => setMenuOpen(true),
+        }),
+      ]}
     >
       <ListItem.LeadingContent>
         <Tile source={source} />
@@ -97,45 +90,37 @@ export const ExcludedItem = memo(function ExcludedItem({
 
   return (
     <Column>
-      {hasMenu ? (
-        <DropdownMenu
-          expanded={menuOpen}
-          onDismissRequest={() => setMenuOpen(false)}
-          modifiers={[fillMaxWidth()]}
-        >
-          <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
-          <DropdownMenu.Items>
-            {searchable && (
-              <DropdownMenuItem
-                onClick={() => {
-                  setMenuOpen(false);
-                  search.onPress();
-                }}
-              >
-                <DropdownMenuItem.Text>
-                  <Text style={{ typography: "labelLarge" }}>
-                    {search.label}
-                  </Text>
-                </DropdownMenuItem.Text>
-              </DropdownMenuItem>
-            )}
-            {error && (
-              <DropdownMenuItem
-                onClick={() => {
-                  setMenuOpen(false);
-                  setShowError(true);
-                }}
-              >
-                <DropdownMenuItem.Text>
-                  <Text style={{ typography: "labelLarge" }}>See error</Text>
-                </DropdownMenuItem.Text>
-              </DropdownMenuItem>
-            )}
-          </DropdownMenu.Items>
-        </DropdownMenu>
-      ) : (
-        item
-      )}
+      <DropdownMenu
+        expanded={menuOpen}
+        onDismissRequest={() => setMenuOpen(false)}
+        modifiers={[fillMaxWidth()]}
+      >
+        <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
+        <DropdownMenu.Items>
+          <DropdownMenuItem
+            onClick={() => {
+              setMenuOpen(false);
+              search.onPress();
+            }}
+          >
+            <DropdownMenuItem.Text>
+              <Text style={{ typography: "labelLarge" }}>{search.label}</Text>
+            </DropdownMenuItem.Text>
+          </DropdownMenuItem>
+          {error && (
+            <DropdownMenuItem
+              onClick={() => {
+                setMenuOpen(false);
+                setShowError(true);
+              }}
+            >
+              <DropdownMenuItem.Text>
+                <Text style={{ typography: "labelLarge" }}>See error</Text>
+              </DropdownMenuItem.Text>
+            </DropdownMenuItem>
+          )}
+        </DropdownMenu.Items>
+      </DropdownMenu>
       <TitleRail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}

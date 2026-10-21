@@ -27,6 +27,7 @@ import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useSearching } from "../hooks/use-searching";
 import type { RailItem } from "../utils/rail-items";
+import { CURRENT_MARK } from "./constants";
 import { useRail } from "./hooks/use-rail";
 import type { TitleRailProps } from "./title-rail";
 
@@ -35,7 +36,7 @@ const HEIGHT = 120;
 const RADIUS = 6;
 const COVER = frame({ width: WIDTH, height: HEIGHT });
 
-/** A result as a manga card; the menu owns the tap. */
+/** Tap uses or removes the match, hold opens the menu (`onPrimaryAction`); a context menu would be taken over by the list row. */
 function Card({ item, color }: { item: RailItem; color: string }) {
   return (
     // A menu label takes the tint and centres its text: the card keeps its own look.
@@ -45,7 +46,7 @@ function Card({ item, color }: { item: RailItem; color: string }) {
       <MangaCard
         cover={item.manga.thumbnailUrl}
         title={item.manga.title}
-        label={item.current ? "Current match" : undefined}
+        mark={item.current ? CURRENT_MARK : undefined}
         titlePosition="below"
         accessibilityLabel={
           item.current ? `${item.manga.title}, current match` : item.manga.title
@@ -58,7 +59,7 @@ function Card({ item, color }: { item: RailItem; color: string }) {
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
   const [muted, foreground] = useThemeColor(["muted", "foreground"]);
-  const { rail, items, notice, menu, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, tap, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -107,7 +108,11 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           modifiers={[padding({ bottom: 6 })]}
         >
           {items.map((item, i) => [
-            <Menu key={item.manga.url} items={menu(item)}>
+            <Menu
+              key={item.manga.url}
+              items={menu(item)}
+              onPrimaryAction={tap(item)}
+            >
               <Card item={item} color={foreground} />
             </Menu>,
             item.current && i === 0 && items.length > 1 && (

@@ -51,6 +51,19 @@ export function toggleExcluded(
   };
 }
 
+/** Drops the source's exclusion when a scan set it for finding nothing; one decided by hand, or for another reason, stays. */
+export function liftAutoNoMatch(
+  excluded: Excluded,
+  pinned: Pinned,
+  provider: string,
+  now: number,
+): Excluded {
+  const rec = excluded[provider];
+  if (!isLive(rec) || rec?.reason !== "not-matched" || isLive(pinned[provider]))
+    return excluded;
+  return { ...excluded, [provider]: tombstone(rec, now) };
+}
+
 export const clearExclusions = (
   excluded: Excluded,
   pinned: Pinned,

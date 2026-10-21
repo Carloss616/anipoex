@@ -1,6 +1,7 @@
 import { Menu as PanelMenu } from "panelui-native/components/menu";
 import type { PopoverAlign } from "panelui-native/components/popover";
-import type { ReactElement } from "react";
+import { cloneElement, type ReactElement } from "react";
+import { View, type ViewProps } from "react-native";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
@@ -53,8 +54,13 @@ export type MenuItem = MenuAction | MenuSubmenu;
 
 export interface MenuProps {
   items: MenuItem[];
-  /** The element the menu hangs off. Must accept `onPress` — it is what opens the menu. */
-  children: ReactElement<{ onPress?: (...args: unknown[]) => void }>;
+  /** The element the menu hangs off. Must accept `onPress` — it is what opens the menu — and `onLongPress` when `onPrimaryAction` is set. */
+  children: ReactElement<{
+    onPress?: (...args: unknown[]) => void;
+    onLongPress?: (...args: unknown[]) => void;
+  }>;
+  /** When set, a tap runs it and a long press (or a right-click on web) opens the menu. */
+  onPrimaryAction?: () => void;
   /** @platform web */
   align?: PopoverAlign;
 }
@@ -125,13 +131,51 @@ function RowItem(item: MenuItem) {
  *
  * @see https://panelui.dev/docs/components/menu
  */
-export function Menu({ items, children, align = "end" }: MenuProps) {
+/** The trigger's child with the tap given to `onPrimaryAction` and the menu's `onPress` moved to a long press or right-click. */
+function PrimaryTrigger({
+  child,
+  onPrimaryAction,
+  onPress,
+}: {
+  child: MenuProps["children"];
+  onPrimaryAction: () => void;
+  onPress?: () => void;
+}) {
+  // react-native-web forwards the DOM event its types don't list.
+  const rightClick = {
+    onContextMenu: (event: { preventDefault: () => void }) => {
+      event.preventDefault();
+      onPress?.();
+    },
+  } as ViewProps;
+  return (
+    <View {...rightClick}>
+      {cloneElement(child, { onPress: onPrimaryAction, onLongPress: onPress })}
+    </View>
+  );
+}
+
+export function Menu({
+  items,
+  children,
+  align = "end",
+  onPrimaryAction,
+}: MenuProps) {
   const { rows, pending, close } = useMenuDialogState(items);
 
   return (
     <>
       <PanelMenu>
-        <PanelMenu.Trigger>{children}</PanelMenu.Trigger>
+        <PanelMenu.Trigger>
+          {onPrimaryAction ? (
+            <PrimaryTrigger
+              child={children}
+              onPrimaryAction={onPrimaryAction}
+            />
+          ) : (
+            children
+          )}
+        </PanelMenu.Trigger>
         <PanelMenu.Content
           align={align}
           minWidth={items.some(isSubmenu) ? SUBMENU_MIN_WIDTH : undefined}

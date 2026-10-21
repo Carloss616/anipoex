@@ -153,7 +153,10 @@ export function SheetContent({
                 <Spacer />
                 <Button
                   onPress={() =>
-                    actions.searchAll(available.map((row) => row.source.id))
+                    // Excluded sources too: the right page may be on one dropped for no match.
+                    actions.searchAll(
+                      [...available, ...excluded].map((row) => row.source.id),
+                    )
                   }
                   modifiers={[
                     buttonStyle(title.searching ? "glassProminent" : "glass"),
@@ -164,7 +167,11 @@ export function SheetContent({
                   ]}
                 >
                   <Icon
-                    name={Icons.searchTitles}
+                    name={
+                      title.searching
+                        ? Icons.searchTitlesOff
+                        : Icons.searchTitles
+                    }
                     size={BUTTON_ICON_SIZE}
                     color="inherit"
                     modifiers={[ICON_FRAME]}

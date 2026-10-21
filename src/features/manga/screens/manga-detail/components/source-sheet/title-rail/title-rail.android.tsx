@@ -27,6 +27,7 @@ import { MangaCard } from "@/features/manga/components/manga-card";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useSearching } from "../hooks/use-searching";
 import type { RailItem } from "../utils/rail-items";
+import { CURRENT_MARK } from "./constants";
 import { useRail } from "./hooks/use-rail";
 import type { TitleRailProps } from "./title-rail";
 
@@ -34,26 +35,35 @@ const WIDTH = 80;
 const HEIGHT = 120;
 const COVER_SHAPE = clip(Shapes.RoundedCorner(8));
 
-/** A result as a manga card; the menu hands it `onPress`. */
-function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
+/** Tap uses or removes the match, hold opens the menu: the menu hands the card both presses (`onPrimaryAction`). */
+function Card({
+  item,
+  onPress,
+  onLongPress,
+}: {
+  item: RailItem;
+  onPress?: () => void;
+  onLongPress?: () => void;
+}) {
   return (
     <MangaCard
       cover={item.manga.thumbnailUrl}
       title={item.manga.title}
-      label={item.current ? "Current match" : undefined}
+      mark={item.current ? CURRENT_MARK : undefined}
       titlePosition="below"
       accessibilityLabel={
         item.current ? `${item.manga.title}, current match` : item.manga.title
       }
       style={{ width: WIDTH }}
       onPress={onPress}
+      onLongPress={onLongPress}
     />
   );
 }
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
   const m3 = useThemeM3Colors();
-  const { rail, items, notice, menu, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, tap, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -106,7 +116,11 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
         contentPadding={{ start: GUTTER, end: GUTTER, bottom: 12 }}
       >
         {items.map((item, i) => [
-          <Menu key={item.manga.url} items={menu(item)}>
+          <Menu
+            key={item.manga.url}
+            items={menu(item)}
+            onPrimaryAction={tap(item)}
+          >
             <Card item={item} />
           </Menu>,
           item.current && i === 0 && items.length > 1 && (

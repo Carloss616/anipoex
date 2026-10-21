@@ -7,7 +7,7 @@ import {
   mediaKey,
   type PinnedMap,
 } from "../utils/msu";
-import { toggleExcluded } from "../utils/source-exclusions";
+import { liftAutoNoMatch, toggleExcluded } from "../utils/source-exclusions";
 
 /** Per manga, the sources dropped from its list: the same layout as MSU's `exclusions` map (gist file `seanime-msu-exclusions.json`). */
 export const exclusions$ = observable<ExcludedMap>({});
@@ -40,4 +40,17 @@ export function decideByHand(
   );
   exclusions$[key].set(next.excluded);
   pins$[key].set(next.pinned);
+}
+
+/** A page set by hand proves a scan's "no match" wrong: that automatic exclusion goes, nothing else changes. */
+export function liftNoMatch(mangaId: number, sourceId: string) {
+  const key = mediaKey(mangaId);
+  exclusions$[key].set(
+    liftAutoNoMatch(
+      exclusions$[key].peek() ?? {},
+      pins$[key].peek() ?? {},
+      sourceId,
+      Date.now(),
+    ),
+  );
 }

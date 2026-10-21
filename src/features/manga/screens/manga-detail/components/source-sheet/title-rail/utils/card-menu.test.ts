@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
 import type { SourceManga } from "@/features/extensions";
-import { cardMenu } from "./card-menu";
+import { cardMenu, cardTap } from "./card-menu";
 
 const manga = {
   url: "/1",
@@ -50,5 +50,26 @@ describe("cardMenu", () => {
     expect(labels(items)).toEqual([manga.title, "Open website"]);
     (items[1] as { onPress: () => void }).onPress();
     expect(actions.openPage).toHaveBeenCalledWith("/1");
+  });
+});
+
+describe("cardTap", () => {
+  it("uses a result as the match", () => {
+    const actions = on();
+    cardTap({ manga, current: false }, false, actions)?.();
+    expect(actions.setMatch).toHaveBeenCalledWith(manga);
+  });
+
+  it("removes a current match set by hand", () => {
+    const actions = on();
+    cardTap({ manga, current: true }, true, actions)?.();
+    expect(actions.removeMatch).toHaveBeenCalled();
+  });
+
+  it("does nothing on an automatic current match or while scanning", () => {
+    expect(cardTap({ manga, current: true }, false, on())).toBeUndefined();
+    expect(
+      cardTap({ manga, current: false }, false, on(), true),
+    ).toBeUndefined();
   });
 });

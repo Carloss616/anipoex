@@ -116,12 +116,17 @@ export function SheetContent({
                 disabled={!installed}
                 aria-pressed={title.searching}
                 onPress={() =>
-                  actions.searchAll(available.map((row) => row.source.id))
+                  // Excluded sources too: the right page may be on one dropped for no match.
+                  actions.searchAll(
+                    [...available, ...excluded].map((row) => row.source.id),
+                  )
                 }
                 accessibilityLabel="Search titles in all sources"
               >
                 <Icon
-                  name={Icons.searchTitles}
+                  name={
+                    title.searching ? Icons.searchTitlesOff : Icons.searchTitles
+                  }
                   size={BUTTON_ICON_SIZE}
                   className="text-foreground"
                 />

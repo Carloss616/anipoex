@@ -153,7 +153,10 @@ export function SheetContent({
               {/* A toggle: filled while title search is on. */}
               <IconButton
                 onClick={() =>
-                  actions.searchAll(available.map((row) => row.source.id))
+                  // Excluded sources too: the right page may be on one dropped for no match.
+                  actions.searchAll(
+                    [...available, ...excluded].map((row) => row.source.id),
+                  )
                 }
                 colors={
                   title.searching
@@ -170,7 +173,9 @@ export function SheetContent({
                 ]}
               >
                 <Icon
-                  name={Icons.searchTitles}
+                  name={
+                    title.searching ? Icons.searchTitlesOff : Icons.searchTitles
+                  }
                   size={BUTTON_ICON_SIZE}
                   color="inherit"
                 />

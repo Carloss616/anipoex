@@ -56,11 +56,11 @@ function actionRow(item: MenuAction) {
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/menu/
  */
-export function Menu({ items, children }: MenuProps) {
+export function Menu({ items, children, onPrimaryAction }: MenuProps) {
   const { rows, pending, close } = useMenuDialogState(items);
 
   const menu = (
-    <SwiftUIMenu label={children}>
+    <SwiftUIMenu label={children} onPrimaryAction={onPrimaryAction}>
       {rows.map((item) =>
         isSubmenu(item) ? (
           <SwiftUIMenu

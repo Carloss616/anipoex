@@ -40,13 +40,27 @@ const titles = { search: ["T"], all: ["T"] };
 beforeEach(() => search.mockClear());
 
 describe("setMatchByHand", () => {
-  it("includes an excluded source and stores the page", () => {
+  it("lifts an automatic no-match exclusion without pinning", () => {
     exclusions$["3001"].set({ a: { reason: "not-matched", updatedAt: 1 } });
     setMatchByHand(3001, A, page);
     expect(readManual(3001, "a")).toEqual(page);
     expect(exclusions$["3001"].a.deletedAt.peek()).toBeNumber();
-    expect(pins$["3001"].a.peek()).toBeDefined();
-    expect(pins$["3001"].a.deletedAt.peek()).toBeUndefined();
+    expect(pins$["3001"].a.peek()).toBeUndefined();
+  });
+
+  it("leaves a manual exclusion and its pin alone", () => {
+    exclusions$["3008"].set({ a: { reason: "not-matched", updatedAt: 1 } });
+    pins$["3008"].set({ a: { updatedAt: 1 } });
+    setMatchByHand(3008, A, page);
+    expect(exclusions$["3008"].a.deletedAt.peek()).toBeUndefined();
+    expect(pins$["3008"].a.updatedAt.peek()).toBe(1);
+  });
+
+  it("leaves an automatic exclusion for another reason alone", () => {
+    exclusions$["3009"].set({ a: { reason: "error-found", updatedAt: 1 } });
+    setMatchByHand(3009, A, page);
+    expect(exclusions$["3009"].a.deletedAt.peek()).toBeUndefined();
+    expect(pins$["3009"].a.peek()).toBeUndefined();
   });
 
   it("sets the chosen source's match", () => {
@@ -87,14 +101,13 @@ describe("setMatchByHand", () => {
 });
 
 describe("removeMatchByHand", () => {
-  it("searches the chosen source again and keeps the pin", async () => {
+  it("searches the chosen source again", async () => {
     setMatchByHand(3004, A, page);
     source$[3004].set({ sourceId: "a", manga: { url: "/m", title: "Mine" } });
     await removeMatchByHand(3004, A, titles);
     expect(readManual(3004, "a")).toBeUndefined();
     expect(search).toHaveBeenCalledTimes(1);
     expect(source$[3004].get()).toEqual({ sourceId: "a", manga: null });
-    expect(pins$["3004"].a.deletedAt.peek()).toBeUndefined();
   });
 
   it("drops the chapters stored under the manual page", async () => {

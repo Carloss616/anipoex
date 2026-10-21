@@ -62,7 +62,8 @@ export const AvailableItem = memo(function AvailableItem({
   const detail = statusDetail(status);
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
-  const search = searchItem(source, useSearching(mangaKey, source.id), actions);
+  const searching = useSearching(mangaKey, source.id);
+  const search = searchItem(source, searching, actions);
   // Off only while this source scans: rescans of other rows run beside it.
   const rescan = (
     <Button
@@ -176,9 +177,18 @@ export const AvailableItem = memo(function AvailableItem({
           actions={actions}
         />
       </VStack>
-      {/* No full swipe: a long drag shouldn't start a scan. */}
-      <SwipeActions.Actions allowsFullSwipe={false}>
+      {/* Swipe right: search and rescan. No full swipe on either edge: a long drag shouldn't start one. */}
+      <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
+        <Button
+          label={searching ? "Stop" : "Search"}
+          systemImage="text.magnifyingglass"
+          modifiers={[tint(primary)]}
+          onPress={search.onPress}
+        />
         {rescan}
+      </SwipeActions.Actions>
+      {/* Swipe left: exclude. */}
+      <SwipeActions.Actions allowsFullSwipe={false}>
         <Button
           label="Exclude"
           systemImage="eye.slash"

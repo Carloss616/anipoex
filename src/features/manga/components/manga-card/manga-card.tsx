@@ -12,8 +12,8 @@ import { Typography } from "@/components/ui/typography";
 import type { TitlePosition } from "@/features/manga/utils/list-view";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { dp } from "@/utils/utils";
-import { STATUS_COLOR, STATUS_ICON } from "./constants";
 import { CoverImage } from "./cover-image";
+import { type CornerMark, cornerBadge } from "./utils";
 
 export interface MangaCardProps {
   cover?: string | ImageSource | null;
@@ -21,6 +21,8 @@ export interface MangaCardProps {
   coverThumb?: string | null;
   coverColor?: string | null;
   status?: MediaStatus | null;
+  /** A corner badge in place of the release status, e.g. the current match among a source's results. */
+  mark?: CornerMark;
   title?: string | null;
   label?: string | null;
   /** Where `title` and `label` go. `over` keeps them on a scrim over the cover. */
@@ -42,6 +44,7 @@ export function MangaCard({
   coverThumb,
   coverColor,
   status,
+  mark,
   title,
   label,
   titlePosition = "over",
@@ -79,10 +82,11 @@ export function MangaCard({
   );
   // An icon, not a word: it has to fit a narrow cover. The list only tags the
   // exceptions (see `ListItem`), and the card's spoken label names the status.
-  const badge = status && (
+  const corner = cornerBadge(status, mark);
+  const badge = corner && (
     <Badge
-      color={STATUS_COLOR[status]}
-      icon={STATUS_ICON[status]}
+      color={corner.color}
+      icon={corner.icon}
       className="absolute top-2 left-2"
     />
   );

@@ -52,6 +52,11 @@ export const Icons = {
     android: require("@expo/material-symbols/manage_search.xml"),
     web: "text-search",
   }),
+  searchTitlesOff: Icon.select({
+    ios: "minus.magnifyingglass",
+    android: require("@expo/material-symbols/search_off.xml"),
+    web: "search-x",
+  }),
   filter: Icon.select({
     ios: "line.3.horizontal.decrease",
     android: require("@expo/material-symbols/filter_list.xml"),
