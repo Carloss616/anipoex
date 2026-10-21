@@ -30,6 +30,7 @@ Gotchas:
 - Replacing a list with rebuilt objects re-renders every item: keep unchanged items as the same object (`keepUnchanged` in `extensions.ts`).
 - `List.ForEach` / `LazyColumn.Items` recycle rows by slot: an insert or removal shifts every following slot, so those rows re-render whatever their props. `recycling={false}` keys by item, for short lists with per-row actions.
 - Inside a `Host`, a parent re-render re-runs every row callback and a new `data` array bumps the list's revision: keep state out of the list's parent.
+- `LegendList` places items by their measured size and reads only its own spacing keys: space and inset items with `contentContainerStyle={{ gap, paddingLeft, paddingRight }}`, not an item's padding class (measured late, items touch) or `paddingInline` (ignored). See `title-rail/title-rail.tsx`.
 - `peek()` for call-time reads (in handlers and actions), `get()` in anything that must update (`isScanning` vs `isScanBusy` in `state/probes.ts`). A `peek()` in render is worse than stale: the Compiler caches it and keeps the first render's value (`use-title-mode.ts` reads the query with `useValue`).
 
 # Persistence
