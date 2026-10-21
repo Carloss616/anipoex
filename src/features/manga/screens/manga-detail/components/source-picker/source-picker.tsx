@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { SourceSheet } from "../source-sheet";
@@ -28,6 +28,21 @@ export function SourcePicker({ manga, entryId }: SourcePickerProps) {
         </Typography>
         <Icon name={Icons.chevronDown} size={16} className="text-primary" />
       </Button>
+      {picker.hasWeb && (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="size-9"
+          onPress={picker.openWeb}
+          accessibilityLabel={`Open on ${picker.label}`}
+        >
+          <Icon
+            name={Icons.website}
+            size={BUTTON_ICON_SIZE}
+            className="text-muted-foreground"
+          />
+        </Button>
+      )}
 
       <SourceSheet
         manga={manga}

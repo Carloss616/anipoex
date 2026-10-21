@@ -1,11 +1,14 @@
 import { Button, HStack } from "@expo/ui/swift-ui";
 import {
+  accessibilityLabel,
+  buttonBorderShape,
   buttonStyle,
   controlSize,
   foregroundStyle,
+  labelStyle,
 } from "@expo/ui/swift-ui/modifiers";
 import { Text } from "@/components/native/swift-ui/text";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
@@ -29,6 +32,20 @@ export function SourcePicker({ manga, entryId }: SourcePickerProps) {
           <Icon name={Icons.chevronDown} size={16} color="inherit" />
         </HStack>
       </Button>
+      {picker.hasWeb && (
+        <Button
+          onPress={picker.openWeb}
+          modifiers={[
+            buttonStyle("borderless"),
+            buttonBorderShape("circle"),
+            labelStyle("iconOnly"),
+            foregroundStyle("secondary"),
+            accessibilityLabel(`Open on ${picker.label}`),
+          ]}
+        >
+          <Icon name={Icons.website} size={BUTTON_ICON_SIZE} color="inherit" />
+        </Button>
+      )}
 
       <SourceSheet
         manga={manga}
