@@ -5,7 +5,7 @@ import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import { openExternal } from "@/utils/open-external";
-import type { SourcePickerManga } from "../source-picker";
+import type { SourcePickerManga } from "../components/source-picker";
 
 /** The picked source, its match and the sheet that changes it, open while `open$` is true. */
 export function useSourcePicker(

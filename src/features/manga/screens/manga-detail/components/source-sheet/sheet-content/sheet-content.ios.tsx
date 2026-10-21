@@ -41,16 +41,16 @@ import {
   AvailableItem,
   type ErrorRequest,
   type ExcludeRequest,
-} from "./available-item";
-import { ExcludedItem } from "./excluded-item";
-import { useSourceActions } from "./hooks/use-source-actions";
-import { useSources } from "./hooks/use-sources";
-import type { SourceSheetProps } from "./source-sheet";
+} from "../available-item";
+import { ExcludedItem } from "../excluded-item";
+import { useSourceActions } from "../hooks/use-source-actions";
+import { useSources } from "../hooks/use-sources";
 import {
   errorDialog,
   excludedMenuItems,
   excludeReasons,
-} from "./utils/row-content";
+} from "../utils/row-content";
+import type { SheetContentProps } from "./sheet-content";
 
 /** A glass circle's icon slot, as on the tracking overview's menu button. */
 const ICON_FRAME = frame({ width: 20, height: 20 });
@@ -63,14 +63,14 @@ function SectionHeader({ children }: { children: string }) {
   );
 }
 
-export function SourceSheet({
+export function SheetContent({
   manga,
   read,
   isPresented,
   selectedId,
   onSelect,
   onDismiss,
-}: SourceSheetProps) {
+}: SheetContentProps) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });

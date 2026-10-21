@@ -9,7 +9,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { Text } from "@/components/native/swift-ui/text";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { useSourcePicker } from "./hooks/use-source-picker";
+import { useSourcePicker } from "../../hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
 export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {

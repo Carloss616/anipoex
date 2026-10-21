@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { useSourcePicker } from "./hooks/use-source-picker";
+import { useSourcePicker } from "../../hooks/use-source-picker";
 
 export type SourcePickerManga = Pick<MangaDetail, "id" | "title" | "synonyms">;
 
 export interface SourcePickerProps {
   manga: SourcePickerManga;
   entryId: number | null | undefined;
-  /** Whether the source sheet is open; the sheet renders outside the chapter list (`SourcePickerSheet`). */
+  /** Whether the source sheet is open; the sheet renders beside the chapter list (`SourceSheet`). */
   open$: Observable<boolean>;
 }
 

@@ -29,14 +29,14 @@ import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { AvailableItem } from "./available-item";
-import { ExcludedItem } from "./excluded-item";
-import { useSourceActions } from "./hooks/use-source-actions";
-import { useSources } from "./hooks/use-sources";
-import { RefreshIcon } from "./refresh-icon";
-import type { SourceSheetProps } from "./source-sheet";
-import { excludedMenuItems } from "./utils/row-content";
-import { sheetItemKey, sheetItems } from "./utils/sheet-items";
+import { AvailableItem } from "../available-item";
+import { ExcludedItem } from "../excluded-item";
+import { useSourceActions } from "../hooks/use-source-actions";
+import { useSources } from "../hooks/use-sources";
+import { RefreshIcon } from "../refresh-icon";
+import { excludedMenuItems } from "../utils/row-content";
+import { sheetItemKey, sheetItems } from "../utils/sheet-items";
+import type { SheetContentProps } from "./sheet-content";
 
 const EMPTY_HEIGHT = 320;
 
@@ -61,14 +61,14 @@ function MoreButton({
   );
 }
 
-export function SourceSheet({
+export function SheetContent({
   manga,
   read,
   isPresented,
   selectedId,
   onSelect,
   onDismiss,
-}: SourceSheetProps) {
+}: SheetContentProps) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });

@@ -1,184 +1,34 @@
-import { Computed } from "@legendapp/state/react";
-import { View } from "react-native";
-import { EmptyState } from "@/components/blocks/empty-state";
-import { LegendList } from "@/components/layout/legend-list";
-import { Badge } from "@/components/ui/badge";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Button } from "@/components/ui/button";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
-import { Menu } from "@/components/ui/menu";
-import { SearchBar } from "@/components/ui/search-bar";
-import { Typography } from "@/components/ui/typography";
-import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
-import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { AvailableItem } from "./available-item";
-import { ExcludedItem } from "./excluded-item";
-import { useSourceActions } from "./hooks/use-source-actions";
-import { useSources } from "./hooks/use-sources";
-import { RefreshIcon } from "./refresh-icon";
-import { excludedMenuItems } from "./utils/row-content";
-import { type SheetItem, sheetItemKey, sheetItems } from "./utils/sheet-items";
+import type { Observable } from "@legendapp/state";
+import { useValue } from "@legendapp/state/react";
+import { useSourcePicker } from "../../hooks/use-source-picker";
+import type { SourcePickerManga } from "../source-picker";
+import { SheetContent } from "./sheet-content";
 
 export interface SourceSheetProps {
-  manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
-  read: number;
-  isPresented: boolean;
-  selectedId: string | undefined;
-  onSelect: (id: string) => void;
-  onDismiss: () => void;
+  manga: SourcePickerManga;
+  entryId: number | null | undefined;
+  /** Shared with the trigger, so opening the sheet doesn't re-render the screen. */
+  open$: Observable<boolean>;
 }
 
 /**
  * Which source the chapter list reads. A picker confirms by choosing, so it
  * carries no Save — the same way the tracking sheet's fields commit themselves.
+ * Rendered beside the chapter list, not in its header row: Compose rebuilds a
+ * list row when the list shrinks, closing and reopening a sheet inside it.
  */
-export function SourceSheet({
-  manga,
-  read,
-  isPresented,
-  selectedId,
-  onSelect,
-  onDismiss,
-}: SourceSheetProps) {
-  const { key, all, query, setQuery, available, excluded, empty, openedAt } =
-    useSources({ mangaId: manga.id, isPresented });
-  const actions = useSourceActions({ manga, read, selectedId });
-  const installed = all.length > 0;
-
-  // Both sections in one list, so they scroll together (both empty: none, and the empty state shows).
-  const items = sheetItems(available, excluded);
-  const selectedAt = items.findIndex(
-    (item) => item.kind === "available" && item.row.source.id === selectedId,
-  );
-
-  const renderHeader = (id: "available" | "no-sources" | "excluded") =>
-    id === "available" ? (
-      <Typography type="small" className="px-4 text-primary">
-        Available
-      </Typography>
-    ) : id === "no-sources" ? (
-      <Typography type="body-sm" muted className="px-4">
-        No sources
-      </Typography>
-    ) : (
-      <View className="flex-row items-center gap-2 px-4 pt-4">
-        <Typography type="small" className="text-primary">
-          Excluded
-        </Typography>
-        <Badge>{excluded.length}</Badge>
-        <View className="flex-1" />
-        <Computed>
-          {() => {
-            const items = excludedMenuItems(excluded, isScanBusy(key), actions);
-            return (
-              <Menu items={items}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-9"
-                  accessibilityLabel="Excluded sources actions"
-                >
-                  <Icon
-                    name={Icons.more}
-                    size={BUTTON_ICON_SIZE}
-                    className="text-foreground"
-                  />
-                </Button>
-              </Menu>
-            );
-          }}
-        </Computed>
-      </View>
-    );
+export function SourceSheet({ manga, entryId, open$ }: SourceSheetProps) {
+  const picker = useSourcePicker(manga, entryId, open$);
+  const isPresented = useValue(open$);
 
   return (
-    <BottomSheet
+    <SheetContent
+      manga={manga}
+      read={picker.read}
       isPresented={isPresented}
-      onDismiss={onDismiss}
-      contentKey={`${available.length}-${excluded.length}`}
-      snapPoints={["half", "full"]}
-      snapPointsDirection="bottom"
-    >
-      <View className="flex-1 gap-4 py-4">
-        <View className="gap-4 px-4">
-          <View>
-            <View className="flex-row items-center gap-2">
-              <Typography type="h4">Sources</Typography>
-              <Badge>{available.length}</Badge>
-              <View className="flex-1" />
-              <Computed>
-                {() => (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-9"
-                    // A plain browser has no sources, so nothing to scan.
-                    disabled={isScanBusy(key) || !installed}
-                    onPress={actions.scanAll}
-                    accessibilityLabel="Scan all sources"
-                  >
-                    <RefreshIcon spinning={scanningAll$[key].get() === true} />
-                  </Button>
-                )}
-              </Computed>
-            </View>
-            <Typography type="body-sm" muted>
-              {read > 0 ? `Read c.${read}` : "Not started"}
-            </Typography>
-          </View>
-          <SearchBar
-            defaultValue={query}
-            debounce={150}
-            onDebouncedChange={setQuery}
-            placeholder="Search sources..."
-            shape="pill"
-          />
-        </View>
-
-        <LegendList
-          data={items}
-          keyExtractor={sheetItemKey}
-          getItemType={(item: SheetItem) => item.kind}
-          extraData={selectedId}
-          // Read once, when the sheet opens; typing doesn't move it. No scroll when the selected row is the first one.
-          initialScrollIndex={
-            selectedAt > 1
-              ? { index: selectedAt, viewPosition: 0.5 }
-              : undefined
-          }
-          ListEmptyComponent={<EmptyState {...empty} />}
-          renderItem={({ item }) =>
-            item.kind === "header" ? (
-              renderHeader(item.id)
-            ) : (
-              <>
-                {!item.first && <Item.Separator className="mx-4" />}
-                {item.kind === "available" ? (
-                  <AvailableItem
-                    source={item.row.source}
-                    mangaKey={key}
-                    sources={all}
-                    read={read}
-                    openedAt={openedAt}
-                    selected={item.row.source.id === selectedId}
-                    actions={actions}
-                    onSelect={onSelect}
-                  />
-                ) : (
-                  <ExcludedItem
-                    source={item.row.source}
-                    reason={item.row.reason}
-                    pinned={item.row.pinned}
-                    mangaKey={key}
-                    actions={actions}
-                  />
-                )}
-              </>
-            )
-          }
-        />
-      </View>
-    </BottomSheet>
+      selectedId={picker.sourceId}
+      onSelect={picker.select}
+      onDismiss={picker.close}
+    />
   );
 }

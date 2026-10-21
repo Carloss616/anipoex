@@ -3,7 +3,7 @@ import { semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { useSourcePicker } from "./hooks/use-source-picker";
+import { useSourcePicker } from "../../hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
 export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {

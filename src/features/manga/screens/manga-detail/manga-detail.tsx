@@ -23,7 +23,8 @@ import { noop } from "@/utils/utils";
 import { DetailHeader } from "./components/detail-header";
 import { DetailList } from "./components/detail-list";
 import { Hero } from "./components/hero";
-import { SourcePicker, SourcePickerSheet } from "./components/source-picker";
+import { SourcePicker } from "./components/source-picker";
+import { SourceSheet } from "./components/source-sheet";
 
 const MENU_ACTIONS = [
   {
@@ -173,7 +174,7 @@ export function MangaDetail() {
         entryId={manga.mediaListEntry?.id}
         header={<DetailHeader manga={manga} />}
       />
-      <SourcePickerSheet
+      <SourceSheet
         manga={manga}
         entryId={manga.mediaListEntry?.id}
         open$={sourceSheet$}
