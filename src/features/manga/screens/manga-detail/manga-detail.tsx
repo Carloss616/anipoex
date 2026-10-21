@@ -102,6 +102,12 @@ export function MangaDetail() {
         ? {
             title: "No match",
             description: `This title wasn't found in ${sourceName}.`,
+            actions: [
+              {
+                label: "Choose another source",
+                onPress: () => sourceSheet$.set(true),
+              },
+            ],
           }
         : error
           ? { title: "Couldn't load chapters", description: error }

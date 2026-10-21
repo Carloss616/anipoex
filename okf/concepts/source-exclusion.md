@@ -32,6 +32,10 @@ exists, and the list says which (`· auto` / `· you`).
 Excluding the source chosen for the manga also unchooses it, so the detail asks to pick a
 source again; its row can also just be **deselected**, which only clears the choice.
 
+Picking a source by hand that finds no match never excludes it: the detail says *No match*
+and offers **Choose another source**, which opens the source list. Only a scan excludes by
+itself.
+
 ## Retry and reset
 
 **Retry auto-excluded** marks only unpinned exclusions deleted, then rescans. **Reset

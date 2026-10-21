@@ -24,10 +24,10 @@ export const ListEmpty = memo(function ListEmpty({
             ? "This list is empty."
             : `No manga in “${genre}” yet.`
       }
-      action={
+      actions={
         genre === ALL
           ? undefined
-          : { label: "Show all", onPress: () => genre$.set(ALL) }
+          : [{ label: "Show all", onPress: () => genre$.set(ALL) }]
       }
     />
   );

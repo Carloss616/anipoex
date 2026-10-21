@@ -7,8 +7,8 @@ import { useFace } from "./hooks/use-face";
 export interface EmptyStateProps {
   title: string;
   description?: string;
-  /** A way out of the empty state, as a small tonal button under the text. */
-  action?: { label: string; onPress: () => void };
+  /** Ways out of the empty state, stacked under the text; the first is the prominent one. */
+  actions?: { label: string; onPress: () => void }[];
   children?: React.ReactNode;
   /** iOS and Android only. */
   modifiers?: UniversalBaseProps["modifiers"];
@@ -17,7 +17,7 @@ export interface EmptyStateProps {
 export function EmptyState({
   title,
   description,
-  action,
+  actions,
   children,
 }: EmptyStateProps) {
   const face = useFace();
@@ -35,15 +35,19 @@ export function EmptyState({
           {description}
         </Typography>
       )}
-      {action && (
-        <Button
-          variant="secondary"
-          size="sm"
-          className="mt-1"
-          onPress={action.onPress}
-        >
-          {action.label}
-        </Button>
+      {actions && actions.length > 0 && (
+        <View className="mt-1 items-center gap-1.5">
+          {actions.map(({ label, onPress }, i) => (
+            <Button
+              key={label}
+              variant={i === 0 ? "secondary" : "ghost"}
+              size="sm"
+              onPress={onPress}
+            >
+              {label}
+            </Button>
+          ))}
+        </View>
       )}
       {children}
     </View>

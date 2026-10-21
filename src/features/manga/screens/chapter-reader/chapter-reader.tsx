@@ -114,7 +114,7 @@ export function ChapterReader() {
       <EmptyState
         title="Couldn't load this chapter"
         description={error}
-        action={{ label: "Retry", onPress: reload }}
+        actions={[{ label: "Retry", onPress: reload }]}
       />
     ) : (
       <LegendList

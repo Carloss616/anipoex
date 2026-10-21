@@ -1,4 +1,8 @@
-import { Column, FilledTonalButton } from "@expo/ui/jetpack-compose";
+import {
+  Column,
+  FilledTonalButton,
+  TextButton,
+} from "@expo/ui/jetpack-compose";
 import { fillMaxSize, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { EnsureHost } from "@/components/ui/host";
@@ -13,7 +17,7 @@ import { useFace } from "./hooks/use-face";
 export function EmptyState({
   title,
   description,
-  action,
+  actions,
   children,
   modifiers,
 }: EmptyStateProps) {
@@ -53,11 +57,14 @@ export function EmptyState({
               {description}
             </Text>
           )}
-          {action && (
-            <FilledTonalButton onClick={action.onPress}>
-              <Text style={{ typography: "labelLarge" }}>{action.label}</Text>
-            </FilledTonalButton>
-          )}
+          {actions?.map(({ label, onPress }, i) => {
+            const Action = i === 0 ? FilledTonalButton : TextButton;
+            return (
+              <Action key={label} onClick={onPress}>
+                <Text style={{ typography: "labelLarge" }}>{label}</Text>
+              </Action>
+            );
+          })}
           {children}
         </Column>
       </Column>

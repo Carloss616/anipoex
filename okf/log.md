@@ -2,6 +2,7 @@
 
 ## 2026-10-21
 
+* **No match offers another source**: when the chosen source finds no match, the detail's empty state has a Choose another source button that opens the source list; a pick by hand is never excluded for finding nothing, only a scan does that. Updated [source exclusion](concepts/source-exclusion.md).
 * **The chosen source can be excluded and deselected**: its row offers Deselect, which clears the choice, and Exclude, which clears it too; a scan that finds no match for the chosen source auto-excludes and unchooses it (an error or a lag still spares it). The detail then asks to pick a source. Updated [source exclusion](concepts/source-exclusion.md) and [chosen source](stores/source-matches.md).
 * **See why a source errored**: an error probe keeps the message the source threw, and a row with one offers See error, showing it with Rescan (Include on an excluded row). Updated [source probe](concepts/source-probe.md) and [source probes](stores/source-probes.md).
 * **Source matching finds more, still never a near match**: titles now also compare without spaces, apostrophes and romaji long vowels, and a result whose only difference is a bracketed tag (not a novel) matches when nothing equals; Latin-script synonyms are searched after the romaji and English titles, up to four queries. Similarity scores (as in seanime, Mihon, Kotatsu) were left out: they pick sequels and near titles. Updated [chosen source](stores/source-matches.md) and [source probe](concepts/source-probe.md).

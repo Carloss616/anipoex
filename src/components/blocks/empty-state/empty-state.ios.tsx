@@ -20,7 +20,7 @@ const MUTED = [foregroundStyle("secondary"), multilineTextAlignment("center")];
 export function EmptyState({
   title,
   description,
-  action,
+  actions,
   children,
   modifiers,
 }: EmptyStateProps) {
@@ -55,13 +55,18 @@ export function EmptyState({
             {description}
           </Text>
         )}
-        {action && (
+        {actions?.map(({ label, onPress }, i) => (
           <Button
-            label={action.label}
-            onPress={action.onPress}
-            modifiers={[buttonStyle("glass"), controlSize("small"), buttonFont]}
+            key={label}
+            label={label}
+            onPress={onPress}
+            modifiers={[
+              buttonStyle(i === 0 ? "glassProminent" : "glass"),
+              controlSize("small"),
+              buttonFont,
+            ]}
           />
-        )}
+        ))}
         {children}
       </VStack>
     </EnsureHost>
