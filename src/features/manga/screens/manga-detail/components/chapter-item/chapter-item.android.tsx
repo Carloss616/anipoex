@@ -34,7 +34,9 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
       ]}
     >
       <ListItem.HeadlineContent>
-        <Text style={{ fontWeight: "500" }}>{chapter.title}</Text>
+        <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
+          {chapter.title}
+        </Text>
       </ListItem.HeadlineContent>
       {/* An empty slot still takes a line and lifts the title off center. */}
       {chapter.date !== "" && (

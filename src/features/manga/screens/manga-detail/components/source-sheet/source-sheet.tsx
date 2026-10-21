@@ -7,7 +7,7 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
-import { Menu, type MenuItem } from "@/components/ui/menu";
+import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Typography } from "@/components/ui/typography";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
@@ -17,7 +17,7 @@ import { ExcludedItem } from "./excluded-item";
 import { useSourceActions } from "./hooks/use-source-actions";
 import { useSources } from "./hooks/use-sources";
 import { RefreshIcon } from "./refresh-icon";
-import { RESET_DIALOG } from "./utils/row-content";
+import { excludedMenuItems } from "./utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "./utils/sheet-items";
 
 export interface SourceSheetProps {
@@ -70,26 +70,7 @@ export function SourceSheet({
         <View className="flex-1" />
         <Computed>
           {() => {
-            const busy = isScanBusy(key);
-            const items: MenuItem[] = [
-              ...(excluded.some((row) => !row.pinned)
-                ? [
-                    {
-                      label: "Retry auto-excluded",
-                      disabled: busy,
-                      onPress: actions.retryAuto,
-                    },
-                  ]
-                : []),
-              {
-                label: "Reset all",
-                destructive: true,
-                disabled: busy,
-                onPressMode: "dialog",
-                dialogConfig: RESET_DIALOG,
-                onPress: actions.resetAll,
-              },
-            ];
+            const items = excludedMenuItems(excluded, isScanBusy(key), actions);
             return (
               <Menu items={items}>
                 <Button

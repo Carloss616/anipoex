@@ -1,4 +1,3 @@
-import { Image } from "@expo/ui/swift-ui";
 import {
   contentShape,
   frame,
@@ -8,8 +7,7 @@ import {
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
-import { EnsureHost } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 
@@ -17,7 +15,7 @@ import { theme$ } from "@/state/theme";
  * Tap flips light/dark within the family; long press hands it to the system.
  *
  * A SwiftUI `Button` swallows long presses — its own gesture wins — so this is
- * a glass-styled `Image` carrying both gestures instead of a `Button`.
+ * a glass-styled `Icon` carrying both gestures instead of a `Button`.
  */
 export function ThemeToggle() {
   const preference = useValue(theme$.preference);
@@ -25,28 +23,26 @@ export function ThemeToggle() {
   const isLight = useValue(theme$.mode) === "light";
 
   return (
-    <EnsureHost matchContents>
-      <Image
-        systemName={
-          preference === "system"
-            ? "circle.lefthalf.filled"
-            : isLight
-              ? "sun.max"
-              : "moon"
-        }
-        size={BUTTON_ICON_SIZE}
-        color={foreground}
-        modifiers={[
-          frame({ width: 40, height: 40 }),
-          glassEffect({
-            glass: { variant: "regular", interactive: true },
-            shape: "circle",
-          }),
-          contentShape(shapes.circle()),
-          onTapGesture(() => theme$.preference.set(isLight ? "dark" : "light")),
-          onLongPressGesture(() => theme$.preference.set("system")),
-        ]}
-      />
-    </EnsureHost>
+    <Icon
+      name={
+        preference === "system"
+          ? "circle.lefthalf.filled"
+          : isLight
+            ? "sun.max"
+            : "moon"
+      }
+      size={BUTTON_ICON_SIZE}
+      color={foreground}
+      modifiers={[
+        frame({ width: 40, height: 40 }),
+        glassEffect({
+          glass: { variant: "regular", interactive: true },
+          shape: "circle",
+        }),
+        contentShape(shapes.circle()),
+        onTapGesture(() => theme$.preference.set(isLight ? "dark" : "light")),
+        onLongPressGesture(() => theme$.preference.set("system")),
+      ]}
+    />
   );
 }

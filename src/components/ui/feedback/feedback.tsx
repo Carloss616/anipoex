@@ -1,4 +1,4 @@
-import { AnimatedPressable } from "panelui-native";
+import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import type { ReactElement } from "react";
 
 export type FeedbackProps = {

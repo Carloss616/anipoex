@@ -1,6 +1,6 @@
-import type { PanelThemeFamily, ThemeMode } from "panelui-native";
+import type { PanelThemeFamily, ThemeMode } from "panelui-native/theme";
 
-export type { ThemeMode } from "panelui-native";
+export type { ThemeMode } from "panelui-native/theme";
 export type ThemePreference = ThemeMode | "system";
 export type ThemeFamilyId = (typeof THEME_FAMILIES)[number]["id"];
 

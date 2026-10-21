@@ -1,5 +1,7 @@
 import {
+  // biome-ignore lint/style/noRestrictedImports: opened by long-press, held by the sheet
   DropdownMenu,
+  // biome-ignore lint/style/noRestrictedImports: as above
   DropdownMenuItem,
   IconButton,
   ListItem,

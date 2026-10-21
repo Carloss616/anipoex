@@ -1,5 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { excludedBadge, excludeReasons, statusDetail } from "./row-content";
+import {
+  excludedBadge,
+  excludedMenuItems,
+  excludeReasons,
+  statusDetail,
+} from "./row-content";
 
 describe("row content", () => {
   it("joins chapter and age when present", () => {
@@ -44,5 +49,22 @@ describe("row content", () => {
   it("labels who excluded", () => {
     expect(excludedBadge("outdated", false)).toBe("behind · auto");
     expect(excludedBadge("bad-numbering", true)).toBe("bad numbers · you");
+  });
+
+  it("offers retry only while an exclusion is automatic", () => {
+    const actions = { retryAuto: () => {}, resetAll: () => {} };
+    const labels = (pinned: boolean[], busy = false) =>
+      excludedMenuItems(
+        pinned.map((p) => ({ pinned: p })),
+        busy,
+        actions,
+      ).map((item) => `${item.label}${item.disabled ? " (off)" : ""}`);
+
+    expect(labels([true, false])).toEqual(["Retry auto-excluded", "Reset all"]);
+    expect(labels([true])).toEqual(["Reset all"]);
+    expect(labels([false], true)).toEqual([
+      "Retry auto-excluded (off)",
+      "Reset all (off)",
+    ]);
   });
 });

@@ -5,15 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
-import { Menu, type MenuItem } from "@/components/ui/menu";
+import { Menu } from "@/components/ui/menu";
 import { isScanBusy } from "@/features/manga/state/probes";
-import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
+import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
-import { excludeReasons, statusDetail } from "../utils/row-content";
+import { excludeMenu, statusDetail } from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
 
 /** What the iOS swipe hands the sheet's reason dialog. */
@@ -60,10 +60,9 @@ export const AvailableItem = memo(function AvailableItem({
     openedAt,
   );
   const detail = statusDetail(status);
-  const excludeItems: MenuItem[] = excludeReasons(suspicious).map((reason) => ({
-    label: `Exclude: ${REASONS[reason].menu}`,
-    onPress: () => actions.exclude(source.id, reason),
-  }));
+  const exclude = excludeMenu(suspicious, (reason) =>
+    actions.exclude(source.id, reason),
+  );
 
   // Siblings, not nested: the row and its trailing actions are all <button>s on web. Same spacing as one Item with its Actions.
   return (
@@ -119,7 +118,7 @@ export const AvailableItem = memo(function AvailableItem({
         </Computed>
         {/* The selected source can't be excluded, so its menu would be empty. */}
         {!selected && (
-          <Menu items={excludeItems}>
+          <Menu items={[exclude]}>
             <Button
               variant="ghost"
               size="icon"

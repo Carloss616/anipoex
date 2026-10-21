@@ -1,32 +1,36 @@
-import { Button, HStack, Label, Spacer, VStack } from "@expo/ui/swift-ui";
+import {
+  Button,
+  ContextMenu,
+  HStack,
+  Label,
+  Spacer,
+  SwipeActions,
+  VStack,
+} from "@expo/ui/swift-ui";
 import {
   accessibilityLabel,
   buttonBorderShape,
   buttonStyle,
+  controlSize,
   disabled,
   foregroundStyle,
-  frame,
-  labelStyle,
   lineLimit,
+  tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { useValue } from "@legendapp/state/react";
-import { memo } from "react";
-import { Text } from "@/components/native/swift-ui/text";
+import { Computed, useValue } from "@legendapp/state/react";
+import { memo, useState } from "react";
+import { ROW_FILL } from "@/components/native/swift-ui/constants";
+import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import {
-  BUTTON_ICON_SIZE,
-  Icon,
-  type IconName,
-  Icons,
-} from "@/components/ui/icon";
+import { Dialog } from "@/components/ui/dialog";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
-import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
-  type ExtensionOperation,
   extensionOperations$,
   hasUpdate,
   installExtension,
+  uninstallExtension,
   updateExtension,
 } from "@/features/extensions";
 import { SourceTile } from "@/features/manga/components/source-tile";
@@ -35,72 +39,44 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
-import { uninstallItem } from "./utils/uninstall-item";
+import { uninstallDialog } from "./utils/uninstall-item";
 
-const ICON_BUTTON = [
-  buttonBorderShape("circle"),
-  labelStyle("iconOnly"),
-] as const;
+/** The row's one action, App Store style: a pill that turns into a loader while any operation runs. */
+function RowAction({ extension: e }: ListItemProps) {
+  const running = useValue(() => !!extensionOperations$[e.id].get());
+  const font = useFont("subheadline", "semibold");
 
-interface ActionButtonProps {
-  id: string;
-  /** What this button starts: its icon turns into a loader while that runs. */
-  operation: ExtensionOperation;
-  icon: IconName;
-  label: string;
-  variant?: "standard" | "prominent" | "muted";
-  onPress?: () => void;
-}
+  if (running) return <Loader size="sm" />;
+  if (e.installed && !hasUpdate(e)) return null;
 
-/** Reads the operation itself so only this button re-renders; every action is off while one runs. */
-function ActionButton({
-  id,
-  operation,
-  icon,
-  label,
-  variant = "standard",
-  onPress,
-}: ActionButtonProps) {
-  const current = useValue(extensionOperations$[id]);
-
+  const update = e.installed;
   return (
     <Button
-      onPress={onPress}
+      label={update ? "Update" : "Install"}
+      onPress={() => (update ? updateExtension : installExtension)(e.id)}
       modifiers={[
-        buttonStyle(variant === "prominent" ? "glassProminent" : "glass"),
-        ...ICON_BUTTON,
-        ...(variant === "muted" ? [foregroundStyle("secondary")] : []),
-        accessibilityLabel(label),
-        disabled(!!current),
+        buttonStyle(update ? "glassProminent" : "glass"),
+        buttonBorderShape("capsule"),
+        controlSize("small"),
+        font,
+        accessibilityLabel(`${update ? "Update" : "Install"} ${e.name}`),
       ]}
-    >
-      {current === operation ? (
-        <Loader size="sm" />
-      ) : (
-        <Icon
-          name={icon}
-          size={BUTTON_ICON_SIZE}
-          color="inherit"
-          // The narrow ⋮ glyph needs a square frame to keep the button round.
-          modifiers={
-            icon === Icons.more ? [frame({ width: 20, height: 20 })] : undefined
-          }
-        />
-      )}
-    </Button>
+    />
   );
 }
 
-/** A `List` row: it already insets its content, so this draws none of its own. */
+/** A `List` row: the pill installs or updates, long-press lists every action, swipe uninstalls or opens the website. */
 export const ListItem = memo(function ListItem({
   extension: e,
 }: ListItemProps) {
   const mode = useValue(theme$.mode);
+  const [primary, destructive] = useThemeColor(["primary", "destructive"]);
+  const [uninstalling, setUninstalling] = useState(false);
   const { websiteUrl } = e;
-  const primary = useThemeColor("primary");
+  const busy = () => !!extensionOperations$[e.id].get();
 
-  return (
-    <HStack>
+  const row = (
+    <HStack modifiers={ROW_FILL}>
       <Label
         icon={
           <SourceTile
@@ -137,54 +113,89 @@ export const ListItem = memo(function ListItem({
         </VStack>
       </Label>
       <Spacer />
-      <HStack>
-        {websiteUrl && (
-          <Button
-            onPress={() => openExternal(websiteUrl)}
-            modifiers={[
-              buttonStyle("glass"),
-              ...ICON_BUTTON,
-              foregroundStyle("secondary"),
-              accessibilityLabel("Open website"),
-            ]}
-          >
-            <Icon
-              name={Icons.website}
-              size={BUTTON_ICON_SIZE}
-              color="inherit"
-            />
-          </Button>
-        )}
-        {!e.installed ? (
-          <ActionButton
-            id={e.id}
-            operation="installing"
-            icon={Icons.download}
-            label={`Install ${e.name}`}
-            onPress={() => installExtension(e.id)}
-          />
-        ) : hasUpdate(e) ? (
-          <ActionButton
-            id={e.id}
-            operation="updating"
-            icon={Icons.update}
-            label={`Update ${e.name}`}
-            variant="prominent"
-            onPress={() => updateExtension(e.id)}
-          />
-        ) : null}
-        {e.installed && (
-          <Menu items={[uninstallItem(e)]}>
-            <ActionButton
-              id={e.id}
-              operation="uninstalling"
-              icon={Icons.more}
-              label={`More actions for ${e.name}`}
-              variant="muted"
-            />
-          </Menu>
-        )}
-      </HStack>
+      <RowAction extension={e} />
     </HStack>
+  );
+
+  const website = websiteUrl && (
+    <Button
+      label="Website"
+      systemImage="safari"
+      onPress={() => openExternal(websiteUrl)}
+    />
+  );
+
+  return (
+    <SwipeActions>
+      <ContextMenu>
+        <ContextMenu.Items>
+          {(!e.installed || hasUpdate(e)) && (
+            <Computed>
+              {() => (
+                <Button
+                  label={e.installed ? "Update" : "Install"}
+                  systemImage={
+                    e.installed ? "arrow.clockwise" : "arrow.down.circle"
+                  }
+                  modifiers={[disabled(busy())]}
+                  onPress={() =>
+                    (e.installed ? updateExtension : installExtension)(e.id)
+                  }
+                />
+              )}
+            </Computed>
+          )}
+          {website}
+          {e.installed && (
+            <Computed>
+              {() => (
+                <Button
+                  label="Uninstall"
+                  systemImage="trash"
+                  role="destructive"
+                  modifiers={[disabled(busy())]}
+                  onPress={() => setUninstalling(true)}
+                />
+              )}
+            </Computed>
+          )}
+        </ContextMenu.Items>
+        <ContextMenu.Trigger>
+          {e.installed ? (
+            // The alert hangs off the row content: a swipe or menu row only opens it.
+            <Dialog
+              {...uninstallDialog(e)}
+              alert
+              role="destructive"
+              open={uninstalling}
+              onOpenChange={setUninstalling}
+              onConfirm={() => uninstallExtension(e.id)}
+            >
+              <Dialog.Trigger>{row}</Dialog.Trigger>
+            </Dialog>
+          ) : (
+            row
+          )}
+        </ContextMenu.Trigger>
+      </ContextMenu>
+      {(e.installed || website) && (
+        <SwipeActions.Actions allowsFullSwipe={false}>
+          {e.installed && (
+            <Computed>
+              {() => (
+                <Button
+                  label="Uninstall"
+                  systemImage="trash"
+                  // No destructive role: SwiftUI would delete the row before the alert confirms.
+                  modifiers={[tint(destructive), disabled(busy())]}
+                  onPress={() => setUninstalling(true)}
+                />
+              )}
+            </Computed>
+          )}
+          {website}
+        </SwipeActions.Actions>
+      )}
+    </SwipeActions>
   );
 });

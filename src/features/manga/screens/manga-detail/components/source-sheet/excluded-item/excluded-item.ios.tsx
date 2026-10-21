@@ -7,16 +7,10 @@ import {
   SwipeActions,
   VStack,
 } from "@expo/ui/swift-ui";
-import {
-  contentShape,
-  disabled,
-  frame,
-  lineLimit,
-  shapes,
-  tint,
-} from "@expo/ui/swift-ui/modifiers";
+import { disabled, lineLimit, tint } from "@expo/ui/swift-ui/modifiers";
 import { Computed } from "@legendapp/state/react";
 import { memo } from "react";
+import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { isScanBusy } from "@/features/manga/state/probes";
@@ -25,12 +19,6 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { Tile } from "../tile";
 import { excludedBadge } from "../utils/row-content";
 import type { ExcludedItemProps } from "./excluded-item";
-
-// The whole row takes the tap, long-press and swipe, not just its text.
-const FILL = [
-  frame({ maxWidth: Infinity, alignment: "leading" }),
-  contentShape(shapes.rectangle()),
-];
 
 export const ExcludedItem = memo(function ExcludedItem({
   source,
@@ -61,7 +49,7 @@ export const ExcludedItem = memo(function ExcludedItem({
       <ContextMenu>
         <ContextMenu.Items>{include()}</ContextMenu.Items>
         <ContextMenu.Trigger>
-          <HStack modifiers={FILL}>
+          <HStack modifiers={ROW_FILL}>
             <Label icon={<Tile source={source} />}>
               <VStack alignment="leading" spacing={2}>
                 <Text weight="medium" modifiers={[lineLimit(1)]}>

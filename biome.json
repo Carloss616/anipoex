@@ -29,7 +29,9 @@
         "noSvgWithoutTitle": "off",
         "useValidAriaRole": {
           "level": "error",
-          "options": { "ignoreNonDom": true }
+          "options": {
+            "ignoreNonDom": true
+          }
         }
       },
       "nursery": {
@@ -40,24 +42,11 @@
           "level": "error",
           "options": {
             "paths": {
-              "@expo/ui": {
-                "importNames": ["BottomSheet", "Host", "RNHostView", "Icon"],
-                "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
+              "@expo/ui/community/bottom-sheet": "Import from @/components/ui/bottom-sheet",
+              "panelui-native": {
+                "message": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
+                "allowImportNames": ["PortalHost", "PortalProvider"]
               },
-              "@expo/ui/community/bottom-sheet": "Import from @/components/ui/sheet",
-              "@expo/ui/jetpack-compose": {
-                "importNames": ["AlertDialog", "BasicAlertDialog"],
-                "message": "Use Dialog from @/components/ui/dialog"
-              },
-              "@expo/ui/swift-ui": {
-                "importNames": ["Alert", "ConfirmationDialog"],
-                "message": "Use Dialog from @/components/ui/dialog"
-              },
-              "react-native": {
-                "importNames": ["ActivityIndicator", "TouchableNativeFeedback"],
-                "message": "Import from @/components/layout/<component> or @/components/ui/<component>"
-              },
-              "panelui-native": "Import scoped: panelui-native/components/<component>",
               "panelui-native/components/bottom-sheet": "Import from @/components/ui/bottom-sheet",
               "panelui-native/components/button": "Import from @/components/ui/button",
               "panelui-native/components/chip": "Import from @/components/ui/chip",
@@ -68,7 +57,114 @@
               "panelui-native/components/spinner": "Import from @/components/ui/loader",
               "panelui-native/components/surface": "Import from @/components/ui/surface",
               "panelui-native/components/typography": "Import from @/components/ui/typography"
-            }
+            },
+            "patterns": [
+              {
+                "group": ["@expo/ui"],
+                "importNamePattern": "BottomSheet",
+                "message": "Use BottomSheet from @/components/ui/bottom-sheet"
+              },
+              {
+                "group": ["@expo/ui"],
+                "importNamePattern": "Host|RNHostView",
+                "message": "Use Host or RNHostView from @/components/ui/host"
+              },
+              {
+                "group": ["@expo/ui"],
+                "importNamePattern": "Icon",
+                "message": "Use Icon from @/components/ui/icon"
+              },
+              {
+                "group": ["@expo/ui/swift-ui"],
+                "importNamePattern": "Alert|ConfirmationDialog",
+                "message": "Use Dialog from @/components/ui/dialog"
+              },
+              {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "AlertDialog|BasicAlertDialog",
+                "message": "Use Dialog from @/components/ui/dialog"
+              },
+              {
+                "group": ["react-native"],
+                "importNamePattern": "ActivityIndicator",
+                "message": "Use Loader from @/components/ui/loader"
+              },
+              {
+                "group": ["react-native"],
+                "importNamePattern": "TouchableNativeFeedback",
+                "message": "Use TouchableNativeFeedback from @/components/ui/touchable-native-feedback"
+              },
+              {
+                "group": ["@expo/ui/swift-ui"],
+                "importNamePattern": "Menu",
+                "message": "Use Menu from @/components/ui/menu"
+              },
+              {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "DropdownMenu(Item)?",
+                "message": "Use Menu from @/components/ui/menu"
+              },
+              {
+                "group": ["@expo/ui/swift-ui"],
+                "importNamePattern": "Text",
+                "message": "Use Text from @/components/native/swift-ui/text"
+              },
+              {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "Text",
+                "message": "Use Text from @/components/native/jetpack-compose/text"
+              },
+              {
+                "group": ["@expo/ui/swift-ui"],
+                "importNamePattern": "Image",
+                "message": "Use Icon from @/components/ui/icon for symbols, Image from @/components/native/swift-ui/image for URLs"
+              },
+              {
+                "group": ["@expo/ui/swift-ui"],
+                "importNamePattern": "BottomSheet",
+                "message": "Use BottomSheet from @/components/ui/bottom-sheet"
+              },
+              {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "ModalBottomSheet",
+                "message": "Use BottomSheet from @/components/ui/bottom-sheet"
+              },
+              {
+                "group": ["@expo/ui/swift-ui"],
+                "importNamePattern": "ProgressView",
+                "message": "Use Loader from @/components/ui/loader or Progress from @/components/ui/progress"
+              },
+              {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "((Circular|Linear)(Wavy)?ProgressIndicator|(Contained)?LoadingIndicator)",
+                "message": "Use Loader from @/components/ui/loader or Progress from @/components/ui/progress"
+              },
+              {
+                "group": ["@expo/ui/swift-ui", "@expo/ui/jetpack-compose"],
+                "importNamePattern": "Slider",
+                "message": "Use Slider from @/components/ui/slider"
+              },
+              {
+                "group": ["@expo/ui/swift-ui", "@expo/ui/jetpack-compose"],
+                "importNamePattern": "(DatePicker|DateTimePicker)",
+                "message": "Use DatePicker from @/components/ui/date-picker"
+              },
+              {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "SnackbarHost",
+                "message": "Use Toast from @/components/ui/toast"
+              },
+              {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "Badge",
+                "message": "Use Badge from @/components/ui/badge"
+              },
+              {
+                "group": ["@expo/ui/swift-ui", "@expo/ui/jetpack-compose"],
+                "importNamePattern": "AnimatedVisibility",
+                "message": "Use AnimatedVisibility from @/components/ui/animated-visibility"
+              }
+            ]
           }
         }
       }
@@ -76,7 +172,11 @@
   },
   "overrides": [
     {
-      "includes": ["src/components/ui/**", "src/components/layout/**"],
+      "includes": [
+        "src/components/ui/**",
+        "src/components/layout/**",
+        "src/components/native/**"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -84,26 +184,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "panelui-native": "Import scoped: panelui-native/components/<component>"
+                  "panelui-native": {
+                    "message": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
+                    "allowImportNames": ["PortalHost", "PortalProvider"]
+                  }
                 }
               }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "src/app/_layout.tsx",
-        "src/components/ui/bottom-sheet/bottom-sheet.tsx",
-        "src/components/ui/feedback/feedback.tsx",
-        "src/state/theme/constants.ts"
-      ],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error"
             }
           }
         }

@@ -6,6 +6,7 @@ import { Dialog } from "../dialog";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import type { MenuProps } from "./menu";
+import { flattenSubmenus } from "./utils";
 
 /**
  * Android Menu: a Material `DropdownMenu`. Its trigger stays in the React
@@ -16,7 +17,8 @@ import type { MenuProps } from "./menu";
  */
 export function Menu({ items, children }: MenuProps) {
   const [open, setOpen] = useState(false);
-  const { rows, pending, close } = useMenuDialogState(items);
+  const { rows: entries, pending, close } = useMenuDialogState(items);
+  const rows = flattenSubmenus(entries);
   const m3 = useThemeM3Colors();
 
   return (

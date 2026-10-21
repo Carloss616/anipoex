@@ -2,7 +2,6 @@ import {
   Button,
   HStack,
   List,
-  Menu,
   ScrollView,
   Section,
   Spacer,
@@ -11,17 +10,17 @@ import {
 import {
   accessibilityHidden,
   accessibilityLabel,
+  buttonBorderShape,
   buttonStyle,
-  contentShape,
   defaultScrollAnchorForRole,
   disabled,
   foregroundStyle,
   frame,
+  labelStyle,
   listRowBackground,
   listStyle,
   padding,
   scrollContentBackground,
-  shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { Computed } from "@legendapp/state/react";
 import { useState } from "react";
@@ -33,6 +32,7 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Dialog } from "@/components/ui/dialog";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
+import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
@@ -42,13 +42,10 @@ import { ExcludedItem } from "./excluded-item";
 import { useSourceActions } from "./hooks/use-source-actions";
 import { useSources } from "./hooks/use-sources";
 import type { SourceSheetProps } from "./source-sheet";
-import { excludeReasons, RESET_DIALOG } from "./utils/row-content";
+import { excludedMenuItems, excludeReasons } from "./utils/row-content";
 
-/** A 44pt hit area: a button or menu only takes touches on its label. */
-const HIT = [
-  frame({ width: 44, height: 44 }),
-  contentShape(shapes.rectangle()),
-];
+/** A glass circle's icon slot, as on the tracking overview's menu button. */
+const ICON_FRAME = frame({ width: 20, height: 20 });
 
 function SectionHeader({ children }: { children: string }) {
   return (
@@ -70,7 +67,6 @@ export function SourceSheet({
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
   const [excluding, setExcluding] = useState<ExcludeRequest | null>(null);
-  const [resetting, setResetting] = useState(false);
   const muted = useThemeColor("muted");
   // Rows as in the extension list: inset-grouped cards on the sheet, default row insets.
   const rowBackground = listRowBackground(muted);
@@ -129,14 +125,19 @@ export function SourceSheet({
                     <Button
                       onPress={actions.scanAll}
                       modifiers={[
-                        buttonStyle("borderless"),
+                        buttonStyle("glass"),
+                        buttonBorderShape("circle"),
+                        labelStyle("iconOnly"),
+                        foregroundStyle("secondary"),
                         disabled(isScanBusy(key)),
                         accessibilityLabel("Scan all sources"),
                       ]}
                     >
                       {scanningAll$[key].get() ? (
-                        // The icon's 44pt slot, so the header never shifts; the button already reads its label.
-                        <HStack modifiers={[...HIT, accessibilityHidden(true)]}>
+                        // The icon's slot, so the button never resizes; the button already reads its label.
+                        <HStack
+                          modifiers={[ICON_FRAME, accessibilityHidden(true)]}
+                        >
                           <Loader size="sm" />
                         </HStack>
                       ) : (
@@ -144,7 +145,7 @@ export function SourceSheet({
                           name={Icons.refresh}
                           size={BUTTON_ICON_SIZE}
                           color="inherit"
-                          modifiers={HIT}
+                          modifiers={[ICON_FRAME]}
                         />
                       )}
                     </Button>
@@ -215,50 +216,22 @@ export function SourceSheet({
                     <SectionHeader>Excluded</SectionHeader>
                     <Badge>{excluded.length}</Badge>
                     <Spacer />
-                    <Dialog
-                      {...RESET_DIALOG}
-                      alert
-                      role="destructive"
-                      open={resetting}
-                      onOpenChange={setResetting}
-                      onConfirm={actions.resetAll}
-                    >
-                      <Dialog.Trigger>
+                    {/* A section header's action is text, as Update all on the extension list. */}
+                    <Computed>
+                      {() => (
                         <Menu
-                          label={
-                            <Icon
-                              name={Icons.more}
-                              size={BUTTON_ICON_SIZE}
-                              color="inherit"
-                              modifiers={HIT}
-                            />
-                          }
-                          modifiers={[
-                            accessibilityLabel("Excluded sources actions"),
-                          ]}
+                          items={excludedMenuItems(
+                            excluded,
+                            isScanBusy(key),
+                            actions,
+                          )}
                         >
-                          <Computed>
-                            {() => (
-                              <>
-                                {excluded.some((row) => !row.pinned) && (
-                                  <Button
-                                    label="Retry auto-excluded"
-                                    modifiers={[disabled(isScanBusy(key))]}
-                                    onPress={actions.retryAuto}
-                                  />
-                                )}
-                                <Button
-                                  label="Reset all"
-                                  role="destructive"
-                                  modifiers={[disabled(isScanBusy(key))]}
-                                  onPress={() => setResetting(true)}
-                                />
-                              </>
-                            )}
-                          </Computed>
+                          <Text textStyle="subheadline" weight="medium">
+                            Manage
+                          </Text>
                         </Menu>
-                      </Dialog.Trigger>
-                    </Dialog>
+                      )}
+                    </Computed>
                   </HStack>
                 }
               >

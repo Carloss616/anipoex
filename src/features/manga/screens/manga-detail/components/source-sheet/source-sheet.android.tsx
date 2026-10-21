@@ -25,7 +25,7 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Menu, type MenuItem } from "@/components/ui/menu";
+import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -35,7 +35,7 @@ import { useSourceActions } from "./hooks/use-source-actions";
 import { useSources } from "./hooks/use-sources";
 import { RefreshIcon } from "./refresh-icon";
 import type { SourceSheetProps } from "./source-sheet";
-import { RESET_DIALOG } from "./utils/row-content";
+import { excludedMenuItems } from "./utils/row-content";
 import { sheetItemKey, sheetItems } from "./utils/sheet-items";
 
 const EMPTY_HEIGHT = 320;
@@ -107,26 +107,7 @@ export function SourceSheet({
         <Spacer modifiers={[weight(1)]} />
         <Computed>
           {() => {
-            const busy = isScanBusy(key);
-            const items: MenuItem[] = [
-              ...(excluded.some((row) => !row.pinned)
-                ? [
-                    {
-                      label: "Retry auto-excluded",
-                      disabled: busy,
-                      onPress: actions.retryAuto,
-                    },
-                  ]
-                : []),
-              {
-                label: "Reset all",
-                destructive: true,
-                disabled: busy,
-                onPressMode: "dialog",
-                dialogConfig: RESET_DIALOG,
-                onPress: actions.resetAll,
-              },
-            ];
+            const items = excludedMenuItems(excluded, isScanBusy(key), actions);
             return (
               <Menu items={items}>
                 <MoreButton color={m3.onSurfaceVariant} />

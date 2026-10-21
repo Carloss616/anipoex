@@ -43,7 +43,7 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
         }
       />
       <Item.Content className="pointer-events-none">
-        <Item.Title>{chapter.title}</Item.Title>
+        <Item.Title numberOfLines={1}>{chapter.title}</Item.Title>
         <Item.Description>{chapter.date}</Item.Description>
       </Item.Content>
       <Item.Actions>

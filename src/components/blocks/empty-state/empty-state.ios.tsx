@@ -1,3 +1,4 @@
+// biome-ignore lint/style/noRestrictedImports: the 48pt face; the house Text's font would win
 import { Button, Text as TextBase, VStack } from "@expo/ui/swift-ui";
 import {
   buttonStyle,

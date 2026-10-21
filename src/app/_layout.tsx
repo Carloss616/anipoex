@@ -9,7 +9,7 @@ import { ThemeProvider } from "expo-router";
 import { Stack } from "expo-router/stack";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { PanelUIProvider } from "panelui-native";
+import { PanelUIProvider } from "panelui-native/provider";
 import { useEffect } from "react";
 import { ToastHost } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";

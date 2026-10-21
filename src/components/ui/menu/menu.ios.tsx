@@ -4,13 +4,38 @@ import type { SFSymbol } from "expo-symbols";
 import { Dialog } from "../dialog";
 import { EnsureHost } from "../host";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
-import type { MenuItem, MenuProps } from "./menu";
+import type { MenuAction, MenuItem, MenuProps } from "./menu";
+import { isSubmenu } from "./utils";
 
 /** SwiftUI menu rows only take an SF Symbol; anything else has no slot here. */
 function symbolOf(icon: MenuItem["icon"]): SFSymbol | undefined {
   const name =
     icon && typeof icon === "object" && "ios" in icon ? icon.ios : icon;
   return typeof name === "string" ? (name as SFSymbol) : undefined;
+}
+
+function actionRow(item: MenuAction) {
+  const modifiers = item.disabled ? [disabledModifier(true)] : undefined;
+
+  return item.checked === undefined ? (
+    <Button
+      key={item.label}
+      label={item.label}
+      systemImage={symbolOf(item.icon)}
+      role={item.destructive ? "destructive" : undefined}
+      modifiers={modifiers}
+      onPress={item.onPress}
+    />
+  ) : (
+    <Toggle
+      key={item.label}
+      label={item.label}
+      systemImage={symbolOf(item.icon)}
+      isOn={item.checked}
+      onIsOnChange={item.onPress}
+      modifiers={modifiers}
+    />
+  );
 }
 
 /**
@@ -36,33 +61,27 @@ export function Menu({ items, children }: MenuProps) {
 
   const menu = (
     <SwiftUIMenu label={children}>
-      {rows.map((item) => {
-        const modifiers = item.disabled ? [disabledModifier(true)] : undefined;
-
-        return item.checked === undefined ? (
-          <Button
+      {rows.map((item) =>
+        isSubmenu(item) ? (
+          <SwiftUIMenu
             key={item.label}
             label={item.label}
             systemImage={symbolOf(item.icon)}
-            role={item.destructive ? "destructive" : undefined}
-            modifiers={modifiers}
-            onPress={item.onPress}
-          />
+            modifiers={item.disabled ? [disabledModifier(true)] : undefined}
+          >
+            {item.items.map(actionRow)}
+          </SwiftUIMenu>
         ) : (
-          <Toggle
-            key={item.label}
-            label={item.label}
-            systemImage={symbolOf(item.icon)}
-            isOn={item.checked}
-            onIsOnChange={item.onPress}
-            modifiers={modifiers}
-          />
-        );
-      })}
+          actionRow(item)
+        ),
+      )}
     </SwiftUIMenu>
   );
 
-  if (!items.some((item) => item.onPressMode === "dialog")) {
+  const confirms = items
+    .flatMap((item) => (isSubmenu(item) ? item.items : [item]))
+    .some((item) => item.onPressMode === "dialog");
+  if (!confirms) {
     return <EnsureHost matchContents>{menu}</EnsureHost>;
   }
 

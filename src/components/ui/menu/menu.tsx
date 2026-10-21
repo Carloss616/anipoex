@@ -4,6 +4,10 @@ import type { ReactElement } from "react";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
+import { isSubmenu } from "./utils";
+
+// The panel fits its rows when it opens, before a submenu adds wider ones.
+const SUBMENU_MIN_WIDTH = 224;
 
 // The single-confirm form: a menu row confirms one action.
 export type MenuItemDialogConfig = Pick<
@@ -28,11 +32,24 @@ interface MenuItemBase {
  * A row is either a plain action or one that confirms through a dialog first.
  * The menu owns that dialog's open state, so a caller never wires one up.
  */
-export type MenuItem = MenuItemBase &
+export type MenuAction = MenuItemBase &
   (
     | { onPressMode?: "default"; dialogConfig?: never }
     | { onPressMode: "dialog"; dialogConfig: MenuItemDialogConfig }
   );
+
+/**
+ * A row that opens more rows, one level deep: nested on iOS and web. Android's
+ * dropdown has no submenus, so there its rows join the list as `Label: row`.
+ */
+export interface MenuSubmenu {
+  label: string;
+  icon?: IconName;
+  disabled?: boolean;
+  items: MenuAction[];
+}
+
+export type MenuItem = MenuAction | MenuSubmenu;
 
 export interface MenuProps {
   items: MenuItem[];
@@ -42,14 +59,14 @@ export interface MenuProps {
   align?: PopoverAlign;
 }
 
-function RowItem({
+function ActionItem({
   destructive,
   checked,
   disabled,
   onPress,
   label,
   icon,
-}: MenuItem) {
+}: MenuAction) {
   const variant = destructive ? "destructive" : undefined;
 
   if (checked !== undefined) {
@@ -79,11 +96,31 @@ function RowItem({
   );
 }
 
+function RowItem(item: MenuItem) {
+  if (!isSubmenu(item)) return <ActionItem {...item} />;
+
+  return (
+    <PanelMenu.Sub>
+      <PanelMenu.SubTrigger
+        icon={item.icon ? <Icon name={item.icon} size={16} /> : undefined}
+        disabled={item.disabled}
+      >
+        {item.label}
+      </PanelMenu.SubTrigger>
+      <PanelMenu.SubContent>
+        {item.items.map((row) => (
+          <ActionItem key={row.label} {...row} />
+        ))}
+      </PanelMenu.SubContent>
+    </PanelMenu.Sub>
+  );
+}
+
 /**
  * A popup menu, natively rendered per platform.
  *
  * The rows are data rather than children because the native menus underneath
- * only take a flat action list — a `ReactNode` label or icon has nowhere to go
+ * only take action rows — a `ReactNode` label or icon has nowhere to go
  * there. `description`/`shortcut`/`trailing` are absent for the same reason.
  *
  * @see https://panelui.dev/docs/components/menu
@@ -95,7 +132,10 @@ export function Menu({ items, children, align = "end" }: MenuProps) {
     <>
       <PanelMenu>
         <PanelMenu.Trigger>{children}</PanelMenu.Trigger>
-        <PanelMenu.Content align={align}>
+        <PanelMenu.Content
+          align={align}
+          minWidth={items.some(isSubmenu) ? SUBMENU_MIN_WIDTH : undefined}
+        >
           {rows.map((item) => (
             <RowItem key={item.label} {...item} />
           ))}

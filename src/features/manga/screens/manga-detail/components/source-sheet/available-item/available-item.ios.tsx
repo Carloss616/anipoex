@@ -3,7 +3,6 @@ import {
   ContextMenu,
   HStack,
   Label,
-  Menu,
   Spacer,
   SwipeActions,
   VStack,
@@ -12,34 +11,28 @@ import {
   accessibilityAddTraits,
   accessibilityHidden,
   buttonStyle,
-  contentShape,
   disabled,
   foregroundStyle,
   frame,
   lineLimit,
-  shapes,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
 import { Computed } from "@legendapp/state/react";
 import { memo } from "react";
+import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
+import { Menu } from "@/components/ui/menu";
 import { isScanBusy } from "@/features/manga/state/probes";
-import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
+import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Tile } from "../tile";
-import { excludeReasons, statusDetail } from "../utils/row-content";
+import { excludeMenu, statusDetail } from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
 import type { AvailableItemProps } from "./available-item";
-
-// The whole row takes the tap, long-press and swipe, not just its text.
-const FILL = [
-  frame({ maxWidth: Infinity, alignment: "leading" }),
-  contentShape(shapes.rectangle()),
-];
 
 export const AvailableItem = memo(function AvailableItem({
   source,
@@ -86,15 +79,15 @@ export const AvailableItem = memo(function AvailableItem({
           {rescan}
           {/* The selected source can't be excluded. */}
           {!selected && (
-            <Menu label="Exclude" systemImage="eye.slash">
-              {excludeReasons(suspicious).map((reason) => (
-                <Button
-                  key={reason}
-                  label={REASONS[reason].menu}
-                  role="destructive"
-                  onPress={() => actions.exclude(source.id, reason)}
-                />
-              ))}
+            // Inside a context menu, a menu is its submenu row.
+            <Menu
+              items={
+                excludeMenu(suspicious, (reason) =>
+                  actions.exclude(source.id, reason),
+                ).items
+              }
+            >
+              <Label title="Exclude" systemImage="eye.slash" />
             </Menu>
           )}
         </ContextMenu.Items>
@@ -107,7 +100,7 @@ export const AvailableItem = memo(function AvailableItem({
             ]}
           >
             {/* A plain button only takes touches on its label, so the label fills the row. */}
-            <HStack modifiers={FILL}>
+            <HStack modifiers={ROW_FILL}>
               <Label icon={<Tile source={source} />}>
                 <VStack alignment="leading" spacing={2}>
                   <Text weight="medium" modifiers={[lineLimit(1)]}>
