@@ -21,8 +21,9 @@ export interface TitleRailProps {
 }
 
 const COVER = { width: 80, height: 120 };
+const GAP = 10;
 // One card and the gap after it, so the list lays out before measuring.
-const CARD_SPAN = COVER.width + 10;
+const CARD_SPAN = COVER.width + GAP;
 // The cover, two title lines and the label badge.
 const RAIL_HEIGHT = COVER.height + 72;
 
@@ -81,10 +82,12 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           estimatedItemSize={CARD_SPAN}
           recycleItems
           onEndReached={loadMore}
-          contentContainerStyle={{ paddingInline: 16 }}
+          // The list spaces and insets its cards itself (it reads only these
+          // keys): a card's own padding can be measured late, so cards touch.
+          contentContainerStyle={{ paddingLeft: 16, paddingRight: 16, gap: GAP }}
           style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
           renderItem={({ item, index }) => (
-            <View className="flex-row gap-2.5 pe-2.5">
+            <View className="flex-row gap-2.5">
               {/* Always set, so tap and hold never swap; during a scan the tap does nothing. */}
               <Menu items={menu(item)} onPrimaryAction={() => tap(item)?.()}>
                 <Card item={item} />
