@@ -1,5 +1,6 @@
 import {
   Box,
+  Column,
   LazyRow,
   Row,
   TextButton,
@@ -52,7 +53,7 @@ function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
   const m3 = useThemeM3Colors();
-  const { rail, items, menu, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -76,8 +77,9 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
         ))}
       </Row>
     );
-  if (rail.status === "error" && items.length === 0)
-    return (
+  // A failed or empty first page, said beside the current card when there is one.
+  const line =
+    notice === "error" ? (
       <Row verticalAlignment="center" modifiers={[inset]}>
         <Text style={{ typography: "bodyMedium" }} color={m3.error}>
           Couldn't search
@@ -86,9 +88,7 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           <Text style={{ typography: "labelLarge" }}>Retry</Text>
         </TextButton>
       </Row>
-    );
-  if (items.length === 0)
-    return (
+    ) : notice === "empty" ? (
       <Text
         style={{ typography: "bodyMedium" }}
         color={m3.onSurfaceVariant}
@@ -96,45 +96,49 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
       >
         No results
       </Text>
-    );
+    ) : null;
+  if (items.length === 0) return line;
 
   return (
-    <LazyRow
-      horizontalArrangement={{ spacedBy: 10 }}
-      contentPadding={{ start: GUTTER, end: GUTTER, bottom: 12 }}
-    >
-      {items.map((item, i) => [
-        <Menu key={item.manga.url} items={menu(item)}>
-          <Card item={item} />
-        </Menu>,
-        item.current && i === 0 && items.length > 1 && (
-          <VerticalDivider key="divider" modifiers={[height(HEIGHT)]} />
-        ),
-      ])}
-      {(rail.hasNextPage || rail.loadingMore) && (
-        // Loads as it scrolls into view; a tap retries a page that failed.
-        <Box
-          modifiers={[
-            size(WIDTH, HEIGHT),
-            COVER_SHAPE,
-            background(m3.surfaceContainerHighest),
-            clickable(loadMore),
-            onVisibilityChanged((visible) => visible && loadMore(), {
-              minFractionVisible: 0.5,
-            }),
-            semantics({ contentDescription: "More" }),
-          ]}
-        >
-          <Box modifiers={[align("center")]}>
-            {rail.loadingMore ? (
-              <Loader size="sm" />
-            ) : (
-              <Text style={{ typography: "labelLarge" }}>More</Text>
-            )}
+    <Column>
+      <LazyRow
+        horizontalArrangement={{ spacedBy: 10 }}
+        contentPadding={{ start: GUTTER, end: GUTTER, bottom: 12 }}
+      >
+        {items.map((item, i) => [
+          <Menu key={item.manga.url} items={menu(item)}>
+            <Card item={item} />
+          </Menu>,
+          item.current && i === 0 && items.length > 1 && (
+            <VerticalDivider key="divider" modifiers={[height(HEIGHT)]} />
+          ),
+        ])}
+        {(rail.hasNextPage || rail.loadingMore) && (
+          // Loads as it scrolls into view; a tap retries a page that failed.
+          <Box
+            modifiers={[
+              size(WIDTH, HEIGHT),
+              COVER_SHAPE,
+              background(m3.surfaceContainerHighest),
+              clickable(loadMore),
+              onVisibilityChanged((visible) => visible && loadMore(), {
+                minFractionVisible: 0.5,
+              }),
+              semantics({ contentDescription: "More" }),
+            ]}
+          >
+            <Box modifiers={[align("center")]}>
+              {rail.loadingMore ? (
+                <Loader size="sm" />
+              ) : (
+                <Text style={{ typography: "labelLarge" }}>More</Text>
+              )}
+            </Box>
           </Box>
-        </Box>
-      )}
-    </LazyRow>
+        )}
+      </LazyRow>
+      {line}
+    </Column>
   );
 }
 

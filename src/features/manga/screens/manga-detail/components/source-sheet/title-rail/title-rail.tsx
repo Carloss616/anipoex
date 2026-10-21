@@ -1,5 +1,6 @@
+import { LegendList } from "@legendapp/list/react";
 import { memo } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
@@ -19,8 +20,10 @@ export interface TitleRailProps {
 }
 
 const COVER = { width: 80, height: 120 };
-// How close to the end, in px, scrolling loads the next page.
-const END_GAP = 120;
+// One card and the gap after it, so the list lays out before measuring.
+const CARD_SPAN = COVER.width + 10;
+// The cover, two title lines and the label badge.
+const RAIL_HEIGHT = COVER.height + 72;
 
 /** A result as a manga card; the menu hands it `onPress`. */
 function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
@@ -40,7 +43,7 @@ function Card({ item, onPress }: { item: RailItem; onPress?: () => void }) {
 }
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
-  const { rail, items, menu, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -56,69 +59,69 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
         ))}
       </View>
     );
-  if (rail.status === "error" && items.length === 0)
-    return (
-      <View className="flex-row items-center gap-2 px-4 pb-3">
-        <Typography type="body-sm" className="flex-1 text-destructive">
-          Couldn't search
-        </Typography>
-        <Button variant="ghost" size="sm" onPress={retry}>
-          Retry
-        </Button>
-      </View>
-    );
-  if (items.length === 0)
-    return (
-      <Typography type="body-sm" muted className="px-4 pb-3">
-        No results
-      </Typography>
-    );
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      scrollEventThrottle={200}
-      // The next page loads as the More card comes near.
-      onScroll={({
-        nativeEvent: { contentOffset, layoutMeasurement, contentSize },
-      }) => {
-        if (
-          contentOffset.x + layoutMeasurement.width >
-          contentSize.width - END_GAP
-        )
-          loadMore();
-      }}
-      contentContainerClassName="gap-2.5 px-4 pb-3"
-    >
-      {items.map((item, i) => (
-        <View key={item.manga.url} className="flex-row gap-2.5">
-          <Menu items={menu(item)}>
-            <Card item={item} />
-          </Menu>
-          {item.current && i === 0 && items.length > 1 && (
-            <View className="w-px bg-border" style={{ height: COVER.height }} />
+    <View className="gap-2 pb-3">
+      {items.length > 0 && (
+        // A horizontal list in the sheet's vertical one, as in LegendList's media rails.
+        <LegendList
+          horizontal
+          data={items}
+          keyExtractor={(item) => item.manga.url}
+          estimatedItemSize={CARD_SPAN}
+          recycleItems
+          onEndReached={loadMore}
+          contentContainerStyle={{ paddingInline: 16 }}
+          style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
+          renderItem={({ item, index }) => (
+            <View className="flex-row gap-2.5 pe-2.5">
+              <Menu items={menu(item)}>
+                <Card item={item} />
+              </Menu>
+              {item.current && index === 0 && items.length > 1 && (
+                <View
+                  className="w-px bg-border"
+                  style={{ height: COVER.height }}
+                />
+              )}
+            </View>
           )}
-        </View>
-      ))}
-      {(rail.hasNextPage || rail.loadingMore) && (
-        <Pressable
-          onPress={loadMore}
-          accessibilityRole="button"
-          accessibilityLabel="More"
-          className="items-center justify-center rounded-md bg-muted"
-          style={COVER}
-        >
-          {rail.loadingMore ? (
-            <Loader size="sm" />
-          ) : (
-            <Typography type="body-xs" weight="medium">
-              More
-            </Typography>
-          )}
-        </Pressable>
+          ListFooterComponent={
+            rail.hasNextPage || rail.loadingMore ? (
+              <Pressable
+                onPress={loadMore}
+                accessibilityRole="button"
+                accessibilityLabel="More"
+                className="items-center justify-center rounded-md bg-muted"
+                style={COVER}
+              >
+                {rail.loadingMore ? (
+                  <Loader size="sm" />
+                ) : (
+                  <Typography type="body-xs" weight="medium">
+                    More
+                  </Typography>
+                )}
+              </Pressable>
+            ) : undefined
+          }
+        />
       )}
-    </ScrollView>
+      {notice === "error" ? (
+        <View className="flex-row items-center gap-2 px-4">
+          <Typography type="body-sm" className="flex-1 text-destructive">
+            Couldn't search
+          </Typography>
+          <Button variant="ghost" size="sm" onPress={retry}>
+            Retry
+          </Button>
+        </View>
+      ) : notice === "empty" ? (
+        <Typography type="body-sm" muted className="px-4">
+          No results
+        </Typography>
+      ) : null}
+    </View>
   );
 }
 

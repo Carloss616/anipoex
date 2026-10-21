@@ -10,7 +10,11 @@ import {
   removeMatchByHand,
   setMatchByHand,
 } from "@/features/manga/state/match-by-hand";
-import { isScanning, scanSources } from "@/features/manga/state/probes";
+import {
+  isScanning,
+  scanning$,
+  scanSources,
+} from "@/features/manga/state/probes";
 import { deselectSource } from "@/features/manga/state/source";
 import {
   isTitleSearching,
@@ -79,10 +83,13 @@ export function useSourceActions({
         : void startTitleSearch(manga.id, ids, query()),
     // The sheet stays open; the row's status follows the new page.
     setMatch: (id: string, match: ManualMatch) => {
+      // A probe of this source in flight would land over the change.
+      if (scanning$[key][id].peek()) return;
       setMatchByHand(manga.id, source(id), match);
       rescan(id);
     },
     removeMatch: (id: string) =>
+      !scanning$[key][id].peek() &&
       void removeMatchByHand(manga.id, source(id), searchTitles(manga)).then(
         () => rescan(id),
       ),

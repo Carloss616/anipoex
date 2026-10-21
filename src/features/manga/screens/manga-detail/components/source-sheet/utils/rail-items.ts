@@ -27,3 +27,12 @@ export function railItems(
     ...rest.map((manga) => ({ manga, current: false })),
   ];
 }
+
+/** What the rail says beside its cards: a failed or empty first page, judged by the results, not the current card. */
+export function railNotice(rail: {
+  status: "loading" | "done" | "error";
+  mangas: SourceManga[];
+}): "error" | "empty" | null {
+  if (rail.mangas.length > 0 || rail.status === "loading") return null;
+  return rail.status === "error" ? "error" : "empty";
+}

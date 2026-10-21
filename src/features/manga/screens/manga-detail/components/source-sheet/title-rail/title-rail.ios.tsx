@@ -58,7 +58,7 @@ function Card({ item, color }: { item: RailItem; color: string }) {
 
 function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
   const [muted, foreground] = useThemeColor(["muted", "foreground"]);
-  const { rail, items, menu, loadMore, retry } = useRail(
+  const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
     source.id,
@@ -78,8 +78,9 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
         ))}
       </HStack>
     );
-  if (rail.status === "error" && items.length === 0)
-    return (
+  // A failed or empty first page, said beside the current card when there is one.
+  const line =
+    notice === "error" ? (
       <HStack spacing={8}>
         <Text textStyle="subheadline" modifiers={[foregroundStyle("red")]}>
           Couldn't search
@@ -90,58 +91,60 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           modifiers={[buttonStyle("borderless")]}
         />
       </HStack>
-    );
-  if (items.length === 0)
-    return (
+    ) : notice === "empty" ? (
       <Text textStyle="subheadline" modifiers={[foregroundStyle("secondary")]}>
         No results
       </Text>
-    );
+    ) : null;
+  if (items.length === 0) return line;
 
   return (
-    <ScrollView axes="horizontal" showsIndicators={false}>
-      <LazyHStack
-        spacing={10}
-        alignment="top"
-        modifiers={[padding({ bottom: 6 })]}
-      >
-        {items.map((item, i) => [
-          <Menu key={item.manga.url} items={menu(item)}>
-            <Card item={item} color={foreground} />
-          </Menu>,
-          item.current && i === 0 && items.length > 1 && (
-            <Divider key="divider" modifiers={[frame({ height: HEIGHT })]} />
-          ),
-        ])}
-        {(rail.hasNextPage || rail.loadingMore) && (
-          // Loads as it scrolls into view; a tap retries a page that failed.
-          <Button
-            onPress={loadMore}
-            modifiers={[
-              buttonStyle("plain"),
-              onAppear(loadMore),
-              accessibilityLabel("More"),
-            ]}
-          >
-            <ZStack
+    <VStack alignment="leading" spacing={8}>
+      <ScrollView axes="horizontal" showsIndicators={false}>
+        <LazyHStack
+          spacing={10}
+          alignment="top"
+          modifiers={[padding({ bottom: 6 })]}
+        >
+          {items.map((item, i) => [
+            <Menu key={item.manga.url} items={menu(item)}>
+              <Card item={item} color={foreground} />
+            </Menu>,
+            item.current && i === 0 && items.length > 1 && (
+              <Divider key="divider" modifiers={[frame({ height: HEIGHT })]} />
+            ),
+          ])}
+          {(rail.hasNextPage || rail.loadingMore) && (
+            // Loads as it scrolls into view; a tap retries a page that failed.
+            <Button
+              onPress={loadMore}
               modifiers={[
-                COVER,
-                background(muted),
-                clipShape("roundedRectangle", RADIUS),
+                buttonStyle("plain"),
+                onAppear(loadMore),
+                accessibilityLabel("More"),
               ]}
             >
-              {rail.loadingMore ? (
-                <Loader size="sm" />
-              ) : (
-                <Text textStyle="caption" weight="medium">
-                  More
-                </Text>
-              )}
-            </ZStack>
-          </Button>
-        )}
-      </LazyHStack>
-    </ScrollView>
+              <ZStack
+                modifiers={[
+                  COVER,
+                  background(muted),
+                  clipShape("roundedRectangle", RADIUS),
+                ]}
+              >
+                {rail.loadingMore ? (
+                  <Loader size="sm" />
+                ) : (
+                  <Text textStyle="caption" weight="medium">
+                    More
+                  </Text>
+                )}
+              </ZStack>
+            </Button>
+          )}
+        </LazyHStack>
+      </ScrollView>
+      {line}
+    </VStack>
   );
 }
 

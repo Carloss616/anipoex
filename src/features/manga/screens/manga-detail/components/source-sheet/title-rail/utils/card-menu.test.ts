@@ -37,6 +37,13 @@ describe("cardMenu", () => {
     ]);
   });
 
+  it("disables the match actions while the source is being scanned", () => {
+    const busy = cardMenu({ manga, current: false }, false, on(), true);
+    expect(busy[1]).toMatchObject({ label: "Use as match", disabled: true });
+    const remove = cardMenu({ manga, current: true }, true, on(), true);
+    expect(remove[1]).toMatchObject({ label: "Remove match", disabled: true });
+  });
+
   it("only opens the page of an automatic current match", () => {
     const actions = on();
     const items = cardMenu({ manga, current: true }, false, actions);
