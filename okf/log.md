@@ -2,6 +2,7 @@
 
 ## 2026-10-21
 
+* **Bundle index lists every store**: the [stores](stores/) summary now names extension repos and source chapters, in the order of the stores index.
 * **Source stores renamed to `source-*`**: the chosen source, exclusions, pins and probes are kept under `source-matches`, `source-exclusions`, `source-pins` and `source-probes` (were `manga-source` and `msu-*`). Nothing is migrated: after the update every manga asks for its source again and scans start fresh. Updated [chosen source](stores/source-matches.md), [source exclusions](stores/source-exclusions.md), [source pins](stores/source-pins.md) and [source probes](stores/source-probes.md).
 * **Chapter lists are stored**: the chapters a manga's source answers with are kept on the device without expiry, so the detail and the reader open without asking the source again; pull to refresh (or Refresh) fetches them again, and a failed refresh keeps the rows. Each manga's list is its own entry (MMKV on native, IndexedDB on web and desktop), read only when that manga opens. Added [source chapters](stores/source-chapters.md); updated [chapter](concepts/chapter.md).
 
