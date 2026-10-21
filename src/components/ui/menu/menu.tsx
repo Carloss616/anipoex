@@ -59,7 +59,7 @@ export interface MenuProps {
     onPress?: (...args: unknown[]) => void;
     onLongPress?: (...args: unknown[]) => void;
   }>;
-  /** When set, a tap runs it and a long press (or a right-click on web) opens the menu. */
+  /** When set, a tap runs it and a long press (or a right-click on web) opens the menu. Keep it set while the trigger shows: unset, the menu moves back to the tap, so tap and hold swap. */
   onPrimaryAction?: () => void;
   /** @platform web */
   align?: PopoverAlign;

@@ -85,7 +85,8 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5 pe-2.5">
-              <Menu items={menu(item)} onPrimaryAction={tap(item)}>
+              {/* Always set, so tap and hold never swap; during a scan the tap does nothing. */}
+              <Menu items={menu(item)} onPrimaryAction={() => tap(item)?.()}>
                 <Card item={item} />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (

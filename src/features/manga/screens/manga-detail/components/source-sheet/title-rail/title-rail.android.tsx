@@ -119,7 +119,8 @@ function Rail({ mangaKey, mangaId, source, actions }: TitleRailProps) {
           <Menu
             key={item.manga.url}
             items={menu(item)}
-            onPrimaryAction={tap(item)}
+            // Always set, so tap and hold never swap; during a scan the tap does nothing.
+            onPrimaryAction={() => tap(item)?.()}
           >
             <Card item={item} />
           </Menu>,
