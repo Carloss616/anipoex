@@ -9,12 +9,11 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { Text } from "@/components/native/swift-ui/text";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
-export function SourcePicker({ manga, entryId }: SourcePickerProps) {
-  const picker = useSourcePicker(manga, entryId);
+export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
+  const picker = useSourcePicker(manga, entryId, open$);
 
   return (
     <>
@@ -46,15 +45,6 @@ export function SourcePicker({ manga, entryId }: SourcePickerProps) {
           <Icon name={Icons.website} size={BUTTON_ICON_SIZE} color="inherit" />
         </Button>
       )}
-
-      <SourceSheet
-        manga={manga}
-        read={picker.read}
-        isPresented={picker.isPresented}
-        selectedId={picker.sourceId}
-        onSelect={picker.select}
-        onDismiss={picker.close}
-      />
     </>
   );
 }

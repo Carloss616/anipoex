@@ -1,4 +1,4 @@
-import { useState } from "react";
+import type { Observable } from "@legendapp/state";
 import { toast } from "@/components/ui/toast";
 import { runtime, useInstalledSources } from "@/features/extensions";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
@@ -7,12 +7,12 @@ import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import { openExternal } from "@/utils/open-external";
 import type { SourcePickerManga } from "../source-picker";
 
-/** The picked source, its match and the sheet that changes it. */
+/** The picked source, its match and the sheet that changes it, open while `open$` is true. */
 export function useSourcePicker(
   manga: SourcePickerManga,
   entryId: number | null | undefined,
+  open$: Observable<boolean>,
 ) {
-  const [isPresented, setIsPresented] = useState(false);
   const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(manga.id);
   const search = useSourceSearch(manga);
@@ -29,9 +29,8 @@ export function useSourcePicker(
     match,
     hasWeb: !!webManga,
     matching,
-    isPresented,
-    open: () => setIsPresented(true),
-    close: () => setIsPresented(false),
+    open: () => open$.set(true),
+    close: () => open$.set(false),
     /** The manga's page on the source's site. */
     openWeb: async () => {
       if (!webManga || !match) return;
@@ -43,7 +42,7 @@ export function useSourcePicker(
     },
     // The sheet closes on pick; the button already shows it while the search runs. Re-picking a found match only closes it; no match or pending retries.
     select: (nextId: string) => {
-      setIsPresented(false);
+      open$.set(false);
       if (nextId === match?.sourceId && match.manga) return;
       search.select(nextId);
     },

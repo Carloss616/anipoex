@@ -1,8 +1,8 @@
+import type { Observable } from "@legendapp/state";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Typography } from "@/components/ui/typography";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 
 export type SourcePickerManga = Pick<MangaDetail, "id" | "title" | "synonyms">;
@@ -10,6 +10,8 @@ export type SourcePickerManga = Pick<MangaDetail, "id" | "title" | "synonyms">;
 export interface SourcePickerProps {
   manga: SourcePickerManga;
   entryId: number | null | undefined;
+  /** Whether the source sheet is open; the sheet renders outside the chapter list (`SourcePickerSheet`). */
+  open$: Observable<boolean>;
 }
 
 /**
@@ -17,8 +19,8 @@ export interface SourcePickerProps {
  * it changes. Named for the control rather than `Source`, which is the shape a
  * registry hands over.
  */
-export function SourcePicker({ manga, entryId }: SourcePickerProps) {
-  const picker = useSourcePicker(manga, entryId);
+export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
+  const picker = useSourcePicker(manga, entryId, open$);
 
   return (
     <>
@@ -43,15 +45,6 @@ export function SourcePicker({ manga, entryId }: SourcePickerProps) {
           />
         </Button>
       )}
-
-      <SourceSheet
-        manga={manga}
-        read={picker.read}
-        isPresented={picker.isPresented}
-        selectedId={picker.sourceId}
-        onSelect={picker.select}
-        onDismiss={picker.close}
-      />
     </>
   );
 }

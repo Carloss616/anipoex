@@ -1,3 +1,4 @@
+import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -22,7 +23,7 @@ import { noop } from "@/utils/utils";
 import { DetailHeader } from "./components/detail-header";
 import { DetailList } from "./components/detail-list";
 import { Hero } from "./components/hero";
-import { SourcePicker } from "./components/source-picker";
+import { SourcePicker, SourcePickerSheet } from "./components/source-picker";
 
 const MENU_ACTIONS = [
   {
@@ -50,6 +51,8 @@ export function MangaDetail() {
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
   const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(Number(id));
+  // An observable, so opening the sheet re-renders neither this screen nor its list.
+  const sourceSheet$ = useObservable(false);
   // Destructured so `refreshAll` only changes with the match: each new toolbar re-renders the whole stack.
   const {
     chapters,
@@ -160,11 +163,20 @@ export function MangaDetail() {
         loading={matching || chaptersLoading || (!!pendingId && !resumed)}
         empty={empty}
         action={
-          <SourcePicker manga={manga} entryId={manga.mediaListEntry?.id} />
+          <SourcePicker
+            manga={manga}
+            entryId={manga.mediaListEntry?.id}
+            open$={sourceSheet$}
+          />
         }
         mediaId={manga.id}
         entryId={manga.mediaListEntry?.id}
         header={<DetailHeader manga={manga} />}
+      />
+      <SourcePickerSheet
+        manga={manga}
+        entryId={manga.mediaListEntry?.id}
+        open$={sourceSheet$}
       />
     </>
   );

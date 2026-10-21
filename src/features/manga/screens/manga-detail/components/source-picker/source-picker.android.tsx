@@ -3,12 +3,11 @@ import { semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { SourceSheet } from "../source-sheet";
 import { useSourcePicker } from "./hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
-export function SourcePicker({ manga, entryId }: SourcePickerProps) {
-  const picker = useSourcePicker(manga, entryId);
+export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
+  const picker = useSourcePicker(manga, entryId, open$);
   const m3 = useThemeM3Colors();
 
   return (
@@ -35,15 +34,6 @@ export function SourcePicker({ manga, entryId }: SourcePickerProps) {
           <Icon name={Icons.website} size={20} color="inherit" />
         </IconButton>
       )}
-
-      <SourceSheet
-        manga={manga}
-        read={picker.read}
-        isPresented={picker.isPresented}
-        selectedId={picker.sourceId}
-        onSelect={picker.select}
-        onDismiss={picker.close}
-      />
     </>
   );
 }
