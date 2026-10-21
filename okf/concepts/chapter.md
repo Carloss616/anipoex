@@ -11,9 +11,11 @@ A **chapter** row has an `id` (the chapter's url in the source), a `number`, a `
 the `scanlator` that translated it (none when the source doesn't say). A source may also
 keep its own data on the chapter (its *memo*, never shown); opening the chapter hands it
 back to the source, which may need it to find the pages.
-The detail lists the chapters of the manga [matched](../stores/manga-source.md) in the
-chosen [source](source.md), in the order the source answers; nothing is stored, they
-are fetched when the match changes and on refresh.
+The detail lists the chapters of the manga [matched](../stores/source-matches.md) in the
+chosen [source](source.md), in the order the source answers. The list is
+[stored](../stores/source-chapters.md) once loaded and never expires: it is fetched only
+when the manga has no stored list for its match, and again on refresh (a failed refresh
+keeps the rows and says so).
 
 - **Number**: the source's own; when it gives none (`-1`, or any lower number but -2) it is read the way
   [Mihon reads it](https://github.com/mihonapp/mihon/blob/main/domain/src/main/java/tachiyomi/domain/chapter/service/ChapterRecognition.kt)

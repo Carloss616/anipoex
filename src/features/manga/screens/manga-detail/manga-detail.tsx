@@ -56,7 +56,7 @@ export function MangaDetail() {
     loading: chaptersLoading,
     error,
     refresh: refreshChapters,
-  } = useSourceChapters(match);
+  } = useSourceChapters(Number(id), match);
 
   const { resume } = useSourceSearch(manga);
   const [resumed, setResumed] = useState(false);

@@ -7,7 +7,7 @@ tags: [sources, exclusions, persistence]
 generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-20T00:00:00Z }
 ---
 
-Key `msu-exclusions`: `{ [anilistId]: { [sourceId]: { reason, updatedAt, deletedAt? } } }`.
+Key `source-exclusions`: `{ [anilistId]: { [sourceId]: { reason, updatedAt, deletedAt? } } }`.
 Times are epoch ms; a record with `deletedAt` is a removed exclusion, kept so the removal
 can sync.
 

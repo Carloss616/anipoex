@@ -1,5 +1,10 @@
 # Bundle Update Log
 
+## 2026-10-21
+
+* **Source stores renamed to `source-*`**: the chosen source, exclusions, pins and probes are kept under `source-matches`, `source-exclusions`, `source-pins` and `source-probes` (were `manga-source` and `msu-*`). Nothing is migrated: after the update every manga asks for its source again and scans start fresh. Updated [chosen source](stores/source-matches.md), [source exclusions](stores/source-exclusions.md), [source pins](stores/source-pins.md) and [source probes](stores/source-probes.md).
+* **Chapter lists are stored**: the chapters a manga's source answers with are kept on the device without expiry, so the detail and the reader open without asking the source again; pull to refresh (or Refresh) fetches them again, and a failed refresh keeps the rows. Each manga's list is its own entry (MMKV on native, IndexedDB on web and desktop), read only when that manga opens. Added [source chapters](stores/source-chapters.md); updated [chapter](concepts/chapter.md).
+
 ## 2026-10-20
 
 * **Chapter numbers are read like Mihon**: a chapter whose source gives no number is numbered the way Mihon numbers it today, over the whole chapter list: from its name without the manga title (volume/season ignored, Mihon's extra/omake/special, letter and part rules), with numbers every similar name shares ignored, repeated chapter urls counted once, and unnumbered rows filled from the chapters around them (after the newest only bonus rows, before the oldest only a prologue). Names like "Capítulo 51" now count; a negative number the source gives on purpose is kept and never read. Updated [chapter](concepts/chapter.md).
@@ -42,7 +47,7 @@
   is listed too. Updated [source](concepts/source.md).
 * **Picking a source is immediate, finding the manga is separate**: the pick is stored before
   the search, so a source with no `manga` yet is a pending (or failed) search that resumes on
-  open and retries on refresh. Updated [chosen source](stores/manga-source.md).
+  open and retries on refresh. Updated [chosen source](stores/source-matches.md).
 * **Repos are keyed by their index address**: two v2 stores in one folder are two repos, and
   removing one keeps the other. Updated [extension repos](stores/extension-repos.md).
 * **Open a source's website**: each extension row opens its source's site, and the Android
@@ -66,7 +71,7 @@
   Android only, and Android with nothing installed to install an extension from the
   Extensions tab; the detail's "Pick a source" says the same on iOS and web. A source whose
   extension was uninstalled reads as no choice. Repos must be added over `https`. Updated
-  [source](concepts/source.md), [chosen source](stores/manga-source.md) and
+  [source](concepts/source.md), [chosen source](stores/source-matches.md) and
   [extension repos store](stores/extension-repos.md).
 * **Every installed extension has a name**: an older APK without a name in its metadata
   goes by its app label, else its package, instead of breaking the Extensions tab.
@@ -88,7 +93,7 @@
 * **Picking a source matches the manga in it**: the source is searched by the manga's
   romaji then English title and only an exact title (or synonym) match is kept; no match
   is remembered as such. Old bare source ids are ignored. Updated
-  [chosen source](stores/manga-source.md).
+  [chosen source](stores/source-matches.md).
 * **Sources are the installed extensions' own**: the source picker and sheet list the
   sources of installed extensions in `all`, `en` and the device language, no longer a
   mocked list. Updated [source](concepts/source.md).

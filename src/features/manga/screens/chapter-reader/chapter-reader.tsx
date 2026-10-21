@@ -51,8 +51,8 @@ export function ChapterReader() {
   const { manga, loading: mangaLoading } = useMangaEntry(mediaId);
   const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(Number(mediaId));
-  // Fetched again here rather than handed over: the detail keeps its list in local state.
-  const { chapters } = useSourceChapters(match);
+  // The list the detail stored; fetched only when there is none.
+  const { chapters } = useSourceChapters(Number(mediaId), match);
   const current = chapters.find((chapter) => chapter.id === chapterUrl);
   const { pages, loading, error, reload } = useChapterPages(
     match?.sourceId,

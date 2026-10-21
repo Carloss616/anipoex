@@ -42,7 +42,7 @@ export const isScanBusy = (key: string) =>
   Object.keys(scanning$[key].get() ?? {}).length > 0;
 
 syncObservable(probes$, {
-  persist: { name: "msu-probes", plugin: ObservablePersist },
+  persist: { name: "source-probes", plugin: ObservablePersist },
 });
 
 /** A real read of one source for the manga; never rejects, a failure is an error probe. */

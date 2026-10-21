@@ -7,7 +7,7 @@ tags: [sources, probes, persistence]
 generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-20T00:00:00Z }
 ---
 
-Key `msu-probes`: `{ [anilistId]: { [sourceId]: probe } }`, one [source probe](../concepts/source-probe.md)
+Key `source-probes`: `{ [anilistId]: { [sourceId]: probe } }`, one [source probe](../concepts/source-probe.md)
 per source, written as each one lands.
 
 Probes are written only when the user scans (the refresh button for every source, Rescan

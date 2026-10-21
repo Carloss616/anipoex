@@ -16,7 +16,7 @@ the repo draws it. The tile's colour, shown only behind the initials, is hashed 
 is stable across launches.
 
 - **Per manga**: the detail's source picker stores the choice keyed by the manga's
-  AniList id (see [chosen source](../stores/manga-source.md)). No choice shows "Source".
+  AniList id (see [chosen source](../stores/source-matches.md)). No choice shows "Source".
 - **Available or excluded**: per manga, a source is **available** or **excluded** (see
   [source exclusion](source-exclusion.md)). Available sources are listed furthest-ahead
   first (latest chapter descending, ties by name); sources with suspicious numbering come

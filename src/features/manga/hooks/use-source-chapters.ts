@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "@/components/ui/toast";
+import { chapters$, readChapters } from "@/features/manga/state/chapters";
 import { fetchChapters } from "@/features/manga/utils/fetch-chapters";
 import type { SourceMatch } from "@/features/manga/utils/source-match";
 import { type Chapter, toChapters } from "@/features/manga/utils/to-chapters";
@@ -11,15 +13,18 @@ interface State {
 
 const EMPTY: State = { chapters: [], loading: false, error: null };
 
-/** The chapters of the matched manga in its source; reloads when the match changes, nothing is persisted. */
-export function useSourceChapters(match: SourceMatch | undefined) {
+/** The chapters of the matched manga in its source: the stored list when there is one, else fetched and stored; `refresh` fetches again. */
+export function useSourceChapters(
+  mangaId: number,
+  match: SourceMatch | undefined,
+) {
   const [state, setState] = useState<State>(EMPTY);
   const ticket = useRef(0);
   const sourceId = match?.sourceId;
   const url = match?.manga?.url;
   const title = match?.manga?.title;
 
-  // A refresh keeps the rows on screen; a new match clears the previous manga's.
+  // A refresh keeps the rows on screen, even when it fails; a new match clears the previous manga's.
   const load = useCallback(
     async (reset: boolean) => {
       const current = ++ticket.current;
@@ -32,8 +37,21 @@ export function useSourceChapters(match: SourceMatch | undefined) {
         loading: true,
         error: null,
       }));
+      if (reset) {
+        const stored = await readChapters(mangaId);
+        if (current !== ticket.current) return;
+        if (stored?.sourceId === sourceId && stored.url === url) {
+          setState({
+            chapters: toChapters(stored.chapters, title),
+            loading: false,
+            error: null,
+          });
+          return;
+        }
+      }
       try {
         const { chapters } = await fetchChapters(sourceId, url, title);
+        chapters$[mangaId].set({ sourceId, url, chapters });
         if (current === ticket.current)
           setState({
             chapters: toChapters(chapters, title),
@@ -41,15 +59,17 @@ export function useSourceChapters(match: SourceMatch | undefined) {
             error: null,
           });
       } catch (error) {
-        if (current === ticket.current)
-          setState({
-            chapters: [],
-            loading: false,
-            error: error instanceof Error ? error.message : String(error),
-          });
+        if (current !== ticket.current) return;
+        const message = error instanceof Error ? error.message : String(error);
+        if (!reset) toast.destructive("Couldn't refresh chapters");
+        setState((prev) => ({
+          chapters: reset ? [] : prev.chapters,
+          loading: false,
+          error: message,
+        }));
       }
     },
-    [sourceId, url, title],
+    [mangaId, sourceId, url, title],
   );
 
   useEffect(() => {

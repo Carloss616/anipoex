@@ -7,7 +7,7 @@ tags: [sources, preferences, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
 
-Key `manga-source`: `{ [anilistId]: { sourceId, manga? } }`. The pick is stored the moment
+Key `source-matches`: `{ [anilistId]: { sourceId, manga? } }`. The pick is stored the moment
 the user makes it, so the detail names the source at once; `manga` is added when the search
 ends. A `sourceId` without `manga` is a search still pending: it resumes when the detail
 opens and retries on refresh, and a failed search leaves it that way. `manga` is the title the

@@ -13,7 +13,7 @@ export const source$ = observable<Record<number, unknown>>({});
 export const matching$ = observable<Record<number, boolean>>({});
 
 syncObservable(source$, {
-  persist: { name: "manga-source", plugin: ObservablePersist },
+  persist: { name: "source-matches", plugin: ObservablePersist },
 });
 
 const tickets: Record<number, number> = {};

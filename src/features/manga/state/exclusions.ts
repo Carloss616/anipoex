@@ -10,8 +10,8 @@ export const exclusions$ = observable<ExcludedMap>({});
 export const pins$ = observable<PinnedMap>({});
 
 syncObservable(exclusions$, {
-  persist: { name: "msu-exclusions", plugin: ObservablePersist },
+  persist: { name: "source-exclusions", plugin: ObservablePersist },
 });
 syncObservable(pins$, {
-  persist: { name: "msu-pins", plugin: ObservablePersist },
+  persist: { name: "source-pins", plugin: ObservablePersist },
 });

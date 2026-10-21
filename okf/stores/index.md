@@ -1,8 +1,8 @@
 # On-device stores
 
 Everything the app keeps on the device, one page each. Native persists to MMKV (the
-token to the Keychain / Keystore via SecureStore); web persists to `localStorage`, and
-nothing persists during web's server render.
+token to the Keychain / Keystore via SecureStore); web persists to `localStorage` (the source chapters to
+IndexedDB), and nothing persists during web's server render.
 
 # Identity
 
@@ -20,10 +20,11 @@ nothing persists during web's server render.
 
 # Sources
 
-* [Chosen source](manga-source.md) - The source picked for each manga.
+* [Chosen source](source-matches.md) - The source picked for each manga.
 * [Source exclusions](source-exclusions.md) - Sources dropped from a manga's list, and why.
 * [Source pins](source-pins.md) - Exclusions and inclusions the user decided by hand.
 * [Source probes](source-probes.md) - What the last scan found for each source and manga.
+* [Source chapters](source-chapters.md) - The last chapter list each manga's source answered with.
 
 # In memory only
 
