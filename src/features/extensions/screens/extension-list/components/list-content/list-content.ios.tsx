@@ -22,15 +22,19 @@ import { Host } from "@/components/ui/host";
 import { checkForUpdates, updateAllExtensions } from "@/features/extensions";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListItem } from "../list-item";
+import { useSections } from "./hooks/use-sections";
 import type { ListContentProps } from "./list-content";
 
 /** An inset-grouped list per section, pull to check for updates. */
 export function ListContent({
-  sections,
+  extensions,
+  query$,
   counts,
+  filter,
   language,
   emptyState,
 }: ListContentProps) {
+  const sections = useSections({ extensions, filter, language, query$ });
   const rowBackground = listRowBackground(useThemeColor("muted"));
   const buttonFont = useFont("subheadline", "medium");
 

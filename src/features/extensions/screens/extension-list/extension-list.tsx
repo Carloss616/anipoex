@@ -1,6 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
 import type { ActiveFilter } from "@/components/blocks/active-filters";
 import {
@@ -13,8 +13,8 @@ import {
   parseFilter,
   parseLanguage,
   repos$,
-  toSections,
 } from "@/features/extensions";
+import { useSearchQuery } from "@/hooks/use-search-query";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { ListContent } from "./components/list-content";
 import { ListToolbar } from "./components/list-toolbar";
@@ -30,7 +30,7 @@ export function ExtensionList() {
   const params = useLocalSearchParams<{ filter?: string; language?: string }>();
   const extensions = useValue(extensions$);
   const repos = useValue(repos$);
-  const [search, setSearch] = useState("");
+  const { query$, setQuery } = useSearchQuery();
   const { height } = useWindowDimensions();
   const searchBarTheme = useStackSearchBarTheme();
   const large = height > 640;
@@ -42,10 +42,6 @@ export function ExtensionList() {
   const languages = useMemo(() => languagesOf(extensions), [extensions]);
   const filter = parseFilter(params.filter);
   const language = parseLanguage(params.language, languages);
-  const sections = useMemo(
-    () => toSections(extensions, { filter, language, search }),
-    [extensions, filter, language, search],
-  );
   const counts = useMemo(() => countExtensions(extensions), [extensions]);
 
   // `all` is the default: keep it out of the URL.
@@ -70,8 +66,8 @@ export function ExtensionList() {
         placeholder="Search..."
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
-        onChangeText={(e) => setSearch(e.nativeEvent.text)}
-        onCancelButtonPress={() => setSearch("")}
+        onChangeText={(e) => setQuery(e.nativeEvent.text)}
+        onCancelButtonPress={() => setQuery("")}
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
@@ -84,7 +80,8 @@ export function ExtensionList() {
         onLanguageChange={setLanguage}
       />
       <ListContent
-        sections={sections}
+        extensions={extensions}
+        query$={query$}
         counts={counts}
         filter={filter}
         onFilterChange={setFilter}

@@ -27,9 +27,7 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
         Progress
       </Text>
 
-      <Column
-        modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}
-      >
+      <Column modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}>
         <NumberInput
           suffix={total ? `/${total}` : undefined}
           value={value}

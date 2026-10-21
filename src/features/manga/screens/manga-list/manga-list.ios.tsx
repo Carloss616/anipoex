@@ -11,11 +11,11 @@ import {
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
 import { parseList } from "@/features/manga/utils/parse-list";
 import type { MediaListStatus } from "@/graphql/types.generated";
+import { useSearchQuery } from "@/hooks/use-search-query";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { ListGrid } from "./components/list-grid";
 import { ListToolbar } from "./components/list-toolbar";
 import { ViewSheet } from "./components/view-sheet";
-import { useSearchQuery } from "./hooks/use-search-query";
 
 /**
  * iOS: one list at a time, named in the large title; the toolbar switches it

@@ -8,6 +8,7 @@ import {
 import { fillMaxWidth, semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { useEffect, useRef, useState } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { registerField } from "@/utils/focus";
@@ -25,6 +26,8 @@ export function SearchBar({
   defaultValue,
   placeholder,
   onChangeText,
+  debounce = 0,
+  onDebouncedChange,
   onSubmit,
   onClear,
   isClearable = true,
@@ -33,6 +36,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const text = useNativeState(value ?? defaultValue ?? "");
   const [query, setQuery] = useState(text.value);
+  const debounced = useDebouncedCallback(onDebouncedChange, debounce);
   const field = useRef<TextFieldRef>(null);
   const fontFamily = useFontFamily("normal");
   const m3 = useThemeM3Colors();
@@ -50,6 +54,7 @@ export function SearchBar({
   const change = (next: string) => {
     setQuery(next);
     onChangeText?.(next);
+    debounced.run(next);
   };
 
   const clear = () => {
@@ -72,7 +77,12 @@ export function SearchBar({
           unfocusedIndicatorColor: "transparent",
         }}
         keyboardOptions={{ imeAction: "search" }}
-        keyboardActions={{ onSearch: (next) => onSubmit?.(next) }}
+        keyboardActions={{
+          onSearch: (next) => {
+            debounced.flush(next);
+            onSubmit?.(next);
+          },
+        }}
         textStyle={{ fontFamily }}
         onValueChange={change}
         modifiers={[fillMaxWidth()]}

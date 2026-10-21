@@ -35,6 +35,7 @@ import {
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ListItem } from "../list-item";
+import { useSections } from "./hooks/use-sections";
 import type { ListContentProps } from "./list-content";
 
 /**
@@ -42,12 +43,15 @@ import type { ListContentProps } from "./list-content";
  * FAB collapses and the header fills.
  */
 export function ListContent({
-  sections,
+  extensions,
+  query$,
   counts,
   filter,
+  language,
   activeFilters,
   emptyState,
 }: ListContentProps) {
+  const sections = useSections({ extensions, filter, language, query$ });
   const headerHeight = useHeaderHeight();
   const m3 = useThemeM3Colors();
   const [checking, setChecking] = useState(false);

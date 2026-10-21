@@ -21,6 +21,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useEffect, useRef, useState } from "react";
 import { useFont } from "@/components/native/swift-ui/text";
+import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import { Icon, Icons } from "../icon";
@@ -38,6 +39,8 @@ export function SearchBar({
   defaultValue,
   placeholder,
   onChangeText,
+  debounce = 0,
+  onDebouncedChange,
   onSubmit,
   onClear,
   onCancel,
@@ -49,6 +52,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const text = useNativeState(value ?? defaultValue ?? "");
   const [query, setQuery] = useState(text.value);
+  const debounced = useDebouncedCallback(onDebouncedChange, debounce);
   const [focused, setFocused] = useState(false);
   const field = useRef<TextFieldRef>(null);
   const font = useFont();
@@ -67,6 +71,7 @@ export function SearchBar({
   const change = (next: string) => {
     setQuery(next);
     onChangeText?.(next);
+    debounced.run(next);
   };
 
   const clear = () => {
@@ -118,7 +123,10 @@ export function SearchBar({
               onFocusChange={setFocused}
               modifiers={[
                 submitLabel("search"),
-                onSubmitModifier(() => onSubmit?.(text.value)),
+                onSubmitModifier(() => {
+                  debounced.flush(text.value);
+                  onSubmit?.(text.value);
+                }),
                 autocorrectionDisabled(),
                 font,
               ]}

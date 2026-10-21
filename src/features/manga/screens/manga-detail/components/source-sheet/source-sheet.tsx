@@ -281,8 +281,9 @@ export function SourceSheet({
             </Typography>
           </View>
           <SearchBar
-            value={query}
-            onChangeText={setQuery}
+            defaultValue={query}
+            debounce={150}
+            onDebouncedChange={setQuery}
             placeholder="Search sources..."
             shape="pill"
           />

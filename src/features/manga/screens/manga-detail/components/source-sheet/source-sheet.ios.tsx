@@ -182,8 +182,9 @@ export function SourceSheet({
             </Dialog.Trigger>
           </Dialog>
           <SearchBar
-            value={query}
-            onChangeText={setQuery}
+            defaultValue={query}
+            debounce={150}
+            onDebouncedChange={setQuery}
             placeholder="Search sources..."
             cancel="focus"
           />

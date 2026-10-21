@@ -1,3 +1,4 @@
+import type { ObservablePrimitive } from "@legendapp/state";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useMemo } from "react";
@@ -19,6 +20,7 @@ import { Menu } from "@/components/ui/menu";
 import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
 import {
+  type Extension,
   type ExtensionCounts,
   type ExtensionFilter,
   type ExtensionSection,
@@ -31,9 +33,12 @@ import {
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { ListItem } from "../list-item";
 import { ListSidebar } from "../list-sidebar";
+import { useSections } from "./hooks/use-sections";
 
 export interface ListContentProps {
-  sections: ExtensionSection[];
+  extensions: Extension[];
+  /** The debounced search, read by the list alone. */
+  query$: ObservablePrimitive<string>;
   counts: ExtensionCounts;
   filter: ExtensionFilter;
   onFilterChange: (filter: ExtensionFilter) => void;
@@ -49,7 +54,8 @@ export interface ListContentProps {
 
 /** Web, laid out like the manga list. */
 export function ListContent({
-  sections,
+  extensions,
+  query$,
   counts,
   filter,
   onFilterChange,
@@ -59,6 +65,7 @@ export function ListContent({
   activeFilters,
   emptyState,
 }: ListContentProps) {
+  const sections = useSections({ extensions, filter, language, query$ });
   const headerScroll = useHeaderScroll();
   const headerHeight = useHeaderHeight();
   const wide = useBreakpoint().isAtLeast("md");
