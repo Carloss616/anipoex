@@ -61,8 +61,6 @@ export const AvailableItem = memo(function AvailableItem({
   const [showError, setShowError] = useState(false);
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
-  // The selected source can't be excluded, so its menu only shows a failure.
-  const menu = !selected || error !== undefined;
 
   const item = (
     <ListItem
@@ -70,7 +68,7 @@ export const AvailableItem = memo(function AvailableItem({
       modifiers={[
         combinedClickable({
           onClick: select,
-          onLongClick: menu ? () => onMenu?.(source.id) : undefined,
+          onLongClick: () => onMenu?.(source.id),
         }),
       ]}
     >
@@ -134,9 +132,7 @@ export const AvailableItem = memo(function AvailableItem({
     </ListItem>
   );
 
-  return !menu ? (
-    item
-  ) : (
+  return (
     <DropdownMenu
       expanded={menuOpen}
       onDismissRequest={() => onMenu?.(null)}
@@ -156,7 +152,19 @@ export const AvailableItem = memo(function AvailableItem({
             </DropdownMenuItem.Text>
           </DropdownMenuItem>
         )}
-        {(selected ? [] : excludeReasons(suspicious)).map((reason) => (
+        {selected && (
+          <DropdownMenuItem
+            onClick={() => {
+              onMenu?.(null);
+              actions.deselect(source.id);
+            }}
+          >
+            <DropdownMenuItem.Text>
+              <Text style={{ typography: "labelLarge" }}>Deselect</Text>
+            </DropdownMenuItem.Text>
+          </DropdownMenuItem>
+        )}
+        {excludeReasons(suspicious).map((reason) => (
           <DropdownMenuItem
             key={reason}
             onClick={() => {

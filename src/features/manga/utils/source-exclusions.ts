@@ -77,9 +77,11 @@ export function autoExclude(
 ): Excluded {
   const next = { ...excluded };
   for (const [id, p] of Object.entries(probes)) {
-    if (id === keep || isLive(pinned[id]) || isLive(excluded[id])) continue;
+    if (isLive(pinned[id]) || isLive(excluded[id])) continue;
     const kind = classify(read, p.latest, p.count, p.errored, gap);
     if (!isBadKind(kind)) continue;
+    // The picked source may be lagging or failing for now; with no match it has nothing to read.
+    if (id === keep && kind !== "not-matched") continue;
     // one error is not enough: the previous scan must have failed too
     if (kind === "error-found" && !prev[id]?.errored) continue;
     next[id] = { reason: kind, updatedAt: p.updatedAt };

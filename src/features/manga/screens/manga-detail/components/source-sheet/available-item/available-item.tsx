@@ -76,14 +76,10 @@ export const AvailableItem = memo(function AvailableItem({
           },
         ]
       : []),
-    // The selected source can't be excluded.
     ...(selected
-      ? []
-      : [
-          excludeMenu(suspicious, (reason) =>
-            actions.exclude(source.id, reason),
-          ),
-        ]),
+      ? [{ label: "Deselect", onPress: () => actions.deselect(source.id) }]
+      : []),
+    excludeMenu(suspicious, (reason) => actions.exclude(source.id, reason)),
   ];
 
   // Siblings, not nested: the row and its trailing actions are all <button>s on web. Same spacing as one Item with its Actions.
@@ -138,22 +134,20 @@ export const AvailableItem = memo(function AvailableItem({
         >
           <RefreshIcon spinning={scanning} />
         </Button>
-        {items.length > 0 && (
-          <Menu items={items}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-9"
-              accessibilityLabel={`More actions for ${source.name}`}
-            >
-              <Icon
-                name={Icons.more}
-                size={BUTTON_ICON_SIZE}
-                className="text-foreground"
-              />
-            </Button>
-          </Menu>
-        )}
+        <Menu items={items}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-9"
+            accessibilityLabel={`More actions for ${source.name}`}
+          >
+            <Icon
+              name={Icons.more}
+              size={BUTTON_ICON_SIZE}
+              className="text-foreground"
+            />
+          </Button>
+        </Menu>
       </Item.Actions>
     </View>
   );

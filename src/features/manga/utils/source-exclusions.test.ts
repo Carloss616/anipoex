@@ -159,10 +159,18 @@ describe("autoExclude", () => {
       ).far?.reason,
     ).toBe("outdated");
   });
-  it("never auto-excludes the kept source", () => {
+  it("keeps the kept source through an error or a lag", () => {
     expect(
       autoExclude({}, {}, { md: err("md") }, { md: err("md") }, 30, 10, "md"),
     ).toEqual({});
+    expect(
+      autoExclude({}, {}, { md: probe("md", 5) }, {}, 30, 10, "md"),
+    ).toEqual({});
+  });
+  it("auto-excludes the kept source when it has no match", () => {
+    expect(
+      autoExclude({}, {}, { md: probe("md", 0) }, {}, 30, 10, "md"),
+    ).toEqual({ md: { reason: "not-matched", updatedAt: 1 } });
   });
   it("keeps an existing live exclusion", () => {
     const ex = { far: { reason: "other" as const, updatedAt: 9 } };

@@ -23,7 +23,7 @@ import { toChapters } from "../utils/to-chapters";
 import { SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
 import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
-import { findManga, source$ } from "./source";
+import { deselectSource, findManga, source$ } from "./source";
 
 /** Per manga, what each source's last scan found: MSU's `probes` map (gist file `seanime-msu-probes.json`). */
 export const probes$ = observable<Record<string, ProbeMap>>({});
@@ -152,17 +152,18 @@ export async function scanSources(args: {
       FAR_BEHIND_GAP,
       now,
     );
-    exclusions$[key].set(
-      autoExclude(
-        rechecked,
-        pins$[key].peek() ?? {},
-        rest,
-        prev,
-        progress,
-        FAR_BEHIND_GAP,
-        picked,
-      ),
+    const next = autoExclude(
+      rechecked,
+      pins$[key].peek() ?? {},
+      rest,
+      prev,
+      progress,
+      FAR_BEHIND_GAP,
+      picked,
     );
+    exclusions$[key].set(next);
+    // An excluded source has nothing to read: the detail asks for another.
+    if (picked && isLive(next[picked])) deselectSource(mangaId, picked);
   } finally {
     scanningAll$[key].delete();
   }

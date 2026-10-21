@@ -66,6 +66,14 @@ export async function selectSource(
   }
 }
 
+/** Clears the manga's chosen source when it is `sourceId`, dropping a search still running for it. */
+export function deselectSource(mangaId: number, sourceId: string) {
+  if (readMatch(source$[mangaId].peek())?.sourceId !== sourceId) return;
+  tickets[mangaId] = (tickets[mangaId] ?? 0) + 1;
+  source$[mangaId].delete();
+  matching$[mangaId].set(false);
+}
+
 /** Searches a pick whose search never finished, unless one is running. */
 export function resumeSource(
   mangaId: number,

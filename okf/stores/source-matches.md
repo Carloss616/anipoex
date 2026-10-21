@@ -24,4 +24,5 @@ Latin script, each once; a source whose
 (a bare source id) are ignored, so the user picks the source again. A missing key means no
 source chosen; so does a match whose source no installed extension provides any more
 (it was uninstalled), once the installed list has been read, so the detail asks to pick
-a source again instead of failing to load chapters. Survives sign-out (it is not cleared) and does not sync anywhere.
+a source again instead of failing to load chapters. Deselecting the source, or
+[excluding](../concepts/source-exclusion.md) it by hand or by a scan, removes the key. Survives sign-out (it is not cleared) and does not sync anywhere.

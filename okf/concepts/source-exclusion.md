@@ -4,7 +4,7 @@ title: Source exclusion
 description: Dropping a source for one manga, why it was dropped, and how a scan excludes bad sources by itself.
 resource: ../../src/features/manga/utils/source-exclusions.ts
 tags: [sources, exclusions]
-generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-20T00:00:00Z }
+generated: { by: claude-code/claude-opus-5-5, at: 2026-10-21T00:00:00Z }
 ---
 
 **Excluding** a [source](source.md) drops it for that one manga: it is not scanned, and it
@@ -29,7 +29,8 @@ removal can sync), then rescans that source. Either one **pins** the source, and
 source is never auto-excluded. So *auto* versus *manual* is exactly whether a live pin
 exists, and the list says which (`· auto` / `· you`).
 
-The source chosen for the manga can't be excluded by hand either.
+Excluding the source chosen for the manga also unchooses it, so the detail asks to pick a
+source again; its row can also just be **deselected**, which only clears the choice.
 
 ## Retry and reset
 
@@ -42,9 +43,10 @@ rescans, so bad sources come back auto-excluded.
 After a scan, the bad outcomes from [source probe](source-probe.md) are excluded by
 themselves, judged against the list entry's progress when the scan ends (reading on
 meanwhile counts). Each is dated by the probe that caused it. It never removes a manual
-choice, and never touches a pinned source or the source chosen for the manga when the
-scan ends (one picked mid-scan is spared too). Recovered auto-exclusions are dropped only
-by the 7-day recheck below.
+choice and never touches a pinned source. The source chosen for the manga when the scan
+ends (one picked mid-scan too) is spared an error or a lag, which may pass while it is
+being read, but not a no match: it has nothing to read, so it is excluded and unchosen.
+Recovered auto-exclusions are dropped only by the 7-day recheck below.
 
 ## Where anipoex differs from MSU
 

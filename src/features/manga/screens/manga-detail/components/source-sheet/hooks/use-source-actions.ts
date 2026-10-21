@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useInstalledSources } from "@/features/extensions";
 import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
 import { isScanning, scanSources } from "@/features/manga/state/probes";
+import { deselectSource } from "@/features/manga/state/source";
 import { type ExcludeReason, mediaKey } from "@/features/manga/utils/msu";
 import {
   clearAutoExclusions,
@@ -59,7 +60,12 @@ export function useSourceActions({
   return {
     scanAll,
     rescan,
-    exclude: (id: string, reason: ExcludeReason) => toggle(id, true, reason),
+    // An excluded source isn't read, so it stops being the chosen one.
+    exclude: (id: string, reason: ExcludeReason) => {
+      toggle(id, true, reason);
+      deselectSource(manga.id, id);
+    },
+    deselect: (id: string) => deselectSource(manga.id, id),
     // A dialog opened before a scan can confirm during it; the one-scan guard would drop the follow-up scan, so nothing is written.
     include: (id: string) => {
       if (isScanning(manga.id)) return;

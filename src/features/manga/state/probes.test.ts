@@ -282,6 +282,17 @@ describe("scanSources", () => {
     expect(ex.b.updatedAt).toBe(probes$["201"].b.get().updatedAt);
   });
 
+  it("the picked source with no match is auto-excluded and deselected", async () => {
+    source$[201].set({ sourceId: "a", manga: null });
+    const done = scan({ sources: sources("a", "b"), keep: "a" });
+    await flush();
+    searchPending.a([]);
+    await answer("b", [5]);
+    await done;
+    expect(exclusions$["201"].get().a.reason).toBe("not-matched");
+    expect(source$[201].get()).toBeUndefined();
+  });
+
   it("a source picked during the scan is never auto-excluded", async () => {
     const done = scan({
       sources: sources("a", "b"),

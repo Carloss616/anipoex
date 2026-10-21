@@ -38,9 +38,8 @@ memoryStorage.entries["9/a"] = {
   chapters: [],
 };
 
-const { matching$, resumeSource, selectSource, source$ } = await import(
-  "./source"
-);
+const { deselectSource, matching$, resumeSource, selectSource, source$ } =
+  await import("./source");
 
 const A = { id: "a", name: "Alpha" };
 const B = { id: "b", name: "Beta" };
@@ -121,6 +120,26 @@ describe("selectSource", () => {
     expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
     expect(source$[4].get()).toEqual({ sourceId: "a" });
     expect(matching$[4].get()).toBe(false);
+  });
+});
+
+describe("deselectSource", () => {
+  it("clears only the chosen source", () => {
+    source$[6].set({ sourceId: "a", manga: null });
+    deselectSource(6, "b");
+    expect(source$[6].get()).toEqual({ sourceId: "a", manga: null });
+    deselectSource(6, "a");
+    expect(source$[6].get()).toBeUndefined();
+  });
+
+  it("drops the search still running for it", async () => {
+    const done = selectSource(7, A, { search: ["d"], all: ["d"] });
+    deselectSource(7, "a");
+    expect(matching$[7].get()).toBe(false);
+    await flush();
+    pending["a:d"]([{ ...hit, title: "d" }]);
+    expect(await done).toBeUndefined();
+    expect(source$[7].get()).toBeUndefined();
   });
 });
 

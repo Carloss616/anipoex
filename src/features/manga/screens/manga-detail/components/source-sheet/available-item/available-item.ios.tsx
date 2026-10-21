@@ -82,19 +82,23 @@ export const AvailableItem = memo(function AvailableItem({
               onPress={() => onError?.({ source, error })}
             />
           )}
-          {/* The selected source can't be excluded. */}
-          {!selected && (
-            // Inside a context menu, a menu is its submenu row.
-            <Menu
-              items={
-                excludeMenu(suspicious, (reason) =>
-                  actions.exclude(source.id, reason),
-                ).items
-              }
-            >
-              <Label title="Exclude" systemImage="eye.slash" />
-            </Menu>
+          {selected && (
+            <Button
+              label="Deselect"
+              systemImage="xmark.circle"
+              onPress={() => actions.deselect(source.id)}
+            />
           )}
+          {/* Inside a context menu, a menu is its submenu row. */}
+          <Menu
+            items={
+              excludeMenu(suspicious, (reason) =>
+                actions.exclude(source.id, reason),
+              ).items
+            }
+          >
+            <Label title="Exclude" systemImage="eye.slash" />
+          </Menu>
         </ContextMenu.Items>
         <ContextMenu.Trigger>
           <Button
@@ -154,15 +158,13 @@ export const AvailableItem = memo(function AvailableItem({
       {/* No full swipe: a long drag shouldn't start a scan. */}
       <SwipeActions.Actions allowsFullSwipe={false}>
         {rescan}
-        {!selected && (
-          <Button
-            label="Exclude"
-            systemImage="eye.slash"
-            // No destructive role: SwiftUI would delete the row before a reason is picked.
-            modifiers={[tint(destructive)]}
-            onPress={() => onExclude?.({ source, suspicious })}
-          />
-        )}
+        <Button
+          label="Exclude"
+          systemImage="eye.slash"
+          // No destructive role: SwiftUI would delete the row before a reason is picked.
+          modifiers={[tint(destructive)]}
+          onPress={() => onExclude?.({ source, suspicious })}
+        />
       </SwipeActions.Actions>
     </SwipeActions>
   );
