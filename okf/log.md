@@ -2,6 +2,7 @@
 
 ## 2026-10-22
 
+* **Cloudflare windows explain themselves**: the window (desktop) or sheet (iOS) that shows a site's Cloudflare check now says which site is checking and what to do. On desktop the check now passes on its own, where before it asked for a click and then refused it. Updated [extension cookies](stores/extension-cookies.md).
 * **Cloudflare on desktop and iOS**: a challenge is solved in the app's own browser, which shows itself when the check wants a click or tap, and that site is then fetched from the solved page. Source covers load with their source's headers everywhere. Updated [extension cookies](stores/extension-cookies.md).
 
 ## 2026-10-21

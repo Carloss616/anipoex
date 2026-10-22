@@ -78,14 +78,16 @@ final class ChallengeHost {
     while Date().timeIntervalSince(started) < Self.solveSeconds {
       let cookies = await store.httpCookieStore.allCookies().filter { host.hasSuffix($0.domain.trimmingCharacters(in: ["."])) }
       if cookies.contains(where: { $0.name == "cf_clearance" }) {
-        view.frame = shelf.bounds
         shelf.addSubview(view)
+        // Back from the sheet's stack, which laid it out with constraints.
+        view.translatesAutoresizingMaskIntoConstraints = true
+        view.frame = shelf.bounds
         await settle(view, until: started.addingTimeInterval(Self.solveSeconds))
         keep(view, for: host)
         return ["cookies": cookies.map(Self.setCookie), "userAgent": userAgent]
       }
       if sheet == nil, Date().timeIntervalSince(started) > Self.showAfterSeconds {
-        sheet = present(view)
+        sheet = present(view, host: host)
       }
       if sheet != nil, sheet?.presentingViewController == nil { break }
       try await Task.sleep(for: .milliseconds(500))
@@ -157,15 +159,39 @@ final class ChallengeHost {
     pages[host] = (view, idle)
   }
 
-  /// Shows the page for a person to solve, in a sheet they can close.
-  private func present(_ view: WKWebView) -> UIViewController? {
+  /// Shows the page for a person to solve, in a sheet they can close, under a note on why it opened.
+  private func present(_ view: WKWebView, host: String) -> UIViewController? {
     guard var top = keyWindow?.rootViewController else { return nil }
     while let presented = top.presentedViewController { top = presented }
     let sheet = UIViewController()
-    sheet.title = "Verifying the site…"
-    view.frame = sheet.view.bounds
-    view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-    sheet.view.addSubview(view)
+    sheet.title = "Verifying \(host)"
+    sheet.view.backgroundColor = .systemBackground
+    let note = UILabel()
+    note.numberOfLines = 0
+    note.font = .preferredFont(forTextStyle: .footnote)
+    note.adjustsFontForContentSizeCategory = true
+    note.textColor = .secondaryLabel
+    note.text = "\(host) is checking the app with Cloudflare. If a checkbox appears below, tap it. This closes by itself once the site lets the app in; Cancel stops loading from this source."
+    // The note keeps its margins; the page under it runs edge to edge.
+    let banner = UIView()
+    banner.directionalLayoutMargins = .init(top: 4, leading: 16, bottom: 12, trailing: 16)
+    note.translatesAutoresizingMaskIntoConstraints = false
+    banner.addSubview(note)
+    let stack = UIStackView(arrangedSubviews: [banner, view])
+    stack.axis = .vertical
+    stack.translatesAutoresizingMaskIntoConstraints = false
+    sheet.view.addSubview(stack)
+    let margins = banner.layoutMarginsGuide
+    NSLayoutConstraint.activate([
+      note.topAnchor.constraint(equalTo: margins.topAnchor),
+      note.bottomAnchor.constraint(equalTo: margins.bottomAnchor),
+      note.leadingAnchor.constraint(equalTo: margins.leadingAnchor),
+      note.trailingAnchor.constraint(equalTo: margins.trailingAnchor),
+      stack.topAnchor.constraint(equalTo: sheet.view.safeAreaLayoutGuide.topAnchor),
+      stack.bottomAnchor.constraint(equalTo: sheet.view.bottomAnchor),
+      stack.leadingAnchor.constraint(equalTo: sheet.view.leadingAnchor),
+      stack.trailingAnchor.constraint(equalTo: sheet.view.trailingAnchor),
+    ])
     let navigation = UINavigationController(rootViewController: sheet)
     sheet.navigationItem.leftBarButtonItem = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { [weak navigation] _ in
       navigation?.dismiss(animated: true)

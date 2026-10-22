@@ -18,5 +18,6 @@ captcha) or a failed one shows as the call's error.
 
 On desktop and iOS they live in memory only, so a restart drops them and the first request
 earns them again. There, the challenge is solved by the app's own browser (a hidden window on
-desktop, a hidden web view on iOS), shown when it asks for a click or tap. That site's
+desktop, a hidden web view on iOS). It shows itself after 8 seconds without passing, under a
+note that names the site and says to click or tap the checkbox if one appears. That site's
 requests then go out from the solved page for as long as it stays open (10 minutes idle).

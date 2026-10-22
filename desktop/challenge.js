@@ -1,4 +1,4 @@
-import { BrowserWindow, session } from "electron";
+import { BrowserWindow, session, WebContentsView } from "electron";
 
 // Under the runtime's 2-minute call timeout, which counts the time spent here.
 const SOLVE_MS = 60_000;
@@ -25,17 +25,13 @@ const toSetCookie = (cookie) =>
     .filter(Boolean)
     .join("; ");
 
-// Chrome's own user agent, without the app and Electron tokens a bot check looks for.
-const chromeUserAgent = (userAgent) =>
-  userAgent.replace(/ (anipoex-desktop|Electron)\/\S+/g, "");
-
 // The solved site's page per host, kept to send its requests from: Cloudflare takes the
 // clearance from that page's own fetch, but not from one made in the main process.
 const pages = new Map();
 // The solve under way per host whose page closed: a second one would destroy the first's window mid-fetch.
 const reopening = new Map();
 
-const keepPage = (host, window) => {
+const keepPage = (host, window, site) => {
   const page = pages.get(host);
   if (page && page.window !== window && !page.window.isDestroyed())
     page.window.destroy();
@@ -44,22 +40,46 @@ const keepPage = (host, window) => {
     pages.delete(host);
     if (!window.isDestroyed()) window.destroy();
   }, IDLE_MS);
-  pages.set(host, { window, idle });
+  pages.set(host, { window, site, idle });
 };
+
+// What the window says above the site, so a person knows why it opened and what to do.
+const banner = (host) =>
+  `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html>
+<title>Verifying ${host}</title>
+<style>
+  :root { color-scheme: light dark; font: 13px/1.35 -apple-system, system-ui, sans-serif; }
+  body { margin: 0; padding: 10px 14px; background: Canvas; color: CanvasText; }
+  b { display: block; margin-bottom: 2px; }
+  p { margin: 0; opacity: 0.75; }
+</style>
+<b>${host} is checking the app with Cloudflare</b>
+<p>If a checkbox appears below, click it. This window closes by itself once the site lets the app in; closing it stops loading from this source.</p>`)}`;
+// The banner's height; the site's page fills the rest of the window.
+const BANNER_HEIGHT = 76;
 
 /**
  * Solves a Cloudflare challenge in a window of its own session; resolves to `{cookies, userAgent}`: the cookies it earned for `url` as `Set-Cookie` values, and the user agent it solved as.
- * It solves as the desktop Chrome it is: an Android user agent on a Mac gets the interactive check. The page stays, hidden, for `fetchThrough`.
+ * It solves as the Electron it is: an Android user agent, or a Chrome one without Chrome's client hints, looks spoofed, and the check then fails even a person's click. The page stays, hidden, for `fetchThrough`.
  */
 export async function solveChallenge({ url }) {
   if (!isWebUrl(url)) throw new Error("Not a web URL");
+  const host = new URL(url).host;
   const cloudflare = session.fromPartition(PARTITION);
   await cloudflare.cookies.remove(url, "cf_clearance");
   const window = new BrowserWindow({
     show: false,
     width: 480,
-    height: 640,
-    title: "Verifying the site…",
+    height: 640 + BANNER_HEIGHT,
+    webPreferences: {
+      sandbox: true,
+      contextIsolation: true,
+      javascript: false,
+    },
+  });
+  window.loadURL(banner(host)).catch(() => {});
+  // The site in a view of its own below the banner: its page stays the site's, untouched.
+  const site = new WebContentsView({
     webPreferences: {
       session: cloudflare,
       sandbox: true,
@@ -67,13 +87,27 @@ export async function solveChallenge({ url }) {
       backgroundThrottling: false,
     },
   });
-  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-  const userAgent = chromeUserAgent(window.webContents.getUserAgent());
+  window.contentView.addChildView(site);
+  const layout = () => {
+    const [width, height] = window.getContentSize();
+    site.setBounds({
+      x: 0,
+      y: BANNER_HEIGHT,
+      width,
+      height: height - BANNER_HEIGHT,
+    });
+  };
+  layout();
+  window.on("resize", layout);
+  // A view's page outlives its window unless closed.
+  window.on("closed", () => site.webContents.close());
+  site.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  const userAgent = site.webContents.getUserAgent();
   const show = setTimeout(() => {
     if (!window.isDestroyed()) window.show();
   }, SHOW_AFTER_MS);
   try {
-    window.loadURL(url, { userAgent }).catch(() => {});
+    site.webContents.loadURL(url).catch(() => {});
     for (const deadline = Date.now() + SOLVE_MS; Date.now() < deadline; ) {
       if (window.isDestroyed()) throw new Error("Cloudflare check closed");
       const cookies = await cloudflare.cookies.get({ url });
@@ -81,12 +115,12 @@ export async function solveChallenge({ url }) {
         // Cloudflare reloads the page once cleared, and a page's script dies with it: use it once it's the site's.
         while (
           Date.now() < deadline &&
-          (window.webContents.isLoading() ||
-            window.webContents.getTitle() === "Just a moment...")
+          (site.webContents.isLoading() ||
+            site.webContents.getTitle() === "Just a moment...")
         )
           await new Promise((resolve) => setTimeout(resolve, 250));
         window.hide();
-        keepPage(new URL(url).host, window);
+        keepPage(host, window, site);
         return { cookies: cookies.map(toSetCookie), userAgent };
       }
       await new Promise((resolve) => setTimeout(resolve, POLL_MS));
@@ -94,10 +128,7 @@ export async function solveChallenge({ url }) {
     window.destroy();
     throw new Error("Cloudflare check timed out");
   } catch (error) {
-    if (
-      !window.isDestroyed() &&
-      pages.get(new URL(url).host)?.window !== window
-    )
+    if (!window.isDestroyed() && pages.get(host)?.window !== window)
       window.destroy();
     throw error;
   } finally {
@@ -156,7 +187,7 @@ export async function fetchThrough({ method, url, headers, body }) {
     await reopening.get(host);
   }
   const page = pages.get(host);
-  keepPage(host, page.window);
+  keepPage(host, page.window, page.site);
   const cloudflare = session.fromPartition(PARTITION);
   const known = new Set(
     (await cloudflare.cookies.get({ url })).map(({ name }) => name),
@@ -169,7 +200,7 @@ export async function fetchThrough({ method, url, headers, body }) {
       await cloudflare.cookies.set({ url, name, value: value.join("=") });
   }
   const sent = headers.filter(([name]) => !FORBIDDEN.has(name.toLowerCase()));
-  const reply = await page.window.webContents.executeJavaScript(
+  const reply = await page.site.webContents.executeJavaScript(
     `(${pageFetch})(${JSON.stringify({ method, url, headers: sent, body })})`,
   );
   return {
