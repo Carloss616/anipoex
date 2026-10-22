@@ -13,6 +13,7 @@ import {
 import { authRedirect } from "./auth.js";
 import { fetchThrough, solveChallenge } from "./challenge.js";
 import { coverHeaders } from "./covers.js";
+import { renderImage } from "./graphics.js";
 import { jsClose, jsCreate, jsEvaluate } from "./javascript.js";
 import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
 import { resolveAsset } from "./serve.js";
@@ -113,13 +114,15 @@ app.whenReady().then(() => {
     ],
     logFile: path.join(extensions, "server.log"),
     // The runtime has no browser: a Cloudflare challenge is solved in one of ours, and that site is fetched through
-    // it; nor a JavaScript engine that runs modern scripts, so extensions' run in ours.
+    // it; nor a JavaScript engine that runs modern scripts, so extensions' run in ours; nor an image codec, so a
+    // page a source descrambles is drawn in one of our pages.
     host: {
       solveChallenge,
       fetch: fetchThrough,
       jsCreate,
       jsEvaluate,
       jsClose,
+      renderImage,
     },
   });
   app.on("will-quit", () => sidecar.stop());
@@ -140,7 +143,11 @@ app.whenReady().then(() => {
   // Only what `pages` returned is served, never a URL the renderer picks.
   const pages = pageStore();
   protocol.handle(PAGE_SCHEME, (request) =>
-    servePage(pages, request.url, net.fetch),
+    servePage(pages, request.url, async ({ sourceId, imageUrl, index }) => {
+      const reply = await sidecar.call("image", { sourceId, imageUrl, index });
+      if (reply.error !== undefined) throw new Error(reply.error);
+      return reply.result;
+    }),
   );
 
   ipcMain.handle("runtime", async (event, method, args) => {
@@ -150,7 +157,7 @@ app.whenReady().then(() => {
     if (method === "installed") covers.learnSources(reply?.result);
     if (method === "search") covers.learnCovers(args?.sourceId, reply?.result);
     return method === "pages" && reply?.result
-      ? { result: pages.rewrite(reply.result) }
+      ? { result: pages.rewrite(args.sourceId, reply.result) }
       : reply;
   });
 

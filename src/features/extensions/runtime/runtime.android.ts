@@ -2,7 +2,15 @@ import { requireNativeModule } from "expo";
 import type { RuntimeApi } from "./runtime";
 import { nativeErrorMessage } from "./utils/native-error";
 
-const native = requireNativeModule<RuntimeApi>("ExtensionRuntime");
+const native = requireNativeModule<
+  Omit<RuntimeApi, "pageImage"> & {
+    image(
+      sourceId: string,
+      imageUrl: string,
+      index: number,
+    ): Promise<{ uri: string }>;
+  }
+>("ExtensionRuntime");
 
 // Toasts and empty states show the cause's message, not the bridge's wrapper.
 const clean = <T>(promise: Promise<T>): Promise<T> =>
@@ -25,6 +33,8 @@ export const runtime: RuntimeApi = {
     clean(native.mangaWebUrl(sourceId, mangaUrl)),
   pages: (sourceId, chapterUrl, memo) =>
     clean(native.pages(sourceId, chapterUrl, memo)),
+  pageImage: async (sourceId, page) =>
+    (await clean(native.image(sourceId, page.imageUrl, page.index))).uri,
   getDns: () => clean(native.getDns()),
   setDns: (dns) => clean(native.setDns(dns)),
 };

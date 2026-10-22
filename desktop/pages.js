@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+
 export const PAGE_SCHEME = "anipoex-page";
 
 const isWeb = (url) => ["http:", "https:"].includes(URL.parse(url)?.protocol);
@@ -6,13 +9,17 @@ const isWeb = (url) => ["http:", "https:"].includes(URL.parse(url)?.protocol);
 export function pageStore(limit = 1000) {
   const entries = new Map();
   return {
-    /** Swaps each page's real request for a `PAGE_SCHEME` URL; non-web upstream URLs are dropped. */
-    rewrite: (pages) =>
+    /** Swaps each of a source's pages for a `PAGE_SCHEME` URL; non-web upstream URLs are dropped. */
+    rewrite: (sourceId, pages) =>
       pages
         .filter((page) => isWeb(page.imageUrl))
         .map((page) => {
           const id = crypto.randomUUID();
-          entries.set(id, { imageUrl: page.imageUrl, headers: page.headers });
+          entries.set(id, {
+            sourceId,
+            imageUrl: page.imageUrl,
+            index: page.index,
+          });
           if (entries.size > limit) entries.delete(entries.keys().next().value);
           return { ...page, imageUrl: `${PAGE_SCHEME}://p/${id}`, headers: {} };
         }),
@@ -22,31 +29,27 @@ export function pageStore(limit = 1000) {
 
 const empty = (status) => new Response(null, { status });
 
-/** Downloads a remembered page with the headers its source asked for; errors carry an empty body. */
-export async function servePage(store, url, fetch) {
+/**
+ * Serves a remembered page as the runtime fetched it through its source (`image`: its client and interceptors, which
+ * may rewrite the image); `image` resolves to the file's `{uri, type}`. Errors carry an empty body.
+ */
+export async function servePage(store, url, image) {
   const page = store.lookup(url);
-  if (!page || !isWeb(page.imageUrl)) return empty(404);
-  let upstream;
+  if (!page) return empty(404);
+  let bytes;
+  let type;
   try {
-    // shortcut: sources that rewrite images in OkHttp interceptors are not covered, handle them in the extension runtime if one needs it.
-    // Without `Origin`: net.fetch fails a request that carries one (some sources send it) with net::ERR_FAILED.
-    upstream = await fetch(page.imageUrl, {
-      headers: Object.fromEntries(
-        Object.entries(page.headers).filter(
-          ([name]) => name.toLowerCase() !== "origin",
-        ),
-      ),
-    });
+    const file = await image(page);
+    bytes = await readFile(fileURLToPath(file.uri));
+    type = file.type?.toLowerCase() ?? "";
   } catch {
     return empty(502);
   }
-  if (!upstream.ok) return empty(upstream.status);
-  const type = upstream.headers.get("Content-Type")?.toLowerCase() ?? "";
   if (type.startsWith("image/"))
-    return new Response(upstream.body, { headers: { "Content-Type": type } });
+    return new Response(bytes, { headers: { "Content-Type": type } });
   // Never a document the renderer could run; untyped bytes (S3-style CDNs) still reach the <img>, which sniffs them.
   if (/^text\/|html|javascript|xml/.test(type)) return empty(415);
-  return new Response(upstream.body, {
+  return new Response(bytes, {
     headers: { "Content-Type": "application/octet-stream" },
   });
 }

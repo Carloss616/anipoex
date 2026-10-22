@@ -5,10 +5,12 @@ public class ExtensionRuntimeModule: Module {
     Name("ExtensionRuntime")
 
     // The runtime has no browser: a Cloudflare challenge is solved in a WKWebView, and that site is fetched through it;
-    // nor a JavaScript engine that runs modern scripts, so extensions' run in JavaScriptCore.
+    // nor a JavaScript engine that runs modern scripts, so extensions' run in JavaScriptCore; nor an image codec, so a
+    // page a source descrambles is drawn with Core Graphics.
     OnCreate {
       AnipoexSetHostHandler { method, argsJson in
-        method.hasPrefix("js") ? ScriptHost.answer(method, argsJson) : ChallengeHost.answer(method, argsJson)
+        if method == "renderImage" { return GraphicsHost.answer(argsJson) }
+        return method.hasPrefix("js") ? ScriptHost.answer(method, argsJson) : ChallengeHost.answer(method, argsJson)
       }
     }
 

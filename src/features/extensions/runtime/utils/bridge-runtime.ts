@@ -27,6 +27,14 @@ export const bridgeRuntime = (send: Send): RuntimeApi => {
       call("mangaWebUrl", { sourceId, mangaUrl }),
     pages: (sourceId, chapterUrl, memo) =>
       call("pages", { sourceId, chapterUrl, memo }),
+    pageImage: async (sourceId, page) =>
+      (
+        await call<{ uri: string }>("image", {
+          sourceId,
+          imageUrl: page.imageUrl,
+          index: page.index,
+        })
+      ).uri,
     getDns: () => call("getDns"),
     setDns: (dns) => call("setDns", { dns }),
   };

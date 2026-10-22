@@ -1,6 +1,7 @@
 package expo.modules.extensionruntime
 
 import android.app.Application
+import anipoex.runtime.PageCache
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -57,6 +58,7 @@ private const val ICON_FILE = ".v2.png"
 class ExtensionRuntimeModule : Module() {
   private val app get() = requireNotNull(appContext.reactContext).applicationContext as Application
   private val extensionsDir get() = File(app.filesDir, "exts")
+  private val pageCache by lazy { PageCache(File(app.cacheDir, "pages")) }
   private val sources = ConcurrentHashMap<Long, CatalogueSource>()
   private val extensions = ConcurrentHashMap<String, Map<String, Any?>>()
   private val lock = Any()
@@ -142,13 +144,18 @@ class ExtensionRuntimeModule : Module() {
           name = ""
           if (memo != null) this.memo = Json.parseToJsonElement(memo).jsonObject
         }
-        // shortcut: hands JS the url and headers; a source that rewrites images in client interceptors needs the module to fetch them itself.
         source.getPageList(chapter).map { page ->
           if (page.imageUrl == null) page.imageUrl = source.getImageUrl(page)
           val request = source.hostImageRequest(page)
-          mapOf("index" to page.index, "imageUrl" to request.url.toString(), "headers" to request.headers.toMap())
+          // The page's own url: `image` builds the request from it, as Mihon's getImage does.
+          mapOf("index" to page.index, "imageUrl" to page.imageUrl, "headers" to request.headers.toMap())
         }
       }
+    }
+
+    // The reader shows each page from here, never its url: the source's interceptors may rewrite it (descramblers).
+    AsyncFunction("image") Coroutine { sourceId: String, imageUrl: String, index: Int ->
+      pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
     }
   }
 

@@ -14,6 +14,12 @@ describe("runtime.web", () => {
     expect(isRuntimeAvailable).toBe(true);
   });
 
+  it("pageImageIsMainsUrl", async () => {
+    const { runtime } = await load({ runtime: async () => ({ result: null }) });
+    const page = { index: 0, imageUrl: "anipoex-page://p/1", headers: {} };
+    expect(await runtime.pageImage("1", page)).toBe("anipoex-page://p/1");
+  });
+
   it("noBridge", async () => {
     const { isRuntimeAvailable, runtime } = await load();
     expect(isRuntimeAvailable).toBe(false);

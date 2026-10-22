@@ -78,11 +78,19 @@ export function ChapterReader() {
   const back = () =>
     router.canGoBack() ? router.back() : router.replace(`/manga/${mediaId}`);
   const toggle = useCallback(() => setVisible((shown) => !shown), []);
+  const sourceId = match?.sourceId;
+  // Pages only come with a source, so the null is never drawn.
   const renderItem = useCallback(
-    ({ item }: { item: SourcePage }) => (
-      <PageImage page={item} onPress={toggle} onRetry={reload} />
-    ),
-    [toggle, reload],
+    ({ item }: { item: SourcePage }) =>
+      sourceId ? (
+        <PageImage
+          sourceId={sourceId}
+          page={item}
+          onPress={toggle}
+          onRetry={reload}
+        />
+      ) : null,
+    [sourceId, toggle, reload],
   );
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: { index: number }[] }) => {

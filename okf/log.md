@@ -2,6 +2,7 @@
 
 ## 2026-10-22
 
+* **Pages come through their source**: the reader shows each page as the source's own client downloaded it, as in Mihon, so sources that scramble their pages show them in order (on Android too, where they came out scrambled) and image hosts get the cookies and headers they want. Pages a source draws back together also work on desktop and iOS now. Added [reader pages](stores/reader-pages.md).
 * **The Cloudflare banner says the app tried first**: the banner above a site's check, now one page shared by desktop and iOS in the app's blue, says the app is trying, and only at 15 seconds that it couldn't and the person should complete the check; it offers Skip source and shows when the check passed. Updated [extension cookies](stores/extension-cookies.md).
 * **Cloudflare windows explain themselves**: the window (desktop) or sheet (iOS) that shows a site's Cloudflare check now says which site is checking and what to do. On desktop the check now passes on its own, where before it asked for a click and then refused it. Updated [extension cookies](stores/extension-cookies.md).
 * **Cloudflare on desktop and iOS**: a challenge is solved in the app's own browser, which shows itself when the check wants a click or tap, and that site is then fetched from the solved page. Source covers load with their source's headers everywhere. Updated [extension cookies](stores/extension-cookies.md).

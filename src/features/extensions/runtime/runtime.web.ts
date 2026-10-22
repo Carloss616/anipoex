@@ -7,5 +7,9 @@ import { unavailableRuntime } from "./utils/unavailable";
 export const isRuntimeAvailable: boolean = desktop !== undefined;
 
 export const runtime: RuntimeApi = desktop
-  ? bridgeRuntime(desktop.runtime)
+  ? {
+      ...bridgeRuntime(desktop.runtime),
+      // Main already swapped each page for its own URL, which it serves through the source.
+      pageImage: async (_, page) => page.imageUrl,
+    }
   : unavailableRuntime;

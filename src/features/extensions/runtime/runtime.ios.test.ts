@@ -35,6 +35,23 @@ describe("runtime.ios", () => {
     );
   });
 
+  it("pageImageAsksTheRuntime", async () => {
+    calls.length = 0;
+    reply = '{"result":{"uri":"file:///p","type":"image/png"}}';
+    const page = {
+      index: 2,
+      imageUrl: "https://example.com/2.png#x",
+      headers: {},
+    };
+    expect(await runtime.pageImage("1", page)).toBe("file:///p");
+    expect(calls).toEqual([
+      [
+        "image",
+        '{"sourceId":"1","imageUrl":"https://example.com/2.png#x","index":2}',
+      ],
+    ]);
+  });
+
   it("available", () => {
     expect(isRuntimeAvailable).toBe(true);
   });

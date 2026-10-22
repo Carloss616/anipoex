@@ -70,6 +70,11 @@ export interface RuntimeApi {
     chapterUrl: string,
     memo?: string,
   ): Promise<SourcePage[]>;
+  /**
+   * The URI the reader shows for a page: fetched through the source's own client, as Mihon's reader does, so its
+   * interceptors run (some rewrite the image, e.g. to put a scrambled page back in order).
+   */
+  pageImage(sourceId: string, page: SourcePage): Promise<string>;
   getDns(): Promise<DnsId>;
   /** Applies to the next lookup of every source; the runtime stores it. */
   setDns(dns: DnsId): Promise<void>;

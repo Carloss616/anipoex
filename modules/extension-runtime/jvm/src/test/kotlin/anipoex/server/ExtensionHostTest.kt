@@ -1,5 +1,6 @@
 package anipoex.server
 
+import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.model.MangasPage
 import eu.kanade.tachiyomi.source.model.Page
@@ -192,4 +193,7 @@ class MemoSource : HttpSource() {
 
     override suspend fun getPageList(chapter: SChapter) =
         listOf(Page(0, imageUrl = "$baseUrl/${chapter.memo.getValue("slug").jsonPrimitive.content}"))
+
+    // Like a source that signs its image urls: `image` applies it, so `pages` must hand back the page's own url.
+    override fun imageRequest(page: Page) = GET("${page.imageUrl}?t=1", headers)
 }

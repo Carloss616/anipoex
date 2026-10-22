@@ -1,6 +1,7 @@
 package anipoex.server
 
 import android.app.Application
+import anipoex.runtime.PageCache
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.network.awaitSuccess
@@ -35,6 +36,7 @@ private val SUPPORTED_LIBS = setOf(1.4f, 1.6f)
 @OptIn(ExperimentalSerializationApi::class)
 class ExtensionHost(dataDir: File) {
     private val extensionsDir = File(dataDir, "exts")
+    private val pageCache = PageCache(File(dataDir, "cache/pages"))
     private val sources = ConcurrentHashMap<Long, CatalogueSource>()
     private val extensions = ConcurrentHashMap<String, Map<String, Any?>>()
     private val lock = Any()
@@ -191,9 +193,14 @@ class ExtensionHost(dataDir: File) {
         return source.getPageList(chapter).map { page ->
             if (page.imageUrl == null) page.imageUrl = source.getImageUrl(page)
             val request = source.hostImageRequest(page)
-            mapOf("index" to page.index, "imageUrl" to request.url.toString(), "headers" to request.headers.toMap())
+            // The page's own url: `image` builds the request from it, as Mihon's getImage does.
+            mapOf("index" to page.index, "imageUrl" to page.imageUrl, "headers" to request.headers.toMap())
         }
     }
+
+    /** A page's image through its source's client, as a file: see [PageCache]. */
+    suspend fun image(sourceId: String, imageUrl: String, index: Int): Map<String, Any?> =
+        pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
 
     // Like Mihon: an extension without the lib in its metadata carries it in versionName (1.4.3 -> 1.4).
     private fun libVersion(versionName: String?, metaData: Map<String, String>): Float =

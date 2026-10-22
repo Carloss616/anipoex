@@ -5,6 +5,7 @@ import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
 import eu.kanade.tachiyomi.network.asObservableSuccess
 import eu.kanade.tachiyomi.network.awaitSingle
+import eu.kanade.tachiyomi.network.awaitSuccess
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.source.model.MangasPage
@@ -402,6 +403,10 @@ abstract class HttpSource : CatalogueSource {
             "Source developers should make their own implementation according to their needs.",
     )
     protected open fun imageUrlParse(response: Response): String = throw UnsupportedOperationException()
+
+    // Mihon's, without the progress listener: the reader shows no download progress.
+    suspend fun getImage(page: Page): Response =
+        client.newBuilder().cache(null).build().newCall(imageRequest(page)).awaitSuccess()
 
     /**
      * Returns the request for getting the source image. Override only if it's needed to override
