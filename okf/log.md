@@ -2,6 +2,7 @@
 
 ## 2026-10-21
 
+* **The current match keeps its cover**: a stored chapter list now keeps the cover of the source's page, so the current-match card in a source's title results shows it whatever the query; before, it showed only when the results held that page. Lists stored earlier get it on their next scan, or when a title search finds their page. Updated [source chapters](stores/source-chapters.md).
 * **Extensions resolve over HTTPS**: sources look hosts up with Cloudflare DNS over HTTPS by default, so an ISP resolver that blocks a manga site no longer breaks it; Home has a DNS menu (System, Cloudflare, Google, AdGuard, Quad9). Added [extension DNS](stores/extension-dns.md).
 * **Unread count in the manga list**: a card with a chosen source shows the chapters left in its stored list as a badge. Updated [chapter](concepts/chapter.md).
 * **Manual matches don't decide exclusion**: setting one no longer includes or pins the source; it only drops an automatic no-match exclusion, and excluding or including leaves it alone. Search all covers excluded sources; a card's tap opens its menu, the only place a match is used or removed. Updated [manual matches](stores/manual-matches.md), [source exclusion](concepts/source-exclusion.md) and [source](concepts/source.md).

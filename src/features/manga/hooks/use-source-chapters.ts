@@ -66,7 +66,10 @@ export function useSourceChapters(
       };
       try {
         const { chapters } = await fetchChapters(sourceId, url, title);
-        written.current = { manga: { url, title }, chapters };
+        // A refresh keeps the cover a scan stored for the same page.
+        const kept = chapters$[chaptersKey(mangaId, sourceId)].peek()?.manga;
+        const thumbnailUrl = kept?.url === url ? kept.thumbnailUrl : undefined;
+        written.current = { manga: { url, title, thumbnailUrl }, chapters };
         chapters$[chaptersKey(mangaId, sourceId)].set(written.current);
         const rows = toChapters(chapters, title);
         recordProbe(mangaId, source, { chapters: rows });

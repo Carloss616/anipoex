@@ -1,8 +1,8 @@
 import type { SourceChapter } from "@/features/extensions";
 
 export interface StoredChapters {
-  /** The source's page for the manga, so picking the source again skips its search. */
-  manga: { url: string; title: string };
+  /** The source's page for the manga, so picking the source again skips its search; its cover shows in the title rail. */
+  manga: { url: string; title: string; thumbnailUrl?: string | null };
   chapters: SourceChapter[];
 }
 

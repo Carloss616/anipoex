@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 type Page = { mangas: unknown[]; hasNextPage: boolean };
 const pending: Record<
@@ -15,6 +16,23 @@ const search = mock(
 mock.module("@/features/extensions", () => ({
   runtime: { search, chapters: async () => ({ chapters: [] }) },
 }));
+mock.module("../utils/chapter-storage", () => memoryStorage);
+mock.module("@/state/observable-persist", () => ({
+  ObservablePersist: class {
+    getTable() {
+      return {};
+    }
+    set() {}
+    deleteTable() {}
+    getMetadata() {
+      return {};
+    }
+    setMetadata() {}
+    deleteMetadata() {}
+  },
+}));
+
+const { readChapters } = await import("./chapters");
 
 const {
   loadMoreTitles,
@@ -62,6 +80,22 @@ describe("startTitleSearch", () => {
     pending["s10:q:1"].resolve({ mangas: [], hasNextPage: false });
     await done;
     expect(titleSearch$["2008"].s10.status.peek()).toBe("done");
+  });
+
+  it("keeps the cover of the stored page when a search finds it", async () => {
+    memoryStorage.entries["2010/x"] = {
+      manga: { url: "/m", title: "M" },
+      chapters: [],
+    };
+    await readChapters(2010, "x");
+    const done = startTitleSearch(2010, ["x"], "q");
+    await flush();
+    pending["x:q:1"].resolve({
+      mangas: [{ url: "/m", title: "M", thumbnailUrl: "/m.jpg" }],
+      hasNextPage: false,
+    });
+    await done;
+    expect(memoryStorage.entries["2010/x"].manga.thumbnailUrl).toBe("/m.jpg");
   });
 
   it("sets error when page 1 fails", async () => {

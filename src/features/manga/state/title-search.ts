@@ -2,6 +2,7 @@ import { observable } from "@legendapp/state";
 import { runtime, type SourceManga } from "@/features/extensions";
 import { mediaKey, PARALLEL_BATCH } from "../utils/msu";
 import { SEARCH_TIMEOUT_MS, withTimeout } from "../utils/with-timeout";
+import { chapters$, chaptersKey } from "./chapters";
 
 /** One source's results for the title being searched, page by page. */
 export interface RailState {
@@ -34,6 +35,15 @@ const message = (error: unknown) =>
 const fetchPage = (sourceId: string, query: string, page: number) =>
   withTimeout(runtime.search(sourceId, query, page), SEARCH_TIMEOUT_MS);
 
+// Lists stored before covers were kept get one when a search finds their page.
+function keepCover(key: string, sourceId: string, mangas: SourceManga[]) {
+  const manga$ = chapters$[chaptersKey(key, sourceId)].manga;
+  const stored = manga$.peek();
+  if (!stored || stored.thumbnailUrl) return;
+  const found = mangas.find((manga) => manga.url === stored.url);
+  if (found?.thumbnailUrl) manga$.thumbnailUrl.set(found.thumbnailUrl);
+}
+
 const LOADING: RailState = {
   status: "loading",
   mangas: [],
@@ -52,6 +62,7 @@ async function loadFirst(
   try {
     const { mangas, hasNextPage } = await fetchPage(sourceId, query, 1);
     if (tickets[id] !== mine) return;
+    keepCover(key, sourceId, mangas);
     titleSearch$[key][sourceId].set({
       status: "done",
       mangas,
@@ -117,6 +128,7 @@ export async function loadMoreTitles(mangaId: number, sourceId: string) {
       rail.page + 1,
     );
     if (tickets[id] !== mine) return;
+    keepCover(key, sourceId, mangas);
     const listed = new Set(rail.mangas.map((manga) => manga.url));
     rail$.set({
       status: "done",

@@ -17,7 +17,7 @@ const search = mock((sourceId: string, query: string, _page: number) => {
         mangas: titles.map((title) => ({
           url: `/${sourceId}`,
           title,
-          thumbnailUrl: null,
+          thumbnailUrl: `/${sourceId}.jpg`,
         })),
         hasNextPage: false,
       });
@@ -124,7 +124,7 @@ describe("probeSource", () => {
     await flush();
     // Stored, so picking the source later neither searches nor loads.
     expect(memoryStorage.entries["201/a"]).toEqual({
-      manga: { url: "/a", title: "T" },
+      manga: { url: "/a", title: "T", thumbnailUrl: "/a.jpg" },
       chapters: [ch("Ch.12", 12), ch("Chapter 13", -1)],
     });
   });

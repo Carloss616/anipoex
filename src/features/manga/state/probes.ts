@@ -66,7 +66,11 @@ export async function probeSource(
       timeoutMs,
     );
     chapters$[chaptersKey(mangaId, source.id)].set({
-      manga: { url: manga.url, title: manga.title },
+      manga: {
+        url: manga.url,
+        title: manga.title,
+        thumbnailUrl: manga.thumbnailUrl,
+      },
       chapters,
     });
     return toProbe(
