@@ -1,6 +1,8 @@
 <!doctype html>
 <!-- The note above a site's Cloudflare check, shown by desktop/challenge.js and ChallengeHost.swift.
      The host sets ?host=, ?skip (desktop: a Skip button that closes the window), data-state (trying, then ask) and data-done. -->
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
@@ -27,13 +29,14 @@
   /* Only the current state's text shows; once through, only that does. */
   [data-state="trying"] [data-show="ask"], [data-state="ask"] [data-show="trying"],
   [data-done] [data-show]:not([data-show="done"]), body:not([data-done]) [data-show="done"] { display: none; }
-  [data-done] button { visibility: hidden; }
   button { font: 500 12px -apple-system, system-ui, sans-serif; color: #fff; background: rgba(255, 255, 255, 0.16); border: 0; border-radius: 7px; padding: 5px 11px; cursor: pointer; }
   button:hover { background: rgba(255, 255, 255, 0.26); }
   button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  [data-done] button { visibility: hidden; }
   @keyframes pulse { 50% { opacity: 0.25; } }
   @media (prefers-reduced-motion: reduce) { .status i { animation: none; } }
 </style>
+</head>
 <body data-state="trying">
 <header>
   <h1 data-show="trying">The app is getting through this site's check</h1>
@@ -43,7 +46,7 @@
   <p data-show="ask">Complete the check below to keep loading from this source. This closes by itself once you're through.</p>
   <div class="row" role="status">
     <span class="status"><i></i><span data-show="trying">Trying on its own</span><span data-show="ask">Waiting for you</span><span data-show="done">Closing</span></span>
-    <button id="skip" hidden>Skip source</button>
+    <button id="skip" type="button" hidden>Skip source</button>
   </div>
 </header>
 <script>
@@ -54,3 +57,5 @@
     skip.onclick = () => window.close();
   }
 </script>
+</body>
+</html>
