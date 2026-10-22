@@ -4,7 +4,7 @@ macOS app: Electron loads the web app and runs extensions in a separate JVM proc
 
 ## Development
 
-1. Build the extension server and its JVM (once, and again whenever `modules/extension-runtime/jvm` changes; restart Electron afterwards):
+1. Build the extension server and its JVM (once, and again whenever `modules/extension-runtime/jvm` changes; restart Electron afterwards: a sidecar left running loses its own classes, so `server.log` fills with `NoClassDefFoundError` and no extension lists or installs):
 
    ```bash
    JAVA_HOME=<jdk ≥ 17> android/gradlew -p modules/extension-runtime/jvm installDist jlinkRuntime
