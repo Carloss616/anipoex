@@ -43,6 +43,7 @@ class ExtensionHost(dataDir: File) {
         recoverInterruptedInstalls()
         // Android sets it to the VM's user agent; extensions send it as theirs and some assume it's there.
         if (System.getProperty("http.agent") == null) System.setProperty("http.agent", "Dalvik/2.1.0 (Linux; U; Android 10; K)")
+        Pkcs7Padding.install()
         val app = Application(dataDir, "1.0.0", 1)
         Injekt.addSingleton<Application>(app)
         Injekt.addSingleton(NetworkHelper(app))

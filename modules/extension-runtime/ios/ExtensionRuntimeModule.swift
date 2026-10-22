@@ -4,9 +4,12 @@ public class ExtensionRuntimeModule: Module {
   public func definition() -> ModuleDefinition {
     Name("ExtensionRuntime")
 
-    // The runtime has no browser: a Cloudflare challenge is solved in a WKWebView, and that site is fetched through it.
+    // The runtime has no browser: a Cloudflare challenge is solved in a WKWebView, and that site is fetched through it;
+    // nor a JavaScript engine that runs modern scripts, so extensions' run in JavaScriptCore.
     OnCreate {
-      AnipoexSetHostHandler { method, argsJson in ChallengeHost.answer(method, argsJson) }
+      AnipoexSetHostHandler { method, argsJson in
+        method.hasPrefix("js") ? ScriptHost.answer(method, argsJson) : ChallengeHost.answer(method, argsJson)
+      }
     }
 
     // Resolves the raw `{result}`/`{error}` envelope; the JS bridge turns it into a value or an Error.

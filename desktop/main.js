@@ -13,6 +13,7 @@ import {
 import { authRedirect } from "./auth.js";
 import { fetchThrough, solveChallenge } from "./challenge.js";
 import { coverHeaders } from "./covers.js";
+import { jsClose, jsCreate, jsEvaluate } from "./javascript.js";
 import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
 import { resolveAsset } from "./serve.js";
 import { startSidecar } from "./sidecar.js";
@@ -111,8 +112,15 @@ app.whenReady().then(() => {
       extensions,
     ],
     logFile: path.join(extensions, "server.log"),
-    // The runtime has no browser: a Cloudflare challenge is solved in one of ours, and that site is fetched through it.
-    host: { solveChallenge, fetch: fetchThrough },
+    // The runtime has no browser: a Cloudflare challenge is solved in one of ours, and that site is fetched through
+    // it; nor a JavaScript engine that runs modern scripts, so extensions' run in ours.
+    host: {
+      solveChallenge,
+      fetch: fetchThrough,
+      jsCreate,
+      jsEvaluate,
+      jsClose,
+    },
   });
   app.on("will-quit", () => sidecar.stop());
 
@@ -206,6 +214,6 @@ app.whenReady().then(() => {
     window.focus();
   });
   window.loadURL(APP_URL);
+  // The app is this window: hidden ones (a site's kept page, the script engine) don't keep it running.
+  window.on("closed", () => app.quit());
 });
-
-app.on("window-all-closed", () => app.quit());

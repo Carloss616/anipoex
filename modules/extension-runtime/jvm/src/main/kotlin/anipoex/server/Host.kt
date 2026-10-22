@@ -28,6 +28,10 @@ object Host {
     @Volatile
     var fetch: ((HostRequest) -> HostResponse)? = null
 
+    /** The JSON call into the app itself, for what has no typed wrapper here (the JavaScript engine). */
+    @Volatile
+    var call: ((method: String, args: JsonObject) -> JsonElement)? = null
+
     /** The clearance only holds for the user agent that earned it, so requests to that host send it after. */
     class Solution(val cookies: List<String>, val userAgent: String)
 
@@ -41,6 +45,7 @@ object Host {
      * answers `{status, headers, body}`, headers as `[name, value]` pairs and bodies in base64.
      */
     fun overJson(call: (method: String, args: JsonObject) -> JsonElement) {
+        this.call = call
         solveChallenge = { url ->
             val solution = call("solveChallenge", JsonObject(mapOf("url" to JsonPrimitive(url)))).jsonObject
             Solution(

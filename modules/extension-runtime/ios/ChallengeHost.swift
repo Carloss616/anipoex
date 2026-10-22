@@ -223,7 +223,7 @@ final class ChallengeHost {
     return { status: response.status, headers: [...response.headers], body: btoa(binary) };
     """
 
-  private static func envelope(_ object: [String: Any]) -> String {
+  nonisolated static func envelope(_ object: [String: Any]) -> String {
     guard let data = try? JSONSerialization.data(withJSONObject: object), let json = String(data: data, encoding: .utf8) else {
       return #"{"error":"Could not encode the host's reply"}"#
     }
