@@ -126,7 +126,6 @@ export const ListItem = memo(function ListItem({
           {websiteUrl && (
             <IconButton
               onClick={() => openExternal(websiteUrl)}
-              colors={{ contentColor: m3.onSurfaceVariant }}
               modifiers={label("Open website")}
             >
               <Icon

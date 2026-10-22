@@ -112,7 +112,6 @@ export const AvailableItem = memo(function AvailableItem({
           <IconButton
             enabled={!scanning}
             onClick={() => actions.rescan(source.id)}
-            colors={{ contentColor: m3.onSurfaceVariant }}
             modifiers={[
               // A disabled button passes the tap to the row; this outer no-op takes it on the same node, so TalkBack still reads one disabled button.
               ...(scanning ? [clickable(() => {}, { indication: false })] : []),

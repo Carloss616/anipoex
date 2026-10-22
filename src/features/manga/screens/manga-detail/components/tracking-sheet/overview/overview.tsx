@@ -1,3 +1,4 @@
+import { ButtonGroup } from "panelui-native/components/button-group";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { ScrollView, View } from "react-native";
@@ -52,15 +53,17 @@ export function Overview({
           {title}
         </Typography>
         <View className="flex-1" />
-        <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
-          <Button variant="outline" size="icon" className="size-9">
-            <Icon
-              name={Icons.more}
-              size={BUTTON_ICON_SIZE}
-              className="text-inherit"
-            />
-          </Button>
-        </Menu>
+        <ButtonGroup>
+          <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
+            <Button variant="secondary" size="icon" className="size-9">
+              <Icon
+                name={Icons.more}
+                size={BUTTON_ICON_SIZE}
+                className="text-inherit"
+              />
+            </Button>
+          </Menu>
+        </ButtonGroup>
       </View>
 
       <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>

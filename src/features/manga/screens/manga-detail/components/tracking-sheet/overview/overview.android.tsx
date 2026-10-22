@@ -55,13 +55,8 @@ function Cell({ value, placeholder, onPress, isDisabled = false }: CellProps) {
 
 /** The menu hands its trigger an `onPress` to open it. */
 function MoreButton({ onPress }: { onPress?: () => void }) {
-  const m3 = useThemeM3Colors();
-
   return (
-    <IconButton
-      onClick={onPress}
-      colors={{ contentColor: m3.onSurfaceVariant }}
-    >
+    <IconButton onClick={onPress}>
       <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
     </IconButton>
   );

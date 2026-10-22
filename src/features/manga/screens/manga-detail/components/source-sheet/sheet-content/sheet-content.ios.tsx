@@ -10,17 +10,18 @@ import {
 import {
   accessibilityHidden,
   accessibilityLabel,
-  buttonBorderShape,
   buttonStyle,
+  contentShape,
   defaultScrollAnchorForRole,
   disabled,
   foregroundStyle,
   frame,
-  labelStyle,
+  glassEffect,
   listRowBackground,
   listStyle,
   padding,
   scrollContentBackground,
+  shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { Computed } from "@legendapp/state/react";
 import { useState } from "react";
@@ -54,7 +55,11 @@ import {
 import type { SheetContentProps } from "./sheet-content";
 
 /** A glass circle's icon slot, as on the tracking overview's menu button. */
-const ICON_FRAME = frame({ width: 20, height: 20 });
+// A plain button only takes taps on its label: the label fills its slot in the group.
+const GROUP_SLOT = [
+  frame({ width: 40, height: 40 }),
+  contentShape(shapes.rectangle()),
+];
 
 function SectionHeader({ children }: { children: string }) {
   return (
@@ -84,7 +89,7 @@ export function SheetContent({
   const excluding = request && "suspicious" in request ? request : null;
   const failure =
     failed && errorDialog(failed.source.name, failed.error, failed.excluded);
-  const muted = useThemeColor("muted");
+  const [muted, primary] = useThemeColor(["muted", "primary"]);
   // Rows as in the extension list: inset-grouped cards on the sheet, default row insets.
   const rowBackground = listRowBackground(muted);
 
@@ -136,77 +141,92 @@ export function SheetContent({
             }
           >
             <Dialog.Trigger>
-              <HStack spacing={8}>
+              <HStack>
                 <VStack alignment="leading" spacing={2}>
                   <HStack spacing={8}>
                     <Text textStyle="title3">Sources</Text>
                     <Badge>{available.length}</Badge>
                   </HStack>
-                  <Text
-                    textStyle="subheadline"
-                    modifiers={[foregroundStyle("secondary")]}
-                  >
-                    {read > 0 ? `Read c.${read}` : "Not started"}
-                  </Text>
+                  <HStack spacing={6}>
+                    <Text
+                      textStyle="subheadline"
+                      modifiers={[foregroundStyle("secondary")]}
+                    >
+                      {read > 0 ? "Read" : "Not started"}
+                    </Text>
+                    {read > 0 && <Badge>c.{read}</Badge>}
+                  </HStack>
                 </VStack>
                 <Spacer />
-                <Button
-                  onPress={() =>
-                    // Excluded sources too: the right page may be on one dropped for no match.
-                    actions.searchAll(
-                      [...available, ...excluded].map((row) => row.source.id),
-                    )
-                  }
+                {/* One glass capsule for both, as a native toolbar groups its items. */}
+                <HStack
+                  spacing={0}
                   modifiers={[
-                    buttonStyle(title.searching ? "glassProminent" : "glass"),
-                    buttonBorderShape("circle"),
-                    labelStyle("iconOnly"),
-                    ...(title.searching ? [] : [foregroundStyle("secondary")]),
-                    accessibilityLabel("Search titles in all sources"),
+                    padding({ horizontal: 2 }),
+                    glassEffect({
+                      glass: { variant: "regular", interactive: true },
+                      shape: "capsule",
+                    }),
                   ]}
                 >
-                  <Icon
-                    name={
-                      title.searching
-                        ? Icons.searchTitlesOff
-                        : Icons.searchTitles
+                  <Button
+                    onPress={() =>
+                      // Excluded sources too: the right page may be on one dropped for no match.
+                      actions.searchAll(
+                        [...available, ...excluded].map((row) => row.source.id),
+                      )
                     }
-                    size={BUTTON_ICON_SIZE}
-                    color="inherit"
-                    modifiers={[ICON_FRAME]}
-                  />
-                </Button>
-                <Computed>
-                  {() => (
-                    <Button
-                      onPress={actions.scanAll}
-                      modifiers={[
-                        buttonStyle("glass"),
-                        buttonBorderShape("circle"),
-                        labelStyle("iconOnly"),
-                        foregroundStyle("secondary"),
-                        disabled(isScanBusy(key)),
-                        accessibilityLabel("Scan all sources"),
-                      ]}
-                    >
-                      {scanningAll$[key].get() ? (
-                        // The icon's slot, so the button never resizes; the button already reads its label.
-                        <HStack
-                          modifiers={[ICON_FRAME, accessibilityHidden(true)]}
-                        >
-                          <Loader size="sm" />
-                        </HStack>
-                      ) : (
-                        <Icon
-                          name={Icons.refresh}
-                          size={BUTTON_ICON_SIZE}
-                          color="inherit"
-                          modifiers={[ICON_FRAME]}
-                        />
-                      )}
-                    </Button>
-                  )}
-                </Computed>
+                    modifiers={[
+                      buttonStyle("plain"),
+                      // Tinted while title search is on, as a native toolbar shows an active item.
+                      foregroundStyle(title.searching ? primary : "secondary"),
+                      accessibilityLabel("Search titles in all sources"),
+                    ]}
+                  >
+                    <Icon
+                      name={
+                        title.searching
+                          ? Icons.searchTitlesOff
+                          : Icons.searchTitles
+                      }
+                      size={BUTTON_ICON_SIZE}
+                      color="inherit"
+                      modifiers={GROUP_SLOT}
+                    />
+                  </Button>
+                  <Computed>
+                    {() => (
+                      <Button
+                        onPress={actions.scanAll}
+                        modifiers={[
+                          buttonStyle("plain"),
+                          foregroundStyle("secondary"),
+                          disabled(isScanBusy(key)),
+                          accessibilityLabel("Scan all sources"),
+                        ]}
+                      >
+                        {scanningAll$[key].get() ? (
+                          // The icon's slot, so the group never resizes; the button already reads its label.
+                          <HStack
+                            modifiers={[
+                              ...GROUP_SLOT,
+                              accessibilityHidden(true),
+                            ]}
+                          >
+                            <Loader size="sm" />
+                          </HStack>
+                        ) : (
+                          <Icon
+                            name={Icons.refresh}
+                            size={BUTTON_ICON_SIZE}
+                            color="inherit"
+                            modifiers={GROUP_SLOT}
+                          />
+                        )}
+                      </Button>
+                    )}
+                  </Computed>
+                </HStack>
               </HStack>
             </Dialog.Trigger>
           </Dialog>

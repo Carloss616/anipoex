@@ -1,4 +1,5 @@
 import { Computed } from "@legendapp/state/react";
+import { ButtonGroup } from "panelui-native/components/button-group";
 import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
@@ -108,46 +109,58 @@ export function SheetContent({
               <Badge>{available.length}</Badge>
               <View className="flex-1" />
               {/* A toggle: filled while title search is on. */}
-              <Button
-                variant={title.searching ? "secondary" : "ghost"}
-                size="icon"
-                className="size-9"
-                disabled={!installed}
-                aria-pressed={title.searching}
-                onPress={() =>
-                  // Excluded sources too: the right page may be on one dropped for no match.
-                  actions.searchAll(
-                    [...available, ...excluded].map((row) => row.source.id),
-                  )
-                }
-                accessibilityLabel="Search titles in all sources"
-              >
-                <Icon
-                  name={
-                    title.searching ? Icons.searchTitlesOff : Icons.searchTitles
+              <ButtonGroup>
+                <Button
+                  variant={title.searching ? "primary" : "secondary"}
+                  size="icon"
+                  className="size-9"
+                  disabled={!installed}
+                  aria-pressed={title.searching}
+                  onPress={() =>
+                    // Excluded sources too: the right page may be on one dropped for no match.
+                    actions.searchAll(
+                      [...available, ...excluded].map((row) => row.source.id),
+                    )
                   }
-                  size={BUTTON_ICON_SIZE}
-                  className="text-foreground"
-                />
-              </Button>
-              <Computed>
-                {() => (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-9"
-                    // A plain browser has no sources, so nothing to scan.
-                    disabled={isScanBusy(key) || !installed}
-                    onPress={actions.scanAll}
-                    accessibilityLabel="Scan all sources"
-                  >
-                    <RefreshIcon spinning={scanningAll$[key].get() === true} />
-                  </Button>
-                )}
-              </Computed>
+                  accessibilityLabel="Search titles in all sources"
+                >
+                  <Icon
+                    name={
+                      title.searching
+                        ? Icons.searchTitlesOff
+                        : Icons.searchTitles
+                    }
+                    size={BUTTON_ICON_SIZE}
+                    className="text-foreground"
+                  />
+                </Button>
+                <Computed>
+                  {() => (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="size-9"
+                      // A plain browser has no sources, so nothing to scan.
+                      disabled={isScanBusy(key) || !installed}
+                      onPress={actions.scanAll}
+                      accessibilityLabel="Scan all sources"
+                    >
+                      <RefreshIcon
+                        spinning={scanningAll$[key].get() === true}
+                      />
+                    </Button>
+                  )}
+                </Computed>
+              </ButtonGroup>
             </View>
             <Typography type="body-sm" muted>
-              {read > 0 ? `Read c.${read}` : "Not started"}
+              {read > 0 ? (
+                <>
+                  Read <Badge>c.{read}</Badge>
+                </>
+              ) : (
+                "Not started"
+              )}
             </Typography>
           </View>
           {title.searching ? (

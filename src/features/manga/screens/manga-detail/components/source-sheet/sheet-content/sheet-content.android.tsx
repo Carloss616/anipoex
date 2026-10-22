@@ -1,6 +1,7 @@
 import {
   Box,
   Column,
+  FilledTonalIconButton,
   HorizontalDivider,
   IconButton,
   LazyColumn,
@@ -18,7 +19,6 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Computed } from "@legendapp/state/react";
 import { useState } from "react";
-import type { ColorValue } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
@@ -42,17 +42,10 @@ import type { SheetContentProps } from "./sheet-content";
 const EMPTY_HEIGHT = 320;
 
 /** The menu hands its trigger an `onPress` to open it. */
-function MoreButton({
-  color,
-  onPress,
-}: {
-  color: ColorValue;
-  onPress?: () => void;
-}) {
+function MoreButton({ onPress }: { onPress?: () => void }) {
   return (
     <IconButton
       onClick={onPress}
-      colors={{ contentColor: color }}
       modifiers={[
         semantics({ contentDescription: "Excluded sources actions" }),
       ]}
@@ -74,6 +67,9 @@ export function SheetContent({
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
   const title = useTitleMode(manga.id, key);
+  const SearchTitlesButton = title.searching
+    ? FilledTonalIconButton
+    : IconButton;
   const [menuId, setMenuId] = useState<string | null>(null);
   const m3 = useThemeM3Colors();
 
@@ -112,7 +108,7 @@ export function SheetContent({
             const items = excludedMenuItems(excluded, isScanBusy(key), actions);
             return (
               <Menu items={items}>
-                <MoreButton color={m3.onSurfaceVariant} />
+                <MoreButton />
               </Menu>
             );
           }}
@@ -148,57 +144,60 @@ export function SheetContent({
                 <Badge>{available.length}</Badge>
               </Box>
               <Spacer modifiers={[weight(1)]} />
-              {/* A toggle: filled while title search is on. */}
-              <IconButton
-                onClick={() =>
-                  // Excluded sources too: the right page may be on one dropped for no match.
-                  actions.searchAll(
-                    [...available, ...excluded].map((row) => row.source.id),
-                  )
-                }
-                colors={
-                  title.searching
-                    ? {
-                        containerColor: m3.secondaryContainer,
-                        contentColor: m3.onSecondaryContainer,
-                      }
-                    : { contentColor: m3.onSurfaceVariant }
-                }
-                modifiers={[
-                  semantics({
-                    contentDescription: "Search titles in all sources",
-                  }),
-                ]}
-              >
-                <Icon
-                  name={
-                    title.searching ? Icons.searchTitlesOff : Icons.searchTitles
+              {/* A toggle: tonal while title search is on. */}
+              <Row>
+                <SearchTitlesButton
+                  onClick={() =>
+                    // Excluded sources too: the right page may be on one dropped for no match.
+                    actions.searchAll(
+                      [...available, ...excluded].map((row) => row.source.id),
+                    )
                   }
-                  size={BUTTON_ICON_SIZE}
-                  color="inherit"
-                />
-              </IconButton>
-              <Computed>
-                {() => (
-                  <IconButton
-                    enabled={!isScanBusy(key)}
-                    onClick={actions.scanAll}
-                    colors={{ contentColor: m3.onSurfaceVariant }}
-                    modifiers={[
-                      semantics({ contentDescription: "Scan all sources" }),
-                    ]}
-                  >
-                    <RefreshIcon spinning={scanningAll$[key].get() === true} />
-                  </IconButton>
-                )}
-              </Computed>
+                  modifiers={[
+                    semantics({
+                      contentDescription: "Search titles in all sources",
+                    }),
+                  ]}
+                >
+                  <Icon
+                    name={
+                      title.searching
+                        ? Icons.searchTitlesOff
+                        : Icons.searchTitles
+                    }
+                    size={BUTTON_ICON_SIZE}
+                    color="inherit"
+                  />
+                </SearchTitlesButton>
+                <Computed>
+                  {() => (
+                    <IconButton
+                      enabled={!isScanBusy(key)}
+                      onClick={actions.scanAll}
+                      modifiers={[
+                        semantics({ contentDescription: "Scan all sources" }),
+                      ]}
+                    >
+                      <RefreshIcon
+                        spinning={scanningAll$[key].get() === true}
+                      />
+                    </IconButton>
+                  )}
+                </Computed>
+              </Row>
             </Row>
-            <Text
-              style={{ typography: "bodyMedium" }}
-              color={m3.onSurfaceVariant}
+            <Row
+              verticalAlignment="center"
+              horizontalArrangement={{ spacedBy: 6 }}
             >
-              {read > 0 ? `Read c.${read}` : "Not started"}
-            </Text>
+              <Text
+                style={{ typography: "bodyMedium" }}
+                color={m3.onSurfaceVariant}
+              >
+                {read > 0 ? "Read" : "Not started"}
+              </Text>
+              {read > 0 && <Badge>c.{read}</Badge>}
+            </Row>
           </Column>
           {title.searching ? (
             <SearchBar

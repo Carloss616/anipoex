@@ -26,7 +26,6 @@ export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
       {picker.hasWeb && (
         <IconButton
           onClick={picker.openWeb}
-          colors={{ contentColor: m3.onSurfaceVariant }}
           modifiers={[
             semantics({ contentDescription: `Open on ${picker.label}` }),
           ]}

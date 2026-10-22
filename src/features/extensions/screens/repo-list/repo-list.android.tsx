@@ -23,7 +23,6 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { useFontFamily } from "@/hooks/use-font";
-import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { TrustDialog } from "./components/trust-dialog";
 import { useRepoList } from "./hooks/use-repo-list";
 
@@ -34,7 +33,6 @@ export function RepoList() {
   const text = useNativeState("");
   const empty = useValue(() => url$.get() === "");
   const fontFamily = useFontFamily("normal");
-  const m3 = useThemeM3Colors();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
 
@@ -106,7 +104,6 @@ export function RepoList() {
                 <ListItem.TrailingContent>
                   <IconButton
                     onClick={() => remove(repo)}
-                    colors={{ contentColor: m3.onSurfaceVariant }}
                     modifiers={[
                       semantics({ contentDescription: `Remove ${repo.name}` }),
                     ]}
