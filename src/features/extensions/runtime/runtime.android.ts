@@ -25,4 +25,6 @@ export const runtime: RuntimeApi = {
     clean(native.mangaWebUrl(sourceId, mangaUrl)),
   pages: (sourceId, chapterUrl, memo) =>
     clean(native.pages(sourceId, chapterUrl, memo)),
+  getDns: () => clean(native.getDns()),
+  setDns: (dns) => clean(native.setDns(dns)),
 };

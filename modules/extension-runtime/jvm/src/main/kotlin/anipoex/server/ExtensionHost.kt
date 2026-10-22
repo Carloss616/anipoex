@@ -159,6 +159,12 @@ class ExtensionHost(dataDir: File) {
         return mapOf("chapters" to update.chapters.map { it.toMap() })
     }
 
+    fun getDns(): String = Injekt.get<NetworkHelper>().dns
+
+    fun setDns(dns: String) {
+        Injekt.get<NetworkHelper>().dns = dns
+    }
+
     // Null when the source isn't an HttpSource or can't build the url.
     fun mangaWebUrl(sourceId: String, mangaUrl: String): String? = try {
         val manga = SManga.create().apply {

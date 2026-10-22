@@ -9,6 +9,7 @@ import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
+import { DnsPicker } from "@/features/extensions";
 import { useSignOut } from "./hooks/use-sign-out";
 
 export function Home() {
@@ -38,6 +39,7 @@ export function Home() {
           />
           <ThemeToggle />
           <ThemePicker />
+          <DnsPicker />
         </VStack>
       </ScrollView>
     </Host>

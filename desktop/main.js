@@ -38,6 +38,8 @@ const METHODS = new Set([
   "search",
   "chapters",
   "mangaWebUrl",
+  "getDns",
+  "setDns",
   "pages",
 ]);
 

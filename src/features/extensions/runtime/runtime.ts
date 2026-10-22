@@ -47,6 +47,9 @@ export interface SourcePage {
   headers: Record<string, string>;
 }
 
+/** The resolver extensions look hosts up with: the system's, or a DNS-over-HTTPS provider. */
+export type DnsId = "system" | "cloudflare" | "google" | "adguard" | "quad9";
+
 export interface RuntimeApi {
   install(apkUrl: string, signingKey: string): Promise<InstalledExtension>;
   installed(): Promise<InstalledExtension[]>;
@@ -65,6 +68,9 @@ export interface RuntimeApi {
     chapterUrl: string,
     memo?: string,
   ): Promise<SourcePage[]>;
+  getDns(): Promise<DnsId>;
+  /** Applies to the next lookup of every source; the runtime stores it. */
+  setDns(dns: DnsId): Promise<void>;
 }
 
 /** Android, iOS (`expo-module` `ExtensionRuntime`) and the desktop app run extensions; a plain browser lists nothing. */

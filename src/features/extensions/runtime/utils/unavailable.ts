@@ -15,4 +15,6 @@ export const unavailableRuntime: RuntimeApi = {
   chapters: unavailable,
   mangaWebUrl: async () => null,
   pages: unavailable,
+  getDns: unavailable,
+  setDns: unavailable,
 };

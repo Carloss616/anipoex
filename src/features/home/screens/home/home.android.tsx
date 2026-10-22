@@ -8,6 +8,7 @@ import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
+import { DnsPicker } from "@/features/extensions";
 import { useSignOut } from "./hooks/use-sign-out";
 
 export function Home() {
@@ -34,6 +35,7 @@ export function Home() {
         </OutlinedButton>
         <ThemeToggle />
         <ThemePicker />
+        <DnsPicker />
       </Column>
     </Host>
   );

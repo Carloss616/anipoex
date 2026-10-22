@@ -3,6 +3,7 @@ import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
+import { DnsPicker } from "@/features/extensions";
 import { useSignOut } from "./hooks/use-sign-out";
 
 export function Home() {
@@ -19,6 +20,7 @@ export function Home() {
         </Button>
         <ThemeToggle />
         <ThemePicker />
+        <DnsPicker />
       </View>
     </ScrollView>
   );

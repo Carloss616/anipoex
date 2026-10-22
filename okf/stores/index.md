@@ -17,6 +17,7 @@ IndexedDB), and nothing persists during web's server render.
 * [Manga list view](manga-list-view.md) - Grid density and title position.
 * [Theme](theme.md) - Theme family and light / dark / system preference.
 * [Extension repos](extension-repos.md) - The repos extensions are installed from; none until the user adds one.
+* [Extension DNS](extension-dns.md) - The resolver extensions use; Cloudflare over HTTPS unless the user picks another.
 
 # Sources
 

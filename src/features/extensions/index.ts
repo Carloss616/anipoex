@@ -1,3 +1,4 @@
+export * from "./components/dns-picker";
 export * from "./hooks/use-installed-sources";
 export * from "./runtime";
 export { RUNTIME_UNAVAILABLE } from "./runtime/utils/unavailable";

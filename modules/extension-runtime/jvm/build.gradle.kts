@@ -26,6 +26,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:okhttp-brotli")
     implementation("com.squareup.okhttp3:okhttp-zstd")
+    implementation("com.squareup.okhttp3:okhttp-dnsoverhttps")
     implementation("org.jsoup:jsoup:1.22.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:1.10.0")

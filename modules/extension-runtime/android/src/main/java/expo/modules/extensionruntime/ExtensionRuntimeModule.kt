@@ -105,6 +105,10 @@ class ExtensionRuntimeModule : Module() {
       }
     }
 
+    AsyncFunction("getDns") { Injekt.get<NetworkHelper>().dns }
+
+    AsyncFunction("setDns") { dns: String -> Injekt.get<NetworkHelper>().dns = dns }
+
     AsyncFunction("mangaWebUrl") Coroutine { sourceId: String, mangaUrl: String ->
       withContext(Dispatchers.IO) {
         // Null when the source isn't an HttpSource or can't build the url.

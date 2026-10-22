@@ -2,6 +2,7 @@
 
 ## 2026-10-21
 
+* **Extensions resolve over HTTPS**: sources look hosts up with Cloudflare DNS over HTTPS by default, so an ISP resolver that blocks a manga site no longer breaks it; Home has a DNS menu (System, Cloudflare, Google, AdGuard, Quad9). Added [extension DNS](stores/extension-dns.md).
 * **Unread count in the manga list**: a card with a chosen source shows the chapters left in its stored list as a badge. Updated [chapter](concepts/chapter.md).
 * **Manual matches don't decide exclusion**: setting one no longer includes or pins the source; it only drops an automatic no-match exclusion, and excluding or including leaves it alone. Search all covers excluded sources; a card's tap opens its menu, the only place a match is used or removed. Updated [manual matches](stores/manual-matches.md), [source exclusion](concepts/source-exclusion.md) and [source](concepts/source.md).
 * **Search a source by hand**: the source list can search one source, or all, with the user's own title and show each source's results as cover cards under its row; a result can be used as that source's match, which is kept as a manual match. The detail's No match state offers Search on <source> beside Choose another source. Updated [source](concepts/source.md).
