@@ -14,6 +14,8 @@ repositories {
 sourceSets.main {
     kotlin.srcDir("../android/src/main/java")
     kotlin.exclude("expo/**")
+    // Android's solves the challenge in a WebView; the JVM uses CloudflareInterceptor.jvm.kt.
+    kotlin.exclude("eu/kanade/tachiyomi/network/interceptor/CloudflareInterceptor.kt")
 }
 
 // Java 21 bytecode: the iOS runtime runs a newer VM, which accepts it.
@@ -22,18 +24,20 @@ kotlin.compilerOptions.jvmTarget = JvmTarget.JVM_21
 
 // Same libraries and versions the Android module gives extensions.
 dependencies {
-    implementation(platform("com.squareup.okhttp3:okhttp-bom:5.4.0"))
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:5.5.0"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:okhttp-brotli")
     implementation("com.squareup.okhttp3:okhttp-zstd")
     implementation("com.squareup.okhttp3:okhttp-dnsoverhttps")
-    implementation("org.jsoup:jsoup:1.22.2")
+    implementation("org.jsoup:jsoup:1.23.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:1.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.10.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
     implementation("uy.kohesive.injekt:injekt-core:1.16.1")
     implementation("io.reactivex:rxjava:1.3.8")
+    // Part of Android, so extensions expect it.
+    implementation("org.json:json:20260814")
     // Verifies APK signatures (v1-v3) and reads the binary manifest.
     implementation("com.android.tools.build:apksig:9.4.1")
     // Turns the APK's dex into JVM bytecode.
@@ -80,9 +84,9 @@ val zstdStubTest by sourceSets.creating {
     runtimeClasspath += zstdStub.output
 }
 dependencies {
-    "zstdStubCompileOnly"(platform("com.squareup.okhttp3:okhttp-bom:5.4.0"))
+    "zstdStubCompileOnly"(platform("com.squareup.okhttp3:okhttp-bom:5.5.0"))
     "zstdStubCompileOnly"("com.squareup.okhttp3:okhttp")
-    "zstdStubTestImplementation"(platform("com.squareup.okhttp3:okhttp-bom:5.4.0"))
+    "zstdStubTestImplementation"(platform("com.squareup.okhttp3:okhttp-bom:5.5.0"))
     "zstdStubTestImplementation"("com.squareup.okhttp3:okhttp")
     "zstdStubTestImplementation"("com.squareup.okhttp3:mockwebserver3")
     "zstdStubTestImplementation"(kotlin("test-junit5"))

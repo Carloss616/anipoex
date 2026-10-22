@@ -33,7 +33,7 @@ is stable across launches.
 - **Which show**: every source of every installed extension, in any language; installing
   an extension is the choice. There is no language filter or setting.
 - **Names**: when an extension has more than one source, each name carries its language
-  (`Example (ES-419)`); with one, just the name. Nothing installed, nothing listed.
+  (`Source (ES-419)`); with one, just the name. Nothing installed, nothing listed.
   In the source sheet the name goes without it, and every row shows the language as its
   first badge (`EN`, `ES-419`, `ALL`), before the status.
 - **Empty sheet**: with no search, the source sheet says why nothing is listed: in

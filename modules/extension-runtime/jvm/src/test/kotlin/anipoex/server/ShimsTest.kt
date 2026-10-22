@@ -1,6 +1,8 @@
 package anipoex.server
 
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.text.Html
 import android.util.Base64
 import android.util.Log
@@ -8,6 +10,8 @@ import android.util.LruCache
 import android.webkit.CookieManager
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertContentEquals
@@ -87,6 +91,39 @@ class ShimsTest {
         cookies.removeAllCookies { cleared = it }
         assertEquals(true, cleared)
         assertNull(cookies.getCookie("https://example.com/y"))
+    }
+
+    @Test
+    fun cookieManagerFollowsDomainPathAndExpiry() {
+        val cookies = CookieManager.getInstance()
+        cookies.removeAllCookies(null)
+        cookies.setCookie("https://www.example.com/", "wide=1; Domain=example.com")
+        cookies.setCookie("https://example.com/", "deep=1; Path=/api")
+        cookies.setCookie("https://example.com/", "gone=1; Max-Age=0")
+        assertEquals("wide=1", cookies.getCookie("https://cdn.example.com/"))
+        assertEquals("wide=1; deep=1", cookies.getCookie("https://example.com/api/list"))
+        // Max-Age=0 deletes, as AndroidCookieJar.remove relies on.
+        cookies.setCookie("https://example.com/", "deep=; Path=/api; Max-Age=0")
+        assertEquals("wide=1", cookies.getCookie("https://example.com/api/list"))
+        cookies.removeAllCookies(null)
+    }
+
+    @Test
+    fun handlerRunsOnTheMainLooper() {
+        assertNull(Looper.myLooper())
+        val ran = CountDownLatch(2)
+        var looper: Looper? = null
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            looper = Looper.myLooper()
+            ran.countDown()
+        }
+        val cancelled = Runnable { error("removed callbacks ran") }
+        handler.postDelayed(cancelled, 200)
+        handler.removeCallbacks(cancelled)
+        handler.postDelayed({ ran.countDown() }, 10)
+        assertTrue(ran.await(5, TimeUnit.SECONDS))
+        assertEquals(Looper.getMainLooper(), looper)
     }
 
     @Test

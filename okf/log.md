@@ -2,6 +2,7 @@
 
 ## 2026-10-21
 
+* **Extensions keep cookies**: sources now send back the cookies sites set, as in Mihon, so sites that verify the browser with a cookie (before, their lists and searches came back empty) or check a session token on search work; on Android a Cloudflare challenge is solved in a hidden WebView. Added [extension cookies](stores/extension-cookies.md).
 * **The current match keeps its cover**: a stored chapter list now keeps the cover of the source's page, so the current-match card in a source's title results shows it whatever the query; before, it showed only when the results held that page. Lists stored earlier get it on their next scan, or when a title search finds their page. Updated [source chapters](stores/source-chapters.md).
 * **Extensions resolve over HTTPS**: sources look hosts up with Cloudflare DNS over HTTPS by default, so an ISP resolver that blocks a manga site no longer breaks it; Home has a DNS menu (System, Cloudflare, Google, AdGuard, Quad9). Added [extension DNS](stores/extension-dns.md).
 * **Unread count in the manga list**: a card with a chosen source shows the chapters left in its stored list as a badge. Updated [chapter](concepts/chapter.md).

@@ -16,8 +16,8 @@ a JSON file under the runtime's data dir on desktop and iOS), not in MMKV.
 | `cloudflare` | Cloudflare over HTTPS (default) |
 | `google`, `adguard`, `quad9` | That provider over HTTPS |
 
-DNS over HTTPS is the default because some ISPs' resolvers block manga sites (the test
-phone's Wi-Fi DNS returns nothing for one source's host). A change applies to every source's
+DNS over HTTPS is the default because some ISPs' resolvers block manga sites (they answer
+nothing for the site's host). A change applies to every source's
 next lookup, no restart. A host the provider can't resolve (localhost, a LAN name, or the
 provider being down) falls back to the system's DNS. A plain browser runs no extensions,
 so web has no picker.

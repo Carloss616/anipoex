@@ -1,5 +1,6 @@
 package android.content;
 
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import java.io.File;
 
@@ -20,6 +21,12 @@ public abstract class Context {
     public abstract PackageManager getPackageManager();
 
     public abstract SharedPreferences getSharedPreferences(String name, int mode);
+
+    public ApplicationInfo getApplicationInfo() {
+        ApplicationInfo info = new ApplicationInfo();
+        info.dataDir = getFilesDir().getPath();
+        return info;
+    }
 
     public Context getApplicationContext() {
         return this;

@@ -1,7 +1,11 @@
 package anipoex.server
 
 import android.app.Application
+import android.webkit.CookieManager
+import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.Test
@@ -18,6 +22,23 @@ class NetworkHelperTest {
         assertEquals("cloudflare", first.dns)
         first.dns = "system"
         assertEquals("system", network(dir).dns)
+    }
+
+    // A page that sets a cookie and reloads: the retry only works if the client sent the cookie back.
+    @Test
+    fun clientKeepsCookiesBetweenRequests(@TempDir dir: File) {
+        CookieManager.getInstance().removeAllCookies(null)
+        MockWebServer().use { server ->
+            server.start()
+            server.enqueue(MockResponse.Builder().addHeader("Set-Cookie", "session=abc; Max-Age=172800; Path=/").body("verify").build())
+            server.enqueue(MockResponse.Builder().body("list").build())
+            val client = network(dir).client
+            client.newCall(GET(server.url("/library").toString())).execute().close()
+            client.newCall(GET(server.url("/library?q=x").toString())).execute().close()
+            server.takeRequest()
+            assertEquals("session=abc", server.takeRequest().headers["Cookie"])
+        }
+        CookieManager.getInstance().removeAllCookies(null)
     }
 
     @Test

@@ -15,10 +15,11 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
-// shortcut: no cookie jar, so sites that need session cookies fail; add Mihon's AndroidCookieJar when a source needs it.
 class NetworkHelper(private val context: Context) {
 
     private val preferences = context.getSharedPreferences("network", Context.MODE_PRIVATE)
+
+    val cookieJar = AndroidCookieJar()
 
     private val cache = Cache(File(context.cacheDir, "network_cache"), 5L * 1024 * 1024)
 
@@ -45,6 +46,7 @@ class NetworkHelper(private val context: Context) {
 
     val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
+            .cookieJar(cookieJar)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .callTimeout(2, TimeUnit.MINUTES)
@@ -62,7 +64,7 @@ class NetworkHelper(private val context: Context) {
             }
             .addInterceptor(UncaughtExceptionInterceptor())
             .addInterceptor(UserAgentInterceptor(::defaultUserAgentProvider))
-            .addInterceptor(CloudflareInterceptor())
+            .addInterceptor(CloudflareInterceptor(context, cookieJar, ::defaultUserAgentProvider))
             .build()
     }
 
