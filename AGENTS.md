@@ -36,6 +36,14 @@ Gotchas:
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).
 
+# No source names
+
+The repo stays unassociated with any source, like the open-source apps it follows.
+
+- Code, tests, fixtures, mocks, docs, `okf/`, comments and commit messages never name a real source, extension, extension repository or its maintainers: no site names, domains, package names or source ids. Where an example helps, say "a source" or "some sources".
+- Placeholders are plainly generic (`Example`, `Source A`, `source-1`), never invented brand-like names, which can collide with real sources.
+- Open-source apps that stay neutral too (Mihon, Suwayomi) may be named and credited.
+
 # Domain knowledge
 
 `okf/` is the domain bundle in [Open Knowledge Format](okf/README.md) and the single owner of what things mean: the AniList operations, what the device stores, and the domain rules (list entry, statuses, tracking rules, score format, sources). Read it on demand, when the question is "what is X?" rather than "how do I code X?"; start at [okf/index.md](okf/index.md). When one of those changes, update its page and `okf/log.md` in the same change (`.claude/rules/okf.md` loads with those files).
