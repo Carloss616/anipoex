@@ -1,9 +1,11 @@
 import { LegendList } from "@legendapp/list/react";
+import { Skeleton } from "panelui-native/components/skeleton";
 import { Pressable, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { Typography } from "@/components/ui/typography";
+import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import { COVER } from "../constants";
 import type { RailProps } from "../rail";
 import { RailCard } from "../rail-card";
@@ -14,6 +16,7 @@ const GAP = 10;
 const CARD_SPAN = COVER.width + GAP;
 // The cover, two title lines and the label badge.
 const RAIL_HEIGHT = COVER.height + 72;
+const COVER_BOX = { ...COVER, borderRadius: COVER_RADIUS };
 
 /** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
 export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
@@ -29,7 +32,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
     return (
       <View className="flex-row gap-2.5 px-4 pb-3">
         {[0, 1, 2, 3].map((i) => (
-          <View key={i} className="rounded-md bg-muted" style={COVER} />
+          <Skeleton key={i} style={COVER_BOX} />
         ))}
       </View>
     );
@@ -72,8 +75,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 onPress={loadMore}
                 accessibilityRole="button"
                 accessibilityLabel="More"
-                className="items-center justify-center rounded-md bg-muted"
-                style={COVER}
+                className="items-center justify-center bg-muted"
+                style={COVER_BOX}
               >
                 {rail.loadingMore ? (
                   <Loader size="sm" />

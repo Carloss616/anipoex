@@ -15,6 +15,9 @@ import { dp } from "@/utils/utils";
 import { CoverImage } from "./cover-image";
 import { type CornerMark, cornerBadge } from "./utils";
 
+/** The cover's corner radius, for placeholders that stand in for a card. */
+export const COVER_RADIUS = 10;
+
 export interface MangaCardProps {
   cover?: string | ImageSource | null;
   /** Low-res cover, blown up as a soft preview until `cover` decodes. */
@@ -127,9 +130,10 @@ export function MangaCard({
             style={style}
           >
             <Card
-              className="relative aspect-2/3 w-full overflow-hidden rounded-[10px] border-0 p-0"
+              className="relative aspect-2/3 w-full overflow-hidden border-0 p-0"
               // The cover glows in its own AniList color.
               style={{
+                borderRadius: COVER_RADIUS,
                 boxShadow: `0 8px 18px -8px ${coverColor ?? "transparent"}`,
               }}
             >

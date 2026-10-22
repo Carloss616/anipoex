@@ -31,7 +31,8 @@ import { ramp } from "@/utils/ramp";
 import type { MangaCardProps } from "./manga-card";
 import { cornerBadge } from "./utils";
 
-const RADIUS = 24;
+/** The cover's corner radius, for placeholders that stand in for a card. */
+export const COVER_RADIUS = 24;
 const SCRIM = ramp("#000000");
 /** Legible on any cover: a light caption over the dark wash. */
 const OVER_COVER = [
@@ -84,7 +85,7 @@ export function MangaCard({
             tint: coverColor ?? card,
           },
           shape: "roundedRectangle",
-          cornerRadius: RADIUS,
+          cornerRadius: COVER_RADIUS,
         }),
         ...(onPress ? [onTapGesture(onPress)] : []),
         ...(onLongPress ? [onLongPressGesture(onLongPress)] : []),
@@ -95,7 +96,7 @@ export function MangaCard({
         <ZStack
           modifiers={[
             background(coverColor ?? overlay),
-            clipShape("roundedRectangle", RADIUS),
+            clipShape("roundedRectangle", COVER_RADIUS),
           ]}
         >
           {coverThumb && <Image url={coverThumb} />}
@@ -162,7 +163,7 @@ export function MangaCard({
             alignment="bottom"
             modifiers={[
               fixedSize({ horizontal: false, vertical: true }),
-              clipShape("roundedRectangle", RADIUS),
+              clipShape("roundedRectangle", COVER_RADIUS),
             ]}
           >
             <Rectangle

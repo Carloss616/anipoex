@@ -26,7 +26,8 @@ import { CoverImage } from "./cover-image";
 import type { MangaCardProps } from "./manga-card";
 import { cornerBadge } from "./utils";
 
-const RADIUS = 12;
+/** The cover's corner radius, for placeholders that stand in for a card. */
+export const COVER_RADIUS = 12;
 /** Legible on any cover: a light caption over the dark wash. */
 const SHADOW = { color: "#000000b3", offsetX: 0, offsetY: 1, blurRadius: 3 };
 
@@ -81,7 +82,7 @@ export function MangaCard({
   const content = (
     <Box
       contentAlignment="center"
-      modifiers={[fillMaxSize(), clip(Shapes.RoundedCorner(RADIUS))]}
+      modifiers={[fillMaxSize(), clip(Shapes.RoundedCorner(COVER_RADIUS))]}
     >
       {cover ? (
         <CoverImage

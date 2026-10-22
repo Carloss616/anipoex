@@ -18,17 +18,43 @@ import {
   semantics,
   size,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { Skeleton } from "panelui-native/components/skeleton";
+import { View } from "react-native";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { RNHostView } from "@/components/ui/host";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
+import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { COVER } from "../constants";
 import type { RailProps } from "../rail";
 import { RailCard } from "../rail-card";
 import { useRail } from "./hooks/use-rail";
 
-const COVER_SHAPE = clip(Shapes.RoundedCorner(8));
+const COVER_SHAPE = clip(Shapes.RoundedCorner(COVER_RADIUS));
+
+/**
+ * Pulsing covers while the first page loads: the web Skeleton, hosted, since
+ * @expo/ui's Compose animations jump to their target in this list.
+ */
+function Placeholders() {
+  const m3 = useThemeM3Colors();
+  const block = {
+    ...COVER,
+    borderRadius: COVER_RADIUS,
+    backgroundColor: m3.surfaceContainerHighest,
+  };
+  return (
+    <RNHostView matchContents modifiers={[padding(GUTTER, 0, GUTTER, 12)]}>
+      <View className="flex-row gap-2.5">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} style={block} />
+        ))}
+      </View>
+    </RNHostView>
+  );
+}
 
 /** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
 export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
@@ -42,21 +68,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   if (!rail) return null;
   const inset = padding(GUTTER, 0, GUTTER, 12);
 
-  if (rail.status === "loading")
-    return (
-      <Row horizontalArrangement={{ spacedBy: 10 }} modifiers={[inset]}>
-        {[0, 1, 2, 3].map((i) => (
-          <Box
-            key={i}
-            modifiers={[
-              size(COVER.width, COVER.height),
-              COVER_SHAPE,
-              background(m3.surfaceContainerHighest),
-            ]}
-          />
-        ))}
-      </Row>
-    );
+  if (rail.status === "loading") return <Placeholders />;
   // A failed or empty first page, said beside the current card when there is one.
   const line =
     notice === "error" ? (
