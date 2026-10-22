@@ -24,5 +24,5 @@ Pod::Spec.new do |s|
   s.source_files = '*.{h,m,swift}'
   s.public_header_files = 'JvmHost.h'
   s.vendored_frameworks = 'Frameworks/AnipoexJDK.xcframework'
-  s.resource_bundles = { 'ExtensionRuntime' => ['Runtime/*.jar'] }
+  s.resource_bundles = { 'ExtensionRuntime' => ['Runtime/*.jar', 'challenge-banner.html'] }
 end

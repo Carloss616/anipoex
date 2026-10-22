@@ -12,6 +12,11 @@ final class ChallengeHost {
   private static let solveSeconds: Double = 60
   // A challenge that wants a tap shows itself; most solve on their own before.
   private static let showAfterSeconds: Double = 8
+  // shortcut: no signal tells a check that wants a tap from one still running, so the banner asks once
+  // it's been this long (unaided ones pass in ~4 s); read the widget if Cloudflare ever exposes one.
+  private static let askAfterSeconds: Double = 15
+  // How long the banner says it passed before the sheet closes.
+  private static let doneSeconds: Double = 1
   // A site's page stays loaded this long after its last request.
   private static let idleSeconds: Double = 600
 
@@ -72,28 +77,43 @@ final class ChallengeHost {
     view.customUserAgent = userAgent
     shelf.addSubview(view)
     view.load(URLRequest(url: target))
-    var sheet: UIViewController?
+    var sheet: (sheet: UIViewController, banner: WKWebView)?
     let started = Date()
-    defer { sheet?.dismiss(animated: true) }
+    var asked = false
+    defer { sheet?.sheet.dismiss(animated: true) }
     while Date().timeIntervalSince(started) < Self.solveSeconds {
       let cookies = await store.httpCookieStore.allCookies().filter { host.hasSuffix($0.domain.trimmingCharacters(in: ["."])) }
       if cookies.contains(where: { $0.name == "cf_clearance" }) {
+        // A still of the site stays in the sheet: the page goes back to the shelf at once, since a closed sheet would pause it.
+        if let stack = view.superview as? UIStackView, let still = view.snapshotView(afterScreenUpdates: false) {
+          stack.insertArrangedSubview(still, at: 1)
+        }
         shelf.addSubview(view)
         // Back from the sheet's stack, which laid it out with constraints.
         view.translatesAutoresizingMaskIntoConstraints = true
         view.frame = shelf.bounds
         await settle(view, until: started.addingTimeInterval(Self.solveSeconds))
+        if let banner = sheet?.banner, sheet?.sheet.presentingViewController != nil {
+          _ = try? await banner.evaluateJavaScript(#"document.body.dataset.done = """#)
+          await Self.fit(banner)
+          try? await Task.sleep(for: .seconds(Self.doneSeconds))
+        }
         keep(view, for: host)
         return ["cookies": cookies.map(Self.setCookie), "userAgent": userAgent]
       }
       if sheet == nil, Date().timeIntervalSince(started) > Self.showAfterSeconds {
         sheet = present(view, host: host)
       }
-      if sheet != nil, sheet?.presentingViewController == nil { break }
+      if !asked, let banner = sheet?.banner, Date().timeIntervalSince(started) > Self.askAfterSeconds {
+        asked = true
+        _ = try? await banner.evaluateJavaScript(#"document.body.dataset.state = "ask""#)
+        await Self.fit(banner)
+      }
+      if sheet != nil, sheet?.sheet.presentingViewController == nil { break }
       try await Task.sleep(for: .milliseconds(500))
     }
     view.removeFromSuperview()
-    throw HostError(sheet?.presentingViewController == nil && sheet != nil ? "Cloudflare check closed" : "Cloudflare check timed out")
+    throw HostError(sheet?.sheet.presentingViewController == nil && sheet != nil ? "Cloudflare check closed" : "Cloudflare check timed out")
   }
 
   /// Waits for the reload Cloudflare does once cleared: a page's JavaScript dies with it, so the page is used once it's the site's.
@@ -159,45 +179,57 @@ final class ChallengeHost {
     pages[host] = (view, idle)
   }
 
-  /// Shows the page for a person to solve, in a sheet they can close, under a note on why it opened.
-  private func present(_ view: WKWebView, host: String) -> UIViewController? {
+  /// Shows the page for a person to solve, in a sheet they can close, under the banner on why it opened.
+  private func present(_ view: WKWebView, host: String) -> (sheet: UIViewController, banner: WKWebView)? {
     guard var top = keyWindow?.rootViewController else { return nil }
     while let presented = top.presentedViewController { top = presented }
     let sheet = UIViewController()
-    sheet.title = "Verifying \(host)"
+    sheet.title = host
     sheet.view.backgroundColor = .systemBackground
-    let note = UILabel()
-    note.numberOfLines = 0
-    note.font = .preferredFont(forTextStyle: .footnote)
-    note.adjustsFontForContentSizeCategory = true
-    note.textColor = .secondaryLabel
-    note.text = "\(host) is checking the app with Cloudflare. If a checkbox appears below, tap it. This closes by itself once the site lets the app in; Cancel stops loading from this source."
-    // The note keeps its margins; the page under it runs edge to edge.
-    let banner = UIView()
-    banner.directionalLayoutMargins = .init(top: 4, leading: 16, bottom: 12, trailing: 16)
-    note.translatesAutoresizingMaskIntoConstraints = false
-    banner.addSubview(note)
+    // The note desktop shows too (challenge-banner.html), as tall as its text once loaded.
+    let banner = WKWebView()
+    banner.scrollView.isScrollEnabled = false
+    banner.isOpaque = false
+    if let resources = Bundle(for: ChallengeHost.self).url(forResource: "ExtensionRuntime", withExtension: "bundle"),
+       let file = Bundle(url: resources)?.url(forResource: "challenge-banner", withExtension: "html"),
+       var url = URLComponents(url: file, resolvingAgainstBaseURL: false) {
+      url.queryItems = [URLQueryItem(name: "host", value: host)]
+      banner.loadFileURL(url.url ?? file, allowingReadAccessTo: file)
+      Task { [weak banner] in
+        // Measured once it has loaded: until then there's no header.
+        for _ in 0..<40 {
+          guard let banner else { return }
+          if await Self.fit(banner) { return }
+          try? await Task.sleep(for: .milliseconds(50))
+        }
+      }
+    }
     let stack = UIStackView(arrangedSubviews: [banner, view])
     stack.axis = .vertical
     stack.translatesAutoresizingMaskIntoConstraints = false
     sheet.view.addSubview(stack)
-    let margins = banner.layoutMarginsGuide
     NSLayoutConstraint.activate([
-      note.topAnchor.constraint(equalTo: margins.topAnchor),
-      note.bottomAnchor.constraint(equalTo: margins.bottomAnchor),
-      note.leadingAnchor.constraint(equalTo: margins.leadingAnchor),
-      note.trailingAnchor.constraint(equalTo: margins.trailingAnchor),
+      banner.heightAnchor.constraint(equalToConstant: 0),
       stack.topAnchor.constraint(equalTo: sheet.view.safeAreaLayoutGuide.topAnchor),
       stack.bottomAnchor.constraint(equalTo: sheet.view.bottomAnchor),
       stack.leadingAnchor.constraint(equalTo: sheet.view.leadingAnchor),
       stack.trailingAnchor.constraint(equalTo: sheet.view.trailingAnchor),
     ])
     let navigation = UINavigationController(rootViewController: sheet)
-    sheet.navigationItem.leftBarButtonItem = UIBarButtonItem(systemItem: .cancel, primaryAction: UIAction { [weak navigation] _ in
+    sheet.navigationItem.leftBarButtonItem = UIBarButtonItem(primaryAction: UIAction(title: "Skip source") { [weak navigation] _ in
       navigation?.dismiss(animated: true)
     })
     top.present(navigation, animated: true)
-    return navigation
+    return (navigation, banner)
+  }
+
+  /// Sizes the banner to its text; false while it has none to measure.
+  @discardableResult
+  private static func fit(_ banner: WKWebView) async -> Bool {
+    let height = try? await banner.evaluateJavaScript(#"document.querySelector("header")?.offsetHeight ?? 0"#) as? Double
+    guard let height, height > 0 else { return false }
+    banner.constraints.first { $0.firstAttribute == .height }?.constant = height
+    return true
   }
 
   private var keyWindow: UIWindow? {

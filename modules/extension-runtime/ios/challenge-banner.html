@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- The note above a site's Cloudflare check, shown by desktop/challenge.js and ChallengeHost.swift.
+     The host sets ?host=, ?skip (desktop: a Skip button that closes the window), data-state (trying, then ask) and data-done. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Cloudflare check</title>
+<style>
+  /* The app's colors: change them with the brand. */
+  :root { --from: #2f97ff; --to: #0b6fe0; --wait: #f59e0b; font: 13px/1.4 -apple-system, system-ui, sans-serif; -webkit-text-size-adjust: none; }
+  [data-done] { --from: #19b884; --to: #0c9a6e; }
+  body { margin: 0; background: var(--to); }
+  header {
+    padding: 14px 16px 15px; color: #fff;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px) 0 0 / 14px 14px,
+      linear-gradient(90deg, rgba(255, 255, 255, 0.09) 1px, transparent 1px) 0 0 / 14px 14px,
+      linear-gradient(160deg, var(--from), var(--to));
+  }
+  h1 { font-size: 14px; font-weight: 600; line-height: 1.3; margin: 0; }
+  p { margin: 3px 0 0; opacity: 0.88; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; }
+  .status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; background: rgba(0, 0, 0, 0.18); padding: 4px 10px 4px 9px; border-radius: 999px; }
+  .status i { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: pulse 1.4s ease-in-out infinite; }
+  [data-state="ask"] .status i { background: var(--wait); }
+  [data-done] .status i { background: #fff; animation: none; }
+  /* Only the current state's text shows; once through, only that does. */
+  [data-state="trying"] [data-show="ask"], [data-state="ask"] [data-show="trying"],
+  [data-done] [data-show]:not([data-show="done"]), body:not([data-done]) [data-show="done"] { display: none; }
+  [data-done] button { visibility: hidden; }
+  button { font: 500 12px -apple-system, system-ui, sans-serif; color: #fff; background: rgba(255, 255, 255, 0.16); border: 0; border-radius: 7px; padding: 5px 11px; cursor: pointer; }
+  button:hover { background: rgba(255, 255, 255, 0.26); }
+  button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  @keyframes pulse { 50% { opacity: 0.25; } }
+  @media (prefers-reduced-motion: reduce) { .status i { animation: none; } }
+</style>
+<body data-state="trying">
+<header>
+  <h1 data-show="trying">The app is getting through this site's check</h1>
+  <p data-show="trying">It usually manages on its own in a few seconds. If a box to tick shows up below, you can tick it.</p>
+  <h1 data-show="ask">The app couldn't get through on its own</h1>
+  <h1 data-show="done">You're through</h1>
+  <p data-show="ask">Complete the check below to keep loading from this source. This closes by itself once you're through.</p>
+  <div class="row" role="status">
+    <span class="status"><i></i><span data-show="trying">Trying on its own</span><span data-show="ask">Waiting for you</span><span data-show="done">Closing</span></span>
+    <button id="skip" hidden>Skip source</button>
+  </div>
+</header>
+<script>
+  const params = new URLSearchParams(location.search);
+  if (params.has("host")) document.title = params.get("host");
+  if (params.has("skip")) {
+    skip.hidden = false;
+    skip.onclick = () => window.close();
+  }
+</script>

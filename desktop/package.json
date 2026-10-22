@@ -46,6 +46,10 @@
       {
         "from": "../modules/extension-runtime/jvm/build/jre",
         "to": "jre"
+      },
+      {
+        "from": "../modules/extension-runtime/ios/challenge-banner.html",
+        "to": "challenge-banner.html"
       }
     ]
   }

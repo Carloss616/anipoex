@@ -1,9 +1,14 @@
-import { BrowserWindow, session, WebContentsView } from "electron";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { app, BrowserWindow, session, WebContentsView } from "electron";
 
 // Under the runtime's 2-minute call timeout, which counts the time spent here.
 const SOLVE_MS = 60_000;
 // A challenge that wants a click shows itself; most solve on their own before.
 const SHOW_AFTER_MS = 8_000;
+// shortcut: no signal tells a check that wants a click from one still running, so the banner asks once
+// it's been this long (unaided ones pass in ~4 s); read the widget if Cloudflare ever exposes one.
+const ASK_AFTER_MS = 15_000;
 const POLL_MS = 500;
 // A site's page stays loaded this long after its last request, then closes.
 const IDLE_MS = 10 * 60_000;
@@ -43,20 +48,17 @@ const keepPage = (host, window, site) => {
   pages.set(host, { window, site, idle });
 };
 
-// What the window says above the site, so a person knows why it opened and what to do.
-const banner = (host) =>
-  `data:text/html;charset=utf-8,${encodeURIComponent(`<!doctype html>
-<title>Verifying ${host}</title>
-<style>
-  :root { color-scheme: light dark; font: 13px/1.35 -apple-system, system-ui, sans-serif; }
-  body { margin: 0; padding: 10px 14px; background: Canvas; color: CanvasText; }
-  b { display: block; margin-bottom: 2px; }
-  p { margin: 0; opacity: 0.75; }
-</style>
-<b>${host} is checking the app with Cloudflare</b>
-<p>If a checkbox appears below, click it. This window closes by itself once the site lets the app in; closing it stops loading from this source.</p>`)}`;
-// The banner's height; the site's page fills the rest of the window.
-const BANNER_HEIGHT = 76;
+// The note above the site, shared with iOS: it lives in the pod, which can't take files from outside it.
+const BANNER = app.isPackaged
+  ? path.join(process.resourcesPath, "challenge-banner.html")
+  : fileURLToPath(
+      new URL(
+        "../modules/extension-runtime/ios/challenge-banner.html",
+        import.meta.url,
+      ),
+    );
+// How long the banner says it passed before the window hides.
+const DONE_MS = 1_000;
 
 /**
  * Solves a Cloudflare challenge in a window of its own session; resolves to `{cookies, userAgent}`: the cookies it earned for `url` as `Set-Cookie` values, and the user agent it solved as.
@@ -70,14 +72,10 @@ export async function solveChallenge({ url }) {
   const window = new BrowserWindow({
     show: false,
     width: 480,
-    height: 640 + BANNER_HEIGHT,
-    webPreferences: {
-      sandbox: true,
-      contextIsolation: true,
-      javascript: false,
-    },
+    height: 760,
+    webPreferences: { sandbox: true, contextIsolation: true },
   });
-  window.loadURL(banner(host)).catch(() => {});
+  window.loadFile(BANNER, { query: { host, skip: "" } }).catch(() => {});
   // The site in a view of its own below the banner: its page stays the site's, untouched.
   const site = new WebContentsView({
     webPreferences: {
@@ -88,16 +86,17 @@ export async function solveChallenge({ url }) {
     },
   });
   window.contentView.addChildView(site);
-  const layout = () => {
+  // The banner's text wraps with the width, so its height is measured on each layout.
+  let top = 0;
+  const layout = async () => {
+    top = await window.webContents
+      .executeJavaScript(`document.querySelector("header").offsetHeight`)
+      .catch(() => top);
+    if (window.isDestroyed()) return;
     const [width, height] = window.getContentSize();
-    site.setBounds({
-      x: 0,
-      y: BANNER_HEIGHT,
-      width,
-      height: height - BANNER_HEIGHT,
-    });
+    site.setBounds({ x: 0, y: top, width, height: height - top });
   };
-  layout();
+  window.webContents.on("did-finish-load", layout);
   window.on("resize", layout);
   // A view's page outlives its window unless closed.
   window.on("closed", () => site.webContents.close());
@@ -108,8 +107,16 @@ export async function solveChallenge({ url }) {
   }, SHOW_AFTER_MS);
   try {
     site.webContents.loadURL(url).catch(() => {});
-    for (const deadline = Date.now() + SOLVE_MS; Date.now() < deadline; ) {
+    const started = Date.now();
+    let asked = false;
+    for (const deadline = started + SOLVE_MS; Date.now() < deadline; ) {
       if (window.isDestroyed()) throw new Error("Cloudflare check closed");
+      if (!asked && Date.now() - started > ASK_AFTER_MS) {
+        asked = true;
+        window.webContents
+          .executeJavaScript(`document.body.dataset.state = "ask"`)
+          .then(layout, () => {});
+      }
       const cookies = await cloudflare.cookies.get({ url });
       if (cookies.some(({ name }) => name === "cf_clearance")) {
         // Cloudflare reloads the page once cleared, and a page's script dies with it: use it once it's the site's.
@@ -119,7 +126,12 @@ export async function solveChallenge({ url }) {
             site.webContents.getTitle() === "Just a moment...")
         )
           await new Promise((resolve) => setTimeout(resolve, 250));
-        window.hide();
+        if (window.isVisible()) {
+          window.webContents
+            .executeJavaScript(`document.body.dataset.done = ""`)
+            .then(layout, () => {});
+          setTimeout(() => window.isDestroyed() || window.hide(), DONE_MS);
+        }
         keepPage(host, window, site);
         return { cookies: cookies.map(toSetCookie), userAgent };
       }
