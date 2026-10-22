@@ -17,4 +17,6 @@ and its `cf_clearance` cookie lets the request through; an interactive challenge
 captcha) or a failed one shows as the call's error.
 
 On desktop and iOS they live in memory only, so a restart drops them and the first request
-earns them again. There is no WebView there, so a Cloudflare challenge stays a 403.
+earns them again. There, the challenge is solved by the app's own browser (a hidden window on
+desktop, a hidden web view on iOS), shown when it asks for a click or tap. That site's
+requests then go out from the solved page for as long as it stays open (10 minutes idle).

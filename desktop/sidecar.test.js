@@ -4,12 +4,15 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { startSidecar } from "./sidecar.js";
 
-// Speaks the server's protocol: `wait` replies after args.ms, `pid` names the process, `noise` prints a non-JSON line first, `crash` exits with code 1.
+// Speaks the server's protocol: `wait` replies after args.ms, `pid` names the process, `noise` prints a non-JSON line first, `crash` exits with code 1, `ask` asks the host and replies with its answer.
 const FAKE_SERVER = `
 const readline = require("node:readline");
+const asked = new Map();
 readline.createInterface({ input: process.stdin })
   .on("line", (line) => {
-    const { id, method, args } = JSON.parse(line);
+    const message = JSON.parse(line);
+    if ("hostReply" in message) return asked.get(message.hostReply)(message);
+    const { id, method, args } = message;
     const reply = (result) => process.stdout.write(JSON.stringify({ id, result }) + "\\n");
     if (method === "wait") setTimeout(() => reply(args.ms), args.ms);
     if (method === "pid") reply(process.pid);
@@ -18,6 +21,10 @@ readline.createInterface({ input: process.stdin })
       reply("ok");
     }
     if (method === "crash") process.exit(1);
+    if (method === "ask") {
+      asked.set(id, ({ result, error }) => reply(error ?? result));
+      process.stdout.write(JSON.stringify({ host: args.host, id, args: args.args }) + "\\n");
+    }
   })
   .on("close", () => {
     process.stderr.write("stdin closed\\n");
@@ -27,13 +34,18 @@ readline.createInterface({ input: process.stdin })
 
 const sidecars = [];
 
-const fake = (java = process.execPath) => {
+const fake = (java = process.execPath, host) => {
   const logFile = path.join(
     mkdtempSync(path.join(tmpdir(), "sidecar-")),
     "extensions",
     "server.log",
   );
-  const sidecar = startSidecar({ java, args: ["-e", FAKE_SERVER], logFile });
+  const sidecar = startSidecar({
+    java,
+    args: ["-e", FAKE_SERVER],
+    logFile,
+    host,
+  });
   sidecars.push(sidecar);
   return { ...sidecar, logFile };
 };
@@ -43,6 +55,19 @@ afterEach(() => {
 });
 
 describe("startSidecar", () => {
+  test("answersHostCalls", async () => {
+    const { call } = fake(process.execPath, {
+      solveChallenge: async ({ url }) => [`cf_clearance=1; Domain=${url}`],
+    });
+    expect(
+      await call("ask", { host: "solveChallenge", args: { url: "x.test" } }),
+    ).toEqual({ id: 1, result: ["cf_clearance=1; Domain=x.test"] });
+    expect(await call("ask", { host: "nope", args: {} })).toEqual({
+      id: 2,
+      result: "Unknown host method nope",
+    });
+  });
+
   test("outOfOrder", async () => {
     const { call } = fake();
     const order = [];

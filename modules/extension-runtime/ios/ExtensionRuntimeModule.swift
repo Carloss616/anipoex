@@ -4,6 +4,11 @@ public class ExtensionRuntimeModule: Module {
   public func definition() -> ModuleDefinition {
     Name("ExtensionRuntime")
 
+    // The runtime has no browser: a Cloudflare challenge is solved in a WKWebView, and that site is fetched through it.
+    OnCreate {
+      AnipoexSetHostHandler { method, argsJson in ChallengeHost.answer(method, argsJson) }
+    }
+
     // Resolves the raw `{result}`/`{error}` envelope; the JS bridge turns it into a value or an Error.
     AsyncFunction("call") { (method: String, argsJson: String, promise: Promise) in
       guard let jars = Bundle(for: ExtensionRuntimeModule.self).url(forResource: "ExtensionRuntime", withExtension: "bundle") else {

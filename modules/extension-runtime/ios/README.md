@@ -15,7 +15,7 @@ Mihon extensions run on an embedded OpenJDK Zero (a static JVM linked into `Anip
 
 2. Run it again after any change to the JVM core (`modules/extension-runtime/jvm`): the podspec only checks that `Runtime/` exists, so the jars can go stale.
 
-3. Run `pod install` again (`expo run:ios` does it) when a dependency bump renames a jar: CocoaPods fixes the `resource_bundles` file list at `pod install`.
+3. Run `pod install` again when a dependency bump renames a jar: CocoaPods fixes the `resource_bundles` file list at `pod install`, and `expo run:ios` skips it while `Podfile.lock` is unchanged. Then delete `ExtensionRuntime.bundle` from DerivedData's `Build/Products` (or clean the build): Xcode leaves the old jar in it, and the old version wins on the classpath (a `NoSuchMethodError` at start).
 
 ## Targets
 

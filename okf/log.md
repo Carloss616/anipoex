@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-10-22
+
+* **Cloudflare on desktop and iOS**: a challenge is solved in the app's own browser, which shows itself when the check wants a click or tap, and that site is then fetched from the solved page. Source covers load with their source's headers everywhere. Updated [extension cookies](stores/extension-cookies.md).
+
 ## 2026-10-21
 
 * **Extensions keep cookies**: sources now send back the cookies sites set, as in Mihon, so sites that verify the browser with a cookie (before, their lists and searches came back empty) or check a session token on search work; on Android a Cloudflare challenge is solved in a hidden WebView. Added [extension cookies](stores/extension-cookies.md).

@@ -11,6 +11,7 @@ static NSString *bootError;
 static JavaVM *vm;
 static jclass bridge;
 static jmethodID bridgeCall;
+static NSString *(^hostHandler)(NSString *, NSString *);
 
 static NSString *toJson(NSDictionary *object) {
   NSData *data = [NSJSONSerialization dataWithJSONObject:object options:NSJSONWritingWithoutEscapingSlashes error:nil];
@@ -66,6 +67,31 @@ static NSString *callBridge(JNIEnv *env, NSString *method, NSString *argsJson) {
   return fromJava(env, out) ?: errorEnvelope(@"Could not read the extension runtime's reply");
 }
 
+void AnipoexSetHostHandler(NSString *(^handler)(NSString *, NSString *)) { hostHandler = [handler copy]; }
+
+// IosHost.call: the runtime asking the app, answered by the Swift handler.
+static jstring JNICALL hostCall(JNIEnv *env, jclass cls, jstring method, jstring argsJson) {
+  NSString *name = fromJava(env, method);
+  NSString *args = name ? fromJava(env, argsJson) : nil;
+  NSString *(^handler)(NSString *, NSString *) = hostHandler;
+  NSString *reply = !handler ? errorEnvelope(@"The app has no host for the extension runtime")
+    : !args ? errorEnvelope(@"Could not read the runtime's request")
+    : handler(name, args);
+  return toJava(env, reply);
+}
+
+// Lets the runtime ask the app through IosHost; a runtime without it still runs, minus what it would ask.
+static NSString *installHost(JNIEnv *env) {
+  jclass host = (*env)->FindClass(env, "anipoex/server/IosHost");
+  if (!host) return takeException(env) ?: @"anipoex/server/IosHost not found";
+  JNINativeMethod natives[] = {{"call", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", (void *)hostCall}};
+  if ((*env)->RegisterNatives(env, host, natives, 1) != JNI_OK) return takeException(env) ?: @"Could not register IosHost.call";
+  jmethodID install = (*env)->GetStaticMethodID(env, host, "install", "()V");
+  if (!install) return takeException(env) ?: @"IosHost.install not found";
+  (*env)->CallStaticVoidMethod(env, host, install);
+  return takeException(env);
+}
+
 // Finds Bridge and runs init on the thread that created the VM; returns the failure, or nil.
 static NSString *startBridge(JNIEnv *env, NSURL *dataURL) {
   jclass local = (*env)->FindClass(env, "anipoex/server/Bridge");
@@ -77,7 +103,10 @@ static NSString *startBridge(JNIEnv *env, NSURL *dataURL) {
   NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:[envelope dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
   if (![parsed isKindOfClass:NSDictionary.class]) return [@"init returned " stringByAppendingString:envelope];
   id error = parsed[@"error"];
-  return error ? [NSString stringWithFormat:@"%@", error] : nil;
+  if (error) return [NSString stringWithFormat:@"%@", error];
+  NSString *hostError = installHost(env);
+  if (hostError) NSLog(@"Extension runtime without a host: %@", hostError);
+  return nil;
 }
 
 // dlopen + JNI_CreateJavaVM + Bridge + init; returns the failure, or nil.

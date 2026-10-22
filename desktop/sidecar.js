@@ -3,8 +3,11 @@ import { closeSync, mkdirSync, openSync } from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 
-/** Runs the JVM extension server on demand, one JSON line per request and reply: `call` resolves to `{id, result}`, `{id, error}`, or `{error}` when the process stops (the next call starts a new one). */
-export function startSidecar({ java, args, logFile }) {
+/**
+ * Runs the JVM extension server on demand, one JSON line per request and reply: `call` resolves to `{id, result}`, `{id, error}`, or `{error}` when the process stops (the next call starts a new one).
+ * The server can ask back with a `{host, id, args}` line: `host[method](args)` answers it as `{hostReply: id, result}` or `{hostReply: id, error}`.
+ */
+export function startSidecar({ java, args, logFile, host = {} }) {
   let server = null;
   let nextId = 0;
   // The log starts empty with the app; restarts append, so a crash's stderr survives the relaunch.
@@ -39,10 +42,26 @@ export function startSidecar({ java, args, logFile }) {
       } catch {
         return;
       }
+      if (typeof reply?.host === "string") {
+        answerHost(child, reply);
+        return;
+      }
       pending.get(reply?.id)?.(reply);
       pending.delete(reply?.id);
     });
     return current;
+  };
+
+  const answerHost = async (child, { host: method, id, args }) => {
+    let answer;
+    try {
+      const handler = Object.hasOwn(host, method) ? host[method] : undefined;
+      if (!handler) throw new Error(`Unknown host method ${method}`);
+      answer = { hostReply: id, result: await handler(args) };
+    } catch (error) {
+      answer = { hostReply: id, error: error?.message ?? String(error) };
+    }
+    child.stdin.write(`${JSON.stringify(answer)}\n`);
   };
 
   return {

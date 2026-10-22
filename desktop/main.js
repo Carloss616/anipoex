@@ -11,6 +11,7 @@ import {
   shell,
 } from "electron";
 import { authRedirect } from "./auth.js";
+import { fetchThrough, solveChallenge } from "./challenge.js";
 import { coverHeaders } from "./covers.js";
 import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
 import { resolveAsset } from "./serve.js";
@@ -110,6 +111,8 @@ app.whenReady().then(() => {
       extensions,
     ],
     logFile: path.join(extensions, "server.log"),
+    // The runtime has no browser: a Cloudflare challenge is solved in one of ours, and that site is fetched through it.
+    host: { solveChallenge, fetch: fetchThrough },
   });
   app.on("will-quit", () => sidecar.stop());
 
