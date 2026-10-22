@@ -29,6 +29,8 @@ export interface MangaCardProps {
   titlePosition?: TitlePosition;
   /** Share read, 0–1; draws a bar under the label. Omit when the total is unknown. */
   progress?: number;
+  /** Chapters left to read, as a badge in the cover's top-right corner, colored like a source's count in the source sheet: green above 0, neutral at 0 (up to date). Omit when there's nothing to count. */
+  unread?: number;
   style?: StyleProp<ViewStyle>;
   className?: string;
   /** Spoken name for the card — `title` is a node, so it can't be read off it. */
@@ -49,6 +51,7 @@ export function MangaCard({
   label,
   titlePosition = "over",
   progress,
+  unread,
   style,
   className,
   accessibilityLabel,
@@ -83,12 +86,28 @@ export function MangaCard({
   // An icon, not a word: it has to fit a narrow cover. The list only tags the
   // exceptions (see `ListItem`), and the card's spoken label names the status.
   const corner = cornerBadge(status, mark);
-  const badge = corner && (
-    <Badge
-      color={corner.color}
-      icon={corner.icon}
-      className="absolute top-2 left-2"
-    />
+  const badge = (
+    <>
+      {corner && (
+        <Badge
+          color={corner.color}
+          icon={corner.icon}
+          className="absolute top-2 left-2"
+        />
+      )}
+      {unread != null && (
+        <Badge
+          color={unread > 0 ? "success" : "secondary"}
+          // Secondary is see-through, made for rows: over a cover it needs a solid fill.
+          className={cn(
+            "absolute top-2 right-2",
+            unread === 0 && "bg-surface-secondary",
+          )}
+        >
+          {String(unread)}
+        </Badge>
+      )}
+    </>
   );
 
   if (titlePosition === "below") {

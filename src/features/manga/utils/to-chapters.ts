@@ -409,3 +409,14 @@ export function toChapters(
 export function isRead(progress: number, number: number): boolean {
   return number >= 0 && progress > 0 && number <= progress;
 }
+
+/** Chapter numbers past the progress, each once (a chapter can come from two scanlators); unnumbered rows can't be told apart, so they don't count. */
+export function unreadCount(
+  chapters: Pick<Chapter, "number">[],
+  progress: number,
+): number {
+  const unread = new Set<number>();
+  for (const { number } of chapters)
+    if (number >= 0 && !isRead(progress, number)) unread.add(number);
+  return unread.size;
+}

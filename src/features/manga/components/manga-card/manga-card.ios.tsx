@@ -17,6 +17,7 @@ import {
   onTapGesture,
   padding,
   shadow,
+  shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { StyleSheet, View } from "react-native";
 import { Image } from "@/components/native/swift-ui/image";
@@ -49,6 +50,7 @@ export function MangaCard({
   label,
   titlePosition = "over",
   progress,
+  unread,
   style,
   accessibilityLabel: a11yLabel,
   testID,
@@ -57,7 +59,7 @@ export function MangaCard({
 }: MangaCardProps) {
   const card = useThemeColor("card");
   const corner = cornerBadge(status, mark);
-  const overlay = useThemeColor("overlay");
+  const [overlay, solid] = useThemeColor(["overlay", "surface-secondary"]);
   const isInsideHost = useIsInsideHost();
   const coverUrl = typeof cover === "string" ? cover : cover?.uri;
 
@@ -123,6 +125,29 @@ export function MangaCard({
           ]}
         >
           <Badge color={corner.color} icon={corner.icon} />
+        </HStack>
+      )}
+      {unread != null && (
+        <HStack
+          modifiers={[
+            padding({ all: 8 }),
+            frame({
+              maxWidth: Infinity,
+              maxHeight: Infinity,
+              alignment: "topTrailing",
+            }),
+          ]}
+        >
+          {/* Secondary is see-through, made for rows: over a cover it needs a solid fill behind. */}
+          <HStack
+            modifiers={
+              unread === 0 ? [background(solid, shapes.capsule())] : undefined
+            }
+          >
+            <Badge color={unread > 0 ? "success" : "secondary"}>
+              {String(unread)}
+            </Badge>
+          </HStack>
         </HStack>
       )}
       <VStack

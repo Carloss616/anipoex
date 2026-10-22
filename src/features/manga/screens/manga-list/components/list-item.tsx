@@ -4,12 +4,13 @@ import { memo } from "react";
 import { MangaCard } from "@/features/manga/components/manga-card";
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
+import { useUnreadCount } from "@/features/manga/hooks/use-unread-count";
 import type { TitlePosition } from "@/features/manga/utils/list-view";
 import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaStatus } from "@/graphql/types.generated";
 
-/** Progress from the cache, so it updates without a refetch: shown, and spoken. */
+/** Progress from the cache, so it updates without a refetch: shown, spoken, and the chapters left in the chosen source. */
 function useProgress({
   id,
   __typename,
@@ -19,7 +20,11 @@ function useProgress({
     fragmentName: "MangaMedia",
     from: { __typename, id },
   });
-  return toProgress(data.mediaListEntry?.progress, data.chapters);
+  const read = data.mediaListEntry?.progress ?? 0;
+  return {
+    ...toProgress(read, data.chapters),
+    unread: useUnreadCount(id, read),
+  };
 }
 
 /**
@@ -50,12 +55,16 @@ export const ListItem = memo(function ListItem({
       title={title}
       label={progress.label}
       progress={progress.fraction}
+      unread={progress.unread}
       titlePosition={titlePosition}
       // The badge is a letter and the label a fraction: say both in words.
       accessibilityLabel={[
         title,
         item.status && PUBLICATION_STATUSES[item.status],
         progress.spoken,
+        progress.unread === 0
+          ? "up to date"
+          : progress.unread && `${progress.unread} unread`,
       ]
         .filter(Boolean)
         .join(", ")}

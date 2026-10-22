@@ -44,6 +44,7 @@ export function MangaCard({
   label,
   titlePosition = "over",
   progress,
+  unread,
   style,
   accessibilityLabel,
   testID,
@@ -94,6 +95,13 @@ export function MangaCard({
       {corner && (
         <Box modifiers={[align("topStart"), padding(8, 8, 8, 8)]}>
           <Badge color={corner.color} icon={corner.icon} />
+        </Box>
+      )}
+      {unread != null && (
+        <Box modifiers={[align("topEnd"), padding(8, 8, 8, 8)]}>
+          <Badge color={unread > 0 ? "success" : "secondary"}>
+            {String(unread)}
+          </Badge>
         </Box>
       )}
       {titlePosition === "over" && (title || label) && (

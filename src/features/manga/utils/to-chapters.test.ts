@@ -6,6 +6,7 @@ import {
   parseChapterNumbers,
   toChapters,
   toDouble,
+  unreadCount,
 } from "./to-chapters";
 
 const chapter = (overrides: Partial<SourceChapter>): SourceChapter => ({
@@ -676,5 +677,26 @@ describe("isRead", () => {
   it("reads nothing at progress 0 but chapter 0 once started", () => {
     expect(isRead(0, 0)).toBe(false);
     expect(isRead(1, 0)).toBe(true);
+  });
+});
+
+describe("unreadCount", () => {
+  const numbered = (...numbers: number[]) =>
+    numbers.map((number) => ({ number }));
+
+  it("counts the chapters after the progress", () => {
+    expect(unreadCount(numbered(10, 11, 12, 13), 11)).toBe(2);
+  });
+
+  it("counts a chapter uploaded twice once", () => {
+    expect(unreadCount(numbered(12, 12, 13), 11)).toBe(2);
+  });
+
+  it("leaves out chapters without a number", () => {
+    expect(unreadCount(numbered(-1, 12), 11)).toBe(1);
+  });
+
+  it("counts every numbered chapter before reading starts", () => {
+    expect(unreadCount(numbered(0, 1, 2), 0)).toBe(3);
   });
 });

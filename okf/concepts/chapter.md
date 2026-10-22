@@ -38,6 +38,13 @@ failed refresh keeps the rows and says so); an excluded source loses its list.
 - **Read**: a row whose number is at or below the [list entry](list-entry.md)'s
   progress (AniList progress counts the last chapter read) is dimmed; with progress 0
   nothing is read.
+- **Unread count**: in the manga list, a card shows how many chapters are left, as a badge
+  in the cover's top-right corner, only when the manga has a chosen source whose
+  [stored list](../stores/source-chapters.md) is for its matched page. It counts the
+  distinct numbers of the rows not read (a chapter two scanlators uploaded counts once);
+  rows without a number don't count. 0 shows a neutral badge (up to date); no badge means
+  the manga has no chosen source (or no list yet). It follows the stored list, so
+  a scan or a refresh updates it; the list itself never asks the source.
 - **Total**: the manga's `chapters` count; when AniList has none, the number of rows listed.
 - **Empty states**: no source picked asks to pick one; a manga the source doesn't have
   says so ("No match"); a failed load shows the error (a source that doesn't answer in
