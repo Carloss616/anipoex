@@ -149,7 +149,7 @@ class ExtensionHostTest {
         val extension = host.installed().single()
         assertEquals("1.4.0", extension["version"])
         assertEquals(ICON, extension["icon"])
-        assertEquals(listOf(mapOf("id" to "1", "name" to "Seeded", "lang" to "en", "homeUrl" to null)), extension["sources"])
+        assertEquals(listOf(mapOf("id" to "1", "name" to "Seeded", "lang" to "en", "homeUrl" to null, "headers" to emptyMap<String, String>())), extension["sources"])
         val mangas = runBlocking { host.popular("1", 1) }["mangas"] as List<*>
         assertEquals("Seeded manga", (mangas.single() as Map<*, *>)["title"])
         assertTrue(File(exts, "$PKG.jar").exists())

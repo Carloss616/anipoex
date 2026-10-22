@@ -11,6 +11,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import com.bumptech.glide.Glide
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
+import com.bumptech.glide.load.model.GlideUrl
 import dalvik.system.DelegateLastClassLoader
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.network.GET
@@ -38,6 +41,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.addSingleton
 import uy.kohesive.injekt.api.get
 import java.io.File
+import java.io.InputStream
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 
@@ -64,7 +68,11 @@ class ExtensionRuntimeModule : Module() {
     // What extensions pull from Injekt: extensions read these four.
     OnCreate {
       Injekt.addSingleton<Application>(app)
-      Injekt.addSingleton(NetworkHelper(app))
+      val network = NetworkHelper(app)
+      Injekt.addSingleton(network)
+      // Covers (modules/native-image) load through the runtime's client, as Mihon's do: DNS over HTTPS, cookies, Cloudflare.
+      // expo-image's own views use their own model and loader, so they keep theirs.
+      Glide.get(app).registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(network.client))
       Injekt.addSingleton<Json>(Json { ignoreUnknownKeys = true; explicitNulls = false })
       Injekt.addSingleton<ProtoBuf>(ProtoBuf)
     }
@@ -287,7 +295,9 @@ class ExtensionRuntimeModule : Module() {
       "sources" to loaded.map {
         // Some extensions throw here (an unset baseUrl); no website then.
         val homeUrl = runCatching { (it as? HttpSource)?.getHomeUrl() }.getOrNull()
-        mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang, "homeUrl" to homeUrl)
+        // Covers load with them, as in Mihon: some image hosts refuse a request without the site's Referer.
+        val headers = runCatching { (it as? HttpSource)?.headers?.toMap() }.getOrNull().orEmpty()
+        mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang, "homeUrl" to homeUrl, "headers" to headers)
       },
     )
     extensions[info.packageName] = extension

@@ -99,7 +99,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
       >
         {items.map((item, i) => [
           <Menu key={item.manga.url} items={menu(item)}>
-            <RailCard item={item} />
+            <RailCard item={item} headers={source.headers} />
           </Menu>,
           item.current && i === 0 && items.length > 1 && (
             <VerticalDivider key="divider" modifiers={[height(COVER.height)]} />

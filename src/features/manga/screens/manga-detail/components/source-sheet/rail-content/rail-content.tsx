@@ -59,7 +59,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
               <Menu items={menu(item)}>
-                <RailCard item={item} />
+                <RailCard item={item} headers={source.headers} />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (
                 <View

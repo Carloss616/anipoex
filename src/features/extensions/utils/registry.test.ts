@@ -35,7 +35,7 @@ const inst = (over: Partial<InstalledExtension> = {}): InstalledExtension => ({
   version: "1.6.0",
   lib: 14,
   signingKey: "a-key",
-  sources: [{ id: "1", name: "Foo", lang: "en", homeUrl: null }],
+  sources: [{ id: "1", name: "Foo", lang: "en", homeUrl: null, headers: {} }],
   icon: null,
   ...over,
 });
@@ -154,7 +154,13 @@ describe("toExtensions", () => {
     const listed = [{ repo: REPO_A, entries: [indexed] }];
     const local = inst({
       sources: [
-        { id: "1", name: "Foo", lang: "en", homeUrl: "https://local.test" },
+        {
+          id: "1",
+          name: "Foo",
+          lang: "en",
+          homeUrl: "https://local.test",
+          headers: {},
+        },
       ],
     });
     expect(toExtensions(listed, [])[0].websiteUrl).toBe("https://index.test");
@@ -170,7 +176,15 @@ describe("toExtensions", () => {
 
   it("ignores an installed website that isn't http(s)", () => {
     const local = inst({
-      sources: [{ id: "1", name: "Foo", lang: "en", homeUrl: "intent://x" }],
+      sources: [
+        {
+          id: "1",
+          name: "Foo",
+          lang: "en",
+          homeUrl: "intent://x",
+          headers: {},
+        },
+      ],
     });
     expect(toExtensions([], [local])[0].websiteUrl).toBeUndefined();
   });
@@ -178,7 +192,13 @@ describe("toExtensions", () => {
   it("keeps an installed extension that no index lists", () => {
     const [e] = toExtensions(
       [],
-      [inst({ sources: [{ id: "1", name: "F", lang: "ko", homeUrl: null }] })],
+      [
+        inst({
+          sources: [
+            { id: "1", name: "F", lang: "ko", homeUrl: null, headers: {} },
+          ],
+        }),
+      ],
     );
     expect(e).toMatchObject({
       id: inst().pkg,

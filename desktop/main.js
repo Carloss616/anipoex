@@ -1,8 +1,17 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { app, BrowserWindow, ipcMain, net, protocol, shell } from "electron";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  net,
+  protocol,
+  session,
+  shell,
+} from "electron";
 import { authRedirect } from "./auth.js";
+import { coverHeaders } from "./covers.js";
 import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
 import { resolveAsset } from "./serve.js";
 import { startSidecar } from "./sidecar.js";
@@ -104,6 +113,19 @@ app.whenReady().then(() => {
   });
   app.on("will-quit", () => sidecar.stop());
 
+  // Covers send their source's headers, added to the <img> request: the renderer picks no URL for us to fetch.
+  const covers = coverHeaders();
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    { urls: ["http://*/*", "https://*/*"] },
+    ({ resourceType, url, requestHeaders }, callback) =>
+      callback({
+        requestHeaders:
+          resourceType === "image"
+            ? covers.apply(url, requestHeaders)
+            : requestHeaders,
+      }),
+  );
+
   // Only what `pages` returned is served, never a URL the renderer picks.
   const pages = pageStore();
   protocol.handle(PAGE_SCHEME, (request) =>
@@ -114,6 +136,8 @@ app.whenReady().then(() => {
     if (originOf(event.senderFrame?.url) !== APP_ORIGIN || !METHODS.has(method))
       return { error: "Not allowed" };
     const reply = await sidecar.call(method, args ?? {});
+    if (method === "installed") covers.learnSources(reply?.result);
+    if (method === "search") covers.learnCovers(args?.sourceId, reply?.result);
     return method === "pages" && reply?.result
       ? { result: pages.rewrite(reply.result) }
       : reply;

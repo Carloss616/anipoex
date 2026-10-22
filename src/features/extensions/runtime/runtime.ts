@@ -6,6 +6,8 @@ export interface InstalledSource {
   lang: string;
   /** The source's website, `HttpSource.getHomeUrl()`; null when it has none. */
   homeUrl: string | null;
+  /** `HttpSource.headers`: what its covers are requested with, as Mihon does (a Referer some image hosts require). */
+  headers: Record<string, string>;
 }
 
 export interface InstalledExtension {

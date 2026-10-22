@@ -12,7 +12,13 @@ const ext = (
   lib: 1,
   signingKey: "k",
   icon: null,
-  sources: sources.map(([id, lang]) => ({ id, name, lang, homeUrl: null })),
+  sources: sources.map(([id, lang]) => ({
+    id,
+    name,
+    lang,
+    homeUrl: null,
+    headers: {},
+  })),
 });
 
 describe("toSources", () => {
@@ -30,6 +36,7 @@ describe("toSources", () => {
         baseName: "Example",
         lang: "en",
         initials: "EX",
+        headers: {},
       },
       {
         id: "2",
@@ -37,6 +44,7 @@ describe("toSources", () => {
         baseName: "Example",
         lang: "es-419",
         initials: "EX",
+        headers: {},
       },
       {
         id: "3",
@@ -44,6 +52,7 @@ describe("toSources", () => {
         baseName: "Example",
         lang: "ja",
         initials: "EX",
+        headers: {},
       },
     ]);
   });
@@ -57,6 +66,7 @@ describe("toSources", () => {
         baseName: "Single",
         lang: "es",
         initials: "SI",
+        headers: {},
       },
     ]);
   });

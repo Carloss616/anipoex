@@ -130,7 +130,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                   multilineTextAlignment("leading"),
                 ]}
               >
-                <RailCard item={item} />
+                <RailCard item={item} headers={source.headers} />
               </VStack>
             </Menu>,
             item.current && i === 0 && items.length > 1 && (

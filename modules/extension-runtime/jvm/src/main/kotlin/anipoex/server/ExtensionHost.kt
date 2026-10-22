@@ -225,7 +225,9 @@ class ExtensionHost(dataDir: File) {
             "sources" to loaded.map {
                 // Some extensions throw here (an unset baseUrl); no website then.
                 val homeUrl = runCatching { (it as? HttpSource)?.getHomeUrl() }.getOrNull()
-                mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang, "homeUrl" to homeUrl)
+                // Covers load with them, as in Mihon: some image hosts refuse a request without the site's Referer.
+                val headers = runCatching { (it as? HttpSource)?.headers?.toMap() }.getOrNull().orEmpty()
+                mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang, "homeUrl" to homeUrl, "headers" to headers)
             },
         )
         extensions[pkg] = extension

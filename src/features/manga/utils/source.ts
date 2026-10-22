@@ -12,6 +12,8 @@ export interface Source {
   lang?: string;
   /** `name` without the language it carries when an extension has several, for where the language shows apart. */
   baseName?: string;
+  /** Headers its covers are requested with, for an installed source. */
+  headers?: Record<string, string>;
 }
 
 /** Two letters for the tile: the first two words' initials, else the first two capitals, else the first two letters. */
