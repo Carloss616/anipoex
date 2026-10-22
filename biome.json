@@ -157,6 +157,11 @@
                 "message": "Use Badge from @/components/ui/badge"
               },
               {
+                "group": ["@expo/ui/jetpack-compose"],
+                "importNamePattern": "Image",
+                "message": "Use Image from @/components/native/jetpack-compose/image: @expo/ui's decodes at full size and an oversized image crashes the app"
+              },
+              {
                 "group": ["@expo/ui/swift-ui", "@expo/ui/jetpack-compose"],
                 "importNamePattern": "AnimatedVisibility",
                 "message": "Use AnimatedVisibility from @/components/ui/animated-visibility"

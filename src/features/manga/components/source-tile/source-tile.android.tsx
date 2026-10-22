@@ -1,4 +1,4 @@
-import { Box, Image } from "@expo/ui/jetpack-compose";
+import { Box } from "@expo/ui/jetpack-compose";
 import {
   background,
   clip,
@@ -9,6 +9,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useState } from "react";
 import { useCSSVariable } from "uniwind";
+import { Image } from "@/components/native/jetpack-compose/image";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
@@ -49,8 +50,6 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
       {iconUrl && (
         <Image
           source={{ uri: iconUrl }}
-          contentScale="crop"
-          contentDescription={null}
           onLoad={() => setLoadedUrl(iconUrl)}
           modifiers={[matchParentSize()]}
         />

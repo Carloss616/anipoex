@@ -62,7 +62,8 @@ export function MangaCard({
   const corner = cornerBadge(status, mark);
   const [overlay, solid] = useThemeColor(["overlay", "surface-secondary"]);
   const isInsideHost = useIsInsideHost();
-  const coverUrl = typeof cover === "string" ? cover : cover?.uri;
+  // With its headers: a source's image host can refuse a request without its Referer.
+  const coverSource = typeof cover === "string" ? { uri: cover } : cover;
 
   const flat = StyleSheet.flatten(style) ?? {};
   const width = typeof flat.width === "number" ? flat.width : undefined;
@@ -91,7 +92,7 @@ export function MangaCard({
         ...(onLongPress ? [onLongPressGesture(onLongPress)] : []),
       ]}
     >
-      {coverUrl ? (
+      {coverSource?.uri ? (
         // The thumb shows through until the cover fades in over it.
         <ZStack
           modifiers={[
@@ -99,8 +100,8 @@ export function MangaCard({
             clipShape("roundedRectangle", COVER_RADIUS),
           ]}
         >
-          {coverThumb && <Image url={coverThumb} />}
-          <Image url={coverUrl} />
+          {coverThumb && <Image source={{ uri: coverThumb }} />}
+          <Image source={coverSource} />
         </ZStack>
       ) : (
         <Icon

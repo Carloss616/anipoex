@@ -54,7 +54,7 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
       )}
       {iconUrl && (
         <Image
-          url={iconUrl}
+          source={{ uri: iconUrl }}
           modifiers={[frame({ width: SIDE, height: SIDE })]}
           onLoad={() => setLoadedUrl(iconUrl)}
         />

@@ -1,6 +1,9 @@
 {
-  "platforms": ["apple"],
+  "platforms": ["apple", "android"],
   "apple": {
     "modules": ["NativeImageModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.nativeimage.NativeImageModule"]
   }
 }
