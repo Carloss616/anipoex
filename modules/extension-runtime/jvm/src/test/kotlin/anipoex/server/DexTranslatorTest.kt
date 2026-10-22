@@ -54,6 +54,45 @@ class DexTranslatorTest {
         assertEquals(child, child.getConstructor(Int::class.java).newInstance(3).javaClass)
     }
 
+    // `Base.make()` builds a Sub with Base's own constructor, then sets a field only Sub has: the call's owner is the class
+    // whose code it's in, which must still be repaired (only a constructor's `this(...)` is left as is).
+    @Test
+    fun subclassBuiltInsideItsParent(@TempDir dir: Path) {
+        val baseInit = Method("Lfx/Base;", "<init>", emptyArray(), "V")
+        val n = Field("Lfx/Sub;", "n", "I")
+        val dex = DexFileNode().apply {
+            clzs.add(DexClassNode(ACC_PUBLIC, "Lfx/Base;", OBJECT, null).apply {
+                methods = mutableListOf(
+                    DexMethodNode(ACC_PUBLIC or ACC_CONSTRUCTOR, baseInit).apply {
+                        codeNode = DexCodeNode().apply {
+                            visitRegister(1)
+                            visitMethodStmt(Op.INVOKE_DIRECT, intArrayOf(0), OBJECT_INIT)
+                            visitStmt0R(Op.RETURN_VOID)
+                        }
+                    },
+                    DexMethodNode(ACC_PUBLIC or ACC_STATIC, Method("Lfx/Base;", "make", emptyArray(), "Lfx/Base;")).apply {
+                        codeNode = DexCodeNode().apply {
+                            visitRegister(2)
+                            visitTypeStmt(Op.NEW_INSTANCE, 0, 0, "Lfx/Sub;")
+                            visitMethodStmt(Op.INVOKE_DIRECT, intArrayOf(0), baseInit)
+                            visitConstStmt(Op.CONST_4, 1, -1)
+                            visitFieldStmt(Op.IPUT, 1, 0, n)
+                            visitStmt1R(Op.RETURN_OBJECT, 0)
+                        }
+                    },
+                )
+            })
+            clzs.add(DexClassNode(ACC_PUBLIC, "Lfx/Sub;", "Lfx/Base;", null).apply {
+                fields = mutableListOf(DexFieldNode(ACC_PUBLIC, n, null))
+            })
+        }
+        fixInlinedConstructors(dex)
+        val loader = load(dex, dir)
+        val made = Class.forName("fx.Base", true, loader).getMethod("make").invoke(null)
+        assertEquals(Class.forName("fx.Sub", false, loader), made.javaClass)
+        assertEquals(-1, made.javaClass.getField("n").get(made))
+    }
+
     // Documents why the repair exists: dex2jar alone turns `new Holder` into `new Object`.
     @Test
     fun withoutRepairFails(@TempDir dir: Path) {

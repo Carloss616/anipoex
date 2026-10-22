@@ -109,8 +109,11 @@ internal fun fixInlinedConstructors(dex: DexFileNode) {
                 if (stmt is TypeStmtNode && stmt.op == Op.NEW_INSTANCE) created[stmt.a] = stmt.type
                 if (stmt !is MethodStmtNode || stmt.method.name != "<init>" || stmt.args.isEmpty()) return@forEachIndexed
                 val receiver = stmt.args[0]
-                val owner = created.remove(receiver) ?: if (receiver == self) cls.superClass else null
-                if (owner == null || owner == stmt.method.owner || stmt.method.owner == cls.className) return@forEachIndexed
+                val createdType = created.remove(receiver)
+                val owner = createdType ?: if (receiver == self) cls.superClass else null
+                if (owner == null || owner == stmt.method.owner) return@forEachIndexed
+                // A constructor's `this(...)` stays; a subclass built inside its parent with the parent's constructor doesn't.
+                if (createdType == null && stmt.method.owner == cls.className) return@forEachIndexed
                 val target = constructorOn(owner, stmt.method) ?: return@forEachIndexed
                 code.stmts[index] = MethodStmtNode(stmt.op, stmt.args, target)
             }
