@@ -145,6 +145,12 @@
       "skillPath": "skills/panelui/SKILL.md",
       "computedHash": "366548c677bba2e9bf6e8635e96439ffa21271be8067371ad6859787fef25657"
     },
+    "react-native-best-practices": {
+      "source": "software-mansion-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-native-best-practices/SKILL.md",
+      "computedHash": "0bb7d3af521e5a3f75b54b8768db6bb24861c9062823585c1daa580e471d1a81"
+    },
     "uniwind": {
       "source": "uni-stack/uniwind",
       "sourceType": "github",
