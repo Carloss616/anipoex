@@ -14,7 +14,6 @@ import {
 } from "react-native";
 import {
   GestureDetector,
-  GestureHandlerRootView,
   ScrollView as GestureScrollView,
   useCompetingGestures,
   usePanGesture,
@@ -81,7 +80,6 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
   const scale = useSharedValue(1);
   const translateX = useSharedValue(0);
   const anchor = useSharedValue<PinchAnchor>({ scale: 1, x: 0, y: 0 });
-  const panStart = useSharedValue(0);
   const fingers = useSharedValue(0);
   const trackpadFocal = useRef({ x: 0, y: 0 });
   const [bottomSpace, setBottomSpace] = useState(0);
@@ -150,25 +148,20 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
 
   const pinch = usePinchGesture({
     onTouchesDown: (event) => {
-      "worklet";
       fingers.set(event.numberOfTouches);
     },
     onTouchesUp: (event) => {
-      "worklet";
       fingers.set(event.numberOfTouches);
     },
     onActivate: (event) => {
-      "worklet";
       start(event.focalX, event.focalY);
     },
     onUpdate: (event) => {
-      "worklet";
       // Android sends one more update as a finger lifts, its focal point on the finger left.
       if (fingers.get() < 2) return;
       update(event.scale, event.focalX, event.focalY);
     },
     onDeactivate: () => {
-      "worklet";
       end();
     },
   });
@@ -178,18 +171,14 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
     enabled: bottomSpace > 0,
     // Sideways only: a vertical drag stays the list's own scroll.
     activeOffsetX: [-10, 10],
-    failOffsetY: [-10, 10],
+    failOffsetY: [-5, 5],
     onActivate: () => {
-      "worklet";
       cancelAnimation(translateX);
-      panStart.set(translateX.get());
     },
     onUpdate: (event) => {
-      "worklet";
-      translateX.set(clamp(panStart.get() + event.translationX, minX(), 0));
+      translateX.set(clamp(translateX.get() + event.changeX, minX(), 0));
     },
     onDeactivate: (event) => {
-      "worklet";
       translateX.set(
         withDecay({ velocity: event.velocityX, clamp: [minX(), 0] }),
       );
@@ -223,34 +212,32 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
   }));
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <GestureDetector gesture={gesture}>
-        <View
-          ref={node}
-          style={{ flex: 1, overflow: "hidden" }}
-          onLayout={({ nativeEvent }) => {
-            size.set(nativeEvent.layout);
-            // A narrower view (a rotation, a resized window) keeps the zoom over the screen.
-            translateX.set(
-              clamp(
-                translateX.get(),
-                (1 - scale.get()) * nativeEvent.layout.width,
-                0,
-              ),
-            );
-          }}
+    <GestureDetector gesture={gesture}>
+      <View
+        ref={node}
+        style={{ flex: 1, overflow: "hidden" }}
+        onLayout={({ nativeEvent }) => {
+          size.set(nativeEvent.layout);
+          // A narrower view (a rotation, a resized window) keeps the zoom over the screen.
+          translateX.set(
+            clamp(
+              translateX.get(),
+              (1 - scale.get()) * nativeEvent.layout.width,
+              0,
+            ),
+          );
+        }}
+      >
+        <Animated.View
+          style={[{ flex: 1, transformOrigin: "left top" }, zoomStyle]}
         >
-          <Animated.View
-            style={[{ flex: 1, transformOrigin: "left top" }, zoomStyle]}
-          >
-            {children({
-              refScrollView: scrollRef,
-              renderScrollComponent,
-              bottomSpace,
-            })}
-          </Animated.View>
-        </View>
-      </GestureDetector>
-    </GestureHandlerRootView>
+          {children({
+            refScrollView: scrollRef,
+            renderScrollComponent,
+            bottomSpace,
+          })}
+        </Animated.View>
+      </View>
+    </GestureDetector>
   );
 }
