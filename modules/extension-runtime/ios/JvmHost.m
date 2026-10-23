@@ -99,7 +99,9 @@ static NSString *startBridge(JNIEnv *env, NSURL *dataURL) {
   bridge = (*env)->NewGlobalRef(env, local);
   bridgeCall = (*env)->GetStaticMethodID(env, bridge, "call", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
   if (!bridgeCall) return takeException(env) ?: @"Bridge.call not found";
-  NSString *envelope = callBridge(env, @"init", toJson(@{@"dataDir": dataURL.path}));
+  // The runtime's stderr (extensions' and their WebViews' logs) in a file, as the desktop app keeps its sidecar's.
+  NSString *logFile = [dataURL URLByAppendingPathComponent:@"server.log"].path;
+  NSString *envelope = callBridge(env, @"init", toJson(@{@"dataDir": dataURL.path, @"logFile": logFile}));
   NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:[envelope dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
   if (![parsed isKindOfClass:NSDictionary.class]) return [@"init returned " stringByAppendingString:envelope];
   id error = parsed[@"error"];

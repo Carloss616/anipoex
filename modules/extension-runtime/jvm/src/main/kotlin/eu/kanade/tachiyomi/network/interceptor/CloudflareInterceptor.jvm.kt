@@ -32,7 +32,6 @@ class CloudflareInterceptor(
 
     // Requests to a host wait for one solve instead of each opening a browser.
     private val hostLocks = ConcurrentHashMap<String, Any>()
-    private val userAgents = ConcurrentHashMap<String, String>()
     private val browserHosts = ConcurrentHashMap.newKeySet<String>()
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -59,7 +58,7 @@ class CloudflareInterceptor(
                 val url = request.url.toString()
                 solution.cookies.forEach { android.webkit.CookieManager.getInstance().setCookie(url, it) }
                 if (clearance(request.url).isNullOrBlank()) throw IOException("Failed to bypass Cloudflare")
-                userAgents[request.url.host] = solution.userAgent
+                Host.browserUserAgents[request.url.host] = solution.userAgent
                 browserHosts += request.url.host
             }
         }
@@ -91,7 +90,7 @@ class CloudflareInterceptor(
     }
 
     private fun Request.withUserAgent(): Request {
-        val userAgent = userAgents[url.host] ?: return this
+        val userAgent = Host.browserUserAgent(url.host) ?: return this
         return newBuilder().header("User-Agent", userAgent).build()
     }
 

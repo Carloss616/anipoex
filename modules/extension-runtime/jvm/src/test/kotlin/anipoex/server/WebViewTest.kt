@@ -48,12 +48,13 @@ class WebViewTest {
 
     @AfterEach
     fun reset() {
+        Host.browserUserAgents.clear()
         Host.call = null
         CookieManager.getInstance().removeAllCookies(null)
     }
 
     // The app's browser, faked: wvEvents hands out the events a test queues, one per call; wvDestroy closes the page.
-    private fun browser(evaluate: (String) -> String = { "null" }) {
+    private fun browser(loadReply: (JsonObject) -> JsonElement = { JsonNull }, evaluate: (String) -> String = { "null" }) {
         Host.call = { method, args ->
             sent += method to args
             when (method) {
@@ -71,6 +72,7 @@ class WebViewTest {
                 "wvEvaluate" -> JsonPrimitive(evaluate(args.getValue("script").jsonPrimitive.content))
                 "wvRespond" -> JsonNull.also { responses += args }
                 "wvDestroy" -> JsonNull.also { events += CLOSED }
+                "wvLoad", "wvLoadData" -> loadReply(args)
                 else -> JsonNull
             }
         }
@@ -273,6 +275,22 @@ class WebViewTest {
         val deadline = System.currentTimeMillis() + 5_000
         while (cookies.getCookie("https://example.com/")?.contains("session=s") != true && System.currentTimeMillis() < deadline) Thread.sleep(20)
         assertEquals("a=1; clearance=x; session=s", cookies.getCookie("https://example.com/"))
+        view.destroy()
+    }
+
+    // iOS keeps Safari's user agent where an extension asks for Chrome's: the site's session is Safari's then, so the
+    // extension's own requests to that site and its subdomains must go out as Safari too.
+    @Test
+    fun aPageRunAsAnotherBrowserLendsItsUserAgentToTheSite() {
+        // The browser answers a load with the user agent it runs as: as asked on one site, its own on the other.
+        browser(loadReply = { args -> JsonObject(mapOf("userAgent" to JsonPrimitive(if ("www." in args.toString()) "Chrome/1" else "Safari/1"))) })
+        val view = WebView(null)
+        view.settings.userAgentString = "Chrome/1"
+        view.loadUrl("https://www.example.com/")
+        view.loadUrl("https://example.com/")
+        assertEquals(mapOf("example.com" to "Safari/1"), Host.browserUserAgents.toMap())
+        assertEquals("Safari/1", Host.browserUserAgent("api.example.com"))
+        assertNull(Host.browserUserAgent("example.org"))
         view.destroy()
     }
 

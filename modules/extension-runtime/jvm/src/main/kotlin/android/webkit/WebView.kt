@@ -64,7 +64,15 @@ open class WebView(context: Context?) : ViewGroup(context) {
         if (destroyed.get()) return
         // Android runs a `javascript:` URL in the current page, as a browser does (percent-escapes decoded).
         if (url.startsWith("javascript:", ignoreCase = true)) return evaluateJavascript(Uri.decode(url.substring(11)), null)
-        call("wvLoad", page { put("url", url); put("headers", strings(additionalHttpHeaders)) })
+        ranAs(url, call("wvLoad", page { put("url", url); put("headers", strings(additionalHttpHeaders)) }))
+    }
+
+    // The page runs as another browser than asked (iOS can't pass for Chrome): the site's session will be that
+    // browser's, so the extension's own requests to it go out as that browser too, from before the page loads.
+    private fun ranAs(url: String?, reply: JsonElement) {
+        val userAgent = (reply as? JsonObject)?.get("userAgent")?.jsonPrimitive?.contentOrNull ?: return
+        val host = url?.let { Uri.parse(it).getHost() } ?: return
+        if (userAgent != settings.userAgentString) Host.browserUserAgents[host] = userAgent
     }
 
     fun loadUrl(url: String) = loadUrl(url, emptyMap())
@@ -72,7 +80,7 @@ open class WebView(context: Context?) : ViewGroup(context) {
     @Suppress("UNUSED_PARAMETER")
     fun loadDataWithBaseURL(baseUrl: String?, data: String, mimeType: String?, encoding: String?, historyUrl: String?) {
         if (destroyed.get()) return
-        call(
+        val reply = call(
             "wvLoadData",
             page {
                 put("baseUrl", baseUrl ?: "about:blank")
@@ -81,6 +89,7 @@ open class WebView(context: Context?) : ViewGroup(context) {
                 put("encoding", encoding ?: "UTF-8")
             },
         )
+        ranAs(baseUrl, reply)
     }
 
     /** Runs off the main thread, since the browser answers when the script is done; [resultCallback] gets it on the main one. */

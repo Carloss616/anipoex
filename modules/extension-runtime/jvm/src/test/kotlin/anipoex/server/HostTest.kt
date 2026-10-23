@@ -28,6 +28,7 @@ class HostTest {
     fun reset() {
         Host.solveChallenge = null
         Host.fetch = null
+        Host.browserUserAgents.clear()
         CookieManager.getInstance().removeAllCookies(null)
     }
 

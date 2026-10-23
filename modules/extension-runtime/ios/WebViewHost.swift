@@ -15,9 +15,7 @@ final class WebViewHost {
   private var pages: [Int: WebViewPage] = [:]
   private var nextId = 0
   private var blocker: WKContentRuleList?
-  private var watcher: CookieWatcher?
-  private var reporting: Task<Void, Never>?
-  // The last report, by name, domain and path: one missing from the next was deleted (a logout, a rotated session).
+  // The last cookie report, by name, domain and path: one missing from the next was deleted.
   private var reported: [String: [String: Any]] = [:]
 
   // Android's blockNetworkImage: only network images, a data: one still shows.
@@ -44,7 +42,6 @@ final class WebViewHost {
     let id = (args["id"] as? NSNumber)?.intValue ?? -1
     switch method {
     case "wvCreate":
-      watchCookies()
       nextId += 1
       let page = WebViewPage(store: store, frame: ChallengeHost.shared.shelf.bounds)
       ChallengeHost.shared.shelf.addSubview(page.view)
@@ -56,7 +53,7 @@ final class WebViewHost {
       if page.closed { pages[id] = nil }
       return reply
     case "wvRespond":
-      // iOS can't hold a page's http(s) request: its `request` events only report it, and the answer changes nothing.
+      pages[id]?.answer((args["requestId"] as? NSNumber)?.intValue ?? -1, args["response"])
       return NSNull()
     case "wvStop":
       pages[id]?.view.stopLoading()
@@ -69,7 +66,8 @@ final class WebViewHost {
     case "wvLoad", "wvLoadData":
       guard let page = pages[id] else { throw HostError("This WebView is closed") }
       try await load(page, args, data: method == "wvLoadData")
-      return NSNull()
+      // The user agent it runs as: Safari's where the extension asked for Chrome's, which the runtime then uses for the site.
+      return ["userAgent": page.view.customUserAgent ?? ChallengeHost.userAgent]
     case "wvEvaluate":
       guard let page = pages[id] else { throw HostError("This WebView is closed") }
       return await page.evaluate(args["script"] as? String ?? "")
@@ -125,25 +123,14 @@ final class WebViewHost {
     return HTTPCookie(properties: properties)
   }
 
-  // A request after a page finished can set the cookie a source needs (its session): every live WebView reports the
-  // store's cookies when it changes, as Android's app-wide CookieManager would already hold them.
-  private func watchCookies() {
-    guard watcher == nil else { return }
-    let watcher = CookieWatcher { [weak self] in
-      guard let self else { return }
-      self.reporting?.cancel()
-      self.reporting = Task { @MainActor in
-        let cookies = await self.store.httpCookieStore.allCookies().map(Self.fields)
-        guard !Task.isCancelled else { return }
-        let now = Dictionary(cookies.map { (Self.key($0), $0) }, uniquingKeysWith: { _, last in last })
-        // Expired, so the runtime's CookieManager drops it too.
-        let deleted = self.reported.filter { now[$0.key] == nil }.values.map { $0.merging(["expiresAt": 0]) { _, zero in zero } }
-        self.reported = now
-        for page in self.pages.values { page.emit(["type": "cookies", "cookies": cookies + deleted]) }
-      }
-    }
-    store.httpCookieStore.add(watcher)
-    self.watcher = watcher
+  /// The store's cookies in the runtime's shape, plus those gone since the last report as expired, so the runtime's
+  /// CookieManager drops them too (a logout, a rotated session).
+  func cookieReport() async -> [[String: Any]] {
+    let cookies = await store.httpCookieStore.allCookies().map(Self.fields)
+    let now = Dictionary(cookies.map { (Self.key($0), $0) }, uniquingKeysWith: { _, last in last })
+    let deleted = reported.filter { now[$0.key] == nil }.values.map { $0.merging(["expiresAt": 0]) { _, zero in zero } }
+    reported = now
+    return cookies + deleted
   }
 
   /// What the store holds for `url`, in the runtime's cookie shape.
@@ -161,7 +148,7 @@ final class WebViewHost {
     "\(fields["name"] ?? "")|\(fields["domain"] ?? "")|\(fields["path"] ?? "")"
   }
 
-  static func fields(_ cookie: HTTPCookie) -> [String: Any] {
+  private static func fields(_ cookie: HTTPCookie) -> [String: Any] {
     [
       "name": cookie.name,
       "value": cookie.value,
@@ -172,19 +159,6 @@ final class WebViewHost {
       "httpOnly": cookie.isHTTPOnly,
       "hostOnly": !cookie.domain.hasPrefix("."),
     ]
-  }
-}
-
-/// Calls back when the cookie store changes; WebKit's observer has to be an NSObject.
-private final class CookieWatcher: NSObject, WKHTTPCookieStoreObserver {
-  private let changed: @MainActor () -> Void
-
-  init(_ changed: @escaping @MainActor () -> Void) {
-    self.changed = changed
-  }
-
-  func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
-    Task { @MainActor in changed() }
   }
 }
 
@@ -201,7 +175,9 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
   private var javaScriptEnabled = true
 
   private var nextRequest = 0
-  private var bridgeCalls: Task<Void, Never>?
+  private var queued: Task<Void, Never>?
+  // The page's fetch and XHR calls waiting for the runtime's answer, by request id: the frame and the script's own id.
+  private var holding: [Int: (frame: WKFrameInfo, id: Int)] = [:]
 
   init(store: WKWebsiteDataStore, frame: CGRect) {
     let configuration = WKWebViewConfiguration()
@@ -351,25 +327,39 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
       ])
     } else if message.name == Self.requestHandler {
       guard let url = body["url"] as? String else { return }
-      report(url, method: body["method"] as? String ?? "GET", headers: body["headers"] as? [String: String] ?? [:], mainFrame: false)
+      let held = (body["id"] as? NSNumber).map { (frame: message.frameInfo, id: $0.intValue) }
+      report(url, method: body["method"] as? String ?? "GET", headers: body["headers"] as? [String: String] ?? [:], mainFrame: false, held: held)
     } else if let name = body["name"] as? String, let method = body["method"] as? String {
-      // The store's cookies go first: WebKit tells about new ones after the page's message that follows them (a page
-      // posting "passed" once its session is set), and the extension's next request needs them. Chained, in order.
-      let store = message.webView?.configuration.websiteDataStore.httpCookieStore
-      let previous = bridgeCalls
-      bridgeCalls = Task { @MainActor in
-        await previous?.value
-        if let store { emit(["type": "cookies", "cookies": await store.allCookies().map(WebViewHost.fields)]) }
-        emit(["type": "js", "name": name, "method": method, "args": body["args"] as? [String] ?? []])
-      }
+      withCookies(["type": "js", "name": name, "method": method, "args": body["args"] as? [String] ?? []])
     }
   }
 
-  // shortcut: WebKit can't hold http(s) requests, so a request is only reported (navigations, and the page's fetch and
-  // XHR; not images or scripts) and an interceptor's response is dropped; enough for sources that read an API call.
-  private func report(_ url: String, method: String, headers: [String: String], mainFrame: Bool) {
+  // shortcut: WebKit can't hold http(s) requests itself, so only the page's fetch and XHR are held (its script waits for the
+  // answer) and navigations are only reported; images, scripts and frames go out unseen. Enough for sources that read or
+  // answer an API call.
+  private func report(_ url: String, method: String, headers: [String: String], mainFrame: Bool, held: (frame: WKFrameInfo, id: Int)? = nil) {
     nextRequest += 1
-    emit(["type": "request", "requestId": nextRequest, "url": url, "method": method.uppercased(), "headers": headers, "mainFrame": mainFrame])
+    if let held { holding[nextRequest] = held }
+    withCookies(["type": "request", "requestId": nextRequest, "url": url, "method": method.uppercased(), "headers": headers, "mainFrame": mainFrame])
+  }
+
+  /// `wvRespond`: the page's held call gets the runtime's response, or null to go to the network.
+  func answer(_ requestId: Int, _ response: Any?) {
+    guard let held = holding.removeValue(forKey: requestId) else { return }
+    let json = response.flatMap { $0 is NSNull ? nil : try? JSONSerialization.data(withJSONObject: $0) }.map { String(decoding: $0, as: UTF8.self) } ?? "null"
+    view.evaluateJavaScript("window.\(Self.answerName)(\(held.id), \(json))", in: held.frame, in: .page) { _ in }
+  }
+
+  // The store's cookies go first: WebKit's cookie observer doesn't fire for this store, and what the page does next (a
+  // call to the extension, a request after the one that set its session) is when the extension's own requests need
+  // them. Chained, so events keep their order.
+  private func withCookies(_ event: [String: Any]) {
+    let previous = queued
+    queued = Task { @MainActor in
+      await previous?.value
+      emit(["type": "cookies", "cookies": await WebViewHost.shared.cookieReport()])
+      emit(event)
+    }
   }
 
   nonisolated private static func json(_ value: Any?) -> String {
@@ -383,13 +373,36 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
   private static let consoleHandler = "anipoexConsole"
   private static let requestHandler = "anipoexRequest"
 
-  // The page's fetch and XHR calls, reported as they're made; a WeakMap keeps nothing on the page's own objects.
+  private static let answerName = "__anipoexAnswer"
+
+  // The page's fetch and XHR calls wait for the runtime's answer (its interceptor's response, or null to send them); one
+  // unanswered in 15 s goes out. A WeakMap keeps nothing on the page's own objects.
   private static let requests = """
     (() => {
       const handler = webkit.messageHandlers.\(requestHandler);
-      const post = (url, method, headers) => {
-        try { handler.postMessage({ url: new URL(url, location.href).href, method: method || "GET", headers }); } catch {}
+      const waiting = new Map();
+      let next = 0;
+      // With the headers WebKit adds itself, as Android's interceptor sees them: sources replay a request with them.
+      const withBrowserHeaders = (url, method, headers) => {
+        const out = { "user-agent": navigator.userAgent, referer: location.href, ...headers };
+        if (method !== "GET" || url.origin !== location.origin) out.origin ??= location.origin;
+        return out;
       };
+      const ask = (url, method, headers) => new Promise((resolve) => {
+        const id = ++next;
+        waiting.set(id, resolve);
+        setTimeout(() => { if (waiting.delete(id)) resolve(null); }, 15000);
+        try {
+          const target = new URL(url, location.href);
+          const verb = (method || "GET").toUpperCase();
+          handler.postMessage({ id, url: target.href, method: verb, headers: withBrowserHeaders(target, verb, headers) });
+        } catch { waiting.delete(id); resolve(null); }
+      });
+      Object.defineProperty(window, "\(answerName)", {
+        value: (id, answer) => { const resolve = waiting.get(id); if (resolve) { waiting.delete(id); resolve(answer); } },
+      });
+      const bytes = (data) => Uint8Array.from(atob(data || ""), (c) => c.charCodeAt(0));
+      const noBody = (status) => [101, 204, 205, 304].includes(status);
       const headersOf = (init) => {
         const out = {};
         try { new Headers(init || {}).forEach((value, name) => { out[name] = value; }); } catch {}
@@ -398,9 +411,13 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
       const fetch = window.fetch;
       window.fetch = function (input, init) {
         const request = input instanceof Request ? input : null;
-        post(request ? request.url : String(input), (init && init.method) || (request && request.method),
-          headersOf((init && init.headers) || (request && request.headers)));
-        return fetch.apply(this, arguments);
+        const self = this, args = arguments;
+        return ask(request ? request.url : String(input), (init && init.method) || (request && request.method),
+          headersOf((init && init.headers) || (request && request.headers)))
+          .then((answer) => answer
+            ? new Response(noBody(answer.status) ? null : bytes(answer.body),
+              { status: answer.status, statusText: answer.reason || "", headers: answer.headers || {} })
+            : fetch.apply(self, args));
       };
       const calls = new WeakMap();
       const { open, setRequestHeader, send } = XMLHttpRequest.prototype;
@@ -415,8 +432,25 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
       };
       XMLHttpRequest.prototype.send = function () {
         const call = calls.get(this);
-        if (call) post(call.url, call.method, call.headers);
-        return send.apply(this, arguments);
+        if (!call) return send.apply(this, arguments);
+        const xhr = this, args = arguments;
+        ask(call.url, call.method, call.headers).then((answer) => {
+          if (!answer) return send.apply(xhr, args);
+          const text = new TextDecoder().decode(bytes(answer.body));
+          const headers = Object.fromEntries(Object.entries(answer.headers || {}).map(([k, v]) => [k.toLowerCase(), v]));
+          const define = (name, value) => Object.defineProperty(xhr, name, { configurable: true, get: () => value });
+          define("readyState", 4);
+          define("status", answer.status);
+          define("statusText", answer.reason || "");
+          define("responseURL", call.url);
+          define("responseText", text);
+          const body = bytes(answer.body);
+          define("response", xhr.responseType === "json" ? (() => { try { return JSON.parse(text); } catch { return null; } })()
+            : xhr.responseType === "arraybuffer" ? body.buffer : xhr.responseType === "blob" ? new Blob([body]) : text);
+          xhr.getResponseHeader = (name) => headers[String(name).toLowerCase()] ?? null;
+          xhr.getAllResponseHeaders = () => Object.entries(headers).map(([k, v]) => k + ": " + v).join("\\r\\n");
+          for (const type of ["readystatechange", "load", "loadend"]) xhr.dispatchEvent(new Event(type));
+        });
       };
     })();
     """

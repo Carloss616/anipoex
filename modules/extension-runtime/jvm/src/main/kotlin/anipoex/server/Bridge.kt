@@ -36,6 +36,9 @@ object Bridge {
         fun string(name: String) = args.getValue(name).jsonPrimitive.content
         fun int(name: String) = args.getValue(name).jsonPrimitive.int
         if (method == "init") {
+            // Emptied on each start; a host whose process has no captured stderr (iOS) asks for one. Only a convenience,
+            // so a log that can't be opened doesn't stop the runtime.
+            args["logFile"]?.jsonPrimitive?.content?.let { runCatching { System.setErr(java.io.PrintStream(java.io.FileOutputStream(it), true)) } }
             synchronized(this) { if (host == null) host = ExtensionHost(File(string("dataDir"))) }
             return null
         }

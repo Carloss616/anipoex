@@ -32,6 +32,17 @@ object Host {
     @Volatile
     var call: ((method: String, args: JsonObject) -> JsonElement)? = null
 
+    /**
+     * The user agent the app's browser holds a site's clearance or session under, by host: a solved challenge, or a
+     * WebView page that ran as another browser than the extension asked for. That host's requests (and its subdomains')
+     * go out with it, so the site sees one browser.
+     */
+    val browserUserAgents = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    /** [browserUserAgents]' entry for [host] or the closest domain above it. */
+    fun browserUserAgent(host: String): String? =
+        generateSequence(host) { it.substringAfter('.', "").takeIf(String::isNotEmpty) }.firstNotNullOfOrNull(browserUserAgents::get)
+
     /** The clearance only holds for the user agent that earned it, so requests to that host send it after. */
     class Solution(val cookies: List<String>, val userAgent: String)
 
