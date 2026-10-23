@@ -15,7 +15,10 @@ import com.googlecode.d2j.reader.MultiDexFileReader
 import com.googlecode.d2j.reader.Op
 import com.googlecode.d2j.visitors.DexFileVisitor
 import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.ClassRemapper
 import org.objectweb.asm.commons.SimpleRemapper
 import java.io.File
@@ -33,12 +36,12 @@ fun dexToJar(apk: File, jar: File) {
     // dex2jar writes a jar through jdk.zipfs, which the java.base-only runtime lacks; it writes a directory when given one.
     val classes = Files.createTempDirectory(jar.parentFile.toPath(), "classes")
     try {
-        translate(apk, classes)
+        val isInterface = translate(apk, classes)
         ZipOutputStream(jar.outputStream().buffered()).use { zip ->
             Files.walk(classes).use { paths ->
                 paths.filter { Files.isRegularFile(it) }.forEach { path ->
                     zip.putNextEntry(ZipEntry(classes.relativize(path).joinToString("/")))
-                    zip.write(remapUtilObject(Files.readAllBytes(path)))
+                    zip.write(repairClass(Files.readAllBytes(path), isInterface))
                     zip.closeEntry()
                 }
             }
@@ -58,12 +61,20 @@ fun dexToJar(apk: File, jar: File) {
     }
 }
 
-private fun translate(apk: File, classes: Path) {
+// Returns whether a class (internal name) is an interface: the dex's own classes, then the runtime's and the JDK's.
+private fun translate(apk: File, classes: Path): (String) -> Boolean {
     val reader = MultiDexFileReader.open(apk.readBytes())
     val dex = DexFileNode()
     reader.accept(dex, DexFileReader.SKIP_DEBUG)
     fixInlinedConstructors(dex)
     translate(dex, reader.dexVersion, classes)
+    val known = dex.clzs.associate { it.className.removePrefix("L").removeSuffix(";") to (it.access and DexConstants.ACC_INTERFACE != 0) }
+    val elsewhere = HashMap<String, Boolean>()
+    return { name ->
+        known[name] ?: elsewhere.getOrPut(name) {
+            ClassLoader.getSystemResourceAsStream("$name.class")?.use { ClassReader(it).access and Opcodes.ACC_INTERFACE != 0 } ?: false
+        }
+    }
 }
 
 /** Writes the tree's classes under [classes], one `.class` per class. */
@@ -124,11 +135,38 @@ internal fun fixInlinedConstructors(dex: DexFileNode) {
     }
 }
 
-// dex2jar 2.4.38's getCommonSuperClass answers "java/util/Object" for a class it can't load, which lands in StackMapTable frames.
-internal fun remapUtilObject(classFile: ByteArray): ByteArray {
+// What dex2jar 2.4.38 writes that the JVM refuses: "java/util/Object" from getCommonSuperClass for a class it can't load, which
+// lands in StackMapTable frames; and a static or private call to an interface's method as a class's (ART runs it, the JVM
+// fails "must be InterfaceMethodref constant"), as for the static `Job.cancel$default` of today's kotlinx-coroutines.
+internal fun repairClass(classFile: ByteArray, isInterface: (String) -> Boolean = { false }): ByteArray {
+    fun onInterface(opcode: Int, owner: String, name: String) =
+        (opcode == Opcodes.INVOKESTATIC || opcode == Opcodes.INVOKESPECIAL) && name != "<init>" && isInterface(owner)
+    // Such a call needs class file version 52; dex2jar writes 50, kept elsewhere for its fallback verifier.
+    var repairs = false
+    ClassReader(classFile).accept(
+        object : ClassVisitor(Opcodes.ASM9) {
+            override fun visitMethod(access: Int, name: String?, descriptor: String?, signature: String?, exceptions: Array<out String>?) =
+                object : MethodVisitor(Opcodes.ASM9) {
+                    override fun visitMethodInsn(opcode: Int, owner: String, name: String, descriptor: String, isInterfaceCall: Boolean) {
+                        if (!isInterfaceCall && onInterface(opcode, owner, name)) repairs = true
+                    }
+                }
+        },
+        ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES,
+    )
     // No ClassReader passed to the writer: copying its constant pool would keep the "java/util/Object" entry.
     val writer = ClassWriter(0)
-    ClassReader(classFile).accept(ClassRemapper(writer, SimpleRemapper("java/util/Object", "java/lang/Object")), 0)
+    val calls = object : ClassVisitor(Opcodes.ASM9, writer) {
+        override fun visit(version: Int, access: Int, name: String?, signature: String?, superName: String?, interfaces: Array<out String>?) =
+            super.visit(if (repairs) maxOf(version, Opcodes.V1_8) else version, access, name, signature, superName, interfaces)
+
+        override fun visitMethod(access: Int, name: String?, descriptor: String?, signature: String?, exceptions: Array<out String>?): MethodVisitor =
+            object : MethodVisitor(Opcodes.ASM9, super.visitMethod(access, name, descriptor, signature, exceptions)) {
+                override fun visitMethodInsn(opcode: Int, owner: String, name: String, descriptor: String, isInterfaceCall: Boolean) =
+                    super.visitMethodInsn(opcode, owner, name, descriptor, isInterfaceCall || onInterface(opcode, owner, name))
+            }
+    }
+    ClassReader(classFile).accept(ClassRemapper(calls, SimpleRemapper("java/util/Object", "java/lang/Object")), 0)
     return writer.toByteArray()
 }
 

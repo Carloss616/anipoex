@@ -26,7 +26,7 @@ final class ChallengeHost {
   // The solve under way per host whose page closed: a second one would replace the first's page mid-fetch.
   private var reopening: [String: Task<Void, Error>] = [:]
   // Pages live in the window, off screen: WebKit pauses a page outside one.
-  private lazy var shelf: UIView = {
+  lazy var shelf: UIView = {
     let shelf = UIView(frame: CGRect(x: -2000, y: 0, width: 390, height: 700))
     shelf.isUserInteractionEnabled = false
     // Off screen and not the app's: VoiceOver would read the site.
@@ -36,7 +36,7 @@ final class ChallengeHost {
   }()
 
   /// Safari's user agent: WKWebView's own leaves out the `Version` and `Safari` tokens, which a bot check notices.
-  private let userAgent: String = {
+  static let userAgent: String = {
     let version = UIDevice.current.systemVersion
     let os = version.replacingOccurrences(of: ".", with: "_")
     return "Mozilla/5.0 (iPhone; CPU iPhone OS \(os) like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/\(version) Mobile/15E148 Safari/604.1"
@@ -74,7 +74,7 @@ final class ChallengeHost {
     let configuration = WKWebViewConfiguration()
     configuration.websiteDataStore = store
     let view = WKWebView(frame: shelf.bounds, configuration: configuration)
-    view.customUserAgent = userAgent
+    view.customUserAgent = Self.userAgent
     shelf.addSubview(view)
     view.load(URLRequest(url: target))
     var sheet: (sheet: UIViewController, banner: WKWebView)?
@@ -99,7 +99,7 @@ final class ChallengeHost {
           try? await Task.sleep(for: .seconds(Self.doneSeconds))
         }
         keep(view, for: host)
-        return ["cookies": cookies.map(Self.setCookie), "userAgent": userAgent]
+        return ["cookies": cookies.map(Self.setCookie), "userAgent": Self.userAgent]
       }
       if sheet == nil, Date().timeIntervalSince(started) > Self.showAfterSeconds {
         sheet = present(view, host: host)
@@ -263,11 +263,11 @@ final class ChallengeHost {
   }
 }
 
-private struct HostError: Error {
+struct HostError: Error {
   let message: String
   init(_ message: String) { self.message = message }
 }
 
-private final class Box: @unchecked Sendable {
+final class Box: @unchecked Sendable {
   var value = #"{"error":"The host did not answer"}"#
 }

@@ -6,8 +6,9 @@ import readline from "node:readline";
 /**
  * Runs the JVM extension server on demand, one JSON line per request and reply: `call` resolves to `{id, result}`, `{id, error}`, or `{error}` when the process stops (the next call starts a new one).
  * The server can ask back with a `{host, id, args}` line: `host[method](args)` answers it as `{hostReply: id, result}` or `{hostReply: id, error}`.
+ * `onStop` runs each time the process stops, so what the host lent it (its pages) goes with it.
  */
-export function startSidecar({ java, args, logFile, host = {} }) {
+export function startSidecar({ java, args, logFile, host = {}, onStop }) {
   let server = null;
   let nextId = 0;
   // The log starts empty with the app; restarts append, so a crash's stderr survives the relaunch.
@@ -26,6 +27,7 @@ export function startSidecar({ java, args, logFile, host = {} }) {
       for (const resolve of pending.values())
         resolve({ error: `Extension server stopped: ${reason}` });
       pending.clear();
+      onStop?.();
     };
     child.on("error", (error) => stopped(error.message));
     // `close` waits for stdout to end, so replies written just before the exit still arrive.

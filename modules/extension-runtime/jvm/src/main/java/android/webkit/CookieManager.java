@@ -33,7 +33,18 @@ public class CookieManager {
     public synchronized void setCookie(String url, String value) {
         HttpUrl httpUrl = HttpUrl.parse(url);
         Cookie cookie = httpUrl == null ? null : Cookie.parse(httpUrl, value);
-        if (cookie == null) return;
+        if (cookie != null) put(cookie);
+    }
+
+    /** Every live cookie, which the app's browser starts each WebView load with. */
+    public synchronized List<Cookie> all() {
+        long now = System.currentTimeMillis();
+        cookies.removeIf(cookie -> cookie.expiresAt() <= now);
+        return new ArrayList<>(cookies);
+    }
+
+    /** Stores a cookie as it is, such as one the app's browser earned on a page. */
+    public synchronized void put(Cookie cookie) {
         // A cookie replaces the one with its name, domain and path; an expired one only deletes it.
         cookies.removeIf(old -> old.name().equals(cookie.name()) && old.domain().equals(cookie.domain()) && old.path().equals(cookie.path()));
         if (cookie.expiresAt() > System.currentTimeMillis()) cookies.add(cookie);

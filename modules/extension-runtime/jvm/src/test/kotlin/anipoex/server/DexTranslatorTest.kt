@@ -100,6 +100,43 @@ class DexTranslatorTest {
         assertFailsWith<VerifyError> { Class.forName("fx.Holder", true, loader) }
     }
 
+    // dex2jar writes a static call to an interface's method as a class's: the JVM refuses it until it's marked an interface call.
+    @Test
+    fun staticCallOnInterface(@TempDir dir: Path) {
+        val api = ClassWriter(0).apply {
+            visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC or Opcodes.ACC_INTERFACE or Opcodes.ACC_ABSTRACT, "fx/Api", null, "java/lang/Object", null)
+            visitMethod(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, "answer", "()I", null, null).apply {
+                visitCode()
+                visitIntInsn(Opcodes.BIPUSH, 42)
+                visitInsn(Opcodes.IRETURN)
+                visitMaxs(1, 0)
+                visitEnd()
+            }
+            visitEnd()
+        }.toByteArray()
+        val caller = ClassWriter(0).apply {
+            // As dex2jar writes it: version 50, where the JVM accepts no static interface call.
+            visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, "fx/Caller", null, "java/lang/Object", null)
+            visitMethod(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, "call", "()I", null, null).apply {
+                visitCode()
+                visitMethodInsn(Opcodes.INVOKESTATIC, "fx/Api", "answer", "()I", false)
+                visitInsn(Opcodes.IRETURN)
+                visitMaxs(1, 0)
+                visitEnd()
+            }
+            visitEnd()
+        }.toByteArray()
+        fun call(callerClass: ByteArray, at: Path): Any? {
+            Files.createDirectories(at.resolve("fx"))
+            Files.write(at.resolve("fx/Api.class"), api)
+            Files.write(at.resolve("fx/Caller.class"), callerClass)
+            return Class.forName("fx.Caller", true, URLClassLoader(arrayOf(at.toUri().toURL()), null)).getMethod("call").invoke(null)
+        }
+        val failure = assertFailsWith<java.lang.reflect.InvocationTargetException> { call(caller, dir.resolve("as-written")) }
+        assertTrue(failure.cause is IncompatibleClassChangeError)
+        assertEquals(42, call(repairClass(caller) { it == "fx/Api" }, dir.resolve("repaired")))
+    }
+
     @Test
     fun utilObjectInFrames(@TempDir dir: Path) {
         val writer = ClassWriter(ClassWriter.COMPUTE_MAXS)
@@ -123,7 +160,7 @@ class DexTranslatorTest {
         val original = writer.toByteArray()
         assertTrue(String(original, Charsets.ISO_8859_1).contains("java/util/Object"))
 
-        val remapped = remapUtilObject(original)
+        val remapped = repairClass(original)
         assertFalse(String(remapped, Charsets.ISO_8859_1).contains("java/util/Object"))
         Files.createDirectories(dir.resolve("fx"))
         Files.write(dir.resolve("fx/Frame.class"), remapped)

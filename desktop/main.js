@@ -18,6 +18,17 @@ import { jsClose, jsCreate, jsEvaluate } from "./javascript.js";
 import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
 import { resolveAsset } from "./serve.js";
 import { startSidecar } from "./sidecar.js";
+import {
+  wvCreate,
+  wvDestroy,
+  wvDestroyAll,
+  wvEvaluate,
+  wvEvents,
+  wvLoad,
+  wvLoadData,
+  wvRespond,
+  wvStop,
+} from "./webview.js";
 
 // Packaged, electron-builder puts the web export, the server and the jre in Resources; in development they come from Metro and the Gradle build.
 const BUILD = path.join(
@@ -115,7 +126,7 @@ app.whenReady().then(() => {
     logFile: path.join(extensions, "server.log"),
     // The runtime has no browser: a Cloudflare challenge is solved in one of ours, and that site is fetched through
     // it; nor a JavaScript engine that runs modern scripts, so extensions' run in ours; nor an image codec, so a
-    // page a source descrambles is drawn in one of our pages.
+    // page a source descrambles is drawn in one of our pages. An extension's WebView is a hidden page of ours too.
     host: {
       solveChallenge,
       fetch: fetchThrough,
@@ -123,7 +134,17 @@ app.whenReady().then(() => {
       jsEvaluate,
       jsClose,
       renderImage,
+      wvCreate,
+      wvLoad,
+      wvLoadData,
+      wvEvaluate,
+      wvStop,
+      wvDestroy,
+      wvEvents,
+      wvRespond,
     },
+    // A WebView's page answers to the JVM that made it; a restarted one never asks for it again.
+    onStop: wvDestroyAll,
   });
   app.on("will-quit", () => sidecar.stop());
 

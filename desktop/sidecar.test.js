@@ -34,7 +34,7 @@ readline.createInterface({ input: process.stdin })
 
 const sidecars = [];
 
-const fake = (java = process.execPath, host) => {
+const fake = (java = process.execPath, host, onStop) => {
   const logFile = path.join(
     mkdtempSync(path.join(tmpdir(), "sidecar-")),
     "extensions",
@@ -45,6 +45,7 @@ const fake = (java = process.execPath, host) => {
     args: ["-e", FAKE_SERVER],
     logFile,
     host,
+    onStop,
   });
   sidecars.push(sidecar);
   return { ...sidecar, logFile };
@@ -86,6 +87,15 @@ describe("startSidecar", () => {
     const crash = await call("crash", {});
     expect(crash.error).toStartWith("Extension server stopped");
     expect((await waiting).error).toStartWith("Extension server stopped");
+  });
+
+  test("crashRunsOnStop", async () => {
+    let stops = 0;
+    const { call } = fake(process.execPath, {}, () => stops++);
+    await call("pid", {});
+    expect(stops).toBe(0);
+    await call("crash", {});
+    expect(stops).toBe(1);
   });
 
   test("restartsAfterCrash", async () => {
