@@ -2,6 +2,7 @@ import type { Observable } from "@legendapp/state";
 import { Memo } from "@legendapp/state/react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Surface } from "@/components/ui/surface";
 import { Typography } from "@/components/ui/typography";
 
 export interface PageCountProps {
@@ -21,11 +22,11 @@ export function PageCount({ page$, count }: PageCountProps) {
       className="pointer-events-none absolute inset-x-0 items-center"
       style={{ bottom: insets.bottom + 24 }}
     >
-      <View className="rounded-full bg-background/88 px-3 py-1.5">
+      <Surface variant="secondary" className="px-3 py-1.5" bordered elevated>
         <Typography type="body-xs" muted>
           <Memo>{page$}</Memo> / {count}
         </Typography>
-      </View>
+      </Surface>
     </View>
   );
 }

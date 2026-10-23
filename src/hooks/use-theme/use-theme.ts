@@ -4,6 +4,7 @@ import { isLiquidGlassAvailable } from "expo-glass-effect";
 import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
+import { Platform } from "react-native";
 import { header } from "@/components/layout/header";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
@@ -72,13 +73,13 @@ export function useStackTheme(): NativeStackNavigationOptions {
   return {
     header,
     headerTintColor: foreground,
-    headerBlurEffect: isLiquidGlassAvailable()
-      ? undefined
-      : "systemChromeMaterial",
+    // Unset on web too: there it's the bar that fades out at its edge.
+    headerBlurEffect:
+      isLiquidGlassAvailable() || Platform.OS === "web"
+        ? undefined
+        : "systemChromeMaterial",
     headerShadowVisible: false,
     headerTransparent: true,
-    headerStyle: { backgroundColor: "transparent" },
-    headerLargeStyle: { backgroundColor: "transparent" },
     headerBackButtonDisplayMode: "minimal",
   };
 }

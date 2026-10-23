@@ -15,7 +15,6 @@ import {
   isRuntimeAvailable,
   RUNTIME_UNAVAILABLE,
   type SourcePage,
-  useInstalledSources,
 } from "@/features/extensions";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceChapters } from "@/features/manga/hooks/use-source-chapters";
@@ -51,7 +50,6 @@ export function ChapterReader() {
   }>();
   const router = useRouter();
   const { manga, loading: mangaLoading } = useMangaEntry(mediaId);
-  const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(Number(mediaId));
   // The list the detail stored; fetched only when there is none.
   const { chapters, loading: chaptersLoading } = useSourceChapters(
@@ -81,12 +79,6 @@ export function ChapterReader() {
 
   const next = current && nextChapter(chapters, current);
   const name = chapterName(current);
-  const sourceName = sources.find(
-    (source) => source.id === match?.sourceId,
-  )?.name;
-  const subtitle = [manga?.title?.userPreferred, sourceName]
-    .filter(Boolean)
-    .join(" · ");
 
   const back = () =>
     router.canGoBack() ? router.back() : router.replace(`/manga/${mediaId}`);
@@ -205,7 +197,6 @@ export function ChapterReader() {
         {() => (
           <Stack.Header
             hidden={!visible$.get()}
-            transparent
             blurEffect="systemChromeMaterial"
             style={headerStyle}
           />
@@ -214,11 +205,21 @@ export function ChapterReader() {
       <Stack.Screen options={{ title: name }} />
       <Stack.Title asChild>
         <View className="min-w-0 flex-1">
-          <Typography type="body-sm" weight="semibold" numberOfLines={1}>
-            {name}
+          <Typography
+            type="body-sm"
+            weight="semibold"
+            numberOfLines={1}
+            style={{ color: m3?.onSurface }}
+          >
+            {manga?.title?.userPreferred}
           </Typography>
-          <Typography type="body-xs" muted numberOfLines={1}>
-            {subtitle}
+          <Typography
+            type="body-xs"
+            muted
+            numberOfLines={1}
+            style={{ color: m3?.onSurfaceVariant }}
+          >
+            {name}
           </Typography>
         </View>
       </Stack.Title>

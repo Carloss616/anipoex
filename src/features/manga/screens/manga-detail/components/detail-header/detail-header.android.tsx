@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
-import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Meta } from "../meta";
 import { Synopsis } from "../synopsis";
 import { Tracking } from "../tracking";
@@ -13,7 +12,6 @@ import type { DetailHeaderProps } from "./detail-header";
 export function DetailHeader({ manga }: DetailHeaderProps) {
   const insets = useSafeAreaInsets();
   const hasGenres = !!manga.genres?.length;
-  const m3 = useThemeM3Colors();
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
 
@@ -42,15 +40,7 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           modifiers={[horizontalScroll(), padding(start, 24, end, 24)]}
         >
           {manga.genres?.map((g) => (
-            <FilterChip
-              key={g}
-              selected={false}
-              colors={{
-                containerColor: m3.surfaceContainerLow,
-                labelColor: m3.onSurfaceVariant,
-              }}
-              border={{ color: m3.outlineVariant }}
-            >
+            <FilterChip key={g} selected={false}>
               <FilterChip.Label>
                 <Text style={{ typography: "labelLarge" }}>{g}</Text>
               </FilterChip.Label>

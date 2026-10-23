@@ -68,6 +68,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const showBack = !!back && options.headerBackVisible !== false;
   const backLabel = options.headerBackTitle ?? back?.title;
   const isMinimalBack = options.headerBackButtonDisplayMode === "minimal";
+  const blur = options.headerBlurEffect;
   const isStacked = search?.placement === "stacked";
   const canBeLarge = typeof options.headerTitle !== "function";
   const isLarge =
@@ -152,14 +153,21 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     );
 
   return (
-    <View
-      style={options.headerStyle}
-      className={cn(
-        "gutters px-gx py-3 transition-[backdrop-filter,background-color]",
-        COLLAPSE,
-        options.headerShadowVisible && "bg-background/88 backdrop-blur-xl",
-      )}
-    >
+    <View style={options.headerStyle} className="gutters px-gx py-3">
+      <View
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0",
+          // Unset fades out like iOS 26's bar; a material ends square.
+          !blur &&
+            "mask-[linear-gradient(to_bottom,black_calc(100%-1.5rem),transparent)]",
+          "transition-[backdrop-filter,background-color]",
+          COLLAPSE,
+          options.headerShadowVisible &&
+            blur !== "none" &&
+            "bg-background/50 backdrop-blur-xl",
+        )}
+      />
       <View className="h-14 flex-row items-center gap-4">
         <ButtonGroup
           className={cn(!showBack && !options.headerLeft && "hidden")}
