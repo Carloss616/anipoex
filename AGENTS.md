@@ -22,15 +22,26 @@ Legend State v3 docs for LLMs: [llms.txt](https://www.legendapp.com/open-source/
 - **`<Memo>{() => …}</Memo>`** never re-renders from its parent (it is `React.memo(Computed, () => true)`), so its closure stays as first rendered. Use it only when the function reads observables and stable functions. `<Memo>{count$}</Memo>` renders a value inside RN text.
 - `Computed` and `Memo` re-run on every change of what they read. To react to a derived flag only (`url` → can add), make it a computed observable (`canAdd$`) and read that.
 
-Gotchas:
+Legend State gotchas:
 
 - `useObservable` with a computed at its root freezes under Fast Refresh: put computeds under a plain root, `useObservable({ canAdd: () => … })` (see `use-manga-list.ts`).
 - `@expo/ui` native `Text` takes only a string child: wrap the whole `Text` in `Computed`, never its content.
+- `peek()` for call-time reads (in handlers and actions), `get()` in anything that must update (`isScanning` vs `isScanBusy` in `state/probes.ts`). A `peek()` in render is worse than stale: the Compiler caches it and keeps the first render's value (`use-title-mode.ts` reads the query with `useValue`).
+
+# React Compiler
+
 - A ref written during render (`ref.current = x`) makes the Compiler skip the whole hook or component: everything it returns is new on each render and breaks `memo` downstream. Sync refs in an effect.
+
+# Lists
+
 - Replacing a list with rebuilt objects re-renders every item: keep unchanged items as the same object (`keepUnchanged` in `extensions.ts`).
 - `List.ForEach` / `LazyColumn.Items` recycle rows by slot: an insert or removal shifts every following slot, so those rows re-render whatever their props. `recycling={false}` keys by item, for short lists with per-row actions.
 - Inside a `Host`, a parent re-render re-runs every row callback and a new `data` array bumps the list's revision: keep state out of the list's parent.
-- `peek()` for call-time reads (in handlers and actions), `get()` in anything that must update (`isScanning` vs `isScanBusy` in `state/probes.ts`). A `peek()` in render is worse than stale: the Compiler caches it and keeps the first render's value (`use-title-mode.ts` reads the query with `useValue`).
+
+# Gestures and animation
+
+- Reanimated shared values go through `get()`/`set()`, never `.value`: the Compiler takes a `.value` inside a worklet for a render dependency and reads it while rendering, which Reanimated warns about on every render (`chapter-reader/components/zoom-view/zoom-view.tsx`).
+- A gesture-handler gesture over a React Native `ScrollView` loses on Android: the scroll claims moving fingers first and the system cancels the gesture. Render the scroller as the gesture handler's `ScrollView` with `disallowInterruption={false}`, so the gesture takes the touch over (`zoom-view.tsx`'s `renderScrollComponent`).
 
 # Persistence
 
