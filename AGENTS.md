@@ -10,7 +10,7 @@ Read [docs/app-structure.md](docs/app-structure.md) before adding, moving or spl
 
 # Fine-grained reactivity
 
-State changes re-render only the box that shows them. React Compiler is on, but it memoizes inside a component; it doesn't stop a child from re-rendering when its parent does. Measure before and after (argent `react-profiler-*`; it keeps commit detail only when one commit is ≥16ms, so count smaller ones through the React DevTools hook).
+State changes re-render only the box that shows them. React Compiler is on, but it memoizes inside a component; it doesn't stop a child from re-rendering when its parent does. Measure before and after (argent `react-profiler-*`; it keeps commit detail only when one commit is ≥16ms, so count smaller ones through the React DevTools hook). In `onCommitFiberRoot`, a fiber rendered in that commit only if it has both `flags & 1` (PerformedWork) and an `actualStartTime` after the previous commit: either one alone also counts skipped fibers.
 
 Legend State v3 docs for LLMs: [llms.txt](https://www.legendapp.com/open-source/state/v3/llms.txt) (index of per-page `.md` files, e.g. [fine-grained reactivity](https://www.legendapp.com/open-source/state/v3/llms/react/fine-grained-reactivity.md)), [llms-full.txt](https://www.legendapp.com/open-source/state/v3/llms-full.txt) (everything in one file). The repo is on `3.0.0-beta.48`: when the docs and the installed package disagree, `node_modules/@legendapp/state` wins.
 
@@ -42,6 +42,12 @@ Legend State gotchas:
 
 - Reanimated shared values go through `get()`/`set()`, never `.value`: the Compiler takes a `.value` inside a worklet for a render dependency and reads it while rendering, which Reanimated warns about on every render (`chapter-reader/components/zoom-view/zoom-view.tsx`).
 - A gesture-handler gesture over a React Native `ScrollView` loses on Android: the scroll claims moving fingers first and the system cancels the gesture. Render the scroller as the gesture handler's `ScrollView` with `disallowInterruption={false}`, so the gesture takes the touch over (`zoom-view.tsx`'s `renderScrollComponent`).
+
+# Navigation
+
+- A screen whose native header hides and shows must be a push, not a modal: on iOS, changing a modal's header visibility remounts the screen and loses its state (the reader is a push with `animation: "slide_from_bottom"`, `src/app/(tabs)/manga/_layout.tsx`).
+- A `Stack.Toolbar` in a header slot forces `headerShown: true` over `Stack.Header hidden`: unmount the toolbar while the header is hidden.
+- `NativeTabs hidden` on Android remounts every screen of the tab, since expo-router swaps the content's bottom `SafeAreaView` in and out; `patches/expo-router@58.0.23.patch` keeps it and turns only its edge off. Re-check it when expo-router is upgraded.
 
 # Persistence
 

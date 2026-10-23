@@ -13,12 +13,15 @@ import type { SourceMatch } from "@/features/manga/utils/source-match";
 import { type Chapter, toChapters } from "@/features/manga/utils/to-chapters";
 
 interface State {
+  /** The source and page these chapters belong to. */
+  key?: string;
   chapters: Chapter[];
   loading: boolean;
   error: string | null;
 }
 
 const EMPTY: State = { chapters: [], loading: false, error: null };
+const LOADING: State = { chapters: [], loading: true, error: null };
 
 /** The chapters of the matched manga in its source: the list stored for that source when there is one, else fetched and stored; `refresh` fetches again. */
 export function useSourceChapters(
@@ -32,6 +35,10 @@ export function useSourceChapters(
   const sourceId = match?.sourceId;
   const url = match?.manga?.url;
   const title = match?.manga?.title;
+  const key =
+    sourceId && url !== undefined && title !== undefined
+      ? `${sourceId} ${url}`
+      : undefined;
 
   // A refresh keeps the rows on screen, even when it fails; a new match clears the previous manga's.
   const load = useCallback(
@@ -42,6 +49,7 @@ export function useSourceChapters(
         return;
       }
       setState((prev) => ({
+        key,
         chapters: reset ? [] : prev.chapters,
         loading: true,
         error: null,
@@ -51,6 +59,7 @@ export function useSourceChapters(
         if (current !== ticket.current) return;
         if (stored?.manga.url === url) {
           setState({
+            key,
             chapters: toChapters(stored.chapters, title),
             loading: false,
             error: null,
@@ -74,20 +83,21 @@ export function useSourceChapters(
         const rows = toChapters(chapters, title);
         recordProbe(mangaId, source, { chapters: rows });
         if (current === ticket.current)
-          setState({ chapters: rows, loading: false, error: null });
+          setState({ key, chapters: rows, loading: false, error: null });
       } catch (error) {
         recordProbe(mangaId, source, { error });
         if (current !== ticket.current) return;
         const message = error instanceof Error ? error.message : String(error);
         if (!reset) toast.destructive("Couldn't refresh chapters");
         setState((prev) => ({
+          key,
           chapters: reset ? [] : prev.chapters,
           loading: false,
           error: message,
         }));
       }
     },
-    [mangaId, sourceId, url, title],
+    [mangaId, sourceId, url, title, key],
   );
 
   useEffect(() => {
@@ -102,15 +112,17 @@ export function useSourceChapters(
         if (isFromSync || value === written.current || value?.manga.url !== url)
           return;
         setState({
+          key,
           chapters: toChapters(value.chapters, title),
           loading: false,
           error: null,
         });
       },
     );
-  }, [mangaId, sourceId, url, title]);
+  }, [mangaId, sourceId, url, title, key]);
 
   const refresh = useCallback(() => load(false), [load]);
 
-  return { ...state, refresh };
+  // Until the effect runs, the state still holds the previous match (or nothing): never hand those out as loaded.
+  return { ...(state.key === key ? state : LOADING), refresh };
 }

@@ -1,11 +1,16 @@
 import type { LegendListRef } from "@legendapp/list/react-native";
-import { useObservable } from "@legendapp/state/react";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
-import { View } from "react-native";
+import { Computed, useObservable } from "@legendapp/state/react";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useRef } from "react";
+import {
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  View,
+} from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { LegendList } from "@/components/layout/legend-list";
+import { Typography } from "@/components/ui/typography";
 import {
   isRuntimeAvailable,
   RUNTIME_UNAVAILABLE,
@@ -17,15 +22,18 @@ import { useSourceChapters } from "@/features/manga/hooks/use-source-chapters";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { nextChapter } from "@/features/manga/utils/next-chapter";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
+import { useThemeM3Colors } from "@/hooks/use-theme";
 import { ChapterEnd } from "./components/chapter-end";
+import { PageCount } from "./components/page-count";
 import { PageImage } from "./components/page-image";
-import { ReaderBar } from "./components/reader-bar";
 import { ZoomView } from "./components/zoom-view";
 import { useChapterPages } from "./hooks/use-chapter-pages";
 import { useReadingProgress } from "./hooks/use-reading-progress";
 
 // Desktop windows are far wider than a page is meant to be read.
 const COLUMN = { width: "100%", maxWidth: 800, marginInline: "auto" } as const;
+/** How far one scroll down runs before the header hides: about its own height. */
+const HIDE_AFTER = 80;
 
 const chapterName = (chapter: Chapter | undefined) =>
   !chapter
@@ -36,33 +44,35 @@ const chapterName = (chapter: Chapter | undefined) =>
 
 /** A chapter as one continuous vertical scroll of its pages, the end block under the last. */
 export function ChapterReader() {
-  const {
-    mediaId,
-    chapter: chapterUrl,
-    title,
-    memo: memoParam,
-  } = useLocalSearchParams<{
-    mediaId: string;
+  const { id: mediaId, chapter: chapterUrl } = useLocalSearchParams<{
+    id: string;
+    /** The chapter's url in its source. */
     chapter: string;
-    /** The row's title, until the chapter list loads (or if it no longer has this chapter). */
-    title?: string;
-    /** The row's memo, so the pages load without waiting for the chapter list. */
-    memo?: string;
   }>();
   const router = useRouter();
   const { manga, loading: mangaLoading } = useMangaEntry(mediaId);
   const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(Number(mediaId));
   // The list the detail stored; fetched only when there is none.
-  const { chapters } = useSourceChapters(Number(mediaId), match);
-  const current = chapters.find((chapter) => chapter.id === chapterUrl);
-  const { pages, loading, error, reload } = useChapterPages(
-    match?.sourceId,
-    chapterUrl,
-    memoParam ?? current?.memo ?? undefined,
+  const { chapters, loading: chaptersLoading } = useSourceChapters(
+    Number(mediaId),
+    match,
   );
-  const [visible, setVisible] = useState(true);
+  const current = chapters.find((chapter) => chapter.id === chapterUrl);
+  // The pages wait for the list: some sources need the chapter's memo to find them.
+  const { pages, loading, error, reload } = useChapterPages(
+    chaptersLoading ? undefined : match?.sourceId,
+    chapterUrl,
+    current?.memo ?? undefined,
+  );
+  const visible$ = useObservable(true);
   const listRef = useRef<LegendListRef>(null);
+  const lastScroll = useRef(0);
+  // Where the current run down started: the last turn up, or where a tap showed the header.
+  const runStart = useRef(0);
+  const m3 = useThemeM3Colors();
+  // Android only: iOS keeps the blur, which a color would cover.
+  const headerStyle = { backgroundColor: m3?.surfaceContainer };
   const page$ = useObservable(1);
   const progress = useReadingProgress(
     manga ?? { id: Number(mediaId) },
@@ -70,7 +80,7 @@ export function ChapterReader() {
   );
 
   const next = current && nextChapter(chapters, current);
-  const name = chapterName(current) || (title ?? "");
+  const name = chapterName(current);
   const sourceName = sources.find(
     (source) => source.id === match?.sourceId,
   )?.name;
@@ -80,7 +90,21 @@ export function ChapterReader() {
 
   const back = () =>
     router.canGoBack() ? router.back() : router.replace(`/manga/${mediaId}`);
-  const toggle = useCallback(() => setVisible((shown) => !shown), []);
+  const toggle = useCallback(() => {
+    runStart.current = lastScroll.current;
+    visible$.set((shown) => !shown);
+  }, [visible$]);
+  // Reading on hides the header; back at the top it shows again.
+  const onScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const y = event.nativeEvent.contentOffset.y;
+      if (y <= 0) visible$.set(true);
+      else if (y < lastScroll.current) runStart.current = y;
+      else if (y - runStart.current > HIDE_AFTER) visible$.set(false);
+      lastScroll.current = y;
+    },
+    [visible$],
+  );
   const sourceId = match?.sourceId;
   // Pages only come with a source, so the null is never drawn.
   const renderItem = useCallback(
@@ -143,6 +167,8 @@ export function ChapterReader() {
             ListFooterComponentStyle={{ paddingBottom: bottomSpace }}
             renderItem={renderItem}
             onViewableItemsChanged={onViewableItemsChanged}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
             onEndReached={onEndReached}
             // Fires once the end block is on screen, not half a screen early.
             onEndReachedThreshold={0.2}
@@ -161,11 +187,7 @@ export function ChapterReader() {
                         : "Load next chapter",
                     onPress: () => {
                       page$.set(1);
-                      router.setParams({
-                        chapter: next.id,
-                        title: next.title,
-                        memo: next.memo ?? undefined,
-                      });
+                      router.setParams({ chapter: next.id });
                     },
                   }
                 }
@@ -178,16 +200,36 @@ export function ChapterReader() {
     );
 
   return (
-    <View className="flex-1 bg-background">
-      {body}
-      <ReaderBar
-        chapter={name}
-        subtitle={subtitle}
-        visible={visible}
-        page$={page$}
-        count={pages.length}
-        onBack={back}
-      />
-    </View>
+    <>
+      <Computed>
+        {() => (
+          <Stack.Header
+            hidden={!visible$.get()}
+            transparent
+            blurEffect="systemChromeMaterial"
+            style={headerStyle}
+          />
+        )}
+      </Computed>
+      <Stack.Screen options={{ title: name }} />
+      <Stack.Title asChild>
+        <View className="min-w-0 flex-1">
+          <Typography type="body-sm" weight="semibold" numberOfLines={1}>
+            {name}
+          </Typography>
+          <Typography type="body-xs" muted numberOfLines={1}>
+            {subtitle}
+          </Typography>
+        </View>
+      </Stack.Title>
+      <View className="flex-1 bg-background">
+        {body}
+        <Computed>
+          {() =>
+            visible$.get() && <PageCount page$={page$} count={pages.length} />
+          }
+        </Computed>
+      </View>
+    </>
   );
 }

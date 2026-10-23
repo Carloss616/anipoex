@@ -9,7 +9,12 @@ export function Tabs() {
   const pathname = usePathname();
 
   return (
-    <NativeTabs minimizeBehavior="onScrollDown" sidebarAdaptable {...tabTheme}>
+    <NativeTabs
+      minimizeBehavior="onScrollDown"
+      sidebarAdaptable
+      hidden={pathname.endsWith("/reader")}
+      {...tabTheme}
+    >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

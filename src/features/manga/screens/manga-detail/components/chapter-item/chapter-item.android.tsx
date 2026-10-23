@@ -21,12 +21,10 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
       modifiers={[
         clickable(() =>
           router.push({
-            pathname: "/reader",
+            pathname: "/manga/[id]/reader",
             params: {
-              mediaId,
+              id: mediaId,
               chapter: chapter.id,
-              title: chapter.title,
-              memo: chapter.memo ?? undefined,
             },
           }),
         ),

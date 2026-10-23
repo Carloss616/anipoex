@@ -155,9 +155,9 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     <View
       style={options.headerStyle}
       className={cn(
-        "gutters px-gx py-3 transition-[backdrop-filter]",
+        "gutters px-gx py-3 transition-[backdrop-filter,background-color]",
         COLLAPSE,
-        options.headerShadowVisible && "backdrop-blur-xl",
+        options.headerShadowVisible && "bg-background/88 backdrop-blur-xl",
       )}
     >
       <View className="h-14 flex-row items-center gap-4">

@@ -71,7 +71,9 @@ export function Tabs() {
       <TabsBase>
         <TabSlot className="flex-1" />
         <TabList asChild>
-          <PanelTabList>
+          <PanelTabList
+            className={cn(pathname.endsWith("/reader") && "hidden")}
+          >
             {ROUTES.map((item) => (
               <TabTrigger
                 key={item.name}
