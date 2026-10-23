@@ -1,6 +1,7 @@
+import type { LegendListRef } from "@legendapp/list/react-native";
 import { useObservable } from "@legendapp/state/react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
@@ -19,6 +20,7 @@ import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { ChapterEnd } from "./components/chapter-end";
 import { PageImage } from "./components/page-image";
 import { ReaderBar } from "./components/reader-bar";
+import { ZoomView } from "./components/zoom-view";
 import { useChapterPages } from "./hooks/use-chapter-pages";
 import { useReadingProgress } from "./hooks/use-reading-progress";
 
@@ -60,6 +62,7 @@ export function ChapterReader() {
     memoParam ?? current?.memo ?? undefined,
   );
   const [visible, setVisible] = useState(true);
+  const listRef = useRef<LegendListRef>(null);
   const page$ = useObservable(1);
   const progress = useReadingProgress(
     manga ?? { id: Number(mediaId) },
@@ -125,46 +128,53 @@ export function ChapterReader() {
         actions={[{ label: "Retry", onPress: reload }]}
       />
     ) : (
-      <LegendList
-        // A new chapter starts from its first page.
-        key={chapterUrl}
-        data={pages}
-        keyExtractor={(item) => String(item.index)}
-        // Each page keeps its own measured ratio and failed state; a recycled row would show another page's.
-        recycleItems={false}
-        contentContainerStyle={COLUMN}
-        renderItem={renderItem}
-        onViewableItemsChanged={onViewableItemsChanged}
-        onEndReached={onEndReached}
-        // Fires once the end block is on screen, not half a screen early.
-        onEndReachedThreshold={0.2}
-        ListFooterComponent={
-          <ChapterEnd
-            chapter={name}
-            save={progress.save}
-            onUndo={progress.undo}
-            onAdd={progress.add}
-            onNotNow={progress.notNow}
-            next={
-              next && {
-                label:
-                  next.number >= 0
-                    ? `Load chapter ${next.number}`
-                    : "Load next chapter",
-                onPress: () => {
-                  page$.set(1);
-                  router.setParams({
-                    chapter: next.id,
-                    title: next.title,
-                    memo: next.memo ?? undefined,
-                  });
-                },
-              }
+      // A new chapter starts from its first page, at 1x.
+      <ZoomView key={chapterUrl} listRef={listRef}>
+        {({ refScrollView, renderScrollComponent, bottomSpace }) => (
+          <LegendList
+            ref={listRef}
+            refScrollView={refScrollView}
+            renderScrollComponent={renderScrollComponent}
+            data={pages}
+            keyExtractor={(item) => String(item.index)}
+            // Each page keeps its own measured ratio and failed state; a recycled row would show another page's.
+            recycleItems={false}
+            contentContainerStyle={COLUMN}
+            ListFooterComponentStyle={{ paddingBottom: bottomSpace }}
+            renderItem={renderItem}
+            onViewableItemsChanged={onViewableItemsChanged}
+            onEndReached={onEndReached}
+            // Fires once the end block is on screen, not half a screen early.
+            onEndReachedThreshold={0.2}
+            ListFooterComponent={
+              <ChapterEnd
+                chapter={name}
+                save={progress.save}
+                onUndo={progress.undo}
+                onAdd={progress.add}
+                onNotNow={progress.notNow}
+                next={
+                  next && {
+                    label:
+                      next.number >= 0
+                        ? `Load chapter ${next.number}`
+                        : "Load next chapter",
+                    onPress: () => {
+                      page$.set(1);
+                      router.setParams({
+                        chapter: next.id,
+                        title: next.title,
+                        memo: next.memo ?? undefined,
+                      });
+                    },
+                  }
+                }
+                onBack={back}
+              />
             }
-            onBack={back}
           />
-        }
-      />
+        )}
+      </ZoomView>
     );
 
   return (
