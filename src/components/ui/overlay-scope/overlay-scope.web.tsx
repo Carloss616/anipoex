@@ -37,7 +37,9 @@ function Scope({
   const ref = useRef<HTMLDivElement>(null);
   const focus = useFocusManager();
   const { modalProps } = useModalOverlay(
-    { isDismissable: false },
+    // Outside the scope everything turns inert, PanelUI's backdrops included,
+    // so react-aria's document listener closes on an outside press instead.
+    { isDismissable: true },
     {
       isOpen: true,
       setOpen: (open) => !open && onClose(),
