@@ -55,7 +55,12 @@ export function Overview({
         <View className="flex-1" />
         <ButtonGroup>
           <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
-            <Button variant="secondary" size="icon" className="size-9">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="size-9"
+              accessibilityLabel="More actions"
+            >
               <Icon
                 name={Icons.more}
                 size={BUTTON_ICON_SIZE}

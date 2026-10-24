@@ -31,13 +31,16 @@ export interface ListItemProps {
   extension: Extension;
 }
 
-interface ActionButtonProps extends ComponentProps<typeof Button> {
+type ActionButtonProps = Omit<
+  Extract<ComponentProps<typeof Button>, { size: "icon" }>,
+  "size"
+> & {
   id: string;
   /** What this button starts: its icon turns into a loader while that runs. */
   operation: ExtensionOperation;
   icon: IconName;
   iconClassName: string;
-}
+};
 
 /** Reads the operation itself so only this button re-renders; every action is off while one runs. Spreads the rest so a menu trigger keeps its props and ref. */
 function ActionButton({

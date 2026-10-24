@@ -2,30 +2,47 @@ import {
   RadioGroup as PanelRadioGroup,
   type RadioGroupProps,
 } from "panelui-native/components/radio-group";
-import { Children, isValidElement } from "react";
+import { Children, isValidElement, useEffect, useRef } from "react";
 import { ArrowKeyGroup } from "../arrow-key-group";
 
 export * from "panelui-native/components/radio-group";
 
+type Option = { value: string; disabled?: boolean };
+
 /** PanelUI's RadioGroup, where arrow keys move and select, as a radio group does on web. */
 function RadioGroupRoot(props: RadioGroupProps) {
-  // The values of the focusable options, in the order the arrows walk them.
-  const values = Children.toArray(props.children).flatMap((child) =>
-    isValidElement<{ value?: string; disabled?: boolean }>(child) &&
-    child.props.value !== undefined &&
-    !child.props.disabled
-      ? [child.props.value]
+  const ref = useRef<HTMLDivElement>(null);
+  const options = Children.toArray(props.children).flatMap((child) =>
+    isValidElement<Option>(child) && child.props.value !== undefined
+      ? [child.props]
       : [],
   );
+  // The arrows walk only the options that can take focus.
+  const enabled = options.filter((option) => !option.disabled);
+
+  // PanelUI's radios set accessibilityState, which react-native-web doesn't
+  // turn into aria-checked: without it a screen reader can't tell the pick.
+  useEffect(() => {
+    ref.current
+      ?.querySelectorAll('[role="radio"]')
+      .forEach((radio, index) =>
+        radio.setAttribute(
+          "aria-checked",
+          String(options[index]?.value === props.value),
+        ),
+      );
+  });
 
   return (
     <ArrowKeyGroup
       orientation={
         props.orientation === "horizontal" ? "horizontal" : "vertical"
       }
-      onMove={(index) => props.onValueChange(values[index])}
+      onMove={(index) => props.onValueChange(enabled[index].value)}
     >
-      <PanelRadioGroup {...props} />
+      <div ref={ref} style={{ display: "contents" }}>
+        <PanelRadioGroup {...props} />
+      </div>
     </ArrowKeyGroup>
   );
 }

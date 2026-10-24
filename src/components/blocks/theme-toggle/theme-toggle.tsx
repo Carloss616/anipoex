@@ -15,6 +15,7 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       className="size-9"
+      accessibilityLabel={`Switch to ${isLight ? "dark" : "light"} theme`}
       onPress={() => theme$.preference.set(isLight ? "dark" : "light")}
       onLongPress={() => theme$.preference.set("system")}
     >

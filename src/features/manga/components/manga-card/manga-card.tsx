@@ -120,11 +120,11 @@ export function MangaCard({
           disabled={!onPress && !onLongPress}
           onPress={onPress}
           onLongPress={onLongPress}
+          // The pressable is the one tab stop; a role on the view inside would add a second.
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel}
         >
           <View
-            accessible={!!accessibilityLabel}
-            accessibilityRole="button"
-            accessibilityLabel={accessibilityLabel}
             testID={testID}
             className={cn(
               "w-full gap-2",
@@ -167,11 +167,10 @@ export function MangaCard({
         disabled={!onPress && !onLongPress}
         onPress={onPress}
         onLongPress={onLongPress}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
       >
         <Card
-          accessible={!!accessibilityLabel}
-          accessibilityRole="button"
-          accessibilityLabel={accessibilityLabel}
           testID={testID}
           className={cn(
             "relative aspect-2/3 overflow-hidden border-0 p-0",

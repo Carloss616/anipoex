@@ -125,6 +125,7 @@ export const AvailableItem = memo(function AvailableItem({
               className="size-9 opacity-100"
               disabled
               aria-hidden
+              accessibilityLabel="Selected"
             >
               <Icon
                 name={Icons.check}
