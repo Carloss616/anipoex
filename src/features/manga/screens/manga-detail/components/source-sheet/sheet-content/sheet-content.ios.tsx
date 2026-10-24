@@ -201,7 +201,7 @@ export function SheetContent({
                         modifiers={[
                           buttonStyle("plain"),
                           foregroundStyle("secondary"),
-                          disabled(isScanBusy(key)),
+                          disabled(scanningAll$[key].get() === true),
                           accessibilityLabel("Scan all sources"),
                         ]}
                       >

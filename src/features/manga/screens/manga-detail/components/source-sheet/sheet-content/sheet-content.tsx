@@ -141,7 +141,7 @@ export function SheetContent({
                       size="icon"
                       className="size-9"
                       // A plain browser has no sources, so nothing to scan.
-                      disabled={isScanBusy(key) || !installed}
+                      disabled={scanningAll$[key].get() === true || !installed}
                       onPress={actions.scanAll}
                       accessibilityLabel="Scan all sources"
                     >

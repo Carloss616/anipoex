@@ -238,6 +238,26 @@ describe("scanSources", () => {
     await Promise.all([first, second]);
   });
 
+  it("a Scan all during a rescan probes every other source", async () => {
+    const rescan = scan({ sources: sources("a", "b", "c"), only: ["a"] });
+    await flush();
+    const all = scan({ sources: sources("a", "b", "c") });
+    await flush();
+    expect(searchCalls).toEqual(["a", "b", "c"]);
+    expect(startScanActivity).toHaveBeenLastCalledWith(
+      expect.objectContaining({ total: 2 }),
+    );
+    searchPending.a([]);
+    await rescan;
+    // The rescan ending leaves the Scan all's flag on.
+    expect(scanningAll$["201"].get()).toBe(true);
+    searchPending.b([]);
+    searchPending.c([]);
+    await all;
+    expect(scanningAll$["201"].get()).toBeUndefined();
+    expect(scanning$["201"].get()).toEqual({});
+  });
+
   it("isScanning holds while the scan runs, read at call time", async () => {
     expect(isScanning(201)).toBe(false);
     const done = scan({ sources: sources("a") });

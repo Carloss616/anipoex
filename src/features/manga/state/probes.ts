@@ -93,7 +93,7 @@ export function recordProbe(
   probes$[mediaKey(mangaId)][source.id].set(toProbe(source, read, Date.now()));
 }
 
-/** Probes the manga's sources (all not excluded, or `only`) and writes each probe as it lands; rescans of different sources run together, a Scan all alone. */
+/** Probes the manga's sources (all not excluded, or `only`) and writes each probe as it lands; rescans of different sources run together, a Scan all beside them. */
 export async function scanSources(args: {
   mangaId: number;
   sources: Source[];
@@ -107,8 +107,12 @@ export async function scanSources(args: {
 }): Promise<void> {
   const { mangaId, sources, titles, read, keep, only, name } = args;
   const key = mediaKey(mangaId);
-  // A Scan all waits for every scan to end; a rescan only for its own source's.
-  if (only ? only.some((id) => scanning$[key][id].peek()) : isScanning(mangaId))
+  // One Scan all at a time; a rescan waits only for its own source's.
+  if (
+    only
+      ? only.some((id) => scanning$[key][id].peek())
+      : scanningAll$[key].peek()
+  )
     return;
 
   const excluded = exclusions$[key].peek() ?? {};
@@ -126,7 +130,9 @@ export async function scanSources(args: {
     ...sources.filter((s) => !isLive(excluded[s.id])).map((s) => s.id),
     ...expired,
   ];
-  const targets = sources.filter((s) => ids.includes(s.id));
+  // A Scan all leaves the sources a rescan is probing to it.
+  const busy = scanning$[key].peek() ?? {};
+  const targets = sources.filter((s) => ids.includes(s.id) && !busy[s.id]);
   if (targets.length === 0) return;
 
   const prev = { ...probes$[key].peek() };
@@ -182,7 +188,7 @@ export async function scanSources(args: {
     // An excluded source has nothing to read: the detail asks for another.
     if (picked && isLive(next[picked])) deselectSource(mangaId, picked);
   } finally {
-    scanningAll$[key].delete();
+    if (!only) scanningAll$[key].delete();
     activity.end(Object.values(landed).filter((p) => p.matched).length);
   }
 }

@@ -172,7 +172,7 @@ export function SheetContent({
                 <Computed>
                   {() => (
                     <IconButton
-                      enabled={!isScanBusy(key)}
+                      enabled={!scanningAll$[key].get()}
                       onClick={actions.scanAll}
                       modifiers={[
                         semantics({ contentDescription: "Scan all sources" }),
