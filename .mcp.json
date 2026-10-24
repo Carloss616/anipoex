@@ -8,6 +8,12 @@
       "type": "stdio",
       "command": "node",
       "args": ["node_modules/@swmansion/argent/dist/cli.js", "mcp"]
+    },
+    "react-aria": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["@react-aria/mcp@latest"],
+      "env": {}
     }
   }
 }
