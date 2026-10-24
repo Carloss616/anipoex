@@ -23,13 +23,11 @@ function RadioGroupRoot(props: RadioGroupProps) {
   // PanelUI's radios set accessibilityState, which react-native-web doesn't
   // turn into aria-checked: without it a screen reader can't tell the pick.
   useEffect(() => {
-    ref.current
-      ?.querySelectorAll('[role="radio"]')
-      .forEach((radio, index) =>
-        radio.setAttribute(
-          "aria-checked",
-          String(options[index]?.value === props.value),
-        ),
+    const radios = ref.current?.querySelectorAll('[role="radio"]') ?? [];
+    for (const [index, radio] of [...radios].entries())
+      radio.setAttribute(
+        "aria-checked",
+        String(options[index]?.value === props.value),
       );
   });
 
