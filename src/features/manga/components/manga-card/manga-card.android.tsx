@@ -16,12 +16,13 @@ import {
   width as widthModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { StyleSheet } from "react-native";
+import { linearGradient } from "@/components/native/jetpack-compose/linear-gradient";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
-import { ScrimGradient } from "@/components/ui/scrim";
+import { ramp } from "@/utils/ramp";
 import { CoverImage } from "./cover-image";
 import type { MangaCardProps } from "./manga-card";
 import { cornerBadge } from "./utils";
@@ -30,6 +31,7 @@ import { cornerBadge } from "./utils";
 export const COVER_RADIUS = 12;
 /** Legible on any cover: a light caption over the dark wash. */
 const SHADOW = { color: "#000000b3", offsetX: 0, offsetY: 1, blurRadius: 3 };
+const SCRIM = ramp("#000000");
 
 /**
  * Compose card, meant to sit inside a Host. Standalone it brings its own,
@@ -110,9 +112,7 @@ export function MangaCard({
           <Box modifiers={[fillMaxWidth()]}>
             {/* `matchParentSize` keeps the ramp out of the box's measurement,
                 so the text is what sets the height. */}
-            <Column modifiers={[matchParentSize()]}>
-              <ScrimGradient color="#000000" />
-            </Column>
+            <Column modifiers={[matchParentSize(), linearGradient(SCRIM)]} />
             <Column
               horizontalAlignment="center"
               modifiers={[fillMaxWidth(), padding(8, 48, 8, 8)]}
