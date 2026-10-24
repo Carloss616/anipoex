@@ -160,7 +160,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           "pointer-events-none absolute inset-0",
           // Unset fades out like iOS 26's bar; a material ends square.
           !blur &&
-            "mask-[linear-gradient(to_bottom,black_calc(100%-1.5rem),transparent)]",
+            "mask-[linear-gradient(to_top,transparent,black_1.5rem)]",
           "transition-[backdrop-filter,background-color]",
           COLLAPSE,
           options.headerShadowVisible &&

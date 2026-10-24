@@ -49,6 +49,10 @@ Legend State gotchas:
 - A `Stack.Toolbar` in a header slot forces `headerShown: true` over `Stack.Header hidden`: unmount the toolbar while the header is hidden.
 - `NativeTabs hidden` on Android remounts every screen of the tab, since expo-router swaps the content's bottom `SafeAreaView` in and out; `patches/expo-router@58.0.23.patch` keeps it and turns only its edge off. Re-check it when expo-router is upgraded.
 
+# Styling
+
+- Uniwind builds native styles from every class it scans, `.web.tsx` included, and its `calc()` can't add `%` to another unit: `calc(100%-1.5rem)` logs "Invalid calc, you can't mix % with other units". Write it without the sum (the header's mask runs `to_top` from a fixed stop, `src/components/layout/header/header.web.tsx`).
+
 # Persistence
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).
