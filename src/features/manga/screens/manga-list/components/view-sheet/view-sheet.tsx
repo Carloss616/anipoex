@@ -1,10 +1,10 @@
 import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
-import { ButtonGroup } from "panelui-native/components/button-group";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { View } from "react-native";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Typography } from "@/components/ui/typography";
 import { listView$ } from "@/features/manga/state/list-view";
 import {

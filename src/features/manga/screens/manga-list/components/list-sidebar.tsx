@@ -1,9 +1,9 @@
-import { ButtonGroup } from "panelui-native/components/button-group";
 import { cn } from "panelui-native/utils/cn";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { ListCounts } from "@/features/manga/utils/to-counts";

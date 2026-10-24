@@ -1,8 +1,8 @@
-import { ButtonGroup } from "panelui-native/components/button-group";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { ScrollView, View } from "react-native";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { Separator } from "@/components/ui/separator";

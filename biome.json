@@ -46,6 +46,7 @@
               "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
               "panelui-native/components/bottom-sheet": "Import from @/components/ui/bottom-sheet",
               "panelui-native/components/button": "Import from @/components/ui/button",
+              "panelui-native/components/button-group": "Import from @/components/ui/button-group",
               "panelui-native/components/chip": "Import from @/components/ui/chip",
               "panelui-native/components/loader": "Import from @/components/ui/loader",
               "panelui-native/components/progress": "Import from @/components/ui/progress",

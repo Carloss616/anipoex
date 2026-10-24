@@ -1,11 +1,11 @@
 import { Computed } from "@legendapp/state/react";
-import { ButtonGroup } from "panelui-native/components/button-group";
 import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";

@@ -15,6 +15,7 @@ import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
+import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
 import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
@@ -138,7 +139,9 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
         bordered
         elevated
       >
-        <PanelTabs.List>{children}</PanelTabs.List>
+        <ArrowKeyGroup orientation="horizontal">
+          <PanelTabs.List>{children}</PanelTabs.List>
+        </ArrowKeyGroup>
         <ThemeToggle />
       </Surface>
     </View>
