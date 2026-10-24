@@ -3,8 +3,10 @@ import {
   Button as PanelButton,
   type ButtonProps as PanelButtonProps,
 } from "panelui-native/components/button";
-import type { ForwardRefExoticComponent, RefAttributes } from "react";
+import { cn } from "panelui-native/utils/cn";
+import { forwardRef } from "react";
 import type { View } from "react-native";
+import { FOCUS_RING, HOVER } from "./constants";
 
 export * from "panelui-native/components/button";
 
@@ -15,6 +17,16 @@ export type ButtonProps = PanelButtonProps &
     | { size?: Exclude<ButtonSize, "icon"> }
   );
 
-export const Button = PanelButton as ForwardRefExoticComponent<
-  ButtonProps & RefAttributes<View>
->;
+/** PanelUI's Button with a themed focus ring and hover on web. */
+export const Button = forwardRef<View, ButtonProps>(function Button(
+  { className, ...props },
+  ref,
+) {
+  return (
+    <PanelButton
+      ref={ref}
+      {...props}
+      className={cn(FOCUS_RING, HOVER, className)}
+    />
+  );
+});

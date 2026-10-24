@@ -38,7 +38,7 @@ function RadioGroupRoot(props: RadioGroupProps) {
       }
       onMove={(index) => props.onValueChange(enabled[index].value)}
     >
-      <div ref={ref} style={{ display: "contents" }}>
+      <div ref={ref} className="contents">
         <PanelRadioGroup {...props} />
       </div>
     </ArrowKeyGroup>

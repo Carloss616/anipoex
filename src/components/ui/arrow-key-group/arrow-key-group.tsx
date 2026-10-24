@@ -29,7 +29,7 @@ export function ArrowKeyGroup({
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: key events bubble up from the items it wraps
-    <div onKeyDown={onKeyDown} style={{ display: "contents" }}>
+    <div onKeyDown={onKeyDown} className="contents">
       {children}
     </div>
   );

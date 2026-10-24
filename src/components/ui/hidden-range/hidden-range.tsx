@@ -1,5 +1,9 @@
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 import { VisuallyHidden } from "react-aria/VisuallyHidden";
+
+// The wrapper shows the ring while the hidden input has keyboard focus.
+const RING =
+  "rounded-lg has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-ring has-[input:focus-visible]:ring-offset-4 has-[input:focus-visible]:ring-offset-background";
 
 export interface HiddenRangeProps {
   value: number;
@@ -25,16 +29,8 @@ export function HiddenRange({
   onChange,
   children,
 }: HiddenRangeProps) {
-  const [ring, setRing] = useState(false);
-
   return (
-    <div
-      style={{
-        borderRadius: 8,
-        outline: ring ? "2px solid var(--color-ring)" : undefined,
-        outlineOffset: 4,
-      }}
-    >
+    <div className={RING}>
       <VisuallyHidden>
         <input
           type="range"
@@ -44,8 +40,6 @@ export function HiddenRange({
           max={max}
           step={step}
           onChange={(event) => onChange(Number(event.target.value))}
-          onFocus={(event) => setRing(event.target.matches(":focus-visible"))}
-          onBlur={() => setRing(false)}
         />
       </VisuallyHidden>
       {/* The input is the control screen readers announce; this is its picture. */}

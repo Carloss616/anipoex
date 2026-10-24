@@ -16,6 +16,7 @@ import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
+import { FOCUS_RING } from "@/components/ui/constants";
 import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
@@ -106,7 +107,7 @@ function PanelTabTrigger({
   return (
     <PanelTabs.Trigger
       value={item.href}
-      className="px-4"
+      className={cn("px-4", FOCUS_RING)}
       icon={
         <Lucide
           size={BUTTON_ICON_SIZE}

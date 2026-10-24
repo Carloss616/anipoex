@@ -4,6 +4,7 @@ import { AnimatedPressable } from "panelui-native/primitives/animated-pressable"
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { Badge } from "@/components/ui/badge";
+import { FOCUS_RING } from "@/components/ui/constants";
 import { EnsureRNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
@@ -123,6 +124,7 @@ export function MangaCard({
           // The pressable is the one tab stop; a role on the view inside would add a second.
           accessibilityRole="button"
           accessibilityLabel={accessibilityLabel}
+          className={cn("rounded-xl", FOCUS_RING)}
         >
           <View
             testID={testID}
@@ -169,6 +171,7 @@ export function MangaCard({
         onLongPress={onLongPress}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
+        className={cn("rounded-xl", FOCUS_RING)}
       >
         <Card
           testID={testID}
