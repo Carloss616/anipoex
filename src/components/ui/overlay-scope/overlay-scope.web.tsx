@@ -39,7 +39,16 @@ function Scope({
   const { modalProps } = useModalOverlay(
     // Outside the scope everything turns inert, PanelUI's backdrops included,
     // so react-aria's document listener closes on an outside press instead.
-    { isDismissable: true },
+    {
+      isDismissable: true,
+      // A press on the panel around the rows (its padding) is the overlay's
+      // own; the full-screen layers under it are outside.
+      shouldCloseOnInteractOutside: (element) => {
+        if (!element.contains(ref.current)) return true;
+        const { width, height } = element.getBoundingClientRect();
+        return width >= window.innerWidth && height >= window.innerHeight;
+      },
+    },
     {
       isOpen: true,
       setOpen: (open) => !open && onClose(),
