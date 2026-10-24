@@ -1,9 +1,10 @@
 import { Menu as PanelMenu } from "panelui-native/components/menu";
 import type { PopoverAlign } from "panelui-native/components/popover";
-import { cloneElement, type ReactElement } from "react";
+import { cloneElement, type ReactElement, useState } from "react";
 import { View, type ViewProps } from "react-native";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
+import { OverlayScope } from "../overlay-scope";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import { isSubmenu } from "./utils";
 
@@ -106,9 +107,14 @@ function ActionItem({
 
 function RowItem(item: MenuItem) {
   if (!isSubmenu(item)) return <ActionItem {...item} />;
+  return <SubmenuItem {...item} />;
+}
+
+function SubmenuItem(item: MenuSubmenu) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <PanelMenu.Sub>
+    <PanelMenu.Sub open={open} onOpenChange={setOpen}>
       <PanelMenu.SubTrigger
         icon={item.icon ? <Icon name={item.icon} size={16} /> : undefined}
         disabled={item.disabled}
@@ -116,9 +122,10 @@ function RowItem(item: MenuItem) {
         {item.label}
       </PanelMenu.SubTrigger>
       <PanelMenu.SubContent>
-        {item.items.map((row) => (
-          <ActionItem key={row.label} {...row} />
-        ))}
+        {/* Collapsed rows stay laid out at zero height, where arrow
+            keys would still reach them. */}
+        {open &&
+          item.items.map((row) => <ActionItem key={row.label} {...row} />)}
       </PanelMenu.SubContent>
     </PanelMenu.Sub>
   );
@@ -164,10 +171,11 @@ export function Menu({
   onPrimaryAction,
 }: MenuProps) {
   const { rows, pending, close } = useMenuDialogState(items);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <PanelMenu>
+      <PanelMenu open={open} onOpenChange={setOpen}>
         <PanelMenu.Trigger>
           {onPrimaryAction ? (
             <PrimaryTrigger
@@ -183,9 +191,15 @@ export function Menu({
           minWidth={items.some(isSubmenu) ? SUBMENU_MIN_WIDTH : undefined}
           style={{ maxWidth: MAX_WIDTH }}
         >
-          {rows.map((item) => (
-            <RowItem key={item.label} {...item} />
-          ))}
+          <OverlayScope
+            arrows="vertical"
+            onClose={() => setOpen(false)}
+            className="flex flex-col gap-0.5"
+          >
+            {rows.map((item) => (
+              <RowItem key={item.label} {...item} />
+            ))}
+          </OverlayScope>
         </PanelMenu.Content>
       </PanelMenu>
 
