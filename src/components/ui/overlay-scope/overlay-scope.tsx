@@ -1,4 +1,10 @@
-import { type KeyboardEvent, type ReactNode, useRef } from "react";
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useRef,
+} from "react";
 import { FocusScope, useFocusManager } from "react-aria/FocusScope";
 import { useModalOverlay } from "react-aria/useModalOverlay";
 
@@ -16,6 +22,9 @@ const ARROWS = {
   vertical: { next: "ArrowDown", previous: "ArrowUp" },
   horizontal: { next: "ArrowRight", previous: "ArrowLeft" },
 } as const;
+
+// Open scopes, last on top: only the top one pulls stray focus back.
+const open: RefObject<HTMLDivElement | null>[] = [];
 
 // Disabled rows are focusable (tabindex -1) but not tabbable, so arrows skip them.
 const MOVE = { wrap: true, tabbable: true };
@@ -55,6 +64,29 @@ function Scope({
     },
     ref,
   );
+
+  // autoFocus runs before Reanimated's entering animation unhides the content,
+  // and PanelUI hands focus back to a closed menu's trigger after it: both
+  // leave focus outside, so the top-most scope takes it in itself.
+  useEffect(() => {
+    open.push(ref);
+    let frame = 0;
+    let tries = 0;
+    const reclaim = (event?: FocusEvent) => {
+      const target = (event?.target as Node) ?? document.activeElement;
+      if (open.at(-1) !== ref || ref.current?.contains(target)) return;
+      // shortcut: retries ~0.5s of frames, enough for PanelUI's 150ms entering animations.
+      if (!focus?.focusFirst({ tabbable: true }) && tries++ < 30)
+        frame = requestAnimationFrame(() => reclaim());
+    };
+    reclaim();
+    document.addEventListener("focusin", reclaim);
+    return () => {
+      cancelAnimationFrame(frame);
+      open.splice(open.indexOf(ref), 1);
+      document.removeEventListener("focusin", reclaim);
+    };
+  }, [focus]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     modalProps.onKeyDown?.(event);

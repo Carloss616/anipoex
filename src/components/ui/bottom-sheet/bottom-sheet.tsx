@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { View, type ViewProps } from "react-native";
 import { type DialogProps, Drawer } from "vaul";
+import { OverlayScope } from "../overlay-scope";
 
 export interface BottomSheetProps
   extends BottomSheetBaseProps,
@@ -91,60 +92,64 @@ function BottomSheetRoot({
     >
       <PortalProvider>
         <Drawer.Portal>
-          <Drawer.Overlay
-            className="fixed inset-0 bg-black/50 opacity-100!"
-            style={
-              typeof scrimColor === "string"
-                ? { backgroundColor: scrimColor }
-                : undefined
-            }
-          />
-          <Drawer.Content
-            className={cn(
-              "fixed right-0 bottom-0 z-50 flex flex-col border-border bg-popover shadow-sm outline-none",
-              isRight
-                ? "top-0 rounded-l-[16px] border-l"
-                : "left-0 rounded-t-[16px] border-t",
-              // Snap-points mode: vaul translates the drawer by `viewport - snapHeight`.
-              // The drawer has to fill the viewport or it gets pushed off-screen.
-              isRight
-                ? hasSnapPoints
-                  ? "w-[96vw]"
-                  : "w-full max-w-md"
-                : hasSnapPoints
-                  ? "h-[96vh]"
-                  : "max-h-[85vh]",
-            )}
-            style={
-              typeof containerColor === "string"
-                ? { backgroundColor: containerColor }
-                : undefined
-            }
-            aria-describedby={undefined}
-            data-testid={testID}
-          >
-            {/* Radix Dialog requires a title for a11y; render visually-hidden. */}
-            <Drawer.Title className="sr-only">Bottom sheet</Drawer.Title>
-            {showDragIndicator && !isRight && (
-              <Drawer.Handle className="mt-2 bg-muted-foreground/30" />
-            )}
-            {isRight || hasSnapPoints ? (
-              // RNW Views don't shrink, so without this the column outgrows the
-              // drawer and a scrollable child never gets a bounded box.
-              <View className={cn("min-h-0 flex-1", className)}>
-                {children}
-              </View>
-            ) : (
-              <AnimatedHeight>
-                <View className={className}>{children}</View>
-              </AnimatedHeight>
-            )}
-          </Drawer.Content>
-          {/* PanelUI portals (Select, Popover) mount here so they paint above the
+          <OverlayScope onClose={onDismiss}>
+            <Drawer.Overlay
+              className="fixed inset-0 bg-black/50 opacity-100!"
+              style={
+                typeof scrimColor === "string"
+                  ? { backgroundColor: scrimColor }
+                  : undefined
+              }
+            />
+            <Drawer.Content
+              className={cn(
+                "fixed right-0 bottom-0 z-50 flex flex-col border-border bg-popover shadow-sm outline-none",
+                isRight
+                  ? "top-0 rounded-l-[16px] border-l"
+                  : "left-0 rounded-t-[16px] border-t",
+                // Snap-points mode: vaul translates the drawer by `viewport - snapHeight`.
+                // The drawer has to fill the viewport or it gets pushed off-screen.
+                isRight
+                  ? hasSnapPoints
+                    ? "w-[96vw]"
+                    : "w-full max-w-md"
+                  : hasSnapPoints
+                    ? "h-[96vh]"
+                    : "max-h-[85vh]",
+              )}
+              style={
+                typeof containerColor === "string"
+                  ? { backgroundColor: containerColor }
+                  : undefined
+              }
+              aria-describedby={undefined}
+              data-testid={testID}
+              // OverlayScope closes the top-most overlay; Radix would close the sheet on any Escape.
+              onEscapeKeyDown={(event) => event.preventDefault()}
+            >
+              {/* Radix Dialog requires a title for a11y; render visually-hidden. */}
+              <Drawer.Title className="sr-only">Bottom sheet</Drawer.Title>
+              {showDragIndicator && !isRight && (
+                <Drawer.Handle className="mt-2 bg-muted-foreground/30" />
+              )}
+              {isRight || hasSnapPoints ? (
+                // RNW Views don't shrink, so without this the column outgrows the
+                // drawer and a scrollable child never gets a bounded box.
+                <View className={cn("min-h-0 flex-1", className)}>
+                  {children}
+                </View>
+              ) : (
+                <AnimatedHeight>
+                  <View className={className}>{children}</View>
+                </AnimatedHeight>
+              )}
+            </Drawer.Content>
+            {/* PanelUI portals (Select, Popover) mount here so they paint above the
             drawer. Not inside it: its transform would capture their `fixed`. */}
-          <View pointerEvents="box-none" className="fixed inset-0 z-60">
-            <PortalHost />
-          </View>
+            <View pointerEvents="box-none" className="fixed inset-0 z-60">
+              <PortalHost />
+            </View>
+          </OverlayScope>
         </Drawer.Portal>
       </PortalProvider>
     </Drawer.Root>

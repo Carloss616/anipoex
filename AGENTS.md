@@ -58,6 +58,8 @@ Legend State gotchas:
 
 - Web keyboard behavior lives in the `src/components/ui` wrappers, not in PanelUI: overlays wrap their content in `OverlayScope` (focus contained and restored, Escape closes the top-most, page hidden from screen readers). react-aria is imported only in `overlay-scope/`, `arrow-key-group/` and `hidden-range/` (Biome), each with a `.native.tsx` that renders its children, so native never loads it.
 - react-native-web forwards key, focus, `role`, `tabIndex` and `aria-*` props to the DOM but not pointer events: react-aria's `usePress`/`useHover` can't drive RN views. Hover and focus rings are CSS (`hover:`, `focus-visible:`), which Uniwind emits as real classes on web.
+- The web `BottomSheet` is vaul on Radix Dialog, whose focus trap and capture-phase Escape only know the drawer, not PanelUI's portals mounted beside it: a dialog opened from a sheet never got focus, and Escape closed the sheet under it. `OverlayScope` wraps drawer and portal host, its `inert` keeps Radix from pulling focus back, and `onEscapeKeyDown` hands Escape to it (`src/components/ui/bottom-sheet/bottom-sheet.tsx`). vaul's `modal` prop never reaches Radix, so it can't turn the trap off.
+- PanelUI restores focus to a closed menu's trigger after its exit animation, and Reanimated's entering animation keeps new content untabbable for a few frames, so react-aria's `autoFocus` alone lands nowhere: `OverlayScope` pulls stray focus into the top-most open scope itself.
 
 # Persistence
 
