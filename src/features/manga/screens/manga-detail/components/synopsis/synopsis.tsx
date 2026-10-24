@@ -1,6 +1,6 @@
+import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { useState } from "react";
 import { View } from "react-native";
-import { Feedback } from "@/components/ui/feedback";
 import { Typography } from "@/components/ui/typography";
 
 /** Enough to tell what the book is about, short enough to leave the page scannable. */
@@ -19,7 +19,7 @@ export function Synopsis({ text }: { text: string | undefined }) {
   if (!text) return null;
 
   return (
-    <Feedback onPress={() => setExpanded((e) => !e)}>
+    <AnimatedPressable onPress={() => setExpanded((e) => !e)}>
       <View>
         <View
           className="overflow-hidden transition-[height] duration-300 ease-sheet motion-reduce:transition-none"
@@ -55,6 +55,6 @@ export function Synopsis({ text }: { text: string | undefined }) {
           more
         </Typography>
       </View>
-    </Feedback>
+    </AnimatedPressable>
   );
 }

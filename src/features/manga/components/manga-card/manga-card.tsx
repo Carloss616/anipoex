@@ -1,9 +1,9 @@
 import type { ImageSource } from "expo-image";
 import { Card } from "panelui-native/components/card";
+import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { Feedback } from "@/components/ui/feedback";
 import { EnsureRNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
@@ -116,7 +116,11 @@ export function MangaCard({
   if (titlePosition === "below") {
     return (
       <EnsureRNHostView matchContents>
-        <Feedback onPress={onPress} onLongPress={onLongPress}>
+        <AnimatedPressable
+          disabled={!onPress && !onLongPress}
+          onPress={onPress}
+          onLongPress={onLongPress}
+        >
           <View
             accessible={!!accessibilityLabel}
             accessibilityRole="button"
@@ -152,14 +156,18 @@ export function MangaCard({
             {label && <Badge className="self-start">{label}</Badge>}
             {progress != null && <Progress value={progress * 100} size="sm" />}
           </View>
-        </Feedback>
+        </AnimatedPressable>
       </EnsureRNHostView>
     );
   }
 
   return (
     <EnsureRNHostView matchContents>
-      <Feedback onPress={onPress} onLongPress={onLongPress}>
+      <AnimatedPressable
+        disabled={!onPress && !onLongPress}
+        onPress={onPress}
+        onLongPress={onLongPress}
+      >
         <Card
           accessible={!!accessibilityLabel}
           accessibilityRole="button"
@@ -195,7 +203,7 @@ export function MangaCard({
             </View>
           )}
         </Card>
-      </Feedback>
+      </AnimatedPressable>
     </EnsureRNHostView>
   );
 }

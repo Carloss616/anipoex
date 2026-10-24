@@ -1,9 +1,10 @@
-import { Overlay, VStack } from "@expo/ui/swift-ui";
+import { Button, Overlay, VStack } from "@expo/ui/swift-ui";
 import {
   Animation,
   accessibilityHidden,
   animation,
   background,
+  buttonStyle,
   clipped,
   fixedSize,
   foregroundStyle,
@@ -16,7 +17,6 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useState } from "react";
 import { Text } from "@/components/native/swift-ui/text";
-import { Feedback } from "@/components/ui/feedback";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
 /** Enough to tell what the book is about, short enough to leave the page scannable. */
@@ -43,7 +43,10 @@ export function Synopsis({ text }: { text: string | undefined }) {
         animation(Animation.spring({ duration: 0.3, bounce: 0 }), expanded),
       ]}
     >
-      <Feedback onPress={() => setExpanded((e) => !e)}>
+      <Button
+        onPress={() => setExpanded((e) => !e)}
+        modifiers={[buttonStyle("borderless")]}
+      >
         <Overlay alignment="bottomTrailing">
           <Text
             modifiers={
@@ -90,7 +93,7 @@ export function Synopsis({ text }: { text: string | undefined }) {
             </Text>
           </Overlay.Content>
         </Overlay>
-      </Feedback>
+      </Button>
     </VStack>
   );
 }
