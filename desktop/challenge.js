@@ -4,10 +4,8 @@ import { app, BrowserWindow, session, WebContentsView } from "electron";
 
 // Under the runtime's 2-minute call timeout, which counts the time spent here.
 const SOLVE_MS = 60_000;
-// A challenge that wants a click shows itself; most solve on their own before.
-const SHOW_AFTER_MS = 8_000;
-// shortcut: no signal tells a check that wants a click from one still running, so the banner asks once
-// it's been this long (unaided ones pass in ~4 s); read the widget if Cloudflare ever exposes one.
+// shortcut: no signal tells a check that wants a click from one still running, so the window shows and
+// asks once it's been this long (unaided ones pass in ~4 s); read the widget if Cloudflare ever exposes one.
 const ASK_AFTER_MS = 15_000;
 const POLL_MS = 500;
 // A site's page stays loaded this long after its last request, then closes.
@@ -102,9 +100,11 @@ export async function solveChallenge({ url }) {
   window.on("closed", () => site.webContents.close());
   site.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
   const userAgent = site.webContents.getUserAgent();
-  const show = setTimeout(() => {
-    if (!window.isDestroyed()) window.show();
-  }, SHOW_AFTER_MS);
+  // A hidden window paints no frames and the check stalls without them, so it
+  // shows from the start: see-through, click-through and unfocused until it asks.
+  window.setOpacity(0);
+  window.setIgnoreMouseEvents(true);
+  window.showInactive();
   try {
     site.webContents.loadURL(url).catch(() => {});
     const started = Date.now();
@@ -115,7 +115,13 @@ export async function solveChallenge({ url }) {
         asked = true;
         window.webContents
           .executeJavaScript(`document.body.dataset.state = "ask"`)
-          .then(layout, () => {});
+          .then(layout, () => {})
+          .then(() => {
+            if (window.isDestroyed()) return;
+            window.setIgnoreMouseEvents(false);
+            window.setOpacity(1);
+            window.show();
+          });
       }
       const cookies = await cloudflare.cookies.get({ url });
       if (cookies.some(({ name }) => name === "cf_clearance")) {
@@ -126,12 +132,12 @@ export async function solveChallenge({ url }) {
             site.webContents.getTitle() === "Just a moment...")
         )
           await new Promise((resolve) => setTimeout(resolve, 250));
-        if (window.isVisible()) {
+        if (asked) {
           window.webContents
             .executeJavaScript(`document.body.dataset.done = ""`)
             .then(layout, () => {});
           setTimeout(() => window.isDestroyed() || window.hide(), DONE_MS);
-        }
+        } else window.hide();
         keepPage(host, window, site);
         return { cookies: cookies.map(toSetCookie), userAgent };
       }
@@ -143,8 +149,6 @@ export async function solveChallenge({ url }) {
     if (!window.isDestroyed() && pages.get(host)?.window !== window)
       window.destroy();
     throw error;
-  } finally {
-    clearTimeout(show);
   }
 }
 

@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-10-23
+
+* **The desktop Cloudflare window waits until it needs you**: it stays see-through and click-through while the app tries and shows only at 15 seconds, when the banner asks the person to complete the check. Updated [extension cookies](stores/extension-cookies.md).
+
 ## 2026-10-22
 
 * **Pages come through their source**: the reader shows each page as the source's own client downloaded it, as in Mihon, so sources that scramble their pages show them in order (on Android too, where they came out scrambled) and image hosts get the cookies and headers they want. Pages a source draws back together also work on desktop and iOS now. Added [reader pages](stores/reader-pages.md).

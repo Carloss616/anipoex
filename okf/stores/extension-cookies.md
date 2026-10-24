@@ -18,8 +18,10 @@ captcha) or a failed one shows as the call's error.
 
 On desktop and iOS they live in memory only, so a restart drops them and the first request
 earns them again. There, the challenge is solved by the app's own browser (a hidden window on
-desktop, a hidden web view on iOS). It shows itself after 8 seconds without passing, titled
+desktop, a hidden web view on iOS). On iOS it shows itself after 8 seconds without passing, titled
 with the site, under a banner saying the app is still trying and a box to tick can be ticked; at
 15 seconds it says the app couldn't pass on its own and asks the person to complete the check, or
-skip the source. Once through, the banner says so for a second and closes. That site's
-requests then go out from the solved page for as long as it stays open (10 minutes idle).
+skip the source. Desktop keeps the window see-through and click-through until that ask, so it
+doesn't cover the app while it tries; it can't hide it, since the check stalls in a hidden
+window. Once through, the banner says so for a second and closes. That site's requests then
+go out from the solved page for as long as it stays open (10 minutes idle).

@@ -58,6 +58,10 @@ Legend State gotchas:
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).
 
+# Desktop
+
+- A hidden Electron window (`show: false`) paints no frames: `requestAnimationFrame` never fires and `IntersectionObserver` never reports, even with `backgroundThrottling: false`, so a Cloudflare check stalls there. To keep a page running unseen, show it with `showInactive()` at opacity 0 and `setIgnoreMouseEvents(true)` (`desktop/challenge.js`).
+
 # No source names
 
 The repo stays unassociated with any source, like the open-source apps it follows.
