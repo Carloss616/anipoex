@@ -54,6 +54,11 @@ Legend State gotchas:
 
 - Uniwind builds native styles from every class it scans, `.web.tsx` included, and its `calc()` can't add `%` to another unit: `calc(100%-1.5rem)` logs "Invalid calc, you can't mix % with other units". Write it without the sum (the header's mask runs `to_top` from a fixed stop, `src/components/layout/header/header.web.tsx`).
 
+# Accessibility (web)
+
+- Web keyboard behavior lives in the `src/components/ui` wrappers, not in PanelUI: overlays wrap their content in `OverlayScope` (focus contained and restored, Escape closes the top-most, page hidden from screen readers). react-aria is imported only in `overlay-scope/`, `arrow-key-group/` and `hidden-range/` (Biome), each with a `.native.tsx` that renders its children, so native never loads it.
+- react-native-web forwards key, focus, `role`, `tabIndex` and `aria-*` props to the DOM but not pointer events: react-aria's `usePress`/`useHover` can't drive RN views. Hover and focus rings are CSS (`hover:`, `focus-visible:`), which Uniwind emits as real classes on web.
+
 # Persistence
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).

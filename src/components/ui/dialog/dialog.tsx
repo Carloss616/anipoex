@@ -1,7 +1,8 @@
 import type { ButtonRole } from "@expo/ui/swift-ui";
 import { Dialog as PanelDialog } from "panelui-native/components/dialog";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import { Button } from "../button";
+import { OverlayScope } from "../overlay-scope";
 import { dialogActions } from "./utils";
 
 export interface DialogAction {
@@ -48,35 +49,47 @@ export type DialogProps = DialogBaseProps &
 function DialogRoot(props: DialogProps) {
   const { children, title, description, className, open, onOpenChange } = props;
   const { actions, cancel } = dialogActions(props);
+  // Held here too when uncontrolled, so Escape can close a `Trigger` dialog.
+  const [innerOpen, setInnerOpen] = useState(false);
+  const setOpen = (next: boolean) => {
+    if (open === undefined) setInnerOpen(next);
+    onOpenChange?.(next);
+  };
 
   return (
-    <PanelDialog open={open} onOpenChange={onOpenChange}>
+    <PanelDialog open={open ?? innerOpen} onOpenChange={setOpen}>
       {children}
       <PanelDialog.Content className={className}>
-        <PanelDialog.Title>{title}</PanelDialog.Title>
-        {description && (
-          <PanelDialog.Description>{description}</PanelDialog.Description>
-        )}
-        <PanelDialog.Footer>
-          <PanelDialog.Close>
-            <Button size="sm" variant="ghost" onPress={cancel.onPress}>
-              {cancel.label}
-            </Button>
-          </PanelDialog.Close>
-          {actions.map((action) => (
-            <PanelDialog.Close key={action.label}>
-              <Button
-                size="sm"
-                variant={
-                  action.role === "destructive" ? "destructive" : "primary"
-                }
-                onPress={action.onPress}
-              >
-                {action.label}
+        <OverlayScope
+          label={title}
+          onClose={() => setOpen(false)}
+          className="flex flex-col gap-1.5"
+        >
+          <PanelDialog.Title>{title}</PanelDialog.Title>
+          {description && (
+            <PanelDialog.Description>{description}</PanelDialog.Description>
+          )}
+          <PanelDialog.Footer>
+            <PanelDialog.Close>
+              <Button size="sm" variant="ghost" onPress={cancel.onPress}>
+                {cancel.label}
               </Button>
             </PanelDialog.Close>
-          ))}
-        </PanelDialog.Footer>
+            {actions.map((action) => (
+              <PanelDialog.Close key={action.label}>
+                <Button
+                  size="sm"
+                  variant={
+                    action.role === "destructive" ? "destructive" : "primary"
+                  }
+                  onPress={action.onPress}
+                >
+                  {action.label}
+                </Button>
+              </PanelDialog.Close>
+            ))}
+          </PanelDialog.Footer>
+        </OverlayScope>
       </PanelDialog.Content>
     </PanelDialog>
   );

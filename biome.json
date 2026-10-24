@@ -53,9 +53,14 @@
               "panelui-native/components/separator": "Import from @/components/ui/separator",
               "panelui-native/components/spinner": "Import from @/components/ui/loader",
               "panelui-native/components/surface": "Import from @/components/ui/surface",
-              "panelui-native/components/typography": "Import from @/components/ui/typography"
+              "panelui-native/components/typography": "Import from @/components/ui/typography",
+              "react-aria": "Only src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
             },
             "patterns": [
+              {
+                "group": ["react-aria/*"],
+                "message": "Only src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+              },
               {
                 "group": ["@expo/ui"],
                 "importNamePattern": "BottomSheet",
@@ -192,6 +197,16 @@
             }
           }
         }
+      }
+    },
+    {
+      "includes": [
+        "src/components/ui/overlay-scope/**",
+        "src/components/ui/arrow-key-group/**",
+        "src/components/ui/hidden-range/**"
+      ],
+      "linter": {
+        "rules": { "style": { "noRestrictedImports": "off" } }
       }
     },
     {

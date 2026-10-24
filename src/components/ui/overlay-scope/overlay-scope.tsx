@@ -1,0 +1,87 @@
+import { type KeyboardEvent, type ReactNode, useRef } from "react";
+import { FocusScope, useFocusManager } from "react-aria/FocusScope";
+import { useModalOverlay } from "react-aria/useModalOverlay";
+
+export interface OverlayScopeProps {
+  onClose: () => void;
+  /** Arrow keys, Home and End move between the rows, as in a menu. */
+  arrows?: "vertical" | "horizontal";
+  /** Names the scope as a modal dialog, for overlays PanelUI leaves unnamed on web. */
+  label?: string;
+  className?: string;
+  children: ReactNode;
+}
+
+const ARROWS = {
+  vertical: { next: "ArrowDown", previous: "ArrowUp" },
+  horizontal: { next: "ArrowRight", previous: "ArrowLeft" },
+} as const;
+
+// Disabled rows are focusable (tabindex -1) but not tabbable, so arrows skip them.
+const MOVE = { wrap: true, tabbable: true };
+
+/**
+ * Web keyboard behavior for an open overlay: focus moves in and stays in,
+ * returns to the opener on close, Escape closes the top-most one, and the
+ * page behind is hidden from screen readers.
+ */
+export function OverlayScope(props: OverlayScopeProps) {
+  return (
+    <FocusScope contain restoreFocus autoFocus>
+      <Scope {...props} />
+    </FocusScope>
+  );
+}
+
+function Scope({
+  onClose,
+  arrows,
+  label,
+  className,
+  children,
+}: OverlayScopeProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const focus = useFocusManager();
+  const { modalProps } = useModalOverlay(
+    { isDismissable: false },
+    {
+      isOpen: true,
+      setOpen: (open) => !open && onClose(),
+      open: () => {},
+      close: onClose,
+      toggle: onClose,
+      point: null,
+      setPoint: () => {},
+    },
+    ref,
+  );
+
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    modalProps.onKeyDown?.(event);
+    if (!arrows || event.defaultPrevented) return;
+    const keys = ARROWS[arrows];
+    if (event.key === keys.next) focus?.focusNext(MOVE);
+    else if (event.key === keys.previous) focus?.focusPrevious(MOVE);
+    else if (event.key === "Home") focus?.focusFirst({ tabbable: true });
+    else if (event.key === "End") focus?.focusLast({ tabbable: true });
+    else return;
+    event.preventDefault();
+  };
+
+  const dialog = label
+    ? ({ role: "dialog", "aria-modal": true, "aria-label": label } as const)
+    : {};
+
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: key events bubble up from the rows it wraps
+    <div
+      ref={ref}
+      {...modalProps}
+      {...dialog}
+      onKeyDown={onKeyDown}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+}

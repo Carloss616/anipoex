@@ -33,6 +33,7 @@
     "fflate": "0.8.3",
     "panelui-native": "^0.113.0",
     "react": "19.3.0",
+    "react-aria": "^3.53.1",
     "react-dom": "19.3.0",
     "react-native": "0.88.0",
     "react-native-gesture-handler": "~3.3.0",
