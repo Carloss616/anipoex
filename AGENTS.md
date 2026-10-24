@@ -26,6 +26,7 @@ Legend State gotchas:
 
 - `useObservable` with a computed at its root freezes under Fast Refresh: put computeds under a plain root, `useObservable({ canAdd: () => … })` (see `use-manga-list.ts`).
 - `@expo/ui` native `Text` takes only a string child: wrap the whole `Text` in `Computed`, never its content.
+- To reset state when an observable changes, use `useObserve(obs$, reaction)`, not a `useEffect` keyed on its value: `bun run check:fix` (Biome, unsafe) silently drops deps the effect body doesn't read (`use-title-mode.ts`).
 - `peek()` for call-time reads (in handlers and actions), `get()` in anything that must update (`isScanning` vs `isScanBusy` in `state/probes.ts`). A `peek()` in render is worse than stale: the Compiler caches it and keeps the first render's value (`use-title-mode.ts` reads the query with `useValue`).
 
 # React Compiler

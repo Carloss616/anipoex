@@ -1,5 +1,6 @@
 import {
   IconButton,
+  Row,
   Shape,
   TextField,
   type TextFieldRef,
@@ -33,6 +34,7 @@ export function SearchBar({
   isClearable = true,
   clearLabel = "Clear",
   icon,
+  accessory,
 }: SearchBarProps) {
   const text = useNativeState(value ?? defaultValue ?? "");
   const [query, setQuery] = useState(text.value);
@@ -97,18 +99,23 @@ export function SearchBar({
             <Icon name={Icons.search} size={BUTTON_ICON_SIZE} color="inherit" />
           )}
         </TextField.LeadingIcon>
-        {isClearable && (value ?? query) ? (
+        {accessory || (isClearable && (value ?? query)) ? (
           <TextField.TrailingIcon>
-            <IconButton
-              onClick={clear}
-              modifiers={[semantics({ contentDescription: clearLabel })]}
-            >
-              <Icon
-                name={Icons.close}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
-            </IconButton>
+            <Row verticalAlignment="center">
+              {accessory}
+              {isClearable && (value ?? query) ? (
+                <IconButton
+                  onClick={clear}
+                  modifiers={[semantics({ contentDescription: clearLabel })]}
+                >
+                  <Icon
+                    name={Icons.close}
+                    size={BUTTON_ICON_SIZE}
+                    color="inherit"
+                  />
+                </IconButton>
+              ) : null}
+            </Row>
           </TextField.TrailingIcon>
         ) : null}
       </TextField>

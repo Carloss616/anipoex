@@ -52,12 +52,18 @@ import {
   excludedMenuItems,
   excludeReasons,
 } from "../utils/row-content";
+import { titleMenuItems } from "../utils/title-menu";
 import type { SheetContentProps } from "./sheet-content";
 
 /** A glass circle's icon slot, as on the tracking overview's menu button. */
 // A plain button only takes taps on its label: the label fills its slot in the group.
 const GROUP_SLOT = [
   frame({ width: 40, height: 40 }),
+  contentShape(shapes.rectangle()),
+];
+// The same, sized to the search field's clear button.
+const GROUP_SLOT_SM = [
+  frame({ width: 28, height: 28 }),
   contentShape(shapes.rectangle()),
 ];
 
@@ -232,10 +238,36 @@ export function SheetContent({
           </Dialog>
           {title.searching ? (
             <SearchBar
-              key="titles"
+              key={title.fieldKey}
               defaultValue={title.query}
+              onChangeText={title.type}
               onSubmit={title.submit}
               placeholder="Title to search"
+              accessory={
+                // The check follows the field: an edit unchecks the title.
+                <Computed>
+                  {() => (
+                    <Menu
+                      items={titleMenuItems(
+                        manga,
+                        title.fieldText(),
+                        title.pick,
+                      )}
+                    >
+                      <Icon
+                        name={Icons.swap}
+                        size={17}
+                        color="inherit"
+                        modifiers={[
+                          ...GROUP_SLOT_SM,
+                          foregroundStyle(primary),
+                          accessibilityLabel("AniList titles"),
+                        ]}
+                      />
+                    </Menu>
+                  )}
+                </Computed>
+              }
             />
           ) : (
             <SearchBar

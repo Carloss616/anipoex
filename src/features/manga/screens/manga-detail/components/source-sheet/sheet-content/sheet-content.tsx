@@ -21,6 +21,7 @@ import { useTitleMode } from "../hooks/use-title-mode";
 import { RefreshIcon } from "../refresh-icon";
 import { excludedMenuItems } from "../utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "../utils/sheet-items";
+import { titleMenuItems } from "../utils/title-menu";
 
 export interface SheetContentProps {
   manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
@@ -165,11 +166,39 @@ export function SheetContent({
           </View>
           {title.searching ? (
             <SearchBar
-              key="titles"
+              key={title.fieldKey}
               defaultValue={title.query}
+              onChangeText={title.type}
               onSubmit={title.submit}
               placeholder="Title to search"
               shape="pill"
+              accessory={
+                // The check follows the field: an edit unchecks the title.
+                <Computed>
+                  {() => (
+                    <Menu
+                      items={titleMenuItems(
+                        manga,
+                        title.fieldText(),
+                        title.pick,
+                      )}
+                    >
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="size-10 rounded-full"
+                        accessibilityLabel="AniList titles"
+                      >
+                        <Icon
+                          name={Icons.swap}
+                          size={BUTTON_ICON_SIZE}
+                          className="text-foreground"
+                        />
+                      </Button>
+                    </Menu>
+                  )}
+                </Computed>
+              }
             />
           ) : (
             <SearchBar

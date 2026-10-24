@@ -37,6 +37,7 @@ import { useTitleMode } from "../hooks/use-title-mode";
 import { RefreshIcon } from "../refresh-icon";
 import { excludedMenuItems } from "../utils/row-content";
 import { sheetItemKey, sheetItems } from "../utils/sheet-items";
+import { titleMenuItems } from "../utils/title-menu";
 import type { SheetContentProps } from "./sheet-content";
 
 const EMPTY_HEIGHT = 320;
@@ -51,6 +52,17 @@ function MoreButton({ onPress }: { onPress?: () => void }) {
       ]}
     >
       <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
+    </IconButton>
+  );
+}
+
+function TitlesButton({ onPress }: { onPress?: () => void }) {
+  return (
+    <IconButton
+      onClick={onPress}
+      modifiers={[semantics({ contentDescription: "AniList titles" })]}
+    >
+      <Icon name={Icons.swap} size={BUTTON_ICON_SIZE} color="inherit" />
     </IconButton>
   );
 }
@@ -201,11 +213,28 @@ export function SheetContent({
           </Column>
           {title.searching ? (
             <SearchBar
-              key="titles"
+              key={title.fieldKey}
               defaultValue={title.query}
+              onChangeText={title.type}
               onSubmit={title.submit}
               placeholder="Title to search"
               shape="pill"
+              accessory={
+                // The check follows the field: an edit unchecks the title.
+                <Computed>
+                  {() => (
+                    <Menu
+                      items={titleMenuItems(
+                        manga,
+                        title.fieldText(),
+                        title.pick,
+                      )}
+                    >
+                      <TitlesButton />
+                    </Menu>
+                  )}
+                </Computed>
+              }
             />
           ) : (
             <SearchBar

@@ -57,6 +57,11 @@ export const Icons = {
     android: require("@expo/material-symbols/search_off.xml"),
     web: "search-x",
   }),
+  swap: Icon.select({
+    ios: "arrow.right.arrow.left",
+    android: require("@expo/material-symbols/swap_horiz.xml"),
+    web: "arrow-left-right",
+  }),
   filter: Icon.select({
     ios: "line.3.horizontal.decrease",
     android: require("@expo/material-symbols/filter_list.xml"),

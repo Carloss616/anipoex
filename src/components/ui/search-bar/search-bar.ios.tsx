@@ -49,6 +49,7 @@ export function SearchBar({
   clearLabel = "Clear",
   cancelLabel = "Cancel",
   icon,
+  accessory,
 }: SearchBarProps) {
   const text = useNativeState(value ?? defaultValue ?? "");
   const [query, setQuery] = useState(text.value);
@@ -131,6 +132,7 @@ export function SearchBar({
                 font,
               ]}
             />
+            {accessory}
             {isClearable && (value ?? query) ? (
               <Button
                 label={clearLabel}

@@ -80,18 +80,19 @@ export interface Titles {
   all: (string | null | undefined)[];
 }
 
-/** The first few titles that read differently once normalized, so "Kimetsu no Yaiba" and "KIMETSU NO YAIBA" search once. */
-function queries(titles: (string | null | undefined)[]) {
+/** The titles that read differently once normalized, so "Kimetsu no Yaiba" and "KIMETSU NO YAIBA" count once. */
+export function uniqueTitles(titles: (string | null | undefined)[]) {
   const seen = new Set<string>();
-  return titles
-    .filter((title): title is string => {
-      const key = title && normalizeTitle(title);
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .slice(0, MAX_QUERIES);
+  return titles.filter((title): title is string => {
+    const key = title && normalizeTitle(title);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
+
+const queries = (titles: (string | null | undefined)[]) =>
+  uniqueTitles(titles).slice(0, MAX_QUERIES);
 
 export function searchTitles({
   title,
