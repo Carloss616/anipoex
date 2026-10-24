@@ -10,6 +10,7 @@ import {
   type ProbeMap,
   type ProviderProbe,
 } from "../utils/msu";
+import { startScanActivity } from "../utils/scan-activity";
 import type { Source } from "../utils/source";
 import {
   autoExclude,
@@ -101,8 +102,10 @@ export async function scanSources(args: {
   read: () => number;
   keep: string | undefined;
   only?: string[];
+  /** What a scan calls the manga outside the app. */
+  name?: string;
 }): Promise<void> {
-  const { mangaId, sources, titles, read, keep, only } = args;
+  const { mangaId, sources, titles, read, keep, only, name } = args;
   const key = mediaKey(mangaId);
   // A Scan all waits for every scan to end; a rescan only for its own source's.
   if (only ? only.some((id) => scanning$[key][id].peek()) : isScanning(mangaId))
@@ -130,9 +133,15 @@ export async function scanSources(args: {
   // Added beside the sources other rescans are probing, not over them.
   for (const s of targets) scanning$[key][s.id].set(true);
   if (!only) scanningAll$[key].set(true);
+  const activity = startScanActivity({
+    mangaId,
+    name: name ?? titles.search[0] ?? "",
+    total: targets.length,
+    source: only && targets.length === 1 ? targets[0] : undefined,
+  });
+  const landed: ProbeMap = {};
 
   try {
-    const landed: ProbeMap = {};
     for (let i = 0; i < targets.length; i += PARALLEL_BATCH) {
       await Promise.all(
         targets.slice(i, i + PARALLEL_BATCH).map(async (source) => {
@@ -140,6 +149,7 @@ export async function scanSources(args: {
           landed[source.id] = probe;
           probes$[key][source.id].set(probe);
           scanning$[key][source.id].delete();
+          activity.progress(Object.keys(landed).length);
         }),
       );
     }
@@ -173,5 +183,6 @@ export async function scanSources(args: {
     if (picked && isLive(next[picked])) deselectSource(mangaId, picked);
   } finally {
     scanningAll$[key].delete();
+    activity.end(Object.values(landed).filter((p) => p.matched).length);
   }
 }

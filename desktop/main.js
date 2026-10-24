@@ -241,6 +241,10 @@ app.whenReady().then(() => {
     if (window.isMinimized()) window.restore();
     window.focus();
   });
+  ipcMain.on("scan-progress", (event, fraction) => {
+    if (originOf(event.senderFrame?.url) !== APP_ORIGIN) return;
+    if (typeof fraction === "number") window.setProgressBar(fraction);
+  });
   window.loadURL(APP_URL);
   // The app is this window: hidden ones (a site's kept page, the script engine) don't keep it running.
   window.on("closed", () => app.quit());

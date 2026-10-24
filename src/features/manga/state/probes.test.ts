@@ -33,6 +33,12 @@ const chapters = mock((sourceId: string, url: string, _title: string) => {
 
 mock.module("@/features/extensions", () => ({ runtime: { search, chapters } }));
 mock.module("@/components/ui/toast", () => ({ toast: { destructive() {} } }));
+const activity = {
+  progress: mock((_done: number) => {}),
+  end: mock((_found: number) => {}),
+};
+const startScanActivity = mock((_args: unknown) => activity);
+mock.module("../utils/scan-activity", () => ({ startScanActivity }));
 mock.module("../utils/chapter-storage", () => memoryStorage);
 mock.module("@/state/observable-persist", () => ({
   ObservablePersist: class {
@@ -94,6 +100,9 @@ async function answer(id: string, numbers: number[]) {
 }
 
 beforeEach(() => {
+  startScanActivity.mockClear();
+  activity.progress.mockClear();
+  activity.end.mockClear();
   search.mockClear();
   chapters.mockClear();
   searchCalls.length = 0;
@@ -250,6 +259,34 @@ describe("scanSources", () => {
     searchPending.b([]);
     await done;
     expect(scanningAll$["201"].get()).toBeUndefined();
+  });
+
+  it("a scan reports each landing and ends with its matches", async () => {
+    const done = scan({ sources: sources("a", "b") });
+    await answer("a", [1]);
+    searchPending.b([]);
+    await done;
+    expect(startScanActivity).toHaveBeenCalledWith({
+      mangaId: 201,
+      name: "T",
+      total: 2,
+      source: undefined,
+    });
+    expect(activity.progress.mock.calls).toEqual([[1], [2]]);
+    expect(activity.end.mock.calls).toEqual([[1]]);
+  });
+
+  it("a rescan names its source and ends even when the probe fails", async () => {
+    const done = scan({ sources: sources("a", "b"), only: ["a"] });
+    await flush();
+    searchPending.a(["T"]);
+    await flush();
+    chaptersPending.a.reject(new Error("down"));
+    await done;
+    expect(startScanActivity).toHaveBeenCalledWith(
+      expect.objectContaining({ total: 1, source: sources("a")[0] }),
+    );
+    expect(activity.end.mock.calls).toEqual([[0]]);
   });
 
   it("a scan with only never flags a scan all", async () => {

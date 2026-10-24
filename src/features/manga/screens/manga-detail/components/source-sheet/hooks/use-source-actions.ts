@@ -59,6 +59,7 @@ export function useSourceActions({
       read: () => readRef.current,
       keep: selectedId,
       only,
+      name: manga.title?.userPreferred ?? undefined,
     });
   const scanAll = () => void scan();
   const rescan = (id: string) => void scan([id]);

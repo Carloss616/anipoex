@@ -5,6 +5,8 @@ export interface DesktopBridge {
     args: Record<string, unknown>,
   ): Promise<{ result?: unknown; error?: string }>;
   signIn(url: string): Promise<string | null>;
+  /** The Dock icon's progress bar, 0 to 1; below 0 hides it. */
+  scanProgress(fraction: number): void;
 }
 
 declare global {

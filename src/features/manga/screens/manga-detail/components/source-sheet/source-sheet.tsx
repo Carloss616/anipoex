@@ -1,6 +1,8 @@
-import type { Observable } from "@legendapp/state";
+import { type Observable, observe } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
-import { useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect } from "react";
+import { openSheet$, sheetRequest$ } from "@/features/manga/state/scan-views";
 import { stopTitleSearch } from "@/features/manga/state/title-search";
 import { useSourcePicker } from "../../hooks/use-source-picker";
 import type { SourcePickerManga } from "../source-picker";
@@ -23,10 +25,32 @@ export function SourceSheet({ manga, entryId, open$ }: SourceSheetProps) {
   const picker = useSourcePicker(manga, entryId, open$);
   const isPresented = useValue(open$);
 
-  // Title results live while the sheet is open, however it closes (a pick closes it too).
   useEffect(() => {
-    if (!isPresented) stopTitleSearch(manga.id);
+    // Title results live while the sheet is open, however it closes (a pick closes it too).
+    if (!isPresented) {
+      stopTitleSearch(manga.id);
+      return;
+    }
+    // Told to the floating scan views, which hide this manga's scans under it.
+    openSheet$.set(manga.id);
+    return () => {
+      if (openSheet$.peek() === manga.id) openSheet$.set(null);
+    };
   }, [isPresented, manga.id]);
+
+  // A view's tap opens the sheet of the screen in front, not one stacked behind.
+  // Watched only while focused, without re-rendering the sheet.
+  useFocusEffect(
+    useCallback(
+      () =>
+        observe(() => {
+          if (sheetRequest$.get() !== manga.id) return;
+          sheetRequest$.set(null);
+          open$.set(true);
+        }),
+      [manga.id, open$],
+    ),
+  );
 
   return (
     <SheetContent

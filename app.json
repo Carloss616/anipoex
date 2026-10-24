@@ -20,6 +20,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.POST_NOTIFICATIONS"],
       "package": "com.anipoex.app"
     },
     "web": {
@@ -41,7 +42,8 @@
       "expo-secure-store",
       "expo-font",
       "expo-web-browser",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-widgets"
     ],
     "experiments": {
       "typedRoutes": true,

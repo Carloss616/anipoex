@@ -132,10 +132,11 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
       {...props}
     >
       <Surface
-        variant="tertiary"
+        variant="secondary"
         className="flex-row items-center gap-2 rounded-full"
         padding="sm"
         bordered
+        elevated
       >
         <PanelTabs.List>{children}</PanelTabs.List>
         <ThemeToggle />

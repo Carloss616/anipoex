@@ -195,6 +195,12 @@
       }
     },
     {
+      "includes": ["src/features/manga/utils/scan-activity/**"],
+      "linter": {
+        "rules": { "style": { "noRestrictedImports": "off" } }
+      }
+    },
+    {
       "includes": ["src/**/*.generated.{ts,tsx}"],
       "linter": {
         "rules": {
