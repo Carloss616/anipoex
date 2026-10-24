@@ -2,21 +2,16 @@ import {
   RadioGroup as PanelRadioGroup,
   type RadioGroupProps,
 } from "panelui-native/components/radio-group";
-import { Children, isValidElement, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ArrowKeyGroup } from "../arrow-key-group";
+import { radioOptions } from "./utils";
 
 export * from "panelui-native/components/radio-group";
-
-type Option = { value: string; disabled?: boolean };
 
 /** PanelUI's RadioGroup, where arrow keys move and select, as a radio group does on web. */
 function RadioGroupRoot(props: RadioGroupProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const options = Children.toArray(props.children).flatMap((child) =>
-    isValidElement<Option>(child) && child.props.value !== undefined
-      ? [child.props]
-      : [],
-  );
+  const options = radioOptions(props.children);
   // The arrows walk only the options that can take focus.
   const enabled = options.filter((option) => !option.disabled);
 
@@ -36,7 +31,10 @@ function RadioGroupRoot(props: RadioGroupProps) {
       orientation={
         props.orientation === "horizontal" ? "horizontal" : "vertical"
       }
-      onMove={(index) => props.onValueChange(enabled[index].value)}
+      onMove={(index) => {
+        const option = enabled[index];
+        if (option) props.onValueChange(option.value);
+      }}
     >
       <div ref={ref} className="contents">
         <PanelRadioGroup {...props} />

@@ -55,12 +55,12 @@
               "panelui-native/components/spinner": "Import from @/components/ui/loader",
               "panelui-native/components/surface": "Import from @/components/ui/surface",
               "panelui-native/components/typography": "Import from @/components/ui/typography",
-              "react-aria": "Only src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+              "react-aria": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
             },
             "patterns": [
               {
                 "group": ["react-aria/*"],
-                "message": "Only src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+                "message": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
               },
               {
                 "group": ["@expo/ui"],
@@ -192,8 +192,15 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>"
-                }
+                  "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
+                  "react-aria": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+                },
+                "patterns": [
+                  {
+                    "group": ["react-aria/*"],
+                    "message": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+                  }
+                ]
               }
             }
           }
@@ -202,9 +209,9 @@
     },
     {
       "includes": [
-        "src/components/ui/overlay-scope/**",
-        "src/components/ui/arrow-key-group/**",
-        "src/components/ui/hidden-range/**"
+        "src/components/ui/overlay-scope/*.web.tsx",
+        "src/components/ui/arrow-key-group/*.web.tsx",
+        "src/components/ui/hidden-range/*.web.tsx"
       ],
       "linter": {
         "rules": { "style": { "noRestrictedImports": "off" } }
