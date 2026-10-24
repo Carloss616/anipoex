@@ -7,7 +7,7 @@ import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { PortalHost, PortalProvider } from "panelui-native/primitives/portal";
 import { cn } from "panelui-native/utils/cn";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { View, type ViewProps } from "react-native";
 import { type DialogProps, Drawer } from "vaul";
 import { OverlayScope } from "../overlay-scope";
@@ -69,6 +69,13 @@ function BottomSheetRoot({
       : undefined;
   const hasSnapPoints = vaulSnapPoints != null;
   const [snap, setSnap] = useState(vaulSnapPoints?.[0] ?? null);
+  const portals = useRef<View>(null);
+  // A press in a PanelUI portal (a dialog, a menu) is outside the drawer to
+  // Radix, which would close the sheet under it.
+  const inPortal = (event: Event) => {
+    if ((portals.current as unknown as Node)?.contains(event.target as Node))
+      event.preventDefault();
+  };
   // Raised when `expanded` turns true; back to the first snap point once closed.
   const [last, setLast] = useState({ expanded, isPresented });
   if (expanded !== last.expanded || isPresented !== last.isPresented) {
@@ -126,6 +133,8 @@ function BottomSheetRoot({
               data-testid={testID}
               // OverlayScope closes the top-most overlay; Radix would close the sheet on any Escape.
               onEscapeKeyDown={(event) => event.preventDefault()}
+              onPointerDownOutside={inPortal}
+              onInteractOutside={inPortal}
             >
               {/* Radix Dialog requires a title for a11y; render visually-hidden. */}
               <Drawer.Title className="sr-only">Bottom sheet</Drawer.Title>
@@ -146,7 +155,11 @@ function BottomSheetRoot({
             </Drawer.Content>
             {/* PanelUI portals (Select, Popover) mount here so they paint above the
             drawer. Not inside it: its transform would capture their `fixed`. */}
-            <View pointerEvents="box-none" className="fixed inset-0 z-60">
+            <View
+              ref={portals}
+              pointerEvents="box-none"
+              className="fixed inset-0 z-60"
+            >
               <PortalHost />
             </View>
           </OverlayScope>
