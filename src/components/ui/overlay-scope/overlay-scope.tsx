@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
 export interface OverlayScopeProps {
+  /** False while the overlay plays its exit animation: it stays mounted but lets go of focus, Escape and the page. */
+  open?: boolean;
   onClose: () => void;
   /** Arrow keys, Home and End move between the rows, as in a menu. */
   arrows?: "vertical" | "horizontal";

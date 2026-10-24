@@ -9,7 +9,7 @@ const ARROWS = {
 } as const;
 
 // Open scopes, last on top: only the top one pulls stray focus back.
-const open: RefObject<HTMLDivElement | null>[] = [];
+const scopes: RefObject<HTMLDivElement | null>[] = [];
 
 // Disabled rows are focusable (tabindex -1) but not tabbable, so arrows skip them.
 const MOVE = { wrap: true, tabbable: true };
@@ -21,13 +21,14 @@ const MOVE = { wrap: true, tabbable: true };
  */
 export function OverlayScope(props: OverlayScopeProps) {
   return (
-    <FocusScope contain restoreFocus autoFocus>
+    <FocusScope contain={props.open !== false} restoreFocus autoFocus>
       <Scope {...props} />
     </FocusScope>
   );
 }
 
 function Scope({
+  open = true,
   onClose,
   arrows,
   label,
@@ -50,8 +51,8 @@ function Scope({
       },
     },
     {
-      isOpen: true,
-      setOpen: (open) => !open && onClose(),
+      isOpen: open,
+      setOpen: (next) => !next && onClose(),
       open: () => {},
       close: onClose,
       toggle: onClose,
@@ -65,12 +66,13 @@ function Scope({
   // and PanelUI hands focus back to a closed menu's trigger after it: both
   // leave focus outside, so the top-most scope takes it in itself.
   useEffect(() => {
-    open.push(ref);
+    if (!open) return;
+    scopes.push(ref);
     let frame = 0;
     let tries = 0;
     const reclaim = (event?: FocusEvent) => {
       const target = (event?.target as Node) ?? document.activeElement;
-      if (open.at(-1) !== ref || ref.current?.contains(target)) return;
+      if (scopes.at(-1) !== ref || ref.current?.contains(target)) return;
       // shortcut: retries ~0.5s of frames, enough for PanelUI's 150ms entering animations.
       if (!focus?.focusFirst({ tabbable: true }) && tries++ < 30)
         frame = requestAnimationFrame(() => reclaim());
@@ -79,10 +81,10 @@ function Scope({
     document.addEventListener("focusin", reclaim);
     return () => {
       cancelAnimationFrame(frame);
-      open.splice(open.indexOf(ref), 1);
+      scopes.splice(scopes.indexOf(ref), 1);
       document.removeEventListener("focusin", reclaim);
     };
-  }, [focus]);
+  }, [focus, open]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     modalProps.onKeyDown?.(event);
