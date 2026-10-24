@@ -141,6 +141,8 @@ The default file takes the same extension as its platform files, even without JS
 
 A platform file can import **types** from `./chart`, but never runtime values: inside `chart.ios.tsx`, `./chart` resolves back to `chart.ios.tsx` itself. Logic shared by every platform lives in the folder's `hooks/` or `utils/`.
 
+A module that only does something on web (keyboard behavior, a web-only wrapper) keeps the default file as the native passthrough, which owns the props, and puts the web code in `<name>.web.tsx` (`src/components/ui/overlay-scope/`).
+
 ### Native screens
 
 Native screens (`.ios.tsx` / `.android.tsx`) write SwiftUI / Jetpack Compose through `@expo/ui` directly; the web file keeps PanelUI and Uniwind. No shared component API translates one into the other.
