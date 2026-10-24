@@ -41,6 +41,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
               step={scale.step}
               precision={scale.step}
               onValueChange={change}
+              accessibilityLabel="Score"
             />
           </BottomSheet.LockDrag>
         </View>
