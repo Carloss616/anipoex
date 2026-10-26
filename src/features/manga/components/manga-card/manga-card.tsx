@@ -125,6 +125,7 @@ export function MangaCard({
           accessibilityLabel={accessibilityLabel}
           // The cover inherits it, so the focus ring follows its corners.
           style={{ borderRadius: COVER_RADIUS }}
+          className="hover:bg-secondary/90 active:bg-accent"
         >
           <View
             testID={testID}
@@ -171,7 +172,7 @@ export function MangaCard({
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
         // The cover inherits it, so the focus ring follows its corners.
-        className="rounded-2xl"
+        className="group rounded-2xl"
       >
         <Card
           testID={testID}
@@ -185,7 +186,7 @@ export function MangaCard({
           {art}
           {badge}
           {titlePosition === "over" && (title || label) && (
-            <View className="mt-auto p-2 pt-12">
+            <View className="flex-1 justify-end p-2 pt-12 group-hover:bg-accent">
               <ScrimGradient
                 colorClassName="accent-black"
                 style={StyleSheet.absoluteFill}
