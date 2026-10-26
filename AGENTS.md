@@ -48,6 +48,7 @@ Legend State gotchas:
 
 - A screen whose native header hides and shows must be a push, not a modal: on iOS, changing a modal's header visibility remounts the screen and loses its state (the reader is a push with `animation: "slide_from_bottom"`, `src/app/(tabs)/manga/_layout.tsx`).
 - A `Stack.Toolbar` in a header slot forces `headerShown: true` over `Stack.Header hidden`: unmount the toolbar while the header is hidden.
+- `router.navigate` pushes like `push`: a web tab bar calling it put a second `manga/index` on the stack, and both screens' `ViewSheet`s opened on their shared module-level `open$`, each making the other inert. Switch tabs with `useTabTrigger().switchTab` (`src/components/layout/tabs/tabs.web.tsx`).
 - `NativeTabs hidden` on Android remounts every screen of the tab, since expo-router swaps the content's bottom `SafeAreaView` in and out; `patches/expo-router@58.0.23.patch` keeps it and turns only its edge off. Re-check it when expo-router is upgraded.
 
 # Styling
