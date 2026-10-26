@@ -1,6 +1,7 @@
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { ScrollView, View } from "react-native";
+import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
@@ -73,56 +74,65 @@ export function Overview({
 
       <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
         <View className="p-4">
-          <Surface variant="tertiary" padding="none" className="w-full">
-            <View className="w-full flex-row">
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onPress={() => onEdit("status")}
-              >
-                {status ?? form.status ?? <Typography muted>Status</Typography>}
-              </Button>
-              <Separator orientation="vertical" />
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onPress={() => onEdit("progress")}
-              >
-                {form.progress || <Typography muted>Progress</Typography>}
-              </Button>
-              <Separator orientation="vertical" />
-              <Button
-                variant="ghost"
-                className="flex-1"
-                disabled={!canScore}
-                onPress={() => onEdit("score")}
-              >
-                {form.score || <Typography muted>Score</Typography>}
-              </Button>
-            </View>
-            <Separator />
-            <View className="w-full flex-row">
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onPress={() => onEdit("startedAt")}
-              >
-                {formatDate(form.startedAt) || (
-                  <Typography muted>Start date</Typography>
-                )}
-              </Button>
-              <Separator orientation="vertical" />
-              <Button
-                variant="ghost"
-                className="flex-1"
-                onPress={() => onEdit("completedAt")}
-              >
-                {formatDate(form.completedAt) || (
-                  <Typography muted>Finish date</Typography>
-                )}
-              </Button>
-            </View>
-          </Surface>
+          <ArrowKeyGroup orientation="horizontal">
+            <Surface
+              variant="tertiary"
+              padding="none"
+              data-attached="column"
+              className="w-full"
+            >
+              <View data-attached="row" className="w-full flex-row">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => onEdit("status")}
+                >
+                  {status ?? form.status ?? (
+                    <Typography muted>Status</Typography>
+                  )}
+                </Button>
+                <Separator orientation="vertical" />
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => onEdit("progress")}
+                >
+                  {form.progress || <Typography muted>Progress</Typography>}
+                </Button>
+                <Separator orientation="vertical" />
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  disabled={!canScore}
+                  onPress={() => onEdit("score")}
+                >
+                  {form.score || <Typography muted>Score</Typography>}
+                </Button>
+              </View>
+              <Separator />
+              <View data-attached="row" className="w-full flex-row">
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => onEdit("startedAt")}
+                >
+                  {formatDate(form.startedAt) || (
+                    <Typography muted>Start date</Typography>
+                  )}
+                </Button>
+                <Separator orientation="vertical" />
+                <Button
+                  variant="ghost"
+                  className="flex-1"
+                  onPress={() => onEdit("completedAt")}
+                >
+                  {formatDate(form.completedAt) || (
+                    <Typography muted>Finish date</Typography>
+                  )}
+                </Button>
+              </View>
+            </Surface>
+          </ArrowKeyGroup>
         </View>
       </ScrollView>
     </View>

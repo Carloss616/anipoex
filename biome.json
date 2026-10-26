@@ -43,6 +43,9 @@
           "options": {
             "paths": {
               "@expo/ui/community/bottom-sheet": "Import from @/components/ui/bottom-sheet",
+              "@legendapp/list": "Import from @/components/layout/legend-list",
+              "@legendapp/list/react": "Import from @/components/layout/legend-list",
+              "@legendapp/list/react-native": "Import from @/components/layout/legend-list",
               "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
               "panelui-native/components/bottom-sheet": "Import from @/components/ui/bottom-sheet",
               "panelui-native/components/button": "Import from @/components/ui/button",

@@ -91,16 +91,18 @@ export const AvailableItem = memo(function AvailableItem({
     excludeMenu(suspicious, (reason) => actions.exclude(source.id, reason)),
   ];
 
-  // Siblings, not nested: the row and its trailing actions are all <button>s on web. Same spacing as one Item with its Actions.
   return (
     <View>
-      <View className="flex-row items-center gap-3 pe-4">
+      <View>
         <Item
           onPress={() => onSelect(source.id)}
           aria-selected={selected}
-          className="flex-1 pe-0"
+          data-ring="inset"
+          className={selected ? "pe-34" : "pe-27.5"}
         >
-          <Tile source={source} />
+          <Item.Media>
+            <Tile source={source} />
+          </Item.Media>
           <Item.Content>
             <Item.Title>{source.baseName ?? source.name}</Item.Title>
             <Item.Description numberOfLines={1}>
@@ -116,7 +118,8 @@ export const AvailableItem = memo(function AvailableItem({
             </Item.Description>
           </Item.Content>
         </Item>
-        <Item.Actions>
+        {/* Over the row, not in it: a <button> can't hold buttons. */}
+        <Item.Actions className="absolute inset-e-4 inset-y-0">
           {/* A mark, not an action: a disabled button only for the same box as ↻ and ⋯, undimmed, and hidden since the row says aria-selected. */}
           {selected && (
             <Button

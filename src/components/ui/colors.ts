@@ -15,11 +15,14 @@ export const SEMANTIC_COLOR = {
     token: { fill: "secondary", label: "secondary-foreground" },
     className: { fill: "bg-secondary", label: "text-secondary-foreground" },
   },
-  // For the status colors the readable text on a solid fill is
-  // `-solid-foreground`; plain `-foreground` is the status *as* text.
+  // `-solid-foreground`; plain `-foreground` is for bg-*-subtle and bg-success-soft.
   success: {
     token: { fill: "success", label: "success-solid-foreground" },
     className: { fill: "bg-success", label: "text-success-solid-foreground" },
+  },
+  info: {
+    token: { fill: "info", label: "info-solid-foreground" },
+    className: { fill: "bg-info", label: "text-info-solid-foreground" },
   },
   warning: {
     token: { fill: "warning", label: "warning-solid-foreground" },

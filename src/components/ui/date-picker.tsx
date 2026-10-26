@@ -81,8 +81,10 @@ function ButtonView({
         accessibilityLabel={label}
         testID={testID}
         onPress={onPress}
+        startContent={
+          <Icon name={Icons.calendar} size={BUTTON_ICON_SIZE} muted />
+        }
       >
-        <Icon name={Icons.calendar} size={BUTTON_ICON_SIZE} muted />
         <Typography weight="medium" muted={!value} numberOfLines={1}>
           {value ? formatDate(value) : placeholder}
         </Typography>

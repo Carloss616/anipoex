@@ -88,6 +88,19 @@ function BottomSheetRoot({
   // animates itself, and OverlayScope doesn't: keep it for vaul's exit.
   const [mounted, setMounted] = useState(isPresented);
   if (isPresented && !mounted) setMounted(true);
+  // Radix's scroll lock blocks the wheel on all but the drawer: kept from the
+  // document, it reaches a PanelUI portal's list (the calendar's month menu).
+  useEffect(() => {
+    const host = portals.current as unknown as HTMLElement | null;
+    if (!mounted || !host) return;
+    const stop = (event: Event) => event.stopPropagation();
+    host.addEventListener("wheel", stop);
+    host.addEventListener("touchmove", stop);
+    return () => {
+      host.removeEventListener("wheel", stop);
+      host.removeEventListener("touchmove", stop);
+    };
+  }, [mounted]);
   useEffect(() => {
     if (isPresented) return;
     // shortcut: vaul's exit runs 0.5s (TRANSITIONS.DURATION); match it if vaul changes.

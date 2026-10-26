@@ -44,16 +44,92 @@
 }
 
 @layer base {
-  /* An <input> is ~20ch wide and `min-width: auto` as a flex item; RNW never
-     zeroes it, so a flex-1 field won't shrink below ~170px. */
+  /* RNW leaves <input> at min-width: auto (~20ch), so flex-1 can't shrink it. */
   input {
     min-width: 0;
   }
 
-  /* Drop the focus ring on pointer focus only; `:focus-visible` can't say that
-     on text fields. Flag from @/utils/focus-modality. */
+  /* Keyboard focus ring; tabindex -1 is focus from code or a disabled row. */
+  :where(:focus-visible:not([tabindex="-1"])) {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  :where([data-variant="destructive"]:focus-visible) {
+    @apply ring-destructive;
+  }
+  :where([data-variant="info"]:focus-visible) {
+    @apply ring-info;
+  }
+  :where([data-variant="success"]:focus-visible) {
+    @apply ring-success;
+  }
+  :where([data-variant="warning"]:focus-visible) {
+    @apply ring-warning;
+  }
+  /* What fills a clipping parent (`data-ring="inset"` too) rings inside. */
+  :where(
+    :is(
+      [role^="menuitem"],
+      [role="option"],
+      :is([data-attached], .attached-row, .attached-column) *,
+      [data-ring="inset"]
+    ):focus-visible
+  ) {
+    /* Not `ring-inset`: PanelUI's `--color-inset` makes it a ring color too. */
+    --tw-ring-inset: inset;
+    @apply ring-offset-0;
+  }
+  /* LegendList cells clip their paint; only the one holding focus lets the ring out. */
+  div:has(> [data-index] :focus-visible) {
+    /* biome-ignore lint/complexity/noImportantStyles: LegendList sets `contain` inline */
+    contain: layout style !important;
+    z-index: 1;
+  }
+
+  /* Clicked text fields match :focus-visible too; see @/utils/focus-modality. */
   [data-focus-modality="pointer"] input:focus,
   [data-focus-modality="pointer"] textarea:focus {
-    @apply outline-0 border-ring;
+    @apply outline-0 ring-0 ring-offset-0 border-ring;
+  }
+
+  /* A disabled control's children still take the pointer, firing :hover/:active. */
+  :where(:disabled, [aria-disabled="true"]) * {
+    /* biome-ignore lint/complexity/noImportantStyles: RNW text sets `auto` unlayered */
+    pointer-events: none !important;
+  }
+}
+
+/* Joined children: `data-attached="row|column"`, or class `attached-row|column`. */
+@layer utilities {
+  :is([data-attached], .attached-row, .attached-column) {
+    /* Square inside, over the children's own `rounded-*`. */
+    & > :not([role="separator"], [role="none"]) {
+      border-radius: 0;
+    }
+    /* A plain wrapper (a fullWidth segment) passes its corners to its button. */
+    &
+      > :not(button, [data-attached], .attached-row, .attached-column)
+      > :is(button, [role="button"]) {
+      border-radius: inherit;
+    }
+  }
+  :is([data-attached="row"], .attached-row) {
+    & > :nth-child(1 of :not([role="separator"], [role="none"])) {
+      border-start-start-radius: inherit;
+      border-end-start-radius: inherit;
+    }
+    & > :nth-last-child(1 of :not([role="separator"], [role="none"])) {
+      border-start-end-radius: inherit;
+      border-end-end-radius: inherit;
+    }
+  }
+  :is([data-attached="column"], .attached-column) {
+    & > :nth-child(1 of :not([role="separator"], [role="none"])) {
+      border-start-start-radius: inherit;
+      border-start-end-radius: inherit;
+    }
+    & > :nth-last-child(1 of :not([role="separator"], [role="none"])) {
+      border-end-start-radius: inherit;
+      border-end-end-radius: inherit;
+    }
   }
 }

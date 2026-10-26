@@ -1,13 +1,24 @@
-import type { LegendListRenderItemProps } from "@legendapp/list/react-native";
+import type {
+  LegendListRef,
+  LegendListRenderItemProps,
+} from "@legendapp/list/react-native";
 import {
   LegendList as LegendListBase,
   type LegendListProps as LegendListBaseProps,
 } from "@legendapp/list/react-native";
 import { useIsFocused } from "expo-router";
-import { Activity, createElement, isValidElement } from "react";
+import {
+  Activity,
+  createElement,
+  isValidElement,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { Platform, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
-import { resolveSpacing } from "@/utils/resolve-spacing";
+import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
+
+export type { LegendListRef };
 
 const LegendListNative = withUniwind(LegendListBase, {
   ListHeaderComponentStyle: {
@@ -63,6 +74,7 @@ export function LegendList<T>({
   // never forwarded: its own gap handling is web-only, and would stack on the padding below
   columnWrapperStyle,
   keyboardShouldPersistTaps,
+  ref,
   ...props
 }: LegendListBaseProps<T> & UniwindClassNameProps) {
   const gap =
@@ -70,84 +82,112 @@ export function LegendList<T>({
     columnWrapperStyle?.rowGap ??
     columnWrapperStyle?.columnGap ??
     0;
-  const halfGap = gap / 2;
+  const halfGap = Number(gap) / 2;
+  const horizontal = props.horizontal === true;
   const focused = useIsFocused();
+  const listRef = useRef<LegendListRef>(null);
+  useImperativeHandle(ref, () => listRef.current as LegendListRef);
 
   return (
     // Web: a blurred screen is display: none, where the list measures its rows as 0 and keeps adding more
     <Activity mode={Platform.OS === "web" && !focused ? "hidden" : "visible"}>
-      {/* The top margin sits on a wrapper because rn-web puts `style` on both the
-      RefreshControl and the ScrollView it wraps, so on the list it would land twice */}
-      <View
-        style={{
-          flexGrow: 1,
-          flexShrink: 1,
-          marginTop: gap && !ListHeaderComponent ? resolveSpacing(-gap) : 0,
-        }}
+      <ArrowKeyGroup
+        orientation="grid"
+        // A rail is one row: only left and right move.
+        columns={
+          horizontal ? (props.data?.length ?? 0) : (props.numColumns ?? 1)
+        }
+        count={props.data?.length ?? 0}
+        scrollToIndex={(index) => listRef.current?.scrollToIndex({ index })}
       >
-        <LegendListRoot
-          // Flattened: the web build's <div>s take one style object, not arrays.
-          style={StyleSheet.flatten([
-            // a hidden screen measures 0 wide, and the list would size to its widest item
-            { width: "auto", flexGrow: 1 },
-            // the content's negative `marginInline` would otherwise scroll sideways
-            Platform.OS === "web" && ({ overflowX: "hidden" } as ViewStyle),
-            style,
-          ])}
-          contentContainerStyle={StyleSheet.flatten([
-            {
-              flexGrow: 1,
-              marginInline: halfGap ? resolveSpacing(-halfGap) : 0,
-              // a column, so the empty component can fill the height left under the header
-              display: "flex",
-              flexDirection: "column",
-            },
-            contentContainerStyle,
-          ])}
-          ListHeaderComponent={classedSlot(
-            ListHeaderComponent,
-            ListHeaderComponentClassName,
-          )}
-          ListFooterComponent={classedSlot(
-            ListFooterComponent,
-            ListFooterComponentClassName,
-          )}
-          {...(Platform.OS === "web"
-            ? {}
-            : {
-                ListHeaderComponentClassName,
-                ListFooterComponentClassName,
-                // the browser build would put it on a <div> as an unknown attribute
-                keyboardShouldPersistTaps,
-              })}
-          ListHeaderComponentStyle={StyleSheet.flatten([
-            halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
-            gap ? { marginBottom: resolveSpacing(-gap), zIndex: 1 } : {},
-            ListHeaderComponentStyle,
-          ])}
-          renderItem={(props) => {
-            if (!renderItem) return null;
+        {/* The top margin sits on a wrapper because rn-web puts `style` on both the
+      RefreshControl and the ScrollView it wraps, so on the list it would land twice */}
+        <View
+          // A rail overhangs by its cells' padding, so both ends keep the content padding.
+          style={
+            horizontal
+              ? { margin: -halfGap }
+              : {
+                  flexGrow: 1,
+                  flexShrink: 1,
+                  marginTop: ListHeaderComponent ? 0 : -halfGap,
+                }
+          }
+        >
+          <LegendListRoot
+            ref={listRef}
+            // Flattened: the web build's <div>s take one style object, not arrays.
+            style={StyleSheet.flatten([
+              // a hidden screen measures 0 wide, and the list would size to its widest item
+              { width: "auto" },
+              !horizontal && { flexGrow: 1 },
+              // the content's negative `marginInline` would otherwise scroll sideways
+              Platform.OS === "web" &&
+                !horizontal &&
+                ({ overflowX: "hidden" } as ViewStyle),
+              style,
+            ])}
+            contentContainerStyle={StyleSheet.flatten([
+              !horizontal && { marginInline: -halfGap },
+              // Web: grows with the cells, so its end padding lands after the last one.
+              horizontal &&
+                Platform.OS === "web" &&
+                ({ width: "max-content" } as unknown as ViewStyle),
+              !horizontal && {
+                flexGrow: 1,
+                marginBottom: -halfGap,
+                // a column, so the empty component can fill the height left under the header
+                display: "flex",
+                flexDirection: "column",
+              },
+              contentContainerStyle,
+            ])}
+            ListHeaderComponent={classedSlot(
+              ListHeaderComponent,
+              ListHeaderComponentClassName,
+            )}
+            ListFooterComponent={classedSlot(
+              ListFooterComponent,
+              ListFooterComponentClassName,
+            )}
+            {...(Platform.OS === "web"
+              ? {}
+              : {
+                  ListHeaderComponentClassName,
+                  ListFooterComponentClassName,
+                  // the browser build would put it on a <div> as an unknown attribute
+                  keyboardShouldPersistTaps,
+                })}
+            ListHeaderComponentStyle={StyleSheet.flatten([
+              horizontal ? { padding: halfGap } : { paddingInline: halfGap },
+              !horizontal && { marginBottom: -halfGap, zIndex: 1 },
+              ListHeaderComponentStyle,
+            ])}
+            renderItem={(props) => {
+              if (!renderItem) return null;
 
-            return (
-              <View
-                style={{
-                  paddingHorizontal: resolveSpacing(halfGap),
-                  paddingTop: resolveSpacing(gap),
-                }}
-              >
-                {renderItem(
-                  props as LegendListRenderItemProps<T, string | undefined>,
-                )}
-              </View>
-            );
-          }}
-          ListFooterComponentStyle={StyleSheet.flatten([
-            halfGap ? { paddingInline: resolveSpacing(halfGap) } : {},
-            ListFooterComponentStyle,
-          ])}
-          {...(props as LegendListBaseProps<unknown>)}
-        />
-      </View>
+              return (
+                // Half the gap on every side, so cells space evenly in both directions.
+                <View
+                  // ArrowKeyGroup's grid finds cells by it, rendered or not.
+                  data-index={props.index}
+                  style={{ padding: halfGap }}
+                >
+                  {renderItem(
+                    props as LegendListRenderItemProps<T, string | undefined>,
+                  )}
+                </View>
+              );
+            }}
+            ListFooterComponentStyle={StyleSheet.flatten([
+              // In a rail the footer is one more cell, lined up with the others.
+              horizontal ? { padding: halfGap } : { paddingInline: halfGap },
+              ListFooterComponentStyle,
+            ])}
+            {...(props as LegendListBaseProps<unknown>)}
+          />
+        </View>
+      </ArrowKeyGroup>
     </Activity>
   );
 }

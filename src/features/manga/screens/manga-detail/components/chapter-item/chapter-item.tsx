@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
-import { Pressable } from "react-native";
+import { cn } from "panelui-native/utils/cn";
+import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
@@ -21,15 +22,8 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
   const read = useChapterRead(entryId, chapter.number);
 
   return (
-    <Item
-      // Dimmed, not `disabled`: a read chapter still opens.
-      className={read ? "opacity-[0.64]" : undefined}
-    >
-      {/* Under the row rather than around it: a <button> can't hold the download button. */}
-      <Pressable
-        className="absolute inset-0 rounded-xl"
-        accessibilityRole="button"
-        accessibilityLabel={chapter.title}
+    <View>
+      <Item
         onPress={() =>
           router.push({
             pathname: "/manga/[id]/reader",
@@ -39,12 +33,16 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
             },
           })
         }
-      />
-      <Item.Content className="pointer-events-none">
-        <Item.Title numberOfLines={1}>{chapter.title}</Item.Title>
-        <Item.Description>{chapter.date}</Item.Description>
-      </Item.Content>
-      <Item.Actions>
+        // Dimmed, not `disabled`: a read chapter still opens.
+        className={cn("pe-17", read && "opacity-[0.64]")}
+      >
+        <Item.Content>
+          <Item.Title numberOfLines={1}>{chapter.title}</Item.Title>
+          <Item.Description>{chapter.date}</Item.Description>
+        </Item.Content>
+      </Item>
+      {/* Over the row, not in it: a <button> can't hold buttons. */}
+      <Item.Actions className="absolute inset-e-4 inset-y-0">
         <Button
           size="icon"
           className="size-9"
@@ -59,6 +57,6 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
           />
         </Button>
       </Item.Actions>
-    </Item>
+    </View>
   );
 }

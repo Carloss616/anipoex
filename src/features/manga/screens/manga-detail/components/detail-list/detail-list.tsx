@@ -83,13 +83,14 @@ export function DetailList({
         <View className="gutters px-gx">
           <Surface
             padding="none"
+            data-attached="column"
             className={cn(
               "w-full",
               index > 0 && "rounded-t-none",
               index < last && "rounded-b-none",
             )}
           >
-            {index > 0 && <Item.Separator className="mx-4" />}
+            {index > 0 && <Item.Separator className="mx-4 w-auto" />}
             <ChapterItem chapter={item} mediaId={mediaId} entryId={entryId} />
           </Surface>
         </View>

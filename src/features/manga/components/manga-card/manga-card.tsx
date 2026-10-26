@@ -4,7 +4,6 @@ import { AnimatedPressable } from "panelui-native/primitives/animated-pressable"
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { FOCUS_RING } from "@/components/ui/constants";
 import { EnsureRNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
@@ -124,22 +123,22 @@ export function MangaCard({
           // The pressable is the one tab stop; a role on the view inside would add a second.
           accessibilityRole="button"
           accessibilityLabel={accessibilityLabel}
-          className={cn("rounded-xl", FOCUS_RING)}
+          // The cover inherits it, so the focus ring follows its corners.
+          style={{ borderRadius: COVER_RADIUS }}
         >
           <View
             testID={testID}
             className={cn(
-              "w-full gap-2",
+              "w-full gap-2 rounded-[inherit]",
               (onPress || onLongPress) && "web:cursor-pointer",
               className,
             )}
             style={style}
           >
             <Card
-              className="relative aspect-2/3 w-full overflow-hidden border-0 p-0"
+              className="relative aspect-2/3 w-full overflow-hidden rounded-[inherit] border-0 p-0"
               // The cover glows in its own AniList color.
               style={{
-                borderRadius: COVER_RADIUS,
                 boxShadow: `0 8px 18px -8px ${coverColor ?? "transparent"}`,
               }}
             >
@@ -171,12 +170,13 @@ export function MangaCard({
         onLongPress={onLongPress}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
-        className={cn("rounded-xl", FOCUS_RING)}
+        // The cover inherits it, so the focus ring follows its corners.
+        className="rounded-2xl"
       >
         <Card
           testID={testID}
           className={cn(
-            "relative aspect-2/3 overflow-hidden border-0 p-0",
+            "relative aspect-2/3 overflow-hidden rounded-[inherit] border-0 p-0",
             (onPress || onLongPress) && "web:cursor-pointer",
             className,
           )}

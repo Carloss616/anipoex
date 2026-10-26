@@ -1,9 +1,11 @@
-import { LegendList } from "@legendapp/list/react";
 import { Skeleton } from "panelui-native/components/skeleton";
-import { Pressable, View } from "react-native";
+import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
+import { View } from "react-native";
+import { LegendList } from "@/components/layout/legend-list";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
+import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/ui/typography";
 import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import { COVER } from "../constants";
@@ -14,8 +16,8 @@ import { useRail } from "./hooks/use-rail";
 const GAP = 10;
 // One card and the gap after it, so the list lays out before measuring.
 const CARD_SPAN = COVER.width + GAP;
-// The cover, two title lines and the label badge.
-const RAIL_HEIGHT = COVER.height + 72;
+// The cover, two title lines, the label badge and the cells' gap above and below.
+const RAIL_HEIGHT = COVER.height + 72 + GAP;
 const COVER_BOX = { ...COVER, borderRadius: COVER_RADIUS };
 
 /** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
@@ -48,13 +50,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           estimatedItemSize={CARD_SPAN}
           recycleItems
           onEndReached={loadMore}
-          // The list spaces and insets its cards itself (it reads only these
-          // keys): a card's own padding can be measured late, so cards touch.
-          contentContainerStyle={{
-            paddingLeft: 16,
-            paddingRight: 16,
-            gap: GAP,
-          }}
+          columnWrapperStyle={{ gap: GAP }}
+          contentContainerStyle={{ paddingLeft: 16, paddingRight: 16 }}
           style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
@@ -62,8 +59,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 <RailCard item={item} headers={source.headers} />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (
-                <View
-                  className="w-px bg-border"
+                <Separator
+                  orientation="vertical"
                   style={{ height: COVER.height }}
                 />
               )}
@@ -71,7 +68,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           )}
           ListFooterComponent={
             rail.hasNextPage || rail.loadingMore ? (
-              <Pressable
+              <AnimatedPressable
                 onPress={loadMore}
                 accessibilityRole="button"
                 accessibilityLabel="More"
@@ -85,7 +82,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                     More
                   </Typography>
                 )}
-              </Pressable>
+              </AnimatedPressable>
             ) : undefined
           }
         />

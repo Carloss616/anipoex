@@ -1,5 +1,9 @@
-import { Menu as PanelMenu } from "panelui-native/components/menu";
+import {
+  type MenuItemVariant,
+  Menu as PanelMenu,
+} from "panelui-native/components/menu";
 import type { PopoverAlign } from "panelui-native/components/popover";
+import { cn } from "panelui-native/utils/cn";
 import { cloneElement, type ReactElement, useState } from "react";
 import { View, type ViewProps } from "react-native";
 import { Dialog, type DialogProps } from "../dialog";
@@ -68,6 +72,11 @@ export interface MenuProps {
   align?: PopoverAlign;
 }
 
+const HOVER_VARIANTS = {
+  default: "hover:bg-accent",
+  destructive: "hover:bg-destructive-subtle",
+} satisfies Record<MenuItemVariant, string>;
+
 function ActionItem({
   destructive,
   checked,
@@ -76,7 +85,7 @@ function ActionItem({
   label,
   icon,
 }: MenuAction) {
-  const variant = destructive ? "destructive" : undefined;
+  const variant = destructive ? "destructive" : "default";
 
   if (checked !== undefined) {
     return (
@@ -84,9 +93,11 @@ function ActionItem({
         checked={checked}
         disabled={disabled}
         variant={variant}
+        data-variant={variant}
         // Every checked row here picks one of several, and native menus close on a pick.
         closeOnSelect
         onCheckedChange={onPress}
+        className={cn("transition-colors", HOVER_VARIANTS[variant])}
       >
         {label}
       </PanelMenu.CheckboxItem>
@@ -98,7 +109,9 @@ function ActionItem({
       icon={icon ? <Icon name={icon} size={16} /> : undefined}
       disabled={disabled}
       variant={variant}
+      data-variant={variant}
       onSelect={onPress}
+      className={cn("transition-colors", HOVER_VARIANTS[variant])}
     >
       {label}
     </PanelMenu.Item>
@@ -118,6 +131,7 @@ function SubmenuItem(item: MenuSubmenu) {
       <PanelMenu.SubTrigger
         icon={item.icon ? <Icon name={item.icon} size={16} /> : undefined}
         disabled={item.disabled}
+        className={cn("transition-colors", HOVER_VARIANTS.default)}
       >
         {item.label}
       </PanelMenu.SubTrigger>
@@ -190,11 +204,13 @@ export function Menu({
           align={align}
           minWidth={items.some(isSubmenu) ? SUBMENU_MIN_WIDTH : undefined}
           style={{ maxWidth: MAX_WIDTH }}
+          // RNW's flex-shrink: 0 overflowed PanelUI's capped box: the rows never scrolled.
+          className="min-h-0 shrink"
         >
           <OverlayScope
             arrows="vertical"
             onClose={() => setOpen(false)}
-            className="flex flex-col gap-0.5"
+            className="flex flex-col gap-1.5"
           >
             {rows.map((item) => (
               <RowItem key={item.label} {...item} />

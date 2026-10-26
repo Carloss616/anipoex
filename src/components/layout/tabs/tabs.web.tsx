@@ -10,13 +10,13 @@ import {
 } from "expo-router/ui";
 import { Surface } from "panelui-native/components/surface";
 import { Tabs as PanelTabs } from "panelui-native/components/tabs";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
-import { FOCUS_RING } from "@/components/ui/constants";
 import { BUTTON_ICON_SIZE } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
@@ -55,6 +55,7 @@ const ROUTES = [
 ] as const satisfies Route[];
 
 export function Tabs() {
+  const { isAtLeast } = useBreakpoint();
   const pathname = usePathname();
   const value =
     ROUTES.find(({ href }) => href !== "/" && pathname.startsWith(href))
@@ -67,7 +68,7 @@ export function Tabs() {
       onValueChange={(href) =>
         router.navigate(href as (typeof ROUTES)[number]["href"])
       }
-      variant="pill"
+      variant={isAtLeast("sm") ? "pill" : "expanding"}
       className="flex-1"
     >
       <TabsBase>
@@ -107,7 +108,7 @@ function PanelTabTrigger({
   return (
     <PanelTabs.Trigger
       value={item.href}
-      className={cn("px-4", FOCUS_RING)}
+      className="px-4"
       icon={
         <Lucide
           size={BUTTON_ICON_SIZE}

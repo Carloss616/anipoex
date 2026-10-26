@@ -19,3 +19,24 @@ export function nextIndex(
   if (step === undefined) return null;
   return (current + step + count) % count;
 }
+
+/** The cell a key moves to in a grid of `columns`; null at its edges, where it doesn't wrap. */
+export function nextGridIndex(
+  current: number,
+  count: number,
+  key: string,
+  columns: number,
+): number | null {
+  if (count === 0) return null;
+  if (key === "Home") return 0;
+  if (key === "End") return count - 1;
+  const step = {
+    ArrowRight: 1,
+    ArrowLeft: -1,
+    ArrowDown: columns,
+    ArrowUp: -columns,
+  }[key];
+  if (step === undefined) return null;
+  const next = current + step;
+  return next >= 0 && next < count ? next : null;
+}

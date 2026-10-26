@@ -41,9 +41,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
       // Recycled cells only redraw when this changes; the title mode lives in `renderItem`.
       extraData={titlePosition}
       keyExtractor={(item) => String(item.id)}
-      // Spacing units, one gap for both axes (see `LegendList`). Titles under the
-      // covers need air between rows; on the cover they don't.
-      columnWrapperStyle={{ gap: titlePosition === "below" ? 4 : 2 }}
+      columnWrapperStyle={{ gap: titlePosition === "below" ? 16 : 8 }}
       contentContainerClassName="gutters px-gx md:pl-4 md:pr-gx pb-gb"
       ListHeaderComponent={header}
       renderItem={({ item }) => (

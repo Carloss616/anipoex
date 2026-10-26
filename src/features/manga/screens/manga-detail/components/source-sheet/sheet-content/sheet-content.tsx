@@ -228,7 +228,7 @@ export function SheetContent({
               renderHeader(item.id)
             ) : (
               <>
-                {!item.first && <Item.Separator className="mx-4" />}
+                {!item.first && <Item.Separator className="mx-4 w-auto" />}
                 {item.kind === "available" ? (
                   <AvailableItem
                     source={item.row.source}

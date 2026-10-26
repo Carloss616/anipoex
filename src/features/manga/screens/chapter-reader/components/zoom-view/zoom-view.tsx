@@ -1,4 +1,3 @@
-import type { LegendListRef } from "@legendapp/list/react-native";
 import {
   type ReactNode,
   type RefObject,
@@ -29,6 +28,7 @@ import Animated, {
   withDecay,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
+import type { LegendListRef } from "@/components/layout/legend-list";
 import { useTrackpad } from "./hooks/use-trackpad";
 import { scrollList } from "./utils/scroll-list";
 import {
