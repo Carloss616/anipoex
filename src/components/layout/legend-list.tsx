@@ -17,17 +17,27 @@ import {
 import { Platform, StyleSheet, View, type ViewStyle } from "react-native";
 import { withUniwind } from "uniwind";
 import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
+import {
+  AnimatedLegendList,
+  type AnimatedLegendListProps,
+} from "./animated-legend-list";
 
 export type { LegendListRef };
 
-const LegendListNative = withUniwind(LegendListBase, {
+const SLOT_CLASS_NAMES = {
   ListHeaderComponentStyle: {
     fromClassName: "ListHeaderComponentClassName",
   },
   ListFooterComponentStyle: {
     fromClassName: "ListFooterComponentClassName",
   },
-});
+} as const;
+
+const LegendListNative = withUniwind(LegendListBase, SLOT_CLASS_NAMES);
+const AnimatedLegendListNative = withUniwind(
+  AnimatedLegendList,
+  SLOT_CLASS_NAMES,
+);
 
 /**
  * On web the list is its browser build: plain <div>s, not react-native-web.
@@ -40,6 +50,9 @@ const LegendListNative = withUniwind(LegendListBase, {
  */
 const LegendListRoot = (
   Platform.OS === "web" ? LegendListBase : LegendListNative
+) as typeof LegendListNative;
+const AnimatedLegendListRoot = (
+  Platform.OS === "web" ? AnimatedLegendList : AnimatedLegendListNative
 ) as typeof LegendListNative;
 
 /** Web: the slot inside a react-native-web view carrying its class. */
@@ -74,9 +87,14 @@ export function LegendList<T>({
   // never forwarded: its own gap handling is web-only, and would stack on the padding below
   columnWrapperStyle,
   keyboardShouldPersistTaps,
+  itemLayoutAnimation,
   ref,
   ...props
-}: LegendListBaseProps<T> & UniwindClassNameProps) {
+}: LegendListBaseProps<T> &
+  UniwindClassNameProps &
+  Pick<AnimatedLegendListProps<T>, "itemLayoutAnimation">) {
+  // Picked once per call site: switching it would remount the list.
+  const Root = itemLayoutAnimation ? AnimatedLegendListRoot : LegendListRoot;
   const gap =
     columnWrapperStyle?.gap ??
     columnWrapperStyle?.rowGap ??
@@ -114,8 +132,9 @@ export function LegendList<T>({
                 }
           }
         >
-          <LegendListRoot
+          <Root
             ref={listRef}
+            {...(itemLayoutAnimation && { itemLayoutAnimation })}
             // Flattened: the web build's <div>s take one style object, not arrays.
             style={StyleSheet.flatten([
               // a hidden screen measures 0 wide, and the list would size to its widest item

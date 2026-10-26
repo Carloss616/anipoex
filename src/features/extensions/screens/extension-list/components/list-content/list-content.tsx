@@ -3,6 +3,7 @@ import { useHeaderHeight } from "expo-router/react-navigation";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useMemo } from "react";
 import { View } from "react-native";
+import { LinearTransition } from "react-native-reanimated";
 import {
   type ActiveFilter,
   ActiveFilters,
@@ -88,6 +89,7 @@ export function ListContent({
       <View className="flex-1">
         <LegendList
           recycleItems
+          itemLayoutAnimation={LinearTransition}
           data={rows}
           keyExtractor={(row) => row.key}
           getItemType={(row) => row.kind}

@@ -2,6 +2,7 @@ import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import type { ReactElement } from "react";
+import { LinearTransition } from "react-native-reanimated";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { LegendList } from "@/components/layout/legend-list";
 import type { MangaListState } from "@/features/manga/hooks/use-manga-list";
@@ -36,6 +37,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   return (
     <LegendList
       recycleItems
+      itemLayoutAnimation={LinearTransition}
       data={manga}
       numColumns={numColumns}
       // Recycled cells only redraw when this changes; the title mode lives in `renderItem`.

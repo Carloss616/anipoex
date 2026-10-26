@@ -38,6 +38,7 @@ Legend State gotchas:
 - Replacing a list with rebuilt objects re-renders every item: keep unchanged items as the same object (`keepUnchanged` in `extensions.ts`).
 - `List.ForEach` / `LazyColumn.Items` recycle rows by slot: an insert or removal shifts every following slot, so those rows re-render whatever their props. `recycling={false}` keys by item, for short lists with per-row actions.
 - Inside a `Host`, a parent re-render re-runs every row callback and a new `data` array bumps the list's revision: keep state out of the list's parent.
+- Item animations are `itemLayoutAnimation` on the house `LegendList`. On web the package's `AnimatedLegendList` swaps the scroller for react-native-web's `ScrollView` and leaves rows blank on a fast scroll, so `src/components/layout/animated-legend-list/animated-legend-list.web.tsx` animates the browser build's cells through its untyped `internal` signals: re-check it when `@legendapp/list` is upgraded.
 
 # Gestures and animation
 

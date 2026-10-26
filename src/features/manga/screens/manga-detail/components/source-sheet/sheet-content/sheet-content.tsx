@@ -1,5 +1,6 @@
 import { Computed } from "@legendapp/state/react";
 import { View } from "react-native";
+import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
@@ -219,6 +220,7 @@ export function SheetContent({
         </View>
 
         <LegendList
+          itemLayoutAnimation={LinearTransition}
           data={items}
           keyExtractor={sheetItemKey}
           getItemType={(item: SheetItem) => item.kind}
