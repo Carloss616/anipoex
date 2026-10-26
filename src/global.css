@@ -77,6 +77,22 @@
     /* Not `ring-inset`: PanelUI's `--color-inset` makes it a ring color too. */
     --tw-ring-inset: inset;
     @apply ring-offset-0;
+    /* An inset ring sits on the fill: take its foreground color. */
+    &[data-variant="primary"] {
+      @apply ring-primary-foreground;
+    }
+    &[data-variant="destructive"] {
+      @apply ring-destructive-foreground;
+    }
+    &[data-variant="info"] {
+      @apply ring-info-foreground;
+    }
+    &[data-variant="success"] {
+      @apply ring-success-foreground;
+    }
+    &[data-variant="warning"] {
+      @apply ring-warning-foreground;
+    }
   }
   /* LegendList cells clip their paint; only the one holding focus lets the ring out. */
   div:has(> [data-index] :focus-visible) {
