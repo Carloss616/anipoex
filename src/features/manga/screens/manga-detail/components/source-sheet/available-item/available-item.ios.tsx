@@ -26,6 +26,7 @@ import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Rail } from "../rail";
@@ -64,6 +65,7 @@ export const AvailableItem = memo(function AvailableItem({
   const error = scanning ? undefined : probe?.error;
   const searching = useSearching(mangaKey, source.id);
   const search = searchItem(source, searching, actions);
+  const url = useMatchUrl(mangaKey, source.id);
   // Off only while this source scans: rescans of other rows run beside it.
   const rescan = (
     <Button
@@ -73,6 +75,15 @@ export const AvailableItem = memo(function AvailableItem({
       onPress={() => actions.rescan(source.id)}
     />
   );
+  // The swipe's buttons are narrow: there it's just "Website".
+  const website = (label: string) =>
+    (url || source.homeUrl) && (
+      <Button
+        label={label}
+        systemImage={sfSymbol(Icons.website)}
+        onPress={() => actions.openWebsite(source, url)}
+      />
+    );
 
   return (
     <SwipeActions>
@@ -85,6 +96,7 @@ export const AvailableItem = memo(function AvailableItem({
               onPress={search.onPress}
             />
             {rescan}
+            {website("Open website")}
             {error && (
               <Button
                 label="See error"
@@ -177,7 +189,7 @@ export const AvailableItem = memo(function AvailableItem({
           actions={actions}
         />
       </VStack>
-      {/* Right edge: search and rescan. No full swipe on either edge: a long drag shouldn't start one. */}
+      {/* Right edge: search, rescan and website. No full swipe on either edge: a long drag shouldn't start one. */}
       <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
         <Button
           label={searching ? "Stop" : "Search"}
@@ -186,6 +198,7 @@ export const AvailableItem = memo(function AvailableItem({
           onPress={search.onPress}
         />
         {rescan}
+        {website("Website")}
       </SwipeActions.Actions>
       {/* Left edge: exclude. */}
       <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>

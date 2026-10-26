@@ -75,6 +75,18 @@ describe("toSources", () => {
     const icon = "file:///exts/pkg.png";
     expect(toSources([{ ...dex, icon }])[0].iconUrl).toBe(icon);
   });
+
+  it("carries an http(s) homepage only", () => {
+    const withHome = (homeUrl: string) => ({
+      ...dex,
+      sources: dex.sources.map((s) => ({ ...s, homeUrl })),
+    });
+    const web = "https://example.com";
+    expect(toSources([withHome(web)])[0].homeUrl).toBe(web);
+    expect(toSources([withHome("about:blank")])[0]).not.toHaveProperty(
+      "homeUrl",
+    );
+  });
 });
 
 describe("hasSource", () => {

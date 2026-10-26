@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
+import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
@@ -36,6 +37,7 @@ export const ExcludedItem = memo(function ExcludedItem({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showError, setShowError] = useState(false);
   const search = searchItem(source, useSearching(mangaKey, source.id), actions);
+  const url = useMatchUrl(mangaKey, source.id);
 
   const item = (
     <ListItem
@@ -107,6 +109,18 @@ export const ExcludedItem = memo(function ExcludedItem({
               <Text style={{ typography: "labelLarge" }}>{search.label}</Text>
             </DropdownMenuItem.Text>
           </DropdownMenuItem>
+          {(url || source.homeUrl) && (
+            <DropdownMenuItem
+              onClick={() => {
+                setMenuOpen(false);
+                actions.openWebsite(source, url);
+              }}
+            >
+              <DropdownMenuItem.Text>
+                <Text style={{ typography: "labelLarge" }}>Open website</Text>
+              </DropdownMenuItem.Text>
+            </DropdownMenuItem>
+          )}
           {error && (
             <DropdownMenuItem
               onClick={() => {

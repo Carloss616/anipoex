@@ -24,12 +24,14 @@ import {
 } from "@/features/manga/state/title-search";
 import { type ExcludeReason, mediaKey } from "@/features/manga/utils/msu";
 import { openSourcePage } from "@/features/manga/utils/open-source-page";
+import type { Source } from "@/features/manga/utils/source";
 import {
   clearAutoExclusions,
   clearExclusions,
 } from "@/features/manga/utils/source-exclusions";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
+import { openExternal } from "@/utils/open-external";
 
 /** Everything the sheet can do to a manga's sources; nothing here runs until the user acts. */
 export function useSourceActions({
@@ -95,6 +97,11 @@ export function useSourceActions({
         () => rescan(id),
       ),
     openPage: (id: string, url: string) => void openSourcePage(id, url),
+    // Without a match, the source's homepage, to look for the manga by hand.
+    openWebsite: (source: Source, page: string | undefined) =>
+      page
+        ? void openSourcePage(source.id, page)
+        : source.homeUrl && void openExternal(source.homeUrl),
     // An excluded source isn't read, so it stops being the chosen one.
     exclude: (id: string, reason: ExcludeReason) => {
       toggle(id, true, reason);

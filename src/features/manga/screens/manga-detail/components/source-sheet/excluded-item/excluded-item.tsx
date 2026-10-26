@@ -10,6 +10,7 @@ import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { type ExcludeReason, REASONS } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import type { ErrorRequest } from "../available-item";
+import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { Rail } from "../rail";
@@ -35,8 +36,17 @@ export const ExcludedItem = memo(function ExcludedItem({
 }: ExcludedItemProps) {
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
   const searching = useSearching(mangaKey, source.id);
+  const url = useMatchUrl(mangaKey, source.id);
   const items: MenuItem[] = [
     searchItem(source, searching, actions),
+    ...(url || source.homeUrl
+      ? [
+          {
+            label: "Open website",
+            onPress: () => actions.openWebsite(source, url),
+          },
+        ]
+      : []),
     ...(error
       ? [
           {

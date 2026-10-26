@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Rail } from "../rail";
@@ -66,6 +67,7 @@ export const AvailableItem = memo(function AvailableItem({
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
   const search = searchItem(source, useSearching(mangaKey, source.id), actions);
+  const url = useMatchUrl(mangaKey, source.id);
 
   const item = (
     <ListItem
@@ -155,6 +157,18 @@ export const AvailableItem = memo(function AvailableItem({
               <Text style={{ typography: "labelLarge" }}>{search.label}</Text>
             </DropdownMenuItem.Text>
           </DropdownMenuItem>
+          {(url || source.homeUrl) && (
+            <DropdownMenuItem
+              onClick={() => {
+                onMenu?.(null);
+                actions.openWebsite(source, url);
+              }}
+            >
+              <DropdownMenuItem.Text>
+                <Text style={{ typography: "labelLarge" }}>Open website</Text>
+              </DropdownMenuItem.Text>
+            </DropdownMenuItem>
+          )}
           {error && (
             <DropdownMenuItem
               onClick={() => {

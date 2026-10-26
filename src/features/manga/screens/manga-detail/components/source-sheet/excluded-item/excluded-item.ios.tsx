@@ -17,6 +17,7 @@ import { Icons, sfSymbol } from "@/components/ui/icon";
 import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
@@ -35,6 +36,16 @@ export const ExcludedItem = memo(function ExcludedItem({
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
   const searching = useSearching(mangaKey, source.id);
   const search = searchItem(source, searching, actions);
+  const url = useMatchUrl(mangaKey, source.id);
+  // The swipe's buttons are narrow: there it's just "Website".
+  const website = (label: string) =>
+    (url || source.homeUrl) && (
+      <Button
+        label={label}
+        systemImage={sfSymbol(Icons.website)}
+        onPress={() => actions.openWebsite(source, url)}
+      />
+    );
   const include = (color?: string) => (
     <Computed>
       {() => (
@@ -63,6 +74,7 @@ export const ExcludedItem = memo(function ExcludedItem({
               onPress={search.onPress}
             />
             {include()}
+            {website("Open website")}
             {error && (
               <Button
                 label="See error"
@@ -97,7 +109,7 @@ export const ExcludedItem = memo(function ExcludedItem({
           actions={actions}
         />
       </VStack>
-      {/* Right edge only: search and include, where Available rows search. */}
+      {/* Right edge only: search, include and website, where Available rows search. */}
       <SwipeActions.Actions edge="trailing">
         <Button
           label={searching ? "Stop" : "Search"}
@@ -106,6 +118,7 @@ export const ExcludedItem = memo(function ExcludedItem({
           onPress={search.onPress}
         />
         {include(primary)}
+        {website("Website")}
       </SwipeActions.Actions>
     </SwipeActions>
   );
