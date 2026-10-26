@@ -132,7 +132,11 @@ export function SheetContent({
                         : Icons.searchTitles
                     }
                     size={BUTTON_ICON_SIZE}
-                    className="text-foreground"
+                    className={
+                      title.searching
+                        ? "text-primary-foreground"
+                        : "text-foreground"
+                    }
                   />
                 </Button>
                 <Computed>
