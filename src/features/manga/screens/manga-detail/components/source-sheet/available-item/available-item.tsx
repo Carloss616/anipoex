@@ -74,13 +74,15 @@ export const AvailableItem = memo(function AvailableItem({
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
   const searching = useSearching(mangaKey, source.id);
+  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
   const items: MenuItem[] = [
-    searchItem(source, searching, actions),
+    { ...searchItem(source, searching, actions), icon: searchIcon },
     ...(url || source.homeUrl
       ? [
           {
             label: "Open website",
+            icon: Icons.website,
             onPress: () => actions.openWebsite(source, url),
           },
         ]
@@ -89,6 +91,7 @@ export const AvailableItem = memo(function AvailableItem({
       ? [
           {
             label: "See error",
+            icon: Icons.error,
             onPressMode: "dialog" as const,
             dialogConfig: errorDialog(source.name, error),
             onPress: () => actions.rescan(source.id),
@@ -96,9 +99,20 @@ export const AvailableItem = memo(function AvailableItem({
         ]
       : []),
     ...(selected
-      ? [{ label: "Deselect", onPress: () => actions.deselect(source.id) }]
+      ? [
+          {
+            label: "Deselect",
+            icon: Icons.deselect,
+            onPress: () => actions.deselect(source.id),
+          },
+        ]
       : []),
-    excludeMenu(suspicious, (reason) => actions.exclude(source.id, reason)),
+    {
+      ...excludeMenu(suspicious, (reason) =>
+        actions.exclude(source.id, reason),
+      ),
+      icon: Icons.exclude,
+    },
   ];
 
   return (

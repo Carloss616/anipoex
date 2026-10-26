@@ -64,6 +64,7 @@ export const AvailableItem = memo(function AvailableItem({
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
   const searching = useSearching(mangaKey, source.id);
+  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const search = searchItem(source, searching, actions);
   const url = useMatchUrl(mangaKey, source.id);
   // Off only while this source scans: rescans of other rows run beside it.
@@ -92,7 +93,7 @@ export const AvailableItem = memo(function AvailableItem({
           <ContextMenu.Items>
             <Button
               label={search.label}
-              systemImage={sfSymbol(Icons.searchTitles)}
+              systemImage={sfSymbol(searchIcon)}
               onPress={search.onPress}
             />
             {rescan}
@@ -100,14 +101,14 @@ export const AvailableItem = memo(function AvailableItem({
             {error && (
               <Button
                 label="See error"
-                systemImage="exclamationmark.triangle"
+                systemImage={sfSymbol(Icons.error)}
                 onPress={() => onError?.({ source, error })}
               />
             )}
             {selected && (
               <Button
                 label="Deselect"
-                systemImage="xmark.circle"
+                systemImage={sfSymbol(Icons.deselect)}
                 onPress={() => actions.deselect(source.id)}
               />
             )}
@@ -119,7 +120,7 @@ export const AvailableItem = memo(function AvailableItem({
                 ).items
               }
             >
-              <Label title="Exclude" systemImage="eye.slash" />
+              <Label title="Exclude" systemImage={sfSymbol(Icons.exclude)} />
             </Menu>
           </ContextMenu.Items>
           <ContextMenu.Trigger>
@@ -193,7 +194,7 @@ export const AvailableItem = memo(function AvailableItem({
       <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
         <Button
           label={searching ? "Stop" : "Search"}
-          systemImage={sfSymbol(Icons.searchTitles)}
+          systemImage={sfSymbol(searchIcon)}
           modifiers={[tint(primary)]}
           onPress={search.onPress}
         />
@@ -204,7 +205,7 @@ export const AvailableItem = memo(function AvailableItem({
       <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
         <Button
           label="Exclude"
-          systemImage="eye.slash"
+          systemImage={sfSymbol(Icons.exclude)}
           // No destructive role: SwiftUI would delete the row before a reason is picked.
           modifiers={[tint(destructive)]}
           onPress={() => onExclude?.({ source, suspicious })}

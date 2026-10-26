@@ -19,6 +19,7 @@ import { memo, useState } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useMatchUrl } from "../hooks/use-match-url";
@@ -66,7 +67,9 @@ export const AvailableItem = memo(function AvailableItem({
   const [showError, setShowError] = useState(false);
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
-  const search = searchItem(source, useSearching(mangaKey, source.id), actions);
+  const searching = useSearching(mangaKey, source.id);
+  const search = searchItem(source, searching, actions);
+  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
 
   const item = (
@@ -156,6 +159,9 @@ export const AvailableItem = memo(function AvailableItem({
             <DropdownMenuItem.Text>
               <Text style={{ typography: "labelLarge" }}>{search.label}</Text>
             </DropdownMenuItem.Text>
+            <DropdownMenuItem.LeadingIcon>
+              <Icon name={searchIcon} size={BUTTON_ICON_SIZE} />
+            </DropdownMenuItem.LeadingIcon>
           </DropdownMenuItem>
           {(url || source.homeUrl) && (
             <DropdownMenuItem
@@ -167,6 +173,9 @@ export const AvailableItem = memo(function AvailableItem({
               <DropdownMenuItem.Text>
                 <Text style={{ typography: "labelLarge" }}>Open website</Text>
               </DropdownMenuItem.Text>
+              <DropdownMenuItem.LeadingIcon>
+                <Icon name={Icons.website} size={BUTTON_ICON_SIZE} />
+              </DropdownMenuItem.LeadingIcon>
             </DropdownMenuItem>
           )}
           {error && (
@@ -179,6 +188,9 @@ export const AvailableItem = memo(function AvailableItem({
               <DropdownMenuItem.Text>
                 <Text style={{ typography: "labelLarge" }}>See error</Text>
               </DropdownMenuItem.Text>
+              <DropdownMenuItem.LeadingIcon>
+                <Icon name={Icons.error} size={BUTTON_ICON_SIZE} />
+              </DropdownMenuItem.LeadingIcon>
             </DropdownMenuItem>
           )}
           {selected && (
@@ -191,6 +203,9 @@ export const AvailableItem = memo(function AvailableItem({
               <DropdownMenuItem.Text>
                 <Text style={{ typography: "labelLarge" }}>Deselect</Text>
               </DropdownMenuItem.Text>
+              <DropdownMenuItem.LeadingIcon>
+                <Icon name={Icons.deselect} size={BUTTON_ICON_SIZE} />
+              </DropdownMenuItem.LeadingIcon>
             </DropdownMenuItem>
           )}
           {excludeReasons(suspicious).map((reason) => (
@@ -206,6 +221,9 @@ export const AvailableItem = memo(function AvailableItem({
                   {`Exclude: ${REASONS[reason].menu}`}
                 </Text>
               </DropdownMenuItem.Text>
+              <DropdownMenuItem.LeadingIcon>
+                <Icon name={Icons.exclude} size={BUTTON_ICON_SIZE} />
+              </DropdownMenuItem.LeadingIcon>
             </DropdownMenuItem>
           ))}
         </DropdownMenu.Items>

@@ -72,6 +72,16 @@ export const Icons = {
     android: require("@expo/material-symbols/translate.xml"),
     web: "languages",
   }),
+  deselect: Icon.select({
+    ios: "xmark.circle",
+    android: require("@expo/material-symbols/cancel.xml"),
+    web: "circle-x",
+  }),
+  exclude: Icon.select({
+    ios: "eye.slash",
+    android: require("@expo/material-symbols/visibility_off.xml"),
+    web: "eye-off",
+  }),
   close: Icon.select({
     ios: "xmark",
     android: require("@expo/material-symbols/close.xml"),
@@ -126,6 +136,12 @@ export const Icons = {
     ios: "hourglass",
     android: require("@expo/material-symbols/hourglass.xml"),
     web: "hourglass",
+  }),
+
+  error: Icon.select({
+    ios: "exclamationmark.triangle",
+    android: require("@expo/material-symbols/warning.xml"),
+    web: "triangle-alert",
   }),
 
   // Metadata

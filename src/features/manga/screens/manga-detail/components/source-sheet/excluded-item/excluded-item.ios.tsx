@@ -35,6 +35,7 @@ export const ExcludedItem = memo(function ExcludedItem({
   const primary = useThemeColor("primary");
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
   const searching = useSearching(mangaKey, source.id);
+  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const search = searchItem(source, searching, actions);
   const url = useMatchUrl(mangaKey, source.id);
   // The swipe's buttons are narrow: there it's just "Website".
@@ -70,7 +71,7 @@ export const ExcludedItem = memo(function ExcludedItem({
             {/* A source excluded for finding nothing can be searched by hand. */}
             <Button
               label={search.label}
-              systemImage={sfSymbol(Icons.searchTitles)}
+              systemImage={sfSymbol(searchIcon)}
               onPress={search.onPress}
             />
             {include()}
@@ -78,7 +79,7 @@ export const ExcludedItem = memo(function ExcludedItem({
             {error && (
               <Button
                 label="See error"
-                systemImage="exclamationmark.triangle"
+                systemImage={sfSymbol(Icons.error)}
                 onPress={() => onError?.({ source, error, excluded: true })}
               />
             )}
@@ -113,7 +114,7 @@ export const ExcludedItem = memo(function ExcludedItem({
       <SwipeActions.Actions edge="trailing">
         <Button
           label={searching ? "Stop" : "Search"}
-          systemImage={sfSymbol(Icons.searchTitles)}
+          systemImage={sfSymbol(searchIcon)}
           modifiers={[tint(primary)]}
           onPress={search.onPress}
         />

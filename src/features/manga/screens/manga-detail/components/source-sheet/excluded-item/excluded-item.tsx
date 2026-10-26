@@ -36,13 +36,15 @@ export const ExcludedItem = memo(function ExcludedItem({
 }: ExcludedItemProps) {
   const error = useValue(() => probes$[mangaKey][source.id].error.get());
   const searching = useSearching(mangaKey, source.id);
+  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
   const items: MenuItem[] = [
-    searchItem(source, searching, actions),
+    { ...searchItem(source, searching, actions), icon: searchIcon },
     ...(url || source.homeUrl
       ? [
           {
             label: "Open website",
+            icon: Icons.website,
             onPress: () => actions.openWebsite(source, url),
           },
         ]
@@ -51,6 +53,7 @@ export const ExcludedItem = memo(function ExcludedItem({
       ? [
           {
             label: "See error",
+            icon: Icons.error,
             onPressMode: "dialog" as const,
             dialogConfig: errorDialog(source.name, error, true),
             onPress: () => actions.include(source.id),
