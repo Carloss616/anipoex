@@ -18,7 +18,6 @@ import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
 import { useTitleMode } from "../hooks/use-title-mode";
-import { RefreshIcon } from "../refresh-icon";
 import { excludedMenuItems } from "../utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "../utils/sheet-items";
 import { titleMenuItems } from "../utils/title-menu";
@@ -140,21 +139,25 @@ export function SheetContent({
                   />
                 </Button>
                 <Computed>
-                  {() => (
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="size-9"
-                      // A plain browser has no sources, so nothing to scan.
-                      disabled={scanningAll$[key].get() === true || !installed}
-                      onPress={actions.scanAll}
-                      accessibilityLabel="Scan all sources"
-                    >
-                      <RefreshIcon
-                        spinning={scanningAll$[key].get() === true}
-                      />
-                    </Button>
-                  )}
+                  {() => {
+                    const scanning = scanningAll$[key].get() === true;
+                    return (
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="size-9"
+                        // A plain browser has no sources, so nothing to scan.
+                        disabled={!installed}
+                        loading={scanning}
+                        onPress={actions.scanAll}
+                        accessibilityLabel="Scan all sources"
+                      >
+                        {!scanning && (
+                          <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
+                        )}
+                      </Button>
+                    );
+                  }}
                 </Computed>
               </ButtonGroup>
             </View>

@@ -20,13 +20,13 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Rail } from "../rail";
-import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
 import {
   errorDialog,
@@ -123,7 +123,15 @@ export const AvailableItem = memo(function AvailableItem({
               semantics({ contentDescription: `Rescan ${source.name}` }),
             ]}
           >
-            <RefreshIcon spinning={scanning} />
+            {scanning ? (
+              <Loader size="sm" />
+            ) : (
+              <Icon
+                name={Icons.refresh}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
+            )}
           </IconButton>
           {/* Its own click, so TalkBack still finds a radio next to the row's long-press. */}
           <RadioButton selected={selected} onClick={select} />

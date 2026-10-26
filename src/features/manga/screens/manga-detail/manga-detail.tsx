@@ -149,7 +149,7 @@ export function MangaDetail() {
   return (
     <>
       <Stack.Title large>{manga.title?.userPreferred}</Stack.Title>
-      <Toolbar spinning={refreshing}>
+      <Toolbar loading={refreshing}>
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
             icon={Icons.refresh}

@@ -12,7 +12,6 @@ import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Rail } from "../rail";
-import { RefreshIcon } from "../refresh-icon";
 import { Tile } from "../tile";
 import {
   errorDialog,
@@ -166,11 +165,11 @@ export const AvailableItem = memo(function AvailableItem({
             variant="ghost"
             size="icon"
             className="size-9"
-            disabled={scanning}
+            loading={scanning}
             onPress={() => actions.rescan(source.id)}
             accessibilityLabel={`Rescan ${source.name}`}
           >
-            <RefreshIcon spinning={scanning} />
+            {!scanning && <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />}
           </Button>
           <Menu items={items}>
             <Button

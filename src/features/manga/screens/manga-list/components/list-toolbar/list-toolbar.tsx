@@ -50,7 +50,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   };
 
   return (
-    <Toolbar spinning={refetching}>
+    <Toolbar loading={refetching}>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           hidden={wide}

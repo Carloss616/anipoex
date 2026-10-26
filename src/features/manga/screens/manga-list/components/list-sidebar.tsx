@@ -1,4 +1,3 @@
-import { cn } from "panelui-native/utils/cn";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
@@ -40,7 +39,7 @@ export const ListSidebar = memo(function ListSidebar({
               aria-selected={selected}
               onPress={() => onSelect(key)}
               variant={selected ? "secondary" : "ghost"}
-              className={cn("justify-between", !selected && "opacity-60!")}
+              className="justify-between"
             >
               {name}
               <Badge>{counts[key]}</Badge>

@@ -25,6 +25,7 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
@@ -34,7 +35,6 @@ import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
 import { useTitleMode } from "../hooks/use-title-mode";
-import { RefreshIcon } from "../refresh-icon";
 import { excludedMenuItems } from "../utils/row-content";
 import { sheetItemKey, sheetItems } from "../utils/sheet-items";
 import { titleMenuItems } from "../utils/title-menu";
@@ -182,19 +182,29 @@ export function SheetContent({
                   />
                 </SearchTitlesButton>
                 <Computed>
-                  {() => (
-                    <IconButton
-                      enabled={!scanningAll$[key].get()}
-                      onClick={actions.scanAll}
-                      modifiers={[
-                        semantics({ contentDescription: "Scan all sources" }),
-                      ]}
-                    >
-                      <RefreshIcon
-                        spinning={scanningAll$[key].get() === true}
-                      />
-                    </IconButton>
-                  )}
+                  {() => {
+                    const scanning = scanningAll$[key].get() === true;
+
+                    return (
+                      <IconButton
+                        enabled={!scanning}
+                        onClick={actions.scanAll}
+                        modifiers={[
+                          semantics({ contentDescription: "Scan all sources" }),
+                        ]}
+                      >
+                        {scanning ? (
+                          <Loader size="sm" />
+                        ) : (
+                          <Icon
+                            name={Icons.refresh}
+                            size={BUTTON_ICON_SIZE}
+                            color="inherit"
+                          />
+                        )}
+                      </IconButton>
+                    );
+                  }}
                 </Computed>
               </Row>
             </Row>

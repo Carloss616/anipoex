@@ -1,4 +1,3 @@
-import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,7 @@ export function ListSidebar({
               aria-selected={selected}
               onPress={() => onSelect(f)}
               variant={selected ? "secondary" : "ghost"}
-              className={cn("justify-between", !selected && "opacity-60!")}
+              className="justify-between"
             >
               {FILTER_TITLES[f]}
               <Badge>{counts[f]}</Badge>

@@ -9,7 +9,6 @@ import {
   Icons,
 } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
-import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
@@ -33,7 +32,7 @@ export interface ListItemProps {
 
 type ActionButtonProps = Omit<
   Extract<ComponentProps<typeof Button>, { size: "icon" }>,
-  "size"
+  "size" | "loading"
 > & {
   id: string;
   /** What this button starts: its icon turns into a loader while that runs. */
@@ -48,21 +47,22 @@ function ActionButton({
   operation,
   icon,
   iconClassName,
+  variant = "outline",
   ...props
 }: ActionButtonProps) {
   const current = useValue(extensionOperations$[id]);
+  const loading = current === operation;
 
   return (
     <Button
       size="icon"
-      variant="outline"
+      variant={variant}
       className="size-9"
       {...props}
       disabled={!!current}
+      loading={loading}
     >
-      {current === operation ? (
-        <Loader size="sm" />
-      ) : (
+      {!loading && (
         <Icon name={icon} size={BUTTON_ICON_SIZE} className={iconClassName} />
       )}
     </Button>

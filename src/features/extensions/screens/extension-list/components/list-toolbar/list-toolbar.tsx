@@ -38,7 +38,7 @@ export function ListToolbar({
   const [checking, setChecking] = useState(false);
 
   return (
-    <Toolbar spinning={checking}>
+    <Toolbar loading={checking}>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           hidden={wide}

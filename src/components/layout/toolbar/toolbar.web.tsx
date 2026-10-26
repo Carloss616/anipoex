@@ -1,6 +1,4 @@
 import { Stack } from "expo-router";
-import type { ViewStyle } from "react-native";
-import Animated, { type CSSAnimationProperties } from "react-native-reanimated";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
@@ -8,22 +6,14 @@ import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
 import { labelOf, readToolbar, type ToolbarItem } from "./utils";
 
-const SPIN: CSSAnimationProperties<ViewStyle> = {
-  animationName: { to: { transform: [{ rotate: "360deg" }] } },
-  // Faster reads as a shorter wait at the same real load time.
-  animationDuration: "0.7s",
-  animationTimingFunction: "linear",
-  animationIterationCount: "infinite",
-};
-
 function ToolbarItemView({
   item,
   tintColor,
-  spinning,
+  loading,
 }: {
   item: ToolbarItem;
   tintColor?: string;
-  spinning?: boolean;
+  loading?: boolean;
 }) {
   const label = labelOf(
     item.props,
@@ -31,6 +21,7 @@ function ToolbarItemView({
   );
   const iconName = (item.props.icon ??
     (item.kind === "menu" ? "ellipsis-vertical" : undefined)) as IconName;
+  const isLoading = loading && item.kind === "button" && item.props.disabled;
 
   const icon =
     iconName == null ? (
@@ -48,15 +39,12 @@ function ToolbarItemView({
       variant="secondary"
       size="icon"
       className="size-9"
+      loading={isLoading}
       disabled={item.props.disabled}
       onPress={item.kind === "button" ? item.props.onPress : undefined}
       accessibilityLabel={label}
     >
-      {spinning && item.kind === "button" && item.props.disabled ? (
-        <Animated.View style={SPIN}>{icon}</Animated.View>
-      ) : (
-        icon
-      )}
+      {!isLoading && icon}
     </Button>
   );
 
@@ -82,7 +70,7 @@ function ToolbarItemView({
  * Maps `Stack.Toolbar` → `Stack.Screen` `headerRight`/`headerLeft` on web,
  * converting `Stack.Toolbar.Button` (and `Menu`) into header controls.
  */
-export function Toolbar({ children: toolbar, spinning }: ToolbarProps) {
+export function Toolbar({ children: toolbar, loading }: ToolbarProps) {
   const parsed = readToolbar(toolbar);
 
   if (!parsed || parsed.placement === "bottom") return null;
@@ -98,7 +86,7 @@ export function Toolbar({ children: toolbar, spinning }: ToolbarProps) {
               key={item.key}
               item={item}
               tintColor={tintColor}
-              spinning={spinning}
+              loading={loading}
             />
           )),
       }}

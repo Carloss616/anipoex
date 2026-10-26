@@ -14,7 +14,7 @@ const SIZES = {
 
 /**
  * Android Loader: same props as [the web one](./loader.tsx), rendered as
- * M3 Expressive's `CircularWavyProgressIndicator`.
+ * M3 Expressive's `ContainedLoadingIndicator`.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/progress/
  */
