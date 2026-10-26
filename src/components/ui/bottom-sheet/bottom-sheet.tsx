@@ -135,6 +135,9 @@ function BottomSheetRoot({
               <Drawer.Content
                 className={cn(
                   "fixed right-0 bottom-0 z-50 flex flex-col border-border bg-popover shadow-sm outline-none",
+                  // vaul's exit animation doesn't fill: the drawer would jump back
+                  // open for the frames before it unmounts.
+                  "data-[state=closed]:[animation-fill-mode:forwards]",
                   isRight
                     ? "top-0 rounded-l-[16px] border-l"
                     : "left-0 rounded-t-[16px] border-t",
