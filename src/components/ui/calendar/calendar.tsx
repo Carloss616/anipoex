@@ -3,8 +3,11 @@ import {
   type CalendarProps,
   Calendar as PanelCalendar,
 } from "panelui-native/components/calendar";
+import { PortalHost, PortalProvider } from "panelui-native/primitives/portal";
 import { cn } from "panelui-native/utils/cn";
 import type { KeyboardEvent } from "react";
+import { createPortal } from "react-dom";
+import { View } from "react-native";
 import { nextGridIndex, nextIndex } from "../arrow-key-group/utils";
 
 export * from "panelui-native/components/calendar";
@@ -56,22 +59,34 @@ export function Calendar<Mode extends CalendarMode = "single">({
   };
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: key events bubble up from its days
-    <div onKeyDown={onKeyDown} className="contents">
-      <PanelCalendar
-        {...props}
-        className={cn(
-          // PanelUI's buttons take no class; a day lights its disc, not a picked one.
-          "[&_[role=button]:not([role=list]_*)]:transition-colors",
-          "[&_[role=button]:not([role=list]_*)]:hover:bg-secondary/90",
-          "[&_[role=button]:not([role=list]_*)]:active:bg-accent",
-          "[&_[role=list]_[role=button]>:last-child]:transition-colors",
-          "[&_[role=list]_[role=button]:hover:not(:active)>:last-child:not(.bg-primary)]:bg-secondary/90",
-          "[&_[role=list]_[role=button]:active>:last-child:not(.bg-primary)]:bg-accent",
-          className,
+    // Its month and year menus are PanelUI portals: hosted on <body> over a
+    // sheet, whose transform would capture their `fixed` and whose page Base
+    // UI hides.
+    <PortalProvider>
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: key events bubble up from its days */}
+      <div onKeyDown={onKeyDown} className="contents">
+        <PanelCalendar
+          {...props}
+          className={cn(
+            // PanelUI's buttons take no class; a day lights its disc, not a picked one.
+            "[&_[role=button]:not([role=list]_*)]:transition-colors",
+            "[&_[role=button]:not([role=list]_*)]:hover:bg-secondary/90",
+            "[&_[role=button]:not([role=list]_*)]:active:bg-accent",
+            "[&_[role=list]_[role=button]>:last-child]:transition-colors",
+            "[&_[role=list]_[role=button]:hover:not(:active)>:last-child:not(.bg-primary)]:bg-secondary/90",
+            "[&_[role=list]_[role=button]:active>:last-child:not(.bg-primary)]:bg-accent",
+            className,
+          )}
+        />
+      </div>
+      {typeof document !== "undefined" &&
+        createPortal(
+          <View pointerEvents="box-none" className="fixed inset-0 z-60">
+            <PortalHost />
+          </View>,
+          document.body,
         )}
-      />
-    </div>
+    </PortalProvider>
   );
 }
 
@@ -81,7 +96,7 @@ function moveInMenu(
   chip: HTMLElement,
 ) {
   if (event.key === "Escape") {
-    // Before the sheet's OverlayScope, which would close the whole sheet.
+    // Before the sheet, whose Escape would close the whole sheet.
     event.stopPropagation();
     document.querySelector<HTMLElement>(BACKDROP)?.click();
     chip.focus();
@@ -100,7 +115,7 @@ function moveInMenu(
   focusPastTrap(options[next], sheet);
 }
 
-// Inert, a sheet's Radix focus trap can't pull focus back out of PanelUI's portal.
+// Inert, a sheet's focus trap can't pull focus back out of PanelUI's portal.
 function focusPastTrap(element: HTMLElement, sheet: HTMLElement | null) {
   if (sheet) sheet.inert = true;
   element.focus();

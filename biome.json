@@ -55,12 +55,12 @@
               "panelui-native/components/progress": "Import from @/components/ui/progress",
               "panelui-native/components/rating": "Import from @/components/ui/rating",
               "panelui-native/components/spinner": "Import from @/components/ui/loader",
-              "react-aria": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+              "react-aria": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
             },
             "patterns": [
               {
                 "group": ["react-aria/*"],
-                "message": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+                "message": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
               },
               {
                 "group": ["@expo/ui"],
@@ -193,12 +193,12 @@
               "options": {
                 "paths": {
                   "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
-                  "react-aria": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+                  "react-aria": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
                 },
                 "patterns": [
                   {
                     "group": ["react-aria/*"],
-                    "message": "Only the .web.tsx files of src/components/ui/{overlay-scope,arrow-key-group,hidden-range} import react-aria"
+                    "message": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
                   }
                 ]
               }
@@ -209,7 +209,6 @@
     },
     {
       "includes": [
-        "src/components/ui/overlay-scope/*.web.tsx",
         "src/components/ui/arrow-key-group/*.web.tsx",
         "src/components/ui/hidden-range/*.web.tsx"
       ],

@@ -1,8 +1,8 @@
 import type { ButtonRole } from "@expo/ui/swift-ui";
-import { Dialog as PanelDialog } from "panelui-native/components/dialog";
+import { Button } from "panelui-web/button";
+import { Dialog as PanelDialog } from "panelui-web/dialog";
 import { type ReactElement, useState } from "react";
-import { Button } from "../button";
-import { OverlayScope } from "../overlay-scope";
+import { extractTrigger, Trigger } from "./trigger";
 import { dialogActions } from "./utils";
 
 export interface DialogAction {
@@ -49,7 +49,6 @@ export type DialogProps = DialogBaseProps &
 function DialogRoot(props: DialogProps) {
   const { children, title, description, className, open, onOpenChange } = props;
   const { actions, cancel } = dialogActions(props);
-  // Held here too when uncontrolled, so Escape can close a `Trigger` dialog.
   const [innerOpen, setInnerOpen] = useState(false);
   const setOpen = (next: boolean) => {
     if (open === undefined) setInnerOpen(next);
@@ -57,48 +56,42 @@ function DialogRoot(props: DialogProps) {
   };
 
   return (
-    <PanelDialog open={open ?? innerOpen} onOpenChange={setOpen}>
-      {children}
-      <PanelDialog.Content className={className}>
-        <OverlayScope
-          label={title}
-          onClose={() => setOpen(false)}
-          className="flex flex-col gap-1.5"
-        >
-          <PanelDialog.Title>{title}</PanelDialog.Title>
-          {description && (
-            <PanelDialog.Description>{description}</PanelDialog.Description>
-          )}
+    <>
+      {children && extractTrigger(children, () => setOpen(true))}
+      <PanelDialog open={open ?? innerOpen} onOpenChange={setOpen}>
+        <PanelDialog.Content className={className}>
+          <PanelDialog.Header title={title} description={description} />
           <PanelDialog.Footer>
-            <PanelDialog.Close>
-              <Button size="sm" variant="ghost" onPress={cancel.onPress}>
-                {cancel.label}
-              </Button>
+            <PanelDialog.Close
+              render={<Button variant="outline" />}
+              onClick={cancel.onPress}
+            >
+              {cancel.label}
             </PanelDialog.Close>
             {actions.map((action) => (
-              <PanelDialog.Close key={action.label}>
-                <Button
-                  size="sm"
-                  variant={
-                    action.role === "destructive" ? "destructive" : "primary"
-                  }
-                  onPress={action.onPress}
-                >
-                  {action.label}
-                </Button>
+              <PanelDialog.Close
+                key={action.label}
+                render={
+                  <Button
+                    variant={
+                      action.role === "destructive" ? "destructive" : "default"
+                    }
+                  />
+                }
+                onClick={action.onPress}
+              >
+                {action.label}
               </PanelDialog.Close>
             ))}
           </PanelDialog.Footer>
-        </OverlayScope>
-      </PanelDialog.Content>
-    </PanelDialog>
+        </PanelDialog.Content>
+      </PanelDialog>
+    </>
   );
 }
 
 /**
  * An uncontrolled confirm/cancel dialog, natively rendered per platform.
- * @see https://panelui.dev/docs/components/dialog
+ * @see https://panelui.dev/docs/web/components/dialog
  */
-export const Dialog = Object.assign(DialogRoot, {
-  Trigger: PanelDialog.Trigger,
-});
+export const Dialog = Object.assign(DialogRoot, { Trigger });

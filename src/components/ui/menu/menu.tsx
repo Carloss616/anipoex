@@ -1,21 +1,14 @@
-import {
-  type MenuItemVariant,
-  Menu as PanelMenu,
-} from "panelui-native/components/menu";
-import type { PopoverAlign } from "panelui-native/components/popover";
 import { cn } from "panelui-native/utils/cn";
+import { Menu as PanelMenu } from "panelui-web/menu";
 import { cloneElement, type ReactElement, useState } from "react";
 import { View, type ViewProps } from "react-native";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
-import { OverlayScope } from "../overlay-scope";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import { isSubmenu } from "./utils";
 
-// The panel fits its rows when it opens, before a submenu adds wider ones.
-const SUBMENU_MIN_WIDTH = 224;
-// A long row (a full manga title) wraps instead of stretching the panel.
-const MAX_WIDTH = 288;
+// panelui-web rows don't wrap: a long title breaks lines within max-w-72.
+const ROW = "whitespace-normal";
 
 // The single-confirm form: a menu row confirms one action.
 export type MenuItemDialogConfig = Pick<
@@ -63,19 +56,20 @@ export interface MenuProps {
   items: MenuItem[];
   /** The element the menu hangs off. Must accept `onPress` — it is what opens the menu — and `onLongPress` when `onPrimaryAction` is set. */
   children: ReactElement<{
-    onPress?: (...args: unknown[]) => void;
-    onLongPress?: (...args: unknown[]) => void;
+    onPress?: (event?: PressEvent) => void;
+    onLongPress?: (event?: PressEvent) => void;
   }>;
   /** When set, a tap runs it and a long press (or a right-click on web) opens the menu. Keep it set while the trigger shows: unset, the menu moves back to the tap, so tap and hold swap. */
   onPrimaryAction?: () => void;
   /** @platform web */
-  align?: PopoverAlign;
+  align?: "start" | "center" | "end";
 }
 
-const HOVER_VARIANTS = {
-  default: "hover:bg-accent",
-  destructive: "hover:bg-destructive-subtle",
-} satisfies Record<MenuItemVariant, string>;
+type PressEvent = { currentTarget?: unknown; preventDefault?: () => void };
+
+function RowIcon({ name }: { name?: IconName }) {
+  return name ? <Icon name={name} size={16} /> : null;
+}
 
 function ActionItem({
   destructive,
@@ -85,20 +79,17 @@ function ActionItem({
   label,
   icon,
 }: MenuAction) {
-  const variant = destructive ? "destructive" : "default";
-
   if (checked !== undefined) {
     return (
       <PanelMenu.CheckboxItem
+        className={ROW}
         checked={checked}
         disabled={disabled}
-        variant={variant}
-        data-variant={variant}
         // Every checked row here picks one of several, and native menus close on a pick.
-        closeOnSelect
+        closeOnClick
         onCheckedChange={onPress}
-        className={cn("transition-colors", HOVER_VARIANTS[variant])}
       >
+        <RowIcon name={icon} />
         {label}
       </PanelMenu.CheckboxItem>
     );
@@ -106,13 +97,12 @@ function ActionItem({
 
   return (
     <PanelMenu.Item
-      icon={icon ? <Icon name={icon} size={16} /> : undefined}
+      className={ROW}
       disabled={disabled}
-      variant={variant}
-      data-variant={variant}
-      onSelect={onPress}
-      className={cn("transition-colors", HOVER_VARIANTS[variant])}
+      variant={destructive ? "destructive" : "default"}
+      onClick={onPress}
     >
+      <RowIcon name={icon} />
       {label}
     </PanelMenu.Item>
   );
@@ -120,28 +110,43 @@ function ActionItem({
 
 function RowItem(item: MenuItem) {
   if (!isSubmenu(item)) return <ActionItem {...item} />;
-  return <SubmenuItem {...item} />;
-}
-
-function SubmenuItem(item: MenuSubmenu) {
-  const [open, setOpen] = useState(false);
 
   return (
-    <PanelMenu.Sub open={open} onOpenChange={setOpen}>
-      <PanelMenu.SubTrigger
-        icon={item.icon ? <Icon name={item.icon} size={16} /> : undefined}
-        disabled={item.disabled}
-        className={cn("transition-colors", HOVER_VARIANTS.default)}
-      >
+    <PanelMenu.Sub>
+      <PanelMenu.SubTrigger className={ROW} disabled={item.disabled}>
+        <RowIcon name={item.icon} />
         {item.label}
       </PanelMenu.SubTrigger>
       <PanelMenu.SubContent>
-        {/* Collapsed rows stay laid out at zero height, where arrow
-            keys would still reach them. */}
-        {open &&
-          item.items.map((row) => <ActionItem key={row.label} {...row} />)}
+        {item.items.map((row) => (
+          <ActionItem key={row.label} {...row} />
+        ))}
       </PanelMenu.SubContent>
     </PanelMenu.Sub>
+  );
+}
+
+/** The trigger's child with the tap given to `onPrimaryAction` and the menu moved to a long press or right-click. */
+function PrimaryTrigger({
+  child,
+  onPrimaryAction,
+  onOpen,
+}: {
+  child: MenuProps["children"];
+  onPrimaryAction: () => void;
+  onOpen: (event?: PressEvent) => void;
+}) {
+  // react-native-web forwards the DOM event its types don't list.
+  const rightClick = {
+    onContextMenu: (event: PressEvent) => {
+      event.preventDefault?.();
+      onOpen(event);
+    },
+  } as ViewProps;
+  return (
+    <View {...rightClick}>
+      {cloneElement(child, { onPress: onPrimaryAction, onLongPress: onOpen })}
+    </View>
   );
 }
 
@@ -152,32 +157,8 @@ function SubmenuItem(item: MenuSubmenu) {
  * only take action rows — a `ReactNode` label or icon has nowhere to go
  * there. `description`/`shortcut`/`trailing` are absent for the same reason.
  *
- * @see https://panelui.dev/docs/components/menu
+ * @see https://panelui.dev/docs/web/components/menu
  */
-/** The trigger's child with the tap given to `onPrimaryAction` and the menu's `onPress` moved to a long press or right-click. */
-function PrimaryTrigger({
-  child,
-  onPrimaryAction,
-  onPress,
-}: {
-  child: MenuProps["children"];
-  onPrimaryAction: () => void;
-  onPress?: () => void;
-}) {
-  // react-native-web forwards the DOM event its types don't list.
-  const rightClick = {
-    onContextMenu: (event: { preventDefault: () => void }) => {
-      event.preventDefault();
-      onPress?.();
-    },
-  } as ViewProps;
-  return (
-    <View {...rightClick}>
-      {cloneElement(child, { onPress: onPrimaryAction, onLongPress: onPress })}
-    </View>
-  );
-}
-
 export function Menu({
   items,
   children,
@@ -186,36 +167,38 @@ export function Menu({
 }: MenuProps) {
   const { rows, pending, close } = useMenuDialogState(items);
   const [open, setOpen] = useState(false);
+  // Kept after closing, so the menu animates out where it opened.
+  const [anchor, setAnchor] = useState<Element | null>(null);
+
+  // The child stays the trigger: its own press opens the menu at it.
+  const openAt = (event?: PressEvent) => {
+    setAnchor((event?.currentTarget as Element | undefined) ?? null);
+    setOpen(true);
+  };
 
   return (
     <>
+      {onPrimaryAction ? (
+        <PrimaryTrigger
+          child={children}
+          onPrimaryAction={onPrimaryAction}
+          onOpen={openAt}
+        />
+      ) : (
+        cloneElement(children, { onPress: openAt })
+      )}
+
       <PanelMenu open={open} onOpenChange={setOpen}>
-        <PanelMenu.Trigger>
-          {onPrimaryAction ? (
-            <PrimaryTrigger
-              child={children}
-              onPrimaryAction={onPrimaryAction}
-            />
-          ) : (
-            children
-          )}
-        </PanelMenu.Trigger>
         <PanelMenu.Content
+          anchor={anchor}
+          // With no Menu.Trigger, Base UI doesn't know where focus came from.
+          finalFocus={() => anchor as HTMLElement | null}
           align={align}
-          minWidth={items.some(isSubmenu) ? SUBMENU_MIN_WIDTH : undefined}
-          style={{ maxWidth: MAX_WIDTH }}
-          // RNW's flex-shrink: 0 overflowed PanelUI's capped box: the rows never scrolled.
-          className="min-h-0 shrink"
+          className={cn("max-w-72", items.some(isSubmenu) && "min-w-56")}
         >
-          <OverlayScope
-            arrows="vertical"
-            onClose={() => setOpen(false)}
-            className="flex flex-col gap-1.5"
-          >
-            {rows.map((item) => (
-              <RowItem key={item.label} {...item} />
-            ))}
-          </OverlayScope>
+          {rows.map((item) => (
+            <RowItem key={item.label} {...item} />
+          ))}
         </PanelMenu.Content>
       </PanelMenu>
 

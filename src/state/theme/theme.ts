@@ -67,6 +67,10 @@ observe(() => {
     Appearance.setColorScheme(mode);
 
   const hasWindow = typeof window !== "undefined";
-  if (Platform.OS === "web" && hasWindow)
-    document.documentElement.style.colorScheme = mode;
+  if (Platform.OS === "web" && hasWindow) {
+    const root = document.documentElement;
+    root.style.colorScheme = mode;
+    // Uniwind scopes `dark:` to `.dark`: a family's dark half needs it too.
+    root.classList.toggle("dark", mode === "dark");
+  }
 });

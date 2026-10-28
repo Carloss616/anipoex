@@ -43,7 +43,7 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <PanelUIProvider background={false} className="web:bg-background">
+    <PanelUIProvider background={false}>
       <ApolloProvider client={client}>
         <ThemeProvider value={theme}>
           <Layout />

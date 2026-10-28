@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Menu } from "@/components/ui/menu";
+import { Button } from "panelui-web/button";
+import { Menu } from "panelui-web/menu";
 import { isRuntimeAvailable } from "../../runtime";
 import { useDns } from "./hooks/use-dns";
 
@@ -9,8 +9,22 @@ export function DnsPicker() {
   if (!isRuntimeAvailable) return null;
 
   return (
-    <Menu items={items}>
-      <Button variant="outline">{label}</Button>
+    <Menu>
+      <Menu.Trigger render={<Button variant="outline" />}>{label}</Menu.Trigger>
+      <Menu.Content>
+        <Menu.RadioGroup
+          value={items.find((item) => item.checked)?.label ?? null}
+          onValueChange={(value) =>
+            items.find((item) => item.label === value)?.onPress?.()
+          }
+        >
+          {items.map((item) => (
+            <Menu.RadioItem key={item.label} value={item.label} closeOnClick>
+              {item.label}
+            </Menu.RadioItem>
+          ))}
+        </Menu.RadioGroup>
+      </Menu.Content>
     </Menu>
   );
 }

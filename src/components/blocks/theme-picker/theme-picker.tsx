@@ -1,12 +1,11 @@
 import { Memo } from "@legendapp/state/react";
-import { View } from "react-native";
-import { Button } from "@/components/ui/button";
-import { RNHostView } from "@/components/ui/host";
+import { Button } from "panelui-web/button";
+import { ButtonGroup } from "panelui-web/button-group";
 import { THEME_FAMILIES, theme$ } from "@/state/theme";
 
 export function ThemePicker() {
   return (
-    <View className="flex-row flex-wrap gap-3">
+    <ButtonGroup>
       {THEME_FAMILIES.map((entry) => (
         <Memo key={entry.id}>
           {() => (
@@ -14,28 +13,21 @@ export function ThemePicker() {
               variant={
                 theme$.family.get() === entry.id ? "secondary" : "outline"
               }
-              onPress={() => theme$.family.set(entry.id)}
-              endContent={
-                <RNHostView matchContents>
-                  <Memo>
-                    {() => (
-                      <View
-                        className="size-3 rounded-full"
-                        style={{
-                          backgroundColor:
-                            entry.swatch[theme$.mode.get() === "dark" ? 1 : 0],
-                        }}
-                      />
-                    )}
-                  </Memo>
-                </RNHostView>
-              }
+              aria-pressed={theme$.family.get() === entry.id}
+              onClick={() => theme$.family.set(entry.id)}
             >
               {entry.name}
+              <span
+                className="size-3 rounded-full"
+                style={{
+                  backgroundColor:
+                    entry.swatch[theme$.mode.get() === "dark" ? 1 : 0],
+                }}
+              />
             </Button>
           )}
         </Memo>
       ))}
-    </View>
+    </ButtonGroup>
   );
 }

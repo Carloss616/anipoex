@@ -1,8 +1,8 @@
 import { Typography } from "panelui-native/components/typography";
+import { Button } from "panelui-web/button";
 import { ScrollView, View } from "react-native";
 import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
-import { Button } from "@/components/ui/button";
 import { DnsPicker } from "@/features/extensions";
 import { useSignOut } from "./hooks/use-sign-out";
 
@@ -15,7 +15,7 @@ export function Home() {
         <Typography type="h5" align="center">
           {greeting}
         </Typography>
-        <Button variant="outline" onPress={signOut}>
+        <Button variant="outline" onClick={signOut}>
           Sign out
         </Button>
         <ThemeToggle />

@@ -5,6 +5,9 @@
 @source "../node_modules/panelui-native/src";
 @source "../node_modules/panelui-web/dist";
 
+/* `not-` can't negate Uniwind's `disabled`; panelui-web hovers need this. */
+@custom-variant not-disabled (&:not(:disabled, [aria-disabled="true"]));
+
 /* `static` so @/hooks/use-font reads all four, className or not. */
 @theme static {
   --font-normal: "MapleMono-Regular";
@@ -45,6 +48,14 @@
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background font-normal text-foreground;
+  }
+
   /* RNW leaves <input> at min-width: auto (~20ch), so flex-1 can't shrink it. */
   input {
     min-width: 0;

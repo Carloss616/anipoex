@@ -66,3 +66,26 @@ test("keeps the mode when the family changes", () => {
 
   expect(setTheme).toHaveBeenLastCalledWith("dark");
 });
+
+test("on web, a custom family's dark half also gets `dark` for `dark:`", async () => {
+  const { Platform } = await import("react-native");
+  const toggle = mock((_: string, __: boolean) => {});
+  Object.assign(globalThis, {
+    window: {},
+    document: { documentElement: { style: {}, classList: { toggle } } },
+  });
+  Platform.OS = "web";
+
+  try {
+    theme$.family.set("moon");
+    expect(setTheme).toHaveBeenLastCalledWith("moon-dark");
+    expect(toggle).toHaveBeenLastCalledWith("dark", true);
+
+    theme$.preference.set("light");
+    expect(toggle).toHaveBeenLastCalledWith("dark", false);
+  } finally {
+    Platform.OS = "ios";
+    Reflect.deleteProperty(globalThis, "window");
+    Reflect.deleteProperty(globalThis, "document");
+  }
+});
