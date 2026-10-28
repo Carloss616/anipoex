@@ -135,6 +135,8 @@ chart/
 └── index.ts            # export * from './chart'
 ```
 
+With `.ios` + `.android` (or `.native`) files, the default file is the web implementation: never add a `.web` file beside them (`src/components/ui/calendar/`).
+
 Metro resolves the correct file at build time; `index.ts` always points to the unsuffixed one. Consumers import the folder (`@/components/ui/chart`) and never a platform file directly.
 
 The default file takes the same extension as its platform files, even without JSX: Metro tries every platform for `.ts` before any for `.tsx`, so a default `chart.ts` beats `chart.ios.tsx` and native runs the web code.

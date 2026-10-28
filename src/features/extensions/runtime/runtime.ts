@@ -1,3 +1,5 @@
+import { desktop } from "@/utils/desktop";
+import { bridgeRuntime } from "./utils/bridge-runtime";
 import { unavailableRuntime } from "./utils/unavailable";
 
 export interface InstalledSource {
@@ -80,7 +82,13 @@ export interface RuntimeApi {
   setDns(dns: DnsId): Promise<void>;
 }
 
-/** Android, iOS (`expo-module` `ExtensionRuntime`) and the desktop app run extensions; a plain browser lists nothing. */
-export const isRuntimeAvailable: boolean = false;
+/** The desktop app runs extensions in its JVM sidecar; a plain browser has no runtime. */
+export const isRuntimeAvailable: boolean = desktop !== undefined;
 
-export const runtime: RuntimeApi = unavailableRuntime;
+export const runtime: RuntimeApi = desktop
+  ? {
+      ...bridgeRuntime(desktop.runtime),
+      // Main already swapped each page for its own URL, which it serves through the source.
+      pageImage: async (_, page) => page.imageUrl,
+    }
+  : unavailableRuntime;
