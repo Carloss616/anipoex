@@ -1,11 +1,16 @@
-import { Button, Menu as SwiftUIMenu, Toggle } from "@expo/ui/swift-ui";
+import {
+  Button,
+  Section,
+  Menu as SwiftUIMenu,
+  Toggle,
+} from "@expo/ui/swift-ui";
 import { disabled as disabledModifier } from "@expo/ui/swift-ui/modifiers";
 import { Dialog } from "../dialog";
 import { EnsureHost } from "../host";
 import { sfSymbol } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import type { MenuAction, MenuProps } from "./menu";
-import { isSubmenu } from "./utils";
+import { isGroup, isSubmenu } from "./utils";
 
 function actionRow(item: MenuAction) {
   const modifiers = item.disabled ? [disabledModifier(true)] : undefined;
@@ -55,7 +60,11 @@ export function Menu({ items, children, onPrimaryAction }: MenuProps) {
   const menu = (
     <SwiftUIMenu label={children} onPrimaryAction={onPrimaryAction}>
       {rows.map((item) =>
-        isSubmenu(item) ? (
+        isGroup(item) ? (
+          <Section key={`group-${item.heading}`} title={item.heading}>
+            {item.items.map(actionRow)}
+          </Section>
+        ) : isSubmenu(item) ? (
           <SwiftUIMenu
             key={item.label}
             label={item.label}
@@ -72,7 +81,7 @@ export function Menu({ items, children, onPrimaryAction }: MenuProps) {
   );
 
   const confirms = items
-    .flatMap((item) => (isSubmenu(item) ? item.items : [item]))
+    .flatMap((item) => ("items" in item ? item.items : [item]))
     .some((item) => item.onPressMode === "dialog");
   if (!confirms) {
     return <EnsureHost matchContents>{menu}</EnsureHost>;

@@ -12,43 +12,46 @@ const on = () => ({
   removeMatch: mock(() => {}),
   openPage: mock((_url: string) => {}),
 });
-const labels = (items: { label: string }[]) => items.map((item) => item.label);
+const rows = (
+  menu: ReturnType<typeof cardMenu>,
+): { label: string; onPress: () => void; disabled?: boolean }[] =>
+  menu[0].items;
+const labels = (menu: ReturnType<typeof cardMenu>) =>
+  rows(menu).map((item) => item.label);
 
 describe("cardMenu", () => {
   it("offers a result as the match, under its full title", () => {
     const actions = on();
     const items = cardMenu({ manga, current: false }, false, actions);
-    expect(labels(items)).toEqual([
-      manga.title,
-      "Use as match",
-      "Open website",
-    ]);
-    expect(items[0]).toMatchObject({ disabled: true });
-    (items[1] as { onPress: () => void }).onPress();
+    expect(items[0].heading).toBe(manga.title);
+    expect(labels(items)).toEqual(["Use as match", "Open website"]);
+    rows(items)[0].onPress();
     expect(actions.setMatch).toHaveBeenCalledWith(manga);
   });
 
   it("removes a current match set by hand", () => {
     const items = cardMenu({ manga, current: true }, true, on());
-    expect(labels(items)).toEqual([
-      manga.title,
-      "Remove match",
-      "Open website",
-    ]);
+    expect(labels(items)).toEqual(["Remove match", "Open website"]);
   });
 
   it("disables the match actions while the source is being scanned", () => {
     const busy = cardMenu({ manga, current: false }, false, on(), true);
-    expect(busy[1]).toMatchObject({ label: "Use as match", disabled: true });
+    expect(rows(busy)[0]).toMatchObject({
+      label: "Use as match",
+      disabled: true,
+    });
     const remove = cardMenu({ manga, current: true }, true, on(), true);
-    expect(remove[1]).toMatchObject({ label: "Remove match", disabled: true });
+    expect(rows(remove)[0]).toMatchObject({
+      label: "Remove match",
+      disabled: true,
+    });
   });
 
   it("only opens the page of an automatic current match", () => {
     const actions = on();
     const items = cardMenu({ manga, current: true }, false, actions);
-    expect(labels(items)).toEqual([manga.title, "Open website"]);
-    (items[1] as { onPress: () => void }).onPress();
+    expect(labels(items)).toEqual(["Open website"]);
+    rows(items)[0].onPress();
     expect(actions.openPage).toHaveBeenCalledWith("/1");
   });
 });

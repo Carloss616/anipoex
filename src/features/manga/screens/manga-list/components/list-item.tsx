@@ -57,6 +57,7 @@ export const ListItem = memo(function ListItem({
       progress={progress.fraction}
       unread={progress.unread}
       titlePosition={titlePosition}
+      tilt
       // The badge is a letter and the label a fraction: say both in words.
       accessibilityLabel={[
         title,

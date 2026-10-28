@@ -1,5 +1,5 @@
 import type {
-  MenuItem,
+  MenuAction,
   MenuItemDialogConfig,
   MenuSubmenu,
 } from "@/components/ui/menu";
@@ -22,7 +22,7 @@ export const excludedMenuItems = (
   excluded: { pinned: boolean }[],
   busy: boolean,
   actions: Pick<SourceActions, "retryAuto" | "resetAll">,
-): MenuItem[] => [
+): MenuAction[] => [
   ...(excluded.some((row) => !row.pinned)
     ? [
         {

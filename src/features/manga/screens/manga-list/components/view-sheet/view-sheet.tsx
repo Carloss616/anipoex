@@ -2,10 +2,10 @@ import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { View } from "react-native";
+import { Button } from "panelui-web/button";
+import { ButtonGroup } from "panelui-web/button-group";
+import { Sheet } from "panelui-web/sheet";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { listView$ } from "@/features/manga/state/list-view";
 import {
   columnOptions,
@@ -32,22 +32,24 @@ export function ViewSheet() {
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
-      <View className="w-full gap-3 px-6 pt-6 pb-8">
-        <Typography type="h4">View</Typography>
+      <Sheet.Header title="View" />
+      <Sheet.Body className="flex flex-col gap-3 pb-8">
         <Typography type="small" muted>
           Columns
         </Typography>
-        <ButtonGroup fullWidth size="sm">
+        <ButtonGroup aria-label="Columns" className="w-full">
           {columnOptions(current).map((option) => {
             const selected = option.columns === columns;
             return (
               <Button
                 key={option.density}
+                size="sm"
                 variant={selected ? "secondary" : "outline"}
-                aria-selected={selected}
-                onPress={() => listView$.density.set(option.density)}
+                aria-pressed={selected}
+                onClick={() => listView$.density.set(option.density)}
+                className="flex-1"
               >
-                {String(option.columns)}
+                {option.columns}
               </Button>
             );
           })}
@@ -55,22 +57,24 @@ export function ViewSheet() {
         <Typography type="small" muted>
           Title
         </Typography>
-        <ButtonGroup fullWidth size="sm">
+        <ButtonGroup aria-label="Title" className="w-full">
           {TITLES.map(([value, label]) => {
             const selected = title === value;
             return (
               <Button
                 key={value}
+                size="sm"
                 variant={selected ? "secondary" : "outline"}
-                aria-selected={selected}
-                onPress={() => listView$.title.set(value)}
+                aria-pressed={selected}
+                onClick={() => listView$.title.set(value)}
+                className="flex-1"
               >
                 {label}
               </Button>
             );
           })}
         </ButtonGroup>
-      </View>
+      </Sheet.Body>
     </BottomSheet>
   );
 }

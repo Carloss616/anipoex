@@ -1,17 +1,12 @@
 import { Typography } from "panelui-native/components/typography";
+import { Tabs } from "panelui-web/tabs";
 import { memo } from "react";
 import { View } from "react-native";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { ListCounts } from "@/features/manga/utils/to-counts";
 import type { MediaListStatus } from "@/graphql/types.generated";
 
-/**
- * Web: the lists as a column, with their totals. They switch what the same view
- * shows, so they are tabs: a `link` role would make the web expect a real href.
- */
+/** Web: the lists as a column of tabs with their totals; the grid is their panel. */
 export const ListSidebar = memo(function ListSidebar({
   status,
   counts,
@@ -22,31 +17,26 @@ export const ListSidebar = memo(function ListSidebar({
   onSelect: (status: MediaListStatus) => void;
 }) {
   return (
-    <View
-      accessibilityRole="tablist"
-      className="gutters box-content w-48 flex-1 gap-0.5 border-border border-r p-4 pb-gb pl-gx"
-    >
+    <View className="gutters box-content w-48 flex-1 gap-0.5 border-border border-r p-4 pb-gb pl-gx">
       <Typography type="body-sm" muted className="px-4.25 pb-2.5">
         Lists
       </Typography>
-      <ButtonGroup orientation="vertical">
-        {MANGA_STATUS_ENTRIES.map(([key, name]) => {
-          const selected = key === status;
-          return (
-            <Button
-              key={key}
-              accessibilityRole="tab"
-              aria-selected={selected}
-              onPress={() => onSelect(key)}
-              variant={selected ? "secondary" : "ghost"}
-              className="justify-between"
-            >
+      <Tabs
+        orientation="vertical"
+        value={status}
+        onValueChange={(value) => onSelect(value as MediaListStatus)}
+      >
+        <Tabs.List className="w-full">
+          {MANGA_STATUS_ENTRIES.map(([key, name]) => (
+            <Tabs.Trigger key={key} value={key} className="w-full">
               {name}
-              <Badge>{counts[key]}</Badge>
-            </Button>
-          );
-        })}
-      </ButtonGroup>
+              {counts[key] != null && (
+                <Tabs.Badge className="ms-auto">{counts[key]}</Tabs.Badge>
+              )}
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </Tabs>
     </View>
   );
 });

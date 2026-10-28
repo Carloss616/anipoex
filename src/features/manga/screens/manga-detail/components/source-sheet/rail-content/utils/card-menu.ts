@@ -1,9 +1,8 @@
-import type { MenuAction } from "@/components/ui/menu";
+import type { MenuAction, MenuGroup } from "@/components/ui/menu";
 import type { SourceManga } from "@/features/extensions";
-import { noop } from "@/utils/utils";
 import type { RailItem } from "../../utils/rail-items";
 
-/** A card's menu: its full title (cards cut it at two lines), the match action it allows, and its page. The match actions wait while the source is scanned, whose landing would undo them. */
+/** A card's menu: under its full title (cards cut it at two lines), the match action it allows and its page. The match actions wait while the source is scanned, whose landing would undo them. */
 export function cardMenu(
   item: RailItem,
   manual: boolean,
@@ -13,7 +12,7 @@ export function cardMenu(
     openPage: (url: string) => void;
   },
   scanning = false,
-): MenuAction[] {
+): MenuGroup[] {
   const match: MenuAction[] = !item.current
     ? [
         {
@@ -26,8 +25,12 @@ export function cardMenu(
       ? [{ label: "Remove match", disabled: scanning, onPress: on.removeMatch }]
       : [];
   return [
-    { label: item.manga.title, disabled: true, onPress: noop },
-    ...match,
-    { label: "Open website", onPress: () => on.openPage(item.manga.url) },
+    {
+      heading: item.manga.title,
+      items: [
+        ...match,
+        { label: "Open website", onPress: () => on.openPage(item.manga.url) },
+      ],
+    },
   ];
 }

@@ -1,7 +1,7 @@
 import type { UniversalBaseProps } from "@expo/ui";
 import { Typography } from "panelui-native/components/typography";
+import { Button } from "panelui-web/button";
 import { View } from "react-native";
-import { Button } from "@/components/ui/button";
 import { useFace } from "./hooks/use-face";
 
 export interface EmptyStateProps {
@@ -42,7 +42,7 @@ export function EmptyState({
               key={label}
               variant={i === 0 ? "secondary" : "ghost"}
               size="sm"
-              onPress={onPress}
+              onClick={onPress}
             >
               {label}
             </Button>

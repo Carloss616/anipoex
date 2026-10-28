@@ -5,7 +5,7 @@ import { View, type ViewProps } from "react-native";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
-import { isSubmenu } from "./utils";
+import { isGroup, isSubmenu } from "./utils";
 
 // panelui-web rows don't wrap: a long title breaks lines within max-w-72.
 const ROW = "whitespace-normal";
@@ -48,9 +48,27 @@ export interface MenuSubmenu {
   icon?: IconName;
   disabled?: boolean;
   items: MenuAction[];
+  /** Its checked rows; the menu's when left out. */
+  selection?: MenuSelection;
 }
 
-export type MenuItem = MenuAction | MenuSubmenu;
+/**
+ * How checked rows behave: `radio` picks one of them and closes, `checkbox`
+ * toggles each and stays open. Native menus show a checkmark either way.
+ */
+export type MenuSelection = "radio" | "checkbox";
+
+/**
+ * Rows that belong together, under an optional heading: `Menu.Group` and
+ * `Menu.GroupLabel` on web, a `Section` on iOS. Android lists the heading as a
+ * disabled row.
+ */
+export interface MenuGroup {
+  heading?: string;
+  items: MenuAction[];
+}
+
+export type MenuItem = MenuAction | MenuSubmenu | MenuGroup;
 
 export interface MenuProps {
   items: MenuItem[];
@@ -63,6 +81,8 @@ export interface MenuProps {
   onPrimaryAction?: () => void;
   /** @platform web */
   align?: "start" | "center" | "end";
+  /** @default "radio" */
+  selection?: MenuSelection;
 }
 
 type PressEvent = { currentTarget?: unknown; preventDefault?: () => void };
@@ -85,8 +105,6 @@ function ActionItem({
         className={ROW}
         checked={checked}
         disabled={disabled}
-        // Every checked row here picks one of several, and native menus close on a pick.
-        closeOnClick
         onCheckedChange={onPress}
       >
         <RowIcon name={icon} />
@@ -108,7 +126,71 @@ function ActionItem({
   );
 }
 
-function RowItem(item: MenuItem) {
+const isPick = (item: MenuItem): item is MenuAction =>
+  !("items" in item) && item.checked !== undefined;
+
+/** The rows, with a radio menu's checked ones joined into one group where the first sits. */
+function Rows({
+  rows,
+  selection,
+}: {
+  rows: MenuItem[];
+  selection: MenuSelection;
+}) {
+  const picks = selection === "radio" ? rows.filter(isPick) : [];
+  const group = (
+    <PanelMenu.RadioGroup
+      key="picks"
+      value={picks.find((pick) => pick.checked)?.label ?? null}
+      onValueChange={(label) =>
+        picks.find((pick) => pick.label === label)?.onPress()
+      }
+    >
+      {picks.map((pick) => (
+        <PanelMenu.RadioItem
+          key={pick.label}
+          value={pick.label}
+          className={ROW}
+          disabled={pick.disabled}
+          closeOnClick
+        >
+          <RowIcon name={pick.icon} />
+          {pick.label}
+        </PanelMenu.RadioItem>
+      ))}
+    </PanelMenu.RadioGroup>
+  );
+
+  return rows.map((item) => {
+    if (item === picks[0]) return group;
+    if (picks.includes(item as MenuAction)) return null;
+    return (
+      <RowItem
+        key={"label" in item ? item.label : `group-${item.heading}`}
+        item={item}
+        selection={selection}
+      />
+    );
+  });
+}
+
+function RowItem({
+  item,
+  selection,
+}: {
+  item: MenuItem;
+  selection: MenuSelection;
+}) {
+  if (isGroup(item)) {
+    return (
+      <PanelMenu.Group>
+        {item.heading && (
+          <PanelMenu.GroupLabel>{item.heading}</PanelMenu.GroupLabel>
+        )}
+        <Rows rows={item.items} selection={selection} />
+      </PanelMenu.Group>
+    );
+  }
   if (!isSubmenu(item)) return <ActionItem {...item} />;
 
   return (
@@ -118,9 +200,7 @@ function RowItem(item: MenuItem) {
         {item.label}
       </PanelMenu.SubTrigger>
       <PanelMenu.SubContent>
-        {item.items.map((row) => (
-          <ActionItem key={row.label} {...row} />
-        ))}
+        <Rows rows={item.items} selection={item.selection ?? selection} />
       </PanelMenu.SubContent>
     </PanelMenu.Sub>
   );
@@ -164,6 +244,7 @@ export function Menu({
   children,
   align = "end",
   onPrimaryAction,
+  selection = "radio",
 }: MenuProps) {
   const { rows, pending, close } = useMenuDialogState(items);
   const [open, setOpen] = useState(false);
@@ -196,9 +277,7 @@ export function Menu({
           align={align}
           className={cn("max-w-72", items.some(isSubmenu) && "min-w-56")}
         >
-          {rows.map((item) => (
-            <RowItem key={item.label} {...item} />
-          ))}
+          <Rows rows={rows} selection={selection} />
         </PanelMenu.Content>
       </PanelMenu>
 

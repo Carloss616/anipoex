@@ -1,6 +1,7 @@
 import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { cn } from "panelui-native/utils/cn";
 import type { ReactElement } from "react";
 import { LinearTransition } from "react-native-reanimated";
 import { LoadingState } from "@/components/blocks/loading-state";
@@ -44,7 +45,11 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
       extraData={titlePosition}
       keyExtractor={(item) => String(item.id)}
       columnWrapperStyle={{ gap: titlePosition === "below" ? 16 : 8 }}
-      contentContainerClassName="gutters px-gx md:pl-4 md:pr-gx pb-gb"
+      // A hovered cell drops its paint containment and rises, so the card's glow and lean aren't clipped.
+      contentContainerClassName={cn(
+        "gutters px-gx pb-gb md:pr-gx md:pl-4",
+        "[&_[style*=contain]:hover]:z-1 [&_[style*=contain]:hover]:contain-[layout_style]!",
+      )}
       ListHeaderComponent={header}
       renderItem={({ item }) => (
         <ListItem item={item} titlePosition={titlePosition} />

@@ -23,6 +23,7 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           accessibilityLabel={manga.title?.userPreferred ?? undefined}
           testID="manga-detail-cover"
           style={{ width: 144 }}
+          tilt
         />
         <Meta manga={manga} className="flex-1" />
       </View>

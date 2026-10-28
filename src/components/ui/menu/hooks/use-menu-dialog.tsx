@@ -1,9 +1,8 @@
 import { useState } from "react";
 import type { MenuAction, MenuItem } from "../menu";
-import { isSubmenu } from "../utils";
 
 /**
- * Arms the `onPressMode: "dialog"` rows, a submenu's included.
+ * Arms the `onPressMode: "dialog"` rows, a submenu's and a group's included.
  *
  * A native menu row is a SwiftUI `Button` or a Compose `DropdownMenuItem`, so
  * it can never be a `Dialog.Trigger` — the row instead records itself as
@@ -17,7 +16,7 @@ export function useMenuDialogState(items: MenuItem[]) {
       ? { ...item, onPress: () => setPending(item) }
       : item;
   const rows = items.map((item) =>
-    isSubmenu(item) ? { ...item, items: item.items.map(arm) } : arm(item),
+    "items" in item ? { ...item, items: item.items.map(arm) } : arm(item),
   );
 
   return { rows, pending, close: () => setPending(null) };
