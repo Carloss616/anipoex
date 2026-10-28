@@ -15,7 +15,6 @@ import {
   semantics,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
@@ -36,7 +35,6 @@ export function ChapterEnd({
   next,
   onBack,
 }: ChapterEndProps) {
-  const insets = useSafeAreaInsets();
   const m3 = useThemeM3Colors();
   const confirming = save.state === "confirm";
   const saving = save.state === "saving";
@@ -57,8 +55,8 @@ export function ChapterEnd({
         verticalArrangement={{ spacedBy: 24 }}
         modifiers={[
           fillMaxWidth(),
-          // Clear of the page count floating at the bottom.
-          padding(GUTTER, 32, GUTTER, insets.bottom + 80),
+          // Clear of the page count; the system bar is the tab's inset.
+          padding(GUTTER, 32, GUTTER, 80),
         ]}
       >
         <Column verticalArrangement={{ spacedBy: 4 }}>

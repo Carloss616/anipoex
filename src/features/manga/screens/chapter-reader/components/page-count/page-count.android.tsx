@@ -2,7 +2,6 @@ import { Shape, Surface } from "@expo/ui/jetpack-compose";
 import { padding } from "@expo/ui/jetpack-compose/modifiers";
 import { Computed } from "@legendapp/state/react";
 import { View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import type { PageCountProps } from "./page-count";
@@ -11,8 +10,6 @@ import type { PageCountProps } from "./page-count";
 const ELEVATION = 3;
 
 export function PageCount({ page$, count }: PageCountProps) {
-  const insets = useSafeAreaInsets();
-
   if (count === 0) return null;
 
   return (
@@ -26,9 +23,8 @@ export function PageCount({ page$, count }: PageCountProps) {
           tonalElevation={ELEVATION}
           shadowElevation={ELEVATION}
           // Outside the pill: room for the shadow, and the lift off the bottom.
-          modifiers={[
-            padding(ELEVATION, ELEVATION, ELEVATION, insets.bottom + 24),
-          ]}
+          // The tab's content already ends above the system bar (expo-router).
+          modifiers={[padding(ELEVATION, ELEVATION, ELEVATION, 24)]}
         >
           <Computed>
             {() => (

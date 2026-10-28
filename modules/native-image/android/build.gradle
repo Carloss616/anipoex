@@ -28,7 +28,7 @@ android {
 // Compose versions follow @expo/ui's own build.gradle: the composable runs inside its Host.
 dependencies {
   // @expo/ui ships prebuilt (local-maven-repo), not as a :expo-ui project.
-  compileOnly 'expo.modules.ui:expo.modules.ui:58.0.22'
+  compileOnly 'expo.modules.ui:expo.modules.ui:58.0.24'
   // ModifierList is built on React Native's Dynamic.
   implementation 'com.facebook.react:react-android'
   implementation 'androidx.compose.foundation:foundation-android:1.12.1'
