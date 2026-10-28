@@ -81,9 +81,18 @@ function PanelTabTrigger({
   isFocused,
   disabled,
 }: Omit<TabTriggerSlotProps, "children"> & { item: Route }) {
+  const { trigger } = useTabTrigger({ name: item.name });
+
+  // Base UI ignores clicks on the active tab: pop its stack, as TabTrigger does.
+  const popToRoot = () => {
+    if (isFocused && trigger?.route?.state?.index)
+      router.dismissTo(trigger.resolvedHref as (typeof ROUTES)[number]["href"]);
+  };
+
   return (
     <PanelTabs.Trigger
       value={item.name}
+      onClick={popToRoot}
       className="gap-0 transition-[color,background-color] duration-300 ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary"
       disabled={disabled ?? false}
     >
@@ -108,14 +117,6 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
   const { switchTab, getTrigger } = useTabTrigger({ name: ROUTES[0].name });
   const value = ROUTES.find(({ name }) => getTrigger(name)?.isFocused)?.name;
 
-  // As TabTrigger does: router.navigate would push the tab's index again.
-  const select = (name: string) => {
-    const trigger = getTrigger(name);
-    if (!trigger?.isFocused) switchTab(name, {});
-    else if (trigger.route?.state?.index)
-      router.dismissTo(trigger.resolvedHref as (typeof ROUTES)[number]["href"]);
-  };
-
   return (
     <View
       pointerEvents="box-none"
@@ -128,7 +129,8 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
       <div className="flex items-center gap-2 rounded-full border border-border bg-surface-secondary p-1.5 shadow-sm">
         <PanelTabs
           value={value ?? ROUTES[0].name}
-          onValueChange={(name) => select(String(name))}
+          // router.navigate would push the tab's index again.
+          onValueChange={(name) => switchTab(String(name), {})}
           variant="pills"
         >
           {/* Below sm the indicator lags a resizing tab: the trigger fills. */}
