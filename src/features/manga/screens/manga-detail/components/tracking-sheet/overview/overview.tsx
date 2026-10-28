@@ -1,3 +1,6 @@
+import { Separator } from "panelui-native/components/separator";
+import { Surface } from "panelui-native/components/surface";
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { ScrollView, View } from "react-native";
@@ -6,9 +9,6 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
-import { Separator } from "@/components/ui/separator";
-import { Surface } from "@/components/ui/surface";
-import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { formatDate } from "@/utils/utils";

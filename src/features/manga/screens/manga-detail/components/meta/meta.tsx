@@ -1,8 +1,8 @@
+import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
-import { Typography } from "@/components/ui/typography";
 import { STATUS_COLOR } from "@/features/manga/components/manga-card/constants";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { metaLines } from "./utils/meta-lines";

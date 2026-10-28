@@ -1,8 +1,8 @@
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { ScrollView, View } from "react-native";
 import { NumberInput } from "@/components/ui/number-input";
-import { Typography } from "@/components/ui/typography";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";

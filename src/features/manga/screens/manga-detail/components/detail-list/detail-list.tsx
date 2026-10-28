@@ -1,3 +1,5 @@
+import { Surface } from "panelui-native/components/surface";
+import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -5,8 +7,6 @@ import { LoadingState } from "@/components/blocks/loading-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { Item } from "@/components/ui/item";
-import { Surface } from "@/components/ui/surface";
-import { Typography } from "@/components/ui/typography";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { ChapterItem } from "../chapter-item";

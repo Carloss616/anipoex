@@ -1,9 +1,9 @@
 import { Alert } from "panelui-native/components/alert";
+import { Surface } from "panelui-native/components/surface";
+import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
-import { Surface } from "@/components/ui/surface";
-import { Typography } from "@/components/ui/typography";
 
 export interface ChapterEndProps {
   /** "Chapter 13". */

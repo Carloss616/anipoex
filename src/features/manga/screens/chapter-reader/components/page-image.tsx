@@ -1,8 +1,8 @@
 import { Image } from "expo-image";
+import { Typography } from "panelui-native/components/typography";
 import { memo, useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { Button } from "@/components/ui/button";
-import { Typography } from "@/components/ui/typography";
 import { runtime, type SourcePage } from "@/features/extensions";
 
 const PLACEHOLDER_RATIO = 0.7;

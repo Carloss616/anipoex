@@ -1,10 +1,10 @@
+import { Typography } from "panelui-native/components/typography";
 import { useState } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
-import { Typography } from "@/components/ui/typography";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { TrackingSheet } from "../tracking-sheet";
 import { useTrackingSummary } from "./hooks/use-tracking-summary";

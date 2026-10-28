@@ -1,9 +1,9 @@
+import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import type { ReactNode } from "react";
 import { type StyleProp, View, type ViewStyle } from "react-native";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { Icon, type IconName } from "../icon";
-import { Typography } from "../typography";
 
 export interface BadgeProps {
   /** Label or count. Left out, the badge is a bare dot. */

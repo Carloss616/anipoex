@@ -1,6 +1,6 @@
+import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
-import { Typography } from "@/components/ui/typography";
 import { useSignIn } from "./hooks/use-sign-in";
 
 export function SignIn() {

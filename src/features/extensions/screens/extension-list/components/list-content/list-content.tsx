@@ -1,5 +1,7 @@
 import type { ObservablePrimitive } from "@legendapp/state";
 import { useHeaderHeight } from "expo-router/react-navigation";
+import { Surface } from "panelui-native/components/surface";
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useMemo } from "react";
 import { View } from "react-native";
@@ -18,8 +20,6 @@ import { Button } from "@/components/ui/button";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
-import { Surface } from "@/components/ui/surface";
-import { Typography } from "@/components/ui/typography";
 import {
   type Extension,
   type ExtensionCounts,

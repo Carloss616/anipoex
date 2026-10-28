@@ -1,7 +1,7 @@
 import type { UniversalBaseProps } from "@expo/ui";
+import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
-import { Typography } from "@/components/ui/typography";
 import { useFace } from "./hooks/use-face";
 
 export interface EmptyStateProps {

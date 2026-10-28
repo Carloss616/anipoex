@@ -1,8 +1,8 @@
 import { Image } from "expo-image";
+import { Typography } from "panelui-native/components/typography";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { Item } from "@/components/ui/item";
-import { Typography } from "@/components/ui/typography";
 
 export interface SourceTileProps {
   initials: string;

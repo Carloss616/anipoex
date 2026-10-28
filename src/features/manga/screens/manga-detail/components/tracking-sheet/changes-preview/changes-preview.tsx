@@ -1,6 +1,6 @@
+import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
 import { AnimatedVisibility } from "@/components/ui/animated-visibility";
-import { Typography } from "@/components/ui/typography";
 
 export interface ChangesPreviewProps {
   /** What confirming would change. Empty while the edit is a no-op. */

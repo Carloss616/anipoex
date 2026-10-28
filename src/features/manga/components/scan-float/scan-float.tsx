@@ -1,12 +1,12 @@
 import type { Observable } from "@legendapp/state";
 import { For, useValue } from "@legendapp/state/react";
 import { router, usePathname } from "expo-router";
+import { Surface } from "panelui-native/components/surface";
+import { Typography } from "panelui-native/components/typography";
 import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { memo, useEffect } from "react";
 import { View } from "react-native";
 import { Progress } from "@/components/ui/progress";
-import { Surface } from "@/components/ui/surface";
-import { Typography } from "@/components/ui/typography";
 import {
   openSheet$,
   type ScanView,

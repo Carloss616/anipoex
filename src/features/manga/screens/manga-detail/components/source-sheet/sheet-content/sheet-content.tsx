@@ -1,4 +1,5 @@
 import { Computed } from "@legendapp/state/react";
+import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -11,7 +12,6 @@ import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
-import { Typography } from "@/components/ui/typography";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { AvailableItem } from "../available-item";

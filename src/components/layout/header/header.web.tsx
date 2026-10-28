@@ -2,6 +2,7 @@ import { Memo, useObservable } from "@legendapp/state/react";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
 import { SearchBar } from "panelui-native/components/search-bar";
+import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -15,7 +16,6 @@ import { useReducedMotion } from "react-native-reanimated";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Typography } from "@/components/ui/typography";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { LARGE_TITLE_HEIGHT } from "./constants";
 

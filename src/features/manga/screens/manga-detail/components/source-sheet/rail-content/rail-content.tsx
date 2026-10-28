@@ -1,12 +1,12 @@
+import { Separator } from "panelui-native/components/separator";
 import { Skeleton } from "panelui-native/components/skeleton";
+import { Typography } from "panelui-native/components/typography";
 import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { View } from "react-native";
 import { LegendList } from "@/components/layout/legend-list";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
-import { Separator } from "@/components/ui/separator";
-import { Typography } from "@/components/ui/typography";
 import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import { COVER } from "../constants";
 import type { RailProps } from "../rail";

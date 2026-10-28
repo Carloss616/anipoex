@@ -1,7 +1,7 @@
 import type { Observable } from "@legendapp/state";
+import { Typography } from "panelui-native/components/typography";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Typography } from "@/components/ui/typography";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useSourcePicker } from "../../hooks/use-source-picker";
 

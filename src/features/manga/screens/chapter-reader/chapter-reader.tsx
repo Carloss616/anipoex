@@ -1,5 +1,6 @@
 import { Computed, useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Typography } from "panelui-native/components/typography";
 import { useCallback, useRef } from "react";
 import {
   type NativeScrollEvent,
@@ -10,7 +11,6 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import type { LegendListRef } from "@/components/layout/legend-list";
 import { LegendList } from "@/components/layout/legend-list";
-import { Typography } from "@/components/ui/typography";
 import {
   isRuntimeAvailable,
   RUNTIME_UNAVAILABLE,

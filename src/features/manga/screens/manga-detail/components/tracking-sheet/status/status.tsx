@@ -1,8 +1,8 @@
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { ScrollView, View } from "react-native";
 import { RadioGroup } from "@/components/ui/radio-group";
-import { Typography } from "@/components/ui/typography";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import type { MediaListStatus } from "@/graphql/types.generated";

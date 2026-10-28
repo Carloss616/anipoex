@@ -8,7 +8,7 @@ import {
   font,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
-import type { TypographyWeight } from "@/components/ui/typography";
+import type { TypographyWeight } from "panelui-native/components/typography";
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeColor } from "@/hooks/use-theme-color";
 

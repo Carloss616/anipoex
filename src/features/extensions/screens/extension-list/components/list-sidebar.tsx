@@ -1,8 +1,8 @@
+import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Typography } from "@/components/ui/typography";
 import {
   EXTENSION_FILTERS,
   type ExtensionCounts,

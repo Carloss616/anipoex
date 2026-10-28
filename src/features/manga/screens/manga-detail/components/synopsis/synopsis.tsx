@@ -1,7 +1,7 @@
+import { Typography } from "panelui-native/components/typography";
 import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { useState } from "react";
 import { View } from "react-native";
-import { Typography } from "@/components/ui/typography";
 
 /** Enough to tell what the book is about, short enough to leave the page scannable. */
 const COLLAPSED_LINES = 3;

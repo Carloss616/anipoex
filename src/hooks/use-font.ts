@@ -1,7 +1,7 @@
 import type { Theme } from "expo-router";
+import type { TypographyWeight } from "panelui-native/components/typography";
 import type { TextStyle } from "react-native";
 import { useCSSVariable } from "uniwind";
-import type { TypographyWeight } from "@/components/ui/typography";
 
 const VAR = {
   normal: "--font-normal",

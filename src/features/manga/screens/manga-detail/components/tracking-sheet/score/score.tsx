@@ -1,10 +1,10 @@
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { ScrollView, View } from "react-native";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
-import { Typography } from "@/components/ui/typography";
 import { Footer } from "../footer";
 import { useScore } from "./hooks/use-score";
 

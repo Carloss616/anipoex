@@ -1,5 +1,5 @@
+import { Typography } from "panelui-native/components/typography";
 import { Chip } from "@/components/ui/chip";
-import { Typography } from "@/components/ui/typography";
 
 /** A filter narrowing the list, and how to drop it. */
 export interface ActiveFilter {

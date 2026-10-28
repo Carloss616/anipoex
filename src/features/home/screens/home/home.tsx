@@ -1,8 +1,8 @@
+import { Typography } from "panelui-native/components/typography";
 import { ScrollView, View } from "react-native";
 import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Typography } from "@/components/ui/typography";
 import { DnsPicker } from "@/features/extensions";
 import { useSignOut } from "./hooks/use-sign-out";
 

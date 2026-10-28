@@ -1,11 +1,11 @@
 import { Memo } from "@legendapp/state/react";
 import { Stack } from "expo-router";
+import { Input } from "panelui-native/components/input";
 import { View } from "react-native";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Input } from "@/components/ui/input";
 import { Item } from "@/components/ui/item";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { TrustDialog } from "./components/trust-dialog";

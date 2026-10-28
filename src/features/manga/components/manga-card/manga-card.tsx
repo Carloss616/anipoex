@@ -1,5 +1,6 @@
 import type { ImageSource } from "expo-image";
 import { Card } from "panelui-native/components/card";
+import { Typography } from "panelui-native/components/typography";
 import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { cn } from "panelui-native/utils/cn";
 import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
@@ -8,7 +9,6 @@ import { EnsureRNHostView, useIsInsideHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
-import { Typography } from "@/components/ui/typography";
 import type { TitlePosition } from "@/features/manga/utils/list-view";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { dp } from "@/utils/utils";

@@ -1,9 +1,9 @@
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Calendar } from "@/components/ui/calendar";
-import { Typography } from "@/components/ui/typography";
 import { Footer } from "../footer";
 
 export interface DateViewProps {
