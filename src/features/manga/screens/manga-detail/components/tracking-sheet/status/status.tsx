@@ -31,6 +31,7 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
       value={selected}
       onValueChange={(value) => setSelected(value as MediaListStatus)}
       className="py-4"
+      data-attached="column"
     >
       {MANGA_STATUS_ENTRIES.map(([status, title]) => (
         <RadioGroup.Item
