@@ -65,7 +65,7 @@ export function ChapterEnd({
           <Button
             variant="ghost"
             size="sm"
-            className="-my-2"
+            className="-my-2 -mr-2.5"
             onPress={onUndo}
             disabled={saving}
             accessibilityLabel="Undo the AniList save"
