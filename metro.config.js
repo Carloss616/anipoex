@@ -52,11 +52,32 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return context.resolveRequest(context, moduleName, platform);
   }
 
-  return (resolveRequest ?? context.resolveRequest)(
-    context,
-    moduleName,
-    platform,
-  );
+  try {
+    return (resolveRequest ?? context.resolveRequest)(
+      context,
+      moduleName,
+      platform,
+    );
+  } catch (error) {
+    // Metro drops a whole "imports" map if a target is a package (@base-ui).
+    // shortcut: browser/import/default only, drop once Metro allows that.
+    const pkg = moduleName.startsWith("#")
+      ? context.getPackageForModule(context.originModulePath)
+      : null;
+    let target = pkg?.packageJson.imports?.[moduleName];
+    if (target == null) throw error;
+    while (typeof target === "object")
+      target =
+        (platform === "web" && target.browser) ||
+        target.import ||
+        target.default;
+    if (typeof target !== "string") throw error;
+    return context.resolveRequest(
+      context,
+      target.startsWith("./") ? path.join(pkg.rootPath, target) : target,
+      platform,
+    );
+  }
 };
 
 module.exports = config;

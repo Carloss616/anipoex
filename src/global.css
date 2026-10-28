@@ -3,6 +3,7 @@
 @import "panelui-native/theme.css";
 
 @source "../node_modules/panelui-native/src";
+@source "../node_modules/panelui-web/dist";
 
 /* `static` so @/hooks/use-font reads all four, className or not. */
 @theme static {

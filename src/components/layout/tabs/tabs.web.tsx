@@ -9,18 +9,12 @@ import {
   type TabTriggerSlotProps,
   useTabTrigger,
 } from "expo-router/ui";
-import { Surface } from "panelui-native/components/surface";
-import {
-  Tabs as PanelTabs,
-  type TabsVariant,
-} from "panelui-native/components/tabs";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
+import { Tabs as PanelTabs } from "panelui-web/tabs";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
-import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
 import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 
 const TabSlot = withUniwind(TabSlotBase);
@@ -59,17 +53,12 @@ const ROUTES = [
 
 export function Tabs() {
   const pathname = usePathname();
-  const { isAtLeast } = useBreakpoint();
-  const variant = isAtLeast("sm") ? "pill" : "expanding";
 
   return (
     <TabsBase>
       <TabSlot className="flex-1" />
       <TabList asChild>
-        <PanelTabList
-          className={cn(pathname.endsWith("/reader") && "hidden")}
-          variant={variant}
-        >
+        <PanelTabList className={cn(pathname.endsWith("/reader") && "hidden")}>
           {ROUTES.map((item) => (
             <TabTrigger
               key={item.name}
@@ -77,7 +66,7 @@ export function Tabs() {
               href={item.href}
               asChild
             >
-              <PanelTabTrigger item={item} variant={variant} />
+              <PanelTabTrigger item={item} />
             </TabTrigger>
           ))}
         </PanelTabList>
@@ -86,56 +75,40 @@ export function Tabs() {
   );
 }
 
+// TabTrigger's RN press props don't fit a DOM button; the list switches tabs.
 function PanelTabTrigger({
   item,
   isFocused,
   disabled,
-  variant,
-  ...props
-}: Omit<TabTriggerSlotProps, "children"> & {
-  item: Route;
-  variant?: TabsVariant;
-}) {
-  const isPill = variant === "pill";
+}: Omit<TabTriggerSlotProps, "children"> & { item: Route }) {
   return (
     <PanelTabs.Trigger
       value={item.name}
-      className={cn(
-        "flex-none px-4 active:bg-accent",
-        isPill ? "hover:bg-secondary/90" : "hover:bg-surface-tertiary/90",
-      )}
-      icon={
-        <Icon
-          size={BUTTON_ICON_SIZE}
-          name={isFocused ? item.icon.selected : item.icon.default}
-          className={cn(
-            isFocused
-              ? isPill
-                ? "text-primary-foreground"
-                : "text-foreground"
-              : "text-muted-foreground",
-          )}
-        />
-      }
+      className="gap-0 transition-[color,background-color] duration-300 ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary"
       disabled={disabled ?? false}
-      {...props}
     >
-      {item.label}
+      <Icon
+        size={BUTTON_ICON_SIZE}
+        name={isFocused ? item.icon.selected : item.icon.default}
+        className={
+          isFocused ? "text-primary-foreground" : "text-muted-foreground"
+        }
+      />
+      {/* Below sm only the active label shows; 0fr→1fr animates its width. */}
+      <span className="grid grid-cols-[0fr] in-data-active:grid-cols-[1fr] in-data-active:opacity-100 opacity-0 transition-[grid-template-columns,opacity] duration-300 ease-sheet motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
+        <span className="min-w-0 overflow-hidden">
+          <span className="ps-2">{item.label}</span>
+        </span>
+      </span>
     </PanelTabs.Trigger>
   );
 }
 
-function PanelTabList({
-  children,
-  className,
-  variant,
-  ...props
-}: TabListProps & { variant?: TabsVariant }) {
+function PanelTabList({ children, className, ...props }: TabListProps) {
   const { switchTab, getTrigger } = useTabTrigger({ name: ROUTES[0].name });
   const value = ROUTES.find(({ name }) => getTrigger(name)?.isFocused)?.name;
 
-  // PanelTabs.Trigger drops TabTrigger's onPress. Switch tabs as it would:
-  // router.navigate pushes the tab's index onto its stack again.
+  // As TabTrigger does: router.navigate would push the tab's index again.
   const select = (name: string) => {
     const trigger = getTrigger(name);
     if (!trigger?.isFocused) switchTab(name, {});
@@ -152,25 +125,19 @@ function PanelTabList({
       )}
       {...props}
     >
-      <Surface
-        variant="secondary"
-        className="flex-row items-center gap-2 rounded-full"
-        padding="sm"
-        bordered
-        elevated
-      >
+      <div className="flex items-center gap-2 rounded-full border border-border bg-surface-secondary p-1.5 shadow-sm">
         <PanelTabs
-          value={value}
-          defaultValue={ROUTES[0].name}
-          onValueChange={select}
-          variant={variant}
+          value={value ?? ROUTES[0].name}
+          onValueChange={(name) => select(String(name))}
+          variant="pills"
         >
-          <ArrowKeyGroup orientation="horizontal">
-            <PanelTabs.List>{children}</PanelTabs.List>
-          </ArrowKeyGroup>
+          {/* Below sm the indicator lags a resizing tab: the trigger fills. */}
+          <PanelTabs.List className="max-sm:*:data-[slot=tabs-indicator]:hidden">
+            {children}
+          </PanelTabs.List>
         </PanelTabs>
         <ThemeToggle />
-      </Surface>
+      </div>
     </View>
   );
 }
