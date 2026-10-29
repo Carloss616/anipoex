@@ -69,12 +69,12 @@ export const ExcludedItem = memo(function ExcludedItem({
         </Frame.Media>
         <Frame.Content>
           <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
-          <div className="flex min-w-0 items-center gap-1.5">
-            {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+          <Frame.Description>
+            {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
             <Badge color={REASONS[reason].color}>
               {excludedBadge(reason, pinned)}
             </Badge>
-          </div>
+          </Frame.Description>
         </Frame.Content>
         <Frame.Actions>
           <Computed>

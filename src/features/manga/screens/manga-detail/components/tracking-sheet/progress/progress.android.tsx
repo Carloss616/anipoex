@@ -34,7 +34,6 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
           min={0}
           max={total ?? Number.MAX_SAFE_INTEGER}
           step={1}
-          size="lg"
           onValueChange={step}
         />
       </Column>

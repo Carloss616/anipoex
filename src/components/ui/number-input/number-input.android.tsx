@@ -9,7 +9,6 @@ import {
   useNativeState,
 } from "@expo/ui/jetpack-compose";
 import { weight } from "@expo/ui/jetpack-compose/modifiers";
-import type { NumberInputProps } from "panelui-native/components/number-input";
 import { useEffect, useRef } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useFontFamily } from "@/hooks/use-font";
@@ -18,6 +17,7 @@ import { dismissFocus, registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import { Icon } from "../icon";
 import { useStepRepeat } from "./hooks/use-step-repeat";
+import type { NumberInputProps } from "./number-input";
 
 /**
  * Android NumberInput: M3 has no stepper, so it's two icon buttons,

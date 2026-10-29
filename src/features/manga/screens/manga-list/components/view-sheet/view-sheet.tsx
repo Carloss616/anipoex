@@ -2,10 +2,11 @@ import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { Sheet } from "panelui-web/sheet";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { listView$ } from "@/features/manga/state/list-view";
 import {
   columnOptions,
@@ -32,8 +33,8 @@ export function ViewSheet() {
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
-      <Sheet.Header title="View" />
-      <Sheet.Body className="flex flex-col gap-3 pb-8">
+      <Sheet.Header title="View" className={SHEET_INSET.header} />
+      <Sheet.Body className={cn(SHEET_INSET.body, "flex flex-col gap-3 pb-8")}>
         <Typography type="small" muted>
           Columns
         </Typography>

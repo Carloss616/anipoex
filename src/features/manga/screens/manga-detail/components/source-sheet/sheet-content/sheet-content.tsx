@@ -9,7 +9,7 @@ import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -66,7 +66,7 @@ export function SheetContent({
         No sources
       </Typography>
     ) : (
-      <div className="flex items-center pe-4 pt-4">
+      <View className="flex-row items-center pe-4 pt-4">
         <p className={cn(SECTION_TITLE, "flex-1")}>
           {`Excluded · ${excluded.length}`}
         </p>
@@ -90,7 +90,7 @@ export function SheetContent({
             );
           }}
         </Computed>
-      </div>
+      </View>
     );
 
   return (
@@ -103,12 +103,22 @@ export function SheetContent({
       snapPointsDirection="bottom"
     >
       <View className="flex-1 gap-4 pb-4">
-        {/* px-4 lines the header up with the rows. */}
-        <Sheet.Header className="px-4 pb-0">
-          <div className="flex items-center gap-2">
-            <Sheet.Title>Sources</Sheet.Title>
-            <Badge>{available.length}</Badge>
-            {/* A toggle: filled while title search is on. */}
+        <Sheet.Header className={SHEET_INSET.header}>
+          <View className="flex-row items-center gap-2">
+            <View>
+              <Sheet.Title>
+                Sources <Badge>{available.length}</Badge>
+              </Sheet.Title>
+              <Sheet.Description>
+                {read > 0 ? (
+                  <>
+                    Read <Badge>c.{read}</Badge>
+                  </>
+                ) : (
+                  "Not started"
+                )}
+              </Sheet.Description>
+            </View>
             <ButtonGroup aria-label="Sources actions" className="ms-auto">
               <Button
                 variant={title.searching ? "default" : "ghost"}
@@ -116,7 +126,6 @@ export function SheetContent({
                 disabled={!installed}
                 aria-pressed={title.searching}
                 onClick={() =>
-                  // Excluded too: the right page may be on one dropped for no match.
                   actions.searchAll(
                     [...available, ...excluded].map((row) => row.source.id),
                   )
@@ -154,22 +163,10 @@ export function SheetContent({
                 }}
               </Computed>
             </ButtonGroup>
-          </div>
-          <Sheet.Description>
-            {read > 0 ? (
-              <>
-                {/* A <span>, not a Badge: a <p> can't hold the Badge's <div>. */}
-                Read{" "}
-                <span className="rounded-full bg-secondary px-1.5 py-0.5 font-medium text-foreground text-xs">
-                  c.{read}
-                </span>
-              </>
-            ) : (
-              "Not started"
-            )}
-          </Sheet.Description>
+          </View>
         </Sheet.Header>
-        <div className="px-4">
+
+        <View className="px-4">
           {title.searching ? (
             <SearchBar
               key={title.fieldKey}
@@ -210,7 +207,7 @@ export function SheetContent({
               placeholder="Search sources..."
             />
           )}
-        </div>
+        </View>
 
         <LegendList
           itemLayoutAnimation={LinearTransition}

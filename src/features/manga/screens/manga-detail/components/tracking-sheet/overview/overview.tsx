@@ -2,6 +2,8 @@ import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { Sheet } from "panelui-web/sheet";
 import type { ReactNode } from "react";
+import { View } from "react-native";
+import { SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
@@ -63,9 +65,9 @@ export function Overview({
 
   return (
     <>
-      <Sheet.Header>
-        <div className="flex items-center gap-2">
-          <Sheet.Title className="truncate">{title}</Sheet.Title>
+      <Sheet.Header className={SHEET_INSET.header}>
+        <View className="flex-row items-center gap-2">
+          <Sheet.Title className="min-w-0 truncate">{title}</Sheet.Title>
           <ButtonGroup aria-label="Entry actions" className="ms-auto">
             <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
               <Button variant="ghost" size="icon" aria-label="More actions">
@@ -77,11 +79,10 @@ export function Overview({
               </Button>
             </Menu>
           </ButtonGroup>
-        </div>
+        </View>
       </Sheet.Header>
 
-      <Sheet.Body>
-        {/* Groups of groups: one track per row. */}
+      <Sheet.Body className={SHEET_INSET.body}>
         <ButtonGroup orientation="vertical" className="w-full">
           <ButtonGroup
             aria-label="Status, progress and score"

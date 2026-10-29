@@ -1,7 +1,5 @@
-import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import type { ReactNode } from "react";
-import { type StyleProp, View, type ViewStyle } from "react-native";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { Icon, type IconName } from "../icon";
 
@@ -19,7 +17,6 @@ export interface BadgeProps {
    */
   icon?: IconName;
   className?: string;
-  style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
@@ -29,41 +26,26 @@ export function Badge({
   color = "secondary",
   icon,
   className,
-  style,
-  testID,
 }: BadgeProps) {
   const dot = children == null && icon == null;
   const semantic = color === "inherit" ? "destructive" : color;
+  const semanticCss = SEMANTIC_COLOR[semantic].className;
 
   return (
-    <View
-      testID={testID}
-      style={style}
+    <span
       className={cn(
-        "items-center justify-center rounded-full",
-        SEMANTIC_COLOR[semantic].className.fill,
+        "items-center justify-center rounded-full align-middle font-medium text-xs",
+        semanticCss.fill,
+        semanticCss.label,
         dot ? "size-2" : icon ? "size-5" : "min-w-5 px-1.5 py-0.5",
         className,
       )}
     >
       {icon ? (
-        <Icon
-          name={icon}
-          size={12}
-          className={SEMANTIC_COLOR[semantic].className.label}
-        />
+        <Icon name={icon} size={12} className={semanticCss.label} />
       ) : dot ? null : (
-        <Typography
-          type="body-xs"
-          weight="medium"
-          className={cn(
-            "leading-[normal]",
-            SEMANTIC_COLOR[semantic].className.label,
-          )}
-        >
-          {children}
-        </Typography>
+        children
       )}
-    </View>
+    </span>
   );
 }

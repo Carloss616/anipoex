@@ -83,7 +83,7 @@ export const ListItem = memo(function ListItem({
         />
       </Frame.Media>
       <Frame.Content>
-        {/* Beside the text, not in it: RN views are <div>s, which a <p> can't hold. */}
+        {/* Beside the title, not in it: the icon is a <div>, which a <p> can't hold. */}
         <div className="flex min-w-0 items-center gap-1.5">
           <Frame.Title as="p">{e.name}</Frame.Title>
           {e.installed && (
@@ -95,11 +95,11 @@ export const ListItem = memo(function ListItem({
             />
           )}
         </div>
-        <div className="flex min-w-0 items-center gap-1.5">
-          <Badge>{e.language.code.toUpperCase()}</Badge>
-          {e.nsfw && <Badge color="destructive">18+</Badge>}
-          <Frame.Description>{`· ${describeVersion(e)}`}</Frame.Description>
-        </div>
+        <Frame.Description>
+          <Badge>{e.language.code.toUpperCase()}</Badge>{" "}
+          {e.nsfw && <Badge color="destructive">18+</Badge>}{" "}
+          {`· ${describeVersion(e)}`}
+        </Frame.Description>
       </Frame.Content>
       <Frame.Actions>
         {websiteUrl && (

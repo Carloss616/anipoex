@@ -1,5 +1,6 @@
 import { Sheet } from "panelui-web/sheet";
 import { useState } from "react";
+import { SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { Calendar } from "@/components/ui/calendar";
 import { Footer } from "../footer";
 
@@ -19,9 +20,9 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
 
   return (
     <>
-      <Sheet.Header title={title} />
+      <Sheet.Header title={title} className={SHEET_INSET.header} />
 
-      <Sheet.Body>
+      <Sheet.Body className={SHEET_INSET.body}>
         <Calendar
           selected={date}
           onSelect={setDate}

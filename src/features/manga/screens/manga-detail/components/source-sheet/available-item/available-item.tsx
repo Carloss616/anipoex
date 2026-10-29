@@ -127,16 +127,15 @@ export const AvailableItem = memo(function AvailableItem({
           </Frame.Media>
           <Frame.Content>
             <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
-            {/* Beside the text, not in it: RN views are <div>s, which a <p> can't hold. */}
-            <div className="flex min-w-0 items-center gap-1.5">
-              {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+            <Frame.Description>
+              {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
               {scanning ? (
                 <Badge>scanning…</Badge>
               ) : (
                 <Badge color={status.color}>{status.label}</Badge>
-              )}
-              {detail !== "" && <Frame.Description>{detail}</Frame.Description>}
-            </div>
+              )}{" "}
+              {detail}
+            </Frame.Description>
           </Frame.Content>
         </Frame.Row>
         {/* Over the row, not in it: a <button> can't hold buttons. */}

@@ -23,13 +23,13 @@ import {
   submitLabel,
   textFieldStyle,
 } from "@expo/ui/swift-ui/modifiers";
-import type { NumberInputProps } from "panelui-native/components/number-input";
 import { useEffect, useRef } from "react";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { dismissFocus, registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import { BUTTON_ICON_SIZE } from "../icon";
 import { useStepRepeat } from "./hooks/use-step-repeat";
+import type { NumberInputProps } from "./number-input";
 
 const HEIGHT = 44;
 

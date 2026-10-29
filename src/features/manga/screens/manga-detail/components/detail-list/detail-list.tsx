@@ -69,9 +69,8 @@ export function DetailList({
           {header}
           <View className="gutters flex-row items-center gap-2 px-gx pb-1">
             <Typography weight="semibold" className="pl-4">
-              Chapters
+              Chapters <Badge>{total}</Badge>
             </Typography>
-            <Badge>{total}</Badge>
             <View className="flex-1" />
             {action}
           </View>

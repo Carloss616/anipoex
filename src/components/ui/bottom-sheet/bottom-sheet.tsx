@@ -8,6 +8,13 @@ import { cn } from "panelui-native/utils/cn";
 import { Sheet, type SheetSide } from "panelui-web/sheet";
 import { View, type ViewProps } from "react-native";
 
+/** Web: one 16px inset for every sheet, tighter than panelui-web's 24px. */
+export const SHEET_INSET = {
+  header: "p-4 pb-0",
+  body: "px-4 pt-4",
+  footer: "px-4 pb-4",
+} as const;
+
 export interface BottomSheetProps
   extends BottomSheetBaseProps,
     Pick<ModalBottomSheetProps, "containerColor" | "scrimColor"> {

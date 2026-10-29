@@ -6,7 +6,7 @@ const DELAY = 400;
 const INTERVAL = 80;
 
 /**
- * Step buttons that repeat while held, as PanelUI's NumberInput did: a press
+ * Step buttons that repeat while held, as PanelUI's NumberInput does: a press
  * steps once, holding keeps stepping until release. `clamp` bounds each step.
  */
 export function useHoldRepeat(

@@ -1,8 +1,8 @@
 import { Image } from "expo-image";
 import { Typography } from "panelui-native/components/typography";
+import { cn } from "panelui-native/utils/cn";
 import { useState } from "react";
-import { StyleSheet } from "react-native";
-import { Item } from "@/components/ui/item";
+import { StyleSheet, View } from "react-native";
 
 export interface SourceTileProps {
   initials: string;
@@ -12,17 +12,19 @@ export interface SourceTileProps {
   iconUrl?: string;
 }
 
-/** A source's logo, or its initials on its color, as an item's media. */
+/** A source's logo, or its initials on its color: the tile in a `Frame.Media`. */
 export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
   // The url that loaded, so a recycled row with another source starts over.
   const [loadedUrl, setLoadedUrl] = useState<string>();
   const loaded = !!iconUrl && loadedUrl === iconUrl;
 
   return (
-    <Item.Media
+    <View
       // The color and outline only frame the initials; a loaded logo fills the tile.
-      variant={loaded ? "image" : "icon"}
-      className={loaded ? "size-10 bg-transparent" : "overflow-hidden"}
+      className={cn(
+        "size-10 items-center justify-center overflow-hidden rounded-lg",
+        !loaded && "border border-border",
+      )}
       style={loaded ? undefined : { backgroundColor: color }}
     >
       {!loaded && (
@@ -38,6 +40,6 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
           onLoad={() => setLoadedUrl(iconUrl)}
         />
       )}
-    </Item.Media>
+    </View>
   );
 }

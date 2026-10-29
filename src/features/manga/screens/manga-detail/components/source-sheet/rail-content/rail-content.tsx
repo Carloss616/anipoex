@@ -1,4 +1,3 @@
-import { Separator } from "panelui-native/components/separator";
 import { Skeleton } from "panelui-native/components/skeleton";
 import { Typography } from "panelui-native/components/typography";
 import { Button } from "panelui-web/button";
@@ -62,8 +61,9 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (
-                <Separator
-                  orientation="vertical"
+                <hr
+                  aria-orientation="vertical"
+                  className="w-px shrink-0 border-0 bg-border"
                   style={{ height: COVER.height }}
                 />
               )}

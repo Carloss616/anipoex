@@ -1,4 +1,5 @@
 import { Sheet } from "panelui-web/sheet";
+import { SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
@@ -41,8 +42,8 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
 
   return (
     <>
-      <Sheet.Header title="Status" />
-      <Sheet.Body>
+      <Sheet.Header title="Status" className={SHEET_INSET.header} />
+      <Sheet.Body className={SHEET_INSET.body}>
         {options}
         <ChangesPreview changes={changes} />
       </Sheet.Body>
