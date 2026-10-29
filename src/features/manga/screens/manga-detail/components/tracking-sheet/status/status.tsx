@@ -1,7 +1,4 @@
-import { Typography } from "panelui-native/components/typography";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { cn } from "panelui-native/utils/cn";
-import { ScrollView, View } from "react-native";
+import { Sheet } from "panelui-web/sheet";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
@@ -20,7 +17,6 @@ export interface StatusProps {
 
 /** The status list, with a preview of what the pick would change. */
 export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
-  const { isLandscape } = useBreakpoint();
   const { selected, setSelected, next, dirty, changes } = useStatus(
     form,
     total,
@@ -30,7 +26,6 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
     <RadioGroup
       value={selected}
       onValueChange={(value) => setSelected(value as MediaListStatus)}
-      className="py-4"
       data-attached="column"
     >
       {MANGA_STATUS_ENTRIES.map(([status, title]) => (
@@ -38,29 +33,25 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
           key={status}
           value={status}
           label={title}
-          className="w-full px-4"
+          className="w-full"
         />
       ))}
     </RadioGroup>
   );
 
   return (
-    <View className="py-4">
-      <Typography type="h4" className="px-4" numberOfLines={1}>
-        Status
-      </Typography>
-
-      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
+    <>
+      <Sheet.Header title="Status" />
+      <Sheet.Body>
         {options}
-      </ScrollView>
-
-      <ChangesPreview changes={changes} />
+        <ChangesPreview changes={changes} />
+      </Sheet.Body>
 
       <Footer
         onCancel={onCancel}
         onConfirm={() => onConfirm(next)}
         canConfirm={dirty}
       />
-    </View>
+    </>
   );
 }

@@ -1,13 +1,7 @@
-import { Separator } from "panelui-native/components/separator";
-import { Surface } from "panelui-native/components/surface";
-import { Typography } from "panelui-native/components/typography";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { cn } from "panelui-native/utils/cn";
-import { Button as PanelButton } from "panelui-web/button";
+import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
-import { ScrollView, View } from "react-native";
-import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
-import { Button } from "@/components/ui/button";
+import { Sheet } from "panelui-web/sheet";
+import type { ReactNode } from "react";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
@@ -26,6 +20,7 @@ export type Field =
 export interface OverviewProps {
   title: string;
   form: TrackingForm;
+  /** Opens a field's view on iOS and Android; on web each cell opens its Sheet.Next. */
   onEdit: (field: Field) => void;
   onRemove: () => void;
   canRemove: boolean;
@@ -34,11 +29,31 @@ export interface OverviewProps {
   canScore: boolean;
 }
 
+/** A cell that opens its field's Sheet.Next. */
+function Cell({
+  field,
+  disabled,
+  children,
+}: {
+  field: Field;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Sheet.Trigger
+      to={field}
+      disabled={disabled}
+      render={<Button variant="ghost" size="lg" className="flex-1" />}
+    >
+      {children}
+    </Sheet.Trigger>
+  );
+}
+
 /** The sheet at rest: what the entry says, one cell per field. */
 export function Overview({
   title,
   form,
-  onEdit,
   onRemove,
   canRemove,
   removing,
@@ -46,95 +61,56 @@ export function Overview({
 }: OverviewProps) {
   const status = form.status && MANGA_STATUSES[form.status];
 
-  const { isLandscape } = useBreakpoint();
-
   return (
-    <View className="pt-4">
-      <View className="flex-row items-center gap-2 px-4">
-        <Typography type="h4" numberOfLines={1}>
-          {title}
-        </Typography>
-        <View className="flex-1" />
-        <ButtonGroup>
-          <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
-            <PanelButton
-              variant="secondary"
-              size="icon"
-              aria-label="More actions"
-            >
-              <Icon
-                name={Icons.more}
-                size={BUTTON_ICON_SIZE}
-                className="text-inherit"
-              />
-            </PanelButton>
-          </Menu>
-        </ButtonGroup>
-      </View>
+    <>
+      <Sheet.Header>
+        <div className="flex items-center gap-2">
+          <Sheet.Title className="truncate">{title}</Sheet.Title>
+          <ButtonGroup aria-label="Entry actions" className="ms-auto">
+            <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
+              <Button variant="ghost" size="icon" aria-label="More actions">
+                <Icon
+                  name={Icons.more}
+                  size={BUTTON_ICON_SIZE}
+                  className="text-inherit"
+                />
+              </Button>
+            </Menu>
+          </ButtonGroup>
+        </div>
+      </Sheet.Header>
 
-      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
-        <View className="p-4">
-          <ArrowKeyGroup orientation="horizontal">
-            <Surface
-              variant="tertiary"
-              padding="none"
-              data-attached="column"
-              className="w-full"
-            >
-              <View data-attached="row" className="w-full flex-row">
-                <Button
-                  variant="ghost"
-                  className="flex-1"
-                  onPress={() => onEdit("status")}
-                >
-                  {status ?? form.status ?? (
-                    <Typography muted>Status</Typography>
-                  )}
-                </Button>
-                <Separator orientation="vertical" />
-                <Button
-                  variant="ghost"
-                  className="flex-1"
-                  onPress={() => onEdit("progress")}
-                >
-                  {form.progress || <Typography muted>Progress</Typography>}
-                </Button>
-                <Separator orientation="vertical" />
-                <Button
-                  variant="ghost"
-                  className="flex-1"
-                  disabled={!canScore}
-                  onPress={() => onEdit("score")}
-                >
-                  {form.score || <Typography muted>Score</Typography>}
-                </Button>
-              </View>
-              <Separator />
-              <View data-attached="row" className="w-full flex-row">
-                <Button
-                  variant="ghost"
-                  className="flex-1"
-                  onPress={() => onEdit("startedAt")}
-                >
-                  {formatDate(form.startedAt) || (
-                    <Typography muted>Start date</Typography>
-                  )}
-                </Button>
-                <Separator orientation="vertical" />
-                <Button
-                  variant="ghost"
-                  className="flex-1"
-                  onPress={() => onEdit("completedAt")}
-                >
-                  {formatDate(form.completedAt) || (
-                    <Typography muted>Finish date</Typography>
-                  )}
-                </Button>
-              </View>
-            </Surface>
-          </ArrowKeyGroup>
-        </View>
-      </ScrollView>
-    </View>
+      <Sheet.Body>
+        {/* Groups of groups: one track per row. */}
+        <ButtonGroup orientation="vertical" className="w-full">
+          <ButtonGroup
+            aria-label="Status, progress and score"
+            className="w-full"
+          >
+            <Cell field="status">
+              {status ?? form.status ?? <Muted>Status</Muted>}
+            </Cell>
+            <Cell field="progress">
+              {form.progress || <Muted>Progress</Muted>}
+            </Cell>
+            <Cell field="score" disabled={!canScore}>
+              {form.score || <Muted>Score</Muted>}
+            </Cell>
+          </ButtonGroup>
+          <ButtonGroup aria-label="Dates" className="w-full">
+            <Cell field="startedAt">
+              {formatDate(form.startedAt) || <Muted>Start date</Muted>}
+            </Cell>
+            <Cell field="completedAt">
+              {formatDate(form.completedAt) || <Muted>Finish date</Muted>}
+            </Cell>
+          </ButtonGroup>
+        </ButtonGroup>
+      </Sheet.Body>
+    </>
   );
 }
+
+const Muted = ({ children }: { children: ReactNode }) => (
+  <span className="text-muted-foreground">{children}</span>
+);

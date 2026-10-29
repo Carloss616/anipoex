@@ -1,5 +1,5 @@
-import { View } from "react-native";
-import { Button } from "@/components/ui/button";
+import { Button } from "panelui-web/button";
+import { Sheet } from "panelui-web/sheet";
 
 export interface FooterProps {
   onCancel: () => void;
@@ -11,7 +11,10 @@ export interface FooterProps {
   canRemove?: boolean;
 }
 
-/** A field view's actions: an optional Remove leading, Cancel and OK trailing. */
+/**
+ * A field view's actions: an optional Remove leading, Cancel and OK trailing.
+ * On web each one closes the field's Sheet.Next as it runs.
+ */
 export function Footer({
   onCancel,
   onConfirm,
@@ -20,19 +23,31 @@ export function Footer({
   canRemove,
 }: FooterProps) {
   return (
-    <View className="flex-row items-center gap-4 px-4">
+    // A row, not Sheet.Footer's stack: Remove leads, Cancel and OK trail.
+    <Sheet.Footer className="flex-row items-center gap-4">
       {onRemove && (
-        <Button variant="destructive" disabled={!canRemove} onPress={onRemove}>
+        <Sheet.Close
+          render={<Button variant="destructive" />}
+          disabled={!canRemove}
+          onClick={onRemove}
+        >
           Remove
-        </Button>
+        </Sheet.Close>
       )}
-      <View className="flex-1" />
-      <Button variant="ghost" onPress={onCancel}>
+      <Sheet.Close
+        render={<Button variant="ghost" />}
+        className="ms-auto"
+        onClick={onCancel}
+      >
         Cancel
-      </Button>
-      <Button disabled={!canConfirm} onPress={onConfirm}>
+      </Sheet.Close>
+      <Sheet.Close
+        render={<Button />}
+        disabled={!canConfirm}
+        onClick={onConfirm}
+      >
         OK
-      </Button>
-    </View>
+      </Sheet.Close>
+    </Sheet.Footer>
   );
 }

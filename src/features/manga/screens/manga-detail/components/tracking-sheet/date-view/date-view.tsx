@@ -1,8 +1,5 @@
-import { Typography } from "panelui-native/components/typography";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { cn } from "panelui-native/utils/cn";
+import { Sheet } from "panelui-web/sheet";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
 import { Calendar } from "@/components/ui/calendar";
 import { Footer } from "../footer";
 
@@ -20,24 +17,18 @@ export interface DateViewProps {
 export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
   const [date, setDate] = useState(value);
 
-  const { isLandscape } = useBreakpoint();
-
   return (
-    <View className="py-4">
-      <Typography type="h4" className="px-4" numberOfLines={1}>
-        {title}
-      </Typography>
+    <>
+      <Sheet.Header title={title} />
 
-      <ScrollView className={cn("w-full", isLandscape && "min-h-0 flex-1")}>
-        <View className="p-4">
-          <Calendar
-            selected={date}
-            onSelect={setDate}
-            captionLayout="dropdown"
-            className="w-full border-none bg-transparent p-0"
-          />
-        </View>
-      </ScrollView>
+      <Sheet.Body>
+        <Calendar
+          selected={date}
+          onSelect={setDate}
+          captionLayout="dropdown"
+          className="w-full border-none bg-transparent p-0"
+        />
+      </Sheet.Body>
 
       <Footer
         onRemove={() => onConfirm()}
@@ -46,6 +37,6 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
         onConfirm={() => onConfirm(date)}
         canConfirm={date?.getTime() !== value?.getTime()}
       />
-    </View>
+    </>
   );
 }

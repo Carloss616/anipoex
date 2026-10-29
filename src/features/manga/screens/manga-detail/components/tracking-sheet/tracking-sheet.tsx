@@ -1,17 +1,11 @@
-import { useValue } from "@legendapp/state/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import type { MangaTracking } from "@/features/manga/hooks/use-tracking-entry";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
-import {
-  toSaveVariables,
-  toTrackingForm,
-} from "@/features/manga/utils/tracking-form";
-import { session$ } from "@/state/session";
 import { DateView } from "./date-view";
+import { useTrackingSheet } from "./hooks/use-tracking-sheet";
 import type { Field } from "./overview";
 import { Overview } from "./overview";
 import { Progress } from "./progress";
@@ -32,47 +26,23 @@ export function TrackingSheet({
   tracking,
   onDismiss,
 }: TrackingSheetProps) {
-  const entryId = manga.mediaListEntry?.id;
-  const total = manga.chapters;
-
-  const [form, setForm] = useState(() => toTrackingForm(tracking));
+  const sheet = useTrackingSheet({ isPresented, manga, tracking });
+  const { form, total } = sheet;
   const [editing, setEditing] = useState<Field | null>(null);
-  const { save, remove, removing } = useSaveTracking(manga.id);
-  const canScore = useValue(session$.user)?.scoreFormat != null;
 
-  // The sheet stays mounted while closed, so the form seeds on every open;
-  // seeding once would outlive any refetch that moves the entry ahead.
-  const [wasPresented, setWasPresented] = useState(isPresented);
-  if (isPresented !== wasPresented) {
-    setWasPresented(isPresented);
-    if (isPresented) setForm(toTrackingForm(tracking));
-  }
+  const back = () => setEditing(null);
 
-  /** Every field saves as it is confirmed, so there is no draft to discard. */
   const commit = (next: TrackingForm) => {
-    setForm(next);
-    setEditing(null);
-    save(toSaveVariables(form, next, { mediaId: manga.id, entryId })).catch(
-      () => {
-        // Put back what AniList still has, unless another field was confirmed since.
-        setForm((current) => (current === next ? form : current));
-      },
-    );
+    sheet.commit(next);
+    back();
   };
 
   const onRemove = async () => {
-    if (entryId == null) return;
-    try {
-      await remove(entryId);
-    } catch {
-      // The error link toasts it; the sheet stays open on the entry.
-      return;
-    }
-    setEditing(null);
+    // On a failure the sheet stays open on the entry.
+    if (!(await sheet.removeEntry())) return;
+    back();
     onDismiss();
   };
-
-  const back = () => setEditing(null);
 
   const dateView = (key: "startedAt" | "completedAt") => (
     <DateView
@@ -118,9 +88,9 @@ export function TrackingSheet({
           form={form}
           onEdit={setEditing}
           onRemove={onRemove}
-          canRemove={entryId != null}
-          removing={removing}
-          canScore={canScore}
+          canRemove={sheet.canRemove}
+          removing={sheet.removing}
+          canScore={sheet.canScore}
         />
       )}
     </BottomSheet>
