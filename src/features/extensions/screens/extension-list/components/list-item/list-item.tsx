@@ -1,7 +1,7 @@
 import { useValue } from "@legendapp/state/react";
+import { Button } from "panelui-web/button";
 import { type ComponentProps, memo } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   BUTTON_ICON_SIZE,
   Icon,
@@ -31,7 +31,7 @@ export interface ListItemProps {
 }
 
 type ActionButtonProps = Omit<
-  Extract<ComponentProps<typeof Button>, { size: "icon" }>,
+  ComponentProps<typeof Button>,
   "size" | "loading"
 > & {
   id: string;
@@ -57,14 +57,11 @@ function ActionButton({
     <Button
       size="icon"
       variant={variant}
-      className="size-9"
       {...props}
       disabled={!!current}
       loading={loading}
     >
-      {!loading && (
-        <Icon name={icon} size={BUTTON_ICON_SIZE} className={iconClassName} />
-      )}
+      <Icon name={icon} size={BUTTON_ICON_SIZE} className={iconClassName} />
     </Button>
   );
 }
@@ -111,9 +108,8 @@ export const ListItem = memo(function ListItem({
           <Button
             size="icon"
             variant="outline"
-            className="size-9"
-            onPress={() => openExternal(websiteUrl)}
-            accessibilityLabel="Open website"
+            onClick={() => openExternal(websiteUrl)}
+            aria-label="Open website"
           >
             <Icon
               name={Icons.website}
@@ -128,8 +124,8 @@ export const ListItem = memo(function ListItem({
             operation="installing"
             icon={Icons.download}
             iconClassName="text-primary"
-            onPress={() => installExtension(e.id)}
-            accessibilityLabel={`Install ${e.name}`}
+            onClick={() => installExtension(e.id)}
+            aria-label={`Install ${e.name}`}
           />
         ) : hasUpdate(e) ? (
           <ActionButton
@@ -137,9 +133,9 @@ export const ListItem = memo(function ListItem({
             operation="updating"
             icon={Icons.update}
             iconClassName="text-primary-foreground"
-            variant="primary"
-            onPress={() => updateExtension(e.id)}
-            accessibilityLabel={`Update ${e.name}`}
+            variant="default"
+            onClick={() => updateExtension(e.id)}
+            aria-label={`Update ${e.name}`}
           />
         ) : null}
         {e.installed && (
@@ -149,7 +145,7 @@ export const ListItem = memo(function ListItem({
               operation="uninstalling"
               icon={Icons.more}
               iconClassName="text-foreground"
-              accessibilityLabel={`More actions for ${e.name}`}
+              aria-label={`More actions for ${e.name}`}
             />
           </Menu>
         )}

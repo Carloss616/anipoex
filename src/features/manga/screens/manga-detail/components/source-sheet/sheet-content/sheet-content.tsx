@@ -1,13 +1,13 @@
 import { Computed } from "@legendapp/state/react";
 import { Typography } from "panelui-native/components/typography";
+import { Button } from "panelui-web/button";
+import { ButtonGroup } from "panelui-web/button-group";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
@@ -77,8 +77,7 @@ export function SheetContent({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="size-9"
-                  accessibilityLabel="Excluded sources actions"
+                  aria-label="Excluded sources actions"
                 >
                   <Icon
                     name={Icons.more}
@@ -110,20 +109,19 @@ export function SheetContent({
               <Badge>{available.length}</Badge>
               <View className="flex-1" />
               {/* A toggle: filled while title search is on. */}
-              <ButtonGroup>
+              <ButtonGroup aria-label="Sources actions">
                 <Button
-                  variant={title.searching ? "primary" : "secondary"}
+                  variant={title.searching ? "default" : "secondary"}
                   size="icon"
-                  className="size-9"
                   disabled={!installed}
                   aria-pressed={title.searching}
-                  onPress={() =>
+                  onClick={() =>
                     // Excluded sources too: the right page may be on one dropped for no match.
                     actions.searchAll(
                       [...available, ...excluded].map((row) => row.source.id),
                     )
                   }
-                  accessibilityLabel="Search titles in all sources"
+                  aria-label="Search titles in all sources"
                 >
                   <Icon
                     name={
@@ -146,16 +144,13 @@ export function SheetContent({
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="size-9"
                         // A plain browser has no sources, so nothing to scan.
                         disabled={!installed}
                         loading={scanning}
-                        onPress={actions.scanAll}
-                        accessibilityLabel="Scan all sources"
+                        onClick={actions.scanAll}
+                        aria-label="Scan all sources"
                       >
-                        {!scanning && (
-                          <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
-                        )}
+                        <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
                       </Button>
                     );
                   }}
@@ -194,8 +189,9 @@ export function SheetContent({
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="size-10 rounded-full"
-                        accessibilityLabel="AniList titles"
+                        shape="pill"
+                        className="size-10"
+                        aria-label="AniList titles"
                       >
                         <Icon
                           name={Icons.swap}

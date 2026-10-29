@@ -2,9 +2,9 @@ import { Separator } from "panelui-native/components/separator";
 import { Skeleton } from "panelui-native/components/skeleton";
 import { Typography } from "panelui-native/components/typography";
 import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
+import { Button } from "panelui-web/button";
 import { View } from "react-native";
 import { LegendList } from "@/components/layout/legend-list";
-import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { COVER_RADIUS } from "@/features/manga/components/manga-card";
@@ -56,7 +56,14 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
               <Menu items={menu(item)}>
-                <RailCard item={item} headers={source.headers} />
+                {/* The menu's trigger must be a DOM button; the card inside names it. */}
+                <button
+                  type="button"
+                  className="cursor-pointer text-start"
+                  style={{ borderRadius: COVER_RADIUS }}
+                >
+                  <RailCard item={item} headers={source.headers} />
+                </button>
               </Menu>
               {item.current && index === 0 && items.length > 1 && (
                 <Separator
@@ -92,7 +99,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           <Typography type="body-sm" className="flex-1 text-destructive">
             Couldn't search
           </Typography>
-          <Button variant="ghost" size="sm" onPress={retry}>
+          <Button variant="ghost" size="sm" onClick={retry}>
             Retry
           </Button>
         </View>

@@ -3,6 +3,7 @@ import { useHeaderHeight } from "expo-router/react-navigation";
 import { Surface } from "panelui-native/components/surface";
 import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { Button } from "panelui-web/button";
 import { useMemo } from "react";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
@@ -16,7 +17,6 @@ import {
 } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
-import { Button } from "@/components/ui/button";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
@@ -119,7 +119,7 @@ export function ListContent({
                 {counts.updates > 0 && (
                   <Button
                     size="sm"
-                    onPress={updateAllExtensions}
+                    onClick={updateAllExtensions}
                     className="ml-auto"
                   >
                     Update all
@@ -163,12 +163,9 @@ function LanguageMenu({
         onPress: () => onSelect(l?.code),
       }))}
     >
-      <Button
-        variant="outline"
-        size="sm"
-        endContent={<Icon name={Icons.chevronDown} size={16} />}
-      >
+      <Button variant="outline" size="sm">
         {languages.find((l) => l.code === language)?.name ?? "All languages"}
+        <Icon name={Icons.chevronDown} size={16} />
       </Button>
     </Menu>
   );

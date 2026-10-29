@@ -3,10 +3,11 @@ import { Surface } from "panelui-native/components/surface";
 import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
+import { Button as PanelButton } from "panelui-web/button";
+import { ButtonGroup } from "panelui-web/button-group";
 import { ScrollView, View } from "react-native";
 import { ArrowKeyGroup } from "@/components/ui/arrow-key-group";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
@@ -56,18 +57,17 @@ export function Overview({
         <View className="flex-1" />
         <ButtonGroup>
           <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
-            <Button
+            <PanelButton
               variant="secondary"
               size="icon"
-              className="size-9"
-              accessibilityLabel="More actions"
+              aria-label="More actions"
             >
               <Icon
                 name={Icons.more}
                 size={BUTTON_ICON_SIZE}
                 className="text-inherit"
               />
-            </Button>
+            </PanelButton>
           </Menu>
         </ButtonGroup>
       </View>

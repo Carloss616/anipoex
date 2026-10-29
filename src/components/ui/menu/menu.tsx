@@ -1,7 +1,12 @@
 import { cn } from "panelui-native/utils/cn";
 import { Menu as PanelMenu } from "panelui-web/menu";
-import { cloneElement, type ReactElement, useState } from "react";
-import { View, type ViewProps } from "react-native";
+import {
+  cloneElement,
+  type HTMLAttributes,
+  type MouseEvent,
+  type ReactElement,
+  useState,
+} from "react";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
@@ -72,12 +77,16 @@ export type MenuItem = MenuAction | MenuSubmenu | MenuGroup;
 
 export interface MenuProps {
   items: MenuItem[];
-  /** The element the menu hangs off. Must accept `onPress` — it is what opens the menu — and `onLongPress` when `onPrimaryAction` is set. */
+  /**
+   * The element the menu hangs off. Native: it must accept `onPress`, and
+   * `onLongPress` with `onPrimaryAction`. Web: a DOM button such as
+   * panelui-web's `Button`, which takes the trigger's handlers and ref.
+   */
   children: ReactElement<{
     onPress?: (event?: PressEvent) => void;
     onLongPress?: (event?: PressEvent) => void;
   }>;
-  /** When set, a tap runs it and a long press (or a right-click on web) opens the menu. Keep it set while the trigger shows: unset, the menu moves back to the tap, so tap and hold swap. */
+  /** When set, a tap runs it and a long press (a right-click on web) opens the menu. Keep it set while the trigger shows: unset, the menu moves back to the tap, so tap and hold swap. */
   onPrimaryAction?: () => void;
   /** @platform web */
   align?: "start" | "center" | "end";
@@ -206,7 +215,7 @@ function RowItem({
   );
 }
 
-/** The trigger's child with the tap given to `onPrimaryAction` and the menu moved to a long press or right-click. */
+/** The trigger's child with the click given to `onPrimaryAction` and the menu moved to a right-click. */
 function PrimaryTrigger({
   child,
   onPrimaryAction,
@@ -214,20 +223,15 @@ function PrimaryTrigger({
 }: {
   child: MenuProps["children"];
   onPrimaryAction: () => void;
-  onOpen: (event?: PressEvent) => void;
+  onOpen: (event: MouseEvent<Element>) => void;
 }) {
-  // react-native-web forwards the DOM event its types don't list.
-  const rightClick = {
-    onContextMenu: (event: PressEvent) => {
-      event.preventDefault?.();
+  return cloneElement(child as ReactElement<HTMLAttributes<Element>>, {
+    onClick: onPrimaryAction,
+    onContextMenu: (event) => {
+      event.preventDefault();
       onOpen(event);
     },
-  } as ViewProps;
-  return (
-    <View {...rightClick}>
-      {cloneElement(child, { onPress: onPrimaryAction, onLongPress: onOpen })}
-    </View>
-  );
+  });
 }
 
 /**
@@ -251,29 +255,29 @@ export function Menu({
   // Kept after closing, so the menu animates out where it opened.
   const [anchor, setAnchor] = useState<Element | null>(null);
 
-  // The child stays the trigger: its own press opens the menu at it.
-  const openAt = (event?: PressEvent) => {
-    setAnchor((event?.currentTarget as Element | undefined) ?? null);
+  const openAt = (event: MouseEvent<Element>) => {
+    setAnchor(event.currentTarget);
     setOpen(true);
   };
 
   return (
     <>
-      {onPrimaryAction ? (
-        <PrimaryTrigger
-          child={children}
-          onPrimaryAction={onPrimaryAction}
-          onOpen={openAt}
-        />
-      ) : (
-        cloneElement(children, { onPress: openAt })
-      )}
-
       <PanelMenu open={open} onOpenChange={setOpen}>
+        {onPrimaryAction ? (
+          <PrimaryTrigger
+            child={children}
+            onPrimaryAction={onPrimaryAction}
+            onOpen={openAt}
+          />
+        ) : (
+          <PanelMenu.Trigger render={children} />
+        )}
         <PanelMenu.Content
-          anchor={anchor}
-          // With no Menu.Trigger, Base UI doesn't know where focus came from.
-          finalFocus={() => anchor as HTMLElement | null}
+          // A right-click opens it without a Menu.Trigger to anchor to.
+          anchor={onPrimaryAction ? anchor : undefined}
+          finalFocus={
+            onPrimaryAction ? () => anchor as HTMLElement | null : undefined
+          }
           align={align}
           className={cn("max-w-72", items.some(isSubmenu) && "min-w-56")}
         >

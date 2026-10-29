@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { Button } from "@/components/ui/button";
+import { Button } from "panelui-web/button";
 import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
@@ -38,13 +38,12 @@ function ToolbarItemView({
     <Button
       variant="secondary"
       size="icon"
-      className="size-9"
       loading={isLoading}
       disabled={item.props.disabled}
-      onPress={item.kind === "button" ? item.props.onPress : undefined}
-      accessibilityLabel={label}
+      onClick={item.kind === "button" ? item.props.onPress : undefined}
+      aria-label={label}
     >
-      {!isLoading && icon}
+      {icon}
     </Button>
   );
 

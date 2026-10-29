@@ -1,10 +1,10 @@
 import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { Button } from "panelui-web/button";
 import { memo } from "react";
 import { View } from "react-native";
 import { ActiveFilters } from "@/components/blocks/active-filters";
-import { Button } from "@/components/ui/button";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { mangaCount } from "@/features/manga/constants";
@@ -43,12 +43,9 @@ export const ListHeader = memo(function ListHeader({
               onPress: () => genre$.set(name),
             }))}
           >
-            <Button
-              variant="outline"
-              size="sm"
-              endContent={<Icon name={Icons.chevronDown} size={16} />}
-            >
+            <Button variant="outline" size="sm">
               {genre}
+              <Icon name={Icons.chevronDown} size={16} />
             </Button>
           </Menu>
           <ActiveFilters filters={[]} total={total} />

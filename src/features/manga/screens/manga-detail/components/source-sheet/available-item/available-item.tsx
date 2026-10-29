@@ -1,7 +1,7 @@
+import { Button } from "panelui-web/button";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu, type MenuItem } from "@/components/ui/menu";
@@ -148,10 +148,10 @@ export const AvailableItem = memo(function AvailableItem({
             <Button
               variant="ghost"
               size="icon"
-              className="size-9 opacity-100"
+              className="disabled:opacity-100"
               disabled
               aria-hidden
-              accessibilityLabel="Selected"
+              aria-label="Selected"
             >
               <Icon
                 name={Icons.check}
@@ -164,19 +164,17 @@ export const AvailableItem = memo(function AvailableItem({
           <Button
             variant="ghost"
             size="icon"
-            className="size-9"
             loading={scanning}
-            onPress={() => actions.rescan(source.id)}
-            accessibilityLabel={`Rescan ${source.name}`}
+            onClick={() => actions.rescan(source.id)}
+            aria-label={`Rescan ${source.name}`}
           >
-            {!scanning && <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />}
+            <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
           </Button>
           <Menu items={items}>
             <Button
               variant="ghost"
               size="icon"
-              className="size-9"
-              accessibilityLabel={`More actions for ${source.name}`}
+              aria-label={`More actions for ${source.name}`}
             >
               <Icon
                 name={Icons.more}

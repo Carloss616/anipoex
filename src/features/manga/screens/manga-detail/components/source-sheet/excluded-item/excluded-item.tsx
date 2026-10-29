@@ -1,8 +1,8 @@
 import { Computed, useValue } from "@legendapp/state/react";
+import { Button } from "panelui-web/button";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Item } from "@/components/ui/item";
 import { Menu, type MenuItem } from "@/components/ui/menu";
@@ -83,8 +83,8 @@ export const ExcludedItem = memo(function ExcludedItem({
                 variant="ghost"
                 size="sm"
                 disabled={isScanBusy(mangaKey)}
-                onPress={() => actions.include(source.id)}
-                accessibilityLabel={`Include ${source.name}`}
+                onClick={() => actions.include(source.id)}
+                aria-label={`Include ${source.name}`}
               >
                 Include
               </Button>
@@ -95,8 +95,7 @@ export const ExcludedItem = memo(function ExcludedItem({
             <Button
               variant="ghost"
               size="icon"
-              className="size-9"
-              accessibilityLabel={`More actions for ${source.name}`}
+              aria-label={`More actions for ${source.name}`}
             >
               <Icon
                 name={Icons.more}

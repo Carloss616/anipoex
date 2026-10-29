@@ -1,8 +1,6 @@
 import { Typography } from "panelui-native/components/typography";
+import { Tabs } from "panelui-web/tabs";
 import { View } from "react-native";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import {
   EXTENSION_FILTERS,
   type ExtensionCounts,
@@ -10,7 +8,7 @@ import {
   FILTER_TITLES,
 } from "@/features/extensions";
 
-/** Same column as the manga `ListSidebar`: tabs, since they switch one view. */
+/** Same column as the manga `ListSidebar`: the filters as tabs with their totals. */
 export function ListSidebar({
   filter,
   counts,
@@ -21,31 +19,24 @@ export function ListSidebar({
   onSelect: (filter: ExtensionFilter) => void;
 }) {
   return (
-    <View
-      accessibilityRole="tablist"
-      className="gutters box-content w-48 flex-1 gap-0.5 border-border border-r p-4 pb-gb pl-gx"
-    >
+    <View className="gutters box-content w-48 flex-1 gap-0.5 border-border border-r p-4 pb-gb pl-gx">
       <Typography type="body-sm" muted className="px-4.25 pb-2.5">
         Filters
       </Typography>
-      <ButtonGroup orientation="vertical">
-        {EXTENSION_FILTERS.map((f) => {
-          const selected = f === filter;
-          return (
-            <Button
-              key={f}
-              accessibilityRole="tab"
-              aria-selected={selected}
-              onPress={() => onSelect(f)}
-              variant={selected ? "secondary" : "ghost"}
-              className="justify-between"
-            >
+      <Tabs
+        orientation="vertical"
+        value={filter}
+        onValueChange={(value) => onSelect(value as ExtensionFilter)}
+      >
+        <Tabs.List className="w-full">
+          {EXTENSION_FILTERS.map((f) => (
+            <Tabs.Trigger key={f} value={f} className="w-full">
               {FILTER_TITLES[f]}
-              <Badge>{counts[f]}</Badge>
-            </Button>
-          );
-        })}
-      </ButtonGroup>
+              <Tabs.Badge className="ms-auto">{counts[f]}</Tabs.Badge>
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </Tabs>
     </View>
   );
 }
