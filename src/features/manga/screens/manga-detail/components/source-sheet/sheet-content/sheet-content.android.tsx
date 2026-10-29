@@ -160,7 +160,7 @@ export function SheetContent({
               <Row>
                 <SearchTitlesButton
                   onClick={() =>
-                    // Excluded sources too: the right page may be on one dropped for no match.
+                    // Excluded too: the right page may be on one dropped for no match.
                     actions.searchAll(
                       [...available, ...excluded].map((row) => row.source.id),
                     )
@@ -228,7 +228,6 @@ export function SheetContent({
               onChangeText={title.type}
               onSubmit={title.submit}
               placeholder="Title to search"
-              shape="pill"
               accessory={
                 // The check follows the field: an edit unchecks the title.
                 <Computed>
@@ -252,19 +251,18 @@ export function SheetContent({
               debounce={150}
               onDebouncedChange={setQuery}
               placeholder="Search sources..."
-              shape="pill"
             />
           )}
         </Column>
 
         {items.length === 0 ? (
-          // A fixed height, not the sheet's: centred in the full sheet it sits below the half snap.
+          // A fixed height: centred in the full sheet, it sits below the half snap.
           <Box modifiers={[fillMaxWidth(), height(EMPTY_HEIGHT)]}>
             {/* Scrolls inside the box, so the description variant never clips silently. */}
             <EmptyState {...empty} modifiers={[verticalScroll()]} />
           </Box>
         ) : (
-          // One flat lazy list; the group gives TalkBack the radios' collection, as the old Column did.
+          // One flat lazy list; the group gives TalkBack the radios' collection.
           <LazyColumn
             modifiers={[fillMaxWidth(), weight(1), selectableGroup()]}
           >

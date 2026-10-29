@@ -1,5 +1,12 @@
+import type { HTMLAttributes } from "react";
 import { noop } from "@/utils/utils";
-import type { MenuAction, MenuGroup, MenuItem, MenuSubmenu } from "./menu";
+import type {
+  MenuAction,
+  MenuGroup,
+  MenuItem,
+  MenuProps,
+  MenuSubmenu,
+} from "./menu";
 
 export const isSubmenu = (item: MenuItem): item is MenuSubmenu =>
   "items" in item && "label" in item;
@@ -30,3 +37,25 @@ export const flattenRows = (items: MenuItem[]): MenuAction[] =>
         }))
       : [item];
   });
+
+type Handler = ((event: never) => void) | undefined;
+
+/** Whether the trigger is a react-native pressable: passed with an `onPress` prop. */
+export const isPressable = (child: MenuProps["children"]) =>
+  "onPress" in child.props;
+
+/** Web: click and right-click as a pressable's press and long press, after its own. */
+export function asPress(
+  props: HTMLAttributes<Element>,
+  child: MenuProps["children"],
+) {
+  const both = (own: Handler, menu: Handler) => (event: never) => {
+    own?.(event);
+    menu?.(event);
+  };
+  return {
+    ...props,
+    onPress: both(child.props.onPress, props.onClick),
+    onLongPress: both(child.props.onLongPress, props.onContextMenu),
+  };
+}

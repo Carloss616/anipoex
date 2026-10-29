@@ -15,7 +15,7 @@ import { flattenRows } from "./utils";
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/dropdownmenu/
  */
-export function Menu({ items, children, onPrimaryAction }: MenuProps) {
+export function Menu({ items, children }: MenuProps) {
   const [open, setOpen] = useState(false);
   const { rows: entries, pending, close } = useMenuDialogState(items);
   const rows = flattenRows(entries);
@@ -25,12 +25,7 @@ export function Menu({ items, children, onPrimaryAction }: MenuProps) {
     <>
       <DropdownMenu expanded={open} onDismissRequest={() => setOpen(false)}>
         <DropdownMenu.Trigger>
-          {cloneElement(
-            children,
-            onPrimaryAction
-              ? { onPress: onPrimaryAction, onLongPress: () => setOpen(true) }
-              : { onPress: () => setOpen(true) },
-          )}
+          {cloneElement(children, { onPress: () => setOpen(true) })}
         </DropdownMenu.Trigger>
         <DropdownMenu.Items>
           {rows.map((item) => (

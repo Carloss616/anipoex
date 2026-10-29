@@ -3,7 +3,6 @@ import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
-import { Input } from "panelui-web/input";
 import { Sheet } from "panelui-web/sheet";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
@@ -13,9 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
+import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
@@ -28,8 +27,6 @@ import { titleMenuItems } from "../utils/title-menu";
 // Frame.Section's title, as in the extension list.
 const SECTION_TITLE =
   "px-4 pt-2.5 pb-1.5 font-medium text-muted-foreground text-xs uppercase tracking-wider";
-// An empty field shows its placeholder: nothing to clear.
-const HIDDEN_WHEN_EMPTY = "group-has-[input:placeholder-shown]/input:hidden";
 
 export interface SheetContentProps {
   manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
@@ -53,10 +50,9 @@ export function SheetContent({
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
   const title = useTitleMode(manga.id, key);
-  const searchSources = useDebouncedCallback(setQuery, 150);
   const installed = all.length > 0;
 
-  // Both sections in one list, so they scroll together (both empty: none, and the empty state shows).
+  // One list, so both sections scroll together; both empty shows the empty state.
   const items = sheetItems(available, excluded);
   const selectedAt = items.findIndex(
     (item) => item.kind === "available" && item.row.source.id === selectedId,
@@ -120,7 +116,7 @@ export function SheetContent({
                 disabled={!installed}
                 aria-pressed={title.searching}
                 onClick={() =>
-                  // Excluded sources too: the right page may be on one dropped for no match.
+                  // Excluded too: the right page may be on one dropped for no match.
                   actions.searchAll(
                     [...available, ...excluded].map((row) => row.source.id),
                   )
@@ -175,75 +171,44 @@ export function SheetContent({
         </Sheet.Header>
         <div className="px-4">
           {title.searching ? (
-            // A form, so Enter searches every source for the title.
-            <form
+            <SearchBar
               key={title.fieldKey}
-              onSubmit={(event) => {
-                event.preventDefault();
-                title.submit(
-                  new FormData(event.currentTarget).get("title") as string,
-                );
-              }}
-            >
-              <Input.Group>
-                <Input.Addon>
-                  <Icon name={Icons.search} size={BUTTON_ICON_SIZE} muted />
-                </Input.Addon>
-                <Input
-                  type="search"
-                  name="title"
-                  spellCheck={false}
-                  aria-label="Title to search"
-                  placeholder="Title to search"
-                  defaultValue={title.query}
-                  onChange={(event) => title.type(event.target.value)}
-                />
-                <Input.Addon align="end">
-                  <ClearButton onClear={() => title.type("")} />
-                  {/* The check follows the field: an edit unchecks the title. */}
-                  <Computed>
-                    {() => (
-                      <Menu
-                        items={titleMenuItems(
-                          manga,
-                          title.fieldText(),
-                          title.pick,
-                        )}
+              defaultValue={title.query}
+              onChangeText={title.type}
+              onSubmit={title.submit}
+              placeholder="Title to search"
+              spellCheck={false}
+              accessory={
+                // The check follows the field: an edit unchecks the title.
+                <Computed>
+                  {() => (
+                    <Menu
+                      items={titleMenuItems(
+                        manga,
+                        title.fieldText(),
+                        title.pick,
+                      )}
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        shape="pill"
+                        aria-label="AniList titles"
                       >
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="AniList titles"
-                        >
-                          <Icon name={Icons.swap} size={BUTTON_ICON_SIZE} />
-                        </Button>
-                      </Menu>
-                    )}
-                  </Computed>
-                </Input.Addon>
-              </Input.Group>
-            </form>
+                        <Icon name={Icons.swap} size={BUTTON_ICON_SIZE} />
+                      </Button>
+                    </Menu>
+                  )}
+                </Computed>
+              }
+            />
           ) : (
-            <Input.Group>
-              <Input.Addon>
-                <Icon name={Icons.search} size={BUTTON_ICON_SIZE} muted />
-              </Input.Addon>
-              <Input
-                type="search"
-                aria-label="Search sources"
-                placeholder="Search sources..."
-                defaultValue={query}
-                onChange={(event) => searchSources.run(event.target.value)}
-              />
-              <Input.Addon align="end" className={HIDDEN_WHEN_EMPTY}>
-                <ClearButton
-                  onClear={() => {
-                    searchSources.cancel();
-                    setQuery("");
-                  }}
-                />
-              </Input.Addon>
-            </Input.Group>
+            <SearchBar
+              defaultValue={query}
+              debounce={150}
+              onDebouncedChange={setQuery}
+              placeholder="Search sources..."
+            />
           )}
         </div>
 
@@ -253,7 +218,7 @@ export function SheetContent({
           keyExtractor={sheetItemKey}
           getItemType={(item: SheetItem) => item.kind}
           extraData={selectedId}
-          // Read once, when the sheet opens; typing doesn't move it. No scroll when the selected row is the first one.
+          // Read once on open, so typing doesn't scroll; the first rows need none.
           initialScrollIndex={
             selectedAt > 1
               ? { index: selectedAt, viewPosition: 0.5 }
@@ -292,28 +257,5 @@ export function SheetContent({
         />
       </View>
     </BottomSheet>
-  );
-}
-
-/** Empties the field in its `Input.Group`, which keeps focus. */
-function ClearButton({ onClear }: { onClear: () => void }) {
-  return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label="Clear"
-      className={HIDDEN_WHEN_EMPTY}
-      onClick={(event) => {
-        const input = event.currentTarget
-          .closest("[data-slot=input-group]")
-          ?.querySelector("input");
-        if (!input) return;
-        input.value = "";
-        input.focus();
-        onClear();
-      }}
-    >
-      <Icon name={Icons.close} size={BUTTON_ICON_SIZE} muted />
-    </Button>
   );
 }

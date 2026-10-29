@@ -1,12 +1,18 @@
 import type { ImageSource } from "expo-image";
-import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { cn } from "panelui-native/utils/cn";
 import { TiltCard } from "panelui-web/tilt-card";
 import type { CSSProperties, ReactNode } from "react";
-import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
+import {
+  Pressable,
+  type StyleProp,
+  StyleSheet,
+  View,
+  type ViewStyle,
+} from "react-native";
 import { tv } from "tailwind-variants";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
+import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
 import type { TitlePosition } from "@/features/manga/utils/list-view";
@@ -23,7 +29,7 @@ export interface MangaCardProps {
   coverThumb?: string | null;
   coverColor?: string | null;
   status?: MediaStatus | null;
-  /** A corner badge in place of the release status, e.g. the current match among a source's results. */
+  /** A corner badge in place of the status, e.g. a source's current match. */
   mark?: CornerMark;
   title?: string | null;
   label?: string | null;
@@ -31,7 +37,7 @@ export interface MangaCardProps {
   titlePosition?: TitlePosition;
   /** Share read, 0–1; draws a bar under the label. Omit when the total is unknown. */
   progress?: number;
-  /** Chapters left to read, as a badge in the cover's top-right corner, colored like a source's count in the source sheet: green above 0, neutral at 0 (up to date). Omit when there's nothing to count. */
+  /** Chapters left, as a top-right badge: green above 0, neutral at 0 (up to date). */
   unread?: number;
   style?: StyleProp<ViewStyle>;
   className?: string;
@@ -41,7 +47,7 @@ export interface MangaCardProps {
   onPress?: () => void;
   onLongPress?: () => void;
   /**
-   * Leans the cover towards the pointer, its badges and title lifted off it.
+   * Leans the cover towards the pointer, badges and title lifted off it.
    * @platform web
    */
   tilt?: boolean;
@@ -127,7 +133,7 @@ function Layer({
   );
 }
 
-/** The web card. iOS and Android draw their own, inside the native grid's single Host. */
+/** The web card; iOS and Android draw theirs inside the native grid's Host. */
 export function MangaCard({
   cover,
   coverThumb,
@@ -146,6 +152,8 @@ export function MangaCard({
   onPress,
   onLongPress,
   tilt = false,
+  // On web, a menu trigger's ref, aria and key handlers, for the pressable.
+  ...trigger
 }: MangaCardProps) {
   const flat = StyleSheet.flatten(style) ?? {};
   const below = titlePosition === "below";
@@ -265,17 +273,17 @@ export function MangaCard({
   }
 
   return (
-    <AnimatedPressable
+    <Pressable
+      {...trigger}
       onPress={onPress}
       onLongPress={onLongPress}
-      // The pressable is the one tab stop; a role on a view inside would add a second.
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       style={radius}
       data-title={titlePosition}
-      className="group"
+      className={cn("group", PRESS)}
     >
       {card}
-    </AnimatedPressable>
+    </Pressable>
   );
 }

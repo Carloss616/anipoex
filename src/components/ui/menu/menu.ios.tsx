@@ -54,11 +54,11 @@ function actionRow(item: MenuAction) {
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/menu/
  */
-export function Menu({ items, children, onPrimaryAction }: MenuProps) {
+export function Menu({ items, children }: MenuProps) {
   const { rows, pending, close } = useMenuDialogState(items);
 
   const menu = (
-    <SwiftUIMenu label={children} onPrimaryAction={onPrimaryAction}>
+    <SwiftUIMenu label={children}>
       {rows.map((item) =>
         isGroup(item) ? (
           <Section key={`group-${item.heading}`} title={item.heading}>

@@ -1,21 +1,15 @@
 import { Memo, useObservable } from "@legendapp/state/react";
 import type { NativeStackHeaderProps } from "expo-router";
 import { getHeaderTitle } from "expo-router/react-navigation";
-import { SearchBar } from "panelui-native/components/search-bar";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
-import { useEffect, useRef, useState } from "react";
-import {
-  type InputModeOptions,
-  type StyleProp,
-  type TextInput,
-  type TextStyle,
-  View,
-} from "react-native";
+import { Button } from "panelui-web/button";
+import { ButtonGroup } from "panelui-web/button-group";
+import { type HTMLAttributes, useEffect, useRef, useState } from "react";
+import { type StyleProp, type TextStyle, View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { SearchBar } from "@/components/ui/search-bar";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { LARGE_TITLE_HEIGHT } from "./constants";
 
@@ -25,7 +19,7 @@ type SearchBarOptions = NonNullable<
 
 const INPUT_MODE: Record<
   NonNullable<SearchBarOptions["inputType"]>,
-  InputModeOptions
+  HTMLAttributes<HTMLInputElement>["inputMode"]
 > = {
   text: "text",
   number: "numeric",
@@ -34,13 +28,13 @@ const INPUT_MODE: Record<
 } as const;
 
 const TRANSITION = "duration-200 ease-out";
-/** Must match `TRANSITION`: Tailwind only sees class literals, the timer only a number. */
+/** Must match `TRANSITION`: Tailwind reads class literals, the timer a number. */
 const DURATION_MS = 200;
 
-/** The large title row and what crossfades with it: drawer-scale travel, drawer timing. */
+/** The large title row and what crossfades with it: drawer travel and timing. */
 const COLLAPSE = "duration-500 ease-sheet";
 
-/** The titles cross with an overlap; the blur keeps it from reading as the same words twice. */
+/** The titles overlap as they cross; the blur hides the doubled words. */
 const HANDOVER = "duration-300 ease-out";
 const LEAVING = "opacity-0 blur-[2px] delay-0";
 const ARRIVING = "opacity-100 blur-[0px] delay-100";
@@ -50,6 +44,10 @@ const textEvent = (text: string) =>
   ({ nativeEvent: { text } }) as Parameters<
     NonNullable<SearchBarOptions["onChangeText"]>
   >[0];
+// Nothing reads the focus event's fields; it only has to be there.
+const focusEvent = {} as Parameters<
+  NonNullable<SearchBarOptions["onFocus"]>
+>[0];
 
 export const header = (props: NativeStackHeaderProps) => <Header {...props} />;
 
@@ -57,7 +55,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const query$ = useObservable("");
   const [isSearching, setIsSearching] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mutedForeground = useThemeColor("muted-foreground");
   const reduced = useReducedMotion();
 
@@ -110,9 +108,10 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       {() => (
         <SearchBar
           ref={inputRef}
+          className="min-w-0 flex-1"
           value={query$.get()}
           onChangeText={emit}
-          containerClassName="min-w-0 flex-1"
+          onSubmit={(text) => search.onSearchButtonPress?.(textEvent(text))}
           autoFocus={isStacked && search.autoFocus}
           placeholder={search.placeholder}
           autoCapitalize={
@@ -121,17 +120,13 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
               : search.autoCapitalize
           }
           inputMode={INPUT_MODE[search.inputType ?? "text"]}
-          enterKeyHint="search"
-          onFocus={search.onFocus}
-          onBlur={search.onBlur}
-          onSubmitEditing={() =>
-            search.onSearchButtonPress?.(textEvent(query$.peek()))
-          }
-          shape="pill"
+          onFocus={() => search.onFocus?.(focusEvent)}
+          onBlur={() => search.onBlur?.(focusEvent)}
         />
       )}
     </Memo>
   );
+  const isInline = !!search && !isStacked;
 
   const titleNode =
     typeof options.headerTitle === "function" ? (
@@ -173,14 +168,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         >
           {showBack && (
             <Button
-              variant="secondary"
-              className={cn(
-                "size-9",
-                !isMinimalBack && backLabel && "w-[unset]",
-              )}
-              size={isMinimalBack || !backLabel ? "icon" : "sm"}
-              onPress={navigation.goBack}
-              accessibilityLabel={backLabel ?? "Back"}
+              variant="ghost"
+              shape="pill"
+              size={isMinimalBack || !backLabel ? "icon" : "md"}
+              onClick={navigation.goBack}
+              aria-label={backLabel ?? "Back"}
             >
               <Icon
                 name={Icons.back}
@@ -193,63 +185,70 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           {options.headerLeft?.({ tintColor, canGoBack: !!back })}
         </ButtonGroup>
 
-        {/* The field is laid over the title rather than next to it: no gap to
-            collapse, so it can grow straight out of nothing. */}
-        <View className="relative flex-1 flex-row items-center">
-          <View
-            aria-hidden={isLarge || isSearching}
-            className={cn(
-              "flex-1 flex-row items-center transition-[opacity,filter]",
-              HANDOVER,
-              isLarge || isSearching ? LEAVING : ARRIVING,
-            )}
-          >
-            {titleNode}
-          </View>
+        {/* Searching, the title yields its width to the group, where the field grows. */}
+        <View
+          aria-hidden={isLarge || isSearching}
+          className={cn(
+            "min-w-0 flex-1 flex-row items-center",
+            reduced
+              ? "transition-[opacity,filter]"
+              : "transition-[flex-grow,opacity,filter]",
+            HANDOVER,
+            isSearching && "grow-0",
+            isLarge || isSearching ? LEAVING : ARRIVING,
+          )}
+        >
+          {titleNode}
+        </View>
 
-          {search && !isStacked && (
-            // `visibility` transitions stepwise: the field stays visible for the
-            // whole shrink, then drops out of hit-testing and the tab order.
+        <ButtonGroup
+          className={cn(
+            "min-w-0",
+            !reduced && "transition-[flex-grow]",
+            HANDOVER,
+            // The title's delay, or the group slides left while the gap is free.
+            isLarge || isSearching ? "delay-0" : "delay-100",
+            isSearching && "grow",
+          )}
+        >
+          {isInline && (
+            // Shown at once so it can take focus; hidden only after the shrink.
             <View
               className={cn(
-                // Centered instead of stretched: at the row's full height the clip
-                // box is taller than the field, which reads as a crop.
-                "absolute top-1/2 right-0 -translate-y-1/2 flex-row items-center",
-                reduced
-                  ? "transition-[opacity,visibility]"
-                  : "transition-[width,opacity,visibility]",
-                TRANSITION,
+                // w-0, or the hidden input's own width widens the group.
+                "w-0 min-w-0 flex-1 basis-0 flex-row items-center",
                 isSearching
-                  ? "visible w-full opacity-100"
-                  : "invisible w-0 opacity-0",
+                  ? "transition-opacity"
+                  : "transition-[opacity,visibility]",
+                TRANSITION,
+                isSearching ? "visible opacity-100" : "invisible opacity-0",
                 isExpanded ? "overflow-visible" : "overflow-hidden",
               )}
             >
               {searchField}
             </View>
           )}
-        </View>
-
-        <ButtonGroup>
-          {search &&
-            !isStacked &&
+          {isInline &&
             (isSearching ? (
               <Button
-                variant="secondary"
+                variant="ghost"
                 size="icon"
-                className="size-9"
-                onPress={closeSearch}
-                accessibilityLabel={search.cancelButtonText ?? "Cancel"}
+                shape="pill"
+                // No group divider beside the field.
+                className="before:hidden"
+                onClick={closeSearch}
+                aria-label={search.cancelButtonText ?? "Cancel"}
               >
                 <Icon name={Icons.close} size={BUTTON_ICON_SIZE} muted />
               </Button>
             ) : (
               <Button
-                variant="secondary"
+                variant="ghost"
                 size="icon"
-                className="size-9"
-                onPress={openSearch}
-                accessibilityLabel={search.placeholder ?? "Search"}
+                shape="pill"
+                className="before:hidden"
+                onClick={openSearch}
+                aria-label={search.placeholder ?? "Search"}
               >
                 <Icon
                   name={Icons.search}
@@ -262,8 +261,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         </ButtonGroup>
       </View>
 
-      {/* Stays mounted and clipped so the row can grow open instead of popping
-          in. max-h is the animatable stand-in for the h1's auto height. */}
+      {/* Mounted and clipped so it grows open; max-h animates where auto height can't. */}
       {canBeLarge && (
         <View
           aria-hidden={!isLarge}
@@ -274,7 +272,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             COLLAPSE,
           )}
         >
-          {/* Rises as it goes: `max-height` alone closes from the bottom and reads as a crop. */}
+          {/* Rises as it closes: `max-height` alone reads as a crop. */}
           <View
             className={cn(
               reduced ? "transition-opacity" : "transition-[opacity,transform]",

@@ -18,7 +18,7 @@ const CARD_SPAN = COVER.width + GAP;
 const RAIL_HEIGHT = COVER.height + 72 + GAP;
 const COVER_BOX = { ...COVER, borderRadius: COVER_RADIUS };
 
-/** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
+/** The rail: a skeleton while the first page loads, then the cards and a More card. */
 export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
@@ -54,14 +54,12 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
               <Menu items={menu(item)}>
-                {/* The menu's trigger must be a DOM button; the card inside names it. */}
-                <button
-                  type="button"
-                  className="cursor-pointer text-start"
-                  style={{ borderRadius: COVER_RADIUS }}
-                >
-                  <RailCard item={item} headers={source.headers} />
-                </button>
+                {/* `onPress` marks a pressable: the menu hands it its click as onPress. */}
+                <RailCard
+                  item={item}
+                  headers={source.headers}
+                  onPress={undefined}
+                />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (
                 <Separator

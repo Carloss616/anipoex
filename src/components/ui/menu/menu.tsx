@@ -3,14 +3,13 @@ import { Menu as PanelMenu } from "panelui-web/menu";
 import {
   cloneElement,
   type HTMLAttributes,
-  type MouseEvent,
   type ReactElement,
   useState,
 } from "react";
 import { Dialog, type DialogProps } from "../dialog";
 import { Icon, type IconName } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
-import { isGroup, isSubmenu } from "./utils";
+import { asPress, isGroup, isPressable, isSubmenu } from "./utils";
 
 // panelui-web rows don't wrap: a long title breaks lines within max-w-72.
 const ROW = "whitespace-normal";
@@ -78,16 +77,14 @@ export type MenuItem = MenuAction | MenuSubmenu | MenuGroup;
 export interface MenuProps {
   items: MenuItem[];
   /**
-   * The element the menu hangs off. Native: it must accept `onPress`, and
-   * `onLongPress` with `onPrimaryAction`. Web: a DOM button such as
-   * panelui-web's `Button`, which takes the trigger's handlers and ref.
+   * The element the menu hangs off. Native: it takes `onPress`. Web: a DOM
+   * button (panelui-web's `Button`), or a Pressable passed with an `onPress`
+   * prop, which gets click as press.
    */
   children: ReactElement<{
     onPress?: (event?: PressEvent) => void;
     onLongPress?: (event?: PressEvent) => void;
   }>;
-  /** When set, a tap runs it and a long press (a right-click on web) opens the menu. Keep it set while the trigger shows: unset, the menu moves back to the tap, so tap and hold swap. */
-  onPrimaryAction?: () => void;
   /** @platform web */
   align?: "start" | "center" | "end";
   /** @default "radio" */
@@ -215,24 +212,9 @@ function RowItem({
   );
 }
 
-/** The trigger's child with the click given to `onPrimaryAction` and the menu moved to a right-click. */
-function PrimaryTrigger({
-  child,
-  onPrimaryAction,
-  onOpen,
-}: {
-  child: MenuProps["children"];
-  onPrimaryAction: () => void;
-  onOpen: (event: MouseEvent<Element>) => void;
-}) {
-  return cloneElement(child as ReactElement<HTMLAttributes<Element>>, {
-    onClick: onPrimaryAction,
-    onContextMenu: (event) => {
-      event.preventDefault();
-      onOpen(event);
-    },
-  });
-}
+type TriggerChild = ReactElement<
+  HTMLAttributes<Element> & { onPress?: unknown; onLongPress?: unknown }
+>;
 
 /**
  * A popup menu, natively rendered per platform.
@@ -247,37 +229,26 @@ export function Menu({
   items,
   children,
   align = "end",
-  onPrimaryAction,
   selection = "radio",
 }: MenuProps) {
   const { rows, pending, close } = useMenuDialogState(items);
   const [open, setOpen] = useState(false);
-  // Kept after closing, so the menu animates out where it opened.
-  const [anchor, setAnchor] = useState<Element | null>(null);
-
-  const openAt = (event: MouseEvent<Element>) => {
-    setAnchor(event.currentTarget);
-    setOpen(true);
-  };
 
   return (
     <>
       <PanelMenu open={open} onOpenChange={setOpen}>
-        {onPrimaryAction ? (
-          <PrimaryTrigger
-            child={children}
-            onPrimaryAction={onPrimaryAction}
-            onOpen={openAt}
-          />
-        ) : (
-          <PanelMenu.Trigger render={children} />
-        )}
-        <PanelMenu.Content
-          // A right-click opens it without a Menu.Trigger to anchor to.
-          anchor={onPrimaryAction ? anchor : undefined}
-          finalFocus={
-            onPrimaryAction ? () => anchor as HTMLElement | null : undefined
+        <PanelMenu.Trigger
+          render={
+            isPressable(children)
+              ? (props) =>
+                  cloneElement(
+                    children as TriggerChild,
+                    asPress(props, children),
+                  )
+              : children
           }
+        />
+        <PanelMenu.Content
           align={align}
           className={cn("max-w-72", items.some(isSubmenu) && "min-w-56")}
         >

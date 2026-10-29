@@ -36,8 +36,9 @@ function ToolbarItemView({
 
   const trigger = (
     <Button
-      variant="secondary"
+      variant="ghost"
       size="icon"
+      shape="pill"
       loading={isLoading}
       disabled={item.props.disabled}
       onClick={item.kind === "button" ? item.props.onPress : undefined}
@@ -65,10 +66,7 @@ function ToolbarItemView({
   );
 }
 
-/**
- * Maps `Stack.Toolbar` → `Stack.Screen` `headerRight`/`headerLeft` on web,
- * converting `Stack.Toolbar.Button` (and `Menu`) into header controls.
- */
+/** Web: puts a `Stack.Toolbar`'s buttons and menus in a header slot. */
 export function Toolbar({ children: toolbar, loading }: ToolbarProps) {
   const parsed = readToolbar(toolbar);
 

@@ -1,7 +1,7 @@
 import { Typography } from "panelui-native/components/typography";
-import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
+import { PRESS } from "@/components/ui/press";
 
 /** Enough to tell what the book is about, short enough to leave the page scannable. */
 const COLLAPSED_LINES = 3;
@@ -19,7 +19,7 @@ export function Synopsis({ text }: { text: string | undefined }) {
   if (!text) return null;
 
   return (
-    <AnimatedPressable onPress={() => setExpanded((e) => !e)}>
+    <Pressable className={PRESS} onPress={() => setExpanded((e) => !e)}>
       <View>
         <View
           className="overflow-hidden transition-[height] duration-300 ease-sheet motion-reduce:transition-none"
@@ -55,6 +55,6 @@ export function Synopsis({ text }: { text: string | undefined }) {
           more
         </Typography>
       </View>
-    </AnimatedPressable>
+    </Pressable>
   );
 }

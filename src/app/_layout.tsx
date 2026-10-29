@@ -1,6 +1,5 @@
 import "@/global.css";
 import "@/utils/focus-modality";
-import "@/utils/text-input-state";
 
 import { ApolloProvider } from "@apollo/client/react";
 import { useValue } from "@legendapp/state/react";
