@@ -1,12 +1,12 @@
 import { Memo } from "@legendapp/state/react";
 import { Stack } from "expo-router";
-import { Input } from "panelui-native/components/input";
-import { View } from "react-native";
+import { Button } from "panelui-web/button";
+import { ButtonGroup } from "panelui-web/button-group";
+import { Frame } from "panelui-web/frame";
+import { Input } from "panelui-web/input";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
-import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { TrustDialog } from "./components/trust-dialog";
 import { useRepoList } from "./hooks/use-repo-list";
@@ -30,41 +30,47 @@ export function RepoList() {
           <HeaderInsetView>
             <Memo>
               {() => (
-                <View className="flex-row items-center gap-3 py-4">
-                  <Input
-                    containerClassName="flex-1"
-                    placeholder="Repository URL"
-                    value={url$.get()}
-                    onChangeText={setUrl}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="url"
-                    returnKeyType="done"
-                    onSubmitEditing={add}
-                  />
-                  <Button onPress={add} disabled={!canAdd$.get()}>
-                    Add
-                  </Button>
-                </View>
+                // A form, so Enter in the field adds as the button does.
+                <form
+                  noValidate
+                  className="py-4"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void add();
+                  }}
+                >
+                  <ButtonGroup aria-label="Add a repository" className="w-full">
+                    <Input
+                      type="url"
+                      placeholder="Repository URL"
+                      aria-label="Repository URL"
+                      value={url$.get()}
+                      onChange={(event) => setUrl(event.target.value)}
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                    />
+                    <Button type="submit" disabled={!canAdd$.get()}>
+                      Add
+                    </Button>
+                  </ButtonGroup>
+                </form>
               )}
             </Memo>
           </HeaderInsetView>
         }
         renderItem={({ item: repo }) => (
-          <Item className="px-0">
-            <Item.Content>
-              <Item.Title numberOfLines={1}>{repo.name}</Item.Title>
-              <Item.Description numberOfLines={1}>
-                {repo.indexUrl}
-              </Item.Description>
-            </Item.Content>
-            <Item.Actions>
+          <Frame.Row className="px-0">
+            <Frame.Content>
+              <Frame.Title as="p">{repo.name}</Frame.Title>
+              <Frame.Description>{repo.indexUrl}</Frame.Description>
+            </Frame.Content>
+            <Frame.Actions>
               <Button
                 size="icon"
                 variant="outline"
-                className="size-9"
-                onPress={() => remove(repo)}
-                accessibilityLabel={`Remove ${repo.name}`}
+                onClick={() => remove(repo)}
+                aria-label={`Remove ${repo.name}`}
               >
                 <Icon
                   name={Icons.close}
@@ -72,8 +78,8 @@ export function RepoList() {
                   className="text-foreground"
                 />
               </Button>
-            </Item.Actions>
-          </Item>
+            </Frame.Actions>
+          </Frame.Row>
         )}
       />
       <TrustDialog repo={pending} onDismiss={dismiss} onTrust={trust} />
