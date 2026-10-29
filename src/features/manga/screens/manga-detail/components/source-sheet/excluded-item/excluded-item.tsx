@@ -1,10 +1,10 @@
 import { Computed, useValue } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
+import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 import { isScanBusy, probes$ } from "@/features/manga/state/probes";
 import { type ExcludeReason, REASONS } from "@/features/manga/utils/msu";
@@ -63,20 +63,20 @@ export const ExcludedItem = memo(function ExcludedItem({
   ];
   return (
     <View>
-      <Item>
-        <Tile source={source} />
-        <Item.Content>
-          <Item.Title>{source.baseName ?? source.name}</Item.Title>
-          <Item.Description numberOfLines={1}>
-            {source.lang && (
-              <Badge className="mr-1.5">{source.lang.toUpperCase()}</Badge>
-            )}
+      <Frame.Row>
+        <Frame.Media>
+          <Tile source={source} />
+        </Frame.Media>
+        <Frame.Content>
+          <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
+          <div className="flex min-w-0 items-center gap-1.5">
+            {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
             <Badge color={REASONS[reason].color}>
               {excludedBadge(reason, pinned)}
             </Badge>
-          </Item.Description>
-        </Item.Content>
-        <Item.Actions>
+          </div>
+        </Frame.Content>
+        <Frame.Actions>
           <Computed>
             {() => (
               <Button
@@ -104,8 +104,8 @@ export const ExcludedItem = memo(function ExcludedItem({
               />
             </Button>
           </Menu>
-        </Item.Actions>
-      </Item>
+        </Frame.Actions>
+      </Frame.Row>
       <Rail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}

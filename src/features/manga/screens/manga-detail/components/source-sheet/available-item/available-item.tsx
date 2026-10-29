@@ -1,9 +1,9 @@
 import { Button } from "panelui-web/button";
+import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
@@ -117,32 +117,30 @@ export const AvailableItem = memo(function AvailableItem({
   return (
     <View>
       <View>
-        <Item
-          onPress={() => onSelect(source.id)}
+        <Frame.Row
+          onClick={() => onSelect(source.id)}
           aria-selected={selected}
-          data-ring="inset"
           className={selected ? "pe-34" : "pe-27.5"}
         >
-          <Item.Media>
+          <Frame.Media>
             <Tile source={source} />
-          </Item.Media>
-          <Item.Content>
-            <Item.Title>{source.baseName ?? source.name}</Item.Title>
-            <Item.Description numberOfLines={1}>
-              {source.lang && (
-                <Badge className="mr-1.5">{source.lang.toUpperCase()}</Badge>
-              )}
+          </Frame.Media>
+          <Frame.Content>
+            <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
+            {/* Beside the text, not in it: RN views are <div>s, which a <p> can't hold. */}
+            <div className="flex min-w-0 items-center gap-1.5">
+              {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
               {scanning ? (
                 <Badge>scanning…</Badge>
               ) : (
                 <Badge color={status.color}>{status.label}</Badge>
               )}
-              {detail !== "" && ` ${detail}`}
-            </Item.Description>
-          </Item.Content>
-        </Item>
+              {detail !== "" && <Frame.Description>{detail}</Frame.Description>}
+            </div>
+          </Frame.Content>
+        </Frame.Row>
         {/* Over the row, not in it: a <button> can't hold buttons. */}
-        <Item.Actions className="absolute inset-e-4 inset-y-0">
+        <Frame.Actions className="absolute inset-e-4 inset-y-0">
           {/* A mark, not an action: a disabled button only for the same box as ↻ and ⋯, undimmed, and hidden since the row says aria-selected. */}
           {selected && (
             <Button
@@ -183,7 +181,7 @@ export const AvailableItem = memo(function AvailableItem({
               />
             </Button>
           </Menu>
-        </Item.Actions>
+        </Frame.Actions>
       </View>
       <Rail
         mangaKey={mangaKey}

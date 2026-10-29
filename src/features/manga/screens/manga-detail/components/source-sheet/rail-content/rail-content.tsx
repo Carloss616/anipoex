@@ -1,11 +1,9 @@
 import { Separator } from "panelui-native/components/separator";
 import { Skeleton } from "panelui-native/components/skeleton";
 import { Typography } from "panelui-native/components/typography";
-import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { Button } from "panelui-web/button";
 import { View } from "react-native";
 import { LegendList } from "@/components/layout/legend-list";
-import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import { COVER } from "../constants";
@@ -75,21 +73,15 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           )}
           ListFooterComponent={
             rail.hasNextPage || rail.loadingMore ? (
-              <AnimatedPressable
-                onPress={loadMore}
-                accessibilityRole="button"
-                accessibilityLabel="More"
-                className="items-center justify-center bg-muted"
+              <Button
+                variant="secondary"
+                loading={rail.loadingMore}
+                onClick={loadMore}
+                className="text-xs"
                 style={COVER_BOX}
               >
-                {rail.loadingMore ? (
-                  <Loader size="sm" />
-                ) : (
-                  <Typography type="body-xs" weight="medium">
-                    More
-                  </Typography>
-                )}
-              </AnimatedPressable>
+                More
+              </Button>
             ) : undefined
           }
         />

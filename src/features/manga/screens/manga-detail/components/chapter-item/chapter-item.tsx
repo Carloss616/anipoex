@@ -33,7 +33,6 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
             },
           })
         }
-        data-ring="inset"
         // Dimmed, not `disabled`: a read chapter still opens.
         className={cn("pe-17", read && "opacity-[0.64]")}
       >

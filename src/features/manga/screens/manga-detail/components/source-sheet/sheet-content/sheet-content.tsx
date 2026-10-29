@@ -1,7 +1,9 @@
 import { Computed } from "@legendapp/state/react";
 import { Typography } from "panelui-native/components/typography";
+import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
+import { Sheet } from "panelui-web/sheet";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -9,7 +11,6 @@ import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
@@ -22,6 +23,10 @@ import { useTitleMode } from "../hooks/use-title-mode";
 import { excludedMenuItems } from "../utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "../utils/sheet-items";
 import { titleMenuItems } from "../utils/title-menu";
+
+// Frame.Section's title, as in the extension list.
+const SECTION_TITLE =
+  "px-4 pt-2.5 pb-1.5 font-medium text-muted-foreground text-xs uppercase tracking-wider";
 
 export interface SheetContentProps {
   manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
@@ -55,20 +60,16 @@ export function SheetContent({
 
   const renderHeader = (id: "available" | "no-sources" | "excluded") =>
     id === "available" ? (
-      <Typography type="small" className="px-4 text-primary">
-        Available
-      </Typography>
+      <p className={SECTION_TITLE}>{`Available · ${available.length}`}</p>
     ) : id === "no-sources" ? (
       <Typography type="body-sm" muted className="px-4">
         No sources
       </Typography>
     ) : (
-      <View className="flex-row items-center gap-2 px-4 pt-4">
-        <Typography type="small" className="text-primary">
-          Excluded
-        </Typography>
-        <Badge>{excluded.length}</Badge>
-        <View className="flex-1" />
+      <div className="flex items-center pe-4 pt-4">
+        <p className={cn(SECTION_TITLE, "flex-1")}>
+          {`Excluded · ${excluded.length}`}
+        </p>
         <Computed>
           {() => {
             const items = excludedMenuItems(excluded, isScanBusy(key), actions);
@@ -89,7 +90,7 @@ export function SheetContent({
             );
           }}
         </Computed>
-      </View>
+      </div>
     );
 
   return (
@@ -101,72 +102,74 @@ export function SheetContent({
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"
     >
-      <View className="flex-1 gap-4 py-4">
-        <View className="gap-4 px-4">
-          <View>
-            <View className="flex-row items-center gap-2">
-              <Typography type="h4">Sources</Typography>
-              <Badge>{available.length}</Badge>
-              <View className="flex-1" />
-              {/* A toggle: filled while title search is on. */}
-              <ButtonGroup aria-label="Sources actions">
-                <Button
-                  variant={title.searching ? "default" : "secondary"}
-                  size="icon"
-                  disabled={!installed}
-                  aria-pressed={title.searching}
-                  onClick={() =>
-                    // Excluded sources too: the right page may be on one dropped for no match.
-                    actions.searchAll(
-                      [...available, ...excluded].map((row) => row.source.id),
-                    )
+      <View className="flex-1 gap-4 pb-4">
+        {/* px-4 lines the header up with the rows. */}
+        <Sheet.Header className="px-4 pb-0">
+          <div className="flex items-center gap-2">
+            <Sheet.Title>Sources</Sheet.Title>
+            <Badge>{available.length}</Badge>
+            {/* A toggle: filled while title search is on. */}
+            <ButtonGroup aria-label="Sources actions" className="ms-auto">
+              <Button
+                variant={title.searching ? "default" : "ghost"}
+                size="icon"
+                disabled={!installed}
+                aria-pressed={title.searching}
+                onClick={() =>
+                  // Excluded sources too: the right page may be on one dropped for no match.
+                  actions.searchAll(
+                    [...available, ...excluded].map((row) => row.source.id),
+                  )
+                }
+                aria-label="Search titles in all sources"
+              >
+                <Icon
+                  name={
+                    title.searching ? Icons.searchTitlesOff : Icons.searchTitles
                   }
-                  aria-label="Search titles in all sources"
-                >
-                  <Icon
-                    name={
-                      title.searching
-                        ? Icons.searchTitlesOff
-                        : Icons.searchTitles
-                    }
-                    size={BUTTON_ICON_SIZE}
-                    className={
-                      title.searching
-                        ? "text-primary-foreground"
-                        : "text-foreground"
-                    }
-                  />
-                </Button>
-                <Computed>
-                  {() => {
-                    const scanning = scanningAll$[key].get() === true;
-                    return (
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        // A plain browser has no sources, so nothing to scan.
-                        disabled={!installed}
-                        loading={scanning}
-                        onClick={actions.scanAll}
-                        aria-label="Scan all sources"
-                      >
-                        <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
-                      </Button>
-                    );
-                  }}
-                </Computed>
-              </ButtonGroup>
-            </View>
-            <Typography type="body-sm" muted>
-              {read > 0 ? (
-                <>
-                  Read <Badge>c.{read}</Badge>
-                </>
-              ) : (
-                "Not started"
-              )}
-            </Typography>
-          </View>
+                  size={BUTTON_ICON_SIZE}
+                  className={
+                    title.searching
+                      ? "text-primary-foreground"
+                      : "text-foreground"
+                  }
+                />
+              </Button>
+              <Computed>
+                {() => {
+                  const scanning = scanningAll$[key].get() === true;
+                  return (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      // A plain browser has no sources, so nothing to scan.
+                      disabled={!installed}
+                      loading={scanning}
+                      onClick={actions.scanAll}
+                      aria-label="Scan all sources"
+                    >
+                      <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
+                    </Button>
+                  );
+                }}
+              </Computed>
+            </ButtonGroup>
+          </div>
+          <Sheet.Description>
+            {read > 0 ? (
+              <>
+                {/* A <span>, not a Badge: a <p> can't hold the Badge's <div>. */}
+                Read{" "}
+                <span className="rounded-full bg-secondary px-1.5 py-0.5 font-medium text-foreground text-xs">
+                  c.{read}
+                </span>
+              </>
+            ) : (
+              "Not started"
+            )}
+          </Sheet.Description>
+        </Sheet.Header>
+        <View className="px-4">
           {title.searching ? (
             <SearchBar
               key={title.fieldKey}
@@ -233,7 +236,7 @@ export function SheetContent({
               renderHeader(item.id)
             ) : (
               <>
-                {!item.first && <Item.Separator className="mx-4 w-auto" />}
+                {!item.first && <hr className="mx-4" />}
                 {item.kind === "available" ? (
                   <AvailableItem
                     source={item.row.source}
