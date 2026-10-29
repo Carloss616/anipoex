@@ -22,7 +22,7 @@ export function useHoldRepeat(
 
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const stop = () => clearTimeout(timer.current);
-  useEffect(() => stop, []);
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   /** Whether it moved; at a bound it didn't, and the repeat stops. */
   const stepBy = (delta: number) => {
