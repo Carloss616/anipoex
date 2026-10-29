@@ -47,6 +47,28 @@
   }
 }
 
+/* panelui-web reads shadcn's bare names; the theme only defines --color-*. */
+@layer theme {
+  :root {
+    @variant web {
+      --background: var(--color-background);
+      --foreground: var(--color-foreground);
+      --card: var(--color-card);
+      --popover: var(--color-popover);
+      --primary: var(--color-primary);
+      --primary-foreground: var(--color-primary-foreground);
+      --muted: var(--color-muted);
+      --muted-foreground: var(--color-muted-foreground);
+      --border: var(--color-border);
+      --input: var(--color-input);
+      --info: var(--color-info);
+      --success: var(--color-success);
+      --warning: var(--color-warning);
+      --destructive: var(--color-destructive);
+    }
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

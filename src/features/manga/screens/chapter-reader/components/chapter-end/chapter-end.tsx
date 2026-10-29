@@ -1,9 +1,8 @@
-import { Alert } from "panelui-native/components/alert";
-import { Surface } from "panelui-native/components/surface";
 import { Typography } from "panelui-native/components/typography";
+import { Alert } from "panelui-web/alert";
+import { Button } from "panelui-web/button";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button } from "@/components/ui/button";
 
 export interface ChapterEndProps {
   /** "Chapter 13". */
@@ -19,11 +18,7 @@ export interface ChapterEndProps {
 }
 
 function Lines({ changes }: { changes: string[] }) {
-  return changes.map((line) => (
-    <Typography key={line} type="body-xs" muted>
-      {line}
-    </Typography>
-  ));
+  return changes.map((line) => <div key={line}>{line}</div>);
 }
 
 /** The block under the last page: the AniList save, then the way on. */
@@ -54,52 +49,45 @@ export function ChapterEnd({
       </View>
 
       {(save.state === "saved" || saving) && (
-        <Alert variant={saving ? "default" : "success"} className="items-start">
-          <Alert.Indicator />
-          <Alert.Content>
-            <Alert.Title>
-              {saving ? "Saving to AniList…" : "Saved to AniList"}
-            </Alert.Title>
+        <Alert tone={saving ? "neutral" : "success"}>
+          <Alert.Icon />
+          <Alert.Title>
+            {saving ? "Saving to AniList…" : "Saved to AniList"}
+          </Alert.Title>
+          <Alert.Description>
             <Lines changes={save.changes} />
-          </Alert.Content>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="-my-2 -mr-2.5"
-            onPress={onUndo}
-            disabled={saving}
-            accessibilityLabel="Undo the AniList save"
-          >
-            Undo
-          </Button>
+          </Alert.Description>
+          <Alert.Actions>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onUndo}
+              disabled={saving}
+              aria-label="Undo the AniList save"
+            >
+              Undo
+            </Button>
+          </Alert.Actions>
         </Alert>
       )}
 
       {confirming && (
-        <Surface bordered className="gap-3">
-          <Typography type="body-sm" weight="semibold">
-            Not in your AniList list
-          </Typography>
-          <View>
-            <Typography type="body-sm" muted>
-              Add it to your list?
-            </Typography>
+        <Alert tone="info">
+          <Alert.Icon />
+          <Alert.Title>Not in your AniList list</Alert.Title>
+          <Alert.Description>
+            Add it to your list?
             <Lines changes={save.changes} />
-          </View>
-          <View className="flex-row gap-2">
-            <Button className="flex-1" size="sm" onPress={onAdd}>
-              Add to list
-            </Button>
-            <Button
-              className="flex-1"
-              size="sm"
-              variant="outline"
-              onPress={onNotNow}
-            >
+          </Alert.Description>
+          <Alert.Actions>
+            <Button variant="outline" size="sm" onClick={onNotNow}>
               Not now
             </Button>
-          </View>
-        </Surface>
+            <Button size="sm" onClick={onAdd}>
+              Add to list
+            </Button>
+          </Alert.Actions>
+        </Alert>
       )}
 
       <View className="gap-2.5">
@@ -107,13 +95,13 @@ export function ChapterEnd({
           // Secondary while the add card above asks for the primary tap.
           <Button
             size="lg"
-            variant={confirming ? "secondary" : "primary"}
-            onPress={next.onPress}
+            variant={confirming ? "secondary" : "default"}
+            onClick={next.onPress}
           >
             {next.label}
           </Button>
         )}
-        <Button size="lg" variant="outline" onPress={onBack}>
+        <Button size="lg" variant="outline" onClick={onBack}>
           Back to chapters
         </Button>
       </View>

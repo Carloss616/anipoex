@@ -1,6 +1,5 @@
 import type { Observable } from "@legendapp/state";
 import { Memo } from "@legendapp/state/react";
-import { Surface } from "panelui-native/components/surface";
 import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,11 +21,12 @@ export function PageCount({ page$, count }: PageCountProps) {
       className="pointer-events-none absolute inset-x-0 items-center"
       style={{ bottom: insets.bottom + 24 }}
     >
-      <Surface variant="secondary" className="px-3 py-1.5" bordered elevated>
+      {/* The tab bar's pill. */}
+      <div className="rounded-full border border-border bg-surface-secondary px-3 py-1.5 shadow-sm">
         <Typography type="body-xs" muted>
           <Memo>{page$}</Memo> / {count}
         </Typography>
-      </Surface>
+      </div>
     </View>
   );
 }

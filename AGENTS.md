@@ -56,6 +56,7 @@ Legend State gotchas:
 
 - Uniwind builds native styles from every class it scans, `.web.tsx` included, and its `calc()` can't add `%` to another unit: `calc(100%-1.5rem)` logs "Invalid calc, you can't mix % with other units". Write it without the sum (the header's mask runs `to_top` from a fixed stop, `src/components/layout/header/header.web.tsx`).
 - Uniwind compiles `dark:` to `@scope (.dark)`, and Moon's and Grass's dark halves are other themes (`moon-dark`): on web the theme store also puts `dark` on `<html>` in any dark mode, so `dark:` (panelui-web's included) works in every family (`src/state/theme/theme.ts`). A `@custom-variant dark` can't change the scope.
+- panelui-web's arbitrary values read shadcn's bare variables (`var(--success)`, `var(--muted)`), while the PanelUI theme defines only `--color-*`: without the `:root` aliases in `src/global.css`, a toned `Alert` lost its tint and border. Alias a new name there when a panelui-web component reads one.
 - A react-native-web `View` defaults to `flex-shrink: 0`, so a `maxHeight` or fixed height on its parent never reaches it and a scrolling child never gets a bounded box: give it `min-h-0 shrink` (`*:min-h-0 *:shrink` on the parent, `src/components/ui/bottom-sheet/bottom-sheet.tsx`).
 
 # Accessibility (web)

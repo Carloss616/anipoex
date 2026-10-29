@@ -1,9 +1,7 @@
 import type { Observable } from "@legendapp/state";
 import { For, useValue } from "@legendapp/state/react";
 import { router, usePathname } from "expo-router";
-import { Surface } from "panelui-native/components/surface";
 import { Typography } from "panelui-native/components/typography";
-import { AnimatedPressable } from "panelui-native/primitives/animated-pressable";
 import { memo, useEffect } from "react";
 import { View } from "react-native";
 import { Progress } from "@/components/ui/progress";
@@ -53,30 +51,22 @@ const ScanCard = memo(function ScanCard({
   if (!view || hidden) return null;
 
   return (
-    <AnimatedPressable
-      onPress={() => onOpen(view.mangaId)}
-      accessibilityRole="button"
-      accessibilityLabel={`${view.name}, ${view.status}, show sources`}
-      className="w-full max-w-sm"
+    <button
+      type="button"
+      onClick={() => onOpen(view.mangaId)}
+      aria-label={`${view.name}, ${view.status}, show sources`}
+      className="flex w-full max-w-sm flex-col gap-1 rounded-2xl border border-border bg-surface-secondary p-3 text-start shadow-sm transition-[scale,background-color] hover:bg-surface-tertiary active:scale-[0.98]"
     >
-      <Surface
-        variant="secondary"
-        padding="sm"
-        className="gap-1"
-        bordered
-        elevated
-      >
-        <Typography type="small" numberOfLines={1}>
-          {view.name}
-        </Typography>
-        <Progress
-          label={view.status}
-          value={view.progress ?? 0}
-          maxValue={1}
-          indeterminate={view.progress === null}
-          size="sm"
-        />
-      </Surface>
-    </AnimatedPressable>
+      <Typography type="small" numberOfLines={1}>
+        {view.name}
+      </Typography>
+      <Progress
+        label={view.status}
+        value={view.progress ?? 0}
+        maxValue={1}
+        indeterminate={view.progress === null}
+        size="sm"
+      />
+    </button>
   );
 });
