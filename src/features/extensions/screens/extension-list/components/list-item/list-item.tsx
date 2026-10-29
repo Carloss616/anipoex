@@ -1,5 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
+import { Frame } from "panelui-web/frame";
 import { type ComponentProps, memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,7 +9,6 @@ import {
   type IconName,
   Icons,
 } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
@@ -74,36 +74,34 @@ export const ListItem = memo(function ListItem({
   const primary = useThemeColor("primary");
 
   return (
-    <Item className="px-0">
-      <SourceTile
-        initials={e.initials}
-        iconUrl={e.iconUrl}
-        color={sourceColor(e, mode)}
-      />
-      <Item.Content>
-        <Item.Title numberOfLines={1}>
-          {e.name}
+    <Frame.Row className="px-0">
+      <Frame.Media>
+        <SourceTile
+          initials={e.initials}
+          iconUrl={e.iconUrl}
+          color={sourceColor(e, mode)}
+        />
+      </Frame.Media>
+      <Frame.Content>
+        {/* Beside the text, not in it: RN views are <div>s, which a <p> can't hold. */}
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Frame.Title as="p">{e.name}</Frame.Title>
           {e.installed && (
             <Icon
               name={Icons.checkCircle}
               size={14}
               color={primary}
-              className="ml-1.5"
               accessibilityLabel="Installed"
             />
           )}
-        </Item.Title>
-        <Item.Description numberOfLines={1}>
+        </div>
+        <div className="flex min-w-0 items-center gap-1.5">
           <Badge>{e.language.code.toUpperCase()}</Badge>
-          {e.nsfw && (
-            <Badge color="destructive" className="ml-1.5">
-              18+
-            </Badge>
-          )}
-          {` · ${describeVersion(e)}`}
-        </Item.Description>
-      </Item.Content>
-      <Item.Actions>
+          {e.nsfw && <Badge color="destructive">18+</Badge>}
+          <Frame.Description>{`· ${describeVersion(e)}`}</Frame.Description>
+        </div>
+      </Frame.Content>
+      <Frame.Actions>
         {websiteUrl && (
           <Button
             size="icon"
@@ -149,7 +147,7 @@ export const ListItem = memo(function ListItem({
             />
           </Menu>
         )}
-      </Item.Actions>
-    </Item>
+      </Frame.Actions>
+    </Frame.Row>
   );
 });

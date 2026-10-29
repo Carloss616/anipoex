@@ -1,7 +1,5 @@
 import type { ObservablePrimitive } from "@legendapp/state";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { Surface } from "panelui-native/components/surface";
-import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Button } from "panelui-web/button";
 import { useMemo } from "react";
@@ -18,7 +16,6 @@ import {
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { Icon, Icons } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import { Menu } from "@/components/ui/menu";
 import {
   type Extension,
@@ -134,7 +131,7 @@ export function ListContent({
               <SectionHeader section={row.section} />
             ) : (
               <>
-                {row.divided && <Item.Separator />}
+                {row.divided && <hr />}
                 <ListItem extension={row.extension} />
               </>
             )
@@ -171,14 +168,13 @@ function LanguageMenu({
   );
 }
 
+/** Frame.Section's title, on the page's background: it pins over the rows. */
 function SectionHeader({ section }: { section: ExtensionSection }) {
   return (
-    <View className="flex-row items-start pt-6 pb-2">
-      <Surface className="px-1.5 py-0.5" elevated>
-        <Typography type="small" weight="semibold" muted>
-          {`${section.title} · ${section.data.length}`}
-        </Typography>
-      </Surface>
+    <View className="pt-6">
+      <p className="bg-background px-4 pt-2.5 pb-1.5 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+        {`${section.title} · ${section.data.length}`}
+      </p>
     </View>
   );
 }
