@@ -1,4 +1,3 @@
-import { Surface } from "panelui-native/components/surface";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { View } from "react-native";
@@ -6,7 +5,6 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
-import { Item } from "@/components/ui/item";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { ChapterItem } from "../chapter-item";
@@ -38,8 +36,8 @@ export interface DetailListProps {
 }
 
 /**
- * Web: the chapters as list items, each row a slice of one card. Not
- * `elevated`: a shadow per row would draw a seam over the row above.
+ * Web: the chapters as Frame rows, each a slice of one card. No shadow: one
+ * per row would draw a seam over the row above.
  */
 export function DetailList({
   hero,
@@ -81,18 +79,17 @@ export function DetailList({
       }
       renderItem={({ item, index }) => (
         <View className="gutters px-gx">
-          <Surface
-            padding="none"
+          <div
             data-attached="column"
             className={cn(
-              "w-full",
+              "w-full overflow-hidden rounded-3xl bg-card text-card-foreground",
               index > 0 && "rounded-t-none",
               index < last && "rounded-b-none",
             )}
           >
-            {index > 0 && <Item.Separator className="mx-4 w-auto" />}
+            {index > 0 && <hr className="mx-4" />}
             <ChapterItem chapter={item} mediaId={mediaId} entryId={entryId} />
-          </Surface>
+          </div>
         </View>
       )}
       ListEmptyComponent={

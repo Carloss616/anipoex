@@ -1,6 +1,6 @@
 import type { Observable } from "@legendapp/state";
 import { Typography } from "panelui-native/components/typography";
-import { Button } from "@/components/ui/button";
+import { Button } from "panelui-web/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useSourcePicker } from "../../hooks/use-source-picker";
@@ -24,7 +24,7 @@ export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
 
   return (
     <>
-      <Button variant="ghost" size="sm" onPress={picker.open}>
+      <Button variant="ghost" size="sm" onClick={picker.open}>
         <Typography type="body-sm" muted>
           {picker.label}
         </Typography>
@@ -34,9 +34,8 @@ export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
         <Button
           size="icon"
           variant="ghost"
-          className="size-9"
-          onPress={picker.openWeb}
-          accessibilityLabel={`Open on ${picker.label}`}
+          onClick={picker.openWeb}
+          aria-label={`Open on ${picker.label}`}
         >
           <Icon
             name={Icons.website}

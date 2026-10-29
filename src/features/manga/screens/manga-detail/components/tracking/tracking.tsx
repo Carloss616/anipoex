@@ -1,8 +1,8 @@
 import { Typography } from "panelui-native/components/typography";
+import { Button } from "panelui-web/button";
 import { useState } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
@@ -18,8 +18,9 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
     <>
       <Button
         variant="secondary"
-        onPress={() => setIsPresented(true)}
-        className="h-auto w-full rounded-full py-4"
+        shape="pill"
+        onClick={() => setIsPresented(true)}
+        className="h-auto w-full py-4"
       >
         <View className="w-full gap-2">
           <View className="flex-row items-center gap-2">

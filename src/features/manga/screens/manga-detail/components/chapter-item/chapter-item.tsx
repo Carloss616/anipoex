@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
 import { cn } from "panelui-native/utils/cn";
+import { Button } from "panelui-web/button";
+import { Frame } from "panelui-web/frame";
 import { View } from "react-native";
-import { Button } from "@/components/ui/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Item } from "@/components/ui/item";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { noop } from "@/utils/utils";
 import { useChapterRead } from "./hooks/use-chapter-read";
@@ -23,8 +23,8 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
 
   return (
     <View>
-      <Item
-        onPress={() =>
+      <Frame.Row
+        onClick={() =>
           router.push({
             pathname: "/manga/[id]/reader",
             params: {
@@ -33,22 +33,22 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
             },
           })
         }
+        data-ring="inset"
         // Dimmed, not `disabled`: a read chapter still opens.
         className={cn("pe-17", read && "opacity-[0.64]")}
       >
-        <Item.Content>
-          <Item.Title numberOfLines={1}>{chapter.title}</Item.Title>
-          <Item.Description>{chapter.date}</Item.Description>
-        </Item.Content>
-      </Item>
+        <Frame.Content>
+          <Frame.Title as="p">{chapter.title}</Frame.Title>
+          <Frame.Description>{chapter.date}</Frame.Description>
+        </Frame.Content>
+      </Frame.Row>
       {/* Over the row, not in it: a <button> can't hold buttons. */}
-      <Item.Actions className="absolute inset-e-4 inset-y-0">
+      <Frame.Actions className="absolute inset-e-4 inset-y-0">
         <Button
           size="icon"
-          className="size-9"
           variant="outline"
-          onPress={noop}
-          accessibilityLabel={`Download chapter ${chapter.title}`}
+          onClick={noop}
+          aria-label={`Download chapter ${chapter.title}`}
         >
           <Icon
             name={Icons.download}
@@ -56,7 +56,7 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
             className="text-primary"
           />
         </Button>
-      </Item.Actions>
+      </Frame.Actions>
     </View>
   );
 }
