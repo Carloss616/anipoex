@@ -1,6 +1,6 @@
 import { Typography } from "panelui-native/components/typography";
+import { Button } from "panelui-web/button";
 import { View } from "react-native";
-import { Button } from "@/components/ui/button";
 import { useSignIn } from "./hooks/use-sign-in";
 
 export function SignIn() {
@@ -14,10 +14,10 @@ export function SignIn() {
       <Typography type="body-xs" align="center" muted>
         Sync your reading progress with AniList.
       </Typography>
-      <Button variant="social" onPress={signIn} disabled={isBusy}>
+      <Button onClick={signIn} disabled={isBusy}>
         {isBusy ? "Connecting..." : "Sign in with AniList"}
       </Button>
-      <Button variant="ghost" onPress={close} disabled={isBusy}>
+      <Button variant="ghost" onClick={close} disabled={isBusy}>
         Not now
       </Button>
     </View>

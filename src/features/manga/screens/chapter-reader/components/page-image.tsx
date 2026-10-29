@@ -1,9 +1,11 @@
 import { Image } from "expo-image";
+import { Button as NativeButton } from "panelui-native/components/button";
 import { Typography } from "panelui-native/components/typography";
+import { Button as WebButton } from "panelui-web/button";
 import { memo, useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
-import { Button } from "@/components/ui/button";
+import { Platform, Pressable, View } from "react-native";
 import { runtime, type SourcePage } from "@/features/extensions";
+import { useThemeM3Colors } from "@/hooks/use-theme";
 
 const PLACEHOLDER_RATIO = 0.7;
 
@@ -23,6 +25,7 @@ export const PageImage = memo(function PageImage({
   onPress,
   onRetry,
 }: PageImageProps) {
+  const m3 = useThemeM3Colors();
   const [ratio, setRatio] = useState(PLACEHOLDER_RATIO);
   // The page that failed: a reload hands new page objects, which mount a fresh image.
   const [failed, setFailed] = useState<SourcePage>();
@@ -50,14 +53,20 @@ export const PageImage = memo(function PageImage({
     return (
       <View
         className="w-full items-center justify-center gap-3 bg-muted"
-        style={{ aspectRatio: ratio }}
+        style={{ aspectRatio: ratio, backgroundColor: m3?.onSurfaceVariant }}
       >
         <Typography type="small" muted>
           Couldn't load page {page.index + 1}
         </Typography>
-        <Button variant="secondary" size="sm" onPress={onRetry}>
-          Retry
-        </Button>
+        {Platform.OS === "web" ? (
+          <WebButton variant="secondary" size="sm" onClick={onRetry}>
+            Retry
+          </WebButton>
+        ) : (
+          <NativeButton variant="secondary" size="sm" onPress={onRetry}>
+            Retry
+          </NativeButton>
+        )}
       </View>
     );
   }
@@ -67,7 +76,7 @@ export const PageImage = memo(function PageImage({
       onPress={onPress}
       accessibilityLabel={label}
       className="w-full bg-muted"
-      style={{ aspectRatio: ratio }}
+      style={{ aspectRatio: ratio, backgroundColor: m3?.onSurfaceVariant }}
     >
       {uri ? (
         <Image
