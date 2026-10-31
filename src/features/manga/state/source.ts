@@ -61,7 +61,7 @@ export async function selectSource(
     return match;
   } catch (error) {
     if (ticket !== tickets[mangaId]) return;
-    toast.destructive(`Couldn't search ${source.name}`);
+    toast.error(`Couldn't search ${source.name}`);
     return { error };
   } finally {
     if (ticket === tickets[mangaId]) matching$[mangaId].set(false);

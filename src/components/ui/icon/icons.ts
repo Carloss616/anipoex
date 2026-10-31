@@ -138,6 +138,11 @@ export const Icons = {
     web: "hourglass",
   }),
 
+  info: Icon.select({
+    ios: "info.circle",
+    android: require("@expo/material-symbols/info.xml"),
+    web: "info",
+  }),
   error: Icon.select({
     ios: "exclamationmark.triangle",
     android: require("@expo/material-symbols/warning.xml"),

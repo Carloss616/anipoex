@@ -12,7 +12,7 @@ export function useSignOut() {
     const failed = results.find((r) => r.status === "rejected");
 
     if (failed) {
-      toast.destructive(
+      toast.error(
         failed.reason instanceof Error
           ? failed.reason.message
           : "Something went wrong",

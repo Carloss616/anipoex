@@ -126,7 +126,7 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
       )}
       {...props}
     >
-      <div className="flex items-center gap-2 rounded-full border border-border bg-surface-secondary p-1.5 shadow-sm">
+      <View className="flex-row items-center gap-2 rounded-full border border-border bg-surface-secondary p-1.5 shadow-sm">
         <PanelTabs
           value={value ?? ROUTES[0].name}
           // router.navigate would push the tab's index again.
@@ -139,7 +139,7 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
           </PanelTabs.List>
         </PanelTabs>
         <ThemeToggle />
-      </div>
+      </View>
     </View>
   );
 }

@@ -42,7 +42,7 @@ let latest = 0;
 export async function loadExtensions(): Promise<void> {
   const mine = ++latest;
   const installed = await runtime.installed().catch((error) => {
-    toast.destructive(message(error));
+    toast.error(message(error));
     return undefined;
   });
   const repos = await Promise.all(
@@ -50,7 +50,7 @@ export async function loadExtensions(): Promise<void> {
       try {
         return { repo, entries: await fetchIndex(repo) };
       } catch {
-        toast.destructive(`Couldn't load ${repo.name}`);
+        toast.error(`Couldn't load ${repo.name}`);
         return { repo, entries: [] };
       }
     }),
@@ -70,7 +70,7 @@ export async function loadExtensions(): Promise<void> {
     );
   } catch (error) {
     // A malformed entry keeps the previous list instead of rejecting unseen.
-    toast.destructive(message(error));
+    toast.error(message(error));
   }
 }
 
@@ -85,7 +85,7 @@ async function perform(
     await task(extension);
     return true;
   } catch (error) {
-    toast.destructive(message(error));
+    toast.error(message(error));
     return false;
   }
 }

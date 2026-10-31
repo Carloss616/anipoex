@@ -43,11 +43,14 @@ const errorLink = new ErrorLink(({ error, operation }) => {
 
   const { operationName, operationType, query, variables } = operation;
 
-  toast.destructive(typeof message === "string" ? message : error.message, {
+  toast.error(typeof message === "string" ? message : error.message, {
     // No Retry for mutations: re-sending from here would skip the caller's `update`.
     ...(operationType === OperationTypeNode.QUERY && {
-      actionLabel: "Retry",
-      onAction: () => retryQuery({ operationName, query, variables, message }),
+      action: {
+        label: "Retry",
+        onAction: () =>
+          retryQuery({ operationName, query, variables, message }),
+      },
     }),
   });
 });

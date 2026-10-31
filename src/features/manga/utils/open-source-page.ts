@@ -6,5 +6,5 @@ import { openExternal } from "@/utils/open-external";
 export async function openSourcePage(sourceId: string, url: string) {
   const page = await runtime.mangaWebUrl(sourceId, url).catch(() => null);
   if (!page || !openExternal(page))
-    toast.destructive("Couldn't open this manga's page");
+    toast.error("Couldn't open this manga's page");
 }

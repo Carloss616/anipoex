@@ -9,6 +9,9 @@ const config = withUniwindConfig(getDefaultConfig(__dirname), {
   extraThemes: EXTRA_THEMES,
 });
 
+config.transformer.uniwindTransformerPath = config.transformerPath;
+config.transformerPath = require.resolve("./metro.transformer.js");
+
 const resolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

@@ -28,7 +28,7 @@ export function useRepoList() {
     try {
       setPending(await fetchRepo(url));
     } catch (error) {
-      toast.destructive(error instanceof Error ? error.message : String(error));
+      toast.error(error instanceof Error ? error.message : String(error));
     } finally {
       adding$.set(false);
     }

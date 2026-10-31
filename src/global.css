@@ -1,35 +1,21 @@
-@import "tailwindcss";
-@import "uniwind";
-@import "panelui-native/theme.css";
+/* Web only: native compiles global.base.css alone (metro.transformer.js). */
+@import "./global.base.css";
 
-@source "../node_modules/panelui-native/src";
+/* Its calc()s mix % with other units, which Uniwind's native styles can't. */
 @source "../node_modules/panelui-web/dist";
 
 /* `not-` can't negate Uniwind's `disabled`; panelui-web hovers need this. */
 @custom-variant not-disabled (&:not(:disabled, [aria-disabled="true"]));
 
-/* `static` so @/hooks/use-font reads all four, className or not. */
-@theme static {
-  --font-normal: "MapleMono-Regular";
-  --font-medium: "MapleMono-Medium";
-  --font-semibold: "MapleMono-SemiBold";
-  --font-bold: "MapleMono-Bold";
-}
-
 @theme {
-  /* Tailwind's own is too weak; this re-points every `ease-out` in the app. */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  /* For boxes that open or close by their own size: `ease-out` front-loads too much. */
-  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
-
   --spacing-gx: calc(var(--spacing) * 4);
   --spacing-gt: calc(var(--spacing) * 4);
   --spacing-gb: calc(var(--spacing) * 4);
 }
 
-/* Web only: native screens take `GUTTER` from @/components/native/constants. */
+/* Native screens take `GUTTER` from @/components/native/constants. */
 @utility gutters {
-  --spacing-gb: calc(var(--spacing) * 22.5);
+  --spacing-gb: calc(var(--spacing) * 20.5);
   @variant sm {
     --spacing-gx: calc(var(--spacing) * 5);
   }
@@ -50,22 +36,20 @@
 /* panelui-web reads shadcn's bare names; the theme only defines --color-*. */
 @layer theme {
   :root {
-    @variant web {
-      --background: var(--color-background);
-      --foreground: var(--color-foreground);
-      --card: var(--color-card);
-      --popover: var(--color-popover);
-      --primary: var(--color-primary);
-      --primary-foreground: var(--color-primary-foreground);
-      --muted: var(--color-muted);
-      --muted-foreground: var(--color-muted-foreground);
-      --border: var(--color-border);
-      --input: var(--color-input);
-      --info: var(--color-info);
-      --success: var(--color-success);
-      --warning: var(--color-warning);
-      --destructive: var(--color-destructive);
-    }
+    --background: var(--color-background);
+    --foreground: var(--color-foreground);
+    --card: var(--color-card);
+    --popover: var(--color-popover);
+    --primary: var(--color-primary);
+    --primary-foreground: var(--color-primary-foreground);
+    --muted: var(--color-muted);
+    --muted-foreground: var(--color-muted-foreground);
+    --border: var(--color-border);
+    --input: var(--color-input);
+    --info: var(--color-info);
+    --success: var(--color-success);
+    --warning: var(--color-warning);
+    --destructive: var(--color-destructive);
   }
 }
 

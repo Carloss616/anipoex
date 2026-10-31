@@ -54,14 +54,11 @@
               "panelui-native/components/progress": "Import from @/components/ui/progress",
               "panelui-native/components/rating": "Import from @/components/ui/rating",
               "panelui-native/components/spinner": "Import from @/components/ui/loader",
+              "panelui-native/components/toast": "Import from @/components/ui/toast",
               "panelui-native/primitives/animated-pressable": "Use react-native's Pressable with PRESS from @/components/ui/press",
-              "react-aria": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
+              "sonner": "Import from @/components/ui/toast"
             },
             "patterns": [
-              {
-                "group": ["react-aria/*"],
-                "message": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
-              },
               {
                 "group": ["@expo/ui"],
                 "importNamePattern": "BottomSheet",
@@ -192,28 +189,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>",
-                  "react-aria": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
-                },
-                "patterns": [
-                  {
-                    "group": ["react-aria/*"],
-                    "message": "Only the .web.tsx files of src/components/ui/{arrow-key-group,hidden-range} import react-aria"
-                  }
-                ]
+                  "panelui-native": "Import scoped: panelui-native/components/<component>, /provider, /theme or /primitives/<primitive>"
+                }
               }
             }
           }
         }
-      }
-    },
-    {
-      "includes": [
-        "src/components/ui/arrow-key-group/*.web.tsx",
-        "src/components/ui/hidden-range/*.web.tsx"
-      ],
-      "linter": {
-        "rules": { "style": { "noRestrictedImports": "off" } }
       }
     },
     {

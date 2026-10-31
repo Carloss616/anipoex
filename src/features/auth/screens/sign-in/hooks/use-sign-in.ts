@@ -35,7 +35,7 @@ export function useSignIn() {
       }
       // No navigation: the root sign-in guard redirects once the token is set.
     } catch (cause) {
-      toast.destructive(
+      toast.error(
         cause instanceof Error ? cause.message : "Something went wrong",
       );
     } finally {

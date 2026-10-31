@@ -17,7 +17,7 @@ export function useDns() {
     setDns(next);
     runtime.setDns(next).catch(() => {
       setDns(previous);
-      toast.destructive("Couldn't change the DNS");
+      toast.error("Couldn't change the DNS");
     });
   };
 

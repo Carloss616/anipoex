@@ -7,7 +7,7 @@ import { align, fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
 import { SafeAreaView as SafeAreaViewBase } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 import { Host } from "../host";
-import type { ShowToast } from "./toast";
+import type { ShowToast, Toast } from "./toast";
 
 const SafeAreaView = withUniwind(SafeAreaViewBase);
 
@@ -39,18 +39,19 @@ const show: ShowToast = (message, options) => {
   host
     ?.showSnackbar({
       message,
-      actionLabel: options?.actionLabel,
+      actionLabel: options?.action?.label,
       withDismissAction: true,
     })
     .then((result) => {
-      if (result === "actionPerformed") options?.onAction?.();
+      if (result === "actionPerformed") options?.action?.onAction();
     });
 };
 
 // M3 snackbars carry no severity color, so every variant is the same snackbar.
-export const toast = Object.assign(show, {
+export const toast: Toast = Object.assign(show, {
   info: show,
   success: show,
   warning: show,
-  destructive: show,
+  error: show,
+  loading: show,
 });
