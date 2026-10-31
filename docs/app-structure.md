@@ -108,7 +108,7 @@ export default function AnimeDetailScreen() {
 ### Hooks, utils and constants
 
 - A hook extracted from a screen or component goes in that folder's `hooks/` (`status/hooks/use-status.ts`), never loose next to the component.
-- A non-hook helper goes in that folder's `utils/` (`meta/utils/meta-lines.ts`).
+- A non-hook helper goes in that folder's `utils/` (`source-sheet/utils/row-content.ts`).
 - The only loose files allowed are one generic `constants.ts` and/or one generic `utils.ts` at the folder root, while it's the only file of its kind there. A second helper moves them all into `utils/`.
 
 ### Code style
@@ -143,7 +143,7 @@ The default file takes the same extension as its platform files, even without JS
 
 A platform file can import **types** from `./chart`, but never runtime values: inside `chart.ios.tsx`, `./chart` resolves back to `chart.ios.tsx` itself. Logic shared by every platform lives in the folder's `hooks/` or `utils/`.
 
-A module that only does something on web (keyboard behavior, a web-only wrapper) keeps the default file as the native passthrough, which owns the props, and puts the web code in `<name>.web.tsx` (`src/components/ui/overlay-scope/`).
+A module that only does something on web (keyboard behavior, a web-only wrapper) keeps the default file as the native passthrough, which owns the props, and puts the web code in `<name>.web.tsx` (`src/components/ui/hidden-range/`).
 
 ### Native screens
 
