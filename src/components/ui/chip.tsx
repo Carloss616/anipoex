@@ -7,23 +7,25 @@ import { cn } from "panelui-native/utils/cn";
 export * from "panelui-native/components/chip";
 
 const HOVER_VARIANTS = {
-  default: "hover:bg-surface-tertiary/90 active:bg-accent",
-  primary: "hover:bg-primary/90 active:bg-primary",
-  outline: "hover:bg-secondary/90 active:bg-accent",
-  info: "hover:bg-info/25 active:bg-info/30",
-  success: "hover:bg-success/25 active:bg-success/30",
-  warning: "hover:bg-warning/25 active:bg-warning/30",
-  destructive: "hover:bg-destructive/25 active:bg-destructive/30",
+  default: "hover:not-disabled:bg-secondary/80",
+  primary: "hover:not-disabled:bg-primary/90",
+  outline:
+    "hover:not-disabled:bg-accent hover:not-disabled:text-accent-foreground",
+  info: "hover:not-disabled:bg-info-soft focus-visible:ring-info/40",
+  success: "hover:not-disabled:bg-success-soft focus-visible:ring-success/40",
+  warning: "hover:not-disabled:bg-warning-soft focus-visible:ring-warning/40",
+  destructive:
+    "hover:not-disabled:bg-destructive-soft focus-visible:ring-destructive/40",
 } satisfies Record<NonNullable<ChipProps["variant"]>, string>;
 
 function ChipRoot({ className, ...props }: ChipProps) {
   const variant = props.variant ?? "default";
   return (
     <PanelChip
-      data-variant={variant}
       {...props}
       className={cn(
         "transition-colors",
+        "outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
         props.onPress && HOVER_VARIANTS[variant],
         className,
       )}
@@ -31,5 +33,5 @@ function ChipRoot({ className, ...props }: ChipProps) {
   );
 }
 
-/** PanelUI's Chip with hover on web when pressable; `data-variant` sets its ring color. */
+/** PanelUI's Chip with hover on web when pressable */
 export const Chip = Object.assign(ChipRoot, { Label: PanelChip.Label });

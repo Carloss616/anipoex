@@ -25,7 +25,7 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
 
   const options = (
     <Frame variant="plain" role="radiogroup" aria-label="Status">
-      <Frame.Panel>
+      <Frame.Panel data-attached="column">
         {MANGA_STATUS_ENTRIES.map(([status, title]) => (
           <Frame.Row
             key={status}
