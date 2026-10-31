@@ -1,9 +1,9 @@
+import { Frame } from "panelui-web/frame";
 import { Sheet } from "panelui-web/sheet";
 import { SHEET_INSET } from "@/components/ui/bottom-sheet";
-import { RadioGroup } from "@/components/ui/radio-group";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
-import type { MediaListStatus } from "@/graphql/types.generated";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
 import { useStatus } from "./hooks/use-status";
@@ -24,20 +24,31 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
   );
 
   const options = (
-    <RadioGroup
-      value={selected}
-      onValueChange={(value) => setSelected(value as MediaListStatus)}
-      data-attached="column"
-    >
-      {MANGA_STATUS_ENTRIES.map(([status, title]) => (
-        <RadioGroup.Item
-          key={status}
-          value={status}
-          label={title}
-          className="w-full"
-        />
-      ))}
-    </RadioGroup>
+    <Frame variant="plain" role="radiogroup" aria-label="Status">
+      <Frame.Panel>
+        {MANGA_STATUS_ENTRIES.map(([status, title]) => (
+          <Frame.Row
+            key={status}
+            role="radio"
+            aria-checked={status === selected}
+            onClick={() => setSelected(status)}
+          >
+            <Frame.Content>
+              <Frame.Title as="p">{title}</Frame.Title>
+            </Frame.Content>
+            {status === selected && (
+              <Frame.Actions>
+                <Icon
+                  name={Icons.check}
+                  size={BUTTON_ICON_SIZE}
+                  className="text-primary"
+                />
+              </Frame.Actions>
+            )}
+          </Frame.Row>
+        ))}
+      </Frame.Panel>
+    </Frame>
   );
 
   return (
