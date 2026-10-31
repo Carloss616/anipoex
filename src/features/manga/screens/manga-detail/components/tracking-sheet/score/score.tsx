@@ -16,7 +16,6 @@ export interface ScoreProps {
 /** The viewer's own score format decides the control: stars, or a long scale. */
 export function Score({ value, onCancel, onConfirm }: ScoreProps) {
   const { scale, score, change } = useScore(value);
-  const RatingOrSlider = scale.max > 10 ? Slider : Rating;
 
   return (
     <>
@@ -30,19 +29,27 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
       </Sheet.Header>
 
       <Sheet.Body className={SHEET_INSET.body}>
-        <View className="items-center">
-          <BottomSheet.LockDrag>
-            <RatingOrSlider
+        <BottomSheet.LockDrag className="items-center">
+          {scale.max > 10 ? (
+            <Slider
+              variant="line"
+              color="primary"
+              label="Score"
               value={score}
-              min={0}
               max={scale.max}
               step={scale.step}
+              onValueChange={change}
+            />
+          ) : (
+            <Rating
+              value={score}
+              max={scale.max}
               precision={scale.step}
               onValueChange={change}
               accessibilityLabel="Score"
             />
-          </BottomSheet.LockDrag>
-        </View>
+          )}
+        </BottomSheet.LockDrag>
       </Sheet.Body>
 
       <Footer

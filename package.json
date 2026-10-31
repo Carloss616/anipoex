@@ -32,7 +32,7 @@
     "expo-widgets": "~58.0.24",
     "fflate": "0.8.3",
     "panelui-native": "^0.115.0",
-    "panelui-web": "^0.9.1",
+    "panelui-web": "^0.10.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.0",

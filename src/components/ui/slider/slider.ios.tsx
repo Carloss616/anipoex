@@ -3,8 +3,8 @@ import {
   accessibilityLabel,
   disabled as disabledModifier,
 } from "@expo/ui/swift-ui/modifiers";
-import type { SliderProps } from "panelui-native/components/slider";
 import { EnsureHost } from "../host";
+import type { SliderProps } from "./slider";
 
 /**
  * iOS Slider: PanelUI's props on a SwiftUI `Slider`, track only. SwiftUI hides

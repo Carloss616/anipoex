@@ -1,6 +1,6 @@
 import { Slider as ComposeSlider } from "@expo/ui/jetpack-compose";
-import type { SliderProps } from "panelui-native/components/slider";
 import { EnsureHost } from "../host";
+import type { SliderProps } from "./slider";
 
 /**
  * Android Slider: Compose takes `steps` as the count of stops *between* the

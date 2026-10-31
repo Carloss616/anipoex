@@ -6,8 +6,8 @@ const RING =
 
 /**
  * A visually hidden native range input that drives the control it wraps, as
- * an accessible slider does: PanelUI's slider and rating take no keyboard
- * focus on web, and the browser gives the input arrows, Home/End and Page keys.
+ * an accessible slider does: PanelUI's rating takes no keyboard focus on web,
+ * and the browser gives the input arrows, Home/End and Page keys.
  */
 export function HiddenRange({
   value,
