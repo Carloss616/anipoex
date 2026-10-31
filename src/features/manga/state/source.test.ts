@@ -12,10 +12,10 @@ const search = mock(
       },
     ),
 );
-const destructive = mock((_label: string) => {});
+const toastError = mock((_label: string) => {});
 
 mock.module("@/features/extensions", () => ({ runtime: { search } }));
-mock.module("@/components/ui/toast", () => ({ toast: { destructive } }));
+mock.module("@/components/ui/toast", () => ({ toast: { error: toastError } }));
 mock.module("@/state/observable-persist", () => ({
   ObservablePersist: class {
     getTable() {
@@ -49,7 +49,7 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 beforeEach(() => {
   search.mockClear();
-  destructive.mockClear();
+  toastError.mockClear();
   source$.set({});
 });
 
@@ -141,7 +141,7 @@ describe("selectSource", () => {
     expect(
       await selectSource(4, A, { search: ["boom"], all: ["boom"] }),
     ).toHaveProperty("error");
-    expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
+    expect(toastError).toHaveBeenCalledWith("Couldn't search Alpha");
     expect(source$[4].get()).toEqual({ sourceId: "a" });
     expect(matching$[4].get()).toBe(false);
   });
@@ -170,7 +170,7 @@ describe("deselectSource", () => {
 describe("search timeout", () => {
   it("ends a hung search like a failed one so a retry can run", async () => {
     await selectSource(10, A, { search: ["hang"], all: ["hang"] }, 10);
-    expect(destructive).toHaveBeenCalledWith("Couldn't search Alpha");
+    expect(toastError).toHaveBeenCalledWith("Couldn't search Alpha");
     expect(source$[10].get()).toEqual({ sourceId: "a" });
     expect(matching$[10].get()).toBe(false);
     const retry = resumeSource(10, A, { search: ["ok"], all: ["ok"] });

@@ -42,13 +42,13 @@ const installed = mock(async () => [
     sources: [],
   },
 ]);
-const destructive = mock((_label: string) => {});
+const toastError = mock((_label: string) => {});
 const repos$ = observable<Repo[]>([BAD, GOOD]);
 
 mock.module("../runtime", () => ({
   runtime: { install, installed, uninstall: mock(async () => {}) },
 }));
-mock.module("@/components/ui/toast", () => ({ toast: { destructive } }));
+mock.module("@/components/ui/toast", () => ({ toast: { error: toastError } }));
 mock.module("./repos", () => ({ repos$ }));
 
 const {
@@ -70,7 +70,7 @@ const fetched: string[] = [];
 beforeEach(() => {
   install.mockClear();
   installed.mockClear();
-  destructive.mockClear();
+  toastError.mockClear();
   fetched.length = 0;
   hold = undefined;
   extensionOperations$.set({});
@@ -95,7 +95,7 @@ describe("loadExtensions", () => {
         .map((e) => e.id)
         .sort(),
     ).toEqual(["pkg.foo", "pkg.local"]);
-    expect(destructive).toHaveBeenCalledWith("Couldn't load Bad");
+    expect(toastError).toHaveBeenCalledWith("Couldn't load Bad");
   });
 });
 
@@ -108,7 +108,7 @@ describe("loadExtensions failures", () => {
     );
     await loadExtensions();
     expect(extensions$.peek()).toEqual(before);
-    expect(destructive).toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalled();
   });
 
   it("keeps the installed list when the runtime fails", async () => {
@@ -117,7 +117,7 @@ describe("loadExtensions failures", () => {
       throw new Error("boom");
     });
     await loadExtensions();
-    expect(destructive).toHaveBeenCalledWith("boom");
+    expect(toastError).toHaveBeenCalledWith("boom");
     expect(installed$.peek().map((e) => e.pkg)).toEqual(["pkg.local"]);
     expect(extensions$.peek().some((e) => e.id === "pkg.local")).toBe(true);
   });
@@ -210,7 +210,7 @@ describe("installExtension", () => {
     await loadExtensions();
     await installExtension("pkg.local");
     expect(install).not.toHaveBeenCalled();
-    expect(destructive).toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalled();
   });
 });
 

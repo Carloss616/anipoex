@@ -32,7 +32,7 @@ const chapters = mock((sourceId: string, url: string, _title: string) => {
 });
 
 mock.module("@/features/extensions", () => ({ runtime: { search, chapters } }));
-mock.module("@/components/ui/toast", () => ({ toast: { destructive() {} } }));
+mock.module("@/components/ui/toast", () => ({ toast: { error() {} } }));
 const activity = {
   progress: mock((_done: number) => {}),
   end: mock((_found: number) => {}),
