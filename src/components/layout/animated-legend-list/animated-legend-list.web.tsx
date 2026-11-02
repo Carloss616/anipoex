@@ -2,6 +2,7 @@ import type { LegendListRef } from "@legendapp/list/react-native";
 import * as LegendListModule from "@legendapp/list/react-native";
 import { LegendList } from "@legendapp/list/react-native";
 import {
+  type CSSProperties,
   createContext,
   type ReactNode,
   type Ref,
@@ -23,7 +24,11 @@ const { POSITION_OUT_OF_VIEW, peek$, useArr$, useStateContext } = (
       peek$: (ctx: unknown, key: string) => unknown;
       useArr$: (keys: string[]) => unknown[];
       useStateContext: () => {
-        state: { scrollingTo?: unknown; props: { data: unknown } };
+        state: {
+          scrollingTo?: unknown;
+          positions: number[];
+          props: { data: unknown; stickyHeaderIndicesArr: number[] };
+        };
       };
     };
   }
@@ -40,6 +45,10 @@ interface PositionViewProps {
   children?: ReactNode;
 }
 
+interface StickyPositionViewProps extends PositionViewProps {
+  stickyHeaderConfig?: { offset?: number };
+}
+
 /**
  * The browser build of LegendList whose cells take a Reanimated layout
  * transition. The package's AnimatedLegendList would also swap the list's
@@ -54,7 +63,10 @@ export function AnimatedLegendList<T>({
     <ItemLayoutAnimationContext value={itemLayoutAnimation}>
       <LegendList
         {...(props as React.ComponentProps<typeof LegendList<T>>)}
-        {...{ positionComponentInternal: PositionView }}
+        {...{
+          positionComponentInternal: PositionView,
+          stickyPositionComponentInternal: StickyPositionView,
+        }}
       />
     </ItemLayoutAnimationContext>
   );
@@ -102,5 +114,53 @@ function PositionView({
     >
       {children}
     </Reanimated.View>
+  );
+}
+
+/**
+ * The package pins a header only at the scroller's edge, then jumps it to
+ * `offset`. Here it sits in a track that ends at the next header, so the
+ * browser pins it at `offset` and the next one pushes it out.
+ */
+function StickyPositionView({
+  id,
+  style,
+  refView,
+  stickyHeaderConfig,
+  children,
+}: StickyPositionViewProps) {
+  // `positions` mutates in place: the Compiler would keep the first `next`.
+  "use no memo";
+  const { state } = useStateContext();
+  const [position = POSITION_OUT_OF_VIEW, itemIndex] = useArr$([
+    `containerPosition${id}`,
+    `containerItemIndex${id}`,
+    "totalSize",
+  ]) as [number | undefined, number];
+  const sticky = state.props.stickyHeaderIndicesArr;
+  const next = state.positions[sticky[sticky.indexOf(itemIndex) + 1]];
+
+  return (
+    <div
+      style={{
+        ...(style as CSSProperties),
+        bottom: next === undefined ? 0 : undefined,
+        height: next === undefined ? undefined : next - position,
+        pointerEvents: "none",
+        top: position,
+        zIndex: itemIndex + 1000,
+      }}
+    >
+      <div
+        ref={refView as unknown as Ref<HTMLDivElement>}
+        style={{
+          pointerEvents: "auto",
+          position: "sticky",
+          top: stickyHeaderConfig?.offset ?? 0,
+        }}
+      >
+        {children}
+      </div>
+    </div>
   );
 }

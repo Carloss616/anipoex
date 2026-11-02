@@ -39,6 +39,7 @@ Legend State gotchas:
 - `List.ForEach` / `LazyColumn.Items` recycle rows by slot: an insert or removal shifts every following slot, so those rows re-render whatever their props. `recycling={false}` keys by item, for short lists with per-row actions.
 - Inside a `Host`, a parent re-render re-runs every row callback and a new `data` array bumps the list's revision: keep state out of the list's parent.
 - Item animations are `itemLayoutAnimation` on the house `LegendList`. On web the package's `AnimatedLegendList` swaps the scroller for react-native-web's `ScrollView` and leaves rows blank on a fast scroll, so `src/components/layout/animated-legend-list/animated-legend-list.web.tsx` animates the browser build's cells through its untyped `internal` signals: re-check it when `@legendapp/list` is upgraded.
+- LegendList pins a sticky header only at the scroller's edge and then jumps it to `stickyHeaderConfig.offset`, so under a floating web header it ran to the screen edge first. The same file's sticky cell lets the browser pin it, in a track that ends at the next header. Only lists with `itemLayoutAnimation` get that cell.
 - LegendList's web cells carry an inline `contain: paint`, which clips a card's shadow and lean past the cell: the grid drops it on hover from `contentContainerClassName` (`manga-list/components/list-grid/list-grid.tsx`).
 
 # Gestures and animation
