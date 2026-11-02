@@ -58,8 +58,9 @@ function BottomSheetRoot({
   snapPointsDirection,
   expanded = false,
 }: BottomSheetProps) {
-  const { isAtLeast } = useBreakpoint();
-  const side = direction ?? (isAtLeast("md") ? "right" : "bottom");
+  const { isAtLeast, isLandscape } = useBreakpoint();
+  const side =
+    direction ?? (isAtLeast("md") || isLandscape ? "right" : "bottom");
   const snaps =
     snapPoints?.length && (!snapPointsDirection || snapPointsDirection === side)
       ? snapPoints
