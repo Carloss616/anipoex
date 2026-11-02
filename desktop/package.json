@@ -11,18 +11,18 @@
     "dist": "bun run build:web && bun run build:runtime && electron-builder --mac"
   },
   "devDependencies": {
-    "electron": "44.9.0",
-    "electron-builder": "26.15.3"
+    "electron": "45.2.1",
+    "electron-builder": "26.18.0"
   },
-  "trustedDependencies": [
-    "electron"
-  ],
   "build": {
     "appId": "app.anipoex.desktop",
     "productName": "anipoex",
     "extraMetadata": {
       "productName": "anipoex"
     },
+    "files": [
+      "!**/*.test.js"
+    ],
     "mac": {
       "target": [
         {
