@@ -123,14 +123,12 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
       )}
       {...props}
     >
-      <View className="flex-row items-center gap-2 rounded-full border border-border bg-surface-secondary p-1.5 shadow-sm">
+      <View className="flex-row items-center gap-2 rounded-full border border-border bg-surface-secondary/70 p-1.5 shadow-sm backdrop-blur-xl">
         <PanelTabs
           value={value ?? ROUTES[0].name}
-          // router.navigate would push the tab's index again.
           onValueChange={(name) => switchTab(String(name), {})}
           variant="pills"
         >
-          {/* Below sm the indicator lags a resizing tab: the trigger fills. */}
           <PanelTabs.List className="max-sm:*:data-[slot=tabs-indicator]:hidden">
             {children}
           </PanelTabs.List>
