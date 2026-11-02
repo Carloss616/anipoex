@@ -132,7 +132,10 @@ export function ListContent({
             ) : (
               <>
                 {row.divided && (
-                  <View role="separator" className="h-px bg-border" />
+                  <View
+                    role="separator"
+                    className="mx-gx h-px bg-border md:ml-4"
+                  />
                 )}
                 <ListItem extension={row.extension} />
               </>
@@ -173,7 +176,7 @@ function LanguageMenu({
 /** Glass: it pins over the rows. */
 function SectionHeader({ section }: { section: ExtensionSection }) {
   return (
-    <Frame.Header className="glass-chrome border-b px-gx md:pl-4">
+    <Frame.Header className="glass-chrome inset-shadow-none stuck:border-b px-gx md:pl-4">
       <Frame.Title>
         {section.title} <Badge>{section.data.length}</Badge>
       </Frame.Title>

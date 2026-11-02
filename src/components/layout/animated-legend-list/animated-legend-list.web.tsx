@@ -11,6 +11,7 @@ import {
 import { View, type ViewStyle } from "react-native";
 import Reanimated from "react-native-reanimated";
 import type { AnimatedLegendListProps } from "./animated-legend-list";
+import { useStuck } from "./hooks/use-stuck";
 
 type ItemLayoutAnimation =
   AnimatedLegendListProps<unknown>["itemLayoutAnimation"];
@@ -138,9 +139,12 @@ function StickyPositionView({
   ]) as [number | undefined, number];
   const sticky = state.props.stickyHeaderIndicesArr;
   const next = state.positions[sticky[sticky.indexOf(itemIndex) + 1]];
+  const offset = stickyHeaderConfig?.offset ?? 0;
+  const track = useStuck(offset);
 
   return (
     <View
+      ref={track}
       pointerEvents="box-none"
       style={[
         style,

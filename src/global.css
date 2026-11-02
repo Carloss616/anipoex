@@ -7,6 +7,9 @@
 /* `not-` can't negate Uniwind's `disabled`; panelui-web hovers need this. */
 @custom-variant not-disabled (&:not(:disabled, [aria-disabled="true"]));
 
+/* Inside a pinned sticky header (`data-stuck`, set by `useStuck`). */
+@custom-variant stuck (&:where([data-stuck] *));
+
 @theme {
   --spacing-gx: calc(var(--spacing) * 4);
   --spacing-gt: calc(var(--spacing) * 4);
