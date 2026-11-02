@@ -89,8 +89,8 @@ function BottomSheetRoot({
         data-testid={testID}
         // RNW Views don't shrink; drop once the sheets use Sheet.Body.
         className={cn(
-          // The glass inside starts from the panel's color, not the page's.
-          "glass-frame [--glass-base:var(--color-popover)] *:min-h-0 *:shrink",
+          // `!` beats the popup's bg-popover; glass inside starts from its color.
+          "glass-sheet! [--glass-base:var(--color-popover)] *:min-h-0 *:shrink",
           className,
         )}
       >

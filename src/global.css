@@ -76,11 +76,11 @@
   }
 }
 
-/* Glass is for what floats over the content; panels with text stay opaque. */
+/* Glass is for what floats over the content, and the bottom sheet. */
 @utility glass-chrome {
   background-color: color-mix(
     in oklab,
-    var(--glass-base) var(--glass-chrome-veil),
+    var(--glass-tint, var(--glass-base)) var(--glass-chrome-veil),
     transparent
   );
   /* Saturate restores the color the blur averages to grey. */
@@ -88,7 +88,7 @@
     blur(var(--glass-chrome-blur));
   @apply inset-shadow-[0_1px_0_var(--glass-edge)];
   @media (prefers-reduced-transparency: reduce) {
-    background-color: var(--glass-base);
+    background-color: var(--glass-tint, var(--glass-base));
     backdrop-filter: none;
   }
 }
@@ -128,16 +128,22 @@
 @utility glass-sheet {
   background-color: color-mix(
     in oklab,
-    var(--color-popover) var(--glass-sheet-veil),
+    var(--glass-tint, var(--color-popover)) var(--glass-sheet-veil),
     transparent
   );
   backdrop-filter: saturate(var(--glass-sheet-saturate))
     blur(var(--glass-sheet-blur));
   @apply inset-shadow-[0_1px_0_var(--glass-edge)];
   @media (prefers-reduced-transparency: reduce) {
-    background-color: var(--color-popover);
+    background-color: var(--glass-tint, var(--color-popover));
     backdrop-filter: none;
   }
+}
+
+/* A theme color for the glass (`glass-capsule glass-primary`); nested glass
+   inherits it. */
+@utility glass-* {
+  --glass-tint: --value(--color-*);
 }
 
 /* An opaque panel: only the lit edge and the lift. */
