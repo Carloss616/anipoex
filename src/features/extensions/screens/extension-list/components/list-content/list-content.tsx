@@ -2,6 +2,7 @@ import type { ObservablePrimitive } from "@legendapp/state";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Button } from "panelui-web/button";
+import { Frame } from "panelui-web/frame";
 import { useMemo } from "react";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
@@ -15,6 +16,7 @@ import {
 } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import {
@@ -72,7 +74,6 @@ export function ListContent({
   const shown = sections.reduce((n, s) => n + s.data.length, 0);
 
   return (
-    // The list runs under the header, which blurs it once scrolled.
     <View className="flex-1 flex-row">
       {wide && (
         <HeaderInsetView>
@@ -90,14 +91,13 @@ export function ListContent({
           data={rows}
           keyExtractor={(row) => row.key}
           getItemType={(row) => row.kind}
-          // Pinned below the header, minus the section row's top padding.
-          stickyHeaderConfig={{ offset: headerHeight - 16 }}
+          stickyHeaderConfig={{ offset: headerHeight - 12 }}
           stickyHeaderIndices={stickyIndices}
           {...headerScroll}
-          contentContainerClassName="gutters px-gx md:pl-4 md:pr-gx pb-gb"
+          contentContainerClassName="gutters pb-gb"
           ListHeaderComponent={
             <HeaderInsetView>
-              <View className="flex-row flex-wrap items-center gap-3 py-4">
+              <View className="flex-row flex-wrap items-center gap-3 px-gx py-4 md:pl-4">
                 {wide ? (
                   <>
                     <LanguageMenu
@@ -168,13 +168,13 @@ function LanguageMenu({
   );
 }
 
-/** Frame.Section's title, on the page's background: it pins over the rows. */
+/** Blurred: it pins over the rows. */
 function SectionHeader({ section }: { section: ExtensionSection }) {
   return (
-    <View className="pt-6">
-      <p className="bg-background px-4 pt-2.5 pb-1.5 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-        {`${section.title} · ${section.data.length}`}
-      </p>
-    </View>
+    <Frame.Header className="px-gx backdrop-blur-xl md:pl-4">
+      <Frame.Title>
+        {section.title} <Badge>{section.data.length}</Badge>
+      </Frame.Title>
+    </Frame.Header>
   );
 }

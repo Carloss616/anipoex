@@ -35,10 +35,9 @@ type ActionButtonProps = Omit<
   "size" | "loading"
 > & {
   id: string;
+  icon: IconName;
   /** What this button starts: its icon turns into a loader while that runs. */
   operation: ExtensionOperation;
-  icon: IconName;
-  iconClassName: string;
 };
 
 /** Reads the operation itself so only this button re-renders; every action is off while one runs. Spreads the rest so a menu trigger keeps its props and ref. */
@@ -46,8 +45,7 @@ function ActionButton({
   id,
   operation,
   icon,
-  iconClassName,
-  variant = "outline",
+  variant,
   ...props
 }: ActionButtonProps) {
   const current = useValue(extensionOperations$[id]);
@@ -61,7 +59,7 @@ function ActionButton({
       disabled={!!current}
       loading={loading}
     >
-      <Icon name={icon} size={BUTTON_ICON_SIZE} className={iconClassName} />
+      <Icon name={icon} size={BUTTON_ICON_SIZE} />
     </Button>
   );
 }
@@ -74,7 +72,7 @@ export const ListItem = memo(function ListItem({
   const primary = useThemeColor("primary");
 
   return (
-    <Frame.Row className="px-0">
+    <Frame.Row className="px-gx md:pl-4">
       <Frame.Media>
         <SourceTile
           initials={e.initials}
@@ -105,15 +103,11 @@ export const ListItem = memo(function ListItem({
         {websiteUrl && (
           <Button
             size="icon"
-            variant="outline"
+            variant="ghost"
             onClick={() => openExternal(websiteUrl)}
             aria-label="Open website"
           >
-            <Icon
-              name={Icons.website}
-              size={BUTTON_ICON_SIZE}
-              className="text-foreground"
-            />
+            <Icon name={Icons.website} size={BUTTON_ICON_SIZE} />
           </Button>
         )}
         {!e.installed ? (
@@ -121,7 +115,7 @@ export const ListItem = memo(function ListItem({
             id={e.id}
             operation="installing"
             icon={Icons.download}
-            iconClassName="text-primary"
+            variant="ghost"
             onClick={() => installExtension(e.id)}
             aria-label={`Install ${e.name}`}
           />
@@ -130,8 +124,6 @@ export const ListItem = memo(function ListItem({
             id={e.id}
             operation="updating"
             icon={Icons.update}
-            iconClassName="text-primary-foreground"
-            variant="default"
             onClick={() => updateExtension(e.id)}
             aria-label={`Update ${e.name}`}
           />
@@ -142,7 +134,7 @@ export const ListItem = memo(function ListItem({
               id={e.id}
               operation="uninstalling"
               icon={Icons.more}
-              iconClassName="text-foreground"
+              variant="ghost"
               aria-label={`More actions for ${e.name}`}
             />
           </Menu>
