@@ -10,7 +10,6 @@ import { type StyleProp, type TextStyle, View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { LARGE_TITLE_HEIGHT } from "./constants";
 
 type SearchBarOptions = NonNullable<
@@ -56,12 +55,10 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const mutedForeground = useThemeColor("muted-foreground");
   const reduced = useReducedMotion();
 
   const search = options.headerSearchBarOptions;
   const tintColor = options.headerTintColor;
-  const iconColor = tintColor ?? mutedForeground;
   const title = getHeaderTitle(options, "");
   const showBack = !!back && options.headerBackVisible !== false;
   const backLabel = options.headerBackTitle ?? back?.title;
@@ -108,7 +105,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       {() => (
         <SearchBar
           ref={inputRef}
-          className="min-w-0 flex-1"
+          className="min-w-0 flex-1 backdrop-blur-xl"
           value={query$.get()}
           onChangeText={emit}
           onSubmit={(text) => search.onSearchButtonPress?.(textEvent(text))}
@@ -163,9 +160,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         )}
       />
       <View className="h-14 flex-row items-center gap-4">
-        <ButtonGroup
-          className={cn(!showBack && !options.headerLeft && "hidden")}
-        >
+        <ButtonGroup className="empty:hidden">
           {showBack && (
             <Button
               variant="ghost"
@@ -174,11 +169,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
               onClick={navigation.goBack}
               aria-label={backLabel ?? "Back"}
             >
-              <Icon
-                name={Icons.back}
-                size={BUTTON_ICON_SIZE}
-                color={iconColor}
-              />
+              <Icon name={Icons.back} size={BUTTON_ICON_SIZE} />
               {!isMinimalBack && backLabel}
             </Button>
           )}
@@ -203,7 +194,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
 
         <ButtonGroup
           className={cn(
-            "min-w-0",
+            "min-w-0 empty:hidden",
             !reduced && "transition-[flex-grow]",
             HANDOVER,
             // The title's delay, or the group slides left while the gap is free.
@@ -239,7 +230,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 onClick={closeSearch}
                 aria-label={search.cancelButtonText ?? "Cancel"}
               >
-                <Icon name={Icons.close} size={BUTTON_ICON_SIZE} muted />
+                <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
               </Button>
             ) : (
               <Button
@@ -250,11 +241,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 onClick={openSearch}
                 aria-label={search.placeholder ?? "Search"}
               >
-                <Icon
-                  name={Icons.search}
-                  size={BUTTON_ICON_SIZE}
-                  color={iconColor}
-                />
+                <Icon name={Icons.search} size={BUTTON_ICON_SIZE} />
               </Button>
             ))}
           {options.headerRight?.({ tintColor, canGoBack: !!back })}
