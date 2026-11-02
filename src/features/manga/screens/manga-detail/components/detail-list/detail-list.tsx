@@ -69,8 +69,8 @@ export function DetailList({
           {header}
           <Frame
             className={cn(
-              "gutters mx-gx border-b-0",
-              chapters.length > 0 && "rounded-b-none",
+              "gutters mx-gx",
+              chapters.length > 0 && "rounded-b-none border-b-0",
             )}
           >
             <Frame.Header className="py-0.75">
