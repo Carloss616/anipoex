@@ -137,6 +137,11 @@
   }
 }
 
+/* An opaque panel: only the lit edge and the lift. */
+@utility glass-frame {
+  @apply inset-shadow-[0_1px_0_var(--glass-edge)] shadow-2xl;
+}
+
 @layer base {
   * {
     @apply border-border;

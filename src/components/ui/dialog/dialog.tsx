@@ -1,4 +1,5 @@
 import type { ButtonRole } from "@expo/ui/swift-ui";
+import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { Dialog as PanelDialog } from "panelui-web/dialog";
 import { type ReactElement, useState } from "react";
@@ -59,7 +60,11 @@ function DialogRoot(props: DialogProps) {
     <>
       {children && extractTrigger(children, () => setOpen(true))}
       <PanelDialog open={open ?? innerOpen} onOpenChange={setOpen}>
-        <PanelDialog.Content className={className}>
+        <PanelDialog.Content
+          blur
+          // The class lands on the shell; the opaque panel is its child.
+          className={cn("*:data-[slot=dialog-panel]:glass-frame", className)}
+        >
           <PanelDialog.Header title={title} description={description} />
           <PanelDialog.Footer>
             <PanelDialog.Close

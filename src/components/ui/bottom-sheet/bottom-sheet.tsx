@@ -82,6 +82,7 @@ function BottomSheetRoot({
       side={side}
     >
       <Sheet.Content
+        blur
         size={size}
         showGrabber={showDragIndicator && side === "bottom"}
         showClose={false}
@@ -89,7 +90,7 @@ function BottomSheetRoot({
         // RNW Views don't shrink; drop once the sheets use Sheet.Body.
         className={cn(
           // The glass inside starts from the panel's color, not the page's.
-          "*:min-h-0 *:shrink [--glass-base:var(--color-popover)]",
+          "glass-frame [--glass-base:var(--color-popover)] *:min-h-0 *:shrink",
           className,
         )}
       >
