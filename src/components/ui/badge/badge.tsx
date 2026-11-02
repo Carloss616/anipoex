@@ -41,11 +41,7 @@ export function Badge({
         className,
       )}
     >
-      {icon ? (
-        <Icon name={icon} size={12} className={semanticCss.label} />
-      ) : dot ? null : (
-        children
-      )}
+      {icon ? <Icon name={icon} size={12} /> : dot ? null : children}
     </span>
   );
 }

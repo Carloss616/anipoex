@@ -72,11 +72,7 @@ export function RepoList() {
                 onClick={() => remove(repo)}
                 aria-label={`Remove ${repo.name}`}
               >
-                <Icon
-                  name={Icons.close}
-                  size={BUTTON_ICON_SIZE}
-                  className="text-foreground"
-                />
+                <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
               </Button>
             </Frame.Actions>
           </Frame.Row>

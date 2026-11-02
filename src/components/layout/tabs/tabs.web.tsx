@@ -99,9 +99,6 @@ function PanelTabTrigger({
       <Icon
         size={BUTTON_ICON_SIZE}
         name={isFocused ? item.icon.selected : item.icon.default}
-        className={
-          isFocused ? "text-primary-foreground" : "text-muted-foreground"
-        }
       />
       {/* Below sm only the active label shows; 0fr→1fr animates its width. */}
       <span className="grid grid-cols-[0fr] in-data-active:grid-cols-[1fr] in-data-active:opacity-100 opacity-0 transition-[grid-template-columns,opacity] duration-300 ease-sheet motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">

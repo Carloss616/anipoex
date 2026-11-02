@@ -97,11 +97,7 @@ export const ExcludedItem = memo(function ExcludedItem({
               size="icon"
               aria-label={`More actions for ${source.name}`}
             >
-              <Icon
-                name={Icons.more}
-                size={BUTTON_ICON_SIZE}
-                className="text-foreground"
-              />
+              <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
             </Button>
           </Menu>
         </Frame.Actions>

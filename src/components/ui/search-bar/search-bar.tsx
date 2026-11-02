@@ -82,7 +82,7 @@ export function SearchBar({
   return (
     <Input.Group className={cn("rounded-full", className)}>
       <Input.Addon>
-        {icon ?? <Icon name={Icons.search} size={BUTTON_ICON_SIZE} muted />}
+        {icon ?? <Icon name={Icons.search} size={BUTTON_ICON_SIZE} />}
       </Input.Addon>
       <Input
         ref={ref}
@@ -131,7 +131,7 @@ export function SearchBar({
                 onClear?.();
               }}
             >
-              <Icon name={Icons.close} size={BUTTON_ICON_SIZE} muted />
+              <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
             </Button>
           )}
           {/* Last on web, so the ✕ coming and going doesn't move it. */}

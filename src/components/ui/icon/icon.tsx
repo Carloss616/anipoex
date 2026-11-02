@@ -32,10 +32,7 @@ export interface IconProps
 }
 
 function IconRootBase({ name, muted, color, ...props }: IconProps) {
-  const [foreground, mutedForeground] = useThemeColor([
-    "foreground",
-    "muted-foreground",
-  ]);
+  const mutedForeground = useThemeColor("muted-foreground");
 
   return (
     <Lucide
@@ -44,7 +41,7 @@ function IconRootBase({ name, muted, color, ...props }: IconProps) {
           ? name.web
           : (name as LucideName)
       }
-      color={muted ? mutedForeground : (color ?? foreground)}
+      color={muted ? mutedForeground : (color ?? "inherit")}
       {...props}
     />
   );

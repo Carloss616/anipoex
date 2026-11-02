@@ -8,11 +8,9 @@ import { labelOf, readToolbar, type ToolbarItem } from "./utils";
 
 function ToolbarItemView({
   item,
-  tintColor,
   loading,
 }: {
   item: ToolbarItem;
-  tintColor?: string;
   loading?: boolean;
 }) {
   const label = labelOf(
@@ -24,15 +22,7 @@ function ToolbarItemView({
   const isLoading = loading && item.kind === "button" && item.props.disabled;
 
   const icon =
-    iconName == null ? (
-      label
-    ) : (
-      <Icon
-        name={iconName}
-        size={BUTTON_ICON_SIZE}
-        color={item.props.tintColor ?? tintColor}
-      />
-    );
+    iconName == null ? label : <Icon name={iconName} size={BUTTON_ICON_SIZE} />;
 
   const trigger = (
     <Button
@@ -77,14 +67,9 @@ export function Toolbar({ children: toolbar, loading }: ToolbarProps) {
   return (
     <Stack.Screen
       options={{
-        [headerSlot]: ({ tintColor }: { tintColor?: string }) =>
+        [headerSlot]: () =>
           parsed.items.map((item) => (
-            <ToolbarItemView
-              key={item.key}
-              item={item}
-              tintColor={tintColor}
-              loading={loading}
-            />
+            <ToolbarItemView key={item.key} item={item} loading={loading} />
           )),
       }}
     />

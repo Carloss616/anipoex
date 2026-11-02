@@ -71,11 +71,7 @@ export function Overview({
           <ButtonGroup aria-label="Entry actions" className="ms-auto">
             <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
               <Button variant="ghost" size="icon" aria-label="More actions">
-                <Icon
-                  name={Icons.more}
-                  size={BUTTON_ICON_SIZE}
-                  className="text-inherit"
-                />
+                <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
               </Button>
             </Menu>
           </ButtonGroup>
