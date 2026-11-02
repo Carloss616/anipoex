@@ -105,7 +105,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       {() => (
         <SearchBar
           ref={inputRef}
-          className="min-w-0 flex-1 backdrop-blur-xl"
+          className="min-w-0 flex-1"
           value={query$.get()}
           onChangeText={emit}
           onSubmit={(text) => search.onSearchButtonPress?.(textEvent(text))}
@@ -150,17 +150,14 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         aria-hidden
         className={cn(
           "pointer-events-none absolute inset-0",
-          // Unset fades out like iOS 26's bar; a material ends square.
-          !blur && "mask-[linear-gradient(to_top,transparent,black_1.5rem)]",
-          "transition-[backdrop-filter,background-color]",
+          // Like iOS 26: content fades under; the buttons are glass.
           COLLAPSE,
-          options.headerShadowVisible &&
-            blur !== "none" &&
-            "bg-background/50 backdrop-blur-xl",
+          options.headerShadowVisible && blur !== "none" && "glass-edge",
         )}
       />
       <View className="h-14 flex-row items-center gap-4">
-        <ButtonGroup className="empty:hidden">
+        {/* `!`: beats the track's bg-muted, set by a stronger selector. */}
+        <ButtonGroup className="glass-capsule! empty:hidden">
           {showBack && (
             <Button
               variant="ghost"
@@ -194,7 +191,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
 
         <ButtonGroup
           className={cn(
-            "min-w-0 empty:hidden",
+            "glass-capsule! min-w-0 empty:hidden",
             !reduced && "transition-[flex-grow]",
             HANDOVER,
             // The title's delay, or the group slides left while the gap is free.

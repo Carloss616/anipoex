@@ -93,6 +93,27 @@
   }
 }
 
+/* iOS 26's scroll edge: content fades and blurs under a bar with no band. */
+@utility glass-edge {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(
+      in oklab,
+      var(--glass-base) var(--glass-chrome-veil),
+      transparent
+    ),
+    transparent
+  );
+  backdrop-filter: blur(10px);
+  mask-image: linear-gradient(to bottom, black 40%, transparent);
+  @media (prefers-reduced-transparency: reduce) {
+    background-image: none;
+    background-color: var(--glass-base);
+    backdrop-filter: none;
+    mask-image: none;
+  }
+}
+
 @utility glass-capsule {
   @apply glass-chrome rounded-full border border-(--glass-edge-side) shadow-lg;
   & > * {
