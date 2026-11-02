@@ -121,6 +121,22 @@
   }
 }
 
+/* Short popups that cover more, so a denser veil than the chrome. */
+@utility glass-sheet {
+  background-color: color-mix(
+    in oklab,
+    var(--color-popover) var(--glass-sheet-veil),
+    transparent
+  );
+  backdrop-filter: saturate(var(--glass-sheet-saturate))
+    blur(var(--glass-sheet-blur));
+  @apply inset-shadow-[0_1px_0_var(--glass-edge)];
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--color-popover);
+    backdrop-filter: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

@@ -250,7 +250,11 @@ export function Menu({
         />
         <PanelMenu.Content
           align={align}
-          className={cn("max-w-72", items.some(isSubmenu) && "min-w-56")}
+          // `!`: bg-popover sits in the same layer, in an order we don't control.
+          className={cn(
+            "glass-sheet! max-w-72",
+            items.some(isSubmenu) && "min-w-56",
+          )}
         >
           <Rows rows={rows} selection={selection} />
         </PanelMenu.Content>
