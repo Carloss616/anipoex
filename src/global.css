@@ -51,6 +51,53 @@
     --warning: var(--color-warning);
     --destructive: var(--color-destructive);
   }
+
+  /* Glass densities. Dark takes more veil: black shows more through. */
+  :root {
+    --glass-base: var(--color-background);
+    --glass-chrome-veil: 66%;
+    --glass-chrome-blur: 28px;
+    --glass-chrome-saturate: 1.8;
+    --glass-sheet-veil: 80%;
+    --glass-sheet-blur: 44px;
+    --glass-sheet-saturate: 1.9;
+    --glass-edge: rgb(255 255 255 / 0.92);
+    --glass-edge-side: rgb(255 255 255 / 0.35);
+  }
+  .dark {
+    --glass-chrome-veil: 72%;
+    --glass-chrome-blur: 32px;
+    --glass-chrome-saturate: 1.6;
+    --glass-sheet-veil: 86%;
+    --glass-sheet-blur: 48px;
+    --glass-sheet-saturate: 1.7;
+    --glass-edge: rgb(255 255 255 / 0.14);
+    --glass-edge-side: rgb(255 255 255 / 0.06);
+  }
+}
+
+/* Glass is for what floats over the content; panels with text stay opaque. */
+@utility glass-chrome {
+  background-color: color-mix(
+    in oklab,
+    var(--glass-base) var(--glass-chrome-veil),
+    transparent
+  );
+  /* Saturate restores the color the blur averages to grey. */
+  backdrop-filter: saturate(var(--glass-chrome-saturate))
+    blur(var(--glass-chrome-blur));
+  @apply inset-shadow-[0_1px_0_var(--glass-edge)];
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--glass-base);
+    backdrop-filter: none;
+  }
+}
+
+@utility glass-capsule {
+  @apply glass-chrome rounded-full border border-(--glass-edge-side) shadow-lg;
+  & > * {
+    border-radius: 9999px;
+  }
 }
 
 @layer base {
