@@ -2,14 +2,13 @@ import type { LegendListRef } from "@legendapp/list/react-native";
 import * as LegendListModule from "@legendapp/list/react-native";
 import { LegendList } from "@legendapp/list/react-native";
 import {
-  type CSSProperties,
   createContext,
   type ReactNode,
   type Ref,
   useContext,
   useRef,
 } from "react";
-import type { View, ViewStyle } from "react-native";
+import { View, type ViewStyle } from "react-native";
 import Reanimated from "react-native-reanimated";
 import type { AnimatedLegendListProps } from "./animated-legend-list";
 
@@ -141,26 +140,29 @@ function StickyPositionView({
   const next = state.positions[sticky[sticky.indexOf(itemIndex) + 1]];
 
   return (
-    <div
-      style={{
-        ...(style as CSSProperties),
-        bottom: next === undefined ? 0 : undefined,
-        height: next === undefined ? undefined : next - position,
-        pointerEvents: "none",
-        top: position,
-        zIndex: itemIndex + 1000,
-      }}
+    <View
+      pointerEvents="box-none"
+      style={[
+        style,
+        {
+          bottom: next === undefined ? 0 : undefined,
+          height: next === undefined ? undefined : next - position,
+          top: position,
+          zIndex: itemIndex + 1000,
+        },
+      ]}
     >
-      <div
-        ref={refView as unknown as Ref<HTMLDivElement>}
-        style={{
-          pointerEvents: "auto",
-          position: "sticky",
-          top: stickyHeaderConfig?.offset ?? 0,
-        }}
+      <View
+        ref={refView}
+        style={
+          {
+            position: "sticky",
+            top: stickyHeaderConfig?.offset ?? 0,
+          } as unknown as ViewStyle
+        }
       >
         {children}
-      </div>
-    </div>
+      </View>
+    </View>
   );
 }

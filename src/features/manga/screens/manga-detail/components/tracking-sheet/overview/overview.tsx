@@ -1,3 +1,4 @@
+import { Typography } from "panelui-native/components/typography";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { Sheet } from "panelui-web/sheet";
@@ -109,5 +110,7 @@ export function Overview({
 }
 
 const Muted = ({ children }: { children: ReactNode }) => (
-  <span className="text-muted-foreground">{children}</span>
+  <Typography weight="medium" muted className="text-[0.9375rem]">
+    {children}
+  </Typography>
 );

@@ -253,7 +253,9 @@ export function SheetContent({
               </Typography>
             ) : (
               <>
-                {!item.first && <hr className="mx-4" />}
+                {!item.first && (
+                  <View role="separator" className="mx-4 h-px bg-border" />
+                )}
                 {item.kind === "available" ? (
                   <AvailableItem
                     source={item.row.source}

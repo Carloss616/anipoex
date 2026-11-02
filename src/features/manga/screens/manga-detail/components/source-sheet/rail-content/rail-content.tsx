@@ -61,9 +61,10 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 />
               </Menu>
               {item.current && index === 0 && items.length > 1 && (
-                <hr
+                <View
+                  role="separator"
                   aria-orientation="vertical"
-                  className="w-px shrink-0 border-0 bg-border"
+                  className="w-px bg-border"
                   style={{ height: COVER.height }}
                 />
               )}

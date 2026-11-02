@@ -31,6 +31,7 @@ export function Badge({
   const semantic = color === "inherit" ? "destructive" : color;
   const semanticCss = SEMANTIC_COLOR[semantic].className;
 
+  // A span: it sits inline in <p> titles, which can't hold the div of a View.
   return (
     <span
       className={cn(

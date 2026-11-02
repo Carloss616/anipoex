@@ -1,6 +1,7 @@
 import { Memo } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
+import { View } from "react-native";
 import { THEME_FAMILIES, theme$ } from "@/state/theme";
 
 export function ThemePicker() {
@@ -17,7 +18,7 @@ export function ThemePicker() {
               onClick={() => theme$.family.set(entry.id)}
             >
               {entry.name}
-              <span
+              <View
                 className="size-3 rounded-full"
                 style={{
                   backgroundColor:

@@ -1,3 +1,4 @@
+import { View } from "react-native";
 import type { HiddenRangeProps } from "./hidden-range";
 
 // The wrapper shows the ring while the hidden input has keyboard focus.
@@ -19,7 +20,7 @@ export function HiddenRange({
   children,
 }: HiddenRangeProps) {
   return (
-    <div className={RING}>
+    <View className={RING}>
       <input
         type="range"
         aria-label={label}
@@ -31,7 +32,7 @@ export function HiddenRange({
         className="sr-only"
       />
       {/* The input is the control screen readers announce; this is its picture. */}
-      <div aria-hidden>{children}</div>
-    </div>
+      <View aria-hidden>{children}</View>
+    </View>
   );
 }

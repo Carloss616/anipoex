@@ -2,6 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { type ComponentProps, memo } from "react";
+import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import {
   BUTTON_ICON_SIZE,
@@ -82,7 +83,7 @@ export const ListItem = memo(function ListItem({
       </Frame.Media>
       <Frame.Content>
         {/* Beside the title, not in it: the icon is a <div>, which a <p> can't hold. */}
-        <div className="flex min-w-0 items-center gap-1.5">
+        <View className="flex-row items-center gap-1.5">
           <Frame.Title as="p">{e.name}</Frame.Title>
           {e.installed && (
             <Icon
@@ -92,7 +93,7 @@ export const ListItem = memo(function ListItem({
               accessibilityLabel="Installed"
             />
           )}
-        </div>
+        </View>
         <Frame.Description>
           <Badge>{e.language.code.toUpperCase()}</Badge>{" "}
           {e.nsfw && <Badge color="destructive">18+</Badge>}{" "}

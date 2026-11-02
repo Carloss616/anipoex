@@ -131,7 +131,9 @@ export function ListContent({
               <SectionHeader section={row.section} />
             ) : (
               <>
-                {row.divided && <hr />}
+                {row.divided && (
+                  <View role="separator" className="h-px bg-border" />
+                )}
                 <ListItem extension={row.extension} />
               </>
             )

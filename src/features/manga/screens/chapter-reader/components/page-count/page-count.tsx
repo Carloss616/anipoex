@@ -19,11 +19,11 @@ export function PageCount({ page$, count }: PageCountProps) {
       className="absolute inset-x-0 bottom-0 items-center py-5.5"
     >
       {/* The tab bar's pill. */}
-      <div className="rounded-full border border-border bg-surface-secondary px-3 py-1.5 shadow-sm">
+      <View className="rounded-full border border-border bg-surface-secondary px-3 py-1.5 shadow-sm">
         <Typography type="body-xs" muted>
           <Memo>{page$}</Memo> / {count}
         </Typography>
-      </div>
+      </View>
     </View>
   );
 }

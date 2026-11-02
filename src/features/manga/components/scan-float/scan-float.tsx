@@ -2,8 +2,10 @@ import type { Observable } from "@legendapp/state";
 import { For, useValue } from "@legendapp/state/react";
 import { router, usePathname } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
+import { cn } from "panelui-native/utils/cn";
 import { memo, useEffect } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
+import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
 import {
   openSheet$,
@@ -51,11 +53,14 @@ const ScanCard = memo(function ScanCard({
   if (!view || hidden) return null;
 
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(view.mangaId)}
-      aria-label={`${view.name}, ${view.status}, show sources`}
-      className="flex w-full max-w-sm flex-col gap-1 rounded-2xl border border-border bg-surface-secondary p-3 text-start shadow-sm transition-[scale,background-color] hover:bg-surface-tertiary active:scale-[0.98]"
+    <Pressable
+      onPress={() => onOpen(view.mangaId)}
+      accessibilityRole="button"
+      accessibilityLabel={`${view.name}, ${view.status}, show sources`}
+      className={cn(
+        PRESS,
+        "w-full max-w-sm gap-1 rounded-2xl border border-border bg-surface-secondary p-3 text-start shadow-sm transition-[scale,background-color] hover:bg-surface-tertiary",
+      )}
     >
       <Typography type="small" numberOfLines={1}>
         {view.name}
@@ -67,6 +72,6 @@ const ScanCard = memo(function ScanCard({
         indeterminate={view.progress === null}
         size="sm"
       />
-    </button>
+    </Pressable>
   );
 });

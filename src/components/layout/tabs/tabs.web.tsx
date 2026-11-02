@@ -9,6 +9,7 @@ import {
   type TabTriggerSlotProps,
   useTabTrigger,
 } from "expo-router/ui";
+import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Tabs as PanelTabs } from "panelui-web/tabs";
 import type { ComponentProps } from "react";
@@ -101,11 +102,17 @@ function PanelTabTrigger({
         name={isFocused ? item.icon.selected : item.icon.default}
       />
       {/* Below sm only the active label shows; 0fr→1fr animates its width. */}
-      <span className="grid grid-cols-[0fr] in-data-active:grid-cols-[1fr] in-data-active:opacity-100 opacity-0 transition-[grid-template-columns,opacity] duration-300 ease-sheet motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
-        <span className="min-w-0 overflow-hidden">
-          <span className="ps-2">{item.label}</span>
-        </span>
-      </span>
+      <View className="grid grid-cols-[0fr] in-data-active:grid-cols-[1fr] in-data-active:opacity-100 opacity-0 transition-[grid-template-columns,opacity] duration-300 ease-sheet motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
+        <View className="overflow-hidden">
+          <Typography
+            type="body-sm"
+            weight="medium"
+            className="ps-2 text-inherit"
+          >
+            {item.label}
+          </Typography>
+        </View>
+      </View>
     </PanelTabs.Trigger>
   );
 }

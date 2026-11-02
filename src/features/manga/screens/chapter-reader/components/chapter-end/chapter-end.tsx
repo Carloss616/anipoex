@@ -17,10 +17,6 @@ export interface ChapterEndProps {
   onBack: () => void;
 }
 
-function Lines({ changes }: { changes: string[] }) {
-  return changes.map((line) => <div key={line}>{line}</div>);
-}
-
 /** The block under the last page: the AniList save, then the way on. */
 export function ChapterEnd({
   chapter,
@@ -54,8 +50,8 @@ export function ChapterEnd({
           <Alert.Title>
             {saving ? "Saving to AniList…" : "Saved to AniList"}
           </Alert.Title>
-          <Alert.Description>
-            <Lines changes={save.changes} />
+          <Alert.Description className="whitespace-pre-line">
+            {save.changes.join("\n")}
           </Alert.Description>
           <Alert.Actions>
             <Button
@@ -75,9 +71,8 @@ export function ChapterEnd({
         <Alert tone="info">
           <Alert.Icon />
           <Alert.Title>Not in your AniList list</Alert.Title>
-          <Alert.Description>
-            Add it to your list?
-            <Lines changes={save.changes} />
+          <Alert.Description className="whitespace-pre-line">
+            {["Add it to your list?", ...save.changes].join("\n")}
           </Alert.Description>
           <Alert.Actions>
             <Button variant="outline" size="sm" onClick={onNotNow}>

@@ -129,7 +129,7 @@ function Layer({
       {children}
     </TiltCard.Layer>
   ) : (
-    <div className={className}>{children}</div>
+    <View className={className}>{children}</View>
   );
 }
 
@@ -246,13 +246,13 @@ export function MangaCard({
       {content}
     </TiltCard>
   ) : (
-    <div
-      data-testid={testID}
+    <View
+      testID={testID}
       className={cn("rounded-[inherit]", cardClassName)}
-      style={flatStyle}
+      style={flatStyle as ViewStyle}
     >
       {content}
-    </div>
+    </View>
   );
   // The card inherits it, so the focus ring follows its corners.
   const radius = { borderRadius: below ? COVER_RADIUS : 16 };
