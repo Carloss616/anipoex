@@ -23,7 +23,7 @@ export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
 
   return (
     <>
-      <Button variant="ghost" size="sm" onClick={picker.open}>
+      <Button variant="ghost" size="sm" shape="pill" onClick={picker.open}>
         {picker.label}
         <Icon name={Icons.chevronDown} size={16} />
       </Button>
@@ -31,6 +31,7 @@ export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
         <Button
           size="icon"
           variant="ghost"
+          shape="pill"
           onClick={picker.openWeb}
           aria-label={`Open on ${picker.label}`}
         >

@@ -67,7 +67,12 @@ export function DetailList({
         <>
           <View style={{ marginBottom: -ART_HEIGHT }}>{hero}</View>
           {header}
-          <Frame className="gutters mx-gx rounded-b-none border-b-0">
+          <Frame
+            className={cn(
+              "gutters mx-gx border-b-0",
+              chapters.length > 0 && "rounded-b-none",
+            )}
+          >
             <Frame.Header className="py-0.75">
               <Frame.Title>
                 Chapters <Badge>{total}</Badge>

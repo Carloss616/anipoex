@@ -51,7 +51,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "items-center justify-center rounded-full align-middle font-medium text-xs",
+        "inline-flex items-center justify-center rounded-full align-middle font-medium text-xs",
         tint ?? [semanticCss.fill, semanticCss.label],
         dot ? "size-2" : icon ? "size-5" : "min-w-5 px-1.5 py-0.5",
         className,
