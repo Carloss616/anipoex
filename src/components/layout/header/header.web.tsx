@@ -105,7 +105,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       {() => (
         <SearchBar
           ref={inputRef}
-          className="min-w-0 flex-1"
+          // Stacked, it floats on its own; inline, its capsule is the glass.
+          className={cn("min-w-0 flex-1", isStacked && "glass-chrome!")}
           value={query$.get()}
           onChangeText={emit}
           onSubmit={(text) => search.onSearchButtonPress?.(textEvent(text))}
