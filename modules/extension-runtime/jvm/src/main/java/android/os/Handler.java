@@ -3,6 +3,7 @@ package android.os;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /** Runs callbacks on its looper's thread, like Android's Handler. */
@@ -29,12 +30,17 @@ public class Handler {
     public final boolean postDelayed(Runnable r, long delayMillis) {
         // Locked, so a post that runs at once can't remove its entry before it's added and leak it.
         synchronized (pending) {
-            pending.put(r, looper.executor.schedule(() -> {
-                synchronized (pending) {
-                    pending.remove(r);
-                }
-                r.run();
-            }, Math.max(0, delayMillis), TimeUnit.MILLISECONDS));
+            try {
+                pending.put(r, looper.executor.schedule(() -> {
+                    synchronized (pending) {
+                        pending.remove(r);
+                    }
+                    r.run();
+                }, Math.max(0, delayMillis), TimeUnit.MILLISECONDS));
+            } catch (RejectedExecutionException e) {
+                // The looper quit.
+                return false;
+            }
         }
         return true;
     }

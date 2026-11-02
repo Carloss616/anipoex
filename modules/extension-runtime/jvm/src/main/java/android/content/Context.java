@@ -2,6 +2,7 @@ package android.content;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.hardware.display.DisplayManager;
 import java.io.File;
 
 /** JVM stand-in for the part of Android's Context that the host classes and extensions call. */
@@ -30,5 +31,9 @@ public abstract class Context {
 
     public Context getApplicationContext() {
         return this;
+    }
+
+    public Object getSystemService(String name) {
+        return "display".equals(name) ? new DisplayManager() : null;
     }
 }

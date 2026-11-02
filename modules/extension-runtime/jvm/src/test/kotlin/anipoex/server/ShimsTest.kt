@@ -1,15 +1,27 @@
 package anipoex.server
 
+import android.app.Presentation
+import android.content.Context
+import android.content.pm.PackageManager
+import android.content.SharedPreferences
+import android.hardware.display.DisplayManager
+import android.media.ImageReader
 import android.net.Uri
 import android.os.Handler
+import android.os.HandlerThread
+import android.os.LocaleList
 import android.os.Looper
 import android.text.Html
 import android.util.Base64
 import android.util.Log
 import android.util.LruCache
+import android.view.View
+import android.view.ViewGroup
 import android.webkit.CookieManager
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.io.File
+import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
@@ -124,6 +136,57 @@ class ShimsTest {
         handler.postDelayed({ ran.countDown() }, 10)
         assertTrue(ran.await(5, TimeUnit.SECONDS))
         assertEquals(Looper.getMainLooper(), looper)
+    }
+
+    @Test
+    fun handlerThreadRunsPostsUntilItQuits() {
+        val thread = HandlerThread("drain").apply { start() }
+        var looper: Looper? = null
+        val ran = CountDownLatch(1)
+        val handler = Handler(thread.looper)
+        assertTrue(
+            handler.post {
+                looper = Looper.myLooper()
+                ran.countDown()
+            },
+        )
+        assertTrue(ran.await(5, TimeUnit.SECONDS))
+        assertEquals(thread.looper, looper)
+        assertTrue(thread.quitSafely())
+        thread.join()
+        assertFalse(handler.post { error("posted after quit") })
+    }
+
+    @Test
+    fun localeListHoldsTheDefaultLocale() {
+        val locales = LocaleList.getDefault()
+        assertEquals(1, locales.size())
+        assertEquals(Locale.getDefault(), locales[0])
+    }
+
+    @Test
+    fun virtualDisplayTakesAView() {
+        val context = object : Context() {
+            override fun getCacheDir(): File = error("unused")
+            override fun getFilesDir(): File = error("unused")
+            override fun getPackageName(): String = error("unused")
+            override fun getPackageManager(): PackageManager = error("unused")
+            override fun getSharedPreferences(name: String, mode: Int): SharedPreferences = error("unused")
+        }
+        val reader = ImageReader.newInstance(1080, 1920, 1, 2)
+        reader.setOnImageAvailableListener({ error("no frames here") }, null)
+        val manager = context.getSystemService("display") as DisplayManager
+        val display = manager.createVirtualDisplay("display", 1080, 1920, 320, reader.surface, 0)
+        val view = View(context)
+        Presentation(context, display.display).run {
+            setContentView(view, ViewGroup.LayoutParams(1080, 1920))
+            show()
+        }
+        (view.parent as ViewGroup).setOnHierarchyChangeListener(null)
+        assertNull(reader.acquireLatestImage())
+        display.release()
+        reader.setOnImageAvailableListener(null, null)
+        reader.close()
     }
 
     @Test

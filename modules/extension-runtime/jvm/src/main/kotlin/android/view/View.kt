@@ -7,8 +7,10 @@ import android.content.res.Resources
 open class View(val context: Context?) {
     var layoutParams: ViewGroup.LayoutParams? = null
 
-    // Never in a window, as the extensions' WebView helper expects.
-    val parent: ViewParent? get() = null
+    // Null unless a Dialog takes the view: never in a window, as the
+    // extensions' WebView helper expects.
+    var parent: ViewParent? = null
+        internal set
 
     open val resources: Resources get() = Resources.getSystem()
 
@@ -40,8 +42,20 @@ open class View(val context: Context?) {
 
 interface ViewParent
 
+class Display internal constructor()
+
+class Surface internal constructor()
+
 abstract class ViewGroup(context: Context?) : View(context), ViewParent {
     open fun removeView(view: View?) {}
+
+    fun setOnHierarchyChangeListener(listener: OnHierarchyChangeListener?) {}
+
+    interface OnHierarchyChangeListener {
+        fun onChildViewAdded(parent: View?, child: View?)
+
+        fun onChildViewRemoved(parent: View?, child: View?)
+    }
 
     open class LayoutParams(@JvmField var width: Int, @JvmField var height: Int) {
         companion object {
