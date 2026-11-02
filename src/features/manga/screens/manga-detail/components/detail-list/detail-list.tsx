@@ -1,5 +1,5 @@
-import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
+import { Frame } from "panelui-web/frame";
 import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
@@ -67,29 +67,32 @@ export function DetailList({
         <>
           <View style={{ marginBottom: -ART_HEIGHT }}>{hero}</View>
           {header}
-          <View className="gutters flex-row items-center gap-2 px-gx pb-1">
-            <Typography weight="semibold" className="pl-4">
-              Chapters <Badge>{total}</Badge>
-            </Typography>
-            <View className="flex-1" />
-            {action}
-          </View>
+          <Frame className="gutters mx-gx rounded-b-none border-b-0">
+            <Frame.Header className="py-0.75">
+              <Frame.Title>
+                Chapters <Badge>{total}</Badge>
+              </Frame.Title>
+              <Frame.Action className="row-span-1 flex items-center">
+                {action}
+              </Frame.Action>
+            </Frame.Header>
+          </Frame>
         </>
       }
       renderItem={({ item, index }) => (
-        <View className="gutters px-gx">
-          <div
+        <Frame
+          className={cn(
+            "gutters mx-gx rounded-t-none border-t-0",
+            index < last && "rounded-b-none border-b-0",
+          )}
+        >
+          <Frame.Panel
             data-attached="column"
-            className={cn(
-              "w-full overflow-hidden rounded-3xl bg-card text-card-foreground",
-              index > 0 && "rounded-t-none",
-              index < last && "rounded-b-none",
-            )}
+            className={cn(index > 0 && "rounded-t-none!")}
           >
-            {index > 0 && <hr className="mx-4" />}
             <ChapterItem chapter={item} mediaId={mediaId} entryId={entryId} />
-          </div>
-        </View>
+          </Frame.Panel>
+        </Frame>
       )}
       ListEmptyComponent={
         loading ? <LoadingState /> : <EmptyState {...empty} />

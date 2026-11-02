@@ -45,15 +45,11 @@ export function ChapterItem({ chapter, mediaId, entryId }: ChapterItemProps) {
       <Frame.Actions className="absolute inset-e-4 inset-y-0">
         <Button
           size="icon"
-          variant="outline"
+          variant="ghost"
           onClick={noop}
           aria-label={`Download chapter ${chapter.title}`}
         >
-          <Icon
-            name={Icons.download}
-            size={BUTTON_ICON_SIZE}
-            className="text-primary"
-          />
+          <Icon name={Icons.download} size={BUTTON_ICON_SIZE} />
         </Button>
       </Frame.Actions>
     </View>
