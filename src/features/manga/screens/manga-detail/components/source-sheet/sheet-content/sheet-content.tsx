@@ -47,7 +47,9 @@ const SectionHeader = memo(function SectionHeader({
 }: SectionHeaderProps) {
   const isExcluded = id === "excluded";
   return (
-    <Frame.Header className={cn("glass-chrome border-b", isExcluded && "py-0.75")}>
+    <Frame.Header
+      className={cn("glass-chrome border-b", isExcluded && "py-0.75")}
+    >
       <Frame.Title>
         {isExcluded ? "Excluded" : "Available"}{" "}
         <Badge>{isExcluded ? excluded.length : availableCount}</Badge>

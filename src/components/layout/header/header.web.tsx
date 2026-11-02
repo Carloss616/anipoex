@@ -38,6 +38,13 @@ const HANDOVER = "duration-300 ease-out";
 const LEAVING = "opacity-0 blur-[2px] delay-0";
 const ARRIVING = "opacity-100 blur-[0px] delay-100";
 
+/**
+ * A glass capsule per group. `!` beats the track's bg-muted and its muted
+ * ghost icons, both set by a stronger selector: over glass they need full ink.
+ */
+const GLASS_GROUP =
+  "glass-capsule! [&>:is([data-variant=ghost],[data-variant=outline])]:text-foreground!";
+
 // The native search bar reports through events, so mirror that shape here.
 const textEvent = (text: string) =>
   ({ nativeEvent: { text } }) as Parameters<
@@ -150,15 +157,16 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       <View
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-0",
-          // Like iOS 26: content fades under; the buttons are glass.
+          // Like iOS 26: content fades under; the buttons are glass. The mask
+          // stays on, or the edge turns hard while the veil fades out.
+          "mask-[linear-gradient(to_top,transparent,black_1.5rem)] pointer-events-none absolute inset-0",
+          "transition-[backdrop-filter,background-color]",
           COLLAPSE,
           options.headerShadowVisible && blur !== "none" && "glass-edge",
         )}
       />
       <View className="h-14 flex-row items-center gap-4">
-        {/* `!`: beats the track's bg-muted, set by a stronger selector. */}
-        <ButtonGroup className="glass-capsule! empty:hidden">
+        <ButtonGroup className={cn(GLASS_GROUP, "empty:hidden")}>
           {showBack && (
             <Button
               variant="ghost"
@@ -192,7 +200,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
 
         <ButtonGroup
           className={cn(
-            "glass-capsule! min-w-0 empty:hidden",
+            GLASS_GROUP,
+            "min-w-0 empty:hidden",
             !reduced && "transition-[flex-grow]",
             HANDOVER,
             // The title's delay, or the group slides left while the gap is free.

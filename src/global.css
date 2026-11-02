@@ -93,7 +93,7 @@
   }
 }
 
-/* iOS 26's scroll edge: content fades and blurs under a bar with no band. */
+/* iOS 26's scroll edge, under a masked layer that fades its last edge. */
 @utility glass-edge {
   background-color: color-mix(
     in oklab,
@@ -101,12 +101,19 @@
     transparent
   );
   backdrop-filter: blur(10px);
-  /* A fixed fade, not a %: a header with a stacked search is twice as tall. */
-  mask-image: linear-gradient(to top, transparent, black 1.5rem);
   @media (prefers-reduced-transparency: reduce) {
     background-color: var(--glass-base);
     backdrop-filter: none;
-    mask-image: none;
+  }
+}
+
+/* panelui-web's sheet and dialog backdrops frost the page: not in this mode. */
+@media (prefers-reduced-transparency: reduce) {
+  [class*="backdrop-blur"] {
+    /* biome-ignore lint/complexity/noImportantStyles: beats the utility class */
+    -webkit-backdrop-filter: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: beats the utility class */
+    backdrop-filter: none !important;
   }
 }
 

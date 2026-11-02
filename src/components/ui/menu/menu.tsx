@@ -205,7 +205,7 @@ function RowItem({
         <RowIcon name={item.icon} />
         {item.label}
       </PanelMenu.SubTrigger>
-      <PanelMenu.SubContent>
+      <PanelMenu.SubContent className="glass-sheet!">
         <Rows rows={item.items} selection={item.selection ?? selection} />
       </PanelMenu.SubContent>
     </PanelMenu.Sub>
