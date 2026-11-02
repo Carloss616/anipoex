@@ -281,7 +281,7 @@ export function MangaCard({
       accessibilityLabel={accessibilityLabel}
       style={radius}
       data-title={titlePosition}
-      className={cn("group", PRESS)}
+      className={cn(PRESS, "group focus-visible:ring-ring")}
     >
       {card}
     </Pressable>
