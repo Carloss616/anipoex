@@ -118,7 +118,7 @@
 }
 
 @utility glass-capsule {
-  @apply glass-chrome rounded-full border border-(--glass-edge-side) shadow-lg;
+  @apply glass-chrome rounded-full shadow-lg ring-1 ring-(--glass-edge-side);
   & > * {
     border-radius: 9999px;
   }
@@ -143,6 +143,22 @@
 /* An opaque panel: only the lit edge and the lift. */
 @utility glass-frame {
   @apply inset-shadow-[0_1px_0_var(--glass-edge)] shadow-2xl;
+}
+
+/*
+ * Every ButtonGroup track is glass. Its translucent bg-muted stays, so it still
+ * reads on an opaque sheet; a ring, not a border, keeps the layout. Unlayered,
+ * so it beats panelui-web's utilities without `!`.
+ */
+[data-slot="button-group"]:not(
+  :has(> [data-slot="button-group-separator"], > [data-slot="button-group"])
+) {
+  backdrop-filter: saturate(var(--glass-chrome-saturate))
+    blur(var(--glass-chrome-blur));
+  @apply inset-shadow-[0_1px_0_var(--glass-edge)] ring-1 ring-(--glass-edge-side);
+  @media (prefers-reduced-transparency: reduce) {
+    backdrop-filter: none;
+  }
 }
 
 @layer base {
