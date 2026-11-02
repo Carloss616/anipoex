@@ -176,7 +176,7 @@ function LanguageMenu({
 /** Glass: it pins over the rows. */
 function SectionHeader({ section }: { section: ExtensionSection }) {
   return (
-    <Frame.Header className="glass-chrome inset-shadow-none stuck:border-b px-gx md:pl-4">
+    <Frame.Header className="stuck:glass-chrome stuck:inset-shadow-none stuck:border-b px-gx md:pl-4">
       <Frame.Title>
         {section.title} <Badge>{section.data.length}</Badge>
       </Frame.Title>

@@ -139,8 +139,7 @@ function StickyPositionView({
   ]) as [number | undefined, number];
   const sticky = state.props.stickyHeaderIndicesArr;
   const next = state.positions[sticky[sticky.indexOf(itemIndex) + 1]];
-  const offset = stickyHeaderConfig?.offset ?? 0;
-  const track = useStuck(offset);
+  const track = useStuck();
 
   return (
     <View
