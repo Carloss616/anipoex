@@ -9,11 +9,7 @@ const ex = (id: string) => ({
   pinned: false,
 });
 const shape = (items: ReturnType<typeof sheetItems>) =>
-  items.map((i) =>
-    i.kind === "header"
-      ? sheetItemKey(i)
-      : `${sheetItemKey(i)}${i.first ? "!" : ""}`,
-  );
+  items.map((i) => `${sheetItemKey(i)}${"first" in i && i.first ? "!" : ""}`);
 
 describe("sheetItems", () => {
   it("is empty when both sections are", () =>
@@ -31,7 +27,7 @@ describe("sheetItems", () => {
   it("says no sources when only excluded has rows", () =>
     expect(shape(sheetItems([], [ex("c")]))).toEqual([
       "header:available",
-      "header:no-sources",
+      "no-sources",
       "header:excluded",
       "excluded:c!",
     ]));

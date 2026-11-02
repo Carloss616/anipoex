@@ -87,16 +87,8 @@ export function SheetContent({
 
   const items = sheetItems(available, excluded);
 
-  const header = (id: "available" | "no-sources" | "excluded") =>
-    id === "no-sources" ? (
-      <Text
-        style={{ typography: "bodyMedium" }}
-        color={m3.onSurfaceVariant}
-        modifiers={[padding(GUTTER, 8, GUTTER, 8)]}
-      >
-        No sources
-      </Text>
-    ) : id === "available" ? (
+  const header = (id: "available" | "excluded") =>
+    id === "available" ? (
       <Text
         style={{ typography: "titleSmall" }}
         color={m3.primary}
@@ -270,6 +262,14 @@ export function SheetContent({
               {({ item }) =>
                 item.kind === "header" ? (
                   header(item.id)
+                ) : item.kind === "no-sources" ? (
+                  <Text
+                    style={{ typography: "bodyMedium" }}
+                    color={m3.onSurfaceVariant}
+                    modifiers={[padding(GUTTER, 8, GUTTER, 8)]}
+                  >
+                    No sources
+                  </Text>
                 ) : (
                   <Column>
                     {!item.first && (

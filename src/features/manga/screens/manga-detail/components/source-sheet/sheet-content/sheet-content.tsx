@@ -3,7 +3,9 @@ import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
+import { Frame } from "panelui-web/frame";
 import { Sheet } from "panelui-web/sheet";
+import { memo } from "react";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -17,16 +19,66 @@ import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
-import { useSourceActions } from "../hooks/use-source-actions";
+import {
+  type SourceActions,
+  useSourceActions,
+} from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
 import { useTitleMode } from "../hooks/use-title-mode";
 import { excludedMenuItems } from "../utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "../utils/sheet-items";
+import type { ExcludedRow } from "../utils/split-sources";
 import { titleMenuItems } from "../utils/title-menu";
 
-// Frame.Section's title, as in the extension list.
-const SECTION_TITLE =
-  "px-4 pt-2.5 pb-1.5 font-medium text-muted-foreground text-xs uppercase tracking-wider";
+interface SectionHeaderProps {
+  id: Extract<SheetItem, { kind: "header" }>["id"];
+  availableCount: number;
+  excluded: ExcludedRow[];
+  mangaKey: string;
+  actions: SourceActions;
+}
+
+const SectionHeader = memo(function SectionHeader({
+  id,
+  availableCount,
+  excluded,
+  mangaKey,
+  actions,
+}: SectionHeaderProps) {
+  const isExcluded = id === "excluded";
+  return (
+    <Frame.Header className={cn("backdrop-blur-xl", isExcluded && "py-0.75")}>
+      <Frame.Title>
+        {isExcluded ? "Excluded" : "Available"}{" "}
+        <Badge>{isExcluded ? excluded.length : availableCount}</Badge>
+      </Frame.Title>
+      {isExcluded && (
+        <Frame.Action className="row-span-1">
+          <Computed>
+            {() => {
+              const items = excludedMenuItems(
+                excluded,
+                isScanBusy(mangaKey),
+                actions,
+              );
+              return (
+                <Menu items={items}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Excluded sources actions"
+                  >
+                    <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
+                  </Button>
+                </Menu>
+              );
+            }}
+          </Computed>
+        </Frame.Action>
+      )}
+    </Frame.Header>
+  );
+});
 
 export interface SheetContentProps {
   manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
@@ -54,44 +106,12 @@ export function SheetContent({
 
   // One list, so both sections scroll together; both empty shows the empty state.
   const items = sheetItems(available, excluded);
+  const stickyIndices = items.flatMap((item, i) =>
+    item.kind === "header" ? [i] : [],
+  );
   const selectedAt = items.findIndex(
     (item) => item.kind === "available" && item.row.source.id === selectedId,
   );
-
-  const renderHeader = (id: "available" | "no-sources" | "excluded") =>
-    id === "available" ? (
-      <p className={SECTION_TITLE}>{`Available · ${available.length}`}</p>
-    ) : id === "no-sources" ? (
-      <Typography type="body-sm" muted className="px-4">
-        No sources
-      </Typography>
-    ) : (
-      <View className="flex-row items-center pe-4 pt-4">
-        <p className={cn(SECTION_TITLE, "flex-1")}>
-          {`Excluded · ${excluded.length}`}
-        </p>
-        <Computed>
-          {() => {
-            const items = excludedMenuItems(excluded, isScanBusy(key), actions);
-            return (
-              <Menu items={items}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Excluded sources actions"
-                >
-                  <Icon
-                    name={Icons.more}
-                    size={BUTTON_ICON_SIZE}
-                    className="text-foreground"
-                  />
-                </Button>
-              </Menu>
-            );
-          }}
-        </Computed>
-      </View>
-    );
 
   return (
     <BottomSheet
@@ -107,7 +127,7 @@ export function SheetContent({
           <View className="flex-row items-center gap-2">
             <View>
               <Sheet.Title>
-                Sources <Badge>{available.length}</Badge>
+                Sources <Badge>{available.length + excluded.length}</Badge>
               </Sheet.Title>
               <Sheet.Description>
                 {read > 0 ? (
@@ -137,11 +157,6 @@ export function SheetContent({
                     title.searching ? Icons.searchTitlesOff : Icons.searchTitles
                   }
                   size={BUTTON_ICON_SIZE}
-                  className={
-                    title.searching
-                      ? "text-primary-foreground"
-                      : "text-foreground"
-                  }
                 />
               </Button>
               <Computed>
@@ -215,6 +230,7 @@ export function SheetContent({
           keyExtractor={sheetItemKey}
           getItemType={(item: SheetItem) => item.kind}
           extraData={selectedId}
+          stickyHeaderIndices={stickyIndices}
           // Read once on open, so typing doesn't scroll; the first rows need none.
           initialScrollIndex={
             selectedAt > 1
@@ -224,7 +240,17 @@ export function SheetContent({
           ListEmptyComponent={<EmptyState {...empty} />}
           renderItem={({ item }) =>
             item.kind === "header" ? (
-              renderHeader(item.id)
+              <SectionHeader
+                id={item.id}
+                availableCount={available.length}
+                excluded={excluded}
+                mangaKey={key}
+                actions={actions}
+              />
+            ) : item.kind === "no-sources" ? (
+              <Typography type="body-sm" muted className="px-4">
+                No sources
+              </Typography>
             ) : (
               <>
                 {!item.first && <hr className="mx-4" />}
