@@ -32,10 +32,15 @@ class CloudflareInterceptor(
 
     // Requests to a host wait for one solve instead of each opening a browser.
     private val hostLocks = ConcurrentHashMap<String, Any>()
+    private val hostSolves = ConcurrentHashMap<String, Int>()
     private val browserHosts = ConcurrentHashMap.newKeySet<String>()
 
+    // Old domain to the one it redirects to, which challenged: a page there
+    // can't fetch the old one.
+    private val movedHosts = ConcurrentHashMap<String, String>()
+
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request().withUserAgent()
+        val request = chain.request().onMovedHost().withUserAgent()
         val browserFetch = Host.fetch?.takeIf { request.url.host in browserHosts }
         // Through the browser too: a clearance that expired gets challenged again and is solved again.
         val response = browserFetch?.let { fetch(it, request) } ?: chain.proceed(request)
@@ -44,25 +49,34 @@ class CloudflareInterceptor(
         if (solve == null || response.header("cf-mitigated") != "challenge" || response.header("Server") !in SERVER_CHECK) {
             return response
         }
-        val clearance = clearance(request.url)
+        // After a redirect, the challenge is the landing host's.
+        val challenged = response.request.url
+        val solves = hostSolves[challenged.host]
         response.close()
-        synchronized(hostLocks.computeIfAbsent(request.url.host) { Any() }) {
+        synchronized(hostLocks.computeIfAbsent(challenged.host) { Any() }) {
             // Another request may have solved it while this one waited.
-            if (clearance(request.url) == clearance) {
-                cookieManager.remove(request.url, COOKIE_NAMES, 0)
+            if (hostSolves[challenged.host] == solves) {
+                cookieManager.remove(challenged, COOKIE_NAMES, 0)
                 val solution = try {
-                    solve(request.url.toString())
+                    solve(challenged.toString())
                 } catch (e: Exception) {
                     throw IOException("Failed to bypass Cloudflare", e)
                 }
-                val url = request.url.toString()
+                val url = challenged.toString()
                 solution.cookies.forEach { android.webkit.CookieManager.getInstance().setCookie(url, it) }
-                if (clearance(request.url).isNullOrBlank()) throw IOException("Failed to bypass Cloudflare")
-                Host.browserUserAgents[request.url.host] = solution.userAgent
-                browserHosts += request.url.host
+                // Cloudflare can let the browser through with no clearance;
+                // only its page then reaches the site.
+                if (clearance(challenged).isNullOrBlank() && Host.fetch == null) throw IOException("Failed to bypass Cloudflare")
+                Host.browserUserAgents[challenged.host] = solution.userAgent
+                browserHosts += challenged.host
+                hostSolves.merge(challenged.host, 1, Int::plus)
             }
         }
-        val retry = request.withUserAgent()
+        // Same path: the domain moved. Another path is one link to another site.
+        if (challenged.host != request.url.host && challenged.encodedPath == request.url.encodedPath) {
+            movedHosts[request.url.host] = challenged.host
+        }
+        val retry = request.newBuilder().url(challenged).build().withUserAgent()
         return Host.fetch?.let { fetch(it, retry) } ?: chain.proceed(retry)
     }
 
@@ -87,6 +101,13 @@ class CloudflareInterceptor(
             .headers(replyHeaders)
             .body(reply.body.toResponseBody(replyHeaders["Content-Type"]?.toMediaTypeOrNull()))
             .build()
+    }
+
+    // shortcut: a move that also changes paths stays a redirect, solved per
+    // request; give it its own path map when a source does that.
+    private fun Request.onMovedHost(): Request {
+        val host = movedHosts[url.host] ?: return this
+        return newBuilder().url(url.newBuilder().host(host).build()).build()
     }
 
     private fun Request.withUserAgent(): Request {

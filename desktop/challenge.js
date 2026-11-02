@@ -60,6 +60,7 @@ const DONE_MS = 1_000;
 
 /**
  * Solves a Cloudflare challenge in a window of its own session; resolves to `{cookies, userAgent}`: the cookies it earned for `url` as `Set-Cookie` values, and the user agent it solved as.
+ * Cloudflare can let this browser through with no clearance, which ends the wait too.
  * It solves as the Electron it is: an Android user agent, or a Chrome one without Chrome's client hints, looks spoofed, and the check then fails even a person's click. The page stays, hidden, for `fetchThrough`.
  */
 export async function solveChallenge({ url }) {
@@ -99,6 +100,12 @@ export async function solveChallenge({ url }) {
   // A view's page outlives its window unless closed.
   window.on("closed", () => site.webContents.close());
   site.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  // A challenge answers with an error; the site itself doesn't, whether it
+  // was cleared or never challenged this browser.
+  let status;
+  site.webContents.on("did-navigate", (_event, _url, code) => {
+    status = code;
+  });
   const userAgent = site.webContents.getUserAgent();
   // A hidden window paints no frames and the check stalls without them, so it
   // shows from the start: see-through, click-through and unfocused until it asks.
@@ -124,7 +131,8 @@ export async function solveChallenge({ url }) {
           });
       }
       const cookies = await cloudflare.cookies.get({ url });
-      if (cookies.some(({ name }) => name === "cf_clearance")) {
+      const through = status < 400 && !site.webContents.isLoading();
+      if (through || cookies.some(({ name }) => name === "cf_clearance")) {
         // Cloudflare reloads the page once cleared, and a page's script dies with it: use it once it's the site's.
         while (
           Date.now() < deadline &&

@@ -25,3 +25,7 @@ skip the source. Desktop keeps the window see-through and click-through until th
 doesn't cover the app while it tries; it can't hide it, since the check stalls in a hidden
 window. Once through, the banner says so for a second and closes. That site's requests then
 go out from the solved page for as long as it stays open (10 minutes idle).
+
+The check belongs to the host that sent it: when a source's old domain redirects to a new one,
+the check runs there and the old domain's requests follow. Cloudflare can also let the browser
+through without a `cf_clearance`; on desktop a site that loaded counts as passed.

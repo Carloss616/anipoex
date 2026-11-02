@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-02
+
+* **A Cloudflare check belongs to the host that sent it**: after a domain redirect the check runs on the new host, and on desktop a site that let the browser through without a `cf_clearance` counts as passed, instead of waiting for the banner to time out. Updated [extension cookies](stores/extension-cookies.md).
+
 ## 2026-10-23
 
 * **The desktop Cloudflare window waits until it needs you**: it stays see-through and click-through while the app tries and shows only at 15 seconds, when the banner asks the person to complete the check. Updated [extension cookies](stores/extension-cookies.md).

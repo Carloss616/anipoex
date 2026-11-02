@@ -79,6 +79,72 @@ class HostTest {
     }
 
     @Test
+    fun challengeBehindARedirectIsSolvedOnTheHostItMovedTo(@TempDir dir: File) {
+        MockWebServer().use { server ->
+            server.start()
+            val old = server.url("/list")
+            val moved = old.newBuilder().host(if (old.host == "localhost") "127.0.0.1" else "localhost").build()
+            server.enqueue(MockResponse.Builder().code(301).addHeader("Location", moved.toString()).build())
+            server.enqueue(challenge)
+            val asked = mutableListOf<String>()
+            Host.solveChallenge = { url ->
+                asked += url
+                Host.Solution(listOf("cf_clearance=ok; Path=/"), "Browser/1")
+            }
+            val fetched = mutableListOf<Host.HostRequest>()
+            Host.fetch = { request ->
+                fetched += request
+                Host.HostResponse(200, emptyList(), "via browser".toByteArray())
+            }
+            val client = NetworkHelper(Application(dir, "1.0.0", 1)).client
+            assertEquals("via browser", client.newCall(GET(old.toString())).execute().use { it.body.string() })
+            // The next call names the old host too: it goes straight to the new one, with no second solve.
+            assertEquals("via browser", client.newCall(GET(server.url("/next").toString())).execute().use { it.body.string() })
+            assertEquals(listOf(moved.toString()), asked)
+            assertEquals(listOf(moved.toString(), moved.newBuilder().encodedPath("/next").build().toString()), fetched.map { it.url })
+            assertEquals(listOf("Browser/1", "Browser/1"), fetched.map { request -> request.headers.first { it.first == "User-Agent" }.second })
+            assertEquals(2, server.requestCount)
+        }
+    }
+
+    @Test
+    fun redirectToAnotherPathIsNotADomainMove(@TempDir dir: File) {
+        MockWebServer().use { server ->
+            server.start()
+            val old = server.url("/link")
+            val other = old.newBuilder().host(if (old.host == "localhost") "127.0.0.1" else "localhost").encodedPath("/elsewhere").build()
+            server.enqueue(MockResponse.Builder().code(301).addHeader("Location", other.toString()).build())
+            server.enqueue(challenge)
+            server.enqueue(MockResponse.Builder().body("old host").build())
+            Host.solveChallenge = { Host.Solution(listOf("cf_clearance=ok; Path=/"), "Browser/1") }
+            Host.fetch = { Host.HostResponse(200, emptyList(), "via browser".toByteArray()) }
+            val client = NetworkHelper(Application(dir, "1.0.0", 1)).client
+            assertEquals("via browser", client.newCall(GET(old.toString())).execute().use { it.body.string() })
+            // The old host's other pages stay on the old host.
+            assertEquals("old host", client.newCall(GET(server.url("/list").toString())).execute().use { it.body.string() })
+        }
+    }
+
+    @Test
+    fun browserLetThroughWithoutAClearanceFetchesForTheRuntime(@TempDir dir: File) {
+        MockWebServer().use { server ->
+            server.start()
+            server.enqueue(challenge)
+            var solves = 0
+            Host.solveChallenge = {
+                solves++
+                Host.Solution(emptyList(), "Browser/1")
+            }
+            Host.fetch = { Host.HostResponse(200, emptyList(), "via browser".toByteArray()) }
+            val client = NetworkHelper(Application(dir, "1.0.0", 1)).client
+            repeat(2) {
+                assertEquals("via browser", client.newCall(GET(server.url("/list").toString())).execute().use { it.body.string() })
+            }
+            assertEquals(1, solves)
+        }
+    }
+
+    @Test
     fun expiredClearanceIsSolvedAgain(@TempDir dir: File) {
         MockWebServer().use { server ->
             server.start()
