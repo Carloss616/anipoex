@@ -5,15 +5,8 @@ import { createPortal } from "react-dom";
 import { Toaster as Sonner, toast as sonner, type ToasterProps } from "sonner";
 import { theme$ } from "@/state/theme";
 import { Icon, Icons } from "../icon";
-import { Loader } from "../loader";
 
-export type ToastVariant =
-  | "default"
-  | "info"
-  | "success"
-  | "warning"
-  | "error"
-  | "loading";
+export type ToastVariant = "default" | "info" | "success" | "warning" | "error";
 
 export interface ShowToastOptions {
   variant?: ToastVariant;
@@ -72,7 +65,6 @@ export function ToastHost({
         error: (
           <Icon name={Icons.error} size={16} className="text-destructive" />
         ),
-        loading: <Loader size="sm" />,
         close: <Icon name={Icons.close} size={12} color="inherit" />,
         ...icons,
       }}
@@ -161,7 +153,6 @@ export const toast = Object.assign(show, {
   success: variant("success"),
   warning: variant("warning"),
   error: variant("error"),
-  loading: variant("loading"),
 });
 
 export type Toast = typeof toast;

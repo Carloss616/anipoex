@@ -53,5 +53,4 @@ export const toast: Toast = Object.assign(show, {
   success: show,
   warning: show,
   error: show,
-  loading: show,
 });

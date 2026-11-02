@@ -13,7 +13,6 @@ import { Text, useFont } from "@/components/native/swift-ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Host } from "../host";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
-import { Loader } from "../loader";
 import type {
   ShowToast,
   ShowToastOptions,
@@ -99,7 +98,6 @@ function ToastContent({
     error: (
       <Icon name={Icons.error} size={BUTTON_ICON_SIZE} color={destructive} />
     ),
-    loading: <Loader size="sm" />,
   };
 
   return (
@@ -161,7 +159,7 @@ const show: ShowToast = (label, options) => {
     component: ({ hide }) => (
       <ToastContent {...options} label={label} hide={hide} />
     ),
-    ...((options?.action || options?.variant === "loading") && { duration: 0 }),
+    ...(options?.action && { duration: 0 }),
   });
 };
 
@@ -174,5 +172,4 @@ export const toast: Toast = Object.assign(show, {
   success: variant("success"),
   warning: variant("warning"),
   error: variant("error"),
-  loading: variant("loading"),
 });
