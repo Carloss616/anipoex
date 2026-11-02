@@ -200,6 +200,7 @@ export function MangaCard({
         {unread != null && (
           <Badge
             color={unread > 0 ? "success" : "secondary"}
+            solid
             // Secondary is see-through, made for rows: over a cover it needs a solid fill.
             className={cn(
               "absolute top-2 right-2",
