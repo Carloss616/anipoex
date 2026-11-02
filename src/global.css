@@ -74,9 +74,16 @@
     --glass-edge: rgb(255 255 255 / 0.14);
     --glass-edge-side: rgb(255 255 255 / 0.06);
   }
+  /* Reduce transparency: every veil turns solid, inline ones (the toast) too. */
+  @media (prefers-reduced-transparency: reduce) {
+    :root {
+      --glass-chrome-veil: 100%;
+      --glass-sheet-veil: 100%;
+    }
+  }
 }
 
-/* Glass is for what floats over the content, and the bottom sheet. */
+/* Glass is for what floats over the content: chrome, sheets, dialogs, toasts. */
 @utility glass-chrome {
   background-color: color-mix(
     in oklab,
@@ -146,9 +153,21 @@
   --glass-tint: --value(--color-*);
 }
 
-/* An opaque panel: only the lit edge and the lift. */
-@utility glass-frame {
-  @apply inset-shadow-[0_1px_0_var(--glass-edge)] shadow-2xl;
+/* Sonner paints the toast from the Toaster's vars, made translucent in
+   `toast.tsx`; this adds the blur and lit edge over its stronger selector. */
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  backdrop-filter: saturate(var(--glass-sheet-saturate))
+    blur(var(--glass-sheet-blur));
+  @media (prefers-reduced-transparency: reduce) {
+    backdrop-filter: none;
+  }
+}
+/* Not while focused: sonner draws its focus ring with the same shadow. */
+[data-sonner-toaster]
+[data-sonner-toast][data-styled="true"]:not(:focus-visible) {
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    0 4px 12px rgb(0 0 0 / 0.1);
 }
 
 /*

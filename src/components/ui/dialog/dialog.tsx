@@ -62,8 +62,11 @@ function DialogRoot(props: DialogProps) {
       <PanelDialog open={open ?? innerOpen} onOpenChange={setOpen}>
         <PanelDialog.Content
           blur
-          // The class lands on the shell; the opaque panel is its child.
-          className={cn("*:data-[slot=dialog-panel]:glass-frame", className)}
+          // The class lands on the shell; the panel inside is its child.
+          className={cn(
+            "glass-sheet! *:data-[slot=dialog-panel]:inset-shadow-[0_1px_0_var(--glass-edge)] *:data-[slot=dialog-panel]:bg-popover/50",
+            className,
+          )}
         >
           <PanelDialog.Header title={title} description={description} />
           <PanelDialog.Footer>

@@ -22,10 +22,16 @@ export type ShowToastVariant = (
   options?: Omit<ShowToastOptions, "variant">,
 ) => void;
 
+/** A toast color at the sheet glass's veil; global.css adds the blur. */
+const glass = (color: string) =>
+  `color-mix(in oklab,${color} var(--glass-sheet-veil),transparent)`;
+
 const richColorsOf = (key: string, _token?: string) => {
   const token = _token ?? key;
   return {
-    [`--${key}-bg`]: `color-mix(in oklab,var(--color-${token}) 10%,var(--color-popover))`,
+    [`--${key}-bg`]: glass(
+      `color-mix(in oklab,var(--color-${token}) 10%,var(--color-popover))`,
+    ),
     [`--${key}-bg-hover`]: `color-mix(in oklab,var(--color-${token}) 20%,var(--color-popover))`,
     [`--${key}-border`]: `color-mix(in oklab,var(--color-${token}) 14%,transparent)`,
     [`--${key}-border-hover`]: `color-mix(in oklab,var(--color-${token}) 24%,transparent)`,
@@ -76,7 +82,7 @@ export function ToastHost({
       closeButton
       style={
         {
-          "--normal-bg": "var(--color-popover)",
+          "--normal-bg": glass("var(--color-popover)"),
           "--normal-bg-hover": "var(--color-accent)",
           "--normal-text": "var(--color-popover-foreground)",
           "--normal-border": "var(--color-border)",
