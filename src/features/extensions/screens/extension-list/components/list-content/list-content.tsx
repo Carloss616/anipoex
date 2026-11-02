@@ -170,10 +170,10 @@ function LanguageMenu({
   );
 }
 
-/** Blurred: it pins over the rows. */
+/** Glass: it pins over the rows. */
 function SectionHeader({ section }: { section: ExtensionSection }) {
   return (
-    <Frame.Header className="px-gx backdrop-blur-xl md:pl-4">
+    <Frame.Header className="glass-chrome border-b px-gx md:pl-4">
       <Frame.Title>
         {section.title} <Badge>{section.data.length}</Badge>
       </Frame.Title>
