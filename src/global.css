@@ -91,11 +91,14 @@
     transparent
   );
   /* Saturate restores the color the blur averages to grey. */
+  -webkit-backdrop-filter: saturate(var(--glass-chrome-saturate))
+    blur(var(--glass-chrome-blur));
   backdrop-filter: saturate(var(--glass-chrome-saturate))
     blur(var(--glass-chrome-blur));
   @apply inset-shadow-[0_1px_0_var(--glass-edge)];
   @media (prefers-reduced-transparency: reduce) {
     background-color: var(--glass-tint, var(--glass-base));
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
@@ -107,9 +110,11 @@
     var(--glass-base) var(--glass-chrome-veil),
     transparent
   );
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   @media (prefers-reduced-transparency: reduce) {
     background-color: var(--glass-base);
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
@@ -138,11 +143,14 @@
     var(--glass-tint, var(--color-popover)) var(--glass-sheet-veil),
     transparent
   );
+  -webkit-backdrop-filter: saturate(var(--glass-sheet-saturate))
+    blur(var(--glass-sheet-blur));
   backdrop-filter: saturate(var(--glass-sheet-saturate))
     blur(var(--glass-sheet-blur));
   @apply inset-shadow-[0_1px_0_var(--glass-edge)];
   @media (prefers-reduced-transparency: reduce) {
     background-color: var(--glass-tint, var(--color-popover));
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
@@ -156,9 +164,12 @@
 /* Sonner paints the toast from the Toaster's vars, made translucent in
    `toast.tsx`; this adds the blur and lit edge over its stronger selector. */
 [data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  -webkit-backdrop-filter: saturate(var(--glass-sheet-saturate))
+    blur(var(--glass-sheet-blur));
   backdrop-filter: saturate(var(--glass-sheet-saturate))
     blur(var(--glass-sheet-blur));
   @media (prefers-reduced-transparency: reduce) {
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
@@ -178,10 +189,13 @@
 [data-slot="button-group"]:not(
   :has(> [data-slot="button-group-separator"], > [data-slot="button-group"])
 ) {
+  -webkit-backdrop-filter: saturate(var(--glass-chrome-saturate))
+    blur(var(--glass-chrome-blur));
   backdrop-filter: saturate(var(--glass-chrome-saturate))
     blur(var(--glass-chrome-blur));
   @apply inset-shadow-[0_1px_0_var(--glass-edge)] ring-1 ring-(--glass-edge-side);
   @media (prefers-reduced-transparency: reduce) {
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }

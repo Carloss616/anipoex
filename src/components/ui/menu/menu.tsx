@@ -250,7 +250,7 @@ export function Menu({
         />
         <PanelMenu.Content
           align={align}
-          // `!`: bg-popover sits in the same layer, in an order we don't control.
+          // `!`: bg-popover shares the layer, in an order we don't control.
           className={cn(
             "glass-sheet! max-w-72",
             items.some(isSubmenu) && "min-w-56",
