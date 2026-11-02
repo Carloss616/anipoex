@@ -51,7 +51,7 @@ const BANNER = app.isPackaged
   ? path.join(process.resourcesPath, "challenge-banner.html")
   : fileURLToPath(
       new URL(
-        "../modules/extension-runtime/ios/challenge-banner.html",
+        "../../modules/extension-runtime/ios/challenge-banner.html",
         import.meta.url,
       ),
     );

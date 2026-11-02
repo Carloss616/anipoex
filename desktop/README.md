@@ -2,6 +2,8 @@
 
 macOS app: Electron loads the web app and runs extensions in a separate JVM process (the sidecar, [sidecar.js](sidecar.js)).
 
+`host/` holds what the JVM asks the app for, and `assets/` what the window loads.
+
 ## Development
 
 1. Build the extension server and its JVM (once, and again whenever `modules/extension-runtime/jvm` changes; restart Electron afterwards: a sidecar left running loses its own classes, so `server.log` fills with `NoClassDefFoundError` and no extension lists or installs):
@@ -16,10 +18,10 @@ macOS app: Electron loads the web app and runs extensions in a separate JVM proc
    bun install --cwd desktop
    ```
 
-3. Start Metro (`bun start`) and open the app:
+3. Start Metro (`bun start`) and open the app from the repo root:
 
    ```bash
-   bunx --cwd desktop electron .
+   bun run desktop
    ```
 
    It loads `http://localhost:8081`; set `ANIPOEX_URL` to load another URL.
@@ -34,7 +36,7 @@ Tests: `bun test desktop/`.
 JAVA_HOME=<jdk ≥ 17> bun run --cwd desktop dist
 ```
 
-This exports the web app (`build:web`, with the `EXPO_PUBLIC_*` values from `.env.local`), builds the server and the JVM (`build:runtime`, needs a generated `android/`), and produces `desktop/dist/anipoex-<version>-arm64.dmg` (and `desktop/dist/mac-arm64/anipoex.app`). Inside the `.app`, `Contents/Resources/` holds `web/` (served as `app://anipoex/` by [serve.js](serve.js)), `server/` and `jre/`; it needs neither Metro nor an installed Java.
+This exports the web app (`build:web`, with the `EXPO_PUBLIC_*` values from `.env.local`), builds the server and the JVM (`build:runtime`, needs a generated `android/`), and produces `desktop/dist/anipoex-<version>-arm64.dmg` (and `desktop/dist/mac-arm64/anipoex.app`). Inside the `.app`, `Contents/Resources/` holds `web/` (served as `app://anipoex/` by [serve.js](assets/serve.js)), `server/` and `jre/`; it needs neither Metro nor an installed Java.
 
 Unsigned: a local build opens normally. A downloaded copy is quarantined and macOS may call it damaged; clear the flag with `xattr -cr /Applications/anipoex.app`.
 

@@ -5,7 +5,7 @@ import {
   toElectronCookie,
   toFulfill,
   uaOverride,
-} from "./webview-protocol.js";
+} from "./protocol.js";
 
 const COOKIE = {
   name: "a",

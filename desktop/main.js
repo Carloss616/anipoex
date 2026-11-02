@@ -10,14 +10,13 @@ import {
   session,
   shell,
 } from "electron";
+import { coverHeaders } from "./assets/covers.js";
+import { PAGE_SCHEME, pageStore, servePage } from "./assets/pages.js";
+import { resolveAsset } from "./assets/serve.js";
 import { authRedirect } from "./auth.js";
-import { fetchThrough, solveChallenge } from "./challenge.js";
-import { coverHeaders } from "./covers.js";
-import { renderImage } from "./graphics.js";
-import { jsClose, jsCreate, jsEvaluate } from "./javascript.js";
-import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
-import { resolveAsset } from "./serve.js";
-import { startSidecar } from "./sidecar.js";
+import { fetchThrough, solveChallenge } from "./host/challenge.js";
+import { renderImage } from "./host/graphics.js";
+import { jsClose, jsCreate, jsEvaluate } from "./host/javascript.js";
 import {
   wvCreate,
   wvDestroy,
@@ -28,7 +27,8 @@ import {
   wvLoadData,
   wvRespond,
   wvStop,
-} from "./webview.js";
+} from "./host/webview/webview.js";
+import { startSidecar } from "./sidecar.js";
 
 // Packaged, electron-builder puts the web export, the server and the jre in Resources; in development they come from Metro and the Gradle build.
 const BUILD = path.join(

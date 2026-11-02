@@ -7,11 +7,11 @@ import {
   toElectronCookie,
   toFulfill,
   uaOverride,
-} from "./webview-protocol.js";
+} from "./protocol.js";
 
 // Under the runtime's call timeout: a poll with nothing to say answers empty after this.
 const POLL_MS = 20_000;
-const PRELOAD = path.join(import.meta.dirname, "webview-preload.cjs");
+const PRELOAD = path.join(import.meta.dirname, "preload.cjs");
 // A common Android phone's, in CSS pixels.
 const PHONE_SCREEN = {
   width: 412,
