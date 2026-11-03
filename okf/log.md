@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **Chapters get 3 minutes**: a chapter load waits 3 minutes before it fails, not the search's 30 s, since some sources build their list in a web view for about two; a retry meanwhile joins the load still running. Updated [source probe](concepts/source-probe.md) and [chapter](concepts/chapter.md).
 * **A Cloudflare check belongs to the host that sent it**: after a domain redirect the check runs on the new host, and on desktop a site that let the browser through without a `cf_clearance` counts as passed, instead of waiting for the banner to time out. Updated [extension cookies](stores/extension-cookies.md).
 
 ## 2026-10-23

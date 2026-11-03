@@ -21,7 +21,7 @@ import {
 import { readMatch, type Titles } from "../utils/source-match";
 import { type ProbeRead, toProbe } from "../utils/source-probe";
 import { toChapters } from "../utils/to-chapters";
-import { SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
+import { CHAPTERS_TIMEOUT_MS, SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
 import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
 import { readManual } from "./manual-matches";
@@ -54,6 +54,7 @@ export async function probeSource(
   source: { id: string; name: string },
   titles: Titles,
   timeoutMs = SEARCH_TIMEOUT_MS,
+  chaptersTimeoutMs = CHAPTERS_TIMEOUT_MS,
 ): Promise<ProviderProbe> {
   try {
     const manga =
@@ -64,7 +65,7 @@ export async function probeSource(
       source.id,
       manga.url,
       manga.title,
-      timeoutMs,
+      chaptersTimeoutMs,
     );
     chapters$[chaptersKey(mangaId, source.id)].set({
       manga: {

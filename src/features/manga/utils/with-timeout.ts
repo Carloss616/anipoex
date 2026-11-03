@@ -1,4 +1,7 @@
 export const SEARCH_TIMEOUT_MS = 30_000;
+// Some sources page their chapter list in a WebView (~2 min); past the runtime's
+// 2-minute host call, so the runtime's own error comes first.
+export const CHAPTERS_TIMEOUT_MS = 180_000;
 
 /** Rejects when the source does not answer in time, so a hung call ends like a failed one. */
 export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {

@@ -22,7 +22,7 @@ describe("fetchChapters", () => {
     await Promise.all([first, other]);
     const again = fetchChapters("1", "/m", "M");
     expect(chapters).toHaveBeenCalledTimes(3);
-    // Settle it, so its 30 s timeout is cleared instead of rejecting after the test.
+    // Settle it, so its timeout is cleared instead of rejecting after the test.
     for (const resolve of pending.splice(0)) resolve({ chapters: [] });
     await again;
   });

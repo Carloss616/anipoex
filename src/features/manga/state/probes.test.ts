@@ -171,7 +171,7 @@ describe("probeSource", () => {
   });
 
   it("a chapter read that never answers ends as an error probe", async () => {
-    const done = probeSource(201, { id: "h", name: "H" }, titles, 20);
+    const done = probeSource(201, { id: "h", name: "H" }, titles, 20, 20);
     await flush();
     // its own source id, so the hung read never meets another test's load
     searchPending.h(["T"]);

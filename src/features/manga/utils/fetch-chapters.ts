@@ -1,5 +1,5 @@
 import { runtime } from "@/features/extensions";
-import { SEARCH_TIMEOUT_MS, withTimeout } from "./with-timeout";
+import { CHAPTERS_TIMEOUT_MS, withTimeout } from "./with-timeout";
 
 const inFlight = new Map<string, ReturnType<typeof runtime.chapters>>();
 
@@ -8,7 +8,7 @@ export function fetchChapters(
   sourceId: string,
   url: string,
   title: string,
-  timeoutMs = SEARCH_TIMEOUT_MS,
+  timeoutMs = CHAPTERS_TIMEOUT_MS,
 ) {
   const key = `${sourceId}\n${url}`;
   let call = inFlight.get(key);
