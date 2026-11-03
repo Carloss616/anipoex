@@ -17,7 +17,7 @@ android {
 // Versions follow the extensions-lib build, capped where a newer one needs a Kotlin compiler past the app's 2.2.
 dependencies {
   // The BOM lifts React Native's OkHttp 4 (and okhttp-urlconnection) to the 5.x extensions call into.
-  implementation platform('com.squareup.okhttp3:okhttp-bom:5.5.0')
+  implementation platform('com.squareup.okhttp3:okhttp-bom:5.5.1')
   implementation 'com.squareup.okhttp3:okhttp'
   implementation 'com.squareup.okhttp3:okhttp-brotli'
   implementation 'com.squareup.okhttp3:okhttp-zstd'
@@ -34,7 +34,7 @@ dependencies {
   // Libraries Mihon gives extensions: a JavaScript engine and an image decoder.
   // Mihon's QuickJS fork (same API) from JitPack: 16 KB aligned, unlike Maven Central's.
   implementation 'com.github.zhanghai.quickjs-java:quickjs-android:547f5b1597'
-  implementation 'ca.mpreg:imagedecoder:17'
+  implementation 'ca.mpreg:imagedecoder:18'
   // expo-image's Glide, so covers can load through the runtime's OkHttp client.
   implementation 'com.github.bumptech.glide:glide:5.0.5'
   implementation 'com.github.bumptech.glide:okhttp3-integration:5.0.5'

@@ -24,7 +24,7 @@ kotlin.compilerOptions.jvmTarget = JvmTarget.JVM_21
 
 // Same libraries and versions the Android module gives extensions.
 dependencies {
-    implementation(platform("com.squareup.okhttp3:okhttp-bom:5.5.0"))
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:5.5.1"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:okhttp-brotli")
     implementation("com.squareup.okhttp3:okhttp-zstd")
@@ -84,9 +84,9 @@ val zstdStubTest by sourceSets.creating {
     runtimeClasspath += zstdStub.output
 }
 dependencies {
-    "zstdStubCompileOnly"(platform("com.squareup.okhttp3:okhttp-bom:5.5.0"))
+    "zstdStubCompileOnly"(platform("com.squareup.okhttp3:okhttp-bom:5.5.1"))
     "zstdStubCompileOnly"("com.squareup.okhttp3:okhttp")
-    "zstdStubTestImplementation"(platform("com.squareup.okhttp3:okhttp-bom:5.5.0"))
+    "zstdStubTestImplementation"(platform("com.squareup.okhttp3:okhttp-bom:5.5.1"))
     "zstdStubTestImplementation"("com.squareup.okhttp3:okhttp")
     "zstdStubTestImplementation"("com.squareup.okhttp3:mockwebserver3")
     "zstdStubTestImplementation"(kotlin("test-junit5"))
