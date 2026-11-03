@@ -190,6 +190,38 @@ class ShimsTest {
     }
 
     @Test
+    fun dialogHelpersNeverShowOrFire() {
+        val app = android.app.Application(File("unused"), "1", 1)
+        app.registerActivityLifecycleCallbacks(null)
+        val dialog = android.app.AlertDialog.Builder(app).setPositiveButton("OK") { _, _ -> error("never pressed") }.create()
+        dialog.setOnDismissListener { error("never dismissed") }
+        dialog.show()
+        assertFalse(dialog.isShowing())
+        assertEquals("", android.widget.EditText(app).getText().toString())
+        assertEquals(android.content.res.Configuration.UI_MODE_NIGHT_NO, app.getResources().getConfiguration().uiMode)
+    }
+
+    @Test
+    fun textLaysOutButIsNeverDrawn() {
+        val paint = android.text.TextPaint().apply { setTextSize(20f) }
+        val layout = android.text.StaticLayout.Builder.obtain("one\ntwo", 0, 7, paint, 300).build()
+        assertEquals(2, layout.getLineCount())
+        assertTrue(layout.getHeight() > 40)
+        val canvas = android.graphics.Canvas(android.graphics.Bitmap.createBitmap(300, 100, android.graphics.Bitmap.Config.ARGB_8888))
+        assertFailsWith<UnsupportedOperationException> { layout.draw(canvas) }
+        assertFailsWith<UnsupportedOperationException> { canvas.drawText("x", 0f, 0f, paint) }
+    }
+
+    @Test
+    fun color() {
+        assertEquals(0xFF112233.toInt(), android.graphics.Color.parseColor("#112233"))
+        assertEquals(0x80112233.toInt(), android.graphics.Color.parseColor("#80112233"))
+        assertEquals(0x22, android.graphics.Color.green(android.graphics.Color.rgb(0x11, 0x22, 0x33)))
+        val paint = android.graphics.Paint().apply { setColor(android.graphics.Color.RED); setAlpha(0x80) }
+        assertEquals(0x80FF0000.toInt(), paint.getColor())
+    }
+
+    @Test
     fun html() {
         assertEquals("a\nb & c", Html.fromHtml("a<br>b &amp; c", 0).toString())
         assertEquals("x\n\ny", Html.fromHtml("<p>x</p><p>y</p>", 0).toString())

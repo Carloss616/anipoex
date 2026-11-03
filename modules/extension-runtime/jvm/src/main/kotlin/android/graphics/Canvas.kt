@@ -56,6 +56,18 @@ class Canvas(private val bitmap: Bitmap) {
     fun drawBitmap(bitmap: Bitmap, left: Float, top: Float, paint: Paint?) =
         draw(bitmap, null, floatArrayOf(left, top, left + bitmap.getWidth(), top + bitmap.getHeight()))
 
+    // shortcut: the app's image engine draws bitmaps only, so a page a source draws text or shapes on fails
+    // here instead of coming out blank; add ops to ImageEngine and the hosts when a source needs one.
+    fun drawText(text: String, x: Float, y: Float, paint: Paint): Unit = unsupported("text")
+
+    fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint): Unit = unsupported("lines")
+
+    fun drawCircle(cx: Float, cy: Float, radius: Float, paint: Paint): Unit = unsupported("circles")
+
+    fun drawPath(path: Path, paint: Paint): Unit = unsupported("paths")
+
+    fun drawRoundRect(rect: RectF, rx: Float, ry: Float, paint: Paint): Unit = unsupported("shapes")
+
     private fun draw(source: Bitmap, src: Rect?, dst: FloatArray) {
         val from = src?.let { floatArrayOf(it.left.toFloat(), it.top.toFloat(), it.right.toFloat(), it.bottom.toFloat()) }
             ?: floatArrayOf(0f, 0f, source.getWidth().toFloat(), source.getHeight().toFloat())
@@ -72,6 +84,8 @@ class Canvas(private val bitmap: Bitmap) {
     }
 
     internal companion object {
+        fun unsupported(what: String): Nothing = throw UnsupportedOperationException("Drawing $what isn't supported on this device")
+
         val IDENTITY = floatArrayOf(1f, 0f, 0f, 1f, 0f, 0f)
     }
 }

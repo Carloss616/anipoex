@@ -20,6 +20,33 @@ open class View(val context: Context?) {
 
     open fun setBackgroundColor(color: Int) {}
 
+    // Views a source's dialog builds, which never shows here: they keep nothing and never fire.
+    fun setOnClickListener(listener: OnClickListener?) {}
+
+    fun setEnabled(enabled: Boolean) {}
+
+    fun setContentDescription(description: CharSequence?) {}
+
+    fun setPadding(left: Int, top: Int, right: Int, bottom: Int) {}
+
+    fun setPaddingRelative(start: Int, top: Int, end: Int, bottom: Int) {}
+
+    fun getPaddingTop(): Int = 0
+
+    fun getPaddingBottom(): Int = 0
+
+    fun getPaddingStart(): Int = 0
+
+    fun <T : View> findViewById(id: Int): T? = null
+
+    fun getRootView(): View = this
+
+    fun post(action: Runnable?): Boolean = false
+
+    fun interface OnClickListener {
+        fun onClick(view: View?)
+    }
+
     // shortcut: touches are dropped, so a page that needs a tap never gets one; send them to the browser when a source needs it.
     open fun dispatchTouchEvent(event: MotionEvent?): Boolean = false
 
@@ -49,6 +76,9 @@ class Surface internal constructor()
 abstract class ViewGroup(context: Context?) : View(context), ViewParent {
     open fun removeView(view: View?) {}
 
+    @JvmOverloads
+    open fun addView(view: View?, params: LayoutParams? = null) {}
+
     fun setOnHierarchyChangeListener(listener: OnHierarchyChangeListener?) {}
 
     interface OnHierarchyChangeListener {
@@ -62,6 +92,14 @@ abstract class ViewGroup(context: Context?) : View(context), ViewParent {
             const val MATCH_PARENT = -1
             const val WRAP_CONTENT = -2
         }
+    }
+
+    open class MarginLayoutParams(width: Int, height: Int) : LayoutParams(width, height) {
+        fun setMargins(left: Int, top: Int, right: Int, bottom: Int) {}
+
+        fun setMarginStart(start: Int) {}
+
+        fun setMarginEnd(end: Int) {}
     }
 }
 

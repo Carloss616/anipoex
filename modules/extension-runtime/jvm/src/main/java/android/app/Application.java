@@ -3,6 +3,7 @@ package android.app;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import anipoex.server.JsonPreferences;
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +37,27 @@ public class Application extends ContextWrapper {
     @Override
     public PackageManager getPackageManager() {
         return packageManager;
+    }
+
+    /** No activity ever starts here, so a callback has nothing to hear. */
+    public void registerActivityLifecycleCallbacks(ActivityLifecycleCallbacks callback) {}
+
+    public void unregisterActivityLifecycleCallbacks(ActivityLifecycleCallbacks callback) {}
+
+    public interface ActivityLifecycleCallbacks {
+        void onActivityCreated(Activity activity, Bundle savedInstanceState);
+
+        void onActivityStarted(Activity activity);
+
+        void onActivityResumed(Activity activity);
+
+        void onActivityPaused(Activity activity);
+
+        void onActivityStopped(Activity activity);
+
+        void onActivitySaveInstanceState(Activity activity, Bundle outState);
+
+        void onActivityDestroyed(Activity activity);
     }
 
     @Override
