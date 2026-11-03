@@ -49,8 +49,23 @@ class ImageEngineTest {
         val bits = w or (h shl 14)
         assertEquals(640 to 960, ImageEngine.size(webp("VP8L", listOf(0x2F, bits and 0xFF, bits shr 8 and 0xFF, bits shr 16 and 0xFF, bits shr 24 and 0xFF))))
         assertEquals(320 to 240, ImageEngine.size(webp("VP8 ", listOf(0, 0, 0, 0x9D, 0x01, 0x2A, 320 and 0xFF, 320 shr 8, 240, 0))))
+        assertEquals(640 to 960, ImageEngine.size(avif()))
+        assertNull(ImageEngine.size(avif().copyOf(60)))
         assertNull(ImageEngine.size("<html>Not found</html>".toByteArray()))
         assertNull(ImageEngine.size(byteArrayOf(0xFF.toByte(), 0xD8.toByte())))
+    }
+
+    // An AVIF grid: item 2 is a 10×10 tile listed first, item 1 (primary) the 640×960 image, its ispe flagged essential.
+    private fun avif(): ByteArray {
+        fun box(type: String, vararg content: ByteArray): ByteArray {
+            val body = content.fold(ByteArray(0)) { all, part -> all + part }
+            return java.nio.ByteBuffer.allocate(8 + body.size).putInt(8 + body.size).put(type.toByteArray()).put(body).array()
+        }
+        fun ints(vararg values: Int) = java.nio.ByteBuffer.allocate(4 * values.size).apply { values.forEach(::putInt) }.array()
+        fun ispe(width: Int, height: Int) = box("ispe", ints(0, width, height))
+        val ipma = box("ipma", ints(0, 2), byteArrayOf(0, 2, 1, 1, 0, 1, 1, 0x82.toByte()))
+        val meta = box("meta", ints(0), box("pitm", ints(0), byteArrayOf(0, 1)), box("iprp", box("ipco", ispe(10, 10), ispe(640, 960)), ipma))
+        return box("ftyp", "avifmif1".toByteArray()) + meta
     }
 
     // A page cut in two and swapped, as a source's descrambler does: one image sent once, both tiles from it.

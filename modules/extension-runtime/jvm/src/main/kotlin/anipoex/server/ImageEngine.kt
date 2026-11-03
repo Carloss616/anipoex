@@ -79,7 +79,7 @@ internal object ImageEngine {
         return Base64.getDecoder().decode(host("renderImage", args).jsonPrimitive.content)
     }
 
-    /** Width and height from a JPEG, PNG, GIF, WebP or BMP header; null for anything else. */
+    /** Width and height from a JPEG, PNG, GIF, WebP, BMP or AVIF header; null for anything else. */
     fun size(bytes: ByteArray): Pair<Int, Int>? {
         fun u8(i: Int) = bytes[i].toInt() and 0xFF
         fun be16(i: Int) = u8(i) shl 8 or u8(i + 1)
@@ -100,6 +100,7 @@ internal object ImageEngine {
                     else -> null
                 }
                 u8(0) == 0xFF && u8(1) == 0xD8 -> jpegSize(bytes, ::u8, ::be16)
+                ascii(4, "ftyp") -> heifSize(bytes, ::be16, ::be32)
                 else -> null
             }?.takeIf { (width, height) -> width > 0 && height > 0 }
         } catch (_: IndexOutOfBoundsException) {
@@ -118,6 +119,50 @@ internal object ImageEngine {
                 marker in 0xC0..0xCF && marker != 0xC4 && marker != 0xC8 && marker != 0xCC -> return be16(i + 7) to be16(i + 5)
                 marker == 0x01 || marker in 0xD0..0xD7 -> i += 2
                 else -> i += 2 + be16(i + 2)
+            }
+        }
+        return null
+    }
+
+    /**
+     * An AVIF (HEIF) file's size is its primary item's `ispe` property: `meta` holds `pitm` (that item), `iprp`'s
+     * `ipco` (the properties, numbered from 1) and `ipma` (which of them each item has). A grid's tiles have their
+     * own, smaller `ispe`, so the first one isn't enough.
+     */
+    private fun heifSize(bytes: ByteArray, be16: (Int) -> Int, be32: (Int) -> Int): Pair<Int, Int>? {
+        // Each box: a 32-bit size (header included) and a four-letter type; yields the type and its content's range.
+        fun boxes(from: Int, to: Int) = sequence {
+            var at = from
+            while (at + 8 <= to) {
+                val size = be32(at)
+                if (size < 8 || at + size > to) break
+                yield(Triple(String(bytes, at + 4, 4, Charsets.ISO_8859_1), at + 8, at + size))
+                at += size
+            }
+        }
+        // `meta` and `ipma` are full boxes: a version byte and 24 bits of flags before their content.
+        val meta = boxes(0, bytes.size).firstOrNull { it.first == "meta" } ?: return null
+        val inMeta = boxes(meta.second + 4, meta.third).associateBy { it.first }
+        val pitm = inMeta["pitm"] ?: return null
+        val primary = if (bytes[pitm.second] == 0.toByte()) be16(pitm.second + 4) else be32(pitm.second + 4)
+        val iprp = inMeta["iprp"] ?: return null
+        val inIprp = boxes(iprp.second, iprp.third).associateBy { it.first }
+        val ipco = inIprp["ipco"] ?: return null
+        val properties = boxes(ipco.second, ipco.third).toList()
+        val ipma = inIprp["ipma"] ?: return null
+        val wideIds = bytes[ipma.second] != 0.toByte()
+        val wideIndexes = bytes[ipma.second + 3].toInt() and 1 == 1
+        var at = ipma.second + 8
+        repeat(be32(ipma.second + 4)) {
+            val item = if (wideIds) be32(at) else be16(at)
+            at += if (wideIds) 4 else 2
+            val count = bytes[at++].toInt() and 0xFF
+            repeat(count) {
+                // The top bit marks the property essential; the rest is its 1-based index in `ipco`.
+                val index = if (wideIndexes) be16(at) and 0x7FFF else bytes[at].toInt() and 0x7F
+                at += if (wideIndexes) 2 else 1
+                val property = properties.getOrNull(index - 1)
+                if (item == primary && property?.first == "ispe") return be32(property.second + 4) to be32(property.second + 8)
             }
         }
         return null
