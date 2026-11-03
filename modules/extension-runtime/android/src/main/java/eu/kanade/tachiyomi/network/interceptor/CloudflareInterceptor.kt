@@ -73,18 +73,21 @@ class CloudflareInterceptor(
         val (response, clearance) = lock.read {
             val response = chain.proceed(request)
             if (!shouldIntercept(response)) return response
-            response to clearance(request.url)
+            response to clearance(response.request.url)
         }
+        // The host that challenged, which a redirect can make another than the one requested (a source's domain
+        // moved): its clearance lands there, and the retry's redirect sends it. Upstream reads request.url.
+        val challenged = response.request.url
 
         // write releases the read hold of a request made from within another to the same host, like an extension
         // refreshing a token, which would otherwise wait on itself
         lock.write {
             // Another request may have solved the challenge while this one waited
-            if (isCleared(request.url, clearance)) {
+            if (isCleared(challenged, clearance)) {
                 response.close()
             } else {
                 if (!supportsWebView()) return response
-                solve(request, response, clearance)
+                solve(request, challenged, response, clearance)
             }
         }
 
@@ -100,11 +103,11 @@ class CloudflareInterceptor(
         return !clearance.isNullOrBlank() && clearance != previousClearance
     }
 
-    private fun solve(request: Request, response: Response, clearance: String?) {
+    private fun solve(request: Request, challenged: HttpUrl, response: Response, clearance: String?) {
         try {
             response.close()
-            cookieManager.remove(request.url, COOKIE_NAMES, 0)
-            resolveWithWebView(request, clearance)
+            cookieManager.remove(challenged, COOKIE_NAMES, 0)
+            resolveWithWebView(request, challenged, clearance)
         }
         // OkHttp's enqueue only handles IOExceptions, so wrap the exception to not crash the app
         catch (e: CloudflareBypassException) {
@@ -115,7 +118,7 @@ class CloudflareInterceptor(
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun resolveWithWebView(originalRequest: Request, originalClearance: String?) {
+    private fun resolveWithWebView(originalRequest: Request, challenged: HttpUrl, originalClearance: String?) {
         // OkHttp doesn't support asynchronous interceptors, so this thread waits until the WebView finds the solution
         val latch = CountDownLatch(1)
 
@@ -129,14 +132,14 @@ class CloudflareInterceptor(
         var isWebViewOutdated = false
         var isRenderProcessGone = false
 
-        val origRequestUrl = originalRequest.url.toString()
+        val origRequestUrl = challenged.toString()
         // A WebView can only load a page with GET, and loading the url of another method usually reaches an
         // endpoint that answers GET without a challenge to solve. The clearance covers the whole site, so it's
         // earned on the site's root page instead.
         val challengeUrl = if (originalRequest.method == "GET") {
             origRequestUrl
         } else {
-            originalRequest.url.newBuilder().encodedPath("/").query(null).fragment(null).build().toString()
+            challenged.newBuilder().encodedPath("/").query(null).fragment(null).build().toString()
         }
         val headers = originalRequest.headers.toWebViewHeaders()
 
@@ -162,7 +165,7 @@ class CloudflareInterceptor(
             if (useIsolatedWorld) {
                 // An isolated world keeps the bridge out of the page's reach
                 val world = WebViewCompat.getExecutionWorld(view, "mihon")
-                val origins = setOf(originalRequest.url.origin())
+                val origins = setOf(challenged.origin())
                 WebViewCompat.addWebMessageListener(view, "mihon", origins, world) { _, message, _, isMainFrame, _ ->
                     if (isMainFrame) message.data?.let(::onChallengeEvent)
                 }
@@ -186,7 +189,7 @@ class CloudflareInterceptor(
 
             view.webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView, url: String) {
-                    if (!challengeFailed && isCleared(originalRequest.url, originalClearance)) {
+                    if (!challengeFailed && isCleared(challenged, originalClearance)) {
                         cloudflareBypassed = true
                         latch.countDown()
                     }
@@ -254,7 +257,7 @@ class CloudflareInterceptor(
         // Throw exception if we failed to bypass Cloudflare
         if (!cloudflareBypassed) {
             // A clearance from a failed challenge would only be rejected again
-            cookieManager.remove(originalRequest.url, COOKIE_NAMES, 0)
+            cookieManager.remove(challenged, COOKIE_NAMES, 0)
             throw CloudflareBypassException(
                 if (isWebViewOutdated) "Failed to bypass Cloudflare: update Android System WebView" else "Failed to bypass Cloudflare",
             )
