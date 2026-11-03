@@ -36,7 +36,7 @@ export function Calendar({
         showVariantToggle={false}
         selectableDates={{ start: minDate, end: maxDate }}
         elementColors={{ containerColor: m3.surfaceContainerLow }}
-        onDateSelected={(date) => onSelect?.(fromUtcDay(date))}
+        onDateSelected={(date) => date && onSelect?.(fromUtcDay(date))}
       />
     </EnsureHost>
   );
