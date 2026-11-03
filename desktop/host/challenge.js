@@ -178,6 +178,7 @@ async function pageFetch({ method, url, headers, body }) {
     binary += String.fromCharCode(...data.subarray(i, i + 0x8000));
   return {
     status: response.status,
+    url: response.url,
     headers: [...response.headers],
     body: btoa(binary),
   };
@@ -195,7 +196,7 @@ const FORBIDDEN = new Set([
 ]);
 
 /**
- * Sends a runtime request from the page that solved its site's challenge; resolves to `{status, headers, body}` with a base64 body.
+ * Sends a runtime request from the page that solved its site's challenge; resolves to `{status, url, headers, body}` with a base64 body and the URL its redirects ended on.
  * Some sites only take the clearance from the browser itself, not from the runtime's TLS fingerprint. The runtime's other cookies join the session's store first.
  */
 export async function fetchThrough({ method, url, headers, body }) {

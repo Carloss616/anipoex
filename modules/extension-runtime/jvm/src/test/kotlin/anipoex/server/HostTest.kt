@@ -78,6 +78,22 @@ class HostTest {
         }
     }
 
+    // A source builds its next URL on response.request.url, which a redirect the browser followed must carry.
+    @Test
+    fun browserRedirectEndsOnTheResponsesRequest(@TempDir dir: File) {
+        MockWebServer().use { server ->
+            server.start()
+            server.enqueue(challenge)
+            Host.solveChallenge = { Host.Solution(listOf("cf_clearance=ok; Path=/"), "Browser/1") }
+            Host.fetch = { request -> Host.HostResponse(200, emptyList(), "page".toByteArray(), request.url.replace("/?p=1", "/title/one/").substringBefore('#')) }
+            val client = NetworkHelper(Application(dir, "1.0.0", 1)).client
+            assertEquals(server.url("/title/one/"), client.newCall(GET(server.url("/?p=1").toString())).execute().request.url)
+            // No redirect: the reply's URL is the request's without its fragment, which the source still sees.
+            val scrambled = server.url("/001.jpg").newBuilder().fragment("scramble=1").build()
+            assertEquals(scrambled, client.newCall(GET(scrambled.toString())).execute().request.url)
+        }
+    }
+
     @Test
     fun challengeBehindARedirectIsSolvedOnTheHostItMovedTo(@TempDir dir: File) {
         MockWebServer().use { server ->

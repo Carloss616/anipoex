@@ -6,6 +6,7 @@ import eu.kanade.tachiyomi.network.AndroidCookieJar
 import okhttp3.Cookie
 import okhttp3.Headers
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -91,10 +92,14 @@ class CloudflareInterceptor(
             throw IOException(e.message ?: "Request through the browser failed", e)
         }
         val replyHeaders = Headers.Builder().apply { reply.headers.forEach { (name, value) -> addUnsafeNonAscii(name, value) } }.build()
+        // As OkHttp after a redirect: the response's request names where it ended, which sources build later URLs on.
+        // A browser's response URL has no fragment, and descramblers read theirs from it: it keeps the request's.
+        val ended = reply.url?.toHttpUrlOrNull()?.newBuilder()?.fragment(request.url.fragment)?.build()
+        val answered = ended?.takeIf { it != request.url }?.let { request.newBuilder().url(it).build() } ?: request
         // Built here, it skips the OkHttp layer that would keep its cookies.
-        cookieManager.saveFromResponse(request.url, Cookie.parseAll(request.url, replyHeaders))
+        cookieManager.saveFromResponse(answered.url, Cookie.parseAll(answered.url, replyHeaders))
         return Response.Builder()
-            .request(request)
+            .request(answered)
             .protocol(Protocol.HTTP_1_1)
             .code(reply.code)
             .message("")

@@ -48,12 +48,13 @@ object Host {
 
     class HostRequest(val method: String, val url: String, val headers: List<Pair<String, String>>, val body: ByteArray?)
 
-    class HostResponse(val code: Int, val headers: List<Pair<String, String>>, val body: ByteArray)
+    /** [url] is where the browser's redirects ended, when it isn't the one requested. */
+    class HostResponse(val code: Int, val headers: List<Pair<String, String>>, val body: ByteArray, val url: String? = null)
 
     /**
      * Wires both through one JSON call into the app, as the desktop's protocol and iOS's JNI do:
      * `solveChallenge {url}` answers `{cookies, userAgent}`; `fetch {method, url, headers, body}`
-     * answers `{status, headers, body}`, headers as `[name, value]` pairs and bodies in base64.
+     * answers `{status, headers, body, url?}`, headers as `[name, value]` pairs, bodies in base64 and `url` the final one.
      */
     fun overJson(call: (method: String, args: JsonObject) -> JsonElement) {
         this.call = call
@@ -76,6 +77,7 @@ object Host {
                 reply.getValue("status").jsonPrimitive.int,
                 reply.getValue("headers").jsonArray.map { it.jsonArray[0].jsonPrimitive.content to it.jsonArray[1].jsonPrimitive.content },
                 Base64.getDecoder().decode(reply.getValue("body").jsonPrimitive.content),
+                reply["url"]?.jsonPrimitive?.contentOrNull,
             )
         }
     }

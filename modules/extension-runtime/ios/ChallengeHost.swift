@@ -255,7 +255,7 @@ final class ChallengeHost {
     const data = new Uint8Array(await response.arrayBuffer());
     let binary = "";
     for (let i = 0; i < data.length; i += 0x8000) binary += String.fromCharCode(...data.subarray(i, i + 0x8000));
-    return { status: response.status, headers: [...response.headers], body: btoa(binary) };
+    return { status: response.status, url: response.url, headers: [...response.headers], body: btoa(binary) };
     """
 
   nonisolated static func envelope(_ object: [String: Any]) -> String {
