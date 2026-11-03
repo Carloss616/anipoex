@@ -59,7 +59,7 @@ const ScanCard = memo(function ScanCard({
       accessibilityLabel={`${view.name}, ${view.status}, show sources`}
       className={cn(
         PRESS,
-        "w-full max-w-sm gap-1 rounded-2xl border border-border bg-surface-secondary p-3 text-start shadow-sm transition-[scale,background-color] hover:bg-surface-tertiary",
+        "glass-chrome hover:glass-muted w-full max-w-sm gap-1 rounded-2xl border p-3 text-start shadow-lg",
       )}
     >
       <Typography type="small" numberOfLines={1}>

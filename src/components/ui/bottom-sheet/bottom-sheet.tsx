@@ -87,12 +87,9 @@ function BottomSheetRoot({
         showGrabber={showDragIndicator && side === "bottom"}
         showClose={false}
         data-testid={testID}
-        // RNW Views don't shrink; drop once the sheets use Sheet.Body.
         className={cn(
-          // `!` beats the popup's bg-popover; glass inside starts from its color.
-          "glass-sheet! [--glass-base:var(--color-popover)] *:min-h-0 *:shrink",
-          // The same glass on each Sheet.Next it opens, portaled out of reach.
-          "sheet-next:glass-sheet sheet-next:[--glass-base:var(--color-popover)] sheet-next:*:min-h-0 sheet-next:*:shrink",
+          "glass-sheet! *:min-h-0 *:shrink",
+          "sheet-next:glass-sheet sheet-next:*:min-h-0 sheet-next:*:shrink",
           className,
         )}
       >

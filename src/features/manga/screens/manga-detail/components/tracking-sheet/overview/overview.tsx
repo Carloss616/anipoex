@@ -69,7 +69,10 @@ export function Overview({
       <Sheet.Header className={SHEET_INSET.header}>
         <View className="flex-row items-center gap-2">
           <Sheet.Title className="min-w-0 truncate">{title}</Sheet.Title>
-          <ButtonGroup aria-label="Entry actions" className="ms-auto">
+          <ButtonGroup
+            aria-label="Entry actions"
+            className="glass-chrome ms-auto rounded-full! border **:rounded-full!"
+          >
             <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
               <Button variant="ghost" size="icon" aria-label="More actions">
                 <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />

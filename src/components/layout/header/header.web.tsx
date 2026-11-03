@@ -42,8 +42,10 @@ const ARRIVING = "opacity-100 blur-[0px] delay-100";
  * A glass capsule per group. `!` beats the track's bg-muted and its muted
  * ghost icons, both set by a stronger selector: over glass they need full ink.
  */
-const GLASS_GROUP =
-  "glass-capsule! [&>:is([data-variant=ghost],[data-variant=outline])]:text-foreground!";
+const GLASS_GROUP = cn(
+  "glass-chrome glass-muted rounded-full! shadow-md border **:rounded-full!",
+  "[&>:is([data-variant=ghost],[data-variant=outline])]:text-foreground!",
+);
 
 // The native search bar reports through events, so mirror that shape here.
 const textEvent = (text: string) =>
@@ -113,7 +115,10 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         <SearchBar
           ref={inputRef}
           // Stacked, it floats on its own; inline, its capsule is the glass.
-          className={cn("min-w-0 flex-1", isStacked && "glass-chrome!")}
+          className={cn(
+            "min-w-0 flex-1",
+            isStacked && "glass-chrome! glass-muted shadow-md",
+          )}
           value={query$.get()}
           onChangeText={emit}
           onSubmit={(text) => search.onSearchButtonPress?.(textEvent(text))}

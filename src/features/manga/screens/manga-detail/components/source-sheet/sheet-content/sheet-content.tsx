@@ -144,7 +144,10 @@ export function SheetContent({
                 )}
               </Sheet.Description>
             </View>
-            <ButtonGroup aria-label="Sources actions" className="ms-auto">
+            <ButtonGroup
+              aria-label="Sources actions"
+              className="glass-chrome ms-auto rounded-full! border **:rounded-full!"
+            >
               <Button
                 variant={title.searching ? "default" : "ghost"}
                 size="icon"

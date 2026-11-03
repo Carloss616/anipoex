@@ -130,7 +130,7 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
       )}
       {...props}
     >
-      <View className="glass-capsule flex-row items-center gap-2 p-1.5">
+      <View className="glass-chrome flex-row items-center gap-2 rounded-full border p-1.5 shadow-lg">
         <PanelTabs
           value={value ?? ROUTES[0].name}
           onValueChange={(name) => switchTab(String(name), {})}

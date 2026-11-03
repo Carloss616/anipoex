@@ -22,16 +22,10 @@ export type ShowToastVariant = (
   options?: Omit<ShowToastOptions, "variant">,
 ) => void;
 
-/** A toast color at the sheet glass's veil; global.css adds the blur. */
-const glass = (color: string) =>
-  `color-mix(in oklab,${color} var(--glass-sheet-veil),transparent)`;
-
 const richColorsOf = (key: string, _token?: string) => {
   const token = _token ?? key;
   return {
-    [`--${key}-bg`]: glass(
-      `color-mix(in oklab,var(--color-${token}) 10%,var(--color-popover))`,
-    ),
+    [`--${key}-bg`]: `color-mix(in oklab,var(--color-${token}) 10%,var(--color-popover))`,
     [`--${key}-bg-hover`]: `color-mix(in oklab,var(--color-${token}) 20%,var(--color-popover))`,
     [`--${key}-border`]: `color-mix(in oklab,var(--color-${token}) 14%,transparent)`,
     [`--${key}-border-hover`]: `color-mix(in oklab,var(--color-${token}) 24%,transparent)`,
@@ -82,7 +76,7 @@ export function ToastHost({
       closeButton
       style={
         {
-          "--normal-bg": glass("var(--color-popover)"),
+          "--normal-bg": "var(--color-popover)",
           "--normal-bg-hover": "var(--color-accent)",
           "--normal-text": "var(--color-popover-foreground)",
           "--normal-border": "var(--color-border)",
@@ -101,6 +95,15 @@ export function ToastHost({
         className: cn("group", toastOptions?.className),
         classNames: {
           ...toastOptions?.classNames,
+          toast: cn(
+            // `!` beats sonner's shadow, its focus ring too, so the ring is redrawn.
+            "glass-chrome! shadow-lg focus-visible:ring-2 focus-visible:ring-black/20",
+            "data-rich-colors:data-[type=success]:[--glass-tint:var(--success-bg)]!",
+            "data-rich-colors:data-[type=info]:[--glass-tint:var(--info-bg)]!",
+            "data-rich-colors:data-[type=warning]:[--glass-tint:var(--warning-bg)]!",
+            "data-rich-colors:data-[type=error]:[--glass-tint:var(--error-bg)]!",
+            toastOptions?.classNames?.toast,
+          ),
           closeButton: cn(
             "shadow-sm",
             "active:not-disabled:scale-[0.97] motion-reduce:active:scale-100",

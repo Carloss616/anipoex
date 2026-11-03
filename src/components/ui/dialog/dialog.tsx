@@ -60,14 +60,7 @@ function DialogRoot(props: DialogProps) {
     <>
       {children && extractTrigger(children, () => setOpen(true))}
       <PanelDialog open={open ?? innerOpen} onOpenChange={setOpen}>
-        <PanelDialog.Content
-          blur
-          // The class lands on the shell; the panel inside is its child.
-          className={cn(
-            "glass-sheet! *:data-[slot=dialog-panel]:inset-shadow-[0_1px_0_var(--glass-edge)] *:data-[slot=dialog-panel]:bg-popover/50",
-            className,
-          )}
-        >
+        <PanelDialog.Content blur className={cn("glass-sheet!", className)}>
           <PanelDialog.Header title={title} description={description} />
           <PanelDialog.Footer>
             <PanelDialog.Close

@@ -58,152 +58,64 @@
     --destructive: var(--color-destructive);
   }
 
-  /* Glass densities. Dark takes more veil: black shows more through. */
   :root {
-    --glass-base: var(--color-background);
-    --glass-chrome-veil: 66%;
-    --glass-chrome-blur: 28px;
-    --glass-chrome-saturate: 1.8;
-    --glass-sheet-veil: 65%;
-    --glass-sheet-blur: 24px;
-    --glass-sheet-saturate: 1.9;
+    --glass-tint: var(--color-background);
     --glass-edge: rgb(255 255 255 / 0.92);
-    --glass-edge-side: rgb(255 255 255 / 0.35);
   }
   .dark {
-    --glass-chrome-veil: 72%;
-    --glass-chrome-blur: 32px;
-    --glass-chrome-saturate: 1.6;
-    --glass-sheet-veil: 72%;
-    --glass-sheet-blur: 28px;
-    --glass-sheet-saturate: 1.7;
     --glass-edge: rgb(255 255 255 / 0.14);
-    --glass-edge-side: rgb(255 255 255 / 0.06);
-  }
-  /* Reduce transparency: every veil turns solid, inline ones (the toast) too. */
-  @media (prefers-reduced-transparency: reduce) {
-    :root {
-      --glass-chrome-veil: 100%;
-      --glass-sheet-veil: 100%;
-    }
   }
 }
 
-/* Glass is for what floats over the content: chrome, sheets, dialogs, toasts. */
-@utility glass-chrome {
-  background-color: color-mix(
-    in oklab,
-    var(--glass-tint, var(--glass-base)) var(--glass-chrome-veil),
-    transparent
-  );
-  /* Saturate restores the color the blur averages to grey. */
-  -webkit-backdrop-filter: saturate(var(--glass-chrome-saturate))
-    blur(var(--glass-chrome-blur));
-  backdrop-filter: saturate(var(--glass-chrome-saturate))
-    blur(var(--glass-chrome-blur));
-  @apply inset-shadow-[0_1px_0_var(--glass-edge)];
-  @media (prefers-reduced-transparency: reduce) {
-    background-color: var(--glass-tint, var(--glass-base));
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+/* Glass densities: `glass-veil-66` is 66% color, `glass-blur-28` 28px. */
+@utility glass-veil-* {
+  --glass-veil: calc(--value(integer) * 1%);
 }
-
-/* iOS 26's scroll edge, under a masked layer that fades its last edge. */
-@utility glass-edge {
-  background-color: color-mix(
-    in oklab,
-    var(--glass-base) var(--glass-chrome-veil),
-    transparent
-  );
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  @media (prefers-reduced-transparency: reduce) {
-    background-color: var(--glass-base);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+@utility glass-blur-* {
+  --glass-blur: calc(--value(integer) * 1px);
 }
-
-/* panelui-web's sheet and dialog backdrops frost the page: not in this mode. */
-@media (prefers-reduced-transparency: reduce) {
-  [class*="backdrop-blur"] {
-    /* biome-ignore lint/complexity/noImportantStyles: beats the utility class */
-    -webkit-backdrop-filter: none !important;
-    /* biome-ignore lint/complexity/noImportantStyles: beats the utility class */
-    backdrop-filter: none !important;
-  }
+@utility glass-saturate-* {
+  --glass-saturate: calc(--value(integer) * 1%);
 }
-
-@utility glass-capsule {
-  @apply glass-chrome rounded-full shadow-lg ring-1 ring-(--glass-edge-side);
-  & > * {
-    border-radius: 9999px;
-  }
-}
-
-/* Menus, sheets, dialogs, toasts: at 80% the glass read as opaque. */
-@utility glass-sheet {
-  background-color: color-mix(
-    in oklab,
-    var(--glass-tint, var(--color-popover)) var(--glass-sheet-veil),
-    transparent
-  );
-  -webkit-backdrop-filter: saturate(var(--glass-sheet-saturate))
-    blur(var(--glass-sheet-blur));
-  backdrop-filter: saturate(var(--glass-sheet-saturate))
-    blur(var(--glass-sheet-blur));
-  @apply inset-shadow-[0_1px_0_var(--glass-edge)];
-  @media (prefers-reduced-transparency: reduce) {
-    background-color: var(--glass-tint, var(--color-popover));
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-
-/* A theme color for the glass (`glass-capsule glass-primary`); nested glass
-   inherits it. */
+/* Theme color for the glass (`glass-muted`); nested glass inherits it. */
 @utility glass-* {
   --glass-tint: --value(--color-*);
 }
 
-/* Sonner paints the toast from the Toaster's vars, made translucent in
-   `toast.tsx`; this adds the blur and lit edge over its stronger selector. */
-[data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
-  -webkit-backdrop-filter: saturate(var(--glass-sheet-saturate))
-    blur(var(--glass-sheet-blur));
-  backdrop-filter: saturate(var(--glass-sheet-saturate))
-    blur(var(--glass-sheet-blur));
+/* Glass is for what floats over the content: chrome, sheets, dialogs, toasts. */
+@utility glass-chrome {
+  @apply glass-veil-66 glass-blur-28 glass-saturate-180;
+  /* Dark takes more veil: black shows more through. */
+  @apply dark:glass-veil-72 dark:glass-blur-32 dark:glass-saturate-160;
+  background-color: color-mix(
+    in oklab,
+    var(--glass-tint) var(--glass-veil),
+    transparent
+  );
+  /* Saturate restores the color the blur averages to grey. */
+  -webkit-backdrop-filter: saturate(var(--glass-saturate))
+    blur(var(--glass-blur));
+  backdrop-filter: saturate(var(--glass-saturate)) blur(var(--glass-blur));
+  @apply inset-shadow-[0_1px_0_var(--glass-edge)];
   @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--glass-tint);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-}
-/* Not while focused: sonner draws its focus ring with the same shadow. */
-[data-sonner-toaster]
-[data-sonner-toast][data-styled="true"]:not(:focus-visible) {
-  box-shadow:
-    inset 0 1px 0 var(--glass-edge),
-    0 4px 12px rgb(0 0 0 / 0.1);
 }
 
-/*
- * Every ButtonGroup track is glass. Its translucent bg-muted stays, so it still
- * reads on an opaque sheet; a ring, not a border, keeps the layout. Unlayered,
- * so it beats panelui-web's utilities without `!`.
- */
-[data-slot="button-group"]:not(
-  :has(> [data-slot="button-group-separator"], > [data-slot="button-group"])
-) {
-  -webkit-backdrop-filter: saturate(var(--glass-chrome-saturate))
-    blur(var(--glass-chrome-blur));
-  backdrop-filter: saturate(var(--glass-chrome-saturate))
-    blur(var(--glass-chrome-blur));
-  @apply inset-shadow-[0_1px_0_var(--glass-edge)] ring-1 ring-(--glass-edge-side);
-  @media (prefers-reduced-transparency: reduce) {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+/* Menus, sheets, dialogs: at 80% the glass read as opaque. */
+@utility glass-sheet {
+  @apply glass-chrome glass-popover;
+  @apply glass-veil-65 glass-blur-24 glass-saturate-190;
+  @apply dark:glass-veil-72 dark:glass-blur-28 dark:glass-saturate-170;
+}
+
+/* iOS 26's scroll edge, under a masked layer that fades its last edge. */
+@utility glass-edge {
+  @apply glass-chrome;
+  @apply glass-blur-10 glass-saturate-100 inset-shadow-none;
+  @apply dark:glass-blur-10 dark:glass-saturate-100;
 }
 
 @layer base {
