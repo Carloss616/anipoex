@@ -2,7 +2,6 @@ package android.text
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import java.text.BreakIterator
 
 /** Android's TextPaint: a [Paint] for text. */
 open class TextPaint @JvmOverloads constructor(flags: Int = 0) : Paint(flags) {
@@ -10,8 +9,8 @@ open class TextPaint @JvmOverloads constructor(flags: Int = 0) : Paint(flags) {
 }
 
 /**
- * Android's text Layout, for sources that turn text into a page image (author notes, alt text). Lines break where
- * [BreakIterator] allows, measured by [Paint.measureText]; spans and padding are ignored.
+ * Android's text Layout, for sources that turn text into a page image (author notes, alt text). Lines break after
+ * spaces and hyphens and around wide (CJK) characters, measured by [Paint.measureText]; spans and padding are ignored.
  */
 abstract class Layout internal constructor(
     private val text: CharSequence,
@@ -49,15 +48,15 @@ abstract class Layout internal constructor(
         /** Greedy line breaking: as many segments as fit, and a segment wider than a line breaks between characters. */
         fun wrap(text: String, paint: Paint, width: Float): List<String> = text.split('\n').flatMap { paragraph ->
             val lines = mutableListOf<String>()
-            val breaks = BreakIterator.getLineInstance().apply { setText(paragraph) }
+            val breaks = boundaries(paragraph).iterator()
             var start = 0
             var fit = 0
-            var end = breaks.next()
-            while (end != BreakIterator.DONE) {
+            var end = if (breaks.hasNext()) breaks.next() else -1
+            while (end != -1) {
                 when {
                     paint.measureText(paragraph.substring(start, end).trimEnd()) <= width -> {
                         fit = end
-                        end = breaks.next()
+                        end = if (breaks.hasNext()) breaks.next() else -1
                     }
                     fit > start -> {
                         lines += paragraph.substring(start, fit).trimEnd()
@@ -75,6 +74,11 @@ abstract class Layout internal constructor(
             }
             lines += paragraph.substring(start).trimEnd()
             lines
+        }
+
+        // Not java.text.BreakIterator: its line rules are resource data the iOS JDK doesn't ship.
+        private fun boundaries(text: String): List<Int> = (1..text.length).filter { i ->
+            i == text.length || (text[i - 1] == ' ' && text[i] != ' ') || text[i - 1] == '-' || Paint.isWide(text[i - 1]) || Paint.isWide(text[i])
         }
     }
 }

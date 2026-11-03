@@ -97,8 +97,7 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
         for (c in text) width += when {
             c.code in 32..126 -> HELVETICA[c.code - 32]
             Character.getType(c) == Character.NON_SPACING_MARK.toInt() -> 0
-            // East Asian wide characters: CJK, kana, hangul, fullwidth forms.
-            c.code in 0x2E80..0xA4CF || c.code in 0xAC00..0xD7A3 || c.code in 0xFF00..0xFF60 -> 1000
+            isWide(c) -> 1000
             else -> 556
         }
         // Helvetica Bold's letters run about 7% wider.
@@ -130,6 +129,9 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
     companion object {
         const val ANTI_ALIAS_FLAG = 1
         const val FILTER_BITMAP_FLAG = 2
+
+        // East Asian wide characters: CJK, kana, hangul, fullwidth forms.
+        internal fun isWide(c: Char): Boolean = c.code in 0x2E80..0xA4CF || c.code in 0xAC00..0xD7A3 || c.code in 0xFF00..0xFF60
 
         // Helvetica's advance widths for ' ' to '~', in 1/1000 em.
         private val HELVETICA = intArrayOf(

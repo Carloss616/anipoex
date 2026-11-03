@@ -212,6 +212,9 @@ class ShimsTest {
         assertEquals(Math.ceil(4 * 20 * 1.17).toInt(), layout.getHeight())
         // A word wider than the line breaks between letters; an "m" is 16.66px.
         assertEquals(listOf("mm", "mm", "m"), android.text.Layout.wrap("mmmmm", paint, 40f))
+        // Wide characters break between any two, a hyphen after itself; each CJK character is 20px here.
+        assertEquals(listOf("日本", "語"), android.text.Layout.wrap("日本語", paint, 40f))
+        assertEquals(listOf("one-", "two"), android.text.Layout.wrap("one-two", paint, 50f))
     }
 
     @Test
