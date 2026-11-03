@@ -47,6 +47,7 @@ import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
 import { useTitleMode } from "../hooks/use-title-mode";
+import { SectionHeader } from "../section-header";
 import {
   errorDialog,
   excludedMenuItems,
@@ -67,14 +68,6 @@ const GROUP_SLOT_SM = [
   contentShape(shapes.rectangle()),
 ];
 
-function SectionHeader({ children }: { children: string }) {
-  return (
-    <Text textStyle="footnote" weight="medium">
-      {children}
-    </Text>
-  );
-}
-
 export function SheetContent({
   manga,
   read,
@@ -86,6 +79,8 @@ export function SheetContent({
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
+  const excludedMenu = () =>
+    excludedMenuItems(excluded, isScanBusy(key), actions);
   const title = useTitleMode(manga.id, key);
   // One dialog for both row requests: a view presents one alert.
   const [request, setRequest] = useState<ExcludeRequest | ErrorRequest | null>(
@@ -151,7 +146,7 @@ export function SheetContent({
                 <VStack alignment="leading" spacing={2}>
                   <HStack spacing={8}>
                     <Text textStyle="title3">Sources</Text>
-                    <Badge>{available.length}</Badge>
+                    <Badge>{available.length + excluded.length}</Badge>
                   </HStack>
                   <HStack spacing={6}>
                     <Text
@@ -295,7 +290,9 @@ export function SheetContent({
           >
             <Section
               modifiers={[rowBackground]}
-              header={<SectionHeader>Available</SectionHeader>}
+              header={
+                <SectionHeader title="Available" count={available.length} />
+              }
             >
               {available.length === 0 ? (
                 <Text modifiers={[foregroundStyle("secondary")]}>
@@ -330,27 +327,11 @@ export function SheetContent({
               <Section
                 modifiers={[rowBackground]}
                 header={
-                  <HStack spacing={12}>
-                    <SectionHeader>Excluded</SectionHeader>
-                    <Badge>{excluded.length}</Badge>
-                    <Spacer />
-                    {/* A section header's action is text, as Update all on the extension list. */}
-                    <Computed>
-                      {() => (
-                        <Menu
-                          items={excludedMenuItems(
-                            excluded,
-                            isScanBusy(key),
-                            actions,
-                          )}
-                        >
-                          <Text textStyle="subheadline" weight="medium">
-                            Manage
-                          </Text>
-                        </Menu>
-                      )}
-                    </Computed>
-                  </HStack>
+                  <SectionHeader
+                    title="Excluded"
+                    count={excluded.length}
+                    menu={excludedMenu}
+                  />
                 }
               >
                 <List.ForEach

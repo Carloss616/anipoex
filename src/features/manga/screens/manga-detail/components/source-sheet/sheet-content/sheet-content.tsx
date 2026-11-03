@@ -1,11 +1,8 @@
 import { Computed } from "@legendapp/state/react";
 import { Typography } from "panelui-native/components/typography";
-import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
-import { Frame } from "panelui-web/frame";
 import { Sheet } from "panelui-web/sheet";
-import { memo } from "react";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -19,71 +16,13 @@ import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
-import {
-  type SourceActions,
-  useSourceActions,
-} from "../hooks/use-source-actions";
+import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
 import { useTitleMode } from "../hooks/use-title-mode";
+import { SectionHeader } from "../section-header";
 import { excludedMenuItems } from "../utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "../utils/sheet-items";
-import type { ExcludedRow } from "../utils/split-sources";
 import { titleMenuItems } from "../utils/title-menu";
-
-interface SectionHeaderProps {
-  id: Extract<SheetItem, { kind: "header" }>["id"];
-  availableCount: number;
-  excluded: ExcludedRow[];
-  mangaKey: string;
-  actions: SourceActions;
-}
-
-const SectionHeader = memo(function SectionHeader({
-  id,
-  availableCount,
-  excluded,
-  mangaKey,
-  actions,
-}: SectionHeaderProps) {
-  const isExcluded = id === "excluded";
-  return (
-    <Frame.Header
-      className={cn(
-        "stuck:glass-chrome stuck:inset-shadow-none stuck:border-b",
-        isExcluded && "py-0.75",
-      )}
-    >
-      <Frame.Title>
-        {isExcluded ? "Excluded" : "Available"}{" "}
-        <Badge>{isExcluded ? excluded.length : availableCount}</Badge>
-      </Frame.Title>
-      {isExcluded && (
-        <Frame.Action className="row-span-1">
-          <Computed>
-            {() => {
-              const items = excludedMenuItems(
-                excluded,
-                isScanBusy(mangaKey),
-                actions,
-              );
-              return (
-                <Menu items={items}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Excluded sources actions"
-                  >
-                    <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
-                  </Button>
-                </Menu>
-              );
-            }}
-          </Computed>
-        </Frame.Action>
-      )}
-    </Frame.Header>
-  );
-});
 
 export interface SheetContentProps {
   manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
@@ -106,6 +45,9 @@ export function SheetContent({
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
+  // In the body, not the list's callback, so the Compiler keeps it stable.
+  const excludedMenu = () =>
+    excludedMenuItems(excluded, isScanBusy(key), actions);
   const title = useTitleMode(manga.id, key);
   const installed = all.length > 0;
 
@@ -248,13 +190,15 @@ export function SheetContent({
           ListEmptyComponent={<EmptyState {...empty} />}
           renderItem={({ item }) =>
             item.kind === "header" ? (
-              <SectionHeader
-                id={item.id}
-                availableCount={available.length}
-                excluded={excluded}
-                mangaKey={key}
-                actions={actions}
-              />
+              item.id === "available" ? (
+                <SectionHeader title="Available" count={available.length} />
+              ) : (
+                <SectionHeader
+                  title="Excluded"
+                  count={excluded.length}
+                  menu={excludedMenu}
+                />
+              )
             ) : item.kind === "no-sources" ? (
               <Typography type="body-sm" muted className="px-4">
                 No sources

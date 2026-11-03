@@ -35,26 +35,13 @@ import { ExcludedItem } from "../excluded-item";
 import { useSourceActions } from "../hooks/use-source-actions";
 import { useSources } from "../hooks/use-sources";
 import { useTitleMode } from "../hooks/use-title-mode";
+import { SectionHeader } from "../section-header";
 import { excludedMenuItems } from "../utils/row-content";
 import { sheetItemKey, sheetItems } from "../utils/sheet-items";
 import { titleMenuItems } from "../utils/title-menu";
 import type { SheetContentProps } from "./sheet-content";
 
 const EMPTY_HEIGHT = 320;
-
-/** The menu hands its trigger an `onPress` to open it. */
-function MoreButton({ onPress }: { onPress?: () => void }) {
-  return (
-    <IconButton
-      onClick={onPress}
-      modifiers={[
-        semantics({ contentDescription: "Excluded sources actions" }),
-      ]}
-    >
-      <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
-    </IconButton>
-  );
-}
 
 function TitlesButton({ onPress }: { onPress?: () => void }) {
   return (
@@ -78,6 +65,9 @@ export function SheetContent({
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });
+  // In the body, not the list's callback, so the Compiler keeps it stable.
+  const excludedMenu = () =>
+    excludedMenuItems(excluded, isScanBusy(key), actions);
   const title = useTitleMode(manga.id, key);
   const SearchTitlesButton = title.searching
     ? FilledTonalIconButton
@@ -86,39 +76,6 @@ export function SheetContent({
   const m3 = useThemeM3Colors();
 
   const items = sheetItems(available, excluded);
-
-  const header = (id: "available" | "excluded") =>
-    id === "available" ? (
-      <Text
-        style={{ typography: "titleSmall" }}
-        color={m3.primary}
-        modifiers={[padding(GUTTER, 8, GUTTER, 0)]}
-      >
-        Available
-      </Text>
-    ) : (
-      <Row
-        verticalAlignment="center"
-        horizontalArrangement={{ spacedBy: 8 }}
-        modifiers={[padding(GUTTER, 8, 4, 0)]}
-      >
-        <Text style={{ typography: "titleSmall" }} color={m3.primary}>
-          Excluded
-        </Text>
-        <Badge>{excluded.length}</Badge>
-        <Spacer modifiers={[weight(1)]} />
-        <Computed>
-          {() => {
-            const items = excludedMenuItems(excluded, isScanBusy(key), actions);
-            return (
-              <Menu items={items}>
-                <MoreButton />
-              </Menu>
-            );
-          }}
-        </Computed>
-      </Row>
-    );
 
   return (
     <BottomSheet
@@ -145,7 +102,7 @@ export function SheetContent({
               <Text style={{ typography: "titleLarge" }}>Sources</Text>
               {/* M3's badge reads high against a centered title. */}
               <Box modifiers={[padding(0, 4, 0, 0)]}>
-                <Badge>{available.length}</Badge>
+                <Badge>{available.length + excluded.length}</Badge>
               </Box>
               <Spacer modifiers={[weight(1)]} />
               {/* A toggle: tonal while title search is on. */}
@@ -261,7 +218,15 @@ export function SheetContent({
             <LazyColumn.Items data={items} keyExtractor={sheetItemKey}>
               {({ item }) =>
                 item.kind === "header" ? (
-                  header(item.id)
+                  item.id === "available" ? (
+                    <SectionHeader title="Available" count={available.length} />
+                  ) : (
+                    <SectionHeader
+                      title="Excluded"
+                      count={excluded.length}
+                      menu={excludedMenu}
+                    />
+                  )
                 ) : item.kind === "no-sources" ? (
                   <Text
                     style={{ typography: "bodyMedium" }}
