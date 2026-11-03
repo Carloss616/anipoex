@@ -174,6 +174,56 @@ class ImageEngineTest {
         assertEquals(Color.WHITE, root.getValue("ops").jsonArray.single().jsonObject.getValue("fill").jsonPrimitive.int)
     }
 
+    // A source that reads a page's pixels, moves some and writes them back: the engine draws it once as a PNG.
+    @Test
+    fun pixelsComeFromTheEngineAndGoBackAsPng() {
+        val drawn = IntArray(6) { 0xFF000000.toInt() or it }
+        val sent = mutableListOf<JsonObject>()
+        Host.call = { _, args ->
+            sent += args
+            JsonPrimitive(Base64.getEncoder().encodeToString(Png.encode(3, 2, drawn)))
+        }
+        val bitmap = BitmapFactory.decodeStream(encoded("png", 3, 2).inputStream())!!
+        val row = IntArray(4)
+        bitmap.getPixels(row, 1, 3, 0, 1, 3, 1)
+        assertContentEquals(intArrayOf(0) + drawn.copyOfRange(3, 6), row)
+        bitmap.setPixels(intArrayOf(-1, -2), 0, 1, 2, 0, 1, 2)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, ByteArrayOutputStream())
+
+        assertEquals(2, sent.size)
+        val image = Png.decode(Base64.getDecoder().decode(sent[1].getValue("images").jsonArray.single().jsonPrimitive.content))
+        assertContentEquals(intArrayOf(drawn[0], drawn[1], -1, drawn[3], drawn[4], -2), image.argb)
+        assertEquals("[]", sent[1].getValue("bitmaps").jsonArray.single().jsonObject.getValue("ops").toString())
+    }
+
+    @Test
+    fun bitmapFromColorsNeedsNoEngineToRead() {
+        val bitmap = Bitmap.createBitmap(intArrayOf(1, 2, 3, 4, 5), 2, 2, Bitmap.Config.ARGB_8888)
+        val out = IntArray(4)
+        bitmap.getPixels(out, 0, 2, 0, 0, 2, 2)
+        assertContentEquals(intArrayOf(1, 2, 3, 4), out)
+        assertFailsWith<IllegalArgumentException> { bitmap.getPixels(out, 0, 2, 1, 0, 2, 1) }
+        val blank = IntArray(1) { 7 }
+        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888).getPixels(blank, 0, 1, 0, 0, 1, 1)
+        assertContentEquals(intArrayOf(0), blank)
+    }
+
+    // ImageIO's writer picks a filter per row, so every filter is decoded; our own PNGs read back in ImageIO.
+    @Test
+    fun pngRoundTrips() {
+        val random = java.util.Random(1)
+        for (type in listOf(BufferedImage.TYPE_INT_ARGB, BufferedImage.TYPE_INT_RGB)) {
+            val image = BufferedImage(37, 21, type)
+            for (y in 0 until 21) for (x in 0 until 37) image.setRGB(x, y, if (x % 5 == 0) random.nextInt() else (x * 7) or (y shl 9) or (0x80 shl 24))
+            val expected = image.getRGB(0, 0, 37, 21, null, 0, 37)
+            val decoded = Png.decode(ByteArrayOutputStream().also { ImageIO.write(image, "png", it) }.toByteArray())
+            assertEquals(37 to 21, decoded.width to decoded.height)
+            assertContentEquals(expected, decoded.argb)
+            val back = ImageIO.read(Png.encode(37, 21, expected).inputStream())
+            assertContentEquals(expected, back.getRGB(0, 0, 37, 21, null, 0, 37))
+        }
+    }
+
     @Test
     fun noEngineFailsTheCompress() {
         val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
