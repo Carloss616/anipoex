@@ -75,6 +75,9 @@ final class ChallengeHost {
     configuration.websiteDataStore = store
     let view = WKWebView(frame: shelf.bounds, configuration: configuration)
     view.customUserAgent = Self.userAgent
+    // The view holds its delegate weakly; this one only has to outlive the solve.
+    let watcher = StatusWatcher()
+    view.navigationDelegate = watcher
     shelf.addSubview(view)
     view.load(URLRequest(url: target))
     var sheet: (sheet: UIViewController, banner: WKWebView)?
@@ -83,7 +86,8 @@ final class ChallengeHost {
     defer { sheet?.sheet.dismiss(animated: true) }
     while Date().timeIntervalSince(started) < Self.solveSeconds {
       let cookies = await store.httpCookieStore.allCookies().filter { host.hasSuffix($0.domain.trimmingCharacters(in: ["."])) }
-      if cookies.contains(where: { $0.name == "cf_clearance" }) {
+      // Cloudflare can let the browser through without issuing a clearance.
+      if watcher.passed(view) || cookies.contains(where: { $0.name == "cf_clearance" }) {
         // A still of the site stays in the sheet: the page goes back to the shelf at once, since a closed sheet would pause it.
         if let stack = view.superview as? UIStackView, let still = view.snapshotView(afterScreenUpdates: false) {
           stack.insertArrangedSubview(still, at: 1)
@@ -92,7 +96,7 @@ final class ChallengeHost {
         // Back from the sheet's stack, which laid it out with constraints.
         view.translatesAutoresizingMaskIntoConstraints = true
         view.frame = shelf.bounds
-        await settle(view, until: started.addingTimeInterval(Self.solveSeconds))
+        await settle(view, watcher, until: started.addingTimeInterval(Self.solveSeconds))
         if let banner = sheet?.banner, sheet?.sheet.presentingViewController != nil {
           _ = try? await banner.evaluateJavaScript(#"document.body.dataset.done = """#)
           await Self.fit(banner)
@@ -117,10 +121,9 @@ final class ChallengeHost {
   }
 
   /// Waits for the reload Cloudflare does once cleared: a page's JavaScript dies with it, so the page is used once it's the site's.
-  private func settle(_ view: WKWebView, until deadline: Date) async {
-    while Date() < deadline {
-      let title = try? await view.evaluateJavaScript("document.title") as? String
-      if !view.isLoading, let title, title != "Just a moment..." { return }
+  /// Not by its title, which Cloudflare translates to the device's language.
+  private func settle(_ view: WKWebView, _ watcher: StatusWatcher, until deadline: Date) async {
+    while Date() < deadline, !watcher.passed(view) {
       try? await Task.sleep(for: .milliseconds(250))
     }
   }
@@ -260,6 +263,28 @@ final class ChallengeHost {
       return #"{"error":"Could not encode the host's reply"}"#
     }
     return json
+  }
+}
+
+/// The main frame's last HTTP status: a challenge answers with an error, the site itself doesn't, whether it cleared this
+/// browser or never challenged it.
+@MainActor
+private final class StatusWatcher: NSObject, WKNavigationDelegate {
+  private var status: Int?
+
+  func passed(_ view: WKWebView) -> Bool {
+    !view.isLoading && (status ?? 400) < 400
+  }
+
+  func webView(
+    _ webView: WKWebView,
+    decidePolicyFor navigationResponse: WKNavigationResponse,
+    decisionHandler: @escaping @MainActor (WKNavigationResponsePolicy) -> Void
+  ) {
+    if navigationResponse.isForMainFrame {
+      status = (navigationResponse.response as? HTTPURLResponse)?.statusCode
+    }
+    decisionHandler(.allow)
   }
 }
 

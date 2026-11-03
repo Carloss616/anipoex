@@ -28,4 +28,4 @@ go out from the solved page for as long as it stays open (10 minutes idle).
 
 The check belongs to the host that sent it: when a source's old domain redirects to a new one,
 the check runs there and the old domain's requests follow. Cloudflare can also let the browser
-through without a `cf_clearance`; on desktop a site that loaded counts as passed.
+through without a `cf_clearance`; on desktop and iOS a site that loaded counts as passed.
