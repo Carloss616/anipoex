@@ -9,7 +9,7 @@ const MAX_QUERIES = 4;
 /** The picked source and what it answered: `manga` absent means the search is pending, `null` that it found nothing. */
 export interface SourceMatch {
   sourceId: string;
-  manga?: { url: string; title: string } | null;
+  manga?: { url: string; title: string; memo?: string | null } | null;
 }
 
 function isSourceManga(

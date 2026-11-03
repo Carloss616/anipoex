@@ -21,8 +21,8 @@ export const bridgeRuntime = (send: Send): RuntimeApi => {
     uninstall: (pkg) => call("uninstall", { pkg }),
     search: (sourceId, query, page) =>
       call("search", { sourceId, query, page }),
-    chapters: (sourceId, mangaUrl, title) =>
-      call("chapters", { sourceId, mangaUrl, title }),
+    chapters: (sourceId, mangaUrl, title, memo) =>
+      call("chapters", { sourceId, mangaUrl, title, memo }),
     mangaWebUrl: (sourceId, mangaUrl) =>
       call("mangaWebUrl", { sourceId, mangaUrl }),
     pages: (sourceId, chapterUrl, memo) =>

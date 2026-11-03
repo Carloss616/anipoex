@@ -16,7 +16,11 @@ export function setMatchByHand(
   setManual(mangaId, source.id, match);
   liftNoMatch(mangaId, source.id);
   if (isChosen(mangaId, source.id))
-    storeMatch(mangaId, source.id, { url: match.url, title: match.title });
+    storeMatch(mangaId, source.id, {
+      url: match.url,
+      title: match.title,
+      memo: match.memo,
+    });
 }
 
 /** Forgets the page set by hand; the chosen source is matched by title again. */

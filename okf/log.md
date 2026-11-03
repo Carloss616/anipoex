@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+* **A source's own data for a manga is kept**: what a source attaches to a manga in its search results (`memo`, as Mihon stores it) now stays with the match, the manual match and the stored chapters, and goes back to the source when it lists the chapters; some sources list none, or fail, without it. Matches made before keep none until the source is picked again. Updated [chosen source](stores/source-matches.md), [manual matches](stores/manual-matches.md) and [source chapters](stores/source-chapters.md).
 * **iOS counts a loaded site as passed too**: a Cloudflare check that lets the app through without a `cf_clearance` no longer waits for the banner to time out on iOS. Updated [extension cookies](stores/extension-cookies.md).
 * **Chapters get 3 minutes**: a chapter load waits 3 minutes before it fails, not the search's 30 s, since some sources build their list in a web view for about two; a retry meanwhile joins the load still running. Updated [source probe](concepts/source-probe.md) and [chapter](concepts/chapter.md).
 * **A Cloudflare check belongs to the host that sent it**: after a domain redirect the check runs on the new host, and on desktop a site that let the browser through without a `cf_clearance` counts as passed, instead of waiting for the banner to time out. Updated [extension cookies](stores/extension-cookies.md).

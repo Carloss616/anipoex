@@ -35,6 +35,7 @@ export function useSourceChapters(
   const sourceId = match?.sourceId;
   const url = match?.manga?.url;
   const title = match?.manga?.title;
+  const memo = match?.manga?.memo;
   const key =
     sourceId && url !== undefined && title !== undefined
       ? `${sourceId} ${url}`
@@ -74,11 +75,18 @@ export function useSourceChapters(
             ?.name ?? sourceId,
       };
       try {
-        const { chapters } = await fetchChapters(sourceId, url, title);
+        const { chapters } = await fetchChapters(sourceId, {
+          url,
+          title,
+          memo,
+        });
         // A refresh keeps the cover a scan stored for the same page.
         const kept = chapters$[chaptersKey(mangaId, sourceId)].peek()?.manga;
         const thumbnailUrl = kept?.url === url ? kept.thumbnailUrl : undefined;
-        written.current = { manga: { url, title, thumbnailUrl }, chapters };
+        written.current = {
+          manga: { url, title, thumbnailUrl, memo },
+          chapters,
+        };
         chapters$[chaptersKey(mangaId, sourceId)].set(written.current);
         const rows = toChapters(chapters, title);
         recordProbe(mangaId, source, { chapters: rows });
@@ -97,7 +105,7 @@ export function useSourceChapters(
         }));
       }
     },
-    [mangaId, sourceId, url, title, key],
+    [mangaId, sourceId, url, title, memo, key],
   );
 
   useEffect(() => {

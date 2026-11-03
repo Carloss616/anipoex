@@ -8,6 +8,8 @@ export interface ManualMatch {
   url: string;
   title: string;
   thumbnailUrl: string | null;
+  /** The source's data for the manga; absent on matches set before it was kept. */
+  memo?: string | null;
 }
 
 /** Per manga, then per source, the page set by hand; read before any title search. */

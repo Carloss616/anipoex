@@ -49,7 +49,7 @@ object Bridge {
             "uninstall" -> host.uninstall(string("pkg"))
             "popular" -> host.popular(string("sourceId"), int("page"))
             "search" -> host.search(string("sourceId"), string("query"), int("page"))
-            "chapters" -> host.chapters(string("sourceId"), string("mangaUrl"), string("title"))
+            "chapters" -> host.chapters(string("sourceId"), string("mangaUrl"), string("title"), args["memo"]?.jsonPrimitive?.contentOrNull)
             "mangaWebUrl" -> host.mangaWebUrl(string("sourceId"), string("mangaUrl"))
             "getDns" -> host.getDns()
             "setDns" -> host.setDns(string("dns"))

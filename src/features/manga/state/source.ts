@@ -56,7 +56,11 @@ export async function selectSource(
       (await readChapters(mangaId, source.id))?.manga ??
       (await findManga(source.id, titles, timeoutMs));
     if (ticket !== tickets[mangaId]) return;
-    const match = manga && { url: manga.url, title: manga.title };
+    const match = manga && {
+      url: manga.url,
+      title: manga.title,
+      memo: manga.memo,
+    };
     source$[mangaId].set({ sourceId: source.id, manga: match });
     return match;
   } catch (error) {
@@ -72,7 +76,7 @@ export async function selectSource(
 export function storeMatch(
   mangaId: number,
   sourceId: string,
-  manga: { url: string; title: string },
+  manga: { url: string; title: string; memo?: string | null },
 ) {
   tickets[mangaId] = (tickets[mangaId] ?? 0) + 1;
   source$[mangaId].set({ sourceId, manga });

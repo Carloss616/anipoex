@@ -63,8 +63,7 @@ export async function probeSource(
     if (!manga) return toProbe(source, "no-match", Date.now());
     const { chapters } = await fetchChapters(
       source.id,
-      manga.url,
-      manga.title,
+      manga,
       chaptersTimeoutMs,
     );
     chapters$[chaptersKey(mangaId, source.id)].set({
@@ -72,6 +71,7 @@ export async function probeSource(
         url: manga.url,
         title: manga.title,
         thumbnailUrl: manga.thumbnailUrl,
+        memo: manga.memo,
       },
       chapters,
     });

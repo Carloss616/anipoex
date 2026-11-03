@@ -2,7 +2,13 @@ import type { SourceChapter } from "@/features/extensions";
 
 export interface StoredChapters {
   /** The source's page for the manga, so picking the source again skips its search; its cover shows in the title rail. */
-  manga: { url: string; title: string; thumbnailUrl?: string | null };
+  manga: {
+    url: string;
+    title: string;
+    thumbnailUrl?: string | null;
+    /** The source's data for the manga, which its chapters need again on a refresh. */
+    memo?: string | null;
+  };
   chapters: SourceChapter[];
 }
 

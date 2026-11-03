@@ -179,7 +179,7 @@ describe("probeSource", () => {
   });
 
   it("a probe shares the detail's chapter load", async () => {
-    const detail = fetchChapters("a", "/a", "T");
+    const detail = fetchChapters("a", { url: "/a", title: "T" });
     const done = probeSource(201, { id: "a", name: "A" }, titles);
     await flush();
     searchPending.a(["T"]);

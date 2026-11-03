@@ -154,10 +154,11 @@ class ExtensionHost(dataDir: File) {
         return source.getSearchManga(page, query, source.getFilterList()).toMap()
     }
 
-    suspend fun chapters(sourceId: String, mangaUrl: String, title: String): Map<String, Any?> {
+    suspend fun chapters(sourceId: String, mangaUrl: String, title: String, memo: String?): Map<String, Any?> {
         val manga = SManga.create().apply {
             url = mangaUrl
             this.title = title
+            if (memo != null) this.memo = Json.parseToJsonElement(memo).jsonObject
         }
         // No details: the app doesn't use them, and a parsed details SManga has no url (Mihon keeps the stored one).
         val update = source(sourceId).getMangaUpdate(manga, emptyList(), fetchDetails = false, fetchChapters = true)
@@ -294,6 +295,8 @@ private fun SManga.toMap() = mapOf(
     "description" to description,
     "genre" to genre,
     "status" to status,
+    // Opaque to the app, like a chapter's: lib 1.6 sources read it back in chapters; null when the source keeps none.
+    "memo" to memo.takeIf { it.isNotEmpty() }?.toString(),
 )
 
 private fun SChapter.toMap() = mapOf(

@@ -7,7 +7,8 @@ tags: [sources, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-21T00:00:00Z }
 ---
 
-Key `source-manual-matches`: `{ [anilistId]: { [sourceId]: { url, title, thumbnailUrl } } }`.
+Key `source-manual-matches`: `{ [anilistId]: { [sourceId]: { url, title, thumbnailUrl, memo? } } }`,
+`memo` being the source's own data for the page, absent on matches set before it was kept.
 A **manual match** is the result the user chose from a title search of a
 [source](../concepts/source.md) as that source's page for the manga, when matching by title
 found nothing or the wrong manga.

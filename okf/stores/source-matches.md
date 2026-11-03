@@ -11,7 +11,7 @@ Key `source-matches`: `{ [anilistId]: { sourceId, manga? } }`. The pick is store
 the user makes it, so the detail names the source at once; `manga` is added when the search
 ends. A `sourceId` without `manga` is a search still pending: it resumes when the detail
 opens and retries on refresh, and a failed search leaves it that way. `manga` is the title the
-[source](../concepts/source.md) answered with (its `url` and `title`) when it equals an
+[source](../concepts/source.md) answered with (its `url`, `title` and the source's own data for it, `memo`, which some sources need to list its chapters) when it equals an
 AniList title or synonym once case, diacritics, punctuation, spaces and romaji long vowels
 are ignored (`Ren'ai Zunōsen` equals `Renai Zunousen`); failing that, when it equals one
 after dropping a bracketed tag like `(Official Colored)`, unless the tag says it is a

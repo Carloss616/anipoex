@@ -27,6 +27,8 @@ export interface SourceManga {
   url: string;
   title: string;
   thumbnailUrl: string | null;
+  /** The source's own data for the manga, as JSON, handed back to `chapters`; null when it keeps none, absent on one stored before it was kept. */
+  memo?: string | null;
 }
 
 export interface MangasPage {
@@ -63,6 +65,7 @@ export interface RuntimeApi {
     sourceId: string,
     mangaUrl: string,
     title: string,
+    memo?: string,
   ): Promise<{ chapters: SourceChapter[] }>;
   /** The manga's page on the source's website; null when the source has none. */
   mangaWebUrl(sourceId: string, mangaUrl: string): Promise<string | null>;

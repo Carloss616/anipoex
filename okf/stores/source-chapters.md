@@ -8,7 +8,7 @@ generated: { by: claude-code/claude-opus-5-5, at: 2026-10-21T00:00:00Z }
 ---
 
 One entry per manga and source, keyed `anilistId/sourceId`, `{ manga, chapters }`: the
-source's page for the manga (`url`, `title`, as [matched](source-matches.md), and its cover
+source's page for the manga (`url`, `title` and `memo`, as [matched](source-matches.md), and its cover
 when a scan or a title search found it, kept across refreshes of the same page) and its own
 chapters there (url, name, number, scanlator, upload date, memo). Native keeps each entry
 under its own key in the MMKV store `source-chapters`; web and desktop keep one record per

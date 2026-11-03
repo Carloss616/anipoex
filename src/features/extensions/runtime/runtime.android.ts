@@ -27,8 +27,8 @@ export const runtime: RuntimeApi = {
   uninstall: (pkg) => clean(native.uninstall(pkg)),
   search: (sourceId, query, page) =>
     clean(native.search(sourceId, query, page)),
-  chapters: (sourceId, mangaUrl, title) =>
-    clean(native.chapters(sourceId, mangaUrl, title)),
+  chapters: (sourceId, mangaUrl, title, memo) =>
+    clean(native.chapters(sourceId, mangaUrl, title, memo)),
   mangaWebUrl: (sourceId, mangaUrl) =>
     clean(native.mangaWebUrl(sourceId, mangaUrl)),
   pages: (sourceId, chapterUrl, memo) =>

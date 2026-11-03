@@ -2,6 +2,7 @@ package anipoex.server
 
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.source.CatalogueSource
+import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.source.model.MangasPage
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
@@ -114,14 +115,16 @@ class ExtensionHostTest {
         assertSeeded(host)
     }
 
+    // The manga's memo from a search reaches its chapters, whose memo reaches the pages, as Mihon stores both.
     @Test
-    fun chapterMemoReachesPages() {
+    fun memosReachChaptersAndPages() {
         seed(MemoSource::class.java)
         val host = ExtensionHost(dir)
         val id = ((host.installed().single()["sources"] as List<*>).single() as Map<*, *>)["id"] as String
-        val chapter = (runBlocking { host.chapters(id, "/m", "M") }["chapters"] as List<*>).single() as Map<*, *>
+        val manga = ((runBlocking { host.search(id, "m", 1) }["mangas"] as List<*>).single() as Map<*, *>)
+        val chapter = (runBlocking { host.chapters(id, "/m", "M", manga["memo"] as String?) }["chapters"] as List<*>).single() as Map<*, *>
         val page = runBlocking { host.pages(id, "/c", chapter["memo"] as String?) }.single()
-        assertEquals("https://example.com/slug", page["imageUrl"])
+        assertEquals("https://example.com/42", page["imageUrl"])
     }
 
     private fun serve(apk: File): String {
@@ -173,12 +176,19 @@ class SeededSource : CatalogueSource {
     )
 }
 
-/** Like a lib 1.6 source that keeps a slug in the chapter's memo and reads it back for the pages. */
+/** Like a lib 1.6 source that keeps an id in the manga's memo and a slug in the chapter's, each read back later. */
 class MemoSource : HttpSource() {
     override val name = "Memo"
     override val lang = "en"
     override val supportsLatest = false
     override val baseUrl = "https://example.com"
+
+    override suspend fun getSearchManga(page: Int, query: String, filters: FilterList) =
+        MangasPage(listOf(SManga.create().apply {
+            url = "/m"
+            title = "M"
+            memo = buildJsonObject { put("id", "42") }
+        }), false)
 
     // Like a details parse, the returned manga has no url; chapters must not read it.
     override suspend fun getMangaUpdate(manga: SManga, chapters: List<SChapter>, fetchDetails: Boolean, fetchChapters: Boolean) =
@@ -187,7 +197,7 @@ class MemoSource : HttpSource() {
             listOf(SChapter.create().apply {
                 url = "/c"
                 name = "Ch.1"
-                memo = buildJsonObject { put("slug", "slug") }
+                memo = buildJsonObject { put("slug", manga.memo.getValue("id").jsonPrimitive.content) }
             }),
         )
 

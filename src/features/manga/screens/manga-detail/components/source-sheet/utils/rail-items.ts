@@ -9,7 +9,12 @@ export interface RailItem {
 /** The current match first, its cover taken from its result when it has none; then the other results. */
 export function railItems(
   current:
-    | { url: string; title: string; thumbnailUrl?: string | null }
+    | {
+        url: string;
+        title: string;
+        thumbnailUrl?: string | null;
+        memo?: string | null;
+      }
     | undefined,
   mangas: SourceManga[],
 ): RailItem[] {
@@ -21,7 +26,12 @@ export function railItems(
     null;
   return [
     {
-      manga: { url: current.url, title: current.title, thumbnailUrl },
+      manga: {
+        url: current.url,
+        title: current.title,
+        thumbnailUrl,
+        memo: current.memo,
+      },
       current: true,
     },
     ...rest.map((manga) => ({ manga, current: false })),
