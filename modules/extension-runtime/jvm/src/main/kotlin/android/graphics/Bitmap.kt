@@ -36,6 +36,13 @@ class Bitmap internal constructor(private val width: Int, private val height: In
         layer = null
     }
 
+    // Replaces every pixel, so what was drawn before goes and the color isn't blended with it.
+    fun eraseColor(color: Int) {
+        image = null
+        ops.clear()
+        draw(Op.Fill(color))
+    }
+
     fun copy(config: Config, isMutable: Boolean): Bitmap = createBitmap(this, 0, 0, width, height)
 
     fun compress(format: CompressFormat, quality: Int, stream: OutputStream): Boolean {
@@ -83,4 +90,7 @@ internal sealed interface Op {
 
     /** The whole bitmap painted over with an ARGB color, as `drawColor` does whatever the transform. */
     class Fill(val color: Int) : Op
+
+    /** One line of text at baseline [y], through [matrix]; [paint] is a copy, squeezed to [maxWidth] if it's set. */
+    class Text(val text: String, val x: Float, val y: Float, val paint: Paint, val maxWidth: Float?, val matrix: FloatArray) : Op
 }

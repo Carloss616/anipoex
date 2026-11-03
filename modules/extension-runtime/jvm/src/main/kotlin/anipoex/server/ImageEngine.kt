@@ -17,7 +17,8 @@ import java.util.IdentityHashMap
 internal object ImageEngine {
     /**
      * Sends `{images, bitmaps, type, quality}`: `images` are base64 encoded files; `bitmaps` are drawn in order, each
-     * `{width, height, image?, ops}` with ops `{bitmap, src, dst, matrix}` (an earlier bitmap's index) or `{fill}`.
+     * `{width, height, image?, ops}` with ops `{bitmap, src, dst, matrix}` (an earlier bitmap's index), `{fill}`, or
+     * `{text, x, y, size, bold, color, align, style, strokeWidth, maxWidth?, matrix}` drawn in Helvetica at baseline y.
      * The last one is encoded as `type` (jpeg, png, webp) and comes back base64 encoded.
      */
     fun render(root: Layer, format: Bitmap.CompressFormat, quality: Int): ByteArray {
@@ -38,6 +39,21 @@ internal object ImageEngine {
                         ),
                     )
                     is Op.Fill -> JsonObject(mapOf("fill" to JsonPrimitive(op.color)))
+                    is Op.Text -> JsonObject(
+                        buildMap {
+                            put("text", JsonPrimitive(op.text))
+                            put("x", JsonPrimitive(op.x))
+                            put("y", JsonPrimitive(op.y))
+                            put("size", JsonPrimitive(op.paint.getTextSize()))
+                            put("bold", JsonPrimitive(op.paint.isBold()))
+                            put("color", JsonPrimitive(op.paint.getColor()))
+                            put("align", JsonPrimitive(op.paint.getTextAlign().name.lowercase()))
+                            put("style", JsonPrimitive(op.paint.getStyle().name.lowercase()))
+                            put("strokeWidth", JsonPrimitive(op.paint.getStrokeWidth()))
+                            op.maxWidth?.let { put("maxWidth", JsonPrimitive(it)) }
+                            put("matrix", numbers(op.matrix))
+                        },
+                    )
                 }
             }
             val fields = mutableMapOf("width" to JsonPrimitive(layer.width), "height" to JsonPrimitive(layer.height), "ops" to JsonArray(ops))

@@ -28,9 +28,14 @@ const page = () => {
 };
 
 // Runs in the page. Bitmaps draw in order, each from the ones before it; the last is encoded. Android draws a
-// bitmap without a paint unfiltered, and drawColor fills the whole bitmap whatever the transform.
+// bitmap without a paint unfiltered, and drawColor fills the whole bitmap whatever the transform. Text is
+// Helvetica, the font the runtime measured its lines in.
 async function draw({ images, bitmaps, type, quality }) {
   const bytes = (data) => Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+  const rgba = (color) => {
+    const argb = color >>> 0;
+    return `rgba(${(argb >>> 16) & 255}, ${(argb >>> 8) & 255}, ${argb & 255}, ${(argb >>> 24) / 255})`;
+  };
   const decoded = await Promise.all(
     images.map((data) => createImageBitmap(new Blob([bytes(data)]))),
   );
@@ -45,10 +50,26 @@ async function draw({ images, bitmaps, type, quality }) {
     context.imageSmoothingEnabled = false;
     if (image != null) context.drawImage(decoded[image], 0, 0);
     for (const op of ops) {
+      if (op.text != null) {
+        context.setTransform(...op.matrix);
+        context.font = `${op.bold ? "bold " : ""}${op.size}px Helvetica, sans-serif`;
+        context.textAlign = op.align;
+        context.fillStyle = context.strokeStyle = rgba(op.color);
+        // Android's 0 is a hairline.
+        context.lineWidth = op.strokeWidth || 1;
+        const line = [
+          op.text,
+          op.x,
+          op.y,
+          ...(op.maxWidth != null ? [op.maxWidth] : []),
+        ];
+        if (op.style !== "stroke") context.fillText(...line);
+        if (op.style !== "fill") context.strokeText(...line);
+        continue;
+      }
       if (op.fill != null) {
-        const argb = op.fill >>> 0;
         context.setTransform(1, 0, 0, 1, 0, 0);
-        context.fillStyle = `rgba(${(argb >>> 16) & 255}, ${(argb >>> 8) & 255}, ${argb & 255}, ${(argb >>> 24) / 255})`;
+        context.fillStyle = rgba(op.fill);
         context.fillRect(0, 0, width, height);
         continue;
       }

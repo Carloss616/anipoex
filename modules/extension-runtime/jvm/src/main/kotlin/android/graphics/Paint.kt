@@ -1,13 +1,16 @@
 package android.graphics
 
 /**
- * Android's Paint. Drawing a bitmap ignores it, as a null paint does; it keeps what a source sets so it can read it back,
- * but nothing paints with it: text and shapes aren't drawn here (see [Canvas.drawText]).
+ * Android's Paint. Drawing a bitmap ignores it, as a null paint does; text takes its color, size, bold, alignment and
+ * style (see [Canvas.drawText]). Text is measured in Helvetica, the font the app's engine draws it in.
  */
 open class Paint @JvmOverloads constructor(flags: Int = 0) {
     private var color = 0xFF000000.toInt()
     private var textSize = 12f
     private var style = Style.FILL
+    private var strokeWidth = 0f
+    private var textAlign = Align.LEFT
+    private var typeface: Typeface? = null
 
     constructor(paint: Paint) : this() {
         set(paint)
@@ -17,6 +20,9 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
         color = paint.color
         textSize = paint.textSize
         style = paint.style
+        strokeWidth = paint.strokeWidth
+        textAlign = paint.textAlign
+        typeface = paint.typeface
     }
 
     fun getColor(): Int = color
@@ -55,7 +61,11 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
 
     fun setFilterBitmap(filter: Boolean) {}
 
-    fun setStrokeWidth(width: Float) {}
+    fun getStrokeWidth(): Float = strokeWidth
+
+    fun setStrokeWidth(width: Float) {
+        strokeWidth = width
+    }
 
     fun setStrokeCap(cap: Cap) {}
 
@@ -63,13 +73,37 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
 
     fun setStrokeMiter(miter: Float) {}
 
-    fun setTextAlign(align: Align) {}
+    fun getTextAlign(): Align = textAlign
+
+    fun setTextAlign(align: Align) {
+        textAlign = align
+    }
 
     fun setTextScaleX(scaleX: Float) {}
 
     fun setLetterSpacing(letterSpacing: Float) {}
 
-    fun setTypeface(typeface: Typeface?): Typeface? = typeface
+    fun getTypeface(): Typeface? = typeface
+
+    fun setTypeface(typeface: Typeface?): Typeface? {
+        this.typeface = typeface
+        return typeface
+    }
+
+    internal fun isBold(): Boolean = (typeface?.style ?: 0) and Typeface.BOLD != 0
+
+    fun measureText(text: String): Float {
+        var width = 0
+        for (c in text) width += when {
+            c.code in 32..126 -> HELVETICA[c.code - 32]
+            Character.getType(c) == Character.NON_SPACING_MARK.toInt() -> 0
+            // East Asian wide characters: CJK, kana, hangul, fullwidth forms.
+            c.code in 0x2E80..0xA4CF || c.code in 0xAC00..0xD7A3 || c.code in 0xFF00..0xFF60 -> 1000
+            else -> 556
+        }
+        // Helvetica Bold's letters run about 7% wider.
+        return width * textSize / 1000 * (if (isBold()) 1.07f else 1f)
+    }
 
     fun setColorFilter(filter: ColorFilter?): ColorFilter? = filter
 
@@ -96,6 +130,16 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
     companion object {
         const val ANTI_ALIAS_FLAG = 1
         const val FILTER_BITMAP_FLAG = 2
+
+        // Helvetica's advance widths for ' ' to '~', in 1/1000 em.
+        private val HELVETICA = intArrayOf(
+            278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
+            556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
+            1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
+            667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
+            333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
+            556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
+        )
     }
 }
 

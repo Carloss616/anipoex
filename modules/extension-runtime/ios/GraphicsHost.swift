@@ -1,10 +1,12 @@
 import CoreGraphics
+import CoreText
 import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
 /// android.graphics' renderer (`renderImage`, see ImageEngine.kt): ImageIO decodes, Core Graphics draws the bitmaps in
 /// order, each from the ones before it, and the last is encoded. ImageIO can't write WebP here, so that comes out as JPEG.
+/// Text is Helvetica, the font the runtime measured its lines in.
 enum GraphicsHost {
   static func answer(_ argsJson: String) -> String {
     do {
@@ -44,10 +46,12 @@ enum GraphicsHost {
       let whole = CGRect(x: 0, y: 0, width: width, height: height)
       if let image { draw(image, from: CGRect(x: 0, y: 0, width: image.width, height: image.height), to: whole, in: context) }
       for op in ops {
+        if let text = op["text"] as? String {
+          try drawText(text, op, in: context)
+          continue
+        }
         if let fill = op["fill"] as? Int {
-          let argb = UInt32(truncatingIfNeeded: fill)
-          let channel = { (shift: UInt32) in CGFloat((argb >> shift) & 0xFF) / 255 }
-          context.setFillColor(CGColor(srgbRed: channel(16), green: channel(8), blue: channel(0), alpha: channel(24)))
+          context.setFillColor(color(fill))
           context.fill(whole)
           continue
         }
@@ -84,6 +88,43 @@ enum GraphicsHost {
     context.scaleBy(x: 1, y: -1)
     context.draw(part, in: CGRect(x: 0, y: 0, width: dst.width, height: dst.height))
     context.restoreGState()
+  }
+
+  /// One line at baseline y, aligned on x as Android's Paint.Align and squeezed to `maxWidth` when it's wider.
+  private static func drawText(_ text: String, _ op: [String: Any], in context: CGContext) throws {
+    guard let x = op["x"] as? Double, let y = op["y"] as? Double, let m = op["matrix"] as? [Double], m.count == 6 else {
+      throw GraphicsError("A text draw is missing its position")
+    }
+    let font = CTFontCreateWithName((op["bold"] as? Bool == true ? "Helvetica-Bold" : "Helvetica") as CFString, op["size"] as? Double ?? 12, nil)
+    let line = CTLineCreateWithAttributedString(NSAttributedString(string: text, attributes: [
+      NSAttributedString.Key(kCTFontAttributeName as String): font,
+      NSAttributedString.Key(kCTForegroundColorFromContextAttributeName as String): true,
+    ]))
+    let width = CTLineGetTypographicBounds(line, nil, nil, nil)
+    let squeeze = (op["maxWidth"] as? Double).map { width > $0 ? $0 / width : 1 } ?? 1
+    let shown = width * squeeze
+    let left = switch op["align"] as? String { case "center": x - shown / 2 case "right": x - shown default: x }
+    context.saveGState()
+    context.concatenate(CGAffineTransform(a: m[0], b: m[1], c: m[2], d: m[3], tx: m[4], ty: m[5]))
+    let paint = color(op["color"] as? Int ?? 0xFF00_0000)
+    context.setFillColor(paint)
+    context.setStrokeColor(paint)
+    // Android's 0 is a hairline.
+    let stroke = op["strokeWidth"] as? Double ?? 0
+    context.setLineWidth(stroke > 0 ? stroke : 1)
+    let mode: CGTextDrawingMode = switch op["style"] as? String { case "stroke": .stroke case "fill_and_stroke": .fillStroke default: .fill }
+    context.setTextDrawingMode(mode)
+    // The context's y axis points down: flip the glyphs back up on their baseline.
+    context.textMatrix = CGAffineTransform(scaleX: squeeze, y: -1)
+    context.textPosition = CGPoint(x: left, y: y)
+    CTLineDraw(line, context)
+    context.restoreGState()
+  }
+
+  private static func color(_ argb: Int) -> CGColor {
+    let argb = UInt32(truncatingIfNeeded: argb)
+    let channel = { (shift: UInt32) in CGFloat((argb >> shift) & 0xFF) / 255 }
+    return CGColor(srgbRed: channel(16), green: channel(8), blue: channel(0), alpha: channel(24))
   }
 
   private static func rect(_ value: Any?) -> CGRect? {

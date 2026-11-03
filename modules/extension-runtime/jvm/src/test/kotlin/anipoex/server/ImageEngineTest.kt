@@ -3,7 +3,13 @@ package anipoex.server
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.Typeface
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.float
@@ -90,12 +96,67 @@ class ImageEngineTest {
         assertEquals(90, args.getValue("quality").jsonPrimitive.int)
     }
 
+    // A text page as sources make one: a white bitmap, a bold heading and a centered body, through a translate.
+    @Test
+    fun textGoesAsLines() {
+        var sent: JsonObject? = null
+        Host.call = { _, args ->
+            sent = args
+            JsonPrimitive("")
+        }
+        val bitmap = Bitmap.createBitmap(200, 100, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
+        val heading = Paint().apply {
+            setTextSize(20f)
+            setTypeface(Typeface.DEFAULT_BOLD)
+            setStyle(Paint.Style.STROKE)
+            setStrokeWidth(2f)
+        }
+        canvas.drawText("Title", 5f, 18f, heading)
+        heading.setTextSize(99f)
+        val body = StaticLayout("one two three", TextPaint().apply { setTextSize(20f) }, 80, Layout.Alignment.ALIGN_CENTER, 1f, 0f, true)
+        canvas.save()
+        canvas.translate(10f, 30f)
+        body.draw(canvas)
+        canvas.restore()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, ByteArrayOutputStream())
+
+        val ops = sent!!.getValue("bitmaps").jsonArray.single().jsonObject.getValue("ops").jsonArray.map { it.jsonObject }
+        fun JsonObject.text(key: String) = getValue(key).jsonPrimitive.content
+        val title = ops[1]
+        assertEquals(listOf("Title", "20.0", "true", "left", "stroke", "2.0"), listOf("text", "size", "bold", "align", "style", "strokeWidth").map(title::text))
+        assertNull(title["maxWidth"])
+        val lines = ops.drop(2)
+        assertEquals(listOf("one two", "three"), lines.map { it.text("text") })
+        assertEquals(listOf("center", "40.0", "80.0", "false"), listOf("align", "x", "maxWidth", "bold").map(lines[0]::text))
+        // Baselines one line height apart, below the first line's ascent.
+        assertEquals(listOf(18.6f, 42f), lines.map { it.getValue("y").jsonPrimitive.float })
+        assertEquals(listOf(1f, 0f, 0f, 1f, 10f, 30f), lines[0].getValue("matrix").jsonArray.map { it.jsonPrimitive.float })
+    }
+
     @Test
     fun undecodableBytesGiveNull() {
         assertNull(BitmapFactory.decodeByteArray(ByteArray(8), 0, 8))
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         assertNull(BitmapFactory.decodeByteArray(encoded("png", 4, 5), 0, encoded("png", 4, 5).size, bounds))
         assertEquals(4 to 5, bounds.outWidth to bounds.outHeight)
+    }
+
+    @Test
+    fun eraseColorDropsWhatWasDrawn() {
+        var sent: JsonObject? = null
+        Host.call = { _, args ->
+            sent = args
+            JsonPrimitive("")
+        }
+        val bitmap = BitmapFactory.decodeStream(encoded("png", 4, 5).inputStream())!!
+        Canvas(bitmap).drawText("x", 0f, 0f, Paint())
+        bitmap.eraseColor(Color.WHITE)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, ByteArrayOutputStream())
+        val root = sent!!.getValue("bitmaps").jsonArray.single().jsonObject
+        assertNull(root["image"])
+        assertEquals(Color.WHITE, root.getValue("ops").jsonArray.single().jsonObject.getValue("fill").jsonPrimitive.int)
     }
 
     @Test

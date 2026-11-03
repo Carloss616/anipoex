@@ -202,14 +202,16 @@ class ShimsTest {
     }
 
     @Test
-    fun textLaysOutButIsNeverDrawn() {
+    fun textWrapsToTheLayoutWidth() {
+        // At 20px, Helvetica's "one two" is 70px wide and "one two three" 121px.
         val paint = android.text.TextPaint().apply { setTextSize(20f) }
-        val layout = android.text.StaticLayout.Builder.obtain("one\ntwo", 0, 7, paint, 300).build()
-        assertEquals(2, layout.getLineCount())
-        assertTrue(layout.getHeight() > 40)
-        val canvas = android.graphics.Canvas(android.graphics.Bitmap.createBitmap(300, 100, android.graphics.Bitmap.Config.ARGB_8888))
-        assertFailsWith<UnsupportedOperationException> { layout.draw(canvas) }
-        assertFailsWith<UnsupportedOperationException> { canvas.drawText("x", 0f, 0f, paint) }
+        assertEquals(70.04f, paint.measureText("one two"), 0.01f)
+        val layout = android.text.StaticLayout.Builder.obtain("one two three\n\nfour", 0, 19, paint, 80).build()
+        assertEquals(4, layout.getLineCount())
+        assertEquals(listOf("one two", "three", "", "four"), android.text.Layout.wrap("one two three\n\nfour", paint, 80f))
+        assertEquals(Math.ceil(4 * 20 * 1.17).toInt(), layout.getHeight())
+        // A word wider than the line breaks between letters; an "m" is 16.66px.
+        assertEquals(listOf("mm", "mm", "m"), android.text.Layout.wrap("mmmmm", paint, 40f))
     }
 
     @Test
