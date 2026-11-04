@@ -1,6 +1,7 @@
 import type { ObservablePrimitive } from "@legendapp/state";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { useMemo } from "react";
@@ -98,7 +99,7 @@ export function ListContent({
           data={rows}
           keyExtractor={(row) => row.key}
           getItemType={(row) => row.kind}
-          stickyHeaderConfig={{ offset: headerHeight - 12 }}
+          stickyHeaderConfig={{ offset: headerHeight }}
           stickyHeaderIndices={stickyIndices}
           {...headerScroll}
           contentContainerClassName="gutters pb-gb"
@@ -137,15 +138,19 @@ export function ListContent({
             row.kind === "header" ? (
               <SectionHeader section={row.section} />
             ) : (
-              <>
-                {row.divided && (
-                  <View
-                    role="separator"
-                    className="mx-gx h-px bg-border md:ml-4"
-                  />
+              <Frame
+                className={cn(
+                  "gutters mx-gx rounded-t-none border-t-0 md:ml-4",
+                  row.last ? "mb-4" : "rounded-b-none border-b-0",
                 )}
-                <ListItem extension={row.extension} />
-              </>
+              >
+                <Frame.Panel
+                  data-attached="column"
+                  className={cn(row.divided && "rounded-t-none!")}
+                >
+                  <ListItem extension={row.extension} />
+                </Frame.Panel>
+              </Frame>
             )
           }
         />
@@ -180,13 +185,20 @@ function LanguageMenu({
   );
 }
 
-/** Glass: it pins over the rows. */
+/** The top of its section's card; pinned, a glass pill over the rows. */
 function SectionHeader({ section }: { section: ExtensionSection }) {
   return (
-    <Frame.Header className="stuck:glass-chrome stuck:inset-shadow-none stuck:border-b px-gx md:pl-4">
-      <Frame.Title>
-        {section.title} <Badge>{section.data.length}</Badge>
-      </Frame.Title>
-    </Frame.Header>
+    <Frame
+      className={cn(
+        "gutters mx-gx rounded-b-none border-b-0 md:ml-4",
+        "stuck:glass-chrome! stuck:glass-muted stuck:rounded-full stuck:border stuck:shadow-lg",
+      )}
+    >
+      <Frame.Header>
+        <Frame.Title>
+          {section.title} <Badge>{section.data.length}</Badge>
+        </Frame.Title>
+      </Frame.Header>
+    </Frame>
   );
 }

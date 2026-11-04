@@ -77,7 +77,7 @@ export const ListItem = memo(function ListItem({
   const primary = useThemeColor("primary");
 
   return (
-    <Frame.Row className="px-gx md:pl-4">
+    <Frame.Row>
       <Frame.Media>
         <SourceTile
           initials={e.initials}
