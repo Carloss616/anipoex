@@ -7,7 +7,6 @@ import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
-import { ALL } from "@/features/manga/hooks/use-manga-list";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
 import { ListEmpty } from "../list-empty";
@@ -57,12 +56,13 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
       modifiers={[fillMaxSize()]}
     >
       <LazyColumn
-        // Remount per genre, or the chip lands above Compose's kept scroll.
+        // Remount per genre: a new filter starts at the top, not at the kept scroll.
         key={genre}
         modifiers={[fillMaxSize()]}
         verticalArrangement={{ spacedBy: below ? 20 : 8 }}
         contentPadding={{
-          top: genre === ALL ? GUTTER : below ? 20 : 8,
+          // The genre chips come first, right under the tabs.
+          top: 8,
           bottom: GUTTER,
         }}
       >

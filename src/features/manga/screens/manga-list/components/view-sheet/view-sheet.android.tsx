@@ -1,12 +1,9 @@
-import {
-  Column,
-  SegmentedButton,
-  SingleChoiceSegmentedButtonRow,
-} from "@expo/ui/jetpack-compose";
+import { Column } from "@expo/ui/jetpack-compose";
 import { fillMaxWidth, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { ButtonGroup } from "@/components/native/jetpack-compose/button-group";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { listView$ } from "@/features/manga/state/list-view";
@@ -22,15 +19,13 @@ const TITLES = [
   ["over", "On cover"],
 ] as const;
 
-const LABEL = { typography: "labelLarge" } as const;
-
 const open$ = observable(false);
 
 /** Opens the one `ViewSheet` the screen renders. */
 export const openViewSheet = () => open$.set(true);
 
 /**
- * Android: columns and title position, as two M3 segmented rows. Rendered
+ * Android: columns and title position, as two connected button groups. Rendered
  * once by the screen, outside the grid: mounted inside the grid's header, the
  * sheet's node resized the header and the rows jumped as it opened.
  */
@@ -48,6 +43,7 @@ export function ViewSheet() {
   );
   const columns = columnsFor(current, useValue(listView$.density));
   const title = toTitlePosition(useValue(listView$.title));
+  const options = columnOptions(current);
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
@@ -57,33 +53,19 @@ export function ViewSheet() {
       >
         <Text style={{ typography: "titleLarge" }}>View</Text>
         {caption("Columns")}
-        <SingleChoiceSegmentedButtonRow modifiers={[fillMaxWidth()]}>
-          {columnOptions(current).map((option) => (
-            <SegmentedButton
-              key={option.density}
-              selected={option.columns === columns}
-              onClick={() => listView$.density.set(option.density)}
-            >
-              <SegmentedButton.Label>
-                <Text style={LABEL}>{String(option.columns)}</Text>
-              </SegmentedButton.Label>
-            </SegmentedButton>
-          ))}
-        </SingleChoiceSegmentedButtonRow>
+        <ButtonGroup
+          options={options.map((option) => String(option.columns))}
+          selected={[options.findIndex((option) => option.columns === columns)]}
+          onChange={(index) => listView$.density.set(options[index].density)}
+          modifiers={[fillMaxWidth()]}
+        />
         {caption("Title")}
-        <SingleChoiceSegmentedButtonRow modifiers={[fillMaxWidth()]}>
-          {TITLES.map(([value, label]) => (
-            <SegmentedButton
-              key={value}
-              selected={title === value}
-              onClick={() => listView$.title.set(value)}
-            >
-              <SegmentedButton.Label>
-                <Text style={LABEL}>{label}</Text>
-              </SegmentedButton.Label>
-            </SegmentedButton>
-          ))}
-        </SingleChoiceSegmentedButtonRow>
+        <ButtonGroup
+          options={TITLES.map(([, label]) => label)}
+          selected={[TITLES.findIndex(([value]) => value === title)]}
+          onChange={(index) => listView$.title.set(TITLES[index][0])}
+          modifiers={[fillMaxWidth()]}
+        />
       </Column>
     </BottomSheet>
   );

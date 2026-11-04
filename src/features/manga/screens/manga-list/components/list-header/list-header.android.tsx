@@ -1,24 +1,50 @@
+import { FilterChip, LazyRow } from "@expo/ui/jetpack-compose";
 import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
-import { ActiveFilters } from "@/components/blocks/active-filters";
-import { mangaCount } from "@/features/manga/constants";
-import { ALL } from "@/features/manga/hooks/use-manga-list";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { GUTTER } from "@/components/native/constants";
+import { Text } from "@/components/native/jetpack-compose/text";
+import { Icon, Icons } from "@/components/ui/icon";
 import type { ListHeaderProps } from "./list-header";
 
-/** The genre picked in the toolbar, as a chip that clears it, and the total. */
+/**
+ * The page's genres as M3 filter chips, "All genres" first; the list's first
+ * item, so it scrolls away with the covers.
+ */
 export const ListHeader = memo(function ListHeader({
   genre$,
   list,
 }: ListHeaderProps) {
-  const genre = useValue(genre$);
-  const shown = useValue(list.manga$).length;
+  const genres = useValue(list.genres$);
+  const insets = useSafeAreaInsets();
+  // Only "All genres": nothing to pick from.
+  if (genres.length < 2) return null;
 
   return (
-    <ActiveFilters
-      filters={
-        genre === ALL ? [] : [{ label: genre, clear: () => genre$.set(ALL) }]
-      }
-      total={shown > 0 ? mangaCount(shown) : undefined}
-    />
+    <LazyRow
+      verticalAlignment="center"
+      horizontalArrangement={{ spacedBy: 8 }}
+      contentPadding={{
+        start: GUTTER + insets.left,
+        end: GUTTER + insets.right,
+      }}
+    >
+      {genres.map(({ name, selected }) => (
+        <FilterChip
+          key={name}
+          selected={selected}
+          onClick={() => genre$.set(name)}
+        >
+          {selected && (
+            <FilterChip.LeadingIcon>
+              <Icon name={Icons.check} size={18} color="inherit" />
+            </FilterChip.LeadingIcon>
+          )}
+          <FilterChip.Label>
+            <Text style={{ typography: "labelLarge" }}>{name}</Text>
+          </FilterChip.Label>
+        </FilterChip>
+      ))}
+    </LazyRow>
   );
 });

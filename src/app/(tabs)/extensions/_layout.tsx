@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { Platform } from "react-native";
+import { header } from "@/components/layout/header";
 import { useStackTheme, useThemeM3Colors } from "@/hooks/use-theme";
 
 // A link straight to the sheet still opens it over the list.
@@ -9,8 +10,9 @@ export default function Layout() {
   const stackTheme = useStackTheme();
   const m3 = useThemeM3Colors();
 
+  // `header` isn't in useStackTheme: it imports Icon and Host, which import the theme.
   return (
-    <Stack screenOptions={stackTheme}>
+    <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="index" />
       <Stack.Screen
         name="repos"

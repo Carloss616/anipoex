@@ -1,60 +1,68 @@
-import { DropdownMenu, DropdownMenuItem } from "@expo/ui/jetpack-compose";
 import { cloneElement, useState } from "react";
-import { Text } from "@/components/native/jetpack-compose/text";
+import { DropdownMenu } from "@/components/native/jetpack-compose/dropdown-menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Dialog } from "../dialog";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
+import { BUTTON_ICON_SIZE, Icon } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import type { MenuProps } from "./menu";
-import { flattenRows } from "./utils";
+import { toSegments } from "./utils";
 
 /**
- * The trigger stays in the React Native surface: it keeps its own look and
- * only hands over its `onPress`.
- *
- * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/dropdownmenu/
+ * M3 Expressive dropdown menu (`modules/dropdown-menu`): each group, submenu or run of plain rows
+ * is a rounded segment. The trigger keeps its own look and only hands over its
+ * `onPress`.
  */
-export function Menu({ items, children }: MenuProps) {
+export function Menu({ items, children, selection = "radio" }: MenuProps) {
   const [open, setOpen] = useState(false);
-  const { rows: entries, pending, close } = useMenuDialogState(items);
-  const rows = flattenRows(entries);
+  const { rows, pending, close } = useMenuDialogState(items);
+  const segments = toSegments(rows);
   const m3 = useThemeM3Colors();
 
   return (
     <>
-      <DropdownMenu expanded={open} onDismissRequest={() => setOpen(false)}>
+      <DropdownMenu expanded={open} onDismiss={() => setOpen(false)}>
         <DropdownMenu.Trigger>
           {cloneElement(children, { onPress: () => setOpen(true) })}
         </DropdownMenu.Trigger>
-        <DropdownMenu.Items>
-          {rows.map((item) => (
-            <DropdownMenuItem
-              key={item.label}
-              enabled={!item.disabled}
-              elementColors={
-                item.destructive ? { textColor: m3.error } : undefined
-              }
-              onClick={() => {
-                setOpen(false);
-                item.onPress();
-              }}
+        {segments.map((segment, index) => {
+          const mode = segment.selection ?? selection;
+          return (
+            <DropdownMenu.Group
+              key={segment.heading ?? index}
+              index={index}
+              count={segments.length}
+              heading={segment.heading}
             >
-              <DropdownMenuItem.Text>
-                <Text style={{ typography: "labelLarge" }}>{item.label}</Text>
-              </DropdownMenuItem.Text>
-              {item.icon && (
-                <DropdownMenuItem.LeadingIcon>
-                  <Icon name={item.icon} size={BUTTON_ICON_SIZE} />
-                </DropdownMenuItem.LeadingIcon>
-              )}
-              {item.checked && (
-                <DropdownMenuItem.TrailingIcon>
-                  <Icon name={Icons.check} size={BUTTON_ICON_SIZE} />
-                </DropdownMenuItem.TrailingIcon>
-              )}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenu.Items>
+              {segment.items.map((item, row) => (
+                <DropdownMenu.Item
+                  key={item.label}
+                  label={item.label}
+                  index={row}
+                  count={segment.items.length}
+                  checked={item.checked}
+                  selection={mode}
+                  enabled={!item.disabled}
+                  destructive={item.destructive}
+                  onPress={() => {
+                    // A checkbox row stays open so several can be toggled.
+                    if (item.checked === undefined || mode === "radio") {
+                      setOpen(false);
+                    }
+                    item.onPress();
+                  }}
+                >
+                  {item.icon && (
+                    <Icon
+                      name={item.icon}
+                      size={BUTTON_ICON_SIZE}
+                      color={item.destructive ? m3.error : "inherit"}
+                    />
+                  )}
+                </DropdownMenu.Item>
+              ))}
+            </DropdownMenu.Group>
+          );
+        })}
       </DropdownMenu>
 
       {pending?.onPressMode === "dialog" && (

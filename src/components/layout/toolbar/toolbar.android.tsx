@@ -1,8 +1,7 @@
-import { IconButton, Row, TextButton } from "@expo/ui/jetpack-compose";
+import { IconButton, TextButton } from "@expo/ui/jetpack-compose";
 import { Stack } from "expo-router";
 import type { ColorValue } from "react-native";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { Host } from "@/components/ui/host";
 import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
@@ -80,26 +79,27 @@ function ToolbarItemView({ item }: { item: ToolbarItem }) {
 }
 
 /**
- * Android draws toolbar items as Views: tinted one prop at a time, ripples off
- * the palette. `asChild` hands the header slot to one Compose `Host` instead,
- * where M3's `IconButton` and our `Menu` theme like the rest of the screen.
+ * Puts a `Stack.Toolbar`'s buttons and menus in the header's actions: the
+ * Android header is an M3 app bar in Compose (`header.android.tsx`), so the
+ * items are M3's `IconButton` and our `Menu`, themed like the rest of the screen.
  */
 export function Toolbar({ children: toolbar }: ToolbarProps) {
   const parsed = readToolbar(toolbar);
 
   if (!parsed) return null;
-  // `asChild` only replaces a header slot; the bottom toolbar keeps its own.
+  // Only the header's slots are redrawn; the bottom toolbar keeps its own.
   if (parsed.placement === "bottom") return toolbar;
 
+  const headerSlot = parsed.placement === "left" ? "headerLeft" : "headerRight";
+
   return (
-    <Stack.Toolbar placement={parsed.placement} asChild>
-      <Host matchContents>
-        <Row verticalAlignment="center">
-          {parsed.items.map((item) => (
+    <Stack.Screen
+      options={{
+        [headerSlot]: () =>
+          parsed.items.map((item) => (
             <ToolbarItemView key={item.key} item={item} />
-          ))}
-        </Row>
-      </Host>
-    </Stack.Toolbar>
+          )),
+      }}
+    />
   );
 }

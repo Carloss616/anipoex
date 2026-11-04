@@ -1,12 +1,14 @@
 import { Stack } from "expo-router";
 import { Platform } from "react-native";
+import { header } from "@/components/layout/header";
 import { useStackTheme } from "@/hooks/use-theme";
 
 export default function Layout() {
   const stackTheme = useStackTheme();
 
+  // `header` isn't in useStackTheme: it imports Icon and Host, which import the theme.
   return (
-    <Stack screenOptions={stackTheme}>
+    <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="[id]/index" />
       <Stack.Screen

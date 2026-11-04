@@ -1,6 +1,5 @@
 import { Computed, useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Typography } from "panelui-native/components/typography";
 import { useCallback, useRef } from "react";
 import {
   type NativeScrollEvent,
@@ -25,6 +24,7 @@ import { useThemeM3Colors } from "@/hooks/use-theme";
 import { ChapterEnd } from "./components/chapter-end";
 import { PageCount } from "./components/page-count";
 import { PageImage } from "./components/page-image";
+import { ReaderTitle } from "./components/reader-title";
 import { ZoomView } from "./components/zoom-view";
 import { useChapterPages } from "./hooks/use-chapter-pages";
 import { useReadingProgress } from "./hooks/use-reading-progress";
@@ -206,26 +206,7 @@ export function ChapterReader() {
         )}
       </Computed>
       <Stack.Screen options={{ title: name }} />
-      <Stack.Title asChild>
-        <View className="min-w-0 flex-1">
-          <Typography
-            type="body-sm"
-            weight="semibold"
-            numberOfLines={1}
-            style={{ color: m3?.onSurface }}
-          >
-            {manga?.title?.userPreferred}
-          </Typography>
-          <Typography
-            type="body-xs"
-            muted
-            numberOfLines={1}
-            style={{ color: m3?.onSurfaceVariant }}
-          >
-            {name}
-          </Typography>
-        </View>
-      </Stack.Title>
+      <ReaderTitle title={manga?.title?.userPreferred} chapter={name} />
       <View className="flex-1 bg-background">
         {body}
         <Computed>

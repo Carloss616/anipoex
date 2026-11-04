@@ -1,10 +1,10 @@
 import type { HTMLAttributes } from "react";
-import { noop } from "@/utils/utils";
 import type {
   MenuAction,
   MenuGroup,
   MenuItem,
   MenuProps,
+  MenuSelection,
   MenuSubmenu,
 } from "./menu";
 
@@ -14,29 +14,46 @@ export const isSubmenu = (item: MenuItem): item is MenuSubmenu =>
 export const isGroup = (item: MenuItem): item is MenuGroup =>
   "items" in item && !("label" in item);
 
+/** A run of rows for a menu drawn as segments (Compose's Expressive menu). */
+export interface MenuSegment {
+  heading?: string;
+  items: MenuAction[];
+  /** A submenu's own selection; the menu's when left out. */
+  selection?: MenuSelection;
+}
+
 /**
- * For a menu without submenus or groups (Compose's dropdown): a submenu's rows
- * join the list, named after it, and a group's follow its heading as a
- * disabled row.
+ * For a menu without submenus (Compose's): plain rows in a row share a
+ * segment, a group is its own under its heading, and a submenu becomes one
+ * headed by its label, its disabled state passed to each row.
  */
-export const flattenRows = (items: MenuItem[]): MenuAction[] =>
-  items.flatMap((item) => {
+export const toSegments = (items: MenuItem[]): MenuSegment[] => {
+  const segments: MenuSegment[] = [];
+  // The segment plain rows join; a group or submenu ends it.
+  let run: MenuSegment | undefined;
+  for (const item of items) {
     if (isGroup(item)) {
-      return item.heading
-        ? [
-            { label: item.heading, disabled: true, onPress: noop },
-            ...item.items,
-          ]
-        : item.items;
-    }
-    return isSubmenu(item)
-      ? item.items.map((row) => ({
+      run = undefined;
+      segments.push({ heading: item.heading, items: item.items });
+    } else if (isSubmenu(item)) {
+      run = undefined;
+      segments.push({
+        heading: item.label,
+        selection: item.selection,
+        items: item.items.map((row) => ({
           ...row,
-          label: `${item.label}: ${row.label}`,
           disabled: item.disabled || row.disabled,
-        }))
-      : [item];
-  });
+        })),
+      });
+    } else if (run) {
+      run.items.push(item);
+    } else {
+      run = { items: [item] };
+      segments.push(run);
+    }
+  }
+  return segments;
+};
 
 type Handler = ((event: never) => void) | undefined;
 

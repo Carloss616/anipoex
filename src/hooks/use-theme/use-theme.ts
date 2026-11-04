@@ -5,7 +5,6 @@ import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
 import { Platform } from "react-native";
-import { header } from "@/components/layout/header";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 import { useFontFamily, useNavigationFonts } from "../use-font";
@@ -71,7 +70,6 @@ export function useStackTheme(): NativeStackNavigationOptions {
   const foreground = useThemeColor("foreground");
 
   return {
-    header,
     headerTintColor: foreground,
     // Unset on web too: there it's the bar that fades out at its edge.
     headerBlurEffect:

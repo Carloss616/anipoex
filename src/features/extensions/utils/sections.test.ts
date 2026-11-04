@@ -76,9 +76,15 @@ describe("toRows", () => {
 
   it("marks the last row of each section", () => {
     const rows = toRows(toSections(LIST, all));
-    expect(
-      rows.map((r) => (r.kind === "extension" ? r.last : null)),
-    ).toEqual([null, false, false, true, null, false, true]);
+    expect(rows.map((r) => (r.kind === "extension" ? r.last : null))).toEqual([
+      null,
+      false,
+      false,
+      true,
+      null,
+      false,
+      true,
+    ]);
   });
 
   it("carries the section on its header row", () => {

@@ -32,7 +32,7 @@ anipoex/
 │   │   │   │   ├── <component>.tsx
 │   │   │   │   └── index.ts         # export * from './<component>'
 │   │   │   └── <component>.tsx      # simple component — single file, no folder
-│   │   └── native/                  # native Text, Image, TabbedPager and constants for SwiftUI / Compose
+│   │   └── native/                  # native Text, Image, TopAppBar, ButtonGroup, DropdownMenu and constants for SwiftUI / Compose
 │   ├── hooks/                       # global hooks
 │   ├── providers/                   # global providers
 │   └── utils/                       # global helpers
@@ -158,6 +158,11 @@ Native screens (`.ios.tsx` / `.android.tsx`) write SwiftUI / Jetpack Compose thr
 - **No RN view per list item inside a `Host`.** An `RNHostView` in every grid card (an RN `LinearGradient` scrim) took the Android manga grid from 7% to 19% janky frames. Draw it in Compose: a gradient is the `linearGradient` modifier (`@/components/native/jetpack-compose/linear-gradient`, registered by `modules/modifiers`), on any component (`manga-card.android.tsx`).
 - **Colors** on Android come from one `useThemeM3Colors()`; destructive actions use `m3.error` / `m3.onError`, not a second scheme seeded from `destructive`.
 - **Spacing** in dp: `GUTTER` from `@/components/native/constants`, plain numbers otherwise.
+- **Android header** is an M3 top app bar in Compose (`TopAppBar`, `modules/top-app-bar`), drawn by the stack's `header` option (`header.android.tsx`) from the screen's options; `Toolbar` puts its items in `headerRight`. A bar that must leave as the list scrolls (with its tabs) goes in the screen's own Host with `headerShown: false` (`manga-list.android.tsx`): the header's Host is another Compose tree and never sees the list's scroll. A screen's own title (`Stack.Title asChild`) is Compose on Android, for the bar's title slot (`chapter-reader/components/reader-title/reader-title.android.tsx`).
+- **A choice of a few options** on Android is `ButtonGroup` (`modules/button-group`), M3 Expressive's connected group, not `SegmentedButton`, which M3 no longer recommends (`view-sheet.android.tsx`).
+- **Menus** on Android are M3 Expressive's grouped dropdown menu (`modules/dropdown-menu`), built by the house `Menu`; not `@expo/ui`'s `DropdownMenu`.
+- **A local Compose module keeps the Compose names**: the component, its module and its props are named after what it wraps (`TopAppBar`, `DropdownMenu`, `scrollBehavior="enterAlways"`), not new ones.
+- **A local Compose view's event can't share a name with a React Native bubbling event** (`onChange`, `onSelect`…): the view throws "Event cannot be both direct and bubbling" (`ButtonGroup` uses `onToggle`, the menu `onItemPress`).
 - **iOS list rows**: tap is the row's primary action; secondary actions go in a `ContextMenu` (all of them) and `SwipeActions` (the frequent ones), never as trailing icon buttons. The trailing edge only shows state (checkmark, loader) or one labeled pill when the row exists for that action (App Store's Install/Update). The content takes `ROW_FILL` (`@/components/native/swift-ui/constants`) so every gesture lands anywhere on the row. See `source-sheet/available-item/available-item.ios.tsx`, `extension-list/components/list-item/list-item.ios.tsx`.
 - **`expo-widgets` layouts** (`'widget'` functions: Live Activities, custom notifications) run in their own runtime: only raw `@expo/ui` components, no house `Text`/`Icon`, no module-scope values; pass icons and strings in props. Android's notification text is black unless colored: take colors from `getMaterialColors()`, the device palette in the shade's scheme. Their folder is exempt from the restricted-imports lint in `biome.json` (`manga/utils/scan-activity/`).
 - **Nothing in a `Host` sits over a native sheet.** A SwiftUI sheet covers the root view, and inside react-native-screens' `FullWindowOverlay` the `Host`'s SwiftUI content never mounts. A native sheet that shows toasts mounts `SheetToastHost` in its own screen, and the root's host steps aside while it's up (`src/components/ui/toast/toast.ios.tsx`, `repo-list.ios.tsx`).

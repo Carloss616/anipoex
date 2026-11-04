@@ -3,7 +3,6 @@ import { useValue } from "@legendapp/state/react";
 import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
-import { header } from "@/components/layout/header";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
 import { theme$ } from "@/state/theme";
 import { useFontFamily, useNavigationFonts } from "../use-font";
@@ -56,7 +55,6 @@ export function useStackTheme(): NativeStackNavigationOptions {
   const m3 = useThemeM3Colors();
 
   return {
-    header,
     headerTintColor: m3.onSurface,
     headerShadowVisible: false,
     headerTransparent: true,

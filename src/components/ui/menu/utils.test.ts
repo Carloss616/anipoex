@@ -1,41 +1,58 @@
 import { describe, expect, it } from "bun:test";
 import type { ReactElement } from "react";
 import type { MenuProps } from "./menu";
-import { asPress, flattenRows, isPressable } from "./utils";
+import { asPress, isPressable, toSegments } from "./utils";
 
-describe("flattenRows", () => {
-  it("lists a submenu's rows after its label, keeping plain rows", () => {
-    const rows = flattenRows([
-      { label: "Rescan", onPress: () => {} },
+describe("toSegments", () => {
+  const row = (label: string) => ({ label, onPress: () => {} });
+
+  it("keeps plain rows in one segment and heads a submenu by its label", () => {
+    const segments = toSegments([
+      row("Rescan"),
+      row("Open"),
       {
         label: "Exclude",
         disabled: true,
-        items: [
-          { label: "Outdated", onPress: () => {} },
-          { label: "No match", onPress: () => {} },
-        ],
+        selection: "checkbox",
+        items: [row("Outdated"), row("No match")],
       },
+      row("Remove"),
     ]);
 
-    expect(rows.map((row) => [row.label, !!row.disabled])).toEqual([
-      ["Rescan", false],
-      ["Exclude: Outdated", true],
-      ["Exclude: No match", true],
+    expect(
+      segments.map((s) => [
+        s.heading,
+        s.selection,
+        s.items.map((r) => [r.label, !!r.disabled]),
+      ]),
+    ).toEqual([
+      [
+        undefined,
+        undefined,
+        [
+          ["Rescan", false],
+          ["Open", false],
+        ],
+      ],
+      [
+        "Exclude",
+        "checkbox",
+        [
+          ["Outdated", true],
+          ["No match", true],
+        ],
+      ],
+      [undefined, undefined, [["Remove", false]]],
     ]);
   });
 
-  it("lists a group's heading as a disabled row before its rows", () => {
-    const rows = flattenRows([
-      {
-        heading: "Full title",
-        items: [{ label: "Open website", onPress: () => {} }],
-      },
-    ]);
+  it("gives a group its own segment, even without a heading", () => {
+    const group = { items: [row("Open website")] };
+    const segments = toSegments([group, row("Share")]);
 
-    expect(rows.map((row) => [row.label, !!row.disabled])).toEqual([
-      ["Full title", true],
-      ["Open website", false],
-    ]);
+    expect(segments.map((s) => s.items.length)).toEqual([1, 1]);
+    // A row after a group starts its own segment, leaving the group's array alone.
+    expect(group.items).toHaveLength(1);
   });
 });
 
