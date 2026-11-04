@@ -91,7 +91,7 @@ const scan = (over: Record<string, unknown> = {}) =>
     keep: undefined,
     ...over,
   } as Parameters<typeof scanSources>[0]);
-/** Answers a source's search with a hit and its chapters with the given numbers. */
+/** Answers a source's search with a hit and chapters with the given numbers. */
 async function answer(id: string, numbers: number[]) {
   await flush();
   searchPending[id](["T"]);

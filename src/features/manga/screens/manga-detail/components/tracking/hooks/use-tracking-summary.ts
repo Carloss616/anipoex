@@ -2,7 +2,7 @@ import { MANGA_STATUSES } from "@/features/manga/constants";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 
-/** The entry as the summary button reads it: status label, progress and percent. */
+/** The entry as the summary button reads it: status, progress and percent. */
 export function useTrackingSummary(manga: MangaDetail) {
   const tracking = useTrackingEntry(manga.mediaListEntry?.id);
 

@@ -18,7 +18,7 @@ export const FILTER_TITLES: Record<ExtensionFilter, string> = {
 const first = (raw: string | string[] | undefined) =>
   Array.isArray(raw) ? raw[0] : raw;
 
-/** Route params arrive unchecked (deep links, typed URLs): anything unknown is `all`. */
+/** Route params arrive unchecked (deep links, typed URLs): unknown is `all`. */
 export function parseFilter(
   raw: string | string[] | undefined,
 ): ExtensionFilter {

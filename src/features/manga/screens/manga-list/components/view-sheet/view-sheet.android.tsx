@@ -30,9 +30,9 @@ const open$ = observable(false);
 export const openViewSheet = () => open$.set(true);
 
 /**
- * Android: columns and title position, as two M3 segmented rows. Rendered once
- * by the screen, outside the grid: mounted inside the grid's header, the sheet's
- * node resized the header and the rows jumped as it opened.
+ * Android: columns and title position, as two M3 segmented rows. Rendered
+ * once by the screen, outside the grid: mounted inside the grid's header, the
+ * sheet's node resized the header and the rows jumped as it opened.
  */
 export function ViewSheet() {
   const isPresented = useValue(open$);

@@ -13,7 +13,7 @@ export function TouchableNativeFeedback(props: TouchableNativeFeedbackProps) {
 
   return (
     <RNTouchableNativeFeedback
-      // M3 colors are `#RRGGBBAA`; swap the alpha for Material's 12% pressed layer.
+      // M3 colors are `#RRGGBBAA`: swap the alpha for M3's 12% pressed layer.
       background={
         m3
           ? RNTouchableNativeFeedback.Ripple(

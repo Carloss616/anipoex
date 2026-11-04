@@ -3,10 +3,8 @@ import type { MenuAction, MenuItem } from "../menu";
 
 /**
  * Arms the `onPressMode: "dialog"` rows, a submenu's and a group's included.
- *
- * A native menu row is a SwiftUI `Button` or a Compose `DropdownMenuItem`, so
- * it can never be a `Dialog.Trigger` — the row instead records itself as
- * pending, and only one row can be pending at a time.
+ * A native row (SwiftUI `Button`, Compose `DropdownMenuItem`) can't be a
+ * `Dialog.Trigger`, so it records itself as pending, one row at a time.
  */
 export function useMenuDialogState(items: MenuItem[]) {
   const [pending, setPending] = useState<MenuAction | null>(null);

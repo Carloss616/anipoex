@@ -4,7 +4,7 @@ import { probes$, scanning$ } from "@/features/manga/state/probes";
 import type { Source } from "@/features/manga/utils/source";
 import { isSuspicious } from "../utils/split-sources";
 
-/** One source's probe, read in its own row: a landing re-renders only that row. */
+/** One source's probe, read in its row: a landing re-renders only that row. */
 export function useSourceScan(key: string, id: string, sources: Source[]) {
   return {
     probe: useValue(probes$[key][id]),

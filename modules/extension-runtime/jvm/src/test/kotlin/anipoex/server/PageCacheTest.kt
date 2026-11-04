@@ -13,7 +13,10 @@ import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/** A source whose client reverses each image, as a descrambler's interceptor rewrites the body it downloads. */
+/**
+ * A source whose client reverses each image, as a descrambler's
+ * interceptor rewrites the body it downloads.
+ */
 private class ReversingSource(override val baseUrl: String) : HttpSource() {
     override val name = "Reversing"
     override val lang = "en"
@@ -41,7 +44,8 @@ class PageCacheTest {
             assertEquals("egap", File(URI(first.getValue("uri") as String)).readText())
             assertEquals("image/png", first["type"])
             assertEquals(source.headers["User-Agent"], server.takeRequest().headers["User-Agent"])
-            // Asked again, as a reader scrolling back does: the file is read, nothing is downloaded.
+            // Asked again, as a reader scrolling back does: the file is read,
+            // nothing is downloaded.
             val again = runBlocking { cache.fetch(source, server.url("/1.png#scrambled").toString(), 0) }
             assertEquals(first["uri"], again["uri"])
             assertEquals(1, server.requestCount)

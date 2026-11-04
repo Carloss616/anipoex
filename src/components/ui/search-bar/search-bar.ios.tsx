@@ -30,7 +30,6 @@ import { EnsureHost } from "../host";
 import { Icon, Icons, sfSymbol } from "../icon";
 import type { SearchBarProps } from "./search-bar";
 
-// `loading` has no slot in SwiftUI and stays web-only.
 export function SearchBar({
   value,
   defaultValue,

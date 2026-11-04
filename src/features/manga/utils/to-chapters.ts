@@ -1,7 +1,7 @@
 import type { SourceChapter } from "@/features/extensions";
 import { formatDate } from "@/utils/utils";
 
-/** A number with optional decimals and a trailing word or letter, e.g. 12, 12.5, 12a, 12.extra. */
+// e.g. 12, 12.5, 12a, 12.extra
 const NUMBER_PATTERN = String.raw`([0-9]+)(\.[0-9]+)?(\.?[a-z]+)?`;
 // "Mokushiroku Alice Vol.1 Ch. 4: Misrepresentation" -> 4
 const BASIC = new RegExp(String.raw`(?<=ch\.) *${NUMBER_PATTERN}`);
@@ -11,14 +11,14 @@ const NUMBER = new RegExp(NUMBER_PATTERN, "g");
 const UNWANTED = /\b(?:ver|version)[^a-z]?[0-9]+/g;
 // "One Piece 12 special" -> "One Piece 12special"
 const UNWANTED_WHITE_SPACE = /\s(?=extra|special|omake)/g;
-// A volume or season, the short forms only right before the number since "s" also ends words.
+// Short forms only right before the number, since "s" also ends words.
 const VOLUME =
   /\b(?:(?:vol(?:ume)?|season)[^a-z0-9]? *|[vs]\.?)([0-9]+(?:\.[0-9]+)?)\b/g;
 // "Chapter 1.5 Part II" -> b
 const PART = /\bpart\.? *([0-9]+|i{1,3}|iv|vi{0,3}|ix|x)\b/;
 // "Group 2 Chapter 386" -> "Group # Chapter #"
 const ANY_NUMBER = /[0-9]+(?:\.[0-9]+)?/g;
-// A number after this is the chapter number, even when every similar name has the same one.
+// What follows is the chapter number, even if every similar name shares it.
 const CHAPTER_PREFIX = /(?:\b(?:ch|chap|chapter|ep|episode)\.? *|#)$/;
 // "Bonus Chapter: Beach Episode"
 const BONUS = /\b(?:extra|bonus|omake|special|side ?story|afterword|interlude)/;
@@ -37,7 +37,10 @@ const ROMAN_NUMERALS = [
   "x",
 ];
 
-/** A source chapter as a row: `id` is its url; `number` is negative without one, -1 when neither the source nor the name gives one, or a negative the source gave (like -2). */
+/**
+ * `id` is the chapter url. `number` is negative without one: -1 when neither
+ * the source nor the name gives one, else the negative the source gave (-2).
+ */
 export interface Chapter {
   id: string;
   number: number;
@@ -47,24 +50,24 @@ export interface Chapter {
   memo: string | null;
 }
 
-/** The volume and chapter number recognized for a chapter, e.g. "10.5" or "19a", null when there is none. */
+/** Recognized numbers as text, e.g. "10.5" or "19a"; null when none. */
 export interface ChapterNumbering {
   volume: string | null;
   chapter: string | null;
 }
 
-/** A chapter as the recognition reads it: its name and the number its source gave. */
 type NamedChapter = Pick<SourceChapter, "name" | "number">;
 
-/** A recognized number, with the letter of a sub-chapter like the a in 19a. */
+/** `letter` is a sub-chapter's, like the a in 19a. */
 interface RecognizedNumber {
   value: number;
   letter?: string;
 }
 
 /**
- * The chapter number, Mihon's way: the source's when it gave one, else read from the name without the manga title
- * ("Capítulo 51" -> 51, "Vol.2 Ch.10" -> 10, "19a" -> 19.1, "12 extra" -> 12.99), else -1.
+ * The chapter number, Mihon's way: the source's when it gave one, else read
+ * from the name without the manga title ("Capítulo 51" -> 51,
+ * "Vol.2 Ch.10" -> 10, "19a" -> 19.1, "12 extra" -> 12.99), else -1.
  * @see https://github.com/mihonapp/mihon/blob/main/domain/src/main/java/tachiyomi/domain/chapter/service/ChapterRecognition.kt
  */
 export function parseChapterNumber(
@@ -79,9 +82,9 @@ export function parseChapterNumber(
 }
 
 /**
- * The numbers of `chapters`, given from the most to the least recent, Mihon's way over the whole list: numbers every
- * similar name shares aren't the chapter number, and chapters without one are numbered after the chapters around them.
- * Numbers the source gave are kept.
+ * The numbers of `chapters`, newest first, Mihon's way over the whole list:
+ * numbers every similar name shares aren't the chapter number, and chapters
+ * without one are numbered after their neighbours. Source numbers are kept.
  * @see https://github.com/mihonapp/mihon/blob/main/domain/src/main/java/tachiyomi/domain/chapter/service/ChapterRecognition.kt
  */
 export function parseChapterNumbers(
@@ -89,14 +92,14 @@ export function parseChapterNumbers(
   chapters: NamedChapter[],
 ): ChapterNumbering[] {
   const names = chapters.map((chapter) => cleanName(mangaTitle, chapter.name));
-  // Taken out before reading the names, so a number like the 2 in "Group 2 Chapter 386" can't be picked.
+  // Removed first, so the 2 in "Group 2 Chapter 386" can't be picked.
   const sharedNumbers = findSharedNumbers(names, chapters);
   const chapterNumbers = chapters.map((chapter, index) =>
     isKnown(chapter.number)
       ? { value: chapter.number }
       : parseName(removeRanges(names[index], sharedNumbers[index])),
   );
-  // Only from the name: newer chapters may not be in a volume yet, so neighbours don't tell.
+  // From the name only: newer chapters may not have a volume yet.
   const volumes = names.map((name) => {
     const found = [...name.matchAll(VOLUME)][0];
     return found ? Number(found[1]) : null;
@@ -113,7 +116,7 @@ export function parseChapterNumbers(
   });
 }
 
-// -1 and below mean the source gave none, except -2 which some sources use on purpose.
+// -1 and below mean none, except -2, which some sources use on purpose.
 const isKnown = (number: number) => number === -2 || number > -1;
 
 const cleanName = (mangaTitle: string, chapterName: string) =>
@@ -128,10 +131,14 @@ function roundHalfEven(value: number): number {
   return rounded - value === 0.5 && rounded % 2 !== 0 ? rounded - 1 : rounded;
 }
 
-// shortcut: Mihon's DecimalFormat("#.###") rounds exact ties half-even, toFixed rounds them up.
+// shortcut: Mihon's DecimalFormat("#.###") rounds exact ties half-even,
+// toFixed rounds them up.
 const format = (value: number) => String(Number(value.toFixed(3)));
 
-/** A recognized number as a double. A letter only counts without decimals, from .1 for a up to .9 for i, e.g. 19a -> 19.1 and 1.5a -> 1.5. */
+/**
+ * A letter counts only without decimals, .1 for a up to .9 for i:
+ * 19a -> 19.1, 1.5a -> 1.5.
+ */
 export function toDouble(number: string): number {
   const letter = /[a-z]$/.test(number) ? number.slice(-1) : undefined;
   const value = Number(letter ? number.slice(0, -1) : number);
@@ -141,7 +148,7 @@ export function toDouble(number: string): number {
     : value;
 }
 
-/** Replaces each [start, end) range with a space, from the last so the earlier ones stay where they are. */
+/** Each [start, end) becomes a space, last first so earlier ones stay put. */
 function removeRanges(name: string, ranges: [number, number][]): string {
   return [...ranges]
     .sort((a, b) => b[0] - a[0])
@@ -151,14 +158,17 @@ function removeRanges(name: string, ranges: [number, number][]): string {
     );
 }
 
-/** The numbers the same in every name of a group of at least three names that only differ in their numbers, e.g. the 2 in "Group 2 Chapter 385"; chapters with a number from the source are left out. */
+/**
+ * Numbers equal in every name of a group of 3+ names that differ only in
+ * their numbers, e.g. the 2 in "Group 2 Chapter 385". Skips source numbers.
+ */
 function findSharedNumbers(
   names: string[],
   chapters: NamedChapter[],
 ): [number, number][][] {
   const matches = names.map((name) => [...name.matchAll(ANY_NUMBER)]);
   const sharedNumbers: [number, number][][] = names.map(() => []);
-  // Grouped by all but their numbers, so that the nth number of each name means the same thing.
+  // Keyed by all but the numbers, so the nth number means the same in each.
   const groups = new Map<string, number[]>();
   names.forEach((name, index) => {
     if (isKnown(chapters[index].number)) return;
@@ -177,7 +187,7 @@ function findSharedNumbers(
     );
     // Something has to be left to tell the chapters apart.
     if (sharedSlots.length === slots.length) continue;
-    // Parts of a chapter share its number, e.g. the 5 of "Chapter 5 Part 1" and "Chapter 5 Part 2".
+    // Parts share their chapter's number: "Chapter 5 Part 1", "… Part 2".
     const removableSlots = sharedSlots.filter(
       (slot) =>
         !CHAPTER_PREFIX.test(names[group[0]].slice(0, first[slot].index)),
@@ -192,11 +202,13 @@ function findSharedNumbers(
 }
 
 /**
- * Numbers runs of chapters without a number after the chapters around them, only within a volume since chapter numbers
- * may start over in the next one:
- * - between two chapters, the missing whole numbers when they fit, e.g. 2, ?, 4 -> 3, or else 10, ?, 11 -> 10.5
- * - after the newest chapter, only bonus chapters, e.g. 100, Afterword -> 100.5
- * - before the oldest chapter, only a prologue, which gets 0, and volume 0 when the chapter after it has a volume
+ * Numbers runs of chapters without a number after their neighbours, only
+ * within a volume since numbers may start over in the next one:
+ * - between two chapters, the missing whole numbers when they fit
+ *   (2, ?, 4 -> 3), else 10, ?, 11 -> 10.5
+ * - after the newest, only bonus chapters: 100, Afterword -> 100.5
+ * - before the oldest, only a prologue: 0, and volume 0 when the chapter
+ *   after it has a volume
  */
 function fillChapterNumbers(
   names: string[],
@@ -205,7 +217,7 @@ function fillChapterNumbers(
 ): void {
   for (const [first, last] of nullRuns(chapterNumbers)) {
     const count = last - first + 1;
-    // A -2 from the source says nothing about where a chapter is, so it can't be numbered after.
+    // A source's -2 says nothing of position: nothing is numbered off it.
     const newer = known(chapterNumbers[first - 1]);
     const older = known(chapterNumbers[last + 1]);
     const olderVolume = volumes[last + 1] ?? null;
@@ -221,12 +233,12 @@ function fillChapterNumbers(
       const isWhole = [newer, older].every(
         (number) => number.letter === undefined && number.value % 1 === 0,
       );
-      // Bonus chapters aren't missing chapters even when they would fit, e.g. 2, Bonus, 4 -> 2.5.
+      // A bonus isn't a missing chapter even if it fits: 2, Bonus, 4 -> 2.5.
       if (bonuses === 0 && isWhole && newer.value - older.value - 1 === count) {
         for (let index = first; index <= last; index++)
           chapterNumbers[index] = { value: older.value + (last + 1 - index) };
       } else {
-        // Never past the next whole number, which may still be a chapter to come.
+        // Never past the next whole number: it may be a chapter to come.
         fillBetween(
           chapterNumbers,
           first,
@@ -280,7 +292,7 @@ function nullRuns(
   return runs;
 }
 
-/** Whether the chapters of the run are in no volume or in `volume`, the one of the chapters their numbers come from. */
+/** Whether the run is in no volume or in `volume`, its older neighbour's. */
 function isWithinVolume(
   volumes: (number | null)[],
   first: number,
@@ -292,7 +304,10 @@ function isWithinVolume(
   return true;
 }
 
-/** Numbers the run between `lower` and `upper`, the least recent getting the lowest: .5, .6 and so on after the whole number, e.g. 10, ?, ?, 11 -> 10.5, 10.6, or evenly spread when those don't fit. */
+/**
+ * Numbers the run between `lower` and `upper`, oldest lowest: .5, .6… after
+ * the whole number (10, ?, ?, 11 -> 10.5, 10.6), else evenly spread.
+ */
 function fillBetween(
   chapterNumbers: (RecognizedNumber | null)[],
   first: number,
@@ -312,7 +327,7 @@ function fillBetween(
       };
     return;
   }
-  // Tenths run out after e.g. a 2.9 or past five chapters, and the chapters still have to fit below upper.
+  // Tenths run out after a 2.9 or past five chapters; all stay below upper.
   const step = (upper - lower) / (count + 1);
   for (let index = first; index <= last; index++)
     chapterNumbers[index] = {
@@ -320,7 +335,10 @@ function fillBetween(
     };
 }
 
-/** The chapter number in a lowercased name without the manga title; a part after it becomes its letter (1.5 Part I -> 1.5a). */
+/**
+ * The chapter number in a lowercased name without the manga title; a part
+ * after it becomes its letter (1.5 Part I -> 1.5a).
+ */
 function parseName(name: string): RecognizedNumber | null {
   // The volume can't also be the chapter number.
   const withoutVolume = name.replace(VOLUME, " ");
@@ -346,7 +364,7 @@ function parsePart(part: string): number {
   return Number.isNaN(number) ? ROMAN_NUMERALS.indexOf(part) + 1 : number;
 }
 
-/** The number after "ch." or else the first one, leaving out version tags when there are several. */
+/** The number after "ch.", else the first, minus version tags if several. */
 function parseNumber(name: string): RecognizedNumber | null {
   // Some sources write decimals and letters with these, e.g. 300,a and 122-a.
   const cleanName = name
@@ -375,22 +393,24 @@ function toRecognizedNumber([
   if (!decimal && alpha.includes("extra")) return { value: value + 0.99 };
   if (!decimal && alpha.includes("omake")) return { value: value + 0.98 };
   if (!decimal && alpha.includes("special")) return { value: value + 0.97 };
-  // Only up to i, like the decimals they used to stand for, since others are rather words like 5v2.
+  // Only a to i, the decimals they stood for; others are words, like 5v2.
   const letter = alpha.replace(/^\.+/, "");
   return /^[a-i]$/.test(letter) ? { value, letter } : { value };
 }
 
-/** The rows of a manga's chapters, numbered over the whole list like Mihon's chapter sync. */
+/** Numbered over the whole list, like Mihon's chapter sync. */
 export function toChapters(
   sourceChapters: SourceChapter[],
   mangaTitle: string,
 ): Chapter[] {
-  // Like Mihon, a repeated url keeps its first chapter, so repeats neither group nor neighbour.
+  // Like Mihon, a repeated url keeps its first chapter, so repeats neither
+  // group nor neighbour.
   const urls = new Set<string>();
   const chapters = sourceChapters.filter(
     (c) => !urls.has(c.url) && Boolean(urls.add(c.url)),
   );
-  // Formatting to 3 decimals also drops the float32 noise of a source number (10.1 as 10.100000381469727).
+  // The 3-decimal format also drops a source number's float32 noise
+  // (10.1 as 10.100000381469727).
   const numberings = parseChapterNumbers(mangaTitle, chapters);
   return chapters.map((chapter, index) => ({
     id: chapter.url,
@@ -405,12 +425,15 @@ export function toChapters(
   }));
 }
 
-/** A chapter without a number (negative) is never read; progress 0 reads nothing, else chapters up to it. */
+/** Unnumbered (negative) chapters are never read; progress 0 reads none. */
 export function isRead(progress: number, number: number): boolean {
   return number >= 0 && progress > 0 && number <= progress;
 }
 
-/** Chapter numbers past the progress, each once (a chapter can come from two scanlators); unnumbered rows can't be told apart, so they don't count. */
+/**
+ * Chapter numbers past the progress, each once (two scanlators can share
+ * one); unnumbered rows can't be told apart, so they don't count.
+ */
 export function unreadCount(
   chapters: Pick<Chapter, "number">[],
   progress: number,

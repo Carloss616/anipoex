@@ -4,7 +4,10 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Bundle;
 
-/** Android's Activity, for the types a source's dialog helpers name: the host has no screen, so none is ever running. */
+/**
+ * Android's Activity, for the types a source's dialog helpers name: the
+ * host has no screen, so none is ever running.
+ */
 public abstract class Activity extends ContextWrapper {
     public Application getApplication() {
         return null;

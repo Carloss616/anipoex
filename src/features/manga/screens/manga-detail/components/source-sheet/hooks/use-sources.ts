@@ -17,13 +17,14 @@ export function useSources({
   const [query, setQuery] = useState("");
   const all = useInstalledSources();
   const key = mediaKey(mangaId);
-  // Probes only rank the rows, and the order holds while open: read them only while closed, so a landing never re-renders the open sheet.
+  // Probes only rank the rows, and the order holds while open: read them only
+  // while closed, so a landing never re-renders the open sheet.
   const probes =
     useValue(() => (isPresented ? undefined : probes$[key].get())) ?? {};
   const excluded = useValue(exclusions$[key]) ?? {};
   const pinned = useValue(pins$[key]) ?? {};
 
-  // The order is set while closed and kept while open, even through a scan; new rows append.
+  // Set while closed, kept while open even through a scan; new rows append.
   const order = useRef<string[]>([]);
   if (!isPresented) {
     order.current = splitSources(
@@ -41,7 +42,7 @@ export function useSources({
 
   const split = splitSources(all, excluded, pinned, probes, query);
   const available = applyOrder(split.available, order.current);
-  // Without a query, an empty list means nothing can be picked here yet; say why.
+  // Without a query, an empty list means nothing can be picked yet; say why.
   const needle = query.trim();
   const empty = needle
     ? { title: "No sources found" }

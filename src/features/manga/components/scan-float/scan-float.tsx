@@ -16,7 +16,10 @@ import {
 
 const DETAIL = /^\/manga\/\d+$/;
 
-/** The running scans over every screen, each hidden while its manga's source sheet is open; a tap opens that sheet. */
+/**
+ * The running scans over every screen, each hidden while its manga's source
+ * sheet is open; a tap opens that sheet.
+ */
 export function ScanFloat() {
   const pathname = usePathname();
   const open = (mangaId: number) => {

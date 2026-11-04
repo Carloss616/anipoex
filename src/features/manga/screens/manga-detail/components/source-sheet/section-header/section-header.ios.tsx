@@ -15,7 +15,8 @@ export function SectionHeader({ title, count, menu }: SectionHeaderProps) {
       {menu && (
         <>
           <Spacer />
-          {/* A section header's action is text, as Update all on the extension list. */}
+          {/* A section header's action is text, as Update all on the
+              extension list. */}
           <Computed>
             {() => (
               <Menu items={menu()}>

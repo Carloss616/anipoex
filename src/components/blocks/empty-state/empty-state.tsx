@@ -7,7 +7,7 @@ import { useFace } from "./hooks/use-face";
 export interface EmptyStateProps {
   title: string;
   description?: string;
-  /** Ways out of the empty state, stacked under the text; the first is the prominent one. */
+  /** Ways out, stacked under the text; the first is the prominent one. */
   actions?: { label: string; onPress: () => void }[];
   children?: React.ReactNode;
   /** iOS and Android only. */

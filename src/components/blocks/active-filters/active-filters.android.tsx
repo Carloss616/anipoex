@@ -6,7 +6,7 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ActiveFiltersProps } from "./active-filters";
 
-/** M3 input chips that clear their filter, then the total; nothing without filters. */
+/** M3 input chips that clear their filter, then the total; empty if none. */
 export function ActiveFilters({ filters, total }: ActiveFiltersProps) {
   const m3 = useThemeM3Colors();
   const insets = useSafeAreaInsets();

@@ -1,7 +1,8 @@
 import ExpoModulesCore
 import UIKit
 
-/// Work the user started keeps running after the app leaves the screen, until it ends or iOS's grace time (about 30s) runs out.
+/// Keeps work the user started running off screen until it ends or iOS's
+/// grace time (about 30s) runs out.
 public class BackgroundTimeModule: Module {
   public func definition() -> ModuleDefinition {
     Name("BackgroundTime")

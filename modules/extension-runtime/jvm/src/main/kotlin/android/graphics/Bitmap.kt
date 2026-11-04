@@ -5,9 +5,11 @@ import anipoex.server.Png
 import java.io.OutputStream
 
 /**
- * Android's Bitmap without pixels: the image it was decoded from plus what was drawn on it, which the app's own engine
- * renders on [compress] (see [ImageEngine]). Enough for sources that cut a page into tiles and put them back in order.
- * Reading or writing pixels has the engine draw it once, as a PNG, and keeps them until something is drawn on it.
+ * Android's Bitmap without pixels: the image it was decoded from plus what
+ * was drawn on it, which the app's own engine renders on [compress] (see
+ * [ImageEngine]). Enough for sources that cut a page into tiles and put
+ * them back in order. Reading or writing pixels has the engine draw it
+ * once, as a PNG, and keeps them until something is drawn on it.
  */
 class Bitmap internal constructor(private val width: Int, private val height: Int, private var image: ByteArray?) {
     enum class Config { ALPHA_8, RGB_565, ARGB_4444, ARGB_8888, RGBA_F16, HARDWARE, RGBA_1010102 }
@@ -15,10 +17,12 @@ class Bitmap internal constructor(private val width: Int, private val height: In
     enum class CompressFormat { JPEG, PNG, WEBP, WEBP_LOSSY, WEBP_LOSSLESS }
 
     private val ops = mutableListOf<Op>()
-    // What it looks like now, kept until it's drawn on again so a source drawn tile by tile is sent once.
+    // What it looks like now, kept until it's drawn on again so a source
+    // drawn tile by tile is sent once.
     private var layer: Layer? = null
     private var recycled = false
-    // ARGB, while a source works on pixels: they are then the bitmap, and [image] their PNG (null after a write).
+    // ARGB, while a source works on pixels: they are then the bitmap, and
+    // [image] their PNG (null after a write).
     private var pixels: IntArray? = null
 
     fun getWidth(): Int = width
@@ -41,7 +45,8 @@ class Bitmap internal constructor(private val width: Int, private val height: In
         pixels = null
     }
 
-    // Replaces every pixel, so what was drawn before goes and the color isn't blended with it.
+    // Replaces every pixel: what was drawn before goes, and the color isn't
+    // blended with it.
     fun eraseColor(color: Int) {
         image = null
         ops.clear()
@@ -63,7 +68,7 @@ class Bitmap internal constructor(private val width: Int, private val height: In
         layer = null
     }
 
-    // As Android: a region past the edge throws, instead of copying from the next row.
+    // As Android: a region past the edge throws rather than read the next row.
     private fun checkRegion(x: Int, y: Int, width: Int, height: Int) =
         require(x >= 0 && y >= 0 && width >= 0 && height >= 0 && x + width <= this.width && y + height <= this.height) { "Region outside the bitmap" }
 
@@ -127,16 +132,28 @@ class Bitmap internal constructor(private val width: Int, private val height: In
     }
 }
 
-/** A bitmap as it was when drawn: an encoded image (drawn first, at its size) and the operations after it. */
+/**
+ * A bitmap as it was when drawn: an encoded image (drawn first, at its
+ * size) and the operations after it.
+ */
 internal class Layer(val width: Int, val height: Int, val image: ByteArray?, val ops: List<Op>)
 
 internal sealed interface Op {
-    /** [src] of [source] into [dst] (left, top, right, bottom), through [matrix] as a 2D canvas's `[a, b, c, d, e, f]`. */
+    /**
+     * [src] of [source] into [dst] (left, top, right, bottom), through
+     * [matrix] as a 2D canvas's `[a, b, c, d, e, f]`.
+     */
     class Draw(val source: Layer, val src: FloatArray, val dst: FloatArray, val matrix: FloatArray) : Op
 
-    /** The whole bitmap painted over with an ARGB color, as `drawColor` does whatever the transform. */
+    /**
+     * The whole bitmap painted over with an ARGB color, as `drawColor` does
+     * whatever the transform.
+     */
     class Fill(val color: Int) : Op
 
-    /** One line of text at baseline [y], through [matrix]; [paint] is a copy, squeezed to [maxWidth] if it's set. */
+    /**
+     * One line of text at baseline [y], through [matrix]; [paint] is a copy,
+     * squeezed to [maxWidth] if it's set.
+     */
     class Text(val text: String, val x: Float, val y: Float, val paint: Paint, val maxWidth: Float?, val matrix: FloatArray) : Op
 }

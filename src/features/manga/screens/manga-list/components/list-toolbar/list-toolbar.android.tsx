@@ -7,7 +7,7 @@ import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { openViewSheet } from "../view-sheet";
 import type { ListToolbarProps } from "./list-toolbar";
 
-/** Android: the shown page's genre and the view sheet; the tabs switch the list. */
+/** Android: the page's genre and the view sheet; the tabs switch the list. */
 export function ListToolbar({ list$ }: ListToolbarProps) {
   const m3 = useThemeM3Colors();
   const genre = useValue(list$.genre);

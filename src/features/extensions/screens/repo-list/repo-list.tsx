@@ -84,7 +84,8 @@ function RepoListBody() {
                     aria-expanded={open}
                     onClick={() => {
                       toggleField();
-                      // Next tick: the form stays inert until the toggle renders.
+                      // Next tick: the form stays inert until the toggle
+                      // renders.
                       if (!open)
                         setTimeout(() =>
                           input.current?.focus({ preventScroll: true }),

@@ -60,8 +60,9 @@ fun FunctionalComposableScope.TabbedPagerContent(
   props: TabbedPagerProps,
   onPageChange: (PageChangeEvent) -> Unit
 ) {
-  // view.size is no snapshot state; mirror it, as @expo/ui's HorizontalPagerView
-  // does, or the pager crashes on an index it never knew about.
+  // view.size is no snapshot state; mirror it, as @expo/ui's
+  // HorizontalPagerView does, or the pager crashes on an index it never
+  // knew about.
   val pageCount = remember { mutableIntStateOf(view.size) }
   DisposableEffect(view) {
     view.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
@@ -115,7 +116,8 @@ fun FunctionalComposableScope.TabbedPagerContent(
             ) {
               Text(tab.title, fontFamily = font)
               tab.count?.let {
-                // A tally, not an alert: secondary tones instead of Badge's default error red.
+                // A tally, not an alert: secondary tones instead of Badge's
+                // default error red.
                 Badge(
                   containerColor = MaterialTheme.colorScheme.secondaryContainer,
                   contentColor = MaterialTheme.colorScheme.onSecondaryContainer

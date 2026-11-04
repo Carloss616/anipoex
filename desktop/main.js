@@ -30,7 +30,8 @@ import {
 } from "./host/webview/webview.js";
 import { startSidecar } from "./sidecar.js";
 
-// Packaged, electron-builder puts the web export, the server and the jre in Resources; in development they come from Metro and the Gradle build.
+// Packaged, electron-builder puts them in Resources; in development they
+// come from Metro and the Gradle build.
 const BUILD = path.join(
   import.meta.dirname,
   "../modules/extension-runtime/jvm/build",
@@ -66,13 +67,14 @@ const METHODS = new Set([
   "pages",
 ]);
 
-// Not `URL.origin`: a custom scheme's origin is the opaque "null", which every `data:` or `about:` frame shares.
+// Not `URL.origin`: a custom scheme's origin is the opaque "null", which
+// every `data:` or `about:` frame shares.
 const originOf = (url) => {
   const parsed = URL.parse(url ?? "");
   return parsed && `${parsed.protocol}//${parsed.host}`;
 };
 const APP_ORIGIN = originOf(APP_URL);
-// Only web links leave the app: `file:`, custom schemes and the like would open local apps or files.
+// Only web links leave: `file:` or a custom scheme would open local files.
 const openInBrowser = (url) => {
   if (["http:", "https:"].includes(URL.parse(url ?? "")?.protocol))
     shell.openExternal(url);
@@ -82,7 +84,7 @@ const openInBrowser = (url) => {
 const PRIMARY = app.requestSingleInstanceLock();
 if (!PRIMARY) app.quit();
 
-// Before `ready`: a standard, secure scheme gets real origins, fetch, CORS and storage like https.
+// Before `ready`: standard and secure give it origins, fetch, CORS, storage.
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "app",
@@ -93,7 +95,7 @@ protocol.registerSchemesAsPrivileged([
       corsEnabled: true,
     },
   },
-  // The renderer loads source pages through it: an `<img>` can't send the source's headers.
+  // Source pages load through it: an `<img>` can't send the source's headers.
   {
     scheme: PAGE_SCHEME,
     privileges: { standard: true, secure: true, supportFetchAPI: true },
@@ -101,7 +103,7 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 app.whenReady().then(() => {
-  // `quit` is asynchronous, so `ready` can still arrive in the instance that is leaving.
+  // `quit` is async, so `ready` can still reach the instance that is leaving.
   if (!PRIMARY) return;
   // `net.fetch` of the file sets the Content-Type from its extension.
   protocol.handle("app", (request) => {
@@ -124,9 +126,9 @@ app.whenReady().then(() => {
       extensions,
     ],
     logFile: path.join(extensions, "server.log"),
-    // The runtime has no browser: a Cloudflare challenge is solved in one of ours, and that site is fetched through
-    // it; nor a JavaScript engine that runs modern scripts, so extensions' run in ours; nor an image codec, so a
-    // page a source descrambles is drawn in one of our pages. An extension's WebView is a hidden page of ours too.
+    // What the JVM lacks, our pages lend: a browser for Cloudflare (and the
+    // site's fetches), a modern JS engine, a canvas for descrambled pages, and
+    // a hidden page per extension WebView.
     host: {
       solveChallenge,
       fetch: fetchThrough,
@@ -143,12 +145,13 @@ app.whenReady().then(() => {
       wvEvents,
       wvRespond,
     },
-    // A WebView's page answers to the JVM that made it; a restarted one never asks for it again.
+    // A WebView answers to the JVM that made it; a restarted one never asks.
     onStop: wvDestroyAll,
   });
   app.on("will-quit", () => sidecar.stop());
 
-  // Covers send their source's headers, added to the <img> request: the renderer picks no URL for us to fetch.
+  // Headers go on the cover's own <img> request: main never fetches a URL
+  // the renderer picks.
   const covers = coverHeaders();
   session.defaultSession.webRequest.onBeforeSendHeaders(
     { urls: ["http://*/*", "https://*/*"] },
@@ -189,7 +192,7 @@ app.whenReady().then(() => {
       originOf(url) !== AUTH_ORIGIN
     )
       return null;
-    // One sign-in at a time: a second request focuses the open window and counts as cancelled.
+    // One at a time: a second request focuses it and returns as cancelled.
     if (signInWindow) {
       signInWindow.focus();
       return null;
@@ -201,7 +204,7 @@ app.whenReady().then(() => {
         height: 760,
         webPreferences: { contextIsolation: true, sandbox: true },
       });
-      // The registered redirect is never loaded: its URL already carries the token or the error.
+      // The redirect is never loaded: its URL holds the token or the error.
       const stopOnRedirect = (navigation) => {
         if (!navigation.isMainFrame || !authRedirect(navigation.url)) return;
         navigation.preventDefault();
@@ -227,7 +230,7 @@ app.whenReady().then(() => {
       sandbox: true,
     },
   });
-  // Links to other sites open in the browser, so the preload's bridge never runs on a page we don't serve.
+  // Other sites open in the browser, so the preload's bridge runs only on ours.
   window.webContents.setWindowOpenHandler(({ url }) => {
     openInBrowser(url);
     return { action: "deny" };
@@ -246,6 +249,6 @@ app.whenReady().then(() => {
     if (typeof fraction === "number") window.setProgressBar(fraction);
   });
   window.loadURL(APP_URL);
-  // The app is this window: hidden ones (a site's kept page, the script engine) don't keep it running.
+  // The app is this window: hidden ones (kept pages, JS engine) don't count.
   window.on("closed", () => app.quit());
 });

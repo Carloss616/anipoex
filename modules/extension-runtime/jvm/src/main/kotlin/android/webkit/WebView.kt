@@ -35,11 +35,14 @@ import kotlin.concurrent.thread
 private const val TAG = "WebView"
 
 /**
- * Android's WebView over the app's browser (desktop: a hidden window; iOS: an offscreen WKWebView), driven through
- * [Host] with the `wv*` calls: `wvCreate`, `wvLoad`/`wvLoadData` (each with the settings and every CookieManager
- * cookie), `wvEvaluate`, `wvStop`, `wvDestroy`, and `wvRespond` for an intercepted request. The page's side comes
- * back through `wvEvents`, which one daemon thread per view long-polls until the page is closed; cookies the browser
- * gains come with `pageFinished` and in `cookies` events, into the CookieManager every source shares.
+ * Android's WebView over the app's browser (desktop: a hidden window; iOS:
+ * an offscreen WKWebView), driven through [Host] with the `wv*` calls:
+ * `wvCreate`, `wvLoad`/`wvLoadData` (each with the settings and every
+ * CookieManager cookie), `wvEvaluate`, `wvStop`, `wvDestroy`, and
+ * `wvRespond` for an intercepted request. The page's side comes back
+ * through `wvEvents`, which one daemon thread per view long-polls until the
+ * page is closed; cookies the browser gains come with `pageFinished` and in
+ * `cookies` events, into the CookieManager every source shares.
  */
 open class WebView(context: Context?) : ViewGroup(context) {
     private val id: JsonElement
@@ -50,7 +53,7 @@ open class WebView(context: Context?) : ViewGroup(context) {
     private val interfaces = ConcurrentHashMap<String, Any>()
     private val destroyed = AtomicBoolean(false)
 
-    // One at a time, so scripts run in the order they were sent, as Android runs them.
+    // One at a time, so scripts run in the order sent, as on Android.
     private val evaluator = Executors.newSingleThreadExecutor { Thread(it, "webview-evaluate").apply { isDaemon = true } }
 
     init {
@@ -62,13 +65,15 @@ open class WebView(context: Context?) : ViewGroup(context) {
 
     fun loadUrl(url: String, additionalHttpHeaders: Map<String, String>) {
         if (destroyed.get()) return
-        // Android runs a `javascript:` URL in the current page, as a browser does (percent-escapes decoded).
+        // Android runs a `javascript:` URL in the current page, as a browser
+        // does (percent-escapes decoded).
         if (url.startsWith("javascript:", ignoreCase = true)) return evaluateJavascript(Uri.decode(url.substring(11)), null)
         ranAs(url, call("wvLoad", page { put("url", url); put("headers", strings(additionalHttpHeaders)) }))
     }
 
-    // The page runs as another browser than asked (iOS can't pass for Chrome): the site's session will be that
-    // browser's, so the extension's own requests to it go out as that browser too, from before the page loads.
+    // The page runs as another browser than asked (iOS can't pass for
+    // Chrome): the site's session will be that browser's, so the extension's
+    // own requests to it go out as that browser too, from before it loads.
     private fun ranAs(url: String?, reply: JsonElement) {
         val userAgent = (reply as? JsonObject)?.get("userAgent")?.jsonPrimitive?.contentOrNull ?: return
         val host = url?.let { Uri.parse(it).getHost() } ?: return
@@ -92,7 +97,10 @@ open class WebView(context: Context?) : ViewGroup(context) {
         ranAs(baseUrl, reply)
     }
 
-    /** Runs off the main thread, since the browser answers when the script is done; [resultCallback] gets it on the main one. */
+    /**
+     * Runs off the main thread, since the browser answers when the script is
+     * done; [resultCallback] gets it on the main one.
+     */
     fun evaluateJavascript(script: String, resultCallback: ValueCallback<String>?) {
         if (destroyed.get()) return
         evaluator.execute {
@@ -146,12 +154,13 @@ open class WebView(context: Context?) : ViewGroup(context) {
         when (string("type")) {
             "pageStarted" -> onMain { webViewClient.onPageStarted(this, string("url"), null) }
             "pageFinished" -> {
-                // Stored before the callback, so the extension reads the page's cookies there.
+                // Stored first, so the callback reads the page's cookies.
                 event["cookies"]?.jsonArray?.forEach { cookie(it.jsonObject)?.let(CookieManager.getInstance()::put) }
                 onMain { webViewClient.onPageFinished(this, string("url")) }
             }
-            // The browser's store gained or changed cookies (a request after the page finished can set the session one):
-            // on Android the app-wide CookieManager has them at once.
+            // The browser's store gained or changed cookies (a request after
+            // the page finished can set the session one): on Android the
+            // app-wide CookieManager has them at once.
             "cookies" -> event["cookies"]?.jsonArray?.forEach { cookie(it.jsonObject)?.let(CookieManager.getInstance()::put) }
             "error" -> {
                 val request = Request(Uri.parse(string("url")), flag("mainFrame"), "GET", emptyMap())
@@ -178,13 +187,15 @@ open class WebView(context: Context?) : ViewGroup(context) {
 
     private fun invoke(name: String, method: String, args: List<String>) {
         val target = interfaces[name] ?: return
-        // shortcut: String parameters only, as the extensions' interfaces take; convert numbers when one takes an int.
+        // shortcut: String parameters only, as the extensions' interfaces
+        // take; convert numbers when one takes an int.
         val found = bridged(target).firstOrNull { m -> m.name == method && m.parameterTypes.size == args.size && m.parameterTypes.all { it == String::class.java } }
         if (found == null) {
             Log.w(TAG, "$name.$method(${args.size}) isn't a JavascriptInterface method")
             return
         }
-        // The interface is often an anonymous class, which reflection can't call from here without it.
+        // The interface is often an anonymous class, which reflection can't
+        // call from here without it.
         found.isAccessible = true
         runCatching { found.invoke(target, *args.toTypedArray()) }.onFailure { Log.e(TAG, "$name.$method failed", it) }
     }
@@ -197,7 +208,8 @@ open class WebView(context: Context?) : ViewGroup(context) {
             event["method"]?.jsonPrimitive?.contentOrNull ?: "GET",
             headers,
         )
-        // An interceptor that fails lets the request go to the network, so the page never waits on it.
+        // A failing interceptor lets the request go to the network, so the
+        // page never waits on it.
         val response = runCatching { webViewClient.shouldInterceptRequest(this, request)?.let(::toJson) }
             .getOrElse { Log.e(TAG, "shouldInterceptRequest failed", it); null }
         runCatching {
@@ -262,12 +274,17 @@ open class WebView(context: Context?) : ViewGroup(context) {
     companion object {
         private val main = Handler(Looper.getMainLooper())
 
-        // Interfaces and interceptors run here, off the main thread, as on Android's WebView threads.
+        // Interfaces and interceptors run here, off the main thread, as on
+        // Android's WebView threads.
         private val bridge = Executors.newCachedThreadPool { Thread(it, "webview-bridge").apply { isDaemon = true } }
-        // Android's one JavaBridge thread: a page's calls run one by one, in the order it made them.
+        // Android's one JavaBridge thread: a page's calls run one by one, in
+        // the order it made them.
         private val javaBridge = Executors.newSingleThreadExecutor { Thread(it, "JavaBridge").apply { isDaemon = true } }
 
-        /** No Chromium behind it: the extensions' WebView helper probes it for internals, fails, and takes its fallbacks. */
+        /**
+         * No Chromium behind it: the extensions' WebView helper probes it for
+         * internals, fails, and takes its fallbacks.
+         */
         @JvmStatic
         fun getWebViewClassLoader(): ClassLoader = WebView::class.java.classLoader
 
@@ -290,7 +307,8 @@ open class WebView(context: Context?) : ViewGroup(context) {
             put("hostOnly", cookie.hostOnly)
         }
 
-        // Browsers write a domain cookie's domain with a leading dot, which OkHttp's builder refuses.
+        // Browsers write a domain cookie's domain with a leading dot, which
+        // OkHttp's builder refuses.
         private fun cookie(json: JsonObject): Cookie? = runCatching {
             fun string(key: String) = json.getValue(key).jsonPrimitive.content
             fun flag(key: String) = json[key]?.jsonPrimitive?.boolean == true
@@ -305,7 +323,7 @@ open class WebView(context: Context?) : ViewGroup(context) {
     }
 }
 
-/** Android's WebSettings, with Android's defaults; what the browser needs goes with each load. */
+/** With Android's defaults; what the browser needs goes with each load. */
 class WebSettings internal constructor(private val defaultUserAgent: String) {
     var javaScriptEnabled = false
     var domStorageEnabled = false
@@ -313,7 +331,7 @@ class WebSettings internal constructor(private val defaultUserAgent: String) {
     var useWideViewPort = false
     var blockNetworkImage = false
 
-    // Null keeps the browser's own, which a bot check trusts more than any rewrite.
+    // Null keeps the browser's own, which a bot check trusts over any rewrite.
     internal var customUserAgent: String? = null
 
     var userAgentString: String?

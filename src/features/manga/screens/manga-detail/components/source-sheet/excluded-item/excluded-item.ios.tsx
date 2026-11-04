@@ -59,7 +59,8 @@ export const ExcludedItem = memo(function ExcludedItem({
         onPress={() => actions.openWebsite(source, url)}
       />
     );
-  // While this source scans, Include gives way to Stop, as Rescan does on Available rows.
+  // While this source scans, Include gives way to Stop, as Rescan does on
+  // Available rows.
   const include = (color?: string) => (
     <Button
       label={scanning ? "Stop" : "Include"}
@@ -76,7 +77,7 @@ export const ExcludedItem = memo(function ExcludedItem({
       <VStack alignment="leading" spacing={10}>
         <ContextMenu>
           <ContextMenu.Items>
-            {/* A source excluded for finding nothing can be searched by hand. */}
+            {/* One excluded for finding nothing can be searched by hand. */}
             <Button
               label={search.label}
               systemImage={sfSymbol(searchIcon)}
@@ -133,7 +134,8 @@ export const ExcludedItem = memo(function ExcludedItem({
           actions={actions}
         />
       </VStack>
-      {/* Right edge only: search, include and website, where Available rows search. */}
+      {/* Right edge only: search, include and website, where Available rows
+          search. */}
       <SwipeActions.Actions edge="trailing">
         <Button
           label={searching ? "Stop" : "Search"}

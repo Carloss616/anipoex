@@ -1,6 +1,9 @@
 import type { ExcludedRow, SourceRow } from "./split-sources";
 
-/** One entry of the sheet's flat list: a section header, a source row or Available's empty line; `first` rows draw no divider above. */
+/**
+ * One entry of the sheet's flat list: a section header, a source row or
+ * Available's empty line; `first` rows draw no divider above.
+ */
 export type SheetItem =
   | { kind: "header"; id: "available" | "excluded" }
   | { kind: "no-sources" }
@@ -12,7 +15,10 @@ export const sheetItemKey = (item: SheetItem) =>
     ? item.kind
     : `${item.kind}:${item.kind === "header" ? item.id : item.row.source.id}`;
 
-/** Both sections as one list; empty when there is nothing in either, so the sheet shows its empty state instead. */
+/**
+ * Both sections as one list; empty when there is nothing in either, so the
+ * sheet shows its empty state instead.
+ */
 export function sheetItems(
   available: SourceRow[],
   excluded: ExcludedRow[],

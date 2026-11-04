@@ -15,9 +15,9 @@ export interface NumberInputProps {
   onValueChange?: (value: number) => void;
   disabled?: boolean;
   label?: string;
-  /** A bare string is wrapped in the platform's text; anything else renders as-is. */
+  /** A string renders in the platform's text, anything else as-is. */
   prefix?: ReactNode;
-  /** A bare string is wrapped in the platform's text; anything else renders as-is. */
+  /** A string renders in the platform's text, anything else as-is. */
   suffix?: ReactNode;
   /** @platform web */
   className?: string;
@@ -29,10 +29,7 @@ export interface NumberInputProps {
   description?: string;
 }
 
-/**
- * Web NumberInput: panelui-web's `ButtonGroup` of −, the field with `prefix`
- * and `suffix` as addons, and +. The buttons repeat while held; ↑/↓ step too.
- */
+/** The buttons repeat while held; ↑/↓ step too. */
 export function NumberInput({
   value = 0,
   min = 0,

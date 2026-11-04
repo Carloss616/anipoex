@@ -9,7 +9,10 @@ import { dialogActions } from "./utils";
 export interface DialogAction {
   label: string;
   onPress: () => void;
-  /** iOS's roles; web and Android express `destructive` and `cancel`, the rest are normal actions. */
+  /**
+   * iOS's roles; web and Android show `destructive` and `cancel`, the rest as
+   * normal actions.
+   */
   role?: ButtonRole;
 }
 
@@ -20,17 +23,20 @@ interface DialogBaseProps {
   description?: string;
   cancelLabel?: string;
   className?: string;
-  /** Drive the dialog yourself, for openers that can't be a `Trigger` — a menu row. */
+  /** For an opener that can't be a `Trigger`, like a menu row. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   /**
-   * Renders a centered `Alert` instead of the action-sheet `ConfirmationDialog`.
+   * A centered `Alert` instead of the action-sheet `ConfirmationDialog`.
    * @platform ios
    */
   alert?: boolean;
 }
 
-/** One confirm action, or several `actions`; each closes the dialog before it runs. A `cancel` one replaces the built-in Cancel. */
+/**
+ * One confirm action, or several `actions`; each closes the dialog before it
+ * runs. A `cancel` one replaces the built-in Cancel.
+ */
 export type DialogProps = DialogBaseProps &
   (
     | {
@@ -91,8 +97,5 @@ function DialogRoot(props: DialogProps) {
   );
 }
 
-/**
- * An uncontrolled confirm/cancel dialog, natively rendered per platform.
- * @see https://panelui.dev/docs/web/components/dialog
- */
+/** @see https://panelui.dev/docs/web/components/dialog */
 export const Dialog = Object.assign(DialogRoot, { Trigger });

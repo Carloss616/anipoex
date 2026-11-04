@@ -21,7 +21,7 @@ import {
 } from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
 
-// The row's end padding clears 2, 3 or 4 buttons (rescan and ⋯, plus the check and stop).
+// End padding for 2, 3 or 4 buttons (rescan and ⋯, plus the check and stop).
 const PADDING = ["pe-27.5", "pe-34", "pe-40.5"];
 
 /** What the iOS swipe hands the sheet's reason dialog. */
@@ -33,7 +33,7 @@ export type ErrorRequest = { source: Source; error: string; excluded?: true };
 export interface AvailableItemProps {
   source: Source;
   mangaKey: string;
-  /** Every installed source: whether this one is suspicious depends on the rest. */
+  /** Every installed source: this one's suspicion depends on the rest. */
   sources: Source[];
   read: number;
   /** When the sheet opened: the probe ages count from it. */
@@ -143,7 +143,9 @@ export const AvailableItem = memo(function AvailableItem({
         </Frame.Row>
         {/* Over the row, not in it: a <button> can't hold buttons. */}
         <Frame.Actions className="absolute inset-e-4 inset-y-0">
-          {/* A mark, not an action: a disabled button only for the same box as ↻ and ⋯, undimmed, and hidden since the row says aria-selected. */}
+          {/* A mark, not an action: a disabled button only for the same box
+              as ↻ and ⋯, undimmed, and hidden since the row says
+              aria-selected. */}
           {selected && (
             <Button
               variant="ghost"
@@ -160,7 +162,8 @@ export const AvailableItem = memo(function AvailableItem({
               />
             </Button>
           )}
-          {/* Off only while this source scans: rescans of other rows run beside it. */}
+          {/* Off only while this source scans: rescans of other rows run
+              beside it. */}
           <Button
             variant="ghost"
             size="icon"

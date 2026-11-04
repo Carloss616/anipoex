@@ -1,7 +1,10 @@
 const CAUSE = "Caused by: ";
 const EXCEPTION_CLASS = /^(?:[A-Za-z_$][\w$]*\.)+[A-Za-z_$][\w$]*: /;
 
-/** The native cause's own message, without the bridge's "Call to function … rejected" wrapper or the exception class. */
+/**
+ * The native cause's own message, without the bridge's "Call to function …
+ * rejected" wrapper or the exception class.
+ */
 export function nativeErrorMessage(error: unknown): string {
   const text = error instanceof Error ? error.message : String(error);
   const at = text.lastIndexOf(CAUSE);

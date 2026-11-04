@@ -3,14 +3,15 @@ package android.text
 import android.graphics.Canvas
 import android.graphics.Paint
 
-/** Android's TextPaint: a [Paint] for text. */
 open class TextPaint @JvmOverloads constructor(flags: Int = 0) : Paint(flags) {
     @JvmField var bgColor = 0
 }
 
 /**
- * Android's text Layout, for sources that turn text into a page image (author notes, alt text). Lines break after
- * spaces and hyphens and around wide (CJK) characters, measured by [Paint.measureText]; spans and padding are ignored.
+ * Android's text Layout, for sources that turn text into a page image
+ * (author notes, alt text). Lines break after spaces and hyphens and around
+ * wide (CJK) characters, measured by [Paint.measureText]; spans and padding
+ * are ignored.
  */
 abstract class Layout internal constructor(
     private val text: CharSequence,
@@ -45,7 +46,10 @@ abstract class Layout internal constructor(
     }
 
     internal companion object {
-        /** Greedy line breaking: as many segments as fit, and a segment wider than a line breaks between characters. */
+        /**
+         * Greedy line breaking: as many segments as fit, and a segment wider
+         * than a line breaks between characters.
+         */
         fun wrap(text: String, paint: Paint, width: Float): List<String> = text.split('\n').flatMap { paragraph ->
             val lines = mutableListOf<String>()
             val breaks = boundaries(paragraph).iterator()
@@ -76,7 +80,8 @@ abstract class Layout internal constructor(
             lines
         }
 
-        // Not java.text.BreakIterator: its line rules are resource data the iOS JDK doesn't ship.
+        // Not java.text.BreakIterator: its line rules are resource data the iOS
+        // JDK doesn't ship.
         private fun boundaries(text: String): List<Int> = (1..text.length).filter { i ->
             i == text.length || (text[i - 1] == ' ' && text[i] != ' ') || text[i - 1] == '-' || Paint.isWide(text[i - 1]) || Paint.isWide(text[i])
         }
@@ -106,7 +111,8 @@ class StaticLayout @JvmOverloads constructor(
 
         fun setIncludePad(includePad: Boolean): Builder = this
 
-        // shortcut: every line is kept; ellipsizing at maxLines waits for a source that sets it on a page.
+        // shortcut: every line is kept; ellipsize at maxLines when a source
+        // sets it on a page.
         fun setMaxLines(maxLines: Int): Builder = this
 
         fun setBreakStrategy(breakStrategy: Int): Builder = this
@@ -123,7 +129,7 @@ class StaticLayout @JvmOverloads constructor(
     }
 }
 
-/** Android's editable text, for the input a source's login dialog reads; that dialog never shows here. */
+/** The input a source's login dialog reads; that dialog never shows here. */
 interface Editable : CharSequence
 
 interface TextWatcher {

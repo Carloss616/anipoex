@@ -40,7 +40,7 @@ export function Host({
   );
 }
 
-/** `@expo/ui`'s RNHostView, tracked so our components know to add Host if needed. */
+/** `@expo/ui`'s RNHostView, tracked so our components add a Host if needed. */
 export function RNHostView(props: React.ComponentProps<typeof RNHostViewRoot>) {
   return (
     <RNHostViewContext.Provider value={true}>

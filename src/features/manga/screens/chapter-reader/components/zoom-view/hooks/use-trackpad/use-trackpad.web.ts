@@ -3,10 +3,13 @@ import type { TrackpadHandlers } from "./use-trackpad";
 
 // A pinch is over once its wheel events stop this long.
 const END_DELAY = 150;
-// A mouse wheel notch with ctrl is ~100; capped so it zooms by ~1.3x, as a pinch step would.
+// A ctrl+wheel notch is ~100; capped to zoom ~1.3x, as a pinch step would.
 const MAX_DELTA = 25;
 
-/** Browsers (and Electron) send a trackpad pinch as wheel events with `ctrlKey`, deltaY = -100 × ln(scale). */
+/**
+ * Browsers (and Electron) send a trackpad pinch as wheel events with
+ * `ctrlKey`, deltaY = -100 × ln(scale).
+ */
 export function useTrackpad(
   ref: RefObject<unknown>,
   handlers: TrackpadHandlers,

@@ -24,7 +24,8 @@ class NetworkHelperTest {
         assertEquals("system", network(dir).dns)
     }
 
-    // A page that sets a cookie and reloads: the retry only works if the client sent the cookie back.
+    // A page that sets a cookie and reloads: the retry only works if the
+    // client sent the cookie back.
     @Test
     fun clientKeepsCookiesBetweenRequests(@TempDir dir: File) {
         CookieManager.getInstance().removeAllCookies(null)

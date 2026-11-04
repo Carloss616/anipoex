@@ -80,11 +80,9 @@ function ToolbarItemView({ item }: { item: ToolbarItem }) {
 }
 
 /**
- * Android draws toolbar items as Android Views, so each one can only be tinted
- * one prop at a time and its ripple never follows the app's palette — the ⋮
- * popup needed a patch of its own for that. `asChild` hands the whole header
- * slot over instead: one Compose `Host`, and from there the items are M3's
- * `IconButton` and our `Menu`, themed like the rest of the screen for free.
+ * Android draws toolbar items as Views: tinted one prop at a time, ripples off
+ * the palette. `asChild` hands the header slot to one Compose `Host` instead,
+ * where M3's `IconButton` and our `Menu` theme like the rest of the screen.
  */
 export function Toolbar({ children: toolbar }: ToolbarProps) {
   const parsed = readToolbar(toolbar);

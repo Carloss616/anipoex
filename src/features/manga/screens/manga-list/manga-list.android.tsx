@@ -24,8 +24,9 @@ import { ListToolbar } from "./components/list-toolbar";
 import { ViewSheet } from "./components/view-sheet";
 
 /**
- * Android: M3 tabs over a native pager; a page loads the first time it's shown.
- * The screen holds each page's list, so the toolbar picks the shown one's genre.
+ * Android: M3 tabs over a native pager; a page loads the first time it's
+ * shown. The screen holds each page's list, so the toolbar picks the shown
+ * one's genre.
  */
 export function MangaList() {
   const router = useRouter();

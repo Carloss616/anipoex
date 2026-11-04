@@ -4,13 +4,13 @@ import type { RailItem } from "./utils/rail-items";
 
 export interface RailCardProps {
   item: RailItem;
-  /** Sent with the cover: some image hosts refuse a request without the Referer. */
+  /** Sent with the cover: some image hosts need the Referer. */
   headers?: Record<string, string>;
   /** Given by the menu around the card: a tap opens it. */
   onPress?: () => void;
 }
 
-/** A result's cover and title. A tap opens its menu, which holds every action. */
+/** A result's cover and title; a tap opens its menu, with every action. */
 export function RailCard({ item, headers, ...props }: RailCardProps) {
   const uri = item.manga.thumbnailUrl;
   return (

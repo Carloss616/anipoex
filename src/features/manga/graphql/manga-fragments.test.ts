@@ -51,7 +51,7 @@ function seed() {
   return cache;
 }
 
-/** Counts every emission of a fragment watch, starting with the initial read. */
+/** Counts every emission of a fragment watch, the initial read included. */
 function countEmissions(observable: {
   subscribe: (cb: () => void) => unknown;
 }) {
@@ -139,9 +139,8 @@ test("the screen still reads the entry's fields, it just isn't woken by them", (
 });
 
 /**
- * The control for the test above. `@nonreactive` inside a fragment watch is
- * undocumented, so this pins the behaviour the split depends on: drop the
- * directive and the very same write does wake the screen.
+ * Control for the test above: `@nonreactive` in a fragment watch is
+ * undocumented, so this pins that without it the same write wakes the screen.
  */
 test("without @nonreactive the same write would wake the screen", () => {
   const reactive = gql`

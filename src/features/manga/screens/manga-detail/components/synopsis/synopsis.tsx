@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { PRESS } from "@/components/ui/press";
 
-/** Enough to tell what the book is about, short enough to leave the page scannable. */
+/** Tells what the book is about, short enough to leave the page scannable. */
 const COLLAPSED_LINES = 3;
 
 /**
@@ -28,7 +28,8 @@ export function Synopsis({ text }: { text: string | undefined }) {
               collapsedHeight && (expanded ? fullHeight : collapsedHeight),
           }}
         >
-          {/* First layout (clamped) gives the collapsed height, the next the full one. */}
+          {/* First layout (clamped) gives the collapsed height, the next the
+              full one. */}
           <View
             onLayout={({ nativeEvent: { layout } }) =>
               collapsedHeight == null

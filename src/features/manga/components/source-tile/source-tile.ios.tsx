@@ -18,7 +18,7 @@ const SIDE = 40;
 
 export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
   const border = useThemeColor("border");
-  // Each theme family sets its own rounding, so `rounded-lg` is read, not fixed.
+  // Each theme family sets its own rounding: read `rounded-lg`, don't fix it.
   const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
   // The url that loaded, so a recycled row with another source starts over.
   const [loadedUrl, setLoadedUrl] = useState<string>();
@@ -28,7 +28,7 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
     <ZStack
       modifiers={[
         frame({ width: SIDE, height: SIDE }),
-        // The color and outline only frame the initials; a loaded logo fills the tile.
+        // Color and outline only frame initials; a loaded logo fills the tile.
         ...(loaded ? [] : [background(color)]),
         clipShape("roundedRectangle", radius),
         ...(loaded

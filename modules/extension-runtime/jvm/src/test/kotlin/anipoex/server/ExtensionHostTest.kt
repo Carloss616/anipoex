@@ -63,7 +63,8 @@ class ExtensionHostTest {
         seed()
         val host = ExtensionHost(dir)
         assertSeeded(host)
-        // (a) the signature fails, (b) it verifies but has no classes.dex to convert, (c) it converts but its class isn't a source.
+        // (a) the signature fails, (b) it verifies but has no classes.dex to
+        // convert, (c) it converts but its class isn't a source.
         assertContains(installError(host, serve(tamper(FIXTURE, File(dir, "tampered.apk"))), FIXTURE_KEY), "doesn't verify")
         assertSeeded(host)
         assertContains(installError(host, serve(FIXTURE), FIXTURE_KEY), "classes.dex")
@@ -106,7 +107,8 @@ class ExtensionHostTest {
     @Test
     fun interruptedInstallRestoresBackup() {
         seed()
-        // Died after storing the new jar but before writing its meta: both backups are the only good copy.
+        // Died after storing the new jar but before writing its meta: both
+        // backups are the only good copy.
         File(exts, "$PKG.jar").renameTo(File(exts, "$PKG.jar.bak"))
         File(exts, "$PKG.json").renameTo(File(exts, "$PKG.json.bak"))
         File(exts, "$PKG.jar").writeText("not a jar")
@@ -115,7 +117,8 @@ class ExtensionHostTest {
         assertSeeded(host)
     }
 
-    // The manga's memo from a search reaches its chapters, whose memo reaches the pages, as Mihon stores both.
+    // The manga's memo from a search reaches its chapters, whose memo reaches
+    // the pages, as Mihon stores both.
     @Test
     fun memosReachChaptersAndPages() {
         seed(MemoSource::class.java)
@@ -135,7 +138,8 @@ class ExtensionHostTest {
     private fun installError(host: ExtensionHost, url: String, key: String): String =
         assertFailsWith<Throwable> { runBlocking { host.install(url, key) } }.toString()
 
-    // An installed previous version: a jar with the source's compiled class and the meta ExtensionHost writes.
+    // An installed previous version: a jar with the source's compiled class
+    // and the meta ExtensionHost writes.
     private fun seed(source: Class<*> = SeededSource::class.java) {
         exts.mkdirs()
         val name = source.name
@@ -160,7 +164,7 @@ class ExtensionHostTest {
     }
 }
 
-/** The seeded version's source; its class file is copied into the seeded jar. */
+/** The seeded version's source; its class file goes in the seeded jar. */
 class SeededSource : CatalogueSource {
     override val id = 1L
     override val name = "Seeded"
@@ -176,7 +180,10 @@ class SeededSource : CatalogueSource {
     )
 }
 
-/** Like a lib 1.6 source that keeps an id in the manga's memo and a slug in the chapter's, each read back later. */
+/**
+ * Like a lib 1.6 source that keeps an id in the manga's memo and a slug in
+ * the chapter's, each read back later.
+ */
 class MemoSource : HttpSource() {
     override val name = "Memo"
     override val lang = "en"
@@ -190,7 +197,8 @@ class MemoSource : HttpSource() {
             memo = buildJsonObject { put("id", "42") }
         }), false)
 
-    // Like a details parse, the returned manga has no url; chapters must not read it.
+    // Like a details parse, the returned manga has no url; chapters must not
+    // read it.
     override suspend fun getMangaUpdate(manga: SManga, chapters: List<SChapter>, fetchDetails: Boolean, fetchChapters: Boolean) =
         SMangaUpdate(
             SManga.create(),
@@ -204,6 +212,7 @@ class MemoSource : HttpSource() {
     override suspend fun getPageList(chapter: SChapter) =
         listOf(Page(0, imageUrl = "$baseUrl/${chapter.memo.getValue("slug").jsonPrimitive.content}"))
 
-    // Like a source that signs its image urls: `image` applies it, so `pages` must hand back the page's own url.
+    // Like a source that signs its image urls: `image` applies it, so `pages`
+    // must hand back the page's own url.
     override fun imageRequest(page: Page) = GET("${page.imageUrl}?t=1", headers)
 }

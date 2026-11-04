@@ -19,9 +19,12 @@ import type {
  */
 export interface NativeImageProps
   extends Pick<ExpoImageProps, "blurRadius" | "onLoad" | "onError"> {
-  /** An https or `data:` URL, and headers sent with it (a `Referer` a host requires). */
+  /** An https or `data:` URL, with headers (a `Referer` a host requires). */
   source: Pick<ImageSource, "uri" | "headers">;
-  /** `cover` fills and crops the frame, `contain` shows the whole image inside it, `fill` stretches it. Default `cover`. */
+  /**
+   * `cover` crops to fill, `contain` fits it whole, `fill` stretches it.
+   * Default `cover`.
+   */
   contentFit?: Extract<
     ExpoImageProps["contentFit"],
     "cover" | "contain" | "fill"
@@ -44,8 +47,8 @@ const NativeImage = requireNativeView<NativeProps>("NativeImage", "ImageView");
 /**
  * A SwiftUI image that fills its frame, loaded and cached by SDWebImage
  * (expo-image's engine) from the local `modules/native-image`, and fades in.
- * Must sit inside a Host; use it instead of an `RNHostView` image:
- * `List.ForEach` recycling can leave a hosted React Native view in a removed row.
+ * Must sit inside a Host. Use it over an `RNHostView` image: `List.ForEach`
+ * recycling can leave a hosted React Native view in a removed row.
  */
 export function Image({ modifiers, onLoad, onError, ...props }: ImageProps) {
   return (

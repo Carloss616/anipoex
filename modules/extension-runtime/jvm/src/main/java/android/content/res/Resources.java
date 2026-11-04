@@ -2,7 +2,7 @@ package android.content.res;
 
 import android.util.DisplayMetrics;
 
-/** Android's system Resources, for the screen size extensions lay out an offscreen WebView with. */
+/** System Resources, for the screen size an offscreen WebView lays out at. */
 public class Resources {
     private static final Resources SYSTEM = new Resources();
 

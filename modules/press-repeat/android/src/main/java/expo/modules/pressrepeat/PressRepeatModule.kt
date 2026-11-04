@@ -22,13 +22,15 @@ class PressRepeatModule : Module() {
     Name("PressRepeat")
 
     OnCreate {
-      // Sends `start` when a press begins, then `repeat` every 80ms once it has been held 400ms, and nothing after release.
+      // Sends `start` when a press begins, then `repeat` every 80ms once held
+      // 400ms, and nothing after release.
       ModifierRegistry.register(TYPE) { _, _, _, eventDispatcher ->
         val dispatch by rememberUpdatedState(eventDispatcher)
         Modifier.pointerInput(Unit) {
           coroutineScope {
             awaitEachGesture {
-              // Initial pass: watch the press before the button's own clickable consumes it.
+              // Initial pass: watch the press before the button's own clickable
+              // consumes it.
               awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
               dispatch(TYPE, mapOf("type" to "start"))
               val repeat = launch {

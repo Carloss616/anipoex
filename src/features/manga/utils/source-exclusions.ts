@@ -51,7 +51,7 @@ export function toggleExcluded(
   };
 }
 
-/** Forgets the source's pin: its exclusion becomes automatic, judged again by its next probe. */
+/** Forgets the pin: the exclusion turns automatic, judged by the next probe. */
 export const unpinSource = (pinned: Pinned, provider: string, now: number) =>
   tombstoneLive(pinned, now, (id) => id !== provider);
 
@@ -84,7 +84,8 @@ export function autoExclude(
     if (isLive(pinned[id]) || isLive(excluded[id])) continue;
     const kind = classify(read, p.latest, p.count, p.errored, gap);
     if (!isBadKind(kind)) continue;
-    // The picked source may be lagging or failing for now; with no match it has nothing to read.
+    // The picked source may be lagging or failing for now; with no match it
+    // has nothing to read.
     if (id === keep && kind !== "not-matched") continue;
     // one error is not enough: the previous scan must have failed too
     if (kind === "error-found" && !prev[id]?.errored) continue;

@@ -89,7 +89,7 @@ function PanelTabTrigger({
 }: Omit<TabTriggerSlotProps, "children"> & { item: Route }) {
   const { trigger } = useTabTrigger({ name: item.name });
 
-  // Base UI ignores clicks on the active tab: pop its stack, as TabTrigger does.
+  // Base UI ignores clicks on the active tab: pop its stack like TabTrigger.
   const popToRoot = () => {
     if (isFocused && trigger?.route?.state?.index)
       router.dismissTo(trigger.resolvedHref as (typeof ROUTES)[number]["href"]);
@@ -106,7 +106,7 @@ function PanelTabTrigger({
         size={BUTTON_ICON_SIZE}
         name={isFocused ? item.icon.selected : item.icon.default}
       />
-      {/* Below sm only the active label shows; 0fr→1fr animates its width. */}
+      {/* Below sm only the active label shows; 0fr→1fr animates width. */}
       <View className="grid grid-cols-[0fr] in-data-active:grid-cols-[1fr] in-data-active:opacity-100 opacity-0 transition-[grid-template-columns,opacity] duration-300 ease-sheet motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
         <View className="overflow-hidden">
           <Typography

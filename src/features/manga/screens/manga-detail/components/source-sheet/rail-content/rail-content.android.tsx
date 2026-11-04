@@ -56,7 +56,7 @@ function Placeholders() {
   );
 }
 
-/** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
+/** A skeleton while the first page loads, then the cards and a More card. */
 export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const m3 = useThemeM3Colors();
   const { rail, items, notice, menu, loadMore, retry } = useRail(
@@ -69,7 +69,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const inset = padding(GUTTER, 0, GUTTER, 12);
 
   if (rail.status === "loading") return <Placeholders />;
-  // A failed or empty first page, said beside the current card when there is one.
+  // A failed or empty first page, said beside the current card if there is one.
   const line =
     notice === "error" ? (
       <Row verticalAlignment="center" modifiers={[inset]}>

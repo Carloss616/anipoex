@@ -16,7 +16,7 @@ export interface ReadingSave {
   listed: boolean;
 }
 
-/** What finishing a chapter does to the list entry; null when progress would not rise. */
+/** Finishing a chapter's effect on the entry; null if progress won't rise. */
 export function readingSave(
   entry: PartialEntry | null | undefined,
   chapterNumber: number,

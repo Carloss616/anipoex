@@ -105,7 +105,7 @@ fun FunctionalComposableScope.ImageContent(
       GlideUrl(url, LazyHeaders.Builder().apply { headers.forEach { (name, value) -> addHeader(name, value) } }.build())
     } ?: url
     var from: DataSource? = null
-    // Glide downsamples to this size, so the bitmap is never bigger than the view.
+    // Glide downsamples to this size: the bitmap is never bigger than the view.
     val target = Glide.with(context).asBitmap().load(model)
       .listener(object : RequestListener<Bitmap> {
         override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>, isFirstResource: Boolean) = false
@@ -131,7 +131,8 @@ fun FunctionalComposableScope.ImageContent(
       onError(ErrorEvent(e.cause?.message ?: e.message ?: "Could not load the image"))
       return@LaunchedEffect
     }
-    // A memory hit draws at once, so a row scrolled back into view doesn't fade in again.
+    // A memory hit draws at once, so a row scrolled back into view doesn't
+    // fade in again.
     loaded = Loaded(url, bitmap.asImageBitmap(), fade = from != DataSource.MEMORY_CACHE && props.transition > 0)
     onLoad(
       LoadEvent(
@@ -145,7 +146,8 @@ fun FunctionalComposableScope.ImageContent(
     )
   }
 
-  // Apart from the load: a size change restarts that effect, and must not stop a fade halfway.
+  // Apart from the load: a size change restarts that effect, and must not
+  // stop a fade halfway.
   LaunchedEffect(loaded) {
     val shown = loaded ?: return@LaunchedEffect
     alpha.snapTo(if (shown.fade) 0f else 1f)

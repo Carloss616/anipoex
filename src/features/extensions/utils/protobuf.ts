@@ -38,7 +38,8 @@ const CONTENT_WARNINGS = [
 const utf8 = new TextDecoder();
 
 /**
- * Splits one message into its fields; varints up to 7 bytes stay numbers, longer ones (int64 ids) become BigInt.
+ * Splits one message into its fields; varints up to 7 bytes stay numbers,
+ * longer ones (int64 ids) become BigInt.
  * @see https://protobuf.dev/programming-guides/encoding/
  */
 const readFields = (bytes: Uint8Array): Fields => {
@@ -108,7 +109,8 @@ const messages = (fields: Fields, field: number) =>
 const message = (fields: Fields, field: number) =>
   messages(fields, field).slice(-1)[0];
 
-// int64 as a decimal string, like protobuf's JSON mapping; a number can't hold every id.
+// int64 as a decimal string, like protobuf's JSON mapping; a number can't
+// hold every id.
 const int64 = (fields: Fields, field: number) => {
   const value = last(fields, field);
   if (typeof value === "bigint") return BigInt.asIntN(64, value).toString();
@@ -153,7 +155,7 @@ const extensionList = (fields: Fields): StoreExtensionList => ({
 });
 
 /**
- * Decodes a v2 store from protobuf into its JSON shape; unknown fields are skipped.
+ * Decodes a v2 store from protobuf to its JSON shape; unknown fields skipped.
  * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkExtensionStore.kt
  */
 export const decodeStore = (bytes: Uint8Array): Store => {

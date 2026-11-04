@@ -18,7 +18,7 @@ export interface Zoom {
   scroll: number;
 }
 
-/** The point under the pinch: x in the unscaled viewport, y in the list's content. */
+/** The pinch point: x in the unscaled viewport, y in the list's content. */
 export interface PinchAnchor {
   scale: number;
   x: number;
@@ -38,7 +38,10 @@ export function pinchAnchor(
   };
 }
 
-/** The zoom after a pinch of `factor` from `anchor`, with its point under the fingers at (`focalX`, `focalY`). */
+/**
+ * The zoom after a pinch of `factor` from `anchor`, with its point under the
+ * fingers at (`focalX`, `focalY`).
+ */
 export function pinchTo(
   anchor: PinchAnchor,
   {
@@ -51,7 +54,6 @@ export function pinchTo(
     factor: number;
     focalX: number;
     focalY: number;
-    /** The viewport's width. */
     width: number;
     maxScroll: number;
   },

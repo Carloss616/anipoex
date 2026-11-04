@@ -33,7 +33,10 @@ public final class ImageViewProps: UIBaseViewProps {
 
 private let cacheTypes: [SDImageCacheType: String] = [.memory: "memory", .disk: "disk", .all: "disk"]
 
-/// An image from an https or data URL, loaded and cached by SDWebImage (expo-image's engine) and drawn by SwiftUI itself: a React Native view hosted in a recycled `List` row can be taken by a row SwiftUI is removing.
+/// An image from an https or data URL, loaded and cached by SDWebImage
+/// (expo-image's engine) and drawn by SwiftUI itself: a React Native view
+/// hosted in a recycled `List` row can be taken by a row SwiftUI is
+/// removing.
 public struct ImageView: ExpoSwiftUI.View {
   @ObservedObject public var props: ImageViewProps
   @State private var loaded: (url: String, image: UIImage, cacheType: String)?
@@ -44,7 +47,8 @@ public struct ImageView: ExpoSwiftUI.View {
 
   public var body: some View {
     let url = props.source?.uri
-    // A memory hit draws in the first frame, so a row scrolled back into view doesn't fade in again.
+    // A memory hit draws in the first frame, so a row scrolled back into view
+    // doesn't fade in again.
     let shown = url.flatMap { url in
       loaded?.url == url ? loaded : SDImageCache.shared.imageFromMemoryCache(forKey: url).map { (url: url, image: $0, cacheType: "memory") }
     }
@@ -52,7 +56,8 @@ public struct ImageView: ExpoSwiftUI.View {
       .overlay {
         if let shown {
           fitted(Image(uiImage: shown.image).resizable())
-            // Opaque only when blurred, or a logo's transparent pixels could be filled.
+            // Opaque only when blurred, or a logo's transparent pixels could be
+            // filled.
             .blur(radius: props.blurRadius, opaque: props.blurRadius > 0)
             .transition(.opacity)
             // A new view per url, so a recycled row reports its own load.
@@ -76,7 +81,8 @@ public struct ImageView: ExpoSwiftUI.View {
         guard let url, shown == nil, let source = URL(string: url) else { return }
         let context: [SDWebImageContextOption: Any]? = props.source?.headers.map { [.downloadRequestModifier: SDWebImageDownloaderRequestModifier(headers: $0)] }
         let duration = props.transition / 1000
-        // A source's oversized cover would take hundreds of MB decoded: past 60 MB it decodes scaled down, keeping its aspect ratio.
+        // A source's oversized cover would take hundreds of MB decoded: past
+        // 60 MB it decodes scaled down, keeping its aspect ratio.
         SDWebImageManager.shared.loadImage(with: source, options: [.scaleDownLargeImages], context: context, progress: nil) { image, _, error, cacheType, _, _ in
           guard let image else {
             // A recycled row may have moved on to another url by now.

@@ -17,7 +17,7 @@ const CARD = Shape.RoundedCorner({
   cornerRadii: { topStart: 24, topEnd: 24, bottomStart: 24, bottomEnd: 24 },
 });
 
-/** A tonal card summing the entry up, or inviting to add one; the sheet edits it. */
+/** A tonal card summing the entry up, or inviting one; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);
   const { tracking, label, total, progress, percent } =

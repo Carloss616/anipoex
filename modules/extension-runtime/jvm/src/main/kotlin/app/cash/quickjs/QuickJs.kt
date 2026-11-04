@@ -11,10 +11,11 @@ import kotlinx.serialization.json.double
 import java.io.Closeable
 
 /**
- * Mihon's QuickJS API, run by the app's own engine through [Host] (V8 on desktop, JavaScriptCore on iOS):
- * QuickJS's native library can't load on this runtime, and the pure-Java engines don't parse modern
- * scripts. Results come back as QuickJS gives them: String, Integer, Double, Boolean, Object[] for
- * arrays, null otherwise.
+ * Mihon's QuickJS API, run by the app's own engine through [Host] (V8 on
+ * desktop, JavaScriptCore on iOS): QuickJS's native library can't load on
+ * this runtime, and the pure-Java engines don't parse modern scripts.
+ * Results come back as QuickJS gives them: String, Integer, Double,
+ * Boolean, Object[] for arrays, null otherwise.
  * @see https://github.com/zhanghai/quickjs-java
  */
 class QuickJs private constructor(private val id: JsonElement) : Closeable {
@@ -29,7 +30,8 @@ class QuickJs private constructor(private val id: JsonElement) : Closeable {
         return toJava(call("jsEvaluate", JsonObject(mapOf("id" to id, "script" to JsonPrimitive(script)))))
     }
 
-    // shortcut: the "bytecode" is the source itself; enough for extensions that compile once and execute.
+    // shortcut: the "bytecode" is the source itself; enough for extensions
+    // that compile once and execute.
     @Suppress("UNUSED_PARAMETER")
     fun compile(sourceCode: String, fileName: String): ByteArray = sourceCode.toByteArray()
 

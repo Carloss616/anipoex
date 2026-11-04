@@ -9,7 +9,7 @@ export interface ActiveFilter {
 
 export interface ActiveFiltersProps {
   filters: ActiveFilter[];
-  /** What's listed, worded by the caller ("3 extensions"); omitted = not shown. */
+  /** What's listed, in the caller's words ("3 extensions"); hidden if unset. */
   total?: string;
 }
 

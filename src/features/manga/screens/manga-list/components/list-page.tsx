@@ -7,7 +7,7 @@ import type { MediaListStatus } from "@/graphql/types.generated";
 import { ListGrid } from "./list-grid";
 import { ListHeader } from "./list-header";
 
-/** One page of a pager; its list state is the screen's, so the toolbar can read it. */
+/** A pager page; its list state is the screen's, so the toolbar can read it. */
 export function ListPage({
   status,
   query$,

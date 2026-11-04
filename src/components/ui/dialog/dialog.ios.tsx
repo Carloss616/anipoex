@@ -34,7 +34,7 @@ function DialogRoot(props: DialogProps) {
         {...(alert ? null : { titleVisibility: "visible" as const })}
       >
         <Root.Trigger>
-          {/* Without a trigger the modifier sits on an EmptyView and never presents. */}
+          {/* On an EmptyView (no trigger) the modifier never presents. */}
           {children ? (
             extractTrigger(children, () => setOpen(true))
           ) : (

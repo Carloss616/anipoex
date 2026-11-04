@@ -3,9 +3,10 @@ package android.graphics
 import kotlin.math.cos
 import kotlin.math.sin
 
-/** Android's Canvas over a [Bitmap]: each draw is recorded with the transform at that moment. */
+/** Over a [Bitmap]: each draw is recorded with the transform at the time. */
 class Canvas(private val bitmap: Bitmap) {
-    // As a 2D canvas's setTransform(a, b, c, d, e, f); replaced, never changed in place, so ops can keep it.
+    // As a 2D canvas's setTransform(a, b, c, d, e, f); replaced, never
+    // changed in place, so ops can keep it.
     private var matrix = IDENTITY
     private val saved = ArrayDeque<FloatArray>()
 
@@ -58,12 +59,13 @@ class Canvas(private val bitmap: Bitmap) {
 
     fun drawText(text: String, x: Float, y: Float, paint: Paint) = drawText(text, x, y, paint, null)
 
-    // A null maxWidth draws the text at its own width; otherwise it's squeezed to fit.
+    // A null maxWidth draws the text at its own width, else it's squeezed.
     internal fun drawText(text: String, x: Float, y: Float, paint: Paint, maxWidth: Float?) =
         bitmap.draw(Op.Text(text, x, y, Paint(paint), maxWidth, matrix))
 
-    // shortcut: the app's image engine draws bitmaps and text only, so a page a source draws shapes on fails
-    // here instead of coming out blank; add ops to ImageEngine and the hosts when a source needs one.
+    // shortcut: the app's image engine draws bitmaps and text only, so a page
+    // a source draws shapes on fails here instead of coming out blank; add ops
+    // to ImageEngine and the hosts when a source needs one.
     fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint): Unit = unsupported("lines")
 
     fun drawCircle(cx: Float, cy: Float, radius: Float, paint: Paint): Unit = unsupported("circles")

@@ -29,11 +29,11 @@ import type {
   ToastVariant,
 } from "./toast";
 
-// A native sheet covers the root view, so while one hosts the toasts the root's host steps aside.
+// A native sheet covers the root view: while one hosts, the root's host hides.
 const sheetHosts$ = observable(0);
 const NO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 };
 
-// The toast's portal: its viewport sits at the root, its host may be in a sheet.
+// Its viewport sits at the root; its host may be in a sheet.
 export function ToastProvider({ children }: { children: ReactNode }) {
   return <PortalProvider>{children}</PortalProvider>;
 }
@@ -49,14 +49,14 @@ export function ToastHost() {
   );
 }
 
-// shortcut: one sheet hosts at a time; nested sheet hosts would show each toast twice.
+// shortcut: one sheet hosts at a time; nested ones show each toast twice.
 export function SheetToastHost() {
   useEffect(() => {
     sheetHosts$.set((count) => count + 1);
     return () => sheetHosts$.set((count) => count - 1);
   }, []);
   return (
-    // The screen's insets don't reach into the sheet: the toast sits at its top.
+    // The screen's insets don't reach the sheet: the toast sits at its top.
     <SafeAreaInsetsContext.Provider value={NO_INSETS}>
       <PortalHost />
     </SafeAreaInsetsContext.Provider>

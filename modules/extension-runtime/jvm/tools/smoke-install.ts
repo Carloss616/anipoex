@@ -1,4 +1,6 @@
-// `bun smoke-install.ts <index.json url> <count> <seed>`: installs a seeded sample of a v2 extension index into a fresh server and prints how many installed, with errors grouped.
+// `bun smoke-install.ts <index.json url> <count> <seed>`: installs a seeded
+// sample of a v2 extension index into a fresh server and prints how many
+// installed, with errors grouped.
 import { mkdtempSync, openSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -97,7 +99,8 @@ function send(method: string, args: object) {
   return reply;
 }
 
-// Package names and numbers vary per extension; the rest of the first line is the cause.
+// Package names and numbers vary per extension; the rest of the first line
+// is the cause.
 function normalize(error: string) {
   return (error.split("\n")[0] ?? "")
     .replace(/eu\.kanade\.tachiyomi\.extension\.[\w.$]+/g, "<pkg>")

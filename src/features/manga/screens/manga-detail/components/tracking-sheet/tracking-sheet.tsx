@@ -19,7 +19,7 @@ export interface TrackingSheetProps {
   onDismiss: () => void;
 }
 
-/** Holds the entry and swaps between the overview and the field being edited. */
+/** Holds the entry; swaps between the overview and the field being edited. */
 export function TrackingSheet({
   isPresented,
   manga,

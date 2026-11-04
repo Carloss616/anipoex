@@ -33,17 +33,17 @@ export interface MangaCardProps {
   mark?: CornerMark;
   title?: string | null;
   label?: string | null;
-  /** Where `title` and `label` go. `over` keeps them on a scrim over the cover. */
+  /** `over` keeps `title` and `label` on a scrim over the cover. */
   titlePosition?: TitlePosition;
-  /** Share read, 0–1; draws a bar under the label. Omit when the total is unknown. */
+  /** Share read (0–1), a bar under the label; omit if the total is unknown. */
   progress?: number;
-  /** Chapters left, as a top-right badge: green above 0, neutral at 0 (up to date). */
+  /** Chapters left, a top-right badge: green above 0, neutral at 0. */
   unread?: number;
   style?: StyleProp<ViewStyle>;
   /** The cover's corner radius; each platform's `COVER_RADIUS` when omitted. */
   radius?: number;
   className?: string;
-  /** Spoken name for the card — `title` is a node, so it can't be read off it. */
+  /** Spoken name: `title` is a node, so it can't be read off it. */
   accessibilityLabel?: string;
   testID?: string;
   onPress?: () => void;
@@ -62,7 +62,7 @@ const cardStyles = tv({
     image: "",
     badges: "pointer-events-none absolute",
     text: "flex flex-col",
-    // A word wider than the card breaks: line-clamp clips an overflow with no ellipsis.
+    // Long words break: line-clamp clips an overflow with no ellipsis.
     title: "relative line-clamp-2 text-sm hyphens-auto wrap-break-word",
     label: "relative text-xs",
   },
@@ -114,7 +114,7 @@ const cardStyles = tv({
   ],
 });
 
-/** A layer that moves by its depth as the card leans; a plain box without `tilt`. */
+/** Moves by its depth as the card leans; a plain box without `tilt`. */
 function Layer({
   tilt,
   depth,
@@ -204,7 +204,7 @@ export function MangaCard({
           <Badge
             color={unread > 0 ? "success" : "secondary"}
             solid
-            // Secondary is see-through, made for rows: over a cover it needs a solid fill.
+            // Secondary is see-through (made for rows); a cover needs it solid.
             className={cn(
               "absolute top-2 right-2",
               unread === 0 && "bg-surface-secondary",
@@ -227,7 +227,7 @@ export function MangaCard({
               {label}
             </TiltCard.Description>
           )}
-          {/* Not a heading: the card is a button, whose content can't hold one. */}
+          {/* Not a heading: a button's content can't hold one. */}
           <TiltCard.Title as="p" className={css.title()}>
             {title}
           </TiltCard.Title>
@@ -261,7 +261,7 @@ export function MangaCard({
   // The card inherits it, so the focus ring follows its corners.
   const corners = { borderRadius: radius ?? (below ? COVER_RADIUS : 16) };
 
-  // A disabled Pressable is pointer-events: none on web, which would also stop the tilt.
+  // On web a disabled Pressable is pointer-events: none, killing the tilt.
   if (!pressable) {
     return (
       <View

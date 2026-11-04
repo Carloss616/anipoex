@@ -4,13 +4,14 @@ import { app, BrowserWindow, session, WebContentsView } from "electron";
 
 // Under the runtime's 2-minute call timeout, which counts the time spent here.
 const SOLVE_MS = 60_000;
-// shortcut: no signal tells a check that wants a click from one still running, so the window shows and
-// asks once it's been this long (unaided ones pass in ~4 s); read the widget if Cloudflare ever exposes one.
+// shortcut: no signal tells a check that wants a click from one still
+// running, so the window asks after this long (unaided ones pass in ~4 s);
+// read the widget if Cloudflare ever exposes one.
 const ASK_AFTER_MS = 15_000;
 const POLL_MS = 500;
 // A site's page stays loaded this long after its last request, then closes.
 const IDLE_MS = 10 * 60_000;
-// Where the clearance lives: its own session, apart from the app's, since the pages are the sources' sites.
+// The clearance's own session, apart from the app's: pages are sources' sites.
 const PARTITION = "cloudflare";
 
 const isWebUrl = (url) =>
@@ -28,10 +29,11 @@ const toSetCookie = (cookie) =>
     .filter(Boolean)
     .join("; ");
 
-// The solved site's page per host, kept to send its requests from: Cloudflare takes the
-// clearance from that page's own fetch, but not from one made in the main process.
+// The solved site's page per host, to send its requests from: Cloudflare
+// takes the clearance from that page's own fetch, not the main process's.
 const pages = new Map();
-// The solve under way per host whose page closed: a second one would destroy the first's window mid-fetch.
+// The solve under way per host whose page closed: a second one would
+// destroy the first's window mid-fetch.
 const reopening = new Map();
 
 const keepPage = (host, window, site) => {
@@ -46,7 +48,8 @@ const keepPage = (host, window, site) => {
   pages.set(host, { window, site, idle });
 };
 
-// The note above the site, shared with iOS: it lives in the pod, which can't take files from outside it.
+// The note above the site, shared with iOS: it lives in the pod, which
+// can't take files from outside it.
 const BANNER = app.isPackaged
   ? path.join(process.resourcesPath, "challenge-banner.html")
   : fileURLToPath(
@@ -59,9 +62,13 @@ const BANNER = app.isPackaged
 const DONE_MS = 1_000;
 
 /**
- * Solves a Cloudflare challenge in a window of its own session; resolves to `{cookies, userAgent}`: the cookies it earned for `url` as `Set-Cookie` values, and the user agent it solved as.
- * Cloudflare can let this browser through with no clearance, which ends the wait too.
- * It solves as the Electron it is: an Android user agent, or a Chrome one without Chrome's client hints, looks spoofed, and the check then fails even a person's click. The page stays, hidden, for `fetchThrough`.
+ * Solves a Cloudflare challenge in a window of its own session; resolves to
+ * `{cookies, userAgent}`: the `Set-Cookie` values it earned for `url`, and
+ * the user agent it solved as. Being let through with no clearance ends the
+ * wait too.
+ * It solves as the Electron it is: an Android user agent, or a Chrome one
+ * without Chrome's client hints, looks spoofed, and the check then fails even
+ * a person's click. The page stays, hidden, for `fetchThrough`.
  */
 export async function solveChallenge({ url }) {
   if (!isWebUrl(url)) throw new Error("Not a web URL");
@@ -75,7 +82,7 @@ export async function solveChallenge({ url }) {
     webPreferences: { sandbox: true, contextIsolation: true },
   });
   window.loadFile(BANNER, { query: { host, skip: "" } }).catch(() => {});
-  // The site in a view of its own below the banner: its page stays the site's, untouched.
+  // The site gets its own view below the banner, so its page stays untouched.
   const site = new WebContentsView({
     webPreferences: {
       session: cloudflare,
@@ -85,7 +92,7 @@ export async function solveChallenge({ url }) {
     },
   });
   window.contentView.addChildView(site);
-  // The banner's text wraps with the width, so its height is measured on each layout.
+  // The banner's text wraps with the width: measure its height on each layout.
   let top = 0;
   const layout = async () => {
     top = await window.webContents
@@ -107,8 +114,8 @@ export async function solveChallenge({ url }) {
     status = code;
   });
   const userAgent = site.webContents.getUserAgent();
-  // A hidden window paints no frames and the check stalls without them, so it
-  // shows from the start: see-through, click-through and unfocused until it asks.
+  // A hidden window paints no frames and the check stalls without them, so
+  // it shows at once: see-through, click-through and unfocused until it asks.
   window.setOpacity(0);
   window.setIgnoreMouseEvents(true);
   window.showInactive();
@@ -133,7 +140,8 @@ export async function solveChallenge({ url }) {
       const cookies = await cloudflare.cookies.get({ url });
       const through = status < 400 && !site.webContents.isLoading();
       if (through || cookies.some(({ name }) => name === "cf_clearance")) {
-        // Cloudflare reloads the page once cleared, and a page's script dies with it: use it once it's the site's.
+        // Cloudflare reloads the page once cleared, and a script dies with it:
+        // use the page once it's the site's.
         while (
           Date.now() < deadline &&
           (site.webContents.isLoading() ||
@@ -160,8 +168,8 @@ export async function solveChallenge({ url }) {
   }
 }
 
-// Runs in the site's page: its own same-origin fetch, so the browser adds the cookies and headers
-// it sends for the site itself. The body travels as base64, both ways.
+// Runs in the site's page: a same-origin fetch, so the browser adds the
+// cookies and headers it sends for the site. Bodies travel as base64.
 async function pageFetch({ method, url, headers, body }) {
   const bytes = body
     ? Uint8Array.from(atob(body), (c) => c.charCodeAt(0))
@@ -196,13 +204,18 @@ const FORBIDDEN = new Set([
 ]);
 
 /**
- * Sends a runtime request from the page that solved its site's challenge; resolves to `{status, url, headers, body}` with a base64 body and the URL its redirects ended on.
- * Some sites only take the clearance from the browser itself, not from the runtime's TLS fingerprint. The runtime's other cookies join the session's store first.
+ * Sends a runtime request from the page that solved its site's challenge;
+ * resolves to `{status, url, headers, body}`, the body in base64 and `url`
+ * where its redirects ended.
+ * Some sites take the clearance only from the browser itself, not from the
+ * runtime's TLS fingerprint. The runtime's other cookies join the session's
+ * store first.
  */
 export async function fetchThrough({ method, url, headers, body }) {
   if (!isWebUrl(url)) throw new Error("Not a web URL");
   const host = new URL(url).host;
-  // Closed while idle: solving again reopens it, once for the requests that find it closed together.
+  // Closed while idle: solving again reopens it, once for all the requests
+  // that find it closed together.
   if (!pages.get(host) || pages.get(host).window.isDestroyed()) {
     if (!reopening.has(host))
       reopening.set(

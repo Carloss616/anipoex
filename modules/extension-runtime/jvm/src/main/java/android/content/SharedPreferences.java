@@ -3,7 +3,7 @@ package android.content;
 import java.util.Map;
 import java.util.Set;
 
-/** Android's SharedPreferences contract, which extensions keep their settings in. */
+/** Android's SharedPreferences, which extensions keep their settings in. */
 public interface SharedPreferences {
     interface OnSharedPreferenceChangeListener {
         void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key);

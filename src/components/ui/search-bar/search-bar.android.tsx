@@ -17,11 +17,7 @@ import { EnsureHost } from "../host";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
 import type { SearchBarProps } from "./search-bar";
 
-/**
- * Android SearchBar: PanelUI's props, drawn as an M3 search input — a pill
- * `TextField` with a search glyph and a clear button.
- * Cancel and loading have no slot to land in and stay iOS/web-only.
- */
+/** M3's field has no slot for Cancel, which stays iOS-only. */
 export function SearchBar({
   value,
   defaultValue,

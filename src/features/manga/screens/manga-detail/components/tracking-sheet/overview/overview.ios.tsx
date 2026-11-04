@@ -36,7 +36,7 @@ interface CellProps {
   isDisabled?: boolean;
 }
 
-/** A borderless button taking an even share of its row; the label wears the tint. */
+/** Borderless, an even share of its row; the label wears the tint. */
 function Cell({ value, placeholder, onPress, isDisabled = false }: CellProps) {
   return (
     <Button
@@ -98,7 +98,8 @@ export function Overview({
         </Menu>
       </HStack>
 
-      {/* Hugs the grid in a fit-to-contents sheet; landscape wants the greed. */}
+      {/* Hugs the grid in a fit-to-contents sheet; landscape wants the
+          greed. */}
       <ScrollView
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
       >

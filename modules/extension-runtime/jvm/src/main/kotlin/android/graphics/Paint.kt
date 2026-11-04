@@ -1,8 +1,9 @@
 package android.graphics
 
 /**
- * Android's Paint. Drawing a bitmap ignores it, as a null paint does; text takes its color, size, bold, alignment and
- * style (see [Canvas.drawText]). Text is measured in Helvetica, the font the app's engine draws it in.
+ * Android's Paint. Drawing a bitmap ignores it, as a null paint does; text
+ * takes its color, size, bold, alignment and style (see [Canvas.drawText]).
+ * Text is measured in Helvetica, the font the app's engine draws it in.
  */
 open class Paint @JvmOverloads constructor(flags: Int = 0) {
     private var color = 0xFF000000.toInt()
@@ -47,7 +48,7 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
         this.style = style
     }
 
-    // Line height with the default font's proportions: no font is loaded to measure.
+    // Line height in the default font's proportions: no font is loaded.
     fun getFontSpacing(): Float = textSize * 1.17f
 
     fun getFontMetrics(): FontMetrics = FontMetrics().apply {
@@ -145,7 +146,7 @@ open class Paint @JvmOverloads constructor(flags: Int = 0) {
     }
 }
 
-/** Android's Typeface: a name for the font a source asks for; no font is loaded. */
+/** A name for the font a source asks for; no font is loaded. */
 class Typeface private constructor(val style: Int) {
     companion object {
         const val NORMAL = 0
@@ -194,7 +195,6 @@ class Path {
     fun reset() {}
 }
 
-/** Android's Color helpers. */
 object Color {
     const val BLACK = 0xFF000000.toInt()
     const val WHITE = 0xFFFFFFFF.toInt()
@@ -225,7 +225,8 @@ object Color {
     @JvmStatic
     fun blue(color: Int): Int = color and 0xFF
 
-    // shortcut: hex only, where Android also takes names ("white"); add them when a source passes one.
+    // shortcut: hex only, where Android also takes names ("white"); add them
+    // when a source passes one.
     @JvmStatic
     fun parseColor(colorString: String): Int {
         require(colorString.startsWith("#") && (colorString.length == 7 || colorString.length == 9)) { "Unknown color" }
@@ -234,7 +235,7 @@ object Color {
     }
 }
 
-/** Android's ColorMatrix: a source can build one, but no paint applies it here. */
+/** A source can build one, but no paint applies it here. */
 class ColorMatrix() {
     constructor(src: FloatArray) : this()
 

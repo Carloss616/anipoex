@@ -23,12 +23,15 @@ export type Field =
 export interface OverviewProps {
   title: string;
   form: TrackingForm;
-  /** Opens a field's view on iOS and Android; on web each cell opens its Sheet.Next. */
+  /** Opens a field's view on native; on web each cell opens its Sheet.Next. */
   onEdit: (field: Field) => void;
   onRemove: () => void;
   canRemove: boolean;
   removing: boolean;
-  /** Off until the viewer's score format is known: the fallback scale would save it wrong. */
+  /**
+   * Off until the viewer's score format is known: the fallback scale would
+   * save it wrong.
+   */
   canScore: boolean;
 }
 

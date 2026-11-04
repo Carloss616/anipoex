@@ -63,7 +63,7 @@ export function MangaCard({
   const corner = cornerBadge(status, mark);
   const [overlay, solid] = useThemeColor(["overlay", "surface-secondary"]);
   const isInsideHost = useIsInsideHost();
-  // With its headers: a source's image host can refuse a request without its Referer.
+  // Keeps its headers: an image host can refuse a request without its Referer.
   const coverSource = typeof cover === "string" ? { uri: cover } : cover;
 
   const flat = StyleSheet.flatten(style) ?? {};
@@ -78,7 +78,7 @@ export function MangaCard({
   const content = (
     <ZStack
       modifiers={[
-        // The card speaks for itself (`accessibilityLabel`); its texts would repeat it.
+        // The card's `accessibilityLabel` speaks for it; texts would repeat it.
         ...(a11yLabel ? [accessibilityHidden()] : []),
         glassEffect({
           glass: {
@@ -141,7 +141,8 @@ export function MangaCard({
             }),
           ]}
         >
-          {/* Secondary is see-through, made for rows: over a cover it needs a solid fill behind. */}
+          {/* Secondary is see-through, made for rows: over a cover it needs a
+              solid fill behind. */}
           <HStack
             modifiers={
               unread === 0 ? [background(solid, shapes.capsule())] : undefined
@@ -235,7 +236,7 @@ export function MangaCard({
         <VStack
           modifiers={[
             frame({ width, height }),
-            // A faded glow in the cover's color: SwiftUI has no negative spread to tame it.
+            // A faded glow: SwiftUI has no negative spread to tame it.
             shadow({
               radius: 9,
               y: 6,
@@ -268,11 +269,11 @@ export function MangaCard({
   if (isInsideHost) return body;
 
   return (
-    /* <Link.Trigger>'s native view keeps a stale ref to its direct child, so it stops mounting
-      the card once Fast Refresh remounts it. A host component's type never changes. */
-    /* `accessible` makes this a leaf, which is what collapses the stack's text
-      children into a single button — and hides their labels along with them, so
-      unlike the Host branch the name has to be repeated out here. */
+    /* <Link.Trigger>'s native view keeps a stale ref to its direct child and
+      stops mounting the card after a Fast Refresh remount; a host component's
+      type never changes. */
+    /* `accessible` makes this a leaf: it merges the texts into one button and
+      hides their labels, so unlike in a Host the name is repeated here. */
     <View
       style={style}
       accessible={!!a11yLabel}

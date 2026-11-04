@@ -31,7 +31,7 @@ interface Props {
   icon: SFSymbol;
 }
 
-// A widget function runs in its own runtime: everything it shows comes in props.
+// A widget function runs in its own runtime: all it shows comes in props.
 const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
   "widget";
   const secondary = { type: "hierarchical", style: "secondary" } as const;
@@ -85,7 +85,7 @@ const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
 for (const stale of ScanLiveActivity.getInstances())
   void stale.end("immediate").catch(() => {});
 
-/** A Live Activity on the Lock Screen and in the Dynamic Island; tapping it opens the manga. */
+/** A Live Activity (Lock Screen, Dynamic Island); a tap opens the manga. */
 export function startScanActivity({
   mangaId,
   name,
@@ -100,7 +100,7 @@ export function startScanActivity({
     count: source ? "" : `${done}/${total}`,
     icon,
   });
-  // Without it iOS suspends the app on leaving the screen and every probe in flight fails.
+  // Else iOS suspends the app off screen and every probe in flight fails.
   const task = backgroundTime.begin("Scan sources");
   let activity: LiveActivity<Props> | undefined;
   try {

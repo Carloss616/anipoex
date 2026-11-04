@@ -12,7 +12,7 @@ export interface SourceTileProps {
   iconUrl?: string;
 }
 
-/** A source's logo, or its initials on its color: the tile in a `Frame.Media`. */
+/** A source's logo, or its initials on its color, for a `Frame.Media`. */
 export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
   // The url that loaded, so a recycled row with another source starts over.
   const [loadedUrl, setLoadedUrl] = useState<string>();
@@ -20,7 +20,7 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
 
   return (
     <View
-      // The color and outline only frame the initials; a loaded logo fills the tile.
+      // Color and outline only frame initials; a loaded logo fills the tile.
       className={cn(
         "size-10 items-center justify-center overflow-hidden rounded-lg",
         !loaded && "border border-border",

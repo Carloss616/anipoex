@@ -9,7 +9,7 @@ import { repos$ } from "./repos";
 /** Catalog of the added repos merged with what the runtime has installed. */
 export const extensions$ = observable<Extension[]>([]);
 
-/** What the native runtime has installed; the one list the source picker reads. */
+/** What the runtime has installed; the one list the source picker reads. */
 export const installed$ = observable<InstalledExtension[]>([]);
 
 /** Whether `installed$` has been read from the runtime at least once. */
@@ -17,12 +17,15 @@ export const installedLoaded$ = observable(false);
 
 export type ExtensionOperation = "installing" | "updating" | "uninstalling";
 
-/** The in-flight operation for each extension, used to replace its action with progress. */
+/** Each extension's in-flight operation, shown as progress in its action. */
 export const extensionOperations$ = observable<
   Record<string, ExtensionOperation | undefined>
 >({});
 
-/** Reads the installed list from the runtime; a failure is logged, keeps the old list and still counts as loaded. */
+/**
+ * Reads the installed list from the runtime; a failure is logged, keeps the
+ * old list and still counts as loaded.
+ */
 export async function refreshInstalled(): Promise<void> {
   try {
     installed$.set(await runtime.installed());
@@ -90,7 +93,8 @@ async function perform(
   }
 }
 
-// One at a time (native install lock), one reload; rows show progress until it lands, so no stale action flashes back.
+// One at a time (native install lock), one reload; rows show progress until
+// it lands, so no stale action flashes back.
 async function run(
   ids: string[],
   operation: ExtensionOperation,

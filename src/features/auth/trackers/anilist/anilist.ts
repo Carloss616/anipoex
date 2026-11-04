@@ -29,14 +29,14 @@ export const anilist: Tracker = {
     // Implicit grant takes only these two params. The redirect URI comes from
     // the AniList app registration, not from the query string.
     const url = `${AUTHORIZE_URL}?client_id=${encodeURIComponent(CLIENT_ID)}&response_type=token`;
-    // The desktop app runs the round trip in its own window; it stops on the redirect without loading it.
+    // Desktop signs in in its own window, stopping before the redirect loads.
     const redirect = desktop
       ? await desktop.signIn(url)
       : await WebBrowser.openAuthSessionAsync(url, REDIRECT_URI).then(
           (result) => (result.type === "success" ? result.url : null),
         );
 
-    // A denied grant comes back with `error=`; treat it like closing the window.
+    // A denied grant comes back with `error=`: same as closing the window.
     if (!redirect || /[?#&]error=/.test(redirect)) return null;
 
     const accessToken = parseFragment(redirect).access_token;

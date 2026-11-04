@@ -31,7 +31,7 @@ export function HiddenRange({
         onChange={(event) => onChange(Number(event.target.value))}
         className="sr-only"
       />
-      {/* The input is the control screen readers announce; this is its picture. */}
+      {/* Screen readers announce the input; this is only its picture. */}
       <View aria-hidden>{children}</View>
     </View>
   );

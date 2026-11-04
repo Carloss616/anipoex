@@ -1,7 +1,8 @@
 import { describe, expect, it, mock } from "bun:test";
 import { isRuntimeAvailable, runtime } from "./runtime";
 
-// `desktop` is read once at import, so each case swaps it and re-evaluates `runtime` with a cache-busting query.
+// `desktop` is read once at import, so each case swaps it and re-evaluates
+// `runtime` with a cache-busting query.
 const load = (desktop?: unknown) => {
   mock.module("@/utils/desktop", () => ({ desktop }));
   return import(`./runtime?${Math.random()}`);

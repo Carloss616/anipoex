@@ -2,7 +2,7 @@ package android.os;
 
 import java.util.Locale;
 
-/** The JVM's one default locale as Android's ranked list, for Accept-Language. */
+/** The JVM's one default locale as Android's ranked list (Accept-Language). */
 public final class LocaleList {
     private final Locale locale;
 

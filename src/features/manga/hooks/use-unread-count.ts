@@ -4,12 +4,15 @@ import { source$ } from "@/features/manga/state/source";
 import { readMatch } from "@/features/manga/utils/source-match";
 import { toChapters, unreadCount } from "@/features/manga/utils/to-chapters";
 
-/** Chapters past `progress` in the chosen source's stored list; undefined with no source, no match, or no list for the matched page. */
+/**
+ * Chapters past `progress` in the chosen source's stored list; undefined with
+ * no source, no match, or no list for the matched page.
+ */
 export function useUnreadCount(
   mangaId: number,
   progress: number,
 ): number | undefined {
-  // The entry itself, so the card re-renders only when the list or the match changes.
+  // The entry itself: the card re-renders only when the list or match changes.
   const stored = useValue(() => {
     const match = readMatch(source$[mangaId].get());
     if (!match?.manga) return undefined;

@@ -13,11 +13,11 @@ import { useRail } from "./hooks/use-rail";
 const GAP = 10;
 // One card and the gap after it, so the list lays out before measuring.
 const CARD_SPAN = COVER.width + GAP;
-// The cover, two title lines, the label badge and the cells' gap above and below.
+// Cover, two title lines, the label badge, and the cells' gap above and below.
 const RAIL_HEIGHT = COVER.height + 72 + GAP;
 const COVER_BOX = { ...COVER, borderRadius: COVER_RADIUS };
 
-/** The rail: a skeleton while the first page loads, then the cards and a More card. */
+/** A skeleton while the first page loads, then the cards and a More card. */
 export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
@@ -39,7 +39,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   return (
     <View className="gap-2 pb-3">
       {items.length > 0 && (
-        // A horizontal list in the sheet's vertical one, as in LegendList's media rails.
+        // A horizontal list in the sheet's vertical one, as in LegendList's
+        // media rails.
         <LegendList
           horizontal
           data={items}
@@ -53,7 +54,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
               <Menu items={menu(item)}>
-                {/* `onPress` marks a pressable: the menu hands it its click as onPress. */}
+                {/* `onPress` marks a pressable: the menu hands it its click
+                    as onPress. */}
                 <RailCard
                   item={item}
                   headers={source.headers}

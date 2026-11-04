@@ -17,12 +17,7 @@ const SIZES = {
   lg: "large",
 } as const satisfies Record<LoaderSize, ControlSize>;
 
-/**
- * iOS Loader: same props as [the web one](./loader.tsx), rendered as a
- * circular SwiftUI `ProgressView`.
- *
- * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/progressview/
- */
+/** @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/progressview/ */
 export function Loader({ size = "md" }: LoaderProps) {
   const primary = useThemeColor("primary");
 

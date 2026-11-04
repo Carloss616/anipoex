@@ -4,7 +4,8 @@ import type { Extension } from "./extension";
 import { decodeExtensionList, decodeStore } from "./protobuf";
 
 /**
- * A repo as the user added it: legacy (`repo.json` + `index.min.json`) or a v2 store.
+ * A repo as the user added it: legacy (`repo.json` + `index.min.json`) or a
+ * v2 store.
  * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkExtensionStore.kt
  * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkLegacyExtensionRepo.kt
  */
@@ -15,7 +16,7 @@ export type Repo = {
   indexUrl: string;
   legacy: boolean;
   extensionListUrl?: string;
-  /** The repo's own site: a legacy `meta.website` or a store's `contact.website`. */
+  /** The repo's site: legacy `meta.website` or a store's `contact.website`. */
   website?: string;
 };
 
@@ -55,7 +56,7 @@ const webUrl = (value: unknown): string | undefined => {
   return url && isWebUrl(url) ? url : undefined;
 };
 
-/** The file to read for what a user pastes: a file url as is, a folder's `repo.json`. */
+/** What to read for a pasted url: a file url as is, a folder's `repo.json`. */
 export const repoUrl = (url: string): string => {
   const clean = url
     .trim()
@@ -75,7 +76,8 @@ const gunzip = (bytes: Uint8Array): Uint8Array => {
 };
 
 /**
- * Reads a body over https, gunzipping it when it starts with the gzip magic bytes (plain http could hand over someone's own signing key).
+ * Reads a body over https, gunzipping it when it starts with the gzip magic
+ * bytes (plain http could hand over someone's own signing key).
  * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/service/ExtensionStoreService.kt
  */
 const download = async (url: string): Promise<Uint8Array> => {
@@ -95,11 +97,12 @@ const json = (bytes: Uint8Array): unknown => {
   }
 };
 
-// Native reports lowercase hex; normalize so keys compare and install consistently.
+// Native reports lowercase hex: normalize so keys compare and install alike.
 const key = (value: unknown) => str(value)?.trim().toLowerCase();
 
 /**
- * A legacy `repo.json`: `meta.name`, `meta.signingKeyFingerprint` and an optional `index_v2`.
+ * A legacy `repo.json`: `meta.name`, `meta.signingKeyFingerprint` and an
+ * optional `index_v2`.
  * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/model/NetworkLegacyExtensionRepo.kt
  */
 const legacyMeta = (value: unknown) => {
@@ -165,7 +168,9 @@ const resolve = async (url: string, hops: number): Promise<Repo> => {
 };
 
 /**
- * Reads a repo from any pasted url by the body's first byte: `[` v1 list, `{` legacy repo.json (following `index_v2`) or JSON store, else protobuf store.
+ * Reads a repo from any pasted url by the body's first byte: `[` v1 list,
+ * `{` legacy repo.json (following `index_v2`) or JSON store, else protobuf
+ * store.
  * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/service/ExtensionStoreService.kt
  */
 export const fetchRepo = (url: string): Promise<Repo> =>
@@ -243,7 +248,8 @@ export const parseIndex = (json: unknown, baseUrl: string): RepoEntry[] => {
 };
 
 /**
- * Lists a repo's extensions: a v2 store's `extensionListUrl` or inline list, a legacy repo's `index.min.json`.
+ * Lists a repo's extensions: a v2 store's `extensionListUrl` or inline list,
+ * a legacy repo's `index.min.json`.
  * @see https://github.com/mihonapp/mihon/blob/main/data/src/main/java/mihon/data/extension/service/ExtensionStoreService.kt
  */
 export const fetchIndex = async (repo: Repo): Promise<RepoEntry[]> => {
@@ -253,7 +259,7 @@ export const fetchIndex = async (repo: Repo): Promise<RepoEntry[]> => {
   }
   const listUrl = repo.extensionListUrl;
   const body = await download(listUrl ?? repo.indexUrl);
-  // Every decoder and the JSON parse yield an extension list, or a store holding one.
+  // Each decoder and the JSON parse yield an extension list or a store of one.
   const decoded =
     body[0] === 0x7b
       ? json(body)
@@ -271,7 +277,8 @@ export function repoSummary(
   repo: Repo,
   extensions: Extension[],
 ): string | undefined {
-  // shortcut: repos sharing a name share a count; key by `indexUrl` if that happens.
+  // shortcut: repos sharing a name share a count; key by `indexUrl` if that
+  // happens.
   const count = extensions.filter((e) => e.repo === repo.name).length;
   if (count === 0) return undefined;
   return `${count.toLocaleString("en")} extension${count === 1 ? "" : "s"}`;

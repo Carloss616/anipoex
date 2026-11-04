@@ -8,7 +8,7 @@ import anipoex.server.JsonPreferences;
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** The host's Application on the JVM: everything lives under one data directory. */
+/** The host's Application on the JVM: all data lives under one directory. */
 public class Application extends ContextWrapper {
     private final File dataDir;
     private final PackageManager packageManager;

@@ -1,6 +1,9 @@
 import { type Chapter, isRead } from "./to-chapters";
 
-/** The chapter after `current`; sources list newest first, so an unnumbered row's next is the row above. */
+/**
+ * The chapter after `current`; sources list newest first, so an unnumbered
+ * row's next is the row above.
+ */
 export function nextChapter(
   chapters: Chapter[],
   current: Chapter,
@@ -19,7 +22,7 @@ export function nextChapter(
 }
 
 /**
- * The chapter Continue opens: the lowest unread number, the first listed on a tie.
+ * Continue's chapter: the lowest unread number, the first listed on a tie.
  * Unnumbered rows only start a manga with no progress, from the oldest row.
  */
 export function continueChapter(

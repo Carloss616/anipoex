@@ -7,8 +7,10 @@ import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlin.coroutines.CoroutineContext
 
 /**
- * Gives extensions `Dispatchers.Main` (the WebView helper runs on it), which kotlinx-coroutines only has on Android:
- * the main Looper's thread, so it and `Looper.myLooper() == Looper.getMainLooper()` agree. Registered in META-INF/services.
+ * Gives extensions `Dispatchers.Main` (the WebView helper runs on it),
+ * which kotlinx-coroutines only has on Android: the main Looper's thread,
+ * so it and `Looper.myLooper() == Looper.getMainLooper()` agree.
+ * Registered in META-INF/services.
  */
 @OptIn(InternalCoroutinesApi::class)
 class MainDispatcherFactory : kotlinx.coroutines.internal.MainDispatcherFactory {
@@ -17,7 +19,8 @@ class MainDispatcherFactory : kotlinx.coroutines.internal.MainDispatcherFactory 
     override fun createDispatcher(allFactories: List<kotlinx.coroutines.internal.MainDispatcherFactory>): MainCoroutineDispatcher = LooperDispatcher.Main
 }
 
-// As Android's: `Main` always posts, `Main.immediate` runs in place when already on the main thread.
+// As Android's: `Main` always posts, `Main.immediate` runs in place when
+// already on the main thread.
 private open class LooperDispatcher(private val inPlace: Boolean) : MainCoroutineDispatcher() {
     override val immediate: MainCoroutineDispatcher get() = Immediate
 

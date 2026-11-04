@@ -1,6 +1,9 @@
 import type { StoredChapters } from "./chapter-storage";
 
-/** One in-memory storage for every test file: Bun applies a `mock.module` to the whole run, so all of them must mock it the same way. */
+/**
+ * One in-memory storage for every test file: Bun applies a `mock.module` to
+ * the whole run, so all of them must mock it the same way.
+ */
 export const memoryStorage = {
   entries: {} as Record<string, StoredChapters>,
   writes: [] as [string, StoredChapters | undefined][],

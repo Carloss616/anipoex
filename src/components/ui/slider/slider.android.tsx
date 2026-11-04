@@ -3,10 +3,9 @@ import { EnsureHost } from "../host";
 import type { SliderProps } from "./slider";
 
 /**
- * Android Slider: Compose takes `steps` as the count of stops *between* the
- * ends, not an increment, and reports the raw drag position — hence both maths.
- * Track only: Compose exposes no way to name the control for a screen reader,
- * so `label` has nowhere to go.
+ * Compose takes `steps` as the count of stops *between* the ends, not an
+ * increment, and reports the raw drag position: hence both maths. It can't
+ * name the control for a screen reader, so `label` has nowhere to go.
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/slider/
  */
 export function Slider({

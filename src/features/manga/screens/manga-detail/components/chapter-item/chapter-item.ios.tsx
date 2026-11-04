@@ -26,7 +26,7 @@ import type { ChapterItemProps } from "./chapter-item";
 import { useChapterRead } from "./hooks/use-chapter-read";
 import { useIsNext } from "./hooks/use-is-next";
 
-/** Tap opens the reader; download sits behind a swipe and the long-press menu. */
+/** Tap opens the reader; download is behind a swipe and the long-press menu. */
 export function ChapterItem({
   chapter,
   mediaId,
@@ -58,7 +58,8 @@ export function ChapterItem({
             }
             modifiers={[buttonStyle("plain")]}
           >
-            {/* A plain button only takes touches on its label, so the label fills the row. */}
+            {/* A plain button only takes touches on its label, so the
+                label fills the row. */}
             <HStack
               spacing={8}
               modifiers={[

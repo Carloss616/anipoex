@@ -6,7 +6,7 @@ import type { Repo } from "../utils/repo";
 /** Repos the user installs extensions from; the app ships with none. */
 export const repos$ = observable<Repo[]>([]);
 
-/** A repo saved before stores had index urls was always a legacy repo.json one. */
+/** A repo saved before stores had index urls was a legacy repo.json one. */
 export const storedRepo = (
   repo: Omit<Repo, "indexUrl" | "legacy"> & Partial<Repo>,
 ): Repo => ({

@@ -15,7 +15,8 @@ export function useSignIn() {
   const inFlight = useRef(false);
 
   async function signIn() {
-    // A second tap lands before `disabled` re-renders and the browser rejects it as already open.
+    // A second tap lands before `disabled` re-renders, and the browser
+    // rejects it as already open.
     if (inFlight.current) return;
     inFlight.current = true;
     setIsBusy(true);
@@ -28,12 +29,10 @@ export function useSignIn() {
         const user = await anilist.fetchViewer();
         session$.user.set(user);
       } catch (cause) {
-        // Signed in either way — the profile just didn't load.
         toast.warning(
           `Signed in, but we couldn't load your profile: ${cause instanceof Error ? cause.message : cause}`,
         );
       }
-      // No navigation: the root sign-in guard redirects once the token is set.
     } catch (cause) {
       toast.error(
         cause instanceof Error ? cause.message : "Something went wrong",

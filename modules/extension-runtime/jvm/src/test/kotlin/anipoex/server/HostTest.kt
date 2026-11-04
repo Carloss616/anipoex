@@ -48,7 +48,7 @@ class HostTest {
             assertEquals("list", body)
             assertEquals(server.url("/list").toString(), asked.single())
             server.takeRequest()
-            // The retry carries the clearance and the user agent that earned it.
+            // The retry carries the clearance and its user agent.
             val retry = server.takeRequest()
             assertEquals("cf_clearance=ok", retry.headers["Cookie"])
             assertEquals("Browser/1", retry.headers["User-Agent"])
@@ -70,7 +70,8 @@ class HostTest {
             repeat(2) {
                 assertEquals("via browser", client.newCall(GET(server.url("/list").toString())).execute().use { it.body.string() })
             }
-            // Only the challenge reached OkHttp; both calls went through the browser, with the clearance's user agent.
+            // Only the challenge reached OkHttp; both calls went through the
+            // browser, with the clearance's user agent.
             assertEquals(1, server.requestCount)
             assertEquals(listOf("Browser/1", "Browser/1"), fetched.map { request -> request.headers.first { it.first == "User-Agent" }.second })
             // A cookie the browser's reply sets is kept for the next request.
@@ -78,7 +79,8 @@ class HostTest {
         }
     }
 
-    // A source builds its next URL on response.request.url, which a redirect the browser followed must carry.
+    // A source builds its next URL on response.request.url, which a redirect
+    // the browser followed must carry.
     @Test
     fun browserRedirectEndsOnTheResponsesRequest(@TempDir dir: File) {
         MockWebServer().use { server ->
@@ -88,7 +90,8 @@ class HostTest {
             Host.fetch = { request -> Host.HostResponse(200, emptyList(), "page".toByteArray(), request.url.replace("/?p=1", "/title/one/").substringBefore('#')) }
             val client = NetworkHelper(Application(dir, "1.0.0", 1)).client
             assertEquals(server.url("/title/one/"), client.newCall(GET(server.url("/?p=1").toString())).execute().request.url)
-            // No redirect: the reply's URL is the request's without its fragment, which the source still sees.
+            // No redirect: the reply's URL is the request's without its
+            // fragment, which the source still sees.
             val scrambled = server.url("/001.jpg").newBuilder().fragment("scramble=1").build()
             assertEquals(scrambled, client.newCall(GET(scrambled.toString())).execute().request.url)
         }
@@ -114,7 +117,8 @@ class HostTest {
             }
             val client = NetworkHelper(Application(dir, "1.0.0", 1)).client
             assertEquals("via browser", client.newCall(GET(old.toString())).execute().use { it.body.string() })
-            // The next call names the old host too: it goes straight to the new one, with no second solve.
+            // The next call names the old host too: it goes straight to the new
+            // one, with no second solve.
             assertEquals("via browser", client.newCall(GET(server.url("/next").toString())).execute().use { it.body.string() })
             assertEquals(listOf(moved.toString()), asked)
             assertEquals(listOf(moved.toString(), moved.newBuilder().encodedPath("/next").build().toString()), fetched.map { it.url })

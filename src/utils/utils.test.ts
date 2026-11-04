@@ -14,7 +14,8 @@ describe("formatDate", () => {
     expect(formatDate(new Date(Number.NaN), "en-GB")).toBe("Invalid Date");
   });
 
-  // Hermes builds a formatter on every toLocaleDateString: 134 chapter dates took 76ms on a phone.
+  // Hermes builds a formatter on every toLocaleDateString: 134 chapter
+  // dates took 76ms on a phone.
   it("builds one formatter per locale, not one per date", () => {
     const spy = spyOn(Intl, "DateTimeFormat");
     for (let day = 1; day <= 50; day++)

@@ -1,6 +1,6 @@
 package android.os;
 
-/** Android's Parcelable, for the types a source passes between its own screens; nothing is ever parceled here. */
+/** For types a source passes between its screens; nothing is parceled here. */
 public interface Parcelable {
     int describeContents();
 

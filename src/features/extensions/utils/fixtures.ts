@@ -35,7 +35,7 @@ export const LIST: Extension[] = [
   ext({ id: "source-e", name: "Source E", language: KO }),
 ];
 
-/** Minimal protobuf encoder, enough to build the repository messages the decoder reads. */
+/** Minimal protobuf encoder for the repository messages the decoder reads. */
 export const pb = {
   varint: (value: bigint | number): number[] => {
     let v = BigInt.asUintN(64, BigInt(value));

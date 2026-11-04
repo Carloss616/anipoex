@@ -3,7 +3,10 @@ package android.graphics
 import anipoex.server.ImageEngine
 import java.io.InputStream
 
-/** Android's BitmapFactory: "decoding" reads the size from the image's header and keeps its bytes for the app's engine. */
+/**
+ * "Decoding" reads the size from the image's header and keeps its bytes
+ * for the app's engine.
+ */
 object BitmapFactory {
     class Options {
         @JvmField var inMutable = false
@@ -26,7 +29,8 @@ object BitmapFactory {
     @JvmStatic
     fun decodeStream(stream: InputStream?, outPadding: Rect?, opts: Options?): Bitmap? = stream?.let { decode(it.readBytes(), opts) }
 
-    // Android answers null for bytes it can't decode, as here for a format whose header isn't read.
+    // Android answers null for bytes it can't decode, as here for a format
+    // whose header isn't read.
     private fun decode(bytes: ByteArray, opts: Options?): Bitmap? {
         val (width, height) = ImageEngine.size(bytes) ?: return null
         opts?.outWidth = width

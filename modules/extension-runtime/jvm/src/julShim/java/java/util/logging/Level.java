@@ -1,6 +1,9 @@
 package java.util.logging;
 
-/** java.logging isn't in the java.base-only runtime (the iOS one); OkHttp, Okio and dex2jar only need these levels. */
+/**
+ * java.logging isn't in the java.base-only runtime (the iOS one); OkHttp,
+ * Okio and dex2jar only need these levels.
+ */
 public class Level {
     public static final Level OFF = new Level("OFF", Integer.MAX_VALUE);
     public static final Level SEVERE = new Level("SEVERE", 1000);

@@ -16,7 +16,7 @@ export interface AnimatedVisibilityProps {
   children?: ReactNode;
 }
 
-// CSS can't transition `height: auto`, so the content is measured and its height animated.
+// CSS can't transition `height: auto`: the content is measured instead.
 export function AnimatedVisibility({
   visible,
   animateResize = true,

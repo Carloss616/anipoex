@@ -14,11 +14,14 @@ export interface PageImageProps {
   page: SourcePage;
   /** Shows or hides the reader bar. */
   onPress: () => void;
-  /** Reloads the page list: an image url can expire, so asking for the same one again may not help. */
+  /** Reloads the page list: image urls expire, so a plain retry may fail. */
   onRetry: () => void;
 }
 
-/** One page at full width, as tall as its image; memoized so the page counter does not redraw every visible page. */
+/**
+ * One page at full width, as tall as its image; memoized so the page counter
+ * doesn't redraw every visible page.
+ */
 export const PageImage = memo(function PageImage({
   sourceId,
   page,
@@ -27,9 +30,10 @@ export const PageImage = memo(function PageImage({
 }: PageImageProps) {
   const m3 = useThemeM3Colors();
   const [ratio, setRatio] = useState(PLACEHOLDER_RATIO);
-  // The page that failed: a reload hands new page objects, which mount a fresh image.
+  // The failed page: a reload brings new page objects, mounting fresh images.
   const [failed, setFailed] = useState<SourcePage>();
-  // What the source's client fetched (see `runtime.pageImage`), for the page it belongs to; none while it downloads.
+  // What the source's client fetched (`runtime.pageImage`) and for which page;
+  // none while it downloads.
   const [image, setImage] = useState<{ page: SourcePage; uri: string }>();
   const label = `Page ${page.index + 1}`;
 

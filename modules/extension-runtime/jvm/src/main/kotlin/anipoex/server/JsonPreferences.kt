@@ -12,7 +12,10 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
-/** SharedPreferences kept as one JSON file, each value tagged with its type so getInt reads back an Int. */
+/**
+ * SharedPreferences kept as one JSON file, each value tagged with its type
+ * so getInt reads back an Int.
+ */
 class JsonPreferences(private val file: File) : SharedPreferences {
     private val values: MutableMap<String, Any> = read()
     private val listeners = CopyOnWriteArrayList<SharedPreferences.OnSharedPreferenceChangeListener>()

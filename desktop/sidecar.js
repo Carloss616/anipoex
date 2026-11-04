@@ -4,14 +4,19 @@ import path from "node:path";
 import readline from "node:readline";
 
 /**
- * Runs the JVM extension server on demand, one JSON line per request and reply: `call` resolves to `{id, result}`, `{id, error}`, or `{error}` when the process stops (the next call starts a new one).
- * The server can ask back with a `{host, id, args}` line: `host[method](args)` answers it as `{hostReply: id, result}` or `{hostReply: id, error}`.
- * `onStop` runs each time the process stops, so what the host lent it (its pages) goes with it.
+ * Runs the JVM extension server on demand, one JSON line per request and
+ * reply: `call` resolves to `{id, result}`, `{id, error}`, or `{error}` when
+ * the process stops (the next call starts a new one).
+ * The server can ask back with a `{host, id, args}` line: `host[method](args)`
+ * answers it as `{hostReply: id, result}` or `{hostReply: id, error}`.
+ * `onStop` runs each time the process stops, so what the host lent it (its
+ * pages) goes with it.
  */
 export function startSidecar({ java, args, logFile, host = {}, onStop }) {
   let server = null;
   let nextId = 0;
-  // The log starts empty with the app; restarts append, so a crash's stderr survives the relaunch.
+  // The log starts empty with the app; restarts append, so a crash's stderr
+  // survives the relaunch.
   let logFlags = "w";
 
   const launch = () => {
@@ -30,15 +35,15 @@ export function startSidecar({ java, args, logFile, host = {}, onStop }) {
       onStop?.();
     };
     child.on("error", (error) => stopped(error.message));
-    // `close` waits for stdout to end, so replies written just before the exit still arrive.
+    // `close` waits for stdout to end, so replies sent just before exit arrive.
     child.on("close", (code, signal) =>
       stopped(signal ? `signal ${signal}` : `exit code ${code}`),
     );
-    // A dead process fails the write; its `close` already answers the pending calls.
+    // A dead process fails the write; its `close` answers the pending calls.
     child.stdin.on("error", () => {});
     readline.createInterface({ input: child.stdout }).on("line", (line) => {
       let reply;
-      // The JVM itself can print to stdout (a fatal-error banner); those lines aren't replies.
+      // The JVM can print to stdout itself (a fatal-error banner): not replies.
       try {
         reply = JSON.parse(line);
       } catch {

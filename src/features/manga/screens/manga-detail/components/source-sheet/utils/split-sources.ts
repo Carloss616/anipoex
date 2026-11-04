@@ -29,7 +29,7 @@ const median = (values: number[]) => {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 };
 
-/** Whether a matched source's latest chapter runs far ahead of the other live matches. */
+/** Whether a match's latest chapter runs far ahead of the other live ones. */
 export function isSuspicious(
   id: string,
   sources: Source[],
@@ -49,7 +49,10 @@ export function isSuspicious(
   );
 }
 
-/** Installed sources split into available (best first) and excluded (by name), both filtered by the query. */
+/**
+ * Installed sources split into available (best first) and excluded (by name),
+ * both filtered by the query.
+ */
 export function splitSources(
   sources: Source[],
   excluded: Excluded,
@@ -88,7 +91,10 @@ export function splitSources(
   return { available, excluded: out };
 }
 
-/** Rows named in `order` come first, in that order; the rest keep their place after them. */
+/**
+ * Rows named in `order` come first, in that order; the rest keep their place
+ * after them.
+ */
 export function applyOrder<T extends { source: Source }>(
   rows: T[],
   order: readonly string[],

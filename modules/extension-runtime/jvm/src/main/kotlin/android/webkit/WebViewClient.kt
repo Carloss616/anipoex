@@ -4,7 +4,10 @@ import android.graphics.Bitmap
 import android.net.Uri
 import java.io.InputStream
 
-/** Android's WebViewClient: [WebView] calls it from the page's events, on the main thread except [shouldInterceptRequest]. */
+/**
+ * [WebView] calls it from the page's events, on the main thread except
+ * [shouldInterceptRequest].
+ */
 open class WebViewClient {
     open fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {}
 
@@ -14,11 +17,11 @@ open class WebViewClient {
 
     open fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {}
 
-    // Android's default lets the app crash; here the dead page only stops sending events.
+    // Android's default crashes the app; here a dead page just stops events.
     open fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean = false
 }
 
-/** Android's WebChromeClient: the page's console reaches it on the main thread. */
+/** The page's console reaches it on the main thread. */
 open class WebChromeClient {
     open fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean = false
 }
@@ -51,7 +54,10 @@ interface WebResourceRequest {
     val requestHeaders: Map<String, String>
 }
 
-/** What an interceptor answers a request with; [WebView] reads [data] fully and hands it to the page. */
+/**
+ * What an interceptor answers a request with; [WebView] reads [data] fully
+ * and hands it to the page.
+ */
 class WebResourceResponse(
     var mimeType: String?,
     var encoding: String?,
@@ -72,7 +78,10 @@ object URLUtil {
     fun isValidUrl(url: String?): Boolean = !url.isNullOrEmpty() && SCHEMES.any { url.startsWith(it, ignoreCase = true) }
 }
 
-/** Marks the methods of an [WebView.addJavascriptInterface] object the page may call. */
+/**
+ * Marks the methods of a [WebView.addJavascriptInterface] object the page
+ * may call.
+ */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
 annotation class JavascriptInterface

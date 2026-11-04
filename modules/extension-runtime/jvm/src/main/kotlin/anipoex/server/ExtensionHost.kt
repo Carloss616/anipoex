@@ -30,7 +30,8 @@ import java.util.concurrent.ConcurrentHashMap
 private val SUPPORTED_LIBS = setOf(1.4f, 1.6f)
 
 /**
- * The JVM side of ExtensionRuntimeModule: installs APKs as jars and answers the same calls.
+ * The JVM side of ExtensionRuntimeModule: installs APKs as jars and answers
+ * the same calls.
  * @see https://github.com/mihonapp/mihon/blob/main/app/src/main/java/eu/kanade/tachiyomi/extension/util/ExtensionLoader.kt
  */
 @OptIn(ExperimentalSerializationApi::class)
@@ -43,7 +44,8 @@ class ExtensionHost(dataDir: File) {
 
     init {
         recoverInterruptedInstalls()
-        // Android sets it to the VM's user agent; extensions send it as theirs and some assume it's there.
+        // Android sets it to the VM's user agent; extensions send it as theirs
+        // and some assume it's there.
         if (System.getProperty("http.agent") == null) System.setProperty("http.agent", "Dalvik/2.1.0 (Linux; U; Android 10; K)")
         Pkcs7Padding.install()
         val app = Application(dataDir, "1.0.0", 1)
@@ -64,7 +66,8 @@ class ExtensionHost(dataDir: File) {
             }
             val downloaded = System.nanoTime()
             val apk = readApk(download)
-            // Loading runs the extension's code in the server, so only the repo's key gets that far.
+            // Loading runs the extension's code in the server, so only the
+            // repo's key gets that far.
             check(signingKey.lowercase() in apk.signers) { "${apk.packageName} isn't signed by the repo key" }
             val lib = libVersion(apk.versionName, apk.metaData)
             check(lib in SUPPORTED_LIBS) { "${apk.packageName} targets extensions-lib $lib, only ${SUPPORTED_LIBS.joinToString()} are supported" }
@@ -79,14 +82,16 @@ class ExtensionHost(dataDir: File) {
                     put("signingKey", JsonPrimitive(apk.signers.first()))
                     put("name", JsonPrimitive(extensionName(apk)))
                     put("classes", JsonPrimitive(requireNotNull(apk.metaData["tachiyomi.extension.class"]) { "${apk.packageName} has no extension class" }))
-                    // Kept in the meta, so installed() has it after a restart without the APK.
+                    // Kept in the meta, so installed() has it after a restart
+                    // without the APK.
                     apkIcon(download)?.let { put("icon", JsonPrimitive(it)) }
                 },
             )
             val jar = File(extensionsDir, "${apk.packageName}.jar")
             val json = File(extensionsDir, "${apk.packageName}.json")
             val backups = listOf(jar, json).map { File(it.path + ".bak") }
-            // Concurrent installs of one package take turns replacing and loading its files.
+            // Concurrent installs of one package take turns replacing and
+            // loading its files.
             return synchronized(lock) {
                 backups.forEach { it.delete() }
                 val hadPrevious = jar.renameTo(backups[0]) && json.renameTo(backups[1])
@@ -99,7 +104,8 @@ class ExtensionHost(dataDir: File) {
                         System.err.println("install ${apk.packageName}: download ${ms(downloaded - started)} verify ${ms(verified - downloaded)} dex2jar ${ms(translated - verified)} load ${ms(loaded - translated)}")
                     }
                 } catch (e: Throwable) {
-                    // The previous version stays installed when the new one can't be stored or loaded.
+                    // The previous version stays installed when the new one
+                    // can't be stored or loaded.
                     jar.delete()
                     json.delete()
                     if (hadPrevious) {
@@ -115,7 +121,8 @@ class ExtensionHost(dataDir: File) {
         }
     }
 
-    // A server that died mid-install leaves its temporaries, and backups that are the only copy until the new jar and meta are both stored.
+    // A server that died mid-install leaves its temporaries, and backups that
+    // are the only copy until the new jar and meta are both stored.
     private fun recoverInterruptedInstalls() {
         val files = extensionsDir.listFiles().orEmpty()
         files.forEach {
@@ -139,7 +146,7 @@ class ExtensionHost(dataDir: File) {
     fun installed(): List<Map<String, Any?>> = loadStored().values.toList()
 
     fun uninstall(pkg: String) = synchronized(lock) {
-        // The package names a file in extensionsDir, so it must not reach outside it.
+        // The package names a file in extensionsDir: it must not reach outside.
         require(pkg.isNotEmpty() && '/' !in pkg && pkg != "." && pkg != "..") { "Invalid package name" }
         unregister(pkg)
         File(extensionsDir, "$pkg.jar").delete()
@@ -160,7 +167,8 @@ class ExtensionHost(dataDir: File) {
             this.title = title
             if (memo != null) this.memo = Json.parseToJsonElement(memo).jsonObject
         }
-        // No details: the app doesn't use them, and a parsed details SManga has no url (Mihon keeps the stored one).
+        // No details: the app doesn't use them, and a parsed details SManga
+        // has no url (Mihon keeps the stored one).
         val update = source(sourceId).getMangaUpdate(manga, emptyList(), fetchDetails = false, fetchChapters = true)
         return mapOf("chapters" to update.chapters.map { it.toMap() })
     }
@@ -194,16 +202,18 @@ class ExtensionHost(dataDir: File) {
         return source.getPageList(chapter).map { page ->
             if (page.imageUrl == null) page.imageUrl = source.getImageUrl(page)
             val request = source.hostImageRequest(page)
-            // The page's own url: `image` builds the request from it, as Mihon's getImage does.
+            // The page's own url: `image` builds its request (Mihon's
+            // getImage).
             mapOf("index" to page.index, "imageUrl" to page.imageUrl, "headers" to request.headers.toMap())
         }
     }
 
-    /** A page's image through its source's client, as a file: see [PageCache]. */
+    /** A page's image through its source's client, as a file ([PageCache]). */
     suspend fun image(sourceId: String, imageUrl: String, index: Int): Map<String, Any?> =
         pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
 
-    // Like Mihon: an extension without the lib in its metadata carries it in versionName (1.4.3 -> 1.4).
+    // As Mihon: an extension without the lib in its metadata carries it in
+    // versionName (1.4.3 -> 1.4).
     private fun libVersion(versionName: String?, metaData: Map<String, String>): Float =
         metaData["tachiyomix.extensionLib"]?.toFloatOrNull()
             ?: versionName.orEmpty().substringBeforeLast('.').toFloatOrNull()
@@ -220,7 +230,7 @@ class ExtensionHost(dataDir: File) {
                 else -> error("Unknown source class ${instance.javaClass}")
             }
         }.filterIsInstance<CatalogueSource>()
-        // Drops what a previous version registered, so ids it had and this one dropped stop resolving.
+        // Drop the old version's ids, so ones this one lacks stop resolving.
         unregister(pkg)
         loaded.forEach { sources[it.id] = it }
 
@@ -232,9 +242,10 @@ class ExtensionHost(dataDir: File) {
             "signingKey" to meta.getValue("signingKey"),
             "icon" to meta["icon"],
             "sources" to loaded.map {
-                // Some extensions throw here (an unset baseUrl); no website then.
+                // Some extensions throw here (an unset baseUrl): no website.
                 val homeUrl = runCatching { (it as? HttpSource)?.getHomeUrl() }.getOrNull()
-                // Covers load with them, as in Mihon: some image hosts refuse a request without the site's Referer.
+                // Covers load with them, as in Mihon: some image hosts refuse a
+                // request without the site's Referer.
                 val headers = runCatching { (it as? HttpSource)?.headers?.toMap() }.getOrNull().orEmpty()
                 mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang, "homeUrl" to homeUrl, "headers" to headers)
             },
@@ -243,11 +254,11 @@ class ExtensionHost(dataDir: File) {
         return extension
     }
 
-    // Extensions live in memory: after a restart, the first call reloads the stored ones.
+    // Extensions live in memory: after a restart the first call reloads them.
     private fun loadStored(): Map<String, Map<String, Any?>> = synchronized(lock) {
         extensionsDir.listFiles { file -> file.extension == "json" }?.forEach {
             if (!extensions.containsKey(it.nameWithoutExtension)) {
-                // A file that fails to load is skipped so it can't hide the others.
+                // A file that fails to load is skipped: it can't hide the rest.
                 try { load(it.nameWithoutExtension) } catch (e: Throwable) { System.err.println("Skipping ${it.name}: $e") }
             }
         }
@@ -266,7 +277,10 @@ class ExtensionHost(dataDir: File) {
     }
 }
 
-/** Android's DelegateLastClassLoader on the JVM: the platform first, then the extension's jar, then the host. */
+/**
+ * Android's DelegateLastClassLoader on the JVM: the platform first, then
+ * the extension's jar, then the host.
+ */
 private class DelegateLastClassLoader(jar: File, parent: ClassLoader) : URLClassLoader(arrayOf(jar.toURI().toURL()), parent) {
     override fun loadClass(name: String, resolve: Boolean): Class<*> = synchronized(getClassLoadingLock(name)) {
         findLoadedClass(name)
@@ -278,7 +292,8 @@ private class DelegateLastClassLoader(jar: File, parent: ClassLoader) : URLClass
     private fun tryLoad(load: () -> Class<*>): Class<*>? = try { load() } catch (e: ClassNotFoundException) { null }
 }
 
-// Like Android's host: the metadata name, else the app label without Mihon's prefix, else the package.
+// As Android's host: the metadata name, else the app label without
+// Mihon's prefix, else the package.
 internal fun extensionName(apk: ApkInfo): String =
     apk.metaData["tachiyomix.name"] ?: apk.label?.substringAfter("Tachiyomi: ")?.ifBlank { null } ?: apk.packageName
 
@@ -295,7 +310,8 @@ private fun SManga.toMap() = mapOf(
     "description" to description,
     "genre" to genre,
     "status" to status,
-    // Opaque to the app, like a chapter's: lib 1.6 sources read it back in chapters; null when the source keeps none.
+    // Opaque to the app, like a chapter's: lib 1.6 sources read it back in
+    // chapters; null when the source keeps none.
     "memo" to memo.takeIf { it.isNotEmpty() }?.toString(),
 )
 
@@ -305,6 +321,7 @@ private fun SChapter.toMap() = mapOf(
     "number" to chapter_number,
     "scanlator" to scanlator,
     "dateUpload" to date_upload,
-    // Opaque to the app: lib 1.6 sources read it back in getPageList; null when the source keeps none.
+    // Opaque to the app: lib 1.6 sources read it back in getPageList; null
+    // when the source keeps none.
     "memo" to memo.takeIf { it.isNotEmpty() }?.toString(),
 )

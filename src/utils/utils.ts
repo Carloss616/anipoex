@@ -20,10 +20,13 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 
-// shortcut: the device locale is read once per run, reload the JS if it changes mid-session.
+// shortcut: the device locale is read once per run, reload JS if it changes.
 const dateFormats = new Map<string | undefined, Intl.DateTimeFormat>();
 
-/** Day, short month and year — "4 Mar 2025"; one formatter per locale, since Hermes builds one per `toLocaleDateString`. */
+/**
+ * Day, short month and year: "4 Mar 2025". One formatter per locale, since
+ * Hermes builds one per `toLocaleDateString`.
+ */
 export function formatDate(date: Date | undefined, locale?: string) {
   // An invalid date reads "Invalid Date" here, where `format` would throw.
   if (!date || Number.isNaN(date.getTime()))

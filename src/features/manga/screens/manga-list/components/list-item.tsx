@@ -10,7 +10,10 @@ import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaStatus } from "@/graphql/types.generated";
 
-/** Progress from the cache, so it updates without a refetch: shown, spoken, and the chapters left in the chosen source. */
+/**
+ * Progress from the cache, so it updates without a refetch: shown, spoken,
+ * and the chapters left in the chosen source.
+ */
 function useProgress({
   id,
   __typename,

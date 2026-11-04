@@ -17,8 +17,8 @@ import type { BadgeProps } from "./badge";
 const DOT = 8;
 
 /**
- * iOS Badge: same props as [the web one](./badge.tsx), a SwiftUI `Text` in a
- * capsule — SwiftUI's own badge is a List/TabView modifier, not a view.
+ * A `Text` in a capsule: SwiftUI's own badge is a List/TabView modifier, not
+ * a view.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/hstack/
  */

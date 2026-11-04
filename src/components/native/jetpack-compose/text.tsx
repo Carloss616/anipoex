@@ -39,7 +39,7 @@ export function Text({ style, ...props }: TextProps) {
   return <TextBase {...props} style={{ typography, fontFamily, ...rest }} />;
 }
 
-/** A `bodyMedium` `Text` on a rounded chip, for a value read as data — `176/266`. */
+/** A `bodyMedium` `Text` on a rounded chip, for data like `176/266`. */
 export function Code({ style, modifiers, ...props }: TextProps) {
   const m3 = useThemeM3Colors();
 

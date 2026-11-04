@@ -1,8 +1,9 @@
 import UIKit
 import WebKit
 
-/// The runtime's `android.webkit.WebView` (`wv*` calls through `IosHost.call`): a WKWebView per WebView, off screen in the
-/// key window. What the page does reaches the runtime as events it long-polls with `wvEvents`.
+/// The runtime's `android.webkit.WebView` (`wv*` calls via `IosHost.call`):
+/// a WKWebView per WebView, off screen in the key window. What the page does
+/// reaches the runtime as events it long-polls with `wvEvents`.
 @MainActor
 final class WebViewHost {
   static let shared = WebViewHost()
@@ -10,18 +11,21 @@ final class WebViewHost {
   // How long `wvEvents` waits for an event before it answers none.
   static let pollSeconds: Double = 20
 
-  // One store for every WebView, as Android's CookieManager is the app's; not the challenge's, whose pages are its own.
+  // One store for every WebView, as Android's CookieManager is app-wide; not
+  // the challenge's, whose pages are its own.
   private let store = WKWebsiteDataStore.nonPersistent()
   private var pages: [Int: WebViewPage] = [:]
   private var nextId = 0
   private var blocker: WKContentRuleList?
-  // The last cookie report, by name, domain and path: one missing from the next was deleted.
+  // The last cookie report, by name, domain and path: one missing from the
+  // next was deleted.
   private var reported: [String: [String: Any]] = [:]
 
   // Android's blockNetworkImage: only network images, a data: one still shows.
   private static let blockImages = #"[{"trigger":{"url-filter":"^https?:","resource-type":["image"]},"action":{"type":"block"}}]"#
 
-  /// Answers `IosHost.call` with a `{"result"}`/`{"error"}` envelope; blocks its runtime thread until the main thread is done.
+  /// Answers `IosHost.call` with a `{"result"}`/`{"error"}` envelope,
+  /// blocking its runtime thread until the main thread is done.
   nonisolated static func answer(_ method: String, _ argsJson: String) -> String {
     let done = DispatchSemaphore(value: 0)
     let reply = Box()
@@ -59,14 +63,16 @@ final class WebViewHost {
       pages[id]?.view.stopLoading()
       return NSNull()
     case "wvDestroy":
-      // The JVM stops polling at destroy, so the page goes now; a late poll gets `closed`.
+      // The JVM stops polling at destroy, so the page goes now; a late poll
+      // gets `closed`.
       pages[id]?.close()
       pages[id] = nil
       return NSNull()
     case "wvLoad", "wvLoadData":
       guard let page = pages[id] else { throw HostError("This WebView is closed") }
       try await load(page, args, data: method == "wvLoadData")
-      // The user agent it runs as: Safari's where the extension asked for Chrome's, which the runtime then uses for the site.
+      // The user agent it runs as (Safari's where the extension asked for
+      // Chrome's), which the runtime then uses for the site.
       return ["userAgent": page.view.customUserAgent ?? ChallengeHost.userAgent]
     case "wvEvaluate":
       guard let page = pages[id] else { throw HostError("This WebView is closed") }
@@ -86,7 +92,8 @@ final class WebViewHost {
     if data {
       let base = URL(string: args["baseUrl"] as? String ?? "") ?? URL(string: "about:blank")!
       let mimeType = (args["mimeType"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "text/html"
-      // `data` arrives as a decoded string, so its bytes are UTF-8 whatever `encoding` it came with.
+      // `data` arrives as a decoded string, so its bytes are UTF-8 whatever
+      // `encoding` it came with.
       page.view.load(Data((args["data"] as? String ?? "").utf8), mimeType: mimeType, characterEncodingName: "utf-8", baseURL: base)
     } else {
       guard let url = URL(string: args["url"] as? String ?? "") else { throw HostError("Not a URL") }
@@ -123,8 +130,9 @@ final class WebViewHost {
     return HTTPCookie(properties: properties)
   }
 
-  /// The store's cookies in the runtime's shape, plus those gone since the last report as expired, so the runtime's
-  /// CookieManager drops them too (a logout, a rotated session).
+  /// The store's cookies in the runtime's shape, plus those gone since the
+  /// last report as expired, so the runtime's CookieManager drops them too
+  /// (a logout, a rotated session).
   func cookieReport() async -> [[String: Any]] {
     let cookies = await store.httpCookieStore.allCookies().map(Self.fields)
     let now = Dictionary(cookies.map { (Self.key($0), $0) }, uniquingKeysWith: { _, last in last })
@@ -162,8 +170,8 @@ final class WebViewHost {
   }
 }
 
-/// One WebView: its WKWebView and the events queued for the runtime's next poll. Popups are refused by having no
-/// WKUIDelegate, which opens no window.
+/// One WebView: its WKWebView and the events queued for the runtime's next
+/// poll. Popups are refused by having no WKUIDelegate, which opens no window.
 @MainActor
 private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
   let view: WKWebView
@@ -176,14 +184,16 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
 
   private var nextRequest = 0
   private var queued: Task<Void, Never>?
-  // The page's fetch and XHR calls waiting for the runtime's answer, by request id: the frame and the script's own id.
+  // The page's fetch and XHR calls awaiting the runtime's answer, by request
+  // id: the frame and the script's own id.
   private var holding: [Int: (frame: WKFrameInfo, id: Int)] = [:]
 
   init(store: WKWebsiteDataStore, frame: CGRect) {
     let configuration = WKWebViewConfiguration()
     configuration.websiteDataStore = store
     configuration.userContentController = controller
-    // Never shown, so nothing plays: media waits for a tap no one makes, inline rather than full screen.
+    // Never shown, so nothing plays: media waits for a tap no one makes,
+    // inline rather than full screen.
     configuration.mediaTypesRequiringUserActionForPlayback = .all
     configuration.allowsInlineMediaPlayback = true
     view = WKWebView(frame: frame, configuration: configuration)
@@ -195,10 +205,10 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
     controller.add(self, name: Self.requestHandler)
   }
 
-  /// A load's settings, from that load on: user scripts run from the next document.
+  /// A load's settings, from that load on; user scripts from the next document.
   func apply(_ settings: [String: Any], blocker: WKContentRuleList?) {
-    // WebKit can't pass for Chromium: a Chrome user agent on it reads as spoofed and bot checks refuse the page, so it
-    // keeps Safari's, which the engine matches.
+    // WebKit can't pass for Chromium: a Chrome user agent on it reads as
+    // spoofed and bot checks refuse the page, so it keeps Safari's.
     let userAgent = settings["userAgent"] as? String
     view.customUserAgent = userAgent.flatMap { $0.contains("Chrome/") ? nil : $0 } ?? ChallengeHost.userAgent
     javaScriptEnabled = settings["javaScriptEnabled"] as? Bool ?? true
@@ -215,9 +225,10 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
     controller.addUserScript(WKUserScript(source: Self.requests, injectionTime: .atDocumentStart, forMainFrameOnly: false))
   }
 
-  /// Android's evaluateJavascript: the completion value as JSON, "null" for anything JSON can't hold or a thrown error.
+  /// Android's evaluateJavascript: the completion value as JSON, "null" for
+  /// anything JSON can't hold or a thrown error.
   func evaluate(_ script: String) async -> String {
-    // The completion-handler form: the async one traps when the script's value is undefined.
+    // The completion-handler form: the async one traps on an undefined value.
     await withCheckedContinuation { continuation in
       view.evaluateJavaScript(script) { value, _ in
         continuation.resume(returning: Self.json(value))
@@ -228,7 +239,7 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
   /// The queued events, waiting up to `pollSeconds` for one.
   func poll() async -> [String: Any] {
     if queue.isEmpty, !closed {
-      // A poll already waiting answers empty: the newer one gets what comes next.
+      // A poll already waiting answers empty; the newer one gets what's next.
       wake()
       timeout = Task { [weak self] in
         try? await Task.sleep(for: .seconds(WebViewHost.pollSeconds))
@@ -246,7 +257,8 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
     closed = true
     view.stopLoading()
     view.navigationDelegate = nil
-    // The controller holds its handlers strongly: this page, which holds the view that holds the controller.
+    // The controller holds its handlers strongly: this page, which holds the
+    // view that holds the controller.
     controller.removeAllScriptMessageHandlers()
     controller.removeAllUserScripts()
     view.removeFromSuperview()
@@ -299,17 +311,18 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
     failed(error)
   }
 
-  // Only the main frame's: WebKit tells a navigation delegate nothing about a subresource or a frame failing.
+  // Only the main frame's: WebKit tells a navigation delegate nothing about
+  // a subresource or a frame failing.
   private func failed(_ error: Error) {
     let error = error as NSError
-    // A stop or a load replaced by another, which Android doesn't report either.
+    // A stop or a load replaced by another, which Android doesn't report.
     guard error.code != NSURLErrorCancelled else { return }
     let url = error.userInfo[NSURLErrorFailingURLStringErrorKey] as? String ?? view.url?.absoluteString ?? ""
     emit(["type": "error", "url": url, "description": error.localizedDescription, "mainFrame": true])
   }
 
   func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-    // WebKit doesn't say whether the process crashed or was reclaimed for memory.
+    // WebKit doesn't say if the process crashed or was reclaimed for memory.
     emit(["type": "gone", "crashed": true])
   }
 
@@ -334,25 +347,28 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
     }
   }
 
-  // shortcut: WebKit can't hold http(s) requests itself, so only the page's fetch and XHR are held (its script waits for the
-  // answer) and navigations are only reported; images, scripts and frames go out unseen. Enough for sources that read or
-  // answer an API call.
+  // shortcut: WebKit can't hold http(s) requests itself, so only the page's
+  // fetch and XHR are held (its script waits for the answer) and navigations
+  // are only reported; images, scripts and frames go out unseen. Enough for
+  // sources that read or answer an API call.
   private func report(_ url: String, method: String, headers: [String: String], mainFrame: Bool, held: (frame: WKFrameInfo, id: Int)? = nil) {
     nextRequest += 1
     if let held { holding[nextRequest] = held }
     withCookies(["type": "request", "requestId": nextRequest, "url": url, "method": method.uppercased(), "headers": headers, "mainFrame": mainFrame])
   }
 
-  /// `wvRespond`: the page's held call gets the runtime's response, or null to go to the network.
+  /// `wvRespond`: the page's held call gets the runtime's response, or null
+  /// to go to the network.
   func answer(_ requestId: Int, _ response: Any?) {
     guard let held = holding.removeValue(forKey: requestId) else { return }
     let json = response.flatMap { $0 is NSNull ? nil : try? JSONSerialization.data(withJSONObject: $0) }.map { String(decoding: $0, as: UTF8.self) } ?? "null"
     view.evaluateJavaScript("window.\(Self.answerName)(\(held.id), \(json))", in: held.frame, in: .page) { _ in }
   }
 
-  // The store's cookies go first: WebKit's cookie observer doesn't fire for this store, and what the page does next (a
-  // call to the extension, a request after the one that set its session) is when the extension's own requests need
-  // them. Chained, so events keep their order.
+  // The store's cookies go first: WebKit's cookie observer doesn't fire for
+  // this store, and the extension's own requests need them by the page's
+  // next step (a call to the extension, a request after the one that set its
+  // session). Chained, so events keep their order.
   private func withCookies(_ event: [String: Any]) {
     let previous = queued
     queued = Task { @MainActor in
@@ -363,7 +379,8 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
   }
 
   nonisolated private static func json(_ value: Any?) -> String {
-    // The array check keeps an unserializable value (a date) from raising inside JSONSerialization.
+    // The array check keeps an unserializable value (a date) from raising
+    // inside JSONSerialization.
     guard let value, JSONSerialization.isValidJSONObject([value]),
           let data = try? JSONSerialization.data(withJSONObject: value, options: [.fragmentsAllowed, .withoutEscapingSlashes]) else { return "null" }
     return String(decoding: data, as: UTF8.self)
@@ -375,14 +392,16 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
 
   private static let answerName = "__anipoexAnswer"
 
-  // The page's fetch and XHR calls wait for the runtime's answer (its interceptor's response, or null to send them); one
-  // unanswered in 15 s goes out. A WeakMap keeps nothing on the page's own objects.
+  // The page's fetch and XHR calls wait for the runtime's answer (its
+  // interceptor's response, or null to send them); one unanswered in 15 s
+  // goes out. A WeakMap keeps nothing on the page's own objects.
   private static let requests = """
     (() => {
       const handler = webkit.messageHandlers.\(requestHandler);
       const waiting = new Map();
       let next = 0;
-      // With the headers WebKit adds itself, as Android's interceptor sees them: sources replay a request with them.
+      // With the headers WebKit adds itself, as Android's interceptor sees
+      // them: sources replay a request with them.
       const withBrowserHeaders = (url, method, headers) => {
         const out = { "user-agent": navigator.userAgent, referer: location.href, ...headers };
         if (method !== "GET" || url.origin !== location.origin) out.origin ??= location.origin;
@@ -455,8 +474,8 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
     })();
     """
 
-  // Fire and forget, as the protocol has no return value; the handler is taken first, so a page that drops
-  // `window.webkit` still reaches it.
+  // Fire and forget, as the protocol has no return value; the handler is
+  // taken first, so a page that drops `window.webkit` still reaches it.
   private static let bridge = """
     (interfaces) => {
       const handler = webkit.messageHandlers.\(jsHandler);
@@ -469,7 +488,8 @@ private final class WebViewPage: NSObject, WKNavigationDelegate, WKScriptMessage
     }
     """
 
-  // shortcut: every message's source is the page and its line 0, read the caller from `new Error().stack` if a source needs them.
+  // shortcut: every message's source is the page and its line 0; read the
+  // caller from `new Error().stack` if a source needs them.
   private static let console = """
     (() => {
       const handler = webkit.messageHandlers.\(consoleHandler);

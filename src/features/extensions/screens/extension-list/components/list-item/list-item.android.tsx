@@ -46,7 +46,10 @@ interface ActionButtonProps {
   onPress?: () => void;
 }
 
-/** Reads the operation itself so only this button re-renders; every action is off while one runs. */
+/**
+ * Reads the operation itself so only this button re-renders; every action
+ * is off while one runs.
+ */
 function ActionButton({
   id,
   operation,

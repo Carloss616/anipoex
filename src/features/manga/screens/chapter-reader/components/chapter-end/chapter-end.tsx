@@ -7,7 +7,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export interface ChapterEndProps {
   /** "Chapter 13". */
   chapter: string;
-  /** What reaching the end is saving or saved, or would add once confirmed; "none" shows nothing. */
+  /**
+   * What reaching the end is saving or saved, or would add once confirmed;
+   * "none" shows nothing.
+   */
   save: { state: "saved" | "saving" | "confirm" | "none"; changes: string[] };
   onUndo: () => void;
   onAdd: () => void;

@@ -7,8 +7,7 @@ import { EnsureHost } from "../host";
 import type { SliderProps } from "./slider";
 
 /**
- * iOS Slider: PanelUI's props on a SwiftUI `Slider`, track only. SwiftUI hides
- * the slider's own `label`, so it becomes the accessibility name instead.
+ * SwiftUI hides the slider's own `label`, so it becomes the accessibility name.
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/slider/
  */
 export function Slider({

@@ -12,6 +12,6 @@ export const tick = () => void selectionAsync().catch(noop);
 export const succeeded = () =>
   void notificationAsync(NotificationFeedbackType.Success).catch(noop);
 
-/** An operation the user asked for failed. Pairs with the toast, never replaces it. */
+/** A requested operation failed. Pairs with the toast, never replaces it. */
 export const failed = () =>
   void notificationAsync(NotificationFeedbackType.Error).catch(noop);

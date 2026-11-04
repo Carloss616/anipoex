@@ -57,14 +57,15 @@ export function MangaDetail() {
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
   const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(Number(id));
-  // An observable, so opening the sheet re-renders neither this screen nor its list.
+  // An observable, so opening the sheet re-renders neither screen nor list.
   const sourceSheet$ = useObservable(false);
   // Web: the header shows the title once it scrolls away.
   const titleOut$ = useObservable(false);
   // Read by the rows and buttons, not by this screen.
   const continue$ = useObservable<ContinueAction | null>(null);
   const router = useRouter();
-  // Destructured so `refreshAll` only changes with the match: each new toolbar re-renders the whole stack.
+  // Destructured so `refreshAll` only changes with the match: each new toolbar
+  // re-renders the whole stack.
   const {
     chapters,
     loading: chaptersLoading,
@@ -76,7 +77,8 @@ export function MangaDetail() {
   const [resumed, setResumed] = useState(false);
   const pendingId = match?.manga === undefined ? match?.sourceId : undefined;
 
-  // A pick without a manga is searched once each time the detail opens; Refresh retries it after that.
+  // A pick without a manga is searched once each time the detail opens;
+  // Refresh retries it after that.
   useEffect(() => {
     if (!pendingId || !manga || resumed) return;
     setResumed(true);

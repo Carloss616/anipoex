@@ -5,7 +5,7 @@ export type User = {
   id: number;
   name: string;
   avatarUrl: string | null;
-  /** The scale the user's scores are stored in. Null until it's been fetched. */
+  /** The scale the user's scores are stored in; null until fetched. */
   scoreFormat: ScoreFormat | null;
 };
 

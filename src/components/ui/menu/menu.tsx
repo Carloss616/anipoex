@@ -24,7 +24,7 @@ interface MenuItemBase {
   label: string;
   /** Runs on select — or on confirm, when `onPressMode` is `"dialog"`. */
   onPress: () => void;
-  /** Build it with `Icon.select` — a bare name only resolves on one platform. */
+  /** Build it with `Icon.select`: a bare name resolves on one platform. */
   icon?: IconName;
   /** Colors the row, and the dialog's confirm button along with it. */
   destructive?: boolean;
@@ -135,7 +135,7 @@ function ActionItem({
 const isPick = (item: MenuItem): item is MenuAction =>
   !("items" in item) && item.checked !== undefined;
 
-/** The rows, with a radio menu's checked ones joined into one group where the first sits. */
+/** A radio menu's checked rows join one group, where the first one sits. */
 function Rows({
   rows,
   selection,
@@ -217,11 +217,9 @@ type TriggerChild = ReactElement<
 >;
 
 /**
- * A popup menu, natively rendered per platform.
- *
- * The rows are data rather than children because the native menus underneath
- * only take action rows — a `ReactNode` label or icon has nowhere to go
- * there. `description`/`shortcut`/`trailing` are absent for the same reason.
+ * Rows are data, not children: the native menus take only action rows, so a
+ * `ReactNode` label or icon, `description`, `shortcut` or `trailing` has
+ * nowhere to go.
  *
  * @see https://panelui.dev/docs/web/components/menu
  */

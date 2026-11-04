@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/toast";
 import { type DnsId, runtime } from "../../../runtime";
 import { DNS_OPTIONS } from "../constants";
 
-/** The runtime's DNS choice as a trigger label and one checked row per option. */
+/** The DNS choice as a trigger label and one checked row per option. */
 export function useDns() {
   const [dns, setDns] = useState<DnsId>();
 

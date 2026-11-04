@@ -56,7 +56,7 @@ function ToolbarItemView({
   );
 }
 
-/** Web: puts a `Stack.Toolbar`'s buttons and menus in a header slot. */
+/** Puts a `Stack.Toolbar`'s buttons and menus in a header slot. */
 export function Toolbar({ children: toolbar, loading }: ToolbarProps) {
   const parsed = readToolbar(toolbar);
 

@@ -20,12 +20,10 @@ import { useStepRepeat } from "./hooks/use-step-repeat";
 import type { NumberInputProps } from "./number-input";
 
 /**
- * Android NumberInput: M3 has no stepper, so it's two icon buttons,
- * which repeat while held, around a field that reports every keystroke, rewriting itself only when a typed
- * number lands outside the range, so ordinary typing is never interrupted.
- * The IME carries a Done key, the only way out of a numeric keyboard.
- * `label` is dropped: the sheet renders the caption above the control, and
- * Compose exposes no way to set an accessibility name without one.
+ * M3 has no stepper: two icon buttons that repeat while held, around a field
+ * that rewrites itself only when a typed number lands outside the range, so
+ * typing is never interrupted. The IME's Done key is the only way out of a
+ * numeric keyboard.
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/textfield/
  */
 export function NumberInput({

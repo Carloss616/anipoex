@@ -11,12 +11,15 @@ export interface Language {
 export interface Extension extends Source {
   language: Language;
   version: string;
-  /** The registry's newest build; differs from `version` when an update is pending. */
+  /** The registry's newest build; not `version` while an update is pending. */
   latestVersion?: string;
   nsfw?: boolean;
-  /** Where to download the newest build; absent when no repo with the installed key lists it. */
+  /**
+   * Where to download the newest build; absent when no repo with the
+   * installed key lists it.
+   */
   apkUrl?: string;
-  /** The key that signs `apkUrl`, or the installed build when no repo matches. */
+  /** The key signing `apkUrl`, or the installed build's if no repo matches. */
   signingKey?: string;
   /** Name of the repo that supplied this entry. */
   repo?: string;

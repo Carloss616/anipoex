@@ -7,7 +7,10 @@ function listActions(props: DialogProps): DialogAction[] {
   ];
 }
 
-/** The dialog's buttons: a `role: "cancel"` action replaces the built-in Cancel, so there's only ever one. */
+/**
+ * The dialog's buttons: a `role: "cancel"` action replaces the built-in
+ * Cancel, so there's only ever one.
+ */
 export function dialogActions(props: DialogProps) {
   const all = listActions(props);
   const cancel: DialogAction = all.find((a) => a.role === "cancel") ?? {

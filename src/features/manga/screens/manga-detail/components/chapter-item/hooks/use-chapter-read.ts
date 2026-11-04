@@ -8,7 +8,7 @@ const FRAGMENT = {
   fragmentName: "MangaTracking",
 } as const;
 
-/** Whether the chapter is read: a progress change re-renders only the rows it flips. */
+/** Whether it's read: a progress change re-renders only the rows it flips. */
 export function useChapterRead(
   entryId: number | null | undefined,
   chapter: number,

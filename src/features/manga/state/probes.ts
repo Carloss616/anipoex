@@ -27,34 +27,43 @@ import { exclusions$, pins$ } from "./exclusions";
 import { readManual } from "./manual-matches";
 import { deselectSource, findManga, source$ } from "./source";
 
-/** Per manga, what each source's last scan found: MSU's `probes` map (gist file `seanime-msu-probes.json`). */
+/**
+ * Per manga, each source's last scan: MSU's `probes` map (gist file
+ * `seanime-msu-probes.json`).
+ */
 export const probes$ = observable<Record<string, ProbeMap>>({});
 
 /** Per manga, the source ids being probed right now; not persisted. */
 export const scanning$ = observable<Record<string, Record<string, true>>>({});
 
-/** Per manga, whether the scan running now is a Scan all (no `only`); not persisted. */
+/** Per manga: the running scan is a Scan all (no `only`). Not persisted. */
 export const scanningAll$ = observable<Record<string, true>>({});
 
-/** Whether a scan of the manga runs right now; read at call time, not at render. */
+/** Whether a scan of the manga runs now; for call time, not render. */
 export const isScanning = (mangaId: number) =>
   Object.keys(scanning$[mediaKey(mangaId)].peek() ?? {}).length > 0;
 
-/** The same, tracked: a `Computed` or `useValue` reading it updates when a scan starts or ends. */
+/** Tracked: a `Computed` or `useValue` updates when a scan starts or ends. */
 export const isScanBusy = (key: string) =>
   Object.keys(scanning$[key].get() ?? {}).length > 0;
 
-/** Per `key/id`, what stops waiting on that source while a scan holds it; not persisted. */
+/** Per `key/id`, what stops waiting on a source a scan holds; not persisted. */
 const stops: Record<string, () => void> = {};
 
-/** Stops waiting on one source of a running scan: the scan goes on without it, which keeps its last probe; the runtime's call runs out on its own. */
+/**
+ * Stops waiting on one source of a running scan: the scan goes on without it,
+ * keeping its last probe; the runtime's call runs out on its own.
+ */
 export const stopScan = (key: string, id: string) => stops[`${key}/${id}`]?.();
 
 syncObservable(probes$, {
   persist: { name: "source-probes", plugin: ObservablePersist },
 });
 
-/** A real read of one source for the manga, which stores the chapters it finds; never rejects, a failure is an error probe. */
+/**
+ * A real read of one source for the manga, storing the chapters it finds.
+ * Never rejects: a failure is an error probe.
+ */
 export async function probeSource(
   mangaId: number,
   source: { id: string; name: string },
@@ -91,7 +100,10 @@ export async function probeSource(
   }
 }
 
-/** A read of the chosen source outside a scan (its chapters, or no match) is a probe too, so the source sheet shows what it found. */
+/**
+ * A read of the chosen source outside a scan (its chapters, or no match) is a
+ * probe too, so the source sheet shows what it found.
+ */
 export function recordProbe(
   mangaId: number,
   source: { id: string; name: string },
@@ -100,7 +112,11 @@ export function recordProbe(
   probes$[mediaKey(mangaId)][source.id].set(toProbe(source, read, Date.now()));
 }
 
-/** Probes the manga's sources (all not excluded, or `only`) and writes each probe as it lands; rescans of different sources run together, a Scan all beside them. */
+/**
+ * Probes the manga's sources (all not excluded, or `only`), writing each probe
+ * as it lands. Rescans of different sources run together, a Scan all beside
+ * them.
+ */
 export async function scanSources(args: {
   mangaId: number;
   sources: Source[];
@@ -159,7 +175,7 @@ export async function scanSources(args: {
     const pinnedNow = pins$[key].peek() ?? {};
     const progress = read();
     const picked = readMatch(source$[mangaId].peek())?.sourceId ?? keep;
-    // A source still excluded by itself is checked again; any other is judged anew.
+    // A source still excluded by itself is rechecked; any other judged anew.
     const next =
       isLive(excludedNow[id]) && !isLive(pinnedNow[id])
         ? recheckExclusions(

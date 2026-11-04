@@ -19,7 +19,7 @@ const SIDE = 40;
 
 export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
   const border = useThemeColor("border");
-  // Each theme family sets its own rounding, so `rounded-lg` is read, not fixed.
+  // Each theme family sets its own rounding: read `rounded-lg`, don't fix it.
   const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
   // The url that loaded, so a recycled row with another source starts over.
   const [loadedUrl, setLoadedUrl] = useState<string>();
@@ -31,7 +31,8 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
       modifiers={[
         size(SIDE, SIDE),
         clip(Shapes.RoundedCorner(radius)),
-        // Compose's `border()` takes no shape: the border is the color showing through a hairline gap, dropped once loaded.
+        // Compose's `border()` takes no shape: the border is the color showing
+        // through a hairline gap, dropped once loaded.
         ...(loaded
           ? []
           : [

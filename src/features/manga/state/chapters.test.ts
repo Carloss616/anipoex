@@ -20,7 +20,7 @@ mock.module("@/state/observable-persist", () => ({
 const { chapters$, readChapters } = await import("./chapters");
 const { exclusions$ } = await import("./exclusions");
 
-// Manga ids from 100 up: the chapters in memory are shared with the other state tests.
+// Manga ids from 100 up: chapters in memory are shared with other state tests.
 const page = { manga: { url: "/1", title: "One" }, chapters: [] };
 memoryStorage.entries["101/a"] = page;
 memoryStorage.entries["104/a"] = page;

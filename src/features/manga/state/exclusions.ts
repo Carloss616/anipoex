@@ -9,10 +9,16 @@ import {
 } from "../utils/msu";
 import { toggleExcluded } from "../utils/source-exclusions";
 
-/** Per manga, the sources dropped from its list: the same layout as MSU's `exclusions` map (gist file `seanime-msu-exclusions.json`). */
+/**
+ * Per manga, the sources dropped from its list: MSU's `exclusions` layout
+ * (gist file `seanime-msu-exclusions.json`).
+ */
 export const exclusions$ = observable<ExcludedMap>({});
 
-/** Per manga, the sources whose exclusion the user decided by hand: MSU's `pins` map (gist file `seanime-msu-pins.json`). */
+/**
+ * Per manga, the sources whose exclusion the user decided by hand: MSU's
+ * `pins` map (gist file `seanime-msu-pins.json`).
+ */
 export const pins$ = observable<PinnedMap>({});
 
 syncObservable(exclusions$, {
@@ -22,7 +28,7 @@ syncObservable(pins$, {
   persist: { name: "source-pins", plugin: ObservablePersist },
 });
 
-/** Excludes or includes a source of the manga by hand, which pins it so a scan never undoes it. */
+/** Excludes or includes a source by hand; the pin stops a scan undoing it. */
 export function decideByHand(
   mangaId: number,
   sourceId: string,

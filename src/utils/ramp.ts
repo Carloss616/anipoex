@@ -21,7 +21,7 @@ export interface RampOptions {
    * @default easeIn
    */
   ease?: (p: number) => number;
-  /** Start at `peak` and clear downward, for a ramp that floors the top of a frame. */
+  /** Start at `peak` and clear downward, to floor the top of a frame. */
   flip?: boolean;
 }
 
@@ -50,7 +50,7 @@ export function ramp(
 
   // `locations` stays ascending either way — LinearGradient requires it — so a
   // flip reverses which end carries the alpha, not the direction of travel.
-  // A non-empty tuple for LinearGradient, mutable for SwiftUI's foregroundStyle.
+  // Non-empty tuples for LinearGradient, mutable for SwiftUI's foregroundStyle.
   return {
     colors: flip ? colors.toReversed() : colors,
     locations,

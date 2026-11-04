@@ -15,7 +15,7 @@ export const SEMANTIC_COLOR = {
     token: { fill: "secondary", label: "secondary-foreground" },
     className: { fill: "bg-secondary", label: "text-secondary-foreground" },
   },
-  // `-solid-foreground`; plain `-foreground` is for bg-*-subtle and bg-success-soft.
+  // `-solid-foreground`: plain `-foreground` is for `-subtle`/`-soft` fills.
   success: {
     token: { fill: "success", label: "success-solid-foreground" },
     className: { fill: "bg-success", label: "text-success-solid-foreground" },
@@ -43,5 +43,4 @@ export const SEMANTIC_COLOR = {
   }
 >;
 
-/** The semantic color names the app's own components accept. */
 export type SemanticColor = keyof typeof SEMANTIC_COLOR;

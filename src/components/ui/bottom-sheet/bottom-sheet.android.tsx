@@ -25,8 +25,7 @@ import { dismissFocus } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import type { BottomSheetProps } from "./bottom-sheet";
 
-// M3 `ModalBottomSheet` only has partial/expanded states.
-// Only allow the partial state when the consumer requested a partial-friendly snap point.
+// M3 has only partial/expanded: allow partial for a partial snap point only.
 function shouldSkipPartiallyExpanded(
   snapPoints: SnapPoint[] | undefined,
 ): boolean {
@@ -39,8 +38,7 @@ function shouldSkipPartiallyExpanded(
   );
 }
 
-// M3 sizes content to intrinsic height.
-// Apply `fillMaxHeight` so `'full'` actually fills the viewport instead of stopping at content height.
+// M3 sizes to content; `fillMaxHeight` makes `'full'` fill the viewport.
 function shouldFillMaxHeight(snapPoints: SnapPoint[] | undefined): boolean {
   if (!snapPoints || snapPoints.length === 0) return false;
   return snapPoints.some(
@@ -75,7 +73,8 @@ function BottomSheetRoot({
     setLockCount((count) => count + delta);
   }, []);
 
-  // M3 leaves a half-open sheet under the keyboard; any field that opens it is in this modal sheet.
+  // M3 leaves a half-open sheet under the keyboard; being modal, the field
+  // that raised it is in this sheet.
   useEffect(() => {
     const sub = Keyboard.addListener("keyboardDidShow", () => {
       void sheetRef.current?.expand();
@@ -87,7 +86,7 @@ function BottomSheetRoot({
     if (expanded) void sheetRef.current?.expand();
   }, [expanded]);
 
-  // A locked sheet can't be dragged open, so a half-open one would hide the rest of its content.
+  // A locked sheet can't be dragged open: half-open would hide its content.
   useEffect(() => {
     if (lockCount > 0) void sheetRef.current?.expand();
   }, [lockCount]);
@@ -133,8 +132,8 @@ function BottomSheetRoot({
             // that fights M3's own resettle. In landscape, views weight their
             // scroll area, so they fill the sheet too.
             // shortcut: landscape stands in for "the content fills the expanded
-            // sheet", which a tall portrait view would miss. Key off that instead
-            // once @expo/ui exposes the sheet's expanded state, or with a local
+            // sheet", which a tall portrait view misses. Key off that once
+            // @expo/ui exposes the sheet's expanded state, or with a local
             // Compose modifier that skips the animation at max height.
             ...(shouldFillMaxHeight(snapPoints)
               ? [fillMaxHeight()]

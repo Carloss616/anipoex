@@ -10,7 +10,7 @@ import type { SourceActions } from "../../hooks/use-source-actions";
 import { type RailItem, railItems, railNotice } from "../../utils/rail-items";
 import { cardMenu } from "../utils/card-menu";
 
-/** One source's rail: its results with the current match first, and each card's menu. */
+/** A source's rail: its results, current match first, and each card's menu. */
 export function useRail(
   mangaKey: string,
   mangaId: number,
@@ -19,11 +19,11 @@ export function useRail(
 ) {
   const rail = useValue(titleSearch$[mangaKey][sourceId]);
   const manual = useValue(manualMatches$[mangaKey][sourceId]);
-  // The page the source matched before: what its stored chapters were read from.
+  // The page the source matched before, which its stored chapters came from.
   const stored = useValue(() =>
     chapters$[chaptersKey(mangaId, sourceId)].manga.get(),
   );
-  // A probe in flight would land over a match change, so the match actions wait for it.
+  // A probe in flight would land over a match change: match actions wait.
   const scanning = useValue(() => scanning$[mangaKey][sourceId].get() === true);
   const current = manual ?? stored;
   const items = rail ? railItems(current, rail.mangas) : [];

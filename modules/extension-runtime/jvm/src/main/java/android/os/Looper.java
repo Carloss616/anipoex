@@ -30,7 +30,7 @@ public final class Looper {
         return MAIN;
     }
 
-    /** This thread's looper, null without one, as on Android before prepare(). */
+    /** This thread's looper, null without one, as Android before prepare(). */
     public static Looper myLooper() {
         return CURRENT.get();
     }

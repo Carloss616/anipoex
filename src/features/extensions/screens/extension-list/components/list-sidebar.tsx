@@ -9,7 +9,7 @@ import {
   FILTER_TITLES,
 } from "@/features/extensions";
 
-/** Same column as the manga `ListSidebar`: the filters as tabs with their totals. */
+/** As the manga `ListSidebar`: the filters as tabs with their totals. */
 export function ListSidebar({
   filter,
   counts,

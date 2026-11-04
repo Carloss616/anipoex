@@ -2,7 +2,7 @@ import type { UseBreakpointResult } from "panelui-native/hooks/use-breakpoint";
 
 type Breakpoint = UseBreakpointResult["current"];
 
-/** Default columns per breakpoint; the user's density moves it one either way. */
+/** Default columns per breakpoint; density moves it one either way. */
 export const COLUMNS = {
   base: 3,
   sm: 4,
@@ -18,8 +18,8 @@ export type Density = (typeof DENSITIES)[number];
 export const DEFAULT_DENSITY: Density = 1;
 
 /**
- * Persisted as a step, not a count, so a rotation or a resized window keeps the
- * choice relative. Anything off the scale (an older build, a hand edit) is the default.
+ * Persisted as a step, not a count, so a rotation or resize keeps the choice
+ * relative. Off the scale (an older build, a hand edit) is the default.
  */
 export function columnsFor(breakpoint: Breakpoint, density: unknown) {
   const step = DENSITIES.find((d) => d === density) ?? DEFAULT_DENSITY;

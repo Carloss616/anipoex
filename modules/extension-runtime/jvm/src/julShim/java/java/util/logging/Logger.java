@@ -1,6 +1,9 @@
 package java.util.logging;
 
-/** Prints WARNING and up to stderr, which the host keeps off the protocol; finer levels report not loggable. */
+/**
+ * Prints WARNING and up to stderr, which the host keeps off the protocol;
+ * finer levels report not loggable.
+ */
 public class Logger {
     private final String name;
     private volatile Level level = Level.WARNING;

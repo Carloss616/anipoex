@@ -54,11 +54,10 @@ export interface ZoomViewProps {
   /** The list inside, for how far it scrolls. */
   listRef: RefObject<LegendListRef | null>;
   children: (list: {
-    /** The list's `refScrollView`: the zoom reads and moves its scroll on the UI thread. */
+    /** The list's `refScrollView`, scrolled by the zoom on the UI thread. */
     refScrollView: AnimatedRef<ScrollView>;
-    /** The list's `renderScrollComponent`. */
     renderScrollComponent: typeof renderScrollComponent;
-    /** Space under the list's footer, so its end reaches the screen's bottom at this zoom. */
+    /** Room under the footer so the zoomed list ends at the screen's bottom. */
     bottomSpace: number;
   }) => ReactNode;
 }
@@ -136,7 +135,7 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
       }),
     );
   };
-  // Only the space under the footer waits for the pinch to end: it moves nothing above it.
+  // Only the footer space waits for the pinch's end: it moves nothing above it.
   const end = () => {
     "worklet";
     scheduleOnRN(setBottomSpace, size.get().height * (1 - 1 / scale.get()));
@@ -157,7 +156,8 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
       start(event.focalX, event.focalY);
     },
     onUpdate: (event) => {
-      // Android sends one more update as a finger lifts, its focal point on the finger left.
+      // Android sends one more update as a finger lifts, its focal point on
+      // the finger left.
       if (fingers.get() < 2) return;
       update(event.scale, event.focalX, event.focalY);
     },
@@ -198,7 +198,7 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
     onScroll: (dx, dy) => {
       if (scale.get() <= 1) return false;
       translateX.set(clamp(translateX.get() - dx, minX(), 0));
-      // Unscaled, the list would move as many screen pixels as the zoom times the fingers.
+      // Unscaled, the list would move zoom times as far as the fingers.
       scrollList(
         scrollRef,
         clamp(scroll.get() + dy / scale.get(), 0, maxScroll.get()),
@@ -218,7 +218,7 @@ export function ZoomView({ listRef, children }: ZoomViewProps) {
         style={{ flex: 1, overflow: "hidden" }}
         onLayout={({ nativeEvent }) => {
           size.set(nativeEvent.layout);
-          // A narrower view (a rotation, a resized window) keeps the zoom over the screen.
+          // A narrower view (rotation, resize) keeps the zoom on screen.
           translateX.set(
             clamp(
               translateX.get(),

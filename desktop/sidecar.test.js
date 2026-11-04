@@ -4,7 +4,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { startSidecar } from "./sidecar.js";
 
-// Speaks the server's protocol: `wait` replies after args.ms, `pid` names the process, `noise` prints a non-JSON line first, `crash` exits with code 1, `ask` asks the host and replies with its answer.
+// Speaks the server's protocol: `wait` replies after args.ms, `pid` names the
+// process, `noise` prints a non-JSON line first, `crash` exits with code 1,
+// `ask` asks the host and replies with its answer.
 const FAKE_SERVER = `
 const readline = require("node:readline");
 const asked = new Map();

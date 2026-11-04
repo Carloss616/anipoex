@@ -8,7 +8,7 @@ export const CONTINUE_LABEL: Record<ContinueKind, string> = {
   pick: "Pick a source",
 };
 
-/** `c.N` in our own labels (rows keep the source's title); none when unnumbered. */
+/** `c.N` in our labels (rows keep the source's title); none when unnumbered. */
 export const chapterBadge = (number: number | undefined) =>
   number !== undefined && number >= 0 ? `c.${number}` : undefined;
 

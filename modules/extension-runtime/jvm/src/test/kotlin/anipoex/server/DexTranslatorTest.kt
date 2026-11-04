@@ -54,8 +54,9 @@ class DexTranslatorTest {
         assertEquals(child, child.getConstructor(Int::class.java).newInstance(3).javaClass)
     }
 
-    // `Base.make()` builds a Sub with Base's own constructor, then sets a field only Sub has: the call's owner is the class
-    // whose code it's in, which must still be repaired (only a constructor's `this(...)` is left as is).
+    // `Base.make()` builds a Sub with Base's own constructor, then sets a field
+    // only Sub has: the call's owner is the class whose code it's in, which
+    // must still be repaired (only a constructor's `this(...)` is left as is).
     @Test
     fun subclassBuiltInsideItsParent(@TempDir dir: Path) {
         val baseInit = Method("Lfx/Base;", "<init>", emptyArray(), "V")
@@ -93,14 +94,15 @@ class DexTranslatorTest {
         assertEquals(-1, made.javaClass.getField("n").get(made))
     }
 
-    // Documents why the repair exists: dex2jar alone turns `new Holder` into `new Object`.
+    // Why the repair exists: dex2jar alone makes `new Holder` `new Object`.
     @Test
     fun withoutRepairFails(@TempDir dir: Path) {
         val loader = load(holderDex(), dir)
         assertFailsWith<VerifyError> { Class.forName("fx.Holder", true, loader) }
     }
 
-    // dex2jar writes a static call to an interface's method as a class's: the JVM refuses it until it's marked an interface call.
+    // dex2jar writes a static call to an interface's method as a class's: the
+    // JVM refuses it until it's marked an interface call.
     @Test
     fun staticCallOnInterface(@TempDir dir: Path) {
         val api = ClassWriter(0).apply {
@@ -115,7 +117,8 @@ class DexTranslatorTest {
             visitEnd()
         }.toByteArray()
         val caller = ClassWriter(0).apply {
-            // As dex2jar writes it: version 50, where the JVM accepts no static interface call.
+            // As dex2jar writes it: version 50, where the JVM accepts no static
+            // interface call.
             visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, "fx/Caller", null, "java/lang/Object", null)
             visitMethod(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, "call", "()I", null, null).apply {
                 visitCode()
@@ -150,7 +153,8 @@ class DexTranslatorTest {
             val end = Label()
             visitJumpInsn(Opcodes.GOTO, end)
             visitLabel(end)
-            // What dex2jar 2.4.38 writes when it can't load a class to find a common superclass.
+            // What dex2jar 2.4.38 writes when it can't load a class to find a
+            // common superclass.
             visitFrame(Opcodes.F_FULL, 2, arrayOf("fx/Frame", "java/util/Object"), 0, emptyArray())
             visitInsn(Opcodes.RETURN)
             visitMaxs(0, 0)
@@ -168,7 +172,8 @@ class DexTranslatorTest {
         assertEquals(frame, frame.getConstructor().newInstance().javaClass)
     }
 
-    // `fx.Holder.INSTANCE = new Holder()` as R8 leaves it: the trivial constructor inlined into Object.<init>.
+    // `fx.Holder.INSTANCE = new Holder()` as R8 leaves it: the trivial
+    // constructor inlined into Object.<init>.
     private fun holderDex() = DexFileNode().apply {
         val instance = Field("Lfx/Holder;", "INSTANCE", "Lfx/Holder;")
         clzs.add(DexClassNode(ACC_PUBLIC, "Lfx/Holder;", OBJECT, null).apply {

@@ -5,7 +5,7 @@ import { LARGE_TITLE_HEIGHT } from "@/components/layout/header/constants";
 import { useThemeM3Colors } from "@/hooks/use-theme";
 import { collapses } from "./utils";
 
-/** What collapsing gives back to the scroller. Material's app bar never resizes. */
+/** Collapsing gives this back to the scroller; Material's bar never resizes. */
 const GIVES_BACK = Platform.OS === "web" ? LARGE_TITLE_HEIGHT : 0;
 
 /** Spread onto the screen's scroller — the one the header should react to. */
@@ -37,7 +37,7 @@ export function useHeaderScroll(): HeaderScrollProps {
 }
 
 /**
- * The header's scrolled state, for scrollers with no `onScroll` (Compose lists).
+ * Header scrolled state, for scrollers with no `onScroll` (Compose lists).
  * Stable while the theme is: the M3 palette is cached per seed.
  */
 export function useSetHeaderScrolled() {

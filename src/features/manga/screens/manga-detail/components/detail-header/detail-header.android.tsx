@@ -33,7 +33,7 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           accessibilityLabel={manga.title?.userPreferred ?? undefined}
           testID="manga-detail-cover"
           style={{ width: 144 }}
-          // M3 Expressive's large-increased shape, as the chapter list's outer corners.
+          // M3 Expressive large-increased, as the chapter list's outer corners.
           radius={20}
         />
         <Meta manga={manga} />

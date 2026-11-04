@@ -33,7 +33,7 @@ function languageOf(sources: { lang: string }[]): Language {
 
 type Listing = { repo: Repo; entry: RepoEntry };
 
-/** One item per package: the installed build, matched with the repo that signed it. */
+/** One item per package: the installed build, matched with its signing repo. */
 export function toExtensions(
   repos: { repo: Repo; entries: RepoEntry[] }[],
   installed: InstalledExtension[],

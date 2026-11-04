@@ -4,9 +4,10 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-/// android.graphics' renderer (`renderImage`, see ImageEngine.kt): ImageIO decodes, Core Graphics draws the bitmaps in
-/// order, each from the ones before it, and the last is encoded. ImageIO can't write WebP here, so that comes out as JPEG.
-/// Text is Helvetica, the font the runtime measured its lines in.
+/// android.graphics' renderer (`renderImage`, see ImageEngine.kt): ImageIO
+/// decodes, Core Graphics draws the bitmaps in order, each from the ones
+/// before it, and the last is encoded. ImageIO can't write WebP here, so
+/// that comes out as JPEG. Text is Helvetica, as the runtime measured it.
 enum GraphicsHost {
   static func answer(_ argsJson: String) -> String {
     do {
@@ -39,7 +40,7 @@ enum GraphicsHost {
                                     bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
         throw GraphicsError("Could not make a \(width)×\(height) bitmap")
       }
-      // Android's y axis points down; a bitmap drawn without a paint isn't filtered.
+      // Android's y axis points down; a paintless bitmap draw isn't filtered.
       context.translateBy(x: 0, y: CGFloat(height))
       context.scaleBy(x: 1, y: -1)
       context.interpolationQuality = .none
@@ -78,7 +79,8 @@ enum GraphicsHost {
     return data.base64EncodedString()
   }
 
-  /// Draws `src` of `image` (top-left origin, as Android's) into `dst` of a context whose y axis points down.
+  /// Draws `src` of `image` (top-left origin, as Android's) into `dst` of a
+  /// context whose y axis points down.
   private static func draw(_ image: CGImage, from src: CGRect, to dst: CGRect, in context: CGContext) {
     let whole = CGRect(x: 0, y: 0, width: image.width, height: image.height)
     guard let part = src == whole ? image : image.cropping(to: src) else { return }
@@ -90,7 +92,8 @@ enum GraphicsHost {
     context.restoreGState()
   }
 
-  /// One line at baseline y, aligned on x as Android's Paint.Align and squeezed to `maxWidth` when it's wider.
+  /// One line at baseline y, aligned on x as Android's Paint.Align, squeezed
+  /// to `maxWidth` when it's wider.
   private static func drawText(_ text: String, _ op: [String: Any], in context: CGContext) throws {
     guard let x = op["x"] as? Double, let y = op["y"] as? Double, let m = op["matrix"] as? [Double], m.count == 6 else {
       throw GraphicsError("A text draw is missing its position")
@@ -114,7 +117,7 @@ enum GraphicsHost {
     context.setLineWidth(stroke > 0 ? stroke : 1)
     let mode: CGTextDrawingMode = switch op["style"] as? String { case "stroke": .stroke case "fill_and_stroke": .fillStroke default: .fill }
     context.setTextDrawingMode(mode)
-    // The context's y axis points down: flip the glyphs back up on their baseline.
+    // The context's y axis points down: flip glyphs back up on their baseline.
     context.textMatrix = CGAffineTransform(scaleX: squeeze, y: -1)
     context.textPosition = CGPoint(x: left, y: y)
     CTLineDraw(line, context)

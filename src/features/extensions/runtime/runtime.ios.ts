@@ -6,7 +6,7 @@ const native = requireNativeModule<{
   call(method: string, argsJson: string): Promise<string>;
 }>("ExtensionRuntime");
 
-/** iOS runs the extensions' JVM core inside the app, answering the same envelope as the desktop bridge. */
+/** iOS runs the JVM core in-app, answering the desktop bridge's envelope. */
 export const isRuntimeAvailable: boolean = true;
 
 export const runtime: RuntimeApi = bridgeRuntime((method, args) =>

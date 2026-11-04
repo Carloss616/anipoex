@@ -10,7 +10,7 @@ export const STATUS_COLOR: Record<MediaStatus, SemanticColor> = {
   HIATUS: "warning",
 };
 
-/** A word doesn't fit a narrow cover; the card's spoken label keeps the name. */
+/** A word doesn't fit a narrow cover; the spoken label keeps the name. */
 export const STATUS_ICON: Record<MediaStatus, IconName> = {
   FINISHED: Icons.check,
   RELEASING: Icons.play,

@@ -3,7 +3,7 @@ import { Button } from "panelui-web/button";
 import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 import { theme$ } from "@/state/theme";
 
-/** Click flips light/dark in the family; a context click hands it to the system. */
+/** Click flips light/dark in the family; right-click hands it to the system. */
 export function ThemeToggle() {
   const preference = useValue(theme$.preference);
   const isLight = useValue(theme$.mode) === "light";

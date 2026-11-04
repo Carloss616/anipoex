@@ -36,7 +36,7 @@ const scheme$ = observable(
 
 export const theme$ = observable({
   family: THEME_FAMILIES[0].id as ThemeFamilyId,
-  /** What the user picked. Not what is painted — `system` resolves per family. */
+  /** The user's pick, not what is painted: `system` resolves per family. */
   preference: "system" as ThemePreference,
   /** The mode actually being painted, with `system` resolved. */
   mode: (): ThemeMode => {

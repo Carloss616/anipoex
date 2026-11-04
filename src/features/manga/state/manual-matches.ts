@@ -8,11 +8,11 @@ export interface ManualMatch {
   url: string;
   title: string;
   thumbnailUrl: string | null;
-  /** The source's data for the manga; absent on matches set before it was kept. */
+  /** The source's data for the manga; absent on older matches. */
   memo?: string | null;
 }
 
-/** Per manga, then per source, the page set by hand; read before any title search. */
+/** Per manga and source, the page set by hand; read before a title search. */
 export const manualMatches$ = observable<
   Record<string, Record<string, ManualMatch>>
 >({});

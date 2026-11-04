@@ -86,9 +86,8 @@ export function setProgress(
   const clamped = Math.max(0, total ? Math.min(progress, total) : progress);
   const next: TrackingForm = { ...form, progress: clamped };
 
-  // Today is an honest start date only at the very first chapter. Further in,
-  // the entry was started on some day the user no longer knows — stamping it
-  // would invent one, so an empty start date stays empty.
+  // Today is an honest start date only at the first chapter; further in, it
+  // would invent a day the user no longer knows.
   if (form.progress === 0 && clamped > 0) next.startedAt ??= today;
 
   // Only the two "in progress" statuses roll over into Completed — a dropped

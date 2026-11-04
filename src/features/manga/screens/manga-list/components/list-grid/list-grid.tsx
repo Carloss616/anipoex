@@ -41,11 +41,13 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
       itemLayoutAnimation={LinearTransition}
       data={manga}
       numColumns={numColumns}
-      // Recycled cells only redraw when this changes; the title mode lives in `renderItem`.
+      // Recycled cells only redraw when this changes; the title mode lives in
+      // `renderItem`.
       extraData={titlePosition}
       keyExtractor={(item) => String(item.id)}
       columnWrapperStyle={{ gap: titlePosition === "below" ? 16 : 8 }}
-      // A hovered cell drops its paint containment and rises, so the card's glow and lean aren't clipped.
+      // A hovered cell drops its paint containment and rises, so the card's
+      // glow and lean aren't clipped.
       contentContainerClassName={cn(
         "gutters px-gx pb-gb md:pr-gx md:pl-4",
         "[&_[style*=contain]:hover]:z-1 [&_[style*=contain]:hover]:contain-[layout_style]!",

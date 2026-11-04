@@ -8,14 +8,17 @@ import java.security.MessageDigest
 import java.util.Base64
 import java.util.zip.ZipFile
 
-/** What the host needs from an extension APK, read without Android's PackageManager. */
+/** What the host needs from an APK, read without Android's PackageManager. */
 class ApkInfo(val packageName: String, val versionName: String?, val label: String?, val metaData: Map<String, String>, val signers: List<String>)
 
-/** Verifies the APK's signature (v1-v3) and reads its manifest; throws when the signature doesn't verify. */
+/**
+ * Verifies the APK's signature (v1-v3) and reads its manifest; throws when
+ * the signature doesn't verify.
+ */
 fun readApk(apk: File): ApkInfo {
     val result = ApkVerifier.Builder(apk).build().verify()
     check(result.isVerified) { "${apk.name}'s signature doesn't verify: ${result.allErrors.joinToString()}" }
-    // Same digest as Android's host: SHA-256 of each signing certificate (DER), in hex.
+    // As Android's host: SHA-256 of each signing certificate (DER), in hex.
     val signers = result.signerCertificates.map { cert ->
         MessageDigest.getInstance("SHA-256").digest(cert.encoded).joinToString("") { "%02x".format(it) }
     }
@@ -37,7 +40,8 @@ fun readApk(apk: File): ApkInfo {
                     packageName = attributes["package"]
                     versionName = attributes["versionName"]
                 }
-                // A label that is a resource reference stays null: there's no resources table to resolve it.
+                // A label that is a resource reference stays null: there's no
+                // resources table to resolve it.
                 parser.name == "application" && parser.depth == 2 -> label = attributes["label"]
                 parser.name == "meta-data" && parser.depth == 3 -> {
                     val name = attributes["name"]
@@ -51,7 +55,8 @@ fun readApk(apk: File): ApkInfo {
     return ApkInfo(requireNotNull(packageName) { "${apk.name} has no package name" }, versionName, label, metaData, signers)
 }
 
-// Null for value types the parser doesn't decode (floats, references); callers fall back like Mihon does.
+// Null for value types the parser doesn't decode (floats, references);
+// callers fall back like Mihon does.
 private fun attributeValue(parser: AndroidBinXmlParser, index: Int): String? = when (parser.getAttributeValueType(index)) {
     AndroidBinXmlParser.VALUE_TYPE_STRING -> parser.getAttributeStringValue(index)
     AndroidBinXmlParser.VALUE_TYPE_INT -> parser.getAttributeIntValue(index).toString()
@@ -59,7 +64,10 @@ private fun attributeValue(parser: AndroidBinXmlParser, index: Int): String? = w
     else -> null
 }
 
-/** The largest PNG under res/ as a data URL, null when there's none: extension APKs carry only their icon, under obfuscated paths. */
+/**
+ * The largest PNG under res/ as a data URL, null when there's none:
+ * extension APKs carry only their icon, under obfuscated paths.
+ */
 fun apkIcon(apk: File): String? = ZipFile(apk).use { zip ->
     val entry = zip.entries().asSequence().filter { it.name.startsWith("res/") && it.name.endsWith(".png") }.maxByOrNull { it.size }
     entry?.let { "data:image/png;base64," + Base64.getEncoder().encodeToString(zip.getInputStream(it).use { input -> input.readBytes() }) }

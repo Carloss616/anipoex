@@ -11,9 +11,7 @@ import type { ProgressProps } from "./progress";
 import { fractionOf } from "./utils";
 
 /**
- * Android Progress: same props as [the web one](./progress.tsx), rendered as
- * M3's `LinearWavyProgressIndicator`. `indicatorClassName` is the one prop that
- * cannot carry over — the platform draws the bar.
+ * `indicatorClassName` doesn't carry over: the platform draws the bar.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/progress/
  */

@@ -19,7 +19,7 @@ export const MANGA_STATUSES: Record<MediaListStatus, string> = {
   [MediaListStatus.Repeating]: "Rereading",
 };
 
-/** `Object.entries` widens the key to `string`; the record is exhaustive by type. */
+/** `Object.entries` widens the key to `string`; the record is exhaustive. */
 export const MANGA_STATUS_ENTRIES = Object.entries(MANGA_STATUSES) as [
   MediaListStatus,
   string,

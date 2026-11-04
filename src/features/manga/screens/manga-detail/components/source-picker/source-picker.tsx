@@ -9,7 +9,10 @@ export type SourcePickerManga = Pick<MangaDetail, "id" | "title" | "synonyms">;
 export interface SourcePickerProps {
   manga: SourcePickerManga;
   entryId: number | null | undefined;
-  /** Whether the source sheet is open; the sheet renders beside the chapter list (`SourceSheet`). */
+  /**
+   * Whether the source sheet is open; the sheet renders beside the chapter
+   * list (`SourceSheet`).
+   */
   open$: Observable<boolean>;
 }
 

@@ -18,7 +18,7 @@ export interface ContinueAction {
   chapter?: Chapter;
 }
 
-/** The action, null while there is nothing to open (loading, no match, all read). */
+/** The action; null with nothing to open (loading, no match, all read). */
 export type Continue$ = Observable<ContinueAction | null>;
 
 /** Called from a leaf, so a progress change re-renders only it. */

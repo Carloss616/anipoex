@@ -44,7 +44,7 @@ const errorLink = new ErrorLink(({ error, operation }) => {
   const { operationName, operationType, query, variables } = operation;
 
   toast.error(typeof message === "string" ? message : error.message, {
-    // No Retry for mutations: re-sending from here would skip the caller's `update`.
+    // No Retry for mutations: re-sending here would skip the caller's `update`.
     ...(operationType === OperationTypeNode.QUERY && {
       action: {
         label: "Retry",
@@ -55,7 +55,10 @@ const errorLink = new ErrorLink(({ error, operation }) => {
   });
 });
 
-/** Refetches the watchers of a failed query, or re-runs it when nothing watches it (a one-off `client.query`). */
+/**
+ * Refetches a failed query's watchers, or re-runs it when nothing watches it
+ * (a one-off `client.query`).
+ */
 function retryQuery({
   operationName,
   query,
@@ -80,12 +83,12 @@ function retryQuery({
       fetchPolicy: "network-only",
       context: { errorMessage: message },
     })
-    // A second failure toasts again through this link; the rejection has no one to catch it.
+    // A second failure toasts through this link; the rejection has no catcher.
     .catch(() => {});
 }
 
 export const client = new ApolloClient({
-  // Error sits upstream of retry, so a failure toasts once, not once per attempt.
+  // Error before retry, so a failure toasts once, not once per attempt.
   link: ApolloLink.from([
     authLink,
     errorLink,
@@ -96,7 +99,7 @@ export const client = new ApolloClient({
   devtools: { enabled: __DEV__, name: "anipoex" },
 });
 
-// MMKV's localStorage shim throws in web's Node render, where nothing persists anyway.
+// MMKV's localStorage shim throws in web's Node render, which persists nothing.
 const hasStorage = typeof window !== "undefined";
 
 const persistor = new CachePersistor({
@@ -116,7 +119,7 @@ const persistor = new CachePersistor({
   debounce: 2_000,
 });
 
-/** Started at import so the read is already in flight by the time the tree mounts. */
+/** Started at import, so the read is in flight before the tree mounts. */
 export const cacheRestored = persistor.restore().catch((error) => {
   // Never rejects: an unreadable snapshot costs a cold cache, not the boot.
   console.warn(
@@ -125,7 +128,7 @@ export const cacheRestored = persistor.restore().catch((error) => {
   );
 });
 
-/** Drops both the live cache and what's on disk — sign-out has to forget everything. */
+/** Drops the live cache and the disk copy: sign-out must forget everything. */
 export async function clearCache() {
   await persistor.purge();
   await client.clearStore();

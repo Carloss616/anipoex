@@ -1,6 +1,7 @@
 import { Icon } from "./icon";
 
-// Symbols typed for one native API (`SFSymbol` records, `NativeTabs` `sf`/`md`) stay in their platform file.
+// Symbols typed for one native API (`SFSymbol` records, `NativeTabs`
+// `sf`/`md`) stay in their platform file.
 export const Icons = {
   // Actions
   add: Icon.select({

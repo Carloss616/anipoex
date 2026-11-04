@@ -1,6 +1,6 @@
 package android.content;
 
-/** Android's DialogInterface and its listeners; no dialog ever shows here, so none fires. */
+/** No dialog ever shows here, so none of these listeners fires. */
 public interface DialogInterface {
     void cancel();
 

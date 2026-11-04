@@ -28,7 +28,8 @@ public class Handler {
     }
 
     public final boolean postDelayed(Runnable r, long delayMillis) {
-        // Locked, so a post that runs at once can't remove its entry before it's added and leak it.
+        // Locked, so a post that runs at once can't remove its entry before
+        // it's added, leaking it.
         synchronized (pending) {
             try {
                 pending.put(r, looper.executor.schedule(() -> {
@@ -45,7 +46,8 @@ public class Handler {
         return true;
     }
 
-    // shortcut: cancels only the latest post of r, enough for the extensions that call it.
+    // shortcut: cancels only the latest post of r, enough for the extensions
+    // that call it.
     public final void removeCallbacks(Runnable r) {
         Future<?> future;
         synchronized (pending) {

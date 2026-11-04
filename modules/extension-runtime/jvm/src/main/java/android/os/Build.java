@@ -1,6 +1,9 @@
 package android.os;
 
-/** Device info extensions put in user agents and version checks; reports a current Android so modern paths run. */
+/**
+ * Device info extensions put in user agents and version checks: a current
+ * Android, so modern paths run.
+ */
 public class Build {
     public static final String MANUFACTURER = "Google";
     public static final String BRAND = "google";

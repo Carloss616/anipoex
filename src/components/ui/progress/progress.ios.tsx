@@ -15,9 +15,7 @@ import { fractionOf } from "./utils";
 const TRACK = 4;
 
 /**
- * iOS Progress: same props as [the web one](./progress.tsx), rendered as a
- * linear SwiftUI `ProgressView`. `indicatorClassName` is the one prop that
- * cannot carry over — the platform draws the bar.
+ * `indicatorClassName` doesn't carry over: the platform draws the bar.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/progressview/
  */

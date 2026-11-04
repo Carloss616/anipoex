@@ -1,4 +1,4 @@
-/** The line under the manga's name: how far the scan has got, or what it found. */
+/** The line under the manga's name: the scan's progress, or what it found. */
 export function scanStatus({
   done,
   total,

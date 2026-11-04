@@ -48,7 +48,8 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
             await Promise.all([
               refetch(),
               client.refetchQueries({ include: ["MangaListCounts"] }),
-              // The error link already toasts it; a rejection here would just be unhandled.
+              // The error link toasts it; this just stops an unhandled
+              // rejection.
             ]).catch(() => {});
           }),
         ]}
@@ -62,7 +63,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
           <LazyVStack.ForEach
             data={rows}
             keyExtractor={(row) => row.map((m) => m.id).join()}
-            // Two lines of title and the caption sit under the cover when `below`.
+            // `below` puts two title lines and the caption under the cover.
             estimatedItemSize={
               cell * 1.5 + (titlePosition === "below" ? 68 : 0)
             }
@@ -86,7 +87,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
           </LazyVStack.ForEach>
         </LazyVStack>
       </ScrollView>
-      {/* Over the grid, centred in the visible area; a lazy row can't fill it. */}
+      {/* Over the grid, centred in view; a lazy row can't fill it. */}
       {rows.length === 0 && <ListEmpty genre$={genre$} query$={query$} />}
     </ZStack>
   );

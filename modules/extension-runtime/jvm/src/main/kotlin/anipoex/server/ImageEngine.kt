@@ -11,22 +11,27 @@ import java.util.Base64
 import java.util.IdentityHashMap
 
 /**
- * What android.graphics can't do on a java.base runtime: decode, draw and encode. The app does it through [Host]
- * (desktop: a hidden page's canvas; iOS: ImageIO and Core Graphics), in one `renderImage` call per compressed bitmap.
+ * What android.graphics can't do on a java.base runtime: decode, draw and
+ * encode. The app does it through [Host] (desktop: a hidden page's canvas;
+ * iOS: ImageIO and Core Graphics), in one `renderImage` call per
+ * compressed bitmap.
  */
 internal object ImageEngine {
     /**
-     * Sends `{images, bitmaps, type, quality}`: `images` are base64 encoded files; `bitmaps` are drawn in order, each
-     * `{width, height, image?, ops}` with ops `{bitmap, src, dst, matrix}` (an earlier bitmap's index), `{fill}`, or
-     * `{text, x, y, size, bold, color, align, style, strokeWidth, maxWidth?, matrix}` drawn in Helvetica at baseline y.
-     * The last one is encoded as `type` (jpeg, png, webp) and comes back base64 encoded.
+     * Sends `{images, bitmaps, type, quality}`: `images` are base64 encoded
+     * files; `bitmaps` are drawn in order, each `{width, height, image?,
+     * ops}` with ops `{bitmap, src, dst, matrix}` (an earlier bitmap's
+     * index), `{fill}`, or `{text, x, y, size, bold, color, align, style,
+     * strokeWidth, maxWidth?, matrix}` drawn in Helvetica at baseline y. The
+     * last one is encoded as `type` (jpeg, png, webp) and comes back base64
+     * encoded.
      */
     fun render(root: Layer, format: Bitmap.CompressFormat, quality: Int): ByteArray {
         val images = mutableListOf<ByteArray>()
         val imageIndex = IdentityHashMap<ByteArray, Int>()
         val bitmaps = mutableListOf<JsonObject>()
         val bitmapIndex = IdentityHashMap<Layer, Int>()
-        // A source's own sources come first, so each op names a bitmap already drawn.
+        // Its sources are added first, so each op names a bitmap already drawn.
         fun add(layer: Layer): Int = bitmapIndex[layer] ?: run {
             val ops = layer.ops.map { op ->
                 when (op) {
@@ -79,7 +84,10 @@ internal object ImageEngine {
         return Base64.getDecoder().decode(host("renderImage", args).jsonPrimitive.content)
     }
 
-    /** Width and height from a JPEG, PNG, GIF, WebP, BMP or AVIF header; null for anything else. */
+    /**
+     * Width and height from a JPEG, PNG, GIF, WebP, BMP or AVIF header; null
+     * for anything else.
+     */
     fun size(bytes: ByteArray): Pair<Int, Int>? {
         fun u8(i: Int) = bytes[i].toInt() and 0xFF
         fun be16(i: Int) = u8(i) shl 8 or u8(i + 1)
@@ -108,7 +116,8 @@ internal object ImageEngine {
         }
     }
 
-    // The frame header (SOF0 to SOF15, without DHT, JPG and DAC) holds the size; segments before it are skipped by length.
+    // The frame header (SOF0 to SOF15, without DHT, JPG and DAC) holds the
+    // size; segments before it are skipped by length.
     private fun jpegSize(bytes: ByteArray, u8: (Int) -> Int, be16: (Int) -> Int): Pair<Int, Int>? {
         var i = 2
         while (i + 9 < bytes.size) {
@@ -125,12 +134,14 @@ internal object ImageEngine {
     }
 
     /**
-     * An AVIF (HEIF) file's size is its primary item's `ispe` property: `meta` holds `pitm` (that item), `iprp`'s
-     * `ipco` (the properties, numbered from 1) and `ipma` (which of them each item has). A grid's tiles have their
-     * own, smaller `ispe`, so the first one isn't enough.
+     * An AVIF (HEIF) file's size is its primary item's `ispe` property:
+     * `meta` holds `pitm` (that item), `iprp`'s `ipco` (the properties,
+     * numbered from 1) and `ipma` (which of them each item has). A grid's
+     * tiles have their own, smaller `ispe`, so the first one isn't enough.
      */
     private fun heifSize(bytes: ByteArray, be16: (Int) -> Int, be32: (Int) -> Int): Pair<Int, Int>? {
-        // Each box: a 32-bit size (header included) and a four-letter type; yields the type and its content's range.
+        // Each box: a 32-bit size (header included) and a four-letter type;
+        // yields the type and its content's range.
         fun boxes(from: Int, to: Int) = sequence {
             var at = from
             while (at + 8 <= to) {
@@ -140,7 +151,8 @@ internal object ImageEngine {
                 at += size
             }
         }
-        // `meta` and `ipma` are full boxes: a version byte and 24 bits of flags before their content.
+        // `meta` and `ipma` are full boxes: a version byte and 24 bits of flags
+        // before their content.
         val meta = boxes(0, bytes.size).firstOrNull { it.first == "meta" } ?: return null
         val inMeta = boxes(meta.second + 4, meta.third).associateBy { it.first }
         val pitm = inMeta["pitm"] ?: return null
@@ -158,7 +170,8 @@ internal object ImageEngine {
             at += if (wideIds) 4 else 2
             val count = bytes[at++].toInt() and 0xFF
             repeat(count) {
-                // The top bit marks the property essential; the rest is its 1-based index in `ipco`.
+                // The top bit marks the property essential; the rest is its
+                // 1-based index in `ipco`.
                 val index = if (wideIndexes) be16(at) and 0x7FFF else bytes[at].toInt() and 0x7F
                 at += if (wideIndexes) 2 else 1
                 val property = properties.getOrNull(index - 1)

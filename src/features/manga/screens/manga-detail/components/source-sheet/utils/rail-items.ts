@@ -6,7 +6,10 @@ export interface RailItem {
   current: boolean;
 }
 
-/** The current match first, its cover taken from its result when it has none; then the other results. */
+/**
+ * The current match first, its cover taken from its result when it has none;
+ * then the other results.
+ */
 export function railItems(
   current:
     | {
@@ -38,7 +41,10 @@ export function railItems(
   ];
 }
 
-/** What the rail says beside its cards: a failed or empty first page, judged by the results, not the current card. */
+/**
+ * What the rail says beside its cards: a failed or empty first page, judged
+ * by the results, not the current card.
+ */
 export function railNotice(rail: {
   status: "loading" | "done" | "error";
   mangas: SourceManga[];

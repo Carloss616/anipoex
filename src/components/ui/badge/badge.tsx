@@ -17,15 +17,16 @@ export interface BadgeProps {
    */
   icon?: IconName;
   /**
-   * Web: a status badge with text is a tint of its color, read on a row. Keep
-   * the solid fill where it sits on an image, like a count over a cover.
+   * A status badge with text is a tint of its color, read on a row. Keep the
+   * solid fill where it sits on an image, like a count over a cover.
+   * @platform web
    */
   solid?: boolean;
   className?: string;
   testID?: string;
 }
 
-/** The theme's badge tints (`-subtle`) and the darker text that reads on them. */
+/** Badge tints (`-subtle`) and the darker text that reads on them. */
 const TINT: Partial<Record<SemanticColor, string>> = {
   success: "bg-success-subtle text-success-foreground",
   info: "bg-info-subtle text-info-foreground",

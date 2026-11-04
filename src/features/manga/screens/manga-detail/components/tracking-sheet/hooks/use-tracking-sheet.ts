@@ -10,7 +10,7 @@ import {
 } from "@/features/manga/utils/tracking-form";
 import { session$ } from "@/state/session";
 
-/** The entry the tracking sheet edits, whichever way the platform swaps its views. */
+/** The entry the tracking sheet edits, however the platform swaps its views. */
 export function useTrackingSheet({
   isPresented,
   manga,
@@ -38,7 +38,7 @@ export function useTrackingSheet({
     setForm(next);
     save(toSaveVariables(form, next, { mediaId: manga.id, entryId })).catch(
       () => {
-        // Put back what AniList still has, unless another field was confirmed since.
+        // Put back what AniList has, unless another field was confirmed since.
         setForm((current) => (current === next ? form : current));
       },
     );

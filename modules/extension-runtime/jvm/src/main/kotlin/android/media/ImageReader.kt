@@ -3,7 +3,7 @@ package android.media
 import android.os.Handler
 import android.view.Surface
 
-/** Receives a virtual display's frames (see DisplayManager), so it never has any. */
+/** A virtual display's frames (see DisplayManager), so it never has any. */
 class ImageReader private constructor() {
     val surface = Surface()
 

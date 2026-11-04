@@ -42,7 +42,6 @@ class Rect @JvmOverloads constructor(
     override fun toString() = "Rect($left, $top - $right, $bottom)"
 }
 
-/** Android's RectF. */
 class RectF @JvmOverloads constructor(
     @JvmField var left: Float = 0f,
     @JvmField var top: Float = 0f,

@@ -37,7 +37,7 @@ function BottomSheetRoot({
   contentKey,
   expanded = false,
 }: BottomSheetProps) {
-  // `animation(_:value:)` takes a number, so count the swaps rather than pass the key.
+  // `animation(_:value:)` takes a number: count the swaps, not the key.
   const [content, setContent] = useState({ key: contentKey, revision: 0 });
   if (contentKey !== content.key) {
     setContent({ key: contentKey, revision: content.revision + 1 });
@@ -95,7 +95,10 @@ function BottomSheetRoot({
   );
 }
 
-/** No-op: `@expo/ui` exposes no SwiftUI lever for it. @see `bottom-sheet.android.tsx` */
+/**
+ * No-op: `@expo/ui` exposes no SwiftUI lever for it.
+ * @see `bottom-sheet.android.tsx`
+ */
 const LockDrag = ({ children }: ViewProps) => children;
 
 export const BottomSheet = Object.assign(BottomSheetRoot, { LockDrag });

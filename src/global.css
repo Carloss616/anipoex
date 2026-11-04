@@ -82,7 +82,7 @@
   --glass-tint: --value(--color-*);
 }
 
-/* Glass is for what floats over the content: chrome, sheets, dialogs, toasts. */
+/* For what floats over content: chrome, sheets, dialogs, toasts. */
 @utility glass-chrome {
   @apply glass-veil-66 glass-blur-28 glass-saturate-180;
   /* Dark takes more veil: black shows more through. */
@@ -127,12 +127,12 @@
     @apply bg-background font-normal text-foreground;
   }
 
-  /* RNW leaves <input> at min-width: auto (~20ch), so flex-1 can't shrink it. */
+  /* RNW leaves <input> at min-width: auto (~20ch): flex-1 can't shrink it. */
   input {
     @apply min-w-0;
   }
 
-  /* A disabled control's children still take the pointer, firing :hover/:active. */
+  /* Disabled controls' children still take the pointer: :hover, :active. */
   :where(:disabled, [aria-disabled="true"]) * {
     /* biome-ignore lint/complexity/noImportantStyles: RNW text sets `auto` unlayered */
     pointer-events: none !important;
@@ -146,7 +146,7 @@
     & > :not([role="separator"], [role="none"]) {
       border-radius: 0;
     }
-    /* A plain wrapper (a fullWidth segment) passes its corners to its button. */
+    /* A wrapper (a fullWidth segment) passes its corners to its button. */
     & > :not(button, [data-attached]) > :is(button, [role="button"]) {
       border-radius: inherit;
     }

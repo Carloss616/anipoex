@@ -5,7 +5,7 @@ import {
 } from "@/features/manga/utils/source-match";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 
-/** The manga's AniList titles, then its synonyms, each once; the one searched is checked. */
+/** AniList titles, then synonyms, each once; the one searched is checked. */
 export const titleMenuItems = (
   manga: Pick<MangaDetail, "title" | "synonyms">,
   query: string,

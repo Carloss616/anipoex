@@ -2,7 +2,10 @@ package android.content;
 
 import android.net.Uri;
 
-/** Android's Intent, for the link a source's settings open; {@link ContextWrapper#startActivity} has nothing to start it in. */
+/**
+ * Android's Intent, for the link a source's settings open;
+ * {@link ContextWrapper#startActivity} has nothing to start it in.
+ */
 public class Intent {
     public static final String ACTION_VIEW = "android.intent.action.VIEW";
 

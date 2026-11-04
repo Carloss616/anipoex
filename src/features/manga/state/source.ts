@@ -8,7 +8,7 @@ import { SEARCH_TIMEOUT_MS, withTimeout } from "../utils/with-timeout";
 import { readChapters } from "./chapters";
 import { readManual } from "./manual-matches";
 
-/** Which source each manga's chapter list reads and what it matched, keyed by its AniList id; read through `readMatch`. */
+/** Per AniList id, the chapters' source and its match; read via `readMatch`. */
 export const source$ = observable<Record<number, unknown>>({});
 
 /** Mangas whose source search is in flight; not persisted. */
@@ -20,7 +20,10 @@ syncObservable(source$, {
 
 const tickets: Record<number, number> = {};
 
-/** The source's page for the manga, or null when no result equals a title; rejects when the search fails or times out. */
+/**
+ * The source's page for the manga, or null when no result equals a title;
+ * rejects when the search fails or times out.
+ */
 export async function findManga(
   sourceId: string,
   titles: Titles,
@@ -37,7 +40,13 @@ export async function findManga(
   return null;
 }
 
-/** Stores the pick at once, then searches the source for the manga unless a page was set by hand or its chapters are stored; the last pick per manga wins and a failed search leaves the pick unmatched. Resolves to the stored match (null for none), `{ error }` when the search failed, or undefined when a later pick took over. */
+/**
+ * Stores the pick at once, then searches the source for the manga unless a
+ * page was set by hand or its chapters are stored. The last pick per manga
+ * wins; a failed search leaves the pick unmatched. Resolves to the stored
+ * match (null for none), `{ error }` when the search failed, or undefined
+ * when a later pick took over.
+ */
 export async function selectSource(
   mangaId: number,
   source: { id: string; name: string },
@@ -50,7 +59,8 @@ export async function selectSource(
   matching$[mangaId].set(true);
 
   try {
-    // A page set by hand wins; a source whose chapters are stored keeps the page it matched then.
+    // A page set by hand wins; a source with stored chapters keeps the page
+    // it matched then.
     const manga =
       readManual(mangaId, source.id) ??
       (await readChapters(mangaId, source.id))?.manga ??
@@ -72,7 +82,7 @@ export async function selectSource(
   }
 }
 
-/** Stores the chosen source's match as given, dropping a search still running for the manga. */
+/** Stores the match as given, dropping a search still running for the manga. */
 export function storeMatch(
   mangaId: number,
   sourceId: string,
@@ -83,7 +93,7 @@ export function storeMatch(
   matching$[mangaId].set(false);
 }
 
-/** Clears the manga's chosen source when it is `sourceId`, dropping a search still running for it. */
+/** Clears the pick when it is `sourceId`, dropping its running search. */
 export function deselectSource(mangaId: number, sourceId: string) {
   if (readMatch(source$[mangaId].peek())?.sourceId !== sourceId) return;
   tickets[mangaId] = (tickets[mangaId] ?? 0) + 1;

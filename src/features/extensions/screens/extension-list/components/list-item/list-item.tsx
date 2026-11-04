@@ -41,7 +41,11 @@ type ActionButtonProps = Omit<
   operation: ExtensionOperation;
 };
 
-/** Reads the operation itself so only this button re-renders; every action is off while one runs. Spreads the rest so a menu trigger keeps its props and ref. */
+/**
+ * Reads the operation itself so only this button re-renders; every action
+ * is off while one runs. Spreads the rest so a menu trigger keeps its props
+ * and ref.
+ */
 function ActionButton({
   id,
   operation,
@@ -82,7 +86,7 @@ export const ListItem = memo(function ListItem({
         />
       </Frame.Media>
       <Frame.Content>
-        {/* Beside the title, not in it: the icon is a <div>, which a <p> can't hold. */}
+        {/* Beside the title, not in it: a <p> can't hold the icon's <div>. */}
         <View className="flex-row items-center gap-1.5">
           <Frame.Title as="p">{e.name}</Frame.Title>
           {e.installed && (

@@ -1,7 +1,8 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-// An extension's WebView interfaces (`addJavascriptInterface`), asked on each navigation so they're its latest
-// load's; calls are fire-and-forget, as Android's return values aren't carried.
+// An extension's WebView interfaces (`addJavascriptInterface`), asked on
+// each navigation so they're its latest load's; calls are fire-and-forget,
+// as Android's return values aren't carried.
 for (const { name, methods } of ipcRenderer.sendSync("webview-interfaces"))
   contextBridge.exposeInMainWorld(
     name,

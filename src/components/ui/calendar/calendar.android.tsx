@@ -13,8 +13,7 @@ const fromUtcDay = (date: Date) =>
   new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 
 /**
- * Android Calendar: the inline M3 date picker, with its keyboard-entry toggle
- * off — this is the grid, not a field.
+ * The keyboard-entry toggle is off: this is the grid, not a field.
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/datetimepicker/
  */
 export function Calendar({

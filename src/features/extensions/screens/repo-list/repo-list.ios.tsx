@@ -74,7 +74,8 @@ export function RepoList() {
   const bgMuted = listRowBackground(muted);
   const bgTransparent = listRowBackground("transparent");
 
-  // Trusting a repo clears the url; only that is mirrored, so typing is never rewritten.
+  // Trusting a repo clears the url; only that is mirrored, so typing is
+  // never rewritten.
   useEffect(() => {
     if (empty) text.value = "";
   }, [empty, text]);
@@ -284,7 +285,7 @@ const RepoRow = memo(function RepoRow({
         <Button
           label="Remove"
           systemImage={sfSymbol(Icons.trash)}
-          // No destructive role: SwiftUI would delete the row before confirming.
+          // No destructive role: SwiftUI would drop the row before confirming.
           modifiers={[tint(destructive)]}
           onPress={() => setRemoving(true)}
         />

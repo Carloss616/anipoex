@@ -1,4 +1,4 @@
-/* What native compiles (metro.transformer.js); web-only styles go in global.css. */
+/* Native compiles only this (metro.transformer.js); web CSS: global.css. */
 @import "tailwindcss";
 @import "uniwind";
 @import "panelui-native/theme.css";
@@ -16,6 +16,6 @@
 @theme {
   /* Tailwind's own is too weak; this re-points every `ease-out` in the app. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  /* For boxes that open or close by their own size: `ease-out` front-loads too much. */
+  /* Boxes that open or close by their size: `ease-out` front-loads too much. */
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }

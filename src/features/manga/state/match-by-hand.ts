@@ -9,7 +9,11 @@ import { selectSource, source$, storeMatch } from "./source";
 const isChosen = (mangaId: number, sourceId: string) =>
   readMatch(source$[mangaId].peek())?.sourceId === sourceId;
 
-/** Makes `match` the source's page for the manga; the chosen source switches to it at once. An excluded source stays excluded but loses its pin: the page corrects its match, and the rescan that follows keeps or drops the exclusion. */
+/**
+ * Makes `match` the source's page for the manga; the chosen source switches
+ * to it at once. An excluded source stays excluded but loses its pin: the page
+ * corrects its match, and the rescan that follows keeps or drops the exclusion.
+ */
 export function setMatchByHand(
   mangaId: number,
   source: { id: string; name: string },
@@ -27,14 +31,14 @@ export function setMatchByHand(
     });
 }
 
-/** Forgets the page set by hand; the chosen source is matched by title again. */
+/** Forgets the page set by hand; the chosen source matches by title again. */
 export async function removeMatchByHand(
   mangaId: number,
   source: { id: string; name: string },
   titles: Titles,
 ) {
   clearManual(mangaId, source.id);
-  // Its chapters were read from the manual page, so a stored list would bring that page back.
+  // Its chapters came from the manual page; a stored list would bring it back.
   dropChapters(mangaId, source.id);
   if (isChosen(mangaId, source.id)) await selectSource(mangaId, source, titles);
 }

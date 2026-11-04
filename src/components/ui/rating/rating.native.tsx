@@ -17,7 +17,7 @@ export function Rating({
 }: RatingProps) {
   return (
     <EnsureRNHostView matchContents>
-      {/* `flex-0` so the island wraps its content, as matchContents expects. */}
+      {/* `flex-0`: the island wraps its content, as matchContents expects. */}
       <GestureHandlerRootView style={{ flex: 0, width: "100%" }}>
         <RatingBase {...props} />
       </GestureHandlerRootView>

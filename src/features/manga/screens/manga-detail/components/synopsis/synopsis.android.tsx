@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 
-/** Enough to tell what the book is about, short enough to leave the page scannable. */
+/** Tells what the book is about, short enough to leave the page scannable. */
 const COLLAPSED_LINES = 3;
 
 /**

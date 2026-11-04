@@ -34,13 +34,9 @@ import type { NumberInputProps } from "./number-input";
 const HEIGHT = 44;
 
 /**
- * iOS NumberInput: a SwiftUI `TextField` in a Liquid Glass capsule, with the
- * prefix and suffix inside it, between glass `−` and `+` circles that repeat
- * while held. The field
- * reports every keystroke, rewriting itself only when a typed number lands
- * outside the range, so ordinary typing is never interrupted. The keyboard is
- * the punctuation one, not the number pad: the pad has no return key, which
- * leaves no way to dismiss it.
+ * The field rewrites itself only when a typed number lands outside the range,
+ * so typing is never interrupted. The keyboard is the punctuation one: the
+ * number pad has no return key to dismiss it.
  */
 export function NumberInput({
   value = 0,
@@ -172,7 +168,8 @@ function StepButton({
         disabledModifier(disabled),
       ]}
     >
-      {/* The label fills the circle: a plain button only takes touches on its label, and a bare minus glyph is ~2pt tall. */}
+      {/* The label fills the circle: a plain button only takes touches on its
+          label, and a bare minus glyph is ~2pt tall. */}
       <Image
         systemName={systemImage}
         size={BUTTON_ICON_SIZE}

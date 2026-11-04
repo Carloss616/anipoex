@@ -12,30 +12,39 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.util.Base64
 
-/** What the app around the runtime does for it, where the JVM can't: the desktop's sidecar loop and iOS's JNI host set it. */
+/**
+ * What the app around the runtime does for it, where the JVM can't: the
+ * desktop's sidecar loop and iOS's JNI host set it.
+ */
 object Host {
     /**
-     * Solves a Cloudflare challenge at a URL in a real browser and returns the cookies it earned
-     * for it, as `Set-Cookie` values, and the user agent it solved as. Blocks; null when the host can't.
+     * Solves a Cloudflare challenge at a URL in a real browser and returns the
+     * cookies it earned for it, as `Set-Cookie` values, and the user agent it
+     * solved as. Blocks; null when the host can't.
      */
     @Volatile
     var solveChallenge: ((url: String) -> Solution)? = null
 
     /**
-     * Sends a request through that browser's own network stack, with its cookies: some sites tie
-     * the clearance to the browser's TLS fingerprint, which the JVM's doesn't match. Follows redirects.
+     * Sends a request through that browser's own network stack, with its
+     * cookies: some sites tie the clearance to the browser's TLS fingerprint,
+     * which the JVM's doesn't match. Follows redirects.
      */
     @Volatile
     var fetch: ((HostRequest) -> HostResponse)? = null
 
-    /** The JSON call into the app itself, for what has no typed wrapper here (the JavaScript engine). */
+    /**
+     * The JSON call into the app itself, for what has no typed wrapper here
+     * (the JavaScript engine).
+     */
     @Volatile
     var call: ((method: String, args: JsonObject) -> JsonElement)? = null
 
     /**
-     * The user agent the app's browser holds a site's clearance or session under, by host: a solved challenge, or a
-     * WebView page that ran as another browser than the extension asked for. That host's requests (and its subdomains')
-     * go out with it, so the site sees one browser.
+     * The user agent the app's browser holds a site's clearance or session
+     * under, by host: a solved challenge, or a WebView page that ran as another
+     * browser than the extension asked for. That host's requests (and its
+     * subdomains') go out with it, so the site sees one browser.
      */
     val browserUserAgents = java.util.concurrent.ConcurrentHashMap<String, String>()
 
@@ -43,18 +52,23 @@ object Host {
     fun browserUserAgent(host: String): String? =
         generateSequence(host) { it.substringAfter('.', "").takeIf(String::isNotEmpty) }.firstNotNullOfOrNull(browserUserAgents::get)
 
-    /** The clearance only holds for the user agent that earned it, so requests to that host send it after. */
+    /**
+     * The clearance only holds for the user agent that earned it, so requests
+     * to that host send it after.
+     */
     class Solution(val cookies: List<String>, val userAgent: String)
 
     class HostRequest(val method: String, val url: String, val headers: List<Pair<String, String>>, val body: ByteArray?)
 
-    /** [url] is where the browser's redirects ended, when it isn't the one requested. */
+    /** [url]: where the browser's redirects ended, if not the one requested. */
     class HostResponse(val code: Int, val headers: List<Pair<String, String>>, val body: ByteArray, val url: String? = null)
 
     /**
-     * Wires both through one JSON call into the app, as the desktop's protocol and iOS's JNI do:
-     * `solveChallenge {url}` answers `{cookies, userAgent}`; `fetch {method, url, headers, body}`
-     * answers `{status, headers, body, url?}`, headers as `[name, value]` pairs, bodies in base64 and `url` the final one.
+     * Wires both through one JSON call into the app, as the desktop's protocol
+     * and iOS's JNI do: `solveChallenge {url}` answers `{cookies, userAgent}`;
+     * `fetch {method, url, headers, body}` answers `{status, headers, body,
+     * url?}`, headers as `[name, value]` pairs, bodies in base64 and `url`
+     * the final one.
      */
     fun overJson(call: (method: String, args: JsonObject) -> JsonElement) {
         this.call = call

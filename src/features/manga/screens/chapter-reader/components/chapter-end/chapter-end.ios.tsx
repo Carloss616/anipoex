@@ -35,7 +35,7 @@ function Lines({ changes }: { changes: string[] }) {
   ));
 }
 
-/** A button as wide as its row: the label fills it, so the whole capsule is the button. */
+/** Full-row button: the label fills it, so the whole capsule is tappable. */
 function Wide({
   label,
   style,

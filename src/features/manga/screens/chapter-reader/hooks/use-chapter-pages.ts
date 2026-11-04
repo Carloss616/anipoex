@@ -12,7 +12,10 @@ interface State {
 const EMPTY: State = { pages: [], loading: false, error: null };
 const LOADING: State = { pages: [], loading: true, error: null };
 
-/** The chapter's page images from its source; reloads when the chapter changes, nothing is persisted. */
+/**
+ * The chapter's page images from its source; reloads when the chapter
+ * changes, nothing is persisted.
+ */
 export function useChapterPages(
   sourceId: string | undefined,
   chapterUrl: string | undefined,
@@ -21,7 +24,7 @@ export function useChapterPages(
   const [state, setState] = useState<State>(EMPTY);
   const ticket = useRef(0);
 
-  // A reload keeps the pages on screen so the reader stays put; a new chapter clears them.
+  // A reload keeps the pages so the reader stays put; a new chapter clears.
   const load = useCallback(
     async (reset: boolean) => {
       const current = ++ticket.current;
@@ -40,7 +43,7 @@ export function useChapterPages(
         if (current === ticket.current)
           setState({ chapterUrl, pages, loading: false, error: null });
       } catch (error) {
-        // A failed reload keeps what it had on screen; a failed first load has nothing to keep.
+        // A failed reload keeps its pages; a failed first load has none.
         if (current === ticket.current)
           setState((prev) => ({
             ...prev,
@@ -60,7 +63,8 @@ export function useChapterPages(
     load(false);
   }, [load]);
 
-  // Until the effect runs, the state still holds the previous chapter (or nothing): never hand those pages out.
+  // Until the effect runs, the state holds the previous chapter (or nothing):
+  // never hand those pages out.
   const { pages, loading, error } =
     state.chapterUrl === chapterUrl ? state : LOADING;
   return { pages, loading, error, reload };

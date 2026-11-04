@@ -40,11 +40,14 @@ export const flattenRows = (items: MenuItem[]): MenuAction[] =>
 
 type Handler = ((event: never) => void) | undefined;
 
-/** Whether the trigger is a react-native pressable: passed with an `onPress` prop. */
+/** A react-native pressable trigger is passed with an `onPress` prop. */
 export const isPressable = (child: MenuProps["children"]) =>
   "onPress" in child.props;
 
-/** Web: click and right-click as a pressable's press and long press, after its own. */
+/**
+ * Click and right-click as a pressable's press and long press, after its own.
+ * @platform web
+ */
 export function asPress(
   props: HTMLAttributes<Element>,
   child: MenuProps["children"],

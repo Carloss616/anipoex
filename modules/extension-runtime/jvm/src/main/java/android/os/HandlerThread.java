@@ -1,6 +1,6 @@
 package android.os;
 
-/** Its looper keeps the thread that runs the posts, so start() has nothing to do. */
+/** Its looper keeps the thread that runs the posts: start() does nothing. */
 public class HandlerThread extends Thread {
     private final Looper looper;
 

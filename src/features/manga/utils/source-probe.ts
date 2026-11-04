@@ -1,7 +1,7 @@
 import type { ProviderProbe } from "./msu";
 import type { Chapter } from "./to-chapters";
 
-/** The chapters a source answered, no match, or what its search or chapter fetch threw. */
+/** Chapters a source answered, no match, or what its search or fetch threw. */
 export type ProbeRead =
   | { chapters: Chapter[] }
   | "no-match"

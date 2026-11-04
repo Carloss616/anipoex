@@ -6,7 +6,10 @@ import {
 import { useRef } from "react";
 import type { AnimatedVisibilityProps } from "./animated-visibility";
 
-/** Vertical only, unlike Compose's defaults; the fade blends two of these overlapping. */
+/**
+ * Vertical only, unlike Compose's defaults; the fade blends two of these
+ * overlapping.
+ */
 export function AnimatedVisibility({
   visible,
   children,

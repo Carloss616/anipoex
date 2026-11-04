@@ -1,12 +1,15 @@
 import type { SourceChapter } from "@/features/extensions";
 
 export interface StoredChapters {
-  /** The source's page for the manga, so picking the source again skips its search; its cover shows in the title rail. */
+  /**
+   * The source's page for the manga: picking the source again skips its
+   * search, and its cover shows in the title rail.
+   */
   manga: {
     url: string;
     title: string;
     thumbnailUrl?: string | null;
-    /** The source's data for the manga, which its chapters need again on a refresh. */
+    /** The source's data for the manga; its chapters need it on a refresh. */
     memo?: string | null;
   };
   chapters: SourceChapter[];
@@ -21,12 +24,12 @@ let database: Promise<IDBDatabase> | undefined;
 function open() {
   database ??= new Promise((resolve, reject) => {
     const request = indexedDB.open("source-chapters", 2);
-    // An older version held open elsewhere stalls this open and every one queued after it.
+    // An older version open elsewhere stalls this open and every one after it.
     const timeout = setTimeout(
       () => fail(new Error("Chapter storage didn't open")),
       OPEN_TIMEOUT_MS,
     );
-    // Version 2 keys by manga and source; version 1's records, by manga alone, are dropped.
+    // Version 2 keys by manga and source; v1's records (by manga) are dropped.
     request.onupgradeneeded = () => {
       const db = request.result;
       if (db.objectStoreNames.contains(STORE)) db.deleteObjectStore(STORE);
@@ -65,7 +68,7 @@ async function run<T>(
   });
 }
 
-/** Web and desktop: one IndexedDB record per manga and source, read only when it is needed. */
+/** Web and desktop: one IndexedDB record per manga and source, read lazily. */
 export function readStoredChapters(key: string) {
   return run<StoredChapters | undefined>("readonly", (store) => store.get(key));
 }

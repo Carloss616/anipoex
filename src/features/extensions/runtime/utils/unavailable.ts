@@ -6,7 +6,7 @@ export const RUNTIME_UNAVAILABLE =
 const unavailable = (): Promise<never> =>
   Promise.reject(new Error(RUNTIME_UNAVAILABLE));
 
-/** What platforms without an extension runtime answer: nothing installed, every action refused. */
+/** No runtime here: nothing installed, every action refused. */
 export const unavailableRuntime: RuntimeApi = {
   install: unavailable,
   installed: async () => [],

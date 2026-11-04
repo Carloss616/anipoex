@@ -28,12 +28,7 @@ export function useColors(color: SemanticColor | "inherit") {
   return { container: m3.primary, content: m3.onPrimary };
 }
 
-/**
- * Android Badge: same props as [the web one](./badge.tsx), drawn as M3's
- * `Badge`.
- *
- * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/badge/
- */
+/** @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/badge/ */
 export function Badge({
   children,
   color = "secondary",

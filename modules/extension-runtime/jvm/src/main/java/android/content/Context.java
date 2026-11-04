@@ -5,7 +5,7 @@ import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import java.io.File;
 
-/** JVM stand-in for the part of Android's Context that the host classes and extensions call. */
+/** The part of Android's Context the host classes and extensions call. */
 public abstract class Context {
     public static final int MODE_PRIVATE = 0;
 

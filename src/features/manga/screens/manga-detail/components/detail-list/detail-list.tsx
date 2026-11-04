@@ -35,7 +35,7 @@ export interface DetailListProps {
   onContinue: () => void;
   /** The header at rest, from the screen's `useMaxHeaderHeight`. */
   maxHeaderHeight: number;
-  /** Shown instead of `empty` while the chapters are loading and none are listed. */
+  /** Shown instead of `empty` while chapters load and none are listed. */
   loading?: boolean;
   /** What an empty list says. */
   empty: { title: string; description?: string };
@@ -134,8 +134,8 @@ export function DetailList({
             data={rows}
             keyExtractor={(row) => (row === HEADER ? HEADER : row.id)}
             getItemType={(row) => (row === HEADER ? HEADER : "chapter")}
-            // Rows only redraw when this changes: a first save gives the entry an id,
-            // and the last row's rounding follows the count.
+            // Rows only redraw when this changes: a first save gives the
+            // entry an id, and the last row's rounding follows the count.
             extraData={`${entryId}:${last}`}
             itemLayoutAnimation={LinearTransition}
             stickyHeaderIndices={STICKY}

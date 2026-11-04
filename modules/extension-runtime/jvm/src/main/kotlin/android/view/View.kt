@@ -3,7 +3,10 @@ package android.view
 import android.content.Context
 import android.content.res.Resources
 
-/** Android's View, as far as an offscreen WebView needs: it's never attached, so layout calls do nothing. */
+/**
+ * Android's View, as far as an offscreen WebView needs: it's never
+ * attached, so layout calls do nothing.
+ */
 open class View(val context: Context?) {
     var layoutParams: ViewGroup.LayoutParams? = null
 
@@ -20,7 +23,8 @@ open class View(val context: Context?) {
 
     open fun setBackgroundColor(color: Int) {}
 
-    // Views a source's dialog builds, which never shows here: they keep nothing and never fire.
+    // Views a source's dialog builds, which never shows here: they keep
+    // nothing and never fire.
     fun setOnClickListener(listener: OnClickListener?) {}
 
     fun setEnabled(enabled: Boolean) {}
@@ -47,7 +51,8 @@ open class View(val context: Context?) {
         fun onClick(view: View?)
     }
 
-    // shortcut: touches are dropped, so a page that needs a tap never gets one; send them to the browser when a source needs it.
+    // shortcut: touches are dropped, so a page that needs a tap never gets
+    // one; send them to the browser when a source needs it.
     open fun dispatchTouchEvent(event: MotionEvent?): Boolean = false
 
     object MeasureSpec {
@@ -103,7 +108,7 @@ abstract class ViewGroup(context: Context?) : View(context), ViewParent {
     }
 }
 
-/** Android's MotionEvent, so extensions can build one; [View.dispatchTouchEvent] drops it. */
+/** So extensions can build one; [View.dispatchTouchEvent] drops it. */
 class MotionEvent private constructor() {
     fun recycle() {}
 

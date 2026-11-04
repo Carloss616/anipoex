@@ -31,7 +31,7 @@ import { useReadingProgress } from "./hooks/use-reading-progress";
 
 // Desktop windows are far wider than a page is meant to be read.
 const COLUMN = { width: "100%", maxWidth: 800, marginInline: "auto" } as const;
-/** How far one scroll down runs before the header hides: about its own height. */
+/** Scroll distance before the header hides: about its own height. */
 const HIDE_AFTER = 80;
 
 const chapterName = (chapter: Chapter | undefined) =>
@@ -41,7 +41,7 @@ const chapterName = (chapter: Chapter | undefined) =>
       ? `Chapter ${chapter.number}`
       : chapter.title;
 
-/** A chapter as one continuous vertical scroll of its pages, the end block under the last. */
+/** A chapter's pages in one vertical scroll, the end block after them. */
 export function ChapterReader() {
   const { id: mediaId, chapter: chapterUrl } = useLocalSearchParams<{
     id: string;
@@ -57,7 +57,7 @@ export function ChapterReader() {
     match,
   );
   const current = chapters.find((chapter) => chapter.id === chapterUrl);
-  // The pages wait for the list: some sources need the chapter's memo to find them.
+  // Pages wait for the list: some sources find them by the chapter's memo.
   const { pages, loading, error, reload } = useChapterPages(
     chaptersLoading ? undefined : match?.sourceId,
     chapterUrl,
@@ -66,7 +66,7 @@ export function ChapterReader() {
   const visible$ = useObservable(true);
   const listRef = useRef<LegendListRef>(null);
   const lastScroll = useRef(0);
-  // Where the current run down started: the last turn up, or where a tap showed the header.
+  // Where this run down began: the last turn up, or a tap showing the header.
   const runStart = useRef(0);
   const m3 = useThemeM3Colors();
   // Android only: iOS keeps the blur, which a color would cover.
@@ -118,8 +118,10 @@ export function ChapterReader() {
     },
     [page$.set],
   );
-  // Only the current chapter's own pages, with the manga's entry loaded, count as reading it.
-  // shortcut: an end reached before the chapter list or manga loads is not retried until the user scrolls back to it; retry on load if that shows up.
+  // Only this chapter's own pages, with the manga's entry loaded, count as
+  // reading it.
+  // shortcut: an end reached before the chapter list or manga loads is not
+  // retried until the user scrolls back to it; retry on load if that shows up.
   const onEndReached = () => {
     if (current && manga && !mangaLoading && pages.length > 0)
       progress.reached(current);
@@ -153,7 +155,8 @@ export function ChapterReader() {
             renderScrollComponent={renderScrollComponent}
             data={pages}
             keyExtractor={(item) => String(item.index)}
-            // Each page keeps its own measured ratio and failed state; a recycled row would show another page's.
+            // Each page keeps its measured ratio and failed state; a recycled
+            // row would show another page's.
             recycleItems={false}
             contentContainerStyle={COLUMN}
             ListFooterComponentStyle={{ paddingBottom: bottomSpace }}

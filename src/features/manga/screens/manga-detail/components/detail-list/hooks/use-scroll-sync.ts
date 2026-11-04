@@ -58,7 +58,6 @@ export const useScrollSync = ({
       };
     }
     keyStates[syncKey].states.push(stateRef);
-    // syncRef.current?.scrollTo(globalState[syncKey].lastScrollY);
 
     return () => {
       if (keyStates[syncKey]) {

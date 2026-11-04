@@ -12,7 +12,7 @@ export const removeRepoDialog = (repo: Repo): MenuItemDialogConfig => ({
   confirmLabel: "Remove",
 });
 
-/** The row's actions for the house `Menu`; iOS builds its context menu itself. */
+/** The row's actions for the house `Menu`; iOS builds its own context menu. */
 export function repoMenuItems(repo: Repo, onRemove: () => void): MenuItem[] {
   const { website } = repo;
   return [

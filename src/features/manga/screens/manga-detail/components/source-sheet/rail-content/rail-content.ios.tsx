@@ -43,7 +43,7 @@ const PULSE = Animation.easeInOut({ duration: 0.7 }).repeat({
   autoreverses: true,
 });
 
-/** Pulsing glass covers while the first page loads; still under Reduce Motion. */
+/** Pulsing glass covers while page one loads; still under Reduce Motion. */
 function Placeholders({ tint }: { tint: string }) {
   const reducedMotion = useReducedMotion();
   const [dim, setDim] = useState(false);
@@ -77,7 +77,7 @@ function Placeholders({ tint }: { tint: string }) {
   );
 }
 
-/** The rail itself: a skeleton while the first page loads, then the cards and a More card. */
+/** A skeleton while the first page loads, then the cards and a More card. */
 export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   const [muted, foreground, card] = useThemeColor([
     "muted",
@@ -93,7 +93,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   if (!rail) return null;
 
   if (rail.status === "loading") return <Placeholders tint={card} />;
-  // A failed or empty first page, said beside the current card when there is one.
+  // A failed or empty first page, said beside the current card if there is one.
   const line =
     notice === "error" ? (
       <HStack spacing={8}>
@@ -123,7 +123,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
         >
           {items.map((item, i) => [
             <Menu key={item.manga.url} items={menu(item)}>
-              {/* A menu label takes the tint and centres its text: the card keeps its own look. */}
+              {/* A menu label takes the tint and centres its text: the card
+                  keeps its own look. */}
               <VStack
                 modifiers={[
                   foregroundStyle(foreground),

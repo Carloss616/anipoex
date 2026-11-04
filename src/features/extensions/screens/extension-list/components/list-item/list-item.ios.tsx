@@ -41,7 +41,10 @@ import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
 import { uninstallDialog } from "./utils/uninstall-item";
 
-/** The row's one action, App Store style: a pill that turns into a loader while any operation runs. */
+/**
+ * The row's one action, App Store style: a pill that turns into a loader
+ * while any operation runs.
+ */
 function RowAction({ extension: e }: ListItemProps) {
   const running = useValue(() => !!extensionOperations$[e.id].get());
   const font = useFont("subheadline", "semibold");
@@ -65,7 +68,10 @@ function RowAction({ extension: e }: ListItemProps) {
   );
 }
 
-/** A `List` row: the pill installs or updates, long-press lists every action, swipe uninstalls or opens the website. */
+/**
+ * A `List` row: the pill installs or updates, long-press lists every action,
+ * swipe uninstalls or opens the website.
+ */
 export const ListItem = memo(function ListItem({
   extension: e,
 }: ListItemProps) {
@@ -162,7 +168,8 @@ export const ListItem = memo(function ListItem({
         </ContextMenu.Items>
         <ContextMenu.Trigger>
           {e.installed ? (
-            // The alert hangs off the row content: a swipe or menu row only opens it.
+            // The alert hangs off the row content: a swipe or menu row only
+            // opens it.
             <Dialog
               {...uninstallDialog(e)}
               alert
@@ -186,7 +193,8 @@ export const ListItem = memo(function ListItem({
                 <Button
                   label="Uninstall"
                   systemImage="trash"
-                  // No destructive role: SwiftUI would delete the row before the alert confirms.
+                  // No destructive role: SwiftUI would delete the row before
+                  // the alert confirms.
                   modifiers={[tint(destructive), disabled(busy())]}
                   onPress={() => setUninstalling(true)}
                 />

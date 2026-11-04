@@ -34,7 +34,7 @@ export interface SheetContentProps {
   onDismiss: () => void;
 }
 
-/** The sheet itself, drawn per platform; `SourceSheet` wires it to the picker. */
+/** The sheet, drawn per platform; `SourceSheet` wires it to the picker. */
 export function SheetContent({
   manga,
   read,
@@ -60,7 +60,7 @@ export function SheetContent({
   const title = useTitleMode(manga.id, key);
   const installed = all.length > 0;
 
-  // One list, so both sections scroll together; both empty shows the empty state.
+  // One list, so both sections scroll as one; both empty shows the empty state.
   const items = sheetItems(available, excluded);
   const stickyIndices = items.flatMap((item, i) =>
     item.kind === "header" ? [i] : [],
@@ -190,7 +190,7 @@ export function SheetContent({
           getItemType={(item: SheetItem) => item.kind}
           extraData={selectedId}
           stickyHeaderIndices={stickyIndices}
-          // Read once on open, so typing doesn't scroll; the first rows need none.
+          // Read once on open, so typing doesn't scroll; first rows need none.
           initialScrollIndex={
             selectedAt > 1
               ? { index: selectedAt, viewPosition: 0.5 }

@@ -12,7 +12,7 @@ import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { TrackingSheet } from "../tracking-sheet";
 import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
-/** A glass button summing the entry up, or inviting to add one; the sheet edits it. */
+/** A glass button summing the entry up, or inviting one; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);
   const { tracking, label, total, progress, percent } =

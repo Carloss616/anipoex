@@ -2,7 +2,10 @@ import { initialsOf, type Source } from "@/features/manga/utils/source";
 import { isWebUrl } from "@/utils/is-web-url";
 import type { InstalledExtension } from "../runtime";
 
-/** Every source of the installed extensions; the language joins the name when an extension has several. */
+/**
+ * Every source of the installed extensions; the language joins the name when
+ * an extension has several.
+ */
 export function toSources(installed: InstalledExtension[]): Source[] {
   return installed.flatMap(({ sources, icon }) =>
     sources.map(({ id, name, lang, homeUrl, headers }) => ({

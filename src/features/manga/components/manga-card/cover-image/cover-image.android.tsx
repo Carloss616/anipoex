@@ -7,7 +7,7 @@ import { Image } from "@/components/native/jetpack-compose/image";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { CoverImageProps } from "./cover-image";
 
-// With its headers: a source's image host can refuse a request without its Referer.
+// Keeps its headers: an image host can refuse a request without its Referer.
 function toSource(cover: CoverImageProps["cover"]) {
   return typeof cover === "string" ? { uri: cover } : cover;
 }

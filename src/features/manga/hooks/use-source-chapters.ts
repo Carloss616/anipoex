@@ -23,7 +23,10 @@ interface State {
 const EMPTY: State = { chapters: [], loading: false, error: null };
 const LOADING: State = { chapters: [], loading: true, error: null };
 
-/** The chapters of the matched manga in its source: the list stored for that source when there is one, else fetched and stored; `refresh` fetches again. */
+/**
+ * The matched manga's chapters in its source: the stored list when there is
+ * one, else fetched and stored; `refresh` fetches again.
+ */
 export function useSourceChapters(
   mangaId: number,
   match: SourceMatch | undefined,
@@ -41,7 +44,8 @@ export function useSourceChapters(
       ? `${sourceId} ${url}`
       : undefined;
 
-  // A refresh keeps the rows on screen, even when it fails; a new match clears the previous manga's.
+  // A refresh keeps the rows on screen, even when it fails; a new match
+  // clears the previous manga's.
   const load = useCallback(
     async (reset: boolean) => {
       const current = ++ticket.current;
@@ -131,6 +135,7 @@ export function useSourceChapters(
 
   const refresh = useCallback(() => load(false), [load]);
 
-  // Until the effect runs, the state still holds the previous match (or nothing): never hand those out as loaded.
+  // Until the effect runs, the state holds the previous match (or nothing):
+  // never hand that out as loaded.
   return { ...(state.key === key ? state : LOADING), refresh };
 }

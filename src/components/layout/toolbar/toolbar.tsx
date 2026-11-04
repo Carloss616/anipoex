@@ -4,9 +4,8 @@ import type { StackToolbarProps } from "./utils";
 export type ToolbarProps = {
   children: ReactElement<StackToolbarProps>;
   /**
-   * Web only: while an action is in flight, the button it disabled — the one
-   * that started it — shows a loader in place of its icon. Ignored elsewhere,
-   * where a `tintColor` on the item is the way to show it.
+   * While an action is in flight, the button that started it shows a loader
+   * in place of its icon. Elsewhere, a `tintColor` on the item shows it.
    * @platform web
    */
   loading?: boolean;

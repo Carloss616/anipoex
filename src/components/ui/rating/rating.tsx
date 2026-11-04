@@ -6,12 +6,15 @@ import { HiddenRange } from "../hidden-range";
 
 export * from "panelui-native/components/rating";
 
-/** PanelUI's Rating with a hidden range input, so the keyboard can adjust it on web. */
+/** Adds a hidden range input, so the keyboard can adjust it on web. */
 export function Rating({
   accessibilityLabel,
   ...props
 }: RatingProps & {
-  /** Names the control for screen readers, without the visible `label`. @platform web */
+  /**
+   * Names the control for screen readers, without the visible `label`.
+   * @platform web
+   */
   accessibilityLabel?: string;
 }) {
   const { value, onValueChange, max = 5, precision = 1 } = props;

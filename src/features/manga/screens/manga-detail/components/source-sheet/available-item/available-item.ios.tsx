@@ -66,7 +66,7 @@ export const AvailableItem = memo(function AvailableItem({
   const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const search = searchItem(source, searching, actions);
   const url = useMatchUrl(mangaKey, source.id);
-  // While this source scans, it stops it: a slow one can hold a scan for minutes.
+  // While this source scans, it stops it: a slow one can scan for minutes.
   const rescan = (
     <Button
       label={scanning ? "Stop" : "Rescan"}
@@ -131,7 +131,8 @@ export const AvailableItem = memo(function AvailableItem({
                 accessibilityAddTraits(selected ? ["isSelected"] : []),
               ]}
             >
-              {/* A plain button only takes touches on its label, so the label fills the row. */}
+              {/* A plain button only takes touches on its label, so the
+                  label fills the row. */}
               <HStack modifiers={ROW_FILL}>
                 <Label icon={<Tile source={source} />}>
                   <VStack alignment="leading" spacing={2}>
@@ -162,7 +163,8 @@ export const AvailableItem = memo(function AvailableItem({
                   </VStack>
                 </Label>
                 <Spacer />
-                {/* A fixed slot, so the name and badge never shift; hidden, as the row already reads its trait and `scanning…`. */}
+                {/* A fixed slot, so the name and badge never shift; hidden,
+                    as the row already reads its trait and `scanning…`. */}
                 <HStack
                   modifiers={[
                     frame({ width: BUTTON_ICON_SIZE }),
@@ -190,7 +192,8 @@ export const AvailableItem = memo(function AvailableItem({
           actions={actions}
         />
       </VStack>
-      {/* Right edge: search, rescan and website. No full swipe on either edge: a long drag shouldn't start one. */}
+      {/* Right edge: search, rescan and website. No full swipe on either
+          edge: a long drag shouldn't start one. */}
       <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
         <Button
           label={searching ? "Stop" : "Search"}
@@ -201,12 +204,12 @@ export const AvailableItem = memo(function AvailableItem({
         {rescan}
         {website("Website")}
       </SwipeActions.Actions>
-      {/* Left edge: exclude. */}
       <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
         <Button
           label="Exclude"
           systemImage={sfSymbol(Icons.exclude)}
-          // No destructive role: SwiftUI would delete the row before a reason is picked.
+          // No destructive role: SwiftUI would delete the row before a reason
+          // is picked.
           modifiers={[tint(destructive)]}
           onPress={() => onExclude?.({ source, suspicious })}
         />

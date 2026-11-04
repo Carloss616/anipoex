@@ -30,11 +30,11 @@ export function AnimatedVisibility({
         clipped(),
         // Two of these open and close at once; the fade blends the overlap.
         opacity(visible ? 1 : 0),
-        // Clipping only hides it from the eye. The content stays in the view
-        // tree, so without this VoiceOver reads what is closed — and the two
-        // copies a disclosure keeps mounted get read one after the other.
+        // Clipping only hides it from the eye: VoiceOver would read what is
+        // closed, and both copies a disclosure keeps mounted.
         accessibilityHidden(!visible),
-        // Drawer-scale travel, on a curve that leaves the start instead of front-loading it.
+        // Drawer-scale travel, on a curve that leaves the start instead of
+        // front-loading it.
         animation(Animation.spring({ duration: 0.3, bounce: 0 }), visible),
       ]}
     >

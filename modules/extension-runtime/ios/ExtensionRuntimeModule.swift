@@ -4,9 +4,10 @@ public class ExtensionRuntimeModule: Module {
   public func definition() -> ModuleDefinition {
     Name("ExtensionRuntime")
 
-    // The runtime has no browser: a Cloudflare challenge is solved in a WKWebView, and that site is fetched through it;
-    // nor a JavaScript engine that runs modern scripts, so extensions' run in JavaScriptCore; nor an image codec, so a
-    // page a source descrambles is drawn with Core Graphics. An extension's WebView is a WKWebView too.
+    // The runtime has no browser: a Cloudflare challenge is solved in a
+    // WKWebView, whose page then fetches that site; an extension's WebView is
+    // one too. Modern scripts run in JavaScriptCore, and a page a source
+    // descrambles is drawn with Core Graphics.
     OnCreate {
       AnipoexSetHostHandler { method, argsJson in
         if method == "renderImage" { return GraphicsHost.answer(argsJson) }
@@ -15,7 +16,8 @@ public class ExtensionRuntimeModule: Module {
       }
     }
 
-    // Resolves the raw `{result}`/`{error}` envelope; the JS bridge turns it into a value or an Error.
+    // Resolves the raw `{result}`/`{error}` envelope; the JS bridge turns it
+    // into a value or an Error.
     AsyncFunction("call") { (method: String, argsJson: String, promise: Promise) in
       guard let jars = Bundle(for: ExtensionRuntimeModule.self).url(forResource: "ExtensionRuntime", withExtension: "bundle") else {
         promise.resolve(#"{"error":"Extension runtime failed to start: ExtensionRuntime.bundle is missing from the app"}"#)
@@ -27,7 +29,8 @@ public class ExtensionRuntimeModule: Module {
       }
       let framework = frameworks.appendingPathComponent("AnipoexJDK.framework")
       let data = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("extensions")
-      // Zero turns a stack overflow into a crash instead of a StackOverflowError, and a GCD thread has only 512 KiB.
+      // Zero turns a stack overflow into a crash instead of a
+      // StackOverflowError, and a GCD thread has only 512 KiB.
       let thread = Thread {
         promise.resolve(AnipoexJvmCall(method, argsJson, framework, jars, data))
       }

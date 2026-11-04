@@ -19,7 +19,7 @@ import { useState } from "react";
 import { Text } from "@/components/native/swift-ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
-/** Enough to tell what the book is about, short enough to leave the page scannable. */
+/** Tells what the book is about, short enough to leave the page scannable. */
 const COLLAPSED_LINES = 3;
 
 /**
@@ -39,7 +39,8 @@ export function Synopsis({ text }: { text: string | undefined }) {
     <VStack
       alignment="leading"
       modifiers={[
-        // Drawer-scale travel, on a curve that leaves the start instead of front-loading it.
+        // Drawer-scale travel, on a curve that leaves the start instead of
+        // front-loading it.
         animation(Animation.spring({ duration: 0.3, bounce: 0 }), expanded),
       ]}
     >
@@ -53,9 +54,10 @@ export function Synopsis({ text }: { text: string | undefined }) {
               collapsedHeight == null
                 ? [
                     foregroundStyle("secondary"),
-                    // A button centres its label; the synopsis reads from the leading edge.
+                    // A button centres its label; the synopsis reads from
+                    // the leading edge.
                     multilineTextAlignment("leading"),
-                    // A tight height truncates mid-word: the text keeps its own.
+                    // A tight height cuts mid-word: the text keeps its own.
                     fixedSize({ horizontal: false, vertical: true }),
                     lineLimit(COLLAPSED_LINES),
                     onGeometryChange(({ height }) =>
@@ -68,7 +70,7 @@ export function Synopsis({ text }: { text: string | undefined }) {
                     fixedSize({ horizontal: false, vertical: true }),
                     // Before the frame, so it reads the text's own height.
                     onGeometryChange(({ height }) => setFullHeight(height)),
-                    // Collapsed height is measured once, so a width change keeps it.
+                    // Collapsed height, measured once: a width change keeps it.
                     frame({
                       height: expanded ? fullHeight : collapsedHeight,
                       alignment: "topLeading",

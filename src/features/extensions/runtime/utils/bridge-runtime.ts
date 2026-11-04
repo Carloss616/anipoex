@@ -5,7 +5,10 @@ type Send = (
   args: Record<string, unknown>,
 ) => Promise<{ result?: unknown; error?: string }>;
 
-/** A `RuntimeApi` over any transport that answers `{result}` or `{error}`, so the app shows the extension's own message. */
+/**
+ * A `RuntimeApi` over any transport that answers `{result}` or `{error}`, so
+ * the app shows the extension's own message.
+ */
 export const bridgeRuntime = (send: Send): RuntimeApi => {
   const call = async <T>(
     method: string,

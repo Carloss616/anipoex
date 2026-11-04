@@ -11,5 +11,5 @@ export interface ContinueReading {
   source?: Source;
 }
 
-/** Set while a detail with a next chapter has focus, for the iOS tab bar accessory. */
+/** Set while a detail with a next chapter is focused, for the iOS accessory. */
 export const continueReading$ = observable<ContinueReading | null>(null);

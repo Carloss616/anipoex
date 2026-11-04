@@ -27,8 +27,9 @@ const page = () => {
   return engine.loaded.then(() => engine.window.webContents);
 };
 
-// Runs in the page. Bitmaps draw in order, each from the ones before it; the last is encoded. Android draws a
-// bitmap without a paint unfiltered, and drawColor fills the whole bitmap whatever the transform. Text is
+// Runs in the page. Bitmaps draw in order, each from the ones before it;
+// the last is encoded. Android draws a bitmap without a paint unfiltered,
+// and drawColor fills the whole bitmap whatever the transform. Text is
 // Helvetica, the font the runtime measured its lines in.
 async function draw({ images, bitmaps, type, quality }) {
   const bytes = (data) => Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
@@ -101,7 +102,10 @@ async function draw({ images, bitmaps, type, quality }) {
   return btoa(binary);
 }
 
-/** Renders android.graphics' bitmaps for the runtime (`renderImage`, see ImageEngine.kt); resolves to the base64 encoded image. */
+/**
+ * Renders android.graphics' bitmaps for the runtime (`renderImage`, see
+ * ImageEngine.kt); resolves to the base64 encoded image.
+ */
 export async function renderImage(args) {
   return (await page()).executeJavaScript(`(${draw})(${JSON.stringify(args)})`);
 }

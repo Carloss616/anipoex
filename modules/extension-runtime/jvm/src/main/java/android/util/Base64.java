@@ -1,6 +1,9 @@
 package android.util;
 
-/** Android's Base64 over java.util.Base64: the flags pick alphabet, padding and line wrapping. */
+/**
+ * Android's Base64 over java.util.Base64: the flags pick alphabet, padding
+ * and line wrapping.
+ */
 public final class Base64 {
     public static final int DEFAULT = 0;
     public static final int NO_PADDING = 1;
@@ -11,7 +14,8 @@ public final class Base64 {
     private Base64() {}
 
     public static byte[] decode(String input, int flags) {
-        // Android ignores whitespace anywhere in the input; java.util.Base64 accepts missing padding as is.
+        // Android ignores whitespace anywhere in the input; java.util.Base64
+        // accepts missing padding as is.
         String clean = input.replaceAll("\\s", "");
         return ((flags & URL_SAFE) != 0 ? java.util.Base64.getUrlDecoder() : java.util.Base64.getDecoder()).decode(clean);
     }
@@ -25,7 +29,7 @@ public final class Base64 {
         if ((flags & NO_PADDING) != 0) encoder = encoder.withoutPadding();
         String text = encoder.encodeToString(input);
         if ((flags & NO_WRAP) != 0) return text;
-        // Wrapped output puts a line break after every 76 characters, the last line included.
+        // Wrapping breaks after every 76 characters, the last line's included.
         String eol = (flags & CRLF) != 0 ? "\r\n" : "\n";
         StringBuilder wrapped = new StringBuilder();
         for (int i = 0; i < text.length(); i += 76) {

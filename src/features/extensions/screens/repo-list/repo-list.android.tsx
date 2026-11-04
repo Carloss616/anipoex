@@ -62,7 +62,8 @@ export function RepoList() {
   const insets = useSafeAreaInsets();
   const m3 = useThemeM3Colors();
 
-  // Trusting a repo clears the url; only that is mirrored, so typing is never rewritten.
+  // Trusting a repo clears the url; only that is mirrored, so typing is
+  // never rewritten.
   useEffect(() => {
     if (empty) text.value = "";
   }, [empty, text]);

@@ -3,7 +3,7 @@ import { useRef } from "react";
 
 type PressRepeatEvent = { type: "start" | "repeat" };
 
-// Type-only import: Compose's ModifierConfig has the same shape, so Android takes it too.
+// Type-only import; Compose's ModifierConfig has the same shape.
 const onPressRepeat = (
   handler: (event: PressRepeatEvent) => void,
 ): ModifierConfig => ({ $type: "onPressRepeat", eventListener: handler });

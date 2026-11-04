@@ -15,7 +15,7 @@ export const ALL = "All genres";
 /** Every list query a manual refresh or a tracking change should redo. */
 export const REFRESH_QUERIES = ["MangaList", "MangaListCounts"];
 
-/** One list's state, owned by the screen: the genre picked and what's loaded. */
+/** One list's state, owned by the screen: the genre picked, what's loaded. */
 export interface MangaListStore {
   genre: string;
   entries: MangaEntry[];
@@ -26,7 +26,7 @@ export const emptyMangaList = (): MangaListStore => ({
   entries: [],
 });
 
-/** One list, loaded into the caller's `list$` and filtered by the search and its genre. */
+/** Loads into the caller's `list$`, filtered by the search and its genre. */
 export function useMangaList(
   status: MediaListStatus,
   query$: ObservablePrimitive<string>,
@@ -49,8 +49,8 @@ export function useMangaList(
   }, [data, list$]);
 
   /**
-   * Computeds under a plain root: `useObservable` deactivates only its root node on unmount, and
-   * Fast Refresh re-runs effects without ever reactivating it, freezing a computed at the root.
+   * Computeds under a plain root: `useObservable` deactivates only its root on
+   * unmount, and Fast Refresh never reactivates it, freezing a root computed.
    */
   const derived$ = useObservable({
     genres: () =>

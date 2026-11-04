@@ -39,7 +39,8 @@ describe("parseChapterNumber", () => {
     expect(parseChapterNumber("", "Foo", -1)).toBe(-1);
   });
 
-  // Mihon's ChapterRecognitionTest, the cases a single name decides; letters count as tenths (4a is 4.1).
+  // Mihon's ChapterRecognitionTest, the cases a single name decides; letters
+  // count as tenths (4a is 4.1).
   const mihon: [string, string, number][] = [
     ["Mokushiroku Alice", "Mokushiroku Alice Vol.1 Ch.4: Misrepresentation", 4],
     [
@@ -151,7 +152,7 @@ describe("parseChapterNumber", () => {
   });
 });
 
-// Mihon's ChapterRecognitionTest: names from the most to the least recent, each with its [volume, chapter].
+// Mihon's ChapterRecognitionTest: names newest first, each [volume, chapter].
 const numbers = (
   mangaTitle: string,
   ...expected: [string, string | null, string | null][]

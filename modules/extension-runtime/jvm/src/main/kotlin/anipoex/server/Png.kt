@@ -8,8 +8,9 @@ import java.util.zip.DeflaterOutputStream
 import java.util.zip.InflaterInputStream
 
 /**
- * The PNGs pixels travel in between the runtime and the app's image engine (see [ImageEngine]): 8-bit RGB or RGBA,
- * not interlaced, which is what the engines write. Pixels are Android's ARGB ints.
+ * The PNGs pixels travel in between the runtime and the app's image engine
+ * (see [ImageEngine]): 8-bit RGB or RGBA, not interlaced, which is what the
+ * engines write. Pixels are Android's ARGB ints.
  * @see <a href="https://www.w3.org/TR/png-3/">PNG (Third Edition)</a>
  */
 internal object Png {
@@ -18,7 +19,8 @@ internal object Png {
     class Image(val width: Int, val height: Int, val argb: IntArray)
 
     fun encode(width: Int, height: Int, argb: IntArray): ByteArray {
-        // Unfiltered rows: smaller files aren't worth the time for a PNG that only crosses to the app.
+        // Unfiltered rows: smaller files aren't worth the time for a PNG that
+        // only crosses to the app.
         val raw = ByteArray(height * (1 + width * 4))
         var i = 0
         for (y in 0 until height) {

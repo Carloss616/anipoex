@@ -25,11 +25,11 @@ interface Props {
   progress: number | null;
   /** Set once the scan ends. */
   ended: boolean;
-  /** The house Progress's track, which the shade can only take as a plain bar. */
+  /** The house Progress's track; the shade takes it only as a plain bar. */
   trackHeight: number;
 }
 
-// A widget function runs in its own runtime: everything it shows comes in props.
+// A widget function runs in its own runtime: all it shows comes in props.
 const ScanNotification = createCustomNotification<Props>(
   "ScanNotification",
   (props) => {
@@ -82,7 +82,7 @@ const ScanNotification = createCustomNotification<Props>(
 // Left behind by a run that was killed mid-scan.
 void ScanNotification.cancelAll().catch(() => {});
 
-/** An ongoing notification with the scan's progress; tapping it opens the manga. */
+/** An ongoing notification of the scan's progress; a tap opens the manga. */
 export function startScanActivity({
   mangaId,
   name,

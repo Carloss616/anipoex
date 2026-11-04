@@ -42,7 +42,7 @@ export function toSections(
   return byFilter[query.filter].filter((s) => s.data.length > 0);
 }
 
-/** One list row: lists render sections flat so they recycle per row, not per section. */
+/** One list row: sections render flat so lists recycle per row, not section. */
 export type ExtensionListRow =
   | { kind: "header"; key: string; section: ExtensionSection }
   | {

@@ -99,7 +99,8 @@ export const AvailableItem = memo(function AvailableItem({
             <Badge color={status.color}>{status.label}</Badge>
           )}
           {detail !== "" && (
-            // The badge's labelSmall: a second baseline makes M3's ListItem a top-aligned three-line row.
+            // The badge's labelSmall: a second baseline makes M3's ListItem a
+            // top-aligned three-line row.
             <Text
               style={{ typography: "labelSmall", fontWeight: "400" }}
               color={m3.onSurfaceVariant}
@@ -113,12 +114,15 @@ export const AvailableItem = memo(function AvailableItem({
       </ListItem.SupportingContent>
       <ListItem.TrailingContent>
         <Row verticalAlignment="center">
-          {/* Its own click, consumed before the row's, so rescanning never selects; off only while this source scans. */}
+          {/* Its own click, consumed before the row's, so rescanning never
+              selects; off only while this source scans. */}
           <IconButton
             enabled={!scanning}
             onClick={() => actions.rescan(source.id)}
             modifiers={[
-              // A disabled button passes the tap to the row; this outer no-op takes it on the same node, so TalkBack still reads one disabled button.
+              // A disabled button passes the tap to the row; this outer no-op
+              // takes it on the same node, so TalkBack still reads one
+              // disabled button.
               ...(scanning ? [clickable(() => {}, { indication: false })] : []),
               semantics({ contentDescription: `Rescan ${source.name}` }),
             ]}
@@ -150,7 +154,8 @@ export const AvailableItem = memo(function AvailableItem({
               />
             </IconButton>
           )}
-          {/* Its own click, so TalkBack still finds a radio next to the row's long-press. */}
+          {/* Its own click, so TalkBack still finds a radio next to the
+              row's long-press. */}
           <RadioButton selected={selected} onClick={select} />
           {/* A dialog window, not laid out in the row. */}
           {error && (

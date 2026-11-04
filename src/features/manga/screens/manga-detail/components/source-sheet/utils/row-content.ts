@@ -17,7 +17,10 @@ const RESET_DIALOG: MenuItemDialogConfig = {
   confirmLabel: "Reset",
 };
 
-/** The Excluded section's menu: a title search of its sources, retry while any exclusion is automatic, then a confirmed reset; those two off during a scan. */
+/**
+ * The Excluded section's menu: a title search of its sources, retry while any
+ * exclusion is automatic, then a confirmed reset; those two off during a scan.
+ */
 export const excludedMenuItems = (
   excluded: { pinned: boolean; source: { id: string } }[],
   busy: boolean,
@@ -60,7 +63,10 @@ export const excludeMenu = (
   })),
 });
 
-/** A failed row's See error: what the source said, then Rescan, or Include on an excluded row. */
+/**
+ * A failed row's See error: what the source said, then Rescan, or Include on
+ * an excluded row.
+ */
 export const errorDialog = (
   name: string,
   error: string,
@@ -71,13 +77,19 @@ export const errorDialog = (
   confirmLabel: excluded ? "Include" : "Rescan",
 });
 
-/** What follows the badge on an available row: `c.{chapter}` (`?` when suspicious) and the age, each when present. */
+/**
+ * What follows the badge on an available row: `c.{chapter}` (`?` when
+ * suspicious) and the age, each when present.
+ */
 export const statusDetail = ({ chapter, suspicious, age }: SourceStatus) =>
   [chapter !== undefined && `c.${chapter}${suspicious ? "?" : ""}`, age]
     .filter(Boolean)
     .join(" · ");
 
-/** The reasons a row's menu offers, `bad-numbering` first when its numbering looks wrong. */
+/**
+ * The reasons a row's menu offers, `bad-numbering` first when its numbering
+ * looks wrong.
+ */
 export const excludeReasons = (suspicious: boolean): ExcludeReason[] =>
   suspicious
     ? ["bad-numbering", ...ORDER.filter((r) => r !== "bad-numbering")]

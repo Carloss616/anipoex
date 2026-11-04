@@ -79,7 +79,7 @@ export function ListContent({
   const shown = sections.reduce((n, s) => n + s.data.length, 0);
   const empty = sections.length === 0;
 
-  // The sentinel leaves with the list: with nothing to scroll, the header rests.
+  // The sentinel leaves with the list: with nothing to scroll, header rests.
   useEffect(() => {
     if (empty) setHeaderScrolled(false);
   }, [empty, setHeaderScrolled]);
@@ -94,7 +94,8 @@ export function ListContent({
             </EmptyState>
           ) : (
             <LazyColumn
-              // Remount per filter, or Compose keeps the scroll on the old first key.
+              // Remount per filter, or Compose keeps the scroll on the old
+              // first key.
               key={filter}
               modifiers={[fillMaxSize()]}
               contentPadding={{
@@ -104,7 +105,8 @@ export function ListContent({
                 bottom: counts.updates > 0 ? 80 : 0,
               }}
             >
-              {/* Top sentinel: Compose's `firstVisibleItemIndex == 0`, without scroll events. */}
+              {/* Top sentinel: Compose's `firstVisibleItemIndex == 0`,
+                without scroll events. */}
               <Box
                 modifiers={[
                   fillMaxWidth(),

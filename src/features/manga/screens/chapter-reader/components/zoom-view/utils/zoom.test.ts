@@ -17,7 +17,7 @@ describe("pinchTo", () => {
       focalY: 200,
     });
     expect(zoom).toEqual({ scale: 2, translateX: -100, scroll: 1100 });
-    // The anchored content point (100 across, 1200 down) draws at the focal point.
+    // The anchored point (100 across, 1200 down) draws at the focal point.
     expect(zoom.scale * anchor.x + zoom.translateX).toBe(100);
     expect(zoom.scale * (anchor.y - zoom.scroll)).toBe(200);
   });

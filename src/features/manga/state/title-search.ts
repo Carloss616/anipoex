@@ -14,7 +14,10 @@ export interface RailState {
   error?: string;
 }
 
-/** Per manga, the sources searching by title and what each answered; a source present is searching. Not persisted. */
+/**
+ * Per manga, the sources searching by title and what each answered; a
+ * source present is searching. Not persisted.
+ */
 export const titleSearch$ = observable<
   Record<string, Record<string, RailState>>
 >({});
@@ -91,7 +94,7 @@ export async function startTitleSearch(
 ) {
   const key = mediaKey(mangaId);
   titleQuery$[key].set(query);
-  // Every source shows loading at once; later batches wait for the earlier ones.
+  // Every source shows loading at once; later batches wait for earlier ones.
   const started = sourceIds.map((sourceId) => {
     titleSearch$[key][sourceId].set(LOADING);
     return { sourceId, mine: bump(`${key}/${sourceId}`) };
@@ -112,7 +115,7 @@ export const submitTitleQuery = (mangaId: number, query: string) =>
     query,
   );
 
-/** Appends the source's next page, dropping results already listed; a failure keeps the rows. */
+/** Appends the next page minus results listed; a failure keeps the rows. */
 export async function loadMoreTitles(mangaId: number, sourceId: string) {
   const key = mediaKey(mangaId);
   const rail$ = titleSearch$[key][sourceId];
@@ -162,7 +165,10 @@ export function stopTitleSearch(mangaId: number, sourceId?: string) {
   }
 }
 
-/** Whether any source of the manga (or of `ids`) searches by title; tracked, for a `Computed` or `useValue`. */
+/**
+ * Whether any source of the manga (or of `ids`) searches by title; tracked,
+ * for a `Computed` or `useValue`.
+ */
 export const isTitleSearching = (key: string, ids?: string[]) =>
   ids
     ? ids.some((id) => titleSearch$[key][id].get() !== undefined)

@@ -12,12 +12,7 @@ const SIZES = {
   lg: 58,
 } as const satisfies Record<LoaderSize, number>;
 
-/**
- * Android Loader: same props as [the web one](./loader.tsx), rendered as
- * M3 Expressive's `ContainedLoadingIndicator`.
- *
- * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/progress/
- */
+/** @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/progress/ */
 export function Loader({ size = "md" }: LoaderProps) {
   const m3 = useThemeM3Colors();
   const dp = SIZES[size];

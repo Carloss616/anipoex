@@ -37,20 +37,14 @@ function actionRow(item: MenuAction) {
 }
 
 /**
- * iOS Menu: a SwiftUI `Menu` whose label is the trigger.
+ * The trigger renders as SwiftUI content, not through an `RNHostView`: an RN
+ * surface nested back into the label stays unmeasured, so invisible (as in
+ * `@expo/ui`'s `MenuView`). The menu owns the tap: a trigger's own press
+ * handler won't fire.
  *
- * The trigger renders inside the host as SwiftUI content, not through an
- * `RNHostView` — nesting an RN surface back into the label is what leaves the
- * trigger unmeasured (and so invisible) in `@expo/ui`'s drop-in `MenuView`.
- * Pass presentation content: the menu owns the tap, so a trigger with its own
- * press handler will not fire.
- *
- * A confirming row hands the whole menu to the dialog as its trigger rather
- * than putting a dialog beside it. `.confirmationDialog` presents from the
- * view it is attached to, and with nothing in the trigger slot that view is an
- * `EmptyView` it never presents from — the menu label is the anchor that
- * outlives the row. The press that opens the dialog is the row's, not the
- * trigger's, so `open` still drives it.
+ * A confirming row makes the whole menu the dialog's trigger: with none,
+ * `.confirmationDialog` sits on an `EmptyView` and never presents. The row's
+ * press still opens it through `open`.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/menu/
  */

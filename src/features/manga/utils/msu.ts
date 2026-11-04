@@ -1,6 +1,7 @@
 import type { SemanticColor } from "@/components/ui/colors";
 
-// Mirrors manga-source-updates utils/types.ts (and REASONS/config) for gist sync; must not drift.
+// Mirrors manga-source-updates utils/types.ts (and REASONS/config) for gist
+// sync; must not drift.
 
 export type AutoBadKind = "not-matched" | "error-found" | "outdated";
 export type ResultKind = AutoBadKind | "new" | "up-to-date" | "all-excluded";

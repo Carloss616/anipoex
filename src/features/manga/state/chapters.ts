@@ -12,7 +12,10 @@ import { exclusions$ } from "./exclusions";
 export const chaptersKey = (mangaId: number | string, sourceId: string) =>
   `${mangaId}/${sourceId}`;
 
-/** Per manga and source, the chapters it last answered with; each entry is read from storage on first use. */
+/**
+ * Per manga and source, the chapters it last answered with; each entry is
+ * read from storage on first use.
+ */
 export const chapters$ = observable<Record<string, StoredChapters | undefined>>(
   (key: string) =>
     synced<StoredChapters | undefined>({
@@ -21,7 +24,10 @@ export const chapters$ = observable<Record<string, StoredChapters | undefined>>(
     }),
 );
 
-/** The stored chapters once storage answers; undefined when there are none or they can't be read. */
+/**
+ * The stored chapters once storage answers; undefined when there are none or
+ * they can't be read.
+ */
 export async function readChapters(mangaId: number, sourceId: string) {
   const entry$ = chapters$[chaptersKey(mangaId, sourceId)];
   const state$ = syncState(entry$);
@@ -32,12 +38,11 @@ export async function readChapters(mangaId: number, sourceId: string) {
 
 function drop(key: string) {
   const entry$ = chapters$[key];
-  // An entry never read has nothing in memory, and setting it wouldn't reach storage.
+  // A never-read entry has nothing in memory; a set wouldn't reach storage.
   if (syncState(entry$).isLoaded.peek()) entry$.set(undefined);
   else writeStoredChapters(key, undefined);
 }
 
-/** Forgets the list stored for the manga in the source. */
 export const dropChapters = (mangaId: number, sourceId: string) =>
   drop(chaptersKey(mangaId, sourceId));
 

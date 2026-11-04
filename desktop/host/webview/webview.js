@@ -9,7 +9,7 @@ import {
   uaOverride,
 } from "./protocol.js";
 
-// Under the runtime's call timeout: a poll with nothing to say answers empty after this.
+// Under the runtime's call timeout: an idle poll answers empty after this.
 const POLL_MS = 20_000;
 const PRELOAD = path.join(import.meta.dirname, "preload.cjs");
 // A common Android phone's, in CSS pixels.
@@ -19,7 +19,7 @@ const PHONE_SCREEN = {
   deviceScaleFactor: 2.625,
   mobile: true,
 };
-// Chromium's ERR_ABORTED: a stop or a newer navigation, which Android doesn't report.
+// Chromium's ERR_ABORTED: a stop or newer navigation, unreported on Android.
 const ABORTED = -3;
 
 const views = new Map();
@@ -35,7 +35,7 @@ const isWebUrl = (url) =>
   ["http:", "https:"].includes(URL.parse(url ?? "")?.protocol);
 
 const emit = (view, event) => {
-  // Nothing before the runtime's first load: the blank page a window starts on isn't one of its.
+  // Nothing before the runtime's first load: the initial blank page isn't its.
   if (view.closed || !view.loaded) return;
   view.queue.push(event);
   view.wake?.();
@@ -47,7 +47,8 @@ const live = (id) => {
   return view;
 };
 
-// One session for every WebView, as Android's CookieManager and storage are the app's, apart from the app's own.
+// One session for every WebView, as Android's CookieManager and storage are
+// app-wide; apart from the app's own.
 const partition = () => {
   if (shared) return shared;
   shared = session.fromPartition("webview");
@@ -56,9 +57,10 @@ const partition = () => {
     callback(false),
   );
   shared.on("will-download", (_event, item) => item.cancel());
-  // Android's CookieManager is the WebView's own store, so a cookie a page sets after it finished loading (a
-  // captcha's answer) is the runtime's at once; here it learns it from this event (not in the first protocol).
-  // A deleted one goes as already expired, which drops it there too.
+  // Android's CookieManager is the WebView's own store, so a cookie a page
+  // sets after it finished loading (a captcha's answer) is the runtime's at
+  // once; here it learns it from this event. A deleted one goes as already
+  // expired, which drops it there too.
   shared.cookies.on("changed", (_event, cookie, cause, removed) => {
     if (removed && !DELETED.has(cause)) return;
     const sent = removed
@@ -77,7 +79,8 @@ const partition = () => {
       if (
         view &&
         !["mainFrame", "subFrame"].includes(resourceType) &&
-        // Aborted by a newer load, or an image blockImages refused: neither is a failure on Android.
+        // Aborted by a newer load, or an image blockImages refused: neither
+        // is a failure on Android.
         !["net::ERR_ABORTED", "net::ERR_BLOCKED_BY_CLIENT"].includes(error)
       )
         emit(view, {
@@ -91,11 +94,13 @@ const partition = () => {
   return shared;
 };
 
-// Interception goes through the DevTools protocol's Fetch domain, not protocol.handle: a request the runtime lets
-// through then leaves from Chromium's own network stack (its Sec-Fetch-*, SameSite and partitioned cookies),
-// where one forwarded from a handler reads as Sec-Fetch-Site "none" and fails Cloudflare's Turnstile. The page,
-// its out-of-process frames and its workers are each a debugger target, set up alike; the page's own messages
-// come with an empty session id, which a command refuses.
+// Interception goes through the DevTools Fetch domain, not protocol.handle:
+// a request the runtime lets through then leaves from Chromium's own network
+// stack (its Sec-Fetch-*, SameSite and partitioned cookies), where one
+// forwarded from a handler reads as Sec-Fetch-Site "none" and fails
+// Turnstile. The page, its out-of-process frames and its workers are each a
+// debugger target, set up alike; the page's own messages come with an empty
+// session id, which a command refuses.
 const cdp = async (view, method, params, sessionId) =>
   view.window.webContents.debugger.sendCommand(
     method,
@@ -105,11 +110,11 @@ const cdp = async (view, method, params, sessionId) =>
 
 const applySettings = (view, sessionId) => {
   const { userAgent, javaScriptEnabled } = view.settings;
-  // A phone's user agent on a page without touch or a phone's screen fails Turnstile: it gets both.
+  // A phone's user agent without touch or a phone's screen fails Turnstile.
   const phone = /Mobile/.test(userAgent ?? "");
   const send = (method, params = {}) => cdp(view, method, params, sessionId);
   return Promise.allSettled([
-    // An empty user agent lifts the override: the browser's own, with its own client hints.
+    // An empty one lifts the override: the browser's own, with its hints.
     send(
       "Emulation.setUserAgentOverride",
       userAgent ? uaOverride(userAgent) : { userAgent: "" },
@@ -139,7 +144,8 @@ const setUpTarget = (view, sessionId) =>
     applySettings(view, sessionId),
   ]);
 
-// Every request of the page waits for the runtime's `wvRespond`: its response, or null to send it as is.
+// Every request waits for the runtime's `wvRespond`: a response, or null to
+// send it as is.
 const intercept = async (view, sessionId, paused) => {
   const { requestId: pausedId, request, frameId, resourceType } = paused;
   const send = (method, params = {}) =>
@@ -191,11 +197,12 @@ const debug = async (view) => {
   await setUpTarget(view, undefined);
 };
 
-// Every load starts with the runtime's cookies (its CookieManager is the store all sources share) and settings.
+// Every load starts with the runtime's settings and cookies (its
+// CookieManager is the store all sources share).
 const prepare = async (view, settings, cookies) => {
   view.settings = settings;
   view.loaded = true;
-  // The runtime sends its whole store each time: only what the browser lacks is set.
+  // The runtime sends its whole store each time: set only what's missing.
   const held = new Set((await partition().cookies.get({})).map(cookieKey));
   await Promise.all([
     ...[undefined, ...view.targets].map((target) =>
@@ -204,7 +211,7 @@ const prepare = async (view, settings, cookies) => {
     ...(cookies ?? [])
       .filter((cookie) => !held.has(cookieKey(cookie)))
       .map((cookie) =>
-        // The browser refuses what it wouldn't take from a site either (a Secure cookie for http).
+        // Refused if a site couldn't set it either (a Secure cookie for http).
         partition()
           .cookies.set(toElectronCookie(cookie))
           .catch(() => {}),
@@ -214,7 +221,8 @@ const prepare = async (view, settings, cookies) => {
 
 const watch = (view) => {
   const contents = view.window.webContents;
-  // A loaded document's URL is its data URL; the page and its origin are the base URL's.
+  // A loaded document's URL is its data URL; the page and its origin are
+  // the base URL's.
   const pageUrl = (url) =>
     url.startsWith("data:") && view.baseUrl ? view.baseUrl : url;
   contents.on(
@@ -261,7 +269,8 @@ const watch = (view) => {
       crashed: !["clean-exit", "killed", "oom"].includes(reason),
     }),
   );
-  // `ipc` hears this page only: its preload asks for the interfaces on each navigation, then calls them.
+  // `ipc` hears this page only: its preload asks for the interfaces on each
+  // navigation, then calls them.
   contents.ipc.on("webview-interfaces", (event) => {
     event.returnValue = view.settings.interfaces ?? [];
   });
@@ -270,7 +279,8 @@ const watch = (view) => {
       (face) => face.name === name && face.methods.includes(method),
     );
     if (!known || !Array.isArray(args)) return;
-    // The IPC can beat the store's change event: a cookie the page set just before the call goes first.
+    // The IPC can beat the store's change event: cookies the page set just
+    // before the call go first.
     view.calls = (view.calls ?? Promise.resolve()).then(async () => {
       const cookies = await partition()
         .cookies.get({})
@@ -299,7 +309,7 @@ export async function wvCreate() {
   const view = {
     id,
     window,
-    // Never rewritten unless an extension asks: a doctored user agent fails bot checks.
+    // Rewritten only when an extension asks: a doctored one fails bot checks.
     userAgent: window.webContents.getUserAgent(),
     settings: { interfaces: [] },
     baseUrl: null,
@@ -320,10 +330,11 @@ export async function wvCreate() {
   return { id, userAgent: view.userAgent };
 }
 
-/** `wvLoad`: answers once the navigation is under way; how it goes arrives as events. */
+/** `wvLoad`: answers once navigation starts; its progress comes as events. */
 export async function wvLoad({ id, url, headers, settings, cookies }) {
   const view = live(id);
-  // Never `file:` and the like: a page that reads local files would hand them to the extension.
+  // Never `file:` and the like: a page reading local files would hand them
+  // to the extension.
   if (!isWebUrl(url) && !/^(about|data):/.test(url))
     throw new Error("Not a web URL");
   await prepare(view, settings, cookies);
@@ -346,7 +357,7 @@ export async function wvLoad({ id, url, headers, settings, cookies }) {
   return null;
 }
 
-/** `wvLoadData`: `data` as the document of `baseUrl`, which is never fetched. */
+/** `wvLoadData`: `data` as the document of `baseUrl`, never fetched. */
 export async function wvLoadData({
   id,
   baseUrl,
@@ -369,9 +380,11 @@ export async function wvLoadData({
 }
 
 /**
- * `wvEvaluate`, as Android's `evaluateJavascript`: the completion value JSON-encoded, never waiting for a promise
- * ("{}", as a DOM node gives); "null" for undefined, what JSON can't hold or a thrown error. Through the debugger,
- * since executeJavaScript awaits promises, and in the page a site's CSP may refuse the eval that encoding needs.
+ * `wvEvaluate`, as Android's `evaluateJavascript`: the completion value
+ * JSON-encoded, never awaiting a promise ("{}", as a DOM node gives); "null"
+ * for undefined, what JSON can't hold or a thrown error. Through the
+ * debugger, since executeJavaScript awaits promises, and in the page a site's
+ * CSP may refuse the eval that encoding needs.
  */
 export async function wvEvaluate({ id, script }) {
   const view = live(id);
@@ -396,7 +409,7 @@ export async function wvStop({ id }) {
   return null;
 }
 
-/** `wvDestroy`: closes the page; a later `wvEvents` answers closed, as for any unknown id. */
+/** `wvDestroy`: a later `wvEvents` answers closed, as for any unknown id. */
 export async function wvDestroy({ id }) {
   const view = views.get(id);
   if (!view || view.closed) return null;
@@ -408,12 +421,15 @@ export async function wvDestroy({ id }) {
   return null;
 }
 
-/** Closes every page: the runtime that drove them stopped, and a new one never asks for them. */
+/** For when the runtime stops: a new one never asks for its pages. */
 export async function wvDestroyAll() {
   await Promise.all([...views.keys()].map((id) => wvDestroy({ id })));
 }
 
-/** `wvEvents`: what's queued, or waits for something up to POLL_MS; `closed` once destroyed (a pending poll still gets what was queued). */
+/**
+ * `wvEvents`: what's queued, or waits for something up to POLL_MS; `closed`
+ * once destroyed (a pending poll still gets what was queued).
+ */
 export async function wvEvents({ id }) {
   const view = views.get(id);
   if (!view) return { events: [], closed: true };

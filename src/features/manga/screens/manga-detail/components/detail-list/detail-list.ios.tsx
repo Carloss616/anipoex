@@ -86,7 +86,8 @@ export function DetailList({
             ]}
           >
             {/* A row's top edge can't move up, so the hero is only drawn
-                higher (layout unchanged) and the header pulled up by as much. */}
+                higher (layout unchanged) and the header pulled up by as
+                much. */}
             <VStack modifiers={[offset({ y: -maxHeaderHeight })]}>
               <Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />
             </VStack>

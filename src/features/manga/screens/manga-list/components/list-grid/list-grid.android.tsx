@@ -50,7 +50,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
         void Promise.all([
           refetch(),
           client.refetchQueries({ include: ["MangaListCounts"] }),
-          // The error link already toasts it; a rejection here would just be unhandled.
+          // The error link toasts it; this just stops an unhandled rejection.
         ]).catch(() => {})
       }
       contentAlignment="topCenter"
@@ -70,7 +70,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
         <LazyColumn.Items
           data={rows}
           keyExtractor={(row) => row.map((m) => m.id).join()}
-          // Two lines of title and the caption sit under the cover when `below`.
+          // `below` puts two title lines and the caption under the cover.
           estimatedItemSize={cell * 1.5 + (titlePosition === "below" ? 68 : 0)}
         >
           {({ item: row }) => (

@@ -14,7 +14,11 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import java.lang.reflect.InvocationTargetException
 
-/** The one entry point every host calls (JNI on iOS, the stdin/stdout loop on desktop): JSON args in, `{"result":…}` or `{"error":…}` out; it blocks, so hosts call it off their UI thread. */
+/**
+ * The one entry point every host calls (JNI on iOS, the stdin/stdout loop
+ * on desktop): JSON args in, `{"result":…}` or `{"error":…}` out. It
+ * blocks, so hosts call it off their UI thread.
+ */
 object Bridge {
     @Volatile private var host: ExtensionHost? = null
 
@@ -26,7 +30,7 @@ object Bridge {
         val result = runBlocking { dispatch(method, Json.parseToJsonElement(args).jsonObject) }
         JsonObject(mapOf("result" to toJson(result))).toString()
     } catch (e: Throwable) {
-        // A constructor that throws arrives wrapped; the cause is what the app should show.
+        // A throwing constructor arrives wrapped; the app shows the cause.
         val cause = if (e is InvocationTargetException) e.cause ?: e else e
         cause.printStackTrace()
         JsonObject(mapOf("error" to JsonPrimitive(cause.message ?: cause.toString()))).toString()
@@ -36,8 +40,9 @@ object Bridge {
         fun string(name: String) = args.getValue(name).jsonPrimitive.content
         fun int(name: String) = args.getValue(name).jsonPrimitive.int
         if (method == "init") {
-            // Emptied on each start; a host whose process has no captured stderr (iOS) asks for one. Only a convenience,
-            // so a log that can't be opened doesn't stop the runtime.
+            // Emptied on each start; a host whose process has no captured
+            // stderr (iOS) asks for one. Only a convenience, so a log that
+            // can't be opened doesn't stop the runtime.
             args["logFile"]?.jsonPrimitive?.content?.let { runCatching { System.setErr(java.io.PrintStream(java.io.FileOutputStream(it), true)) } }
             synchronized(this) { if (host == null) host = ExtensionHost(File(string("dataDir"))) }
             return null

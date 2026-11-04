@@ -3,7 +3,10 @@ import { CHAPTERS_TIMEOUT_MS, withTimeout } from "./with-timeout";
 
 const inFlight = new Map<string, ReturnType<typeof runtime.chapters>>();
 
-/** The manga's chapters from its source; overlapping loads share one call, since lib 1.6 sources reject a second update of a manga while one runs. */
+/**
+ * The manga's chapters from its source. Overlapping loads share one call:
+ * lib 1.6 sources reject a second update of a manga while one runs.
+ */
 export function fetchChapters(
   sourceId: string,
   { url, title, memo }: { url: string; title: string; memo?: string | null },
@@ -12,7 +15,8 @@ export function fetchChapters(
   const key = `${sourceId}\n${url}`;
   let call = inFlight.get(key);
   if (!call) {
-    // The timeout lives in the shared call, so a hung load is evicted and the next one calls again.
+    // The timeout lives in the shared call, so a hung load is evicted and the
+    // next one calls again.
     call = withTimeout(
       runtime.chapters(sourceId, url, title, memo ?? undefined),
       timeoutMs,

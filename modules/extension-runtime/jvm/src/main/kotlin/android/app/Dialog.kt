@@ -39,7 +39,7 @@ open class Dialog @JvmOverloads constructor(private val context: Context?, theme
 
 class Presentation(context: Context?, display: Display?) : Dialog(context)
 
-/** Android's AlertDialog: like [Dialog], it never shows, so its buttons are never pressed. */
+/** Like [Dialog], it never shows, so its buttons are never pressed. */
 class AlertDialog(context: Context?) : Dialog(context) {
     fun getButton(whichButton: Int): Button = Button(null)
 

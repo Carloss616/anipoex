@@ -5,7 +5,10 @@ import {
   setStatus,
 } from "@/features/manga/utils/tracking-form";
 
-/** The picked status and what confirming it would do. The rules run here so the preview can't drift from them. */
+/**
+ * The picked status and what confirming it would do. The rules run here so
+ * the preview can't drift from them.
+ */
 export function useStatus(form: TrackingForm, total?: number | null) {
   const [today] = useState(() => new Date());
   const [selected, setSelected] = useState(form.status);

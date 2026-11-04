@@ -3,7 +3,10 @@ package android.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/** Android's Log on stderr: on desktop stdout is the protocol channel and stderr goes to the log file. */
+/**
+ * Android's Log on stderr: on desktop stdout is the protocol channel and
+ * stderr goes to the log file.
+ */
 public final class Log {
     public static final int VERBOSE = 2;
     public static final int DEBUG = 3;
@@ -84,7 +87,7 @@ public final class Log {
         return trace.toString();
     }
 
-    // Android's default threshold is INFO; WARN and up keeps the log file to what matters.
+    // Android's default threshold is INFO; WARN and up keeps the log lean.
     public static boolean isLoggable(String tag, int level) {
         return level >= WARN;
     }

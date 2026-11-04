@@ -30,9 +30,8 @@ export function useMangaEntry(id: string) {
       : { variables: { id: mediaId }, context: CONTEXT },
   );
 
-  // The query is skipped once the cache is complete, so it has no `refetch` to
-  // hand back; going through the client hits the network either way and the
-  // fragment above picks the fresh data up.
+  // Skipped once the cache is complete, the query has no `refetch`; the
+  // client hits the network and the fragment above picks the data up.
   const refresh = useCallback(() => {
     if (!valid) return;
 
@@ -45,7 +44,7 @@ export function useMangaEntry(id: string) {
           fetchPolicy: "network-only",
           context: CONTEXT,
         })
-        // The error link already toasts it; a rejection here would just be unhandled.
+        // The error link already toasts it; rejecting would go unhandled.
         .catch(() => {})
         .finally(() => setRefreshing(false))
     );

@@ -10,7 +10,7 @@ import { useStatus } from "./hooks/use-status";
 
 export interface StatusProps {
   form: TrackingForm;
-  /** Chapter count, when the source knows it — Completed fills progress to it. */
+  /** Chapter count, if the source knows it — Completed fills progress to it. */
   total?: number | null;
   onCancel: () => void;
   onConfirm: (next: TrackingForm) => void;

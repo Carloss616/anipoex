@@ -6,7 +6,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.NodeVisitor;
 
-/** Html.fromHtml as plain text: tags are dropped, br and block ends become line breaks. */
+/** Html.fromHtml as plain text: tags go, br and block ends break the line. */
 public final class Html {
     private Html() {}
 
@@ -33,7 +33,8 @@ public final class Html {
                 }
             }
         });
-        // shortcut: trailing breaks are trimmed (Android keeps them) and no styling survives, until an extension reads spans.
+        // shortcut: trailing breaks are trimmed (Android keeps them) and no
+        // styling survives, until an extension reads spans.
         int end = out.length();
         while (end > 0 && out.charAt(end - 1) == '\n') end--;
         return new Text(out.substring(0, end));

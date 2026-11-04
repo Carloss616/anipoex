@@ -98,7 +98,7 @@ export function Overview({
       <Column
         modifiers={[
           fillMaxWidth(),
-          // Leftover height in a landscape sheet, so the card scrolls inside it.
+          // Leftover height in a landscape sheet, so the card scrolls in it.
           ...(isLandscape ? [weight(1)] : []),
           verticalScroll(),
         ]}

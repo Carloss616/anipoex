@@ -19,7 +19,10 @@ interface Notice {
 
 const NONE: ChapterEndProps["save"] = { state: "none", changes: [] };
 
-/** Saves AniList progress at a chapter's end with the tracking sheet's rules, once per chapter per reader session. */
+/**
+ * Saves AniList progress at a chapter's end with the tracking sheet's rules,
+ * once per chapter per reader session.
+ */
 export function useReadingProgress(
   manga: {
     id: number;
@@ -39,12 +42,14 @@ export function useReadingProgress(
   const busy = useRef(false);
   const ids = { mediaId: manga.id, entryId };
 
-  // A write settles only the notice it started from: another chapter's may have replaced it meanwhile.
+  // A write settles only the notice it started from: another chapter's may
+  // have replaced it meanwhile.
   const settle = (from: Notice, to?: Notice) =>
     setNotice((shown) => (shown === from ? to : shown));
 
   const reached = (chapter: Chapter) => {
-    // Every list entry has a status: without one the entry hasn't loaded, and saving would blank its fields.
+    // Every list entry has a status: without one it hasn't loaded, and saving
+    // would blank its fields.
     if (done.current.has(chapter.id) || (entryId != null && !entry?.status))
       return;
     done.current.add(chapter.id);

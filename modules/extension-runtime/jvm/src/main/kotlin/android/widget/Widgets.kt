@@ -7,8 +7,8 @@ import android.text.method.TransformationMethod
 import android.view.View
 import android.view.ViewGroup
 
-// The views a source's login or captcha dialog builds. That dialog never shows here (see android.app.Dialog), so
-// they hold nothing and never fire.
+// The views a source's login or captcha dialog builds. That dialog never
+// shows here (see android.app.Dialog), so they hold nothing and never fire.
 
 open class TextView(context: Context?) : View(context) {
     open fun setText(text: CharSequence?) {}

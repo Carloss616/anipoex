@@ -1,6 +1,6 @@
 package android.util;
 
-/** The screen of the phone Build reports (Pixel 8), since the JVM has none of its own. */
+/** The screen of the phone Build reports (Pixel 8): the JVM has none. */
 public class DisplayMetrics {
     public int widthPixels = 1080;
     public int heightPixels = 2400;

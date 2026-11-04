@@ -53,7 +53,8 @@ class WebViewTest {
         CookieManager.getInstance().removeAllCookies(null)
     }
 
-    // The app's browser, faked: wvEvents hands out the events a test queues, one per call; wvDestroy closes the page.
+    // The app's browser, faked: wvEvents hands out the events a test queues,
+    // one per call; wvDestroy closes the page.
     private fun browser(loadReply: (JsonObject) -> JsonElement = { JsonNull }, evaluate: (String) -> String = { "null" }) {
         Host.call = { method, args ->
             sent += method to args
@@ -155,7 +156,8 @@ class WebViewTest {
         browser()
         val bridge = Bridge()
         val view = WebView(null)
-        // An anonymous object, as the helper registers, needs reflection made accessible.
+        // An anonymous object, as the helper registers, needs reflection made
+        // accessible.
         val anonymous = LinkedBlockingQueue<String>()
         view.addJavascriptInterface(
             object {
@@ -176,7 +178,7 @@ class WebViewTest {
             event("js", "name" to JsonPrimitive(name), "method" to JsonPrimitive(method), "args" to JsonArray(args.map { JsonPrimitive(it) }))
         events += js("bridge", "hidden", "x")
         events += js("bridge", "post", "a", "b")
-        // In the order the page made them, one at a time, as on Android's JavaBridge thread.
+        // In the page's order, one by one, as on Android's JavaBridge thread.
         for (part in 1..20) events += js("bridge", "post", "part $part")
         events += js("anon", "postMessage", "{}")
         assertEquals((1..20).map { "part $it on JavaBridge" }, List(20) { bridge.received.poll(5, TimeUnit.SECONDS) })
@@ -260,7 +262,8 @@ class WebViewTest {
         assertTrue(stored.secure && stored.httpOnly && !stored.hostOnly)
         assertEquals(expiresAt, stored.expiresAt)
 
-        // Set by a request after the page finished (a site's session), as the browser's store reports it.
+        // Set by a request after the page finished (a site's session), as the
+        // browser's store reports it.
         val session = buildJsonObject {
             put("name", "session")
             put("value", "s")
@@ -278,11 +281,13 @@ class WebViewTest {
         view.destroy()
     }
 
-    // iOS keeps Safari's user agent where an extension asks for Chrome's: the site's session is Safari's then, so the
-    // extension's own requests to that site and its subdomains must go out as Safari too.
+    // iOS keeps Safari's user agent where an extension asks for Chrome's: the
+    // site's session is Safari's then, so the extension's own requests to that
+    // site and its subdomains must go out as Safari too.
     @Test
     fun aPageRunAsAnotherBrowserLendsItsUserAgentToTheSite() {
-        // The browser answers a load with the user agent it runs as: as asked on one site, its own on the other.
+        // The browser answers a load with the user agent it runs as: as asked
+        // on one site, its own on the other.
         browser(loadReply = { args -> JsonObject(mapOf("userAgent" to JsonPrimitive(if ("www." in args.toString()) "Chrome/1" else "Safari/1"))) })
         val view = WebView(null)
         view.settings.userAgentString = "Chrome/1"
@@ -294,7 +299,8 @@ class WebViewTest {
         view.destroy()
     }
 
-    // Android's old idiom: a `javascript:` URL runs in the current page rather than loading anything.
+    // Android's old idiom: a `javascript:` URL runs in the current page
+    // rather than loading anything.
     @Test
     fun javascriptUrlsRunInThePage() {
         val scripts = LinkedBlockingQueue<String>()
@@ -347,7 +353,7 @@ class WebViewTest {
     fun noBrowserFailsAndChromiumProbesFindNothing() {
         val error = assertFailsWith<IllegalStateException> { WebView(null) }
         assertEquals("This app has no browser", error.message)
-        // The helper's probe for Chromium internals; it catches this and takes its fallbacks.
+        // The helper's Chromium probe; it catches this and takes its fallbacks.
         assertFailsWith<ClassNotFoundException> {
             Class.forName("org.chromium.support_lib_glue.SupportLibReflectionUtil", false, WebView.getWebViewClassLoader())
         }

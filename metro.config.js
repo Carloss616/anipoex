@@ -16,7 +16,7 @@ const resolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   // tslib resolves to an .mjs with no default export, which breaks rxjs (an
-  // @apollo/client dep) in the static web render. "require" picks the CJS build.
+  // @apollo/client dep) in the static web render; "require" picks the CJS.
   if (moduleName === "tslib") {
     return context.resolveRequest(
       {
@@ -39,10 +39,10 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return context.resolveRequest(context, moduleName, platform);
   }
 
-  // Uniwind's web InputAccessoryView wrapper reads `ReactNative.InputAccessoryView`
-  // at module load, while RNW's index (which imports it) is still evaluating, so
-  // the static web render sees ReactNative undefined. On web RNW renders it as a
-  // plain view, so this one export skips the wrapper.
+  // Uniwind's web InputAccessoryView wrapper reads the react-native namespace
+  // at load, while RNW's index (which imports it) is still evaluating, so the
+  // static web render sees it undefined. RNW renders it as a plain view, so
+  // this one export skips the wrapper.
   // shortcut: no className on InputAccessoryView on web, drop once Uniwind's
   // wrapper stops reading the react-native namespace at load.
   if (

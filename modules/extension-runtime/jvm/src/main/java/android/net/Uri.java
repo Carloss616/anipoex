@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Android's Uri over the RFC 3986 split: parts are kept encoded and decoded on read. */
+/** Android's Uri on an RFC 3986 split: parts stay encoded, decoded on read. */
 public class Uri {
     private static final Pattern PARTS = Pattern.compile("^(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*)(?:\\?([^#]*))?(?:#(.*))?$", Pattern.DOTALL);
     private static final String UNRESERVED = "_-!.~'()*";
@@ -82,7 +82,7 @@ public class Uri {
     public String getHost() {
         if (authority == null) return null;
         String host = authority.substring(authority.lastIndexOf('@') + 1);
-        // An IPv6 literal keeps its brackets and colons; otherwise the port goes.
+        // An IPv6 literal keeps its brackets and colons; else the port goes.
         int colon = host.lastIndexOf(':');
         return colon > host.lastIndexOf(']') ? host.substring(0, colon) : host;
     }

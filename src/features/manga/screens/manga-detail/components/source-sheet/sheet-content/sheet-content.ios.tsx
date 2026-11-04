@@ -58,7 +58,7 @@ import { titleMenuItems } from "../utils/title-menu";
 import type { SheetContentProps } from "./sheet-content";
 
 /** A glass circle's icon slot, as on the tracking overview's menu button. */
-// A plain button only takes taps on its label: the label fills its slot in the group.
+// A plain button only takes taps on its label: it fills its slot in the group.
 const GROUP_SLOT = [
   frame({ width: 40, height: 40 }),
   contentShape(shapes.rectangle()),
@@ -100,7 +100,7 @@ export function SheetContent({
   const failure =
     failed && errorDialog(failed.source.name, failed.error, failed.excluded);
   const [muted, primary] = useThemeColor(["muted", "primary"]);
-  // Rows as in the extension list: inset-grouped cards on the sheet, default row insets.
+  // Rows as in the extension list: inset-grouped cards, default row insets.
   const rowBackground = listRowBackground(muted);
 
   return (
@@ -122,7 +122,8 @@ export function SheetContent({
           spacing={16}
           modifiers={[padding({ horizontal: GUTTER })]}
         >
-          {/* The reason and error dialogs hang off the header: `.alert` needs a view that outlives the swiped row. */}
+          {/* The reason and error dialogs hang off the header: `.alert`
+              needs a view that outlives the swiped row. */}
           <Dialog
             alert
             title={failure?.title ?? `Exclude ${excluding?.source.name ?? ""}`}
@@ -168,7 +169,8 @@ export function SheetContent({
                   </HStack>
                 </VStack>
                 <Spacer />
-                {/* One glass capsule for both, as a native toolbar groups its items. */}
+                {/* One glass capsule for both, as a native toolbar groups
+                    its items. */}
                 <HStack
                   spacing={0}
                   modifiers={[
@@ -181,14 +183,16 @@ export function SheetContent({
                 >
                   <Button
                     onPress={() =>
-                      // Excluded sources too: the right page may be on one dropped for no match.
+                      // Excluded sources too: the right page may be on one
+                      // dropped for no match.
                       actions.searchAll(
                         [...available, ...excluded].map((row) => row.source.id),
                       )
                     }
                     modifiers={[
                       buttonStyle("plain"),
-                      // Tinted while title search is on, as a native toolbar shows an active item.
+                      // Tinted while title search is on, as a native toolbar
+                      // shows an active item.
                       foregroundStyle(title.searching ? primary : "secondary"),
                       accessibilityLabel("Search titles in all sources"),
                     ]}
@@ -216,7 +220,8 @@ export function SheetContent({
                         ]}
                       >
                         {scanningAll$[key].get() ? (
-                          // The icon's slot, so the group never resizes; the button already reads its label.
+                          // The icon's slot, so the group never resizes;
+                          // the button already reads its label.
                           <HStack
                             modifiers={[
                               ...GROUP_SLOT,
@@ -311,7 +316,8 @@ export function SheetContent({
                 <List.ForEach
                   data={available}
                   keyExtractor={(row) => row.source.id}
-                  // Recycled rows are keyed by slot, so a swipe or menu action could land on another source.
+                  // Recycled rows are keyed by slot: a swipe or menu action
+                  // could land on another source.
                   recycling={false}
                 >
                   {({ item: row }) => (
@@ -346,7 +352,8 @@ export function SheetContent({
                 <List.ForEach
                   data={excluded}
                   keyExtractor={(row) => row.source.id}
-                  // Recycled rows are keyed by slot, so a swipe or menu action could land on another source.
+                  // Recycled rows are keyed by slot: a swipe or menu action
+                  // could land on another source.
                   recycling={false}
                 >
                   {({ item: row }) => (

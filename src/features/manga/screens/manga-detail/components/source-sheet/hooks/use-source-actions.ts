@@ -34,7 +34,7 @@ import { searchTitles } from "@/features/manga/utils/source-match";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { openExternal } from "@/utils/open-external";
 
-/** Everything the sheet can do to a manga's sources; nothing here runs until the user acts. */
+/** The sheet's actions on a manga's sources; none runs until the user acts. */
 export function useSourceActions({
   manga,
   read,
@@ -119,7 +119,8 @@ export function useSourceActions({
       deselectSource(manga.id, id);
     },
     deselect: (id: string) => deselectSource(manga.id, id),
-    // A dialog opened before this source's probe can confirm during it; the rescan guard would drop the follow-up, so nothing is written.
+    // A dialog opened before this source's probe can confirm during it; the
+    // rescan guard would drop the follow-up, so nothing is written.
     include: (id: string) => {
       if (scanning$[key][id].peek()) return;
       toggle(id, false, "other");

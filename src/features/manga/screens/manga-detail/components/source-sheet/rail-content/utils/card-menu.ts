@@ -2,7 +2,11 @@ import type { MenuAction, MenuGroup } from "@/components/ui/menu";
 import type { SourceManga } from "@/features/extensions";
 import type { RailItem } from "../../utils/rail-items";
 
-/** A card's menu: under its full title (cards cut it at two lines), the match action it allows and its page. The match actions wait while the source is scanned, whose landing would undo them. */
+/**
+ * A card's menu: under its full title (cards cut it at two lines), the match
+ * action it allows and its page. The match actions wait while the source is
+ * scanned, whose landing would undo them.
+ */
 export function cardMenu(
   item: RailItem,
   manual: boolean,

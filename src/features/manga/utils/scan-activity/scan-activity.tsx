@@ -11,7 +11,7 @@ export interface ScanActivityArgs {
   source?: { id: string; name: string };
 }
 
-/** A scan shown outside the sheet while it runs: in the OS where it can, else in the app. */
+/** The scan outside the sheet: in the OS where it can, else in the app. */
 export interface ScanActivity {
   progress(done: number): void;
   /** `found`: the sources that have the manga. */
@@ -21,9 +21,8 @@ export interface ScanActivity {
 const canNotify = () => typeof Notification !== "undefined";
 
 /**
- * A floating view over every screen shows the scan. Desktop also shows a Scan
- * all on the Dock icon, and its result as a notification when the app is out
- * of sight.
+ * A floating view over every screen; desktop also shows a Scan all on the
+ * Dock icon, and its result as a notification when the app is out of sight.
  */
 export function startScanActivity({
   mangaId,
@@ -42,7 +41,7 @@ export function startScanActivity({
   show(0);
   // A rescan is short: the view is enough.
   if (source) return { progress: show, end: () => view$.delete() };
-  // Asked on the click that starts the scan: browsers drop a prompt without one.
+  // Asked on the scan's starting click: browsers drop a prompt without one.
   if (canNotify() && Notification.permission === "default")
     void Notification.requestPermission();
   desktop?.scanProgress(0);

@@ -8,9 +8,12 @@ export interface Source {
   initials: string;
   /** The source's logo, shown on the tile instead of the initials. */
   iconUrl?: string;
-  /** The source's language code (`en`, `es-419`, `all`), for an installed source. */
+  /** Language code (`en`, `es-419`, `all`), for an installed source. */
   lang?: string;
-  /** `name` without the language it carries when an extension has several, for where the language shows apart. */
+  /**
+   * `name` without the language it carries when an extension has several,
+   * for where the language shows apart.
+   */
   baseName?: string;
   /** The source's http(s) homepage, for an installed source that has one. */
   homeUrl?: string;
@@ -18,7 +21,10 @@ export interface Source {
   headers?: Record<string, string>;
 }
 
-/** Two letters for the tile: the first two words' initials, else the first two capitals, else the first two letters. */
+/**
+ * Two letters for the tile: the first two words' initials, else the first two
+ * capitals, else the first two letters.
+ */
 export function initialsOf(name: string): string {
   const words = name.trim().split(/\s+/);
   const letters =

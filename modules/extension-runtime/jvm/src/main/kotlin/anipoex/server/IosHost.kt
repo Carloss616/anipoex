@@ -4,9 +4,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-/** iOS's side of [Host]: JvmHost.m registers [call] as a native method backed by a WKWebView, then calls [install]. */
+/**
+ * iOS's side of [Host]: JvmHost.m registers [call] as a native method
+ * backed by a WKWebView, then calls [install].
+ */
 object IosHost {
-    /** Answers `{"result"}` or `{"error"}`, as the desktop's host replies do. */
+    /** Answers `{"result"}` or `{"error"}`, like the desktop host's replies. */
     @JvmStatic
     external fun call(method: String, argsJson: String): String
 

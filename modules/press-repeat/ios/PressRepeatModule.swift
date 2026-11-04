@@ -20,7 +20,8 @@ public class PressRepeatModule: Module {
   }
 }
 
-/// Sends `start` when a press begins, then `repeat` every 80ms once it has been held 400ms, and nothing after release.
+/// Sends `start` when a press begins, then `repeat` every 80ms once held
+/// 400ms, and nothing after release.
 struct PressRepeatModifier: ViewModifier {
   let eventDispatcher: EventDispatcher
   @GestureState private var pressing = false
@@ -28,7 +29,8 @@ struct PressRepeatModifier: ViewModifier {
 
   func body(content: Content) -> some View {
     content
-      // Simultaneous, so the Button underneath still gets its tap (and VoiceOver its action).
+      // Simultaneous, so the Button underneath still gets its tap (and
+      // VoiceOver its action).
       .simultaneousGesture(
         DragGesture(minimumDistance: 0).updating($pressing) { _, state, _ in state = true }
       )

@@ -9,9 +9,8 @@ import type { MenuProps } from "./menu";
 import { flattenRows } from "./utils";
 
 /**
- * Android Menu: a Material `DropdownMenu`. Its trigger stays in the React
- * Native surface, so the trigger element keeps its own look and only has to
- * hand over its `onPress`.
+ * The trigger stays in the React Native surface: it keeps its own look and
+ * only hands over its `onPress`.
  *
  * @see https://docs.expo.dev/versions/latest/sdk/ui/jetpack-compose/dropdownmenu/
  */

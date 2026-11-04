@@ -11,7 +11,7 @@ import { SheetContent } from "./sheet-content";
 export interface SourceSheetProps {
   manga: SourcePickerManga;
   entryId: number | null | undefined;
-  /** Shared with the trigger, so opening the sheet doesn't re-render the screen. */
+  /** Shared with the trigger, so opening doesn't re-render the screen. */
   open$: Observable<boolean>;
 }
 
@@ -26,7 +26,8 @@ export function SourceSheet({ manga, entryId, open$ }: SourceSheetProps) {
   const isPresented = useValue(open$);
 
   useEffect(() => {
-    // Title results live while the sheet is open, however it closes (a pick closes it too).
+    // Title results live while the sheet is open, however it closes (a pick
+    // closes it too).
     if (!isPresented) {
       stopTitleSearch(manga.id);
       return;
@@ -38,7 +39,7 @@ export function SourceSheet({ manga, entryId, open$ }: SourceSheetProps) {
     };
   }, [isPresented, manga.id]);
 
-  // A view's tap opens the sheet of the screen in front, not one stacked behind.
+  // A view's tap opens the sheet of the screen in front, not one behind it.
   // Watched only while focused, without re-rendering the sheet.
   useFocusEffect(
     useCallback(

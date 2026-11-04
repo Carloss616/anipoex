@@ -196,7 +196,7 @@ describe("toSaveVariables", () => {
   });
 
   it("leaves an untouched partial date alone", () => {
-    // Read as unset, it would otherwise go out as the null triple that erases it.
+    // Read as unset, it would go out as the null triple that erases it.
     const before = toTrackingForm({
       startedAt: { year: 2019, month: null, day: null },
       completedAt: { year: 2020, month: 4, day: null },

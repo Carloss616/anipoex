@@ -5,9 +5,9 @@ export type ThemePreference = ThemeMode | "system";
 export type ThemeFamilyId = (typeof THEME_FAMILIES)[number]["id"];
 
 /**
- * The families the picker offers — ours, since `PANEL_THEMES` is a fixed const.
- * `default` stays first on `light`/`dark`: the fallback, and the only pair
- * Uniwind resolves against the OS. A new one ships both halves in `global.css`.
+ * The picker's families (ours: `PANEL_THEMES` is a fixed const). `default`
+ * stays first on `light`/`dark`: the fallback, and the only pair Uniwind
+ * resolves against the OS. A new one ships both halves in `global.css`.
  */
 export const THEME_FAMILIES = [
   {

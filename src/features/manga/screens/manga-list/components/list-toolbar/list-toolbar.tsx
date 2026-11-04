@@ -44,7 +44,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
     setRefetching(true);
     client
       .refetchQueries({ include: REFRESH_QUERIES })
-      // The error link already toasts it; a rejection here would just be unhandled.
+      // The error link toasts it; this just stops an unhandled rejection.
       .catch(() => {})
       .finally(() => setRefetching(false));
   };

@@ -43,7 +43,8 @@ class ImageEngineTest {
         // WebP's three headers, as the RIFF chunks begin.
         fun webp(chunk: String, body: List<Int>) = ("RIFF\u0000\u0000\u0000\u0000WEBP$chunk".toByteArray() + ByteArray(4) + body.map(Int::toByte)).let { it + ByteArray(32) }
         assertEquals(800 to 12000, ImageEngine.size(webp("VP8X", listOf(0, 0, 0, 0, 0x1F, 0x03, 0, 0xDF, 0x2E, 0))))
-        // Lossless: 14 bits of width - 1, then 14 of height - 1, after the 0x2F signature.
+        // Lossless: 14 bits of width - 1, then 14 of height - 1, after the 0x2F
+        // signature.
         val w = 640 - 1
         val h = 960 - 1
         val bits = w or (h shl 14)
@@ -55,7 +56,8 @@ class ImageEngineTest {
         assertNull(ImageEngine.size(byteArrayOf(0xFF.toByte(), 0xD8.toByte())))
     }
 
-    // An AVIF grid: item 2 is a 10×10 tile listed first, item 1 (primary) the 640×960 image, its ispe flagged essential.
+    // An AVIF grid: item 2 is a 10×10 tile listed first, item 1 (primary)
+    // the 640×960 image, its ispe flagged essential.
     private fun avif(): ByteArray {
         fun box(type: String, vararg content: ByteArray): ByteArray {
             val body = content.fold(ByteArray(0)) { all, part -> all + part }
@@ -68,7 +70,8 @@ class ImageEngineTest {
         return box("ftyp", "avifmif1".toByteArray()) + meta
     }
 
-    // A page cut in two and swapped, as a source's descrambler does: one image sent once, both tiles from it.
+    // A page cut in two and swapped, as a source's descrambler does: one
+    // image sent once, both tiles from it.
     @Test
     fun descramblingSendsOneRenderCall() {
         val page = encoded("png", 10, 20)
@@ -104,14 +107,15 @@ class ImageEngineTest {
         assertEquals(listOf(0f, 0f, 10f, 10f), floats(ops[1], "src"))
         assertEquals(listOf(0f, 10f, 10f, 20f), floats(ops[1], "dst"))
         assertEquals(listOf(1f, 0f, 0f, 1f, 0f, 0f), floats(ops[1], "matrix"))
-        // translate(2, 3) then scale(2, 2): a point (x, y) lands on (2x + 2, 2y + 3).
+        // translate(2, 3), scale(2, 2): (x, y) lands on (2x + 2, 2y + 3).
         assertEquals(listOf(2f, 0f, 0f, 2f, 2f, 3f), floats(ops[2], "matrix"))
         assertEquals(listOf(0, 0), ops.drop(1).map { it.getValue("bitmap").jsonPrimitive.int })
         assertEquals("jpeg", args.getValue("type").jsonPrimitive.content)
         assertEquals(90, args.getValue("quality").jsonPrimitive.int)
     }
 
-    // A text page as sources make one: a white bitmap, a bold heading and a centered body, through a translate.
+    // A text page as sources make one: a white bitmap, a bold heading and a
+    // centered body, through a translate.
     @Test
     fun textGoesAsLines() {
         var sent: JsonObject? = null
@@ -174,7 +178,8 @@ class ImageEngineTest {
         assertEquals(Color.WHITE, root.getValue("ops").jsonArray.single().jsonObject.getValue("fill").jsonPrimitive.int)
     }
 
-    // A source that reads a page's pixels, moves some and writes them back: the engine draws it once as a PNG.
+    // A source that reads a page's pixels, moves some and writes them back:
+    // the engine draws it once as a PNG.
     @Test
     fun pixelsComeFromTheEngineAndGoBackAsPng() {
         val drawn = IntArray(6) { 0xFF000000.toInt() or it }
@@ -208,7 +213,8 @@ class ImageEngineTest {
         assertContentEquals(intArrayOf(0), blank)
     }
 
-    // ImageIO's writer picks a filter per row, so every filter is decoded; our own PNGs read back in ImageIO.
+    // ImageIO's writer picks a filter per row, so every filter is decoded;
+    // our own PNGs read back in ImageIO.
     @Test
     fun pngRoundTrips() {
         val random = java.util.Random(1)

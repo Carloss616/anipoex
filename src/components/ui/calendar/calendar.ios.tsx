@@ -4,7 +4,7 @@ import type { CalendarProps } from "panelui-native/components/calendar";
 import { EnsureHost } from "../host";
 
 /**
- * iOS Calendar: the SwiftUI picker's `graphical` style *is* the month grid.
+ * The SwiftUI picker's `graphical` style *is* the month grid.
  * @see https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/datepicker/
  */
 export function Calendar({

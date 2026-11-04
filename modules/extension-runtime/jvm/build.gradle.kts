@@ -10,11 +10,12 @@ repositories {
     mavenCentral()
 }
 
-// The host classes are shared with the Android module; android/ shims cover the few Android types they name.
+// The host classes are shared with the Android module; android/ shims
+// cover the few Android types they name.
 sourceSets.main {
     kotlin.srcDir("../android/src/main/java")
     kotlin.exclude("expo/**")
-    // Android's solves the challenge in a WebView; the JVM uses CloudflareInterceptor.jvm.kt.
+    // Android's solves in a WebView; the JVM has CloudflareInterceptor.jvm.kt.
     kotlin.exclude("eu/kanade/tachiyomi/network/interceptor/CloudflareInterceptor.kt")
 }
 
@@ -53,7 +54,8 @@ application {
     mainClass = "anipoex.server.MainKt"
 }
 
-// java.util.logging for a runtime without java.logging; it goes on -Xbootclasspath/a, since only the boot loader may define java.* classes.
+// java.util.logging for a runtime without java.logging; it goes on
+// -Xbootclasspath/a, since only the boot loader may define java.* classes.
 val julShim by sourceSets.creating
 tasks.named<JavaCompile>(julShim.compileJavaTaskName) {
     options.compilerArgs.addAll(listOf("--patch-module", "java.logging=${julShim.java.srcDirs.first()}"))
@@ -64,12 +66,12 @@ val julShimJar by tasks.registering(Jar::class) {
 }
 distributions.main.configure { contents.into("boot") { from(julShimJar) } }
 
-// Runtime image for the sidecar: java.base plus the TLS curves OkHttp needs, nothing else.
+// The sidecar's runtime image: java.base plus the TLS curves OkHttp needs.
 val jlinkRuntime by tasks.registering(Exec::class) {
     val jlink = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
     val output = layout.buildDirectory.dir("jre")
     outputs.dir(output)
-    // Resolved at execution, so other tasks don't provision a toolchain they don't use.
+    // Resolved at execution, so other tasks don't provision a toolchain.
     doFirst {
         output.get().asFile.deleteRecursively()
         executable(jlink.get().metadata.installationPath.file("bin/jlink").asFile.path)
@@ -77,7 +79,8 @@ val jlinkRuntime by tasks.registering(Exec::class) {
     }
 }
 
-// Stands in for okhttp-zstd on iOS, whose JNI library can't load there; the main build keeps the real one.
+// Stands in for okhttp-zstd on iOS, whose JNI library can't load there;
+// the main build keeps the real one.
 val zstdStub by sourceSets.creating
 val zstdStubTest by sourceSets.creating {
     compileClasspath += zstdStub.output

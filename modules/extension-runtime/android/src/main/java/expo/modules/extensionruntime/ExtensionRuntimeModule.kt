@@ -48,11 +48,11 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val SUPPORTED_LIBS = setOf(1.4f, 1.6f)
 private const val ICON_SIZE = 96
-// Bumped when the extraction changes, so icons written by an older one are redrawn on the next load.
+// Bump when the extraction changes, so older icons are redrawn on next load.
 private const val ICON_FILE = ".v2.png"
 
 /**
- * Installs and loads extension APKs: metadata, supported libs, class loader and signatures.
+ * Installs and loads extension APKs: metadata, libs, class loader, signatures.
  * @see https://github.com/mihonapp/mihon/blob/main/app/src/main/java/eu/kanade/tachiyomi/extension/util/ExtensionLoader.kt
  */
 class ExtensionRuntimeModule : Module() {
@@ -72,8 +72,9 @@ class ExtensionRuntimeModule : Module() {
       Injekt.addSingleton<Application>(app)
       val network = NetworkHelper(app)
       Injekt.addSingleton(network)
-      // Covers (modules/native-image) load through the runtime's client, as Mihon's do: DNS over HTTPS, cookies, Cloudflare.
-      // expo-image's own views use their own model and loader, so they keep theirs.
+      // Covers (modules/native-image) load through the runtime's client, as
+      // Mihon's do: DNS over HTTPS, cookies, Cloudflare. expo-image's own views
+      // keep their own model and loader.
       Glide.get(app).registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(network.client))
       Injekt.addSingleton<Json>(Json { ignoreUnknownKeys = true; explicitNulls = false })
       Injekt.addSingleton<ProtoBuf>(ProtoBuf)
@@ -91,7 +92,8 @@ class ExtensionRuntimeModule : Module() {
       withContext(Dispatchers.IO) { uninstall(pkg) }
     }
 
-    // On IO: 1.4 sources answer through Rx, which runs the HTTP call blocking on the subscribing thread.
+    // On IO: 1.4 sources answer through Rx, which runs the HTTP call
+    // blocking on the subscribing thread.
     AsyncFunction("popular") Coroutine { sourceId: String, page: Int ->
       withContext(Dispatchers.IO) { source(sourceId).getPopularManga(page).toMap() }
     }
@@ -110,7 +112,8 @@ class ExtensionRuntimeModule : Module() {
           this.title = title
           if (memo != null) this.memo = Json.parseToJsonElement(memo).jsonObject
         }
-        // No details: the app doesn't use them, and a parsed details SManga has no url (Mihon keeps the stored one).
+        // No details: the app doesn't use them, and a parsed details SManga has
+        // no url (Mihon keeps the stored one).
         val update = source(sourceId).getMangaUpdate(manga, emptyList(), fetchDetails = false, fetchChapters = true)
         mapOf("chapters" to update.chapters.map { it.toMap() })
       }
@@ -148,13 +151,14 @@ class ExtensionRuntimeModule : Module() {
         source.getPageList(chapter).map { page ->
           if (page.imageUrl == null) page.imageUrl = source.getImageUrl(page)
           val request = source.hostImageRequest(page)
-          // The page's own url: `image` builds the request from it, as Mihon's getImage does.
+          // The page's own url: `image` builds its request (Mihon's getImage).
           mapOf("index" to page.index, "imageUrl" to page.imageUrl, "headers" to request.headers.toMap())
         }
       }
     }
 
-    // The reader shows each page from here, never its url: the source's interceptors may rewrite it (descramblers).
+    // The reader shows each page from here, never its url: the source's
+    // interceptors may rewrite it (descramblers).
     AsyncFunction("image") Coroutine { sourceId: String, imageUrl: String, index: Int ->
       pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
     }
@@ -168,12 +172,12 @@ class ExtensionRuntimeModule : Module() {
         download.outputStream().use { response.body.byteStream().copyTo(it) }
       }
       val info = packageInfo(download) ?: error("$apkUrl isn't an APK")
-      // Loading runs the extension's code inside the app, so only the repo's key gets that far.
+      // Loading runs extension code in the app: only the repo's key gets here.
       check(signingKey.lowercase() in signatures(info)) { "${info.packageName} isn't signed by the repo key" }
       metadata(info, download)
       val target = File(extensionsDir, "${info.packageName}.ext")
       val backup = File(extensionsDir, "${info.packageName}.bak")
-      // Concurrent installs of one package take turns replacing and loading its file.
+      // Installs of one package take turns replacing and loading its file.
       return synchronized(lock) {
         backup.delete()
         val hadPrevious = target.renameTo(backup)
@@ -183,7 +187,7 @@ class ExtensionRuntimeModule : Module() {
           target.setReadOnly()
           load(target, overwriteIcon = true).also { backup.delete() }
         } catch (e: Throwable) {
-          // The previous version stays installed when the new one can't be stored or loaded.
+          // The old version stays when the new one can't be stored or loaded.
           target.setWritable(true)
           target.delete()
           if (hadPrevious) backup.renameTo(target)
@@ -208,13 +212,14 @@ class ExtensionRuntimeModule : Module() {
     return meta
   }
 
-  // Like Mihon: an extension without the lib in its metadata carries it in versionName (1.4.3 -> 1.4).
+  // As Mihon: no lib in the metadata means it's in versionName (1.4.3 -> 1.4).
   private fun libVersion(info: PackageInfo, meta: Bundle): Float =
     meta.getFloat("tachiyomix.extensionLib").takeUnless { it == 0f }
       ?: info.versionName.orEmpty().substringBeforeLast('.').toFloatOrNull()
       ?: 0f
 
-  // The APK's launcher icon as a PNG next to it; null when it can't be read, so a bad icon never fails a load.
+  // The launcher icon as a PNG next to the APK; null when it can't be read,
+  // so a bad icon never fails a load.
   private fun icon(info: PackageInfo, apk: File, overwrite: Boolean): String? {
     val png = File(extensionsDir, info.packageName + ICON_FILE)
     return try {
@@ -231,12 +236,14 @@ class ExtensionRuntimeModule : Module() {
     }
   }
 
-  // The icon edge to edge: tiles clip their own shape, so the launcher's mask and padding would show as a frame.
+  // Edge to edge: tiles clip their own shape, so the launcher's mask and
+  // padding would show as a frame.
   private fun toBitmap(drawable: Drawable): Bitmap {
     val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else ICON_SIZE
     val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else ICON_SIZE
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
-      // Unmasked layers, scaled so the 72dp safe zone of the 108dp canvas fills the bitmap like a maskless launcher.
+      // Unmasked layers, scaled so the 72dp safe zone of the 108dp canvas
+      // fills the bitmap like a maskless launcher.
       val side = width * 2 / 3
       return Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888).also { bitmap ->
         listOfNotNull(drawable.background, drawable.foreground).forEach {
@@ -252,7 +259,8 @@ class ExtensionRuntimeModule : Module() {
     return opaqueCrop(bitmap)
   }
 
-  // Legacy icons draw their shape inside a transparent margin with a soft shadow; keeps only the fully opaque body.
+  // Legacy icons draw their shape in a transparent margin with a soft
+  // shadow: keep only the fully opaque body.
   private fun opaqueCrop(bitmap: Bitmap): Bitmap {
     val pixels = IntArray(bitmap.width * bitmap.height)
     bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
@@ -288,7 +296,7 @@ class ExtensionRuntimeModule : Module() {
         else -> error("Unknown source class ${instance.javaClass}")
       }
     }.filterIsInstance<CatalogueSource>()
-    // Drops what a previous version registered, so ids it had and this one dropped stop resolving.
+    // Drop the old version's ids, so ones this version lacks stop resolving.
     unregister(info.packageName)
     loaded.forEach { sources[it.id] = it }
 
@@ -303,7 +311,8 @@ class ExtensionRuntimeModule : Module() {
       "sources" to loaded.map {
         // Some extensions throw here (an unset baseUrl); no website then.
         val homeUrl = runCatching { (it as? HttpSource)?.getHomeUrl() }.getOrNull()
-        // Covers load with them, as in Mihon: some image hosts refuse a request without the site's Referer.
+        // Covers load with them, as in Mihon: some image hosts refuse a request
+        // without the site's Referer.
         val headers = runCatching { (it as? HttpSource)?.headers?.toMap() }.getOrNull().orEmpty()
         mapOf("id" to it.id.toString(), "name" to it.name, "lang" to it.lang, "homeUrl" to homeUrl, "headers" to headers)
       },
@@ -312,14 +321,14 @@ class ExtensionRuntimeModule : Module() {
     return extension
   }
 
-  // Like Mihon: builds without tachiyomix.name are named by their app label, else the package.
+  // As Mihon: no tachiyomix.name means the app label, else the package.
   private fun name(info: PackageInfo, apk: File, meta: Bundle): String =
     meta.getString("tachiyomix.name")
       ?: app.packageManager.getApplicationLabel(applicationInfo(info, apk)).toString()
         .substringAfter("Tachiyomi: ").ifBlank { null }
       ?: info.packageName
 
-  // Extensions live in memory: after a restart, the first call reloads the stored ones.
+  // Extensions live in memory: after a restart the first call reloads them.
   private fun loadStored(): Map<String, Map<String, Any?>> = synchronized(lock) {
     extensionsDir.listFiles { file -> file.extension == "ext" }?.forEach {
       if (!extensions.containsKey(it.nameWithoutExtension)) {
@@ -342,7 +351,7 @@ class ExtensionRuntimeModule : Module() {
   }
 
   private fun uninstall(pkg: String) = synchronized(lock) {
-    // The package names a file in extensionsDir, so it must not reach outside it.
+    // The package names a file in extensionsDir: it must not reach outside.
     require(pkg.isNotEmpty() && '/' !in pkg && pkg != "." && pkg != "..") { "Invalid package name" }
     unregister(pkg)
     val file = File(extensionsDir, "$pkg.ext")
@@ -359,7 +368,7 @@ class ExtensionRuntimeModule : Module() {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES,
   )
 
-  // Same digest as Mihon and the repo index: SHA-256 of each signing certificate, in hex.
+  // As Mihon and the repo index: SHA-256 of each signing certificate, in hex.
   @Suppress("DEPRECATION")
   private fun signatures(info: PackageInfo): List<String> {
     val signers = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -384,7 +393,8 @@ private fun SManga.toMap() = mapOf(
   "description" to description,
   "genre" to genre,
   "status" to status,
-  // Opaque to the app, like a chapter's: lib 1.6 sources read it back in chapters; null when the source keeps none.
+  // Opaque to the app, like a chapter's: lib 1.6 sources read it back in
+  // chapters; null when the source keeps none.
   "memo" to memo.takeIf { it.isNotEmpty() }?.toString(),
 )
 
@@ -394,6 +404,7 @@ private fun SChapter.toMap() = mapOf(
   "number" to chapter_number,
   "scanlator" to scanlator,
   "dateUpload" to date_upload,
-  // Opaque to the app: lib 1.6 sources read it back in getPageList; null when the source keeps none.
+  // Opaque to the app: lib 1.6 sources read it back in getPageList; null
+  // when the source keeps none.
   "memo" to memo.takeIf { it.isNotEmpty() }?.toString(),
 )

@@ -1,12 +1,15 @@
 import type { SourceManga } from "@/features/extensions";
 import type { MangaDetail } from "./to-detail";
 
-// Sources search Latin text: a native or Cyrillic synonym rarely finds anything.
+// Sources search Latin text; native or Cyrillic synonyms rarely find any.
 const LATIN = /^[\p{Script=Latin}\p{N}\p{P}\p{S}\s]+$/u;
-// Each query is a request that can wait the whole timeout, and a scan runs one search per source.
+// Each query can wait the whole timeout, once per source in a scan.
 const MAX_QUERIES = 4;
 
-/** The picked source and what it answered: `manga` absent means the search is pending, `null` that it found nothing. */
+/**
+ * The picked source and its answer: `manga` absent means the search is
+ * pending, `null` that it found nothing.
+ */
 export interface SourceMatch {
   sourceId: string;
   manga?: { url: string; title: string; memo?: string | null } | null;
@@ -20,7 +23,7 @@ function isSourceManga(
   return typeof url === "string" && typeof title === "string";
 }
 
-/** Stored values from before matching are plain source ids, which carry no match. */
+/** Values stored before matching are plain source ids, with no match. */
 export function readMatch(value: unknown): SourceMatch | undefined {
   if (typeof value !== "object" || value === null) return undefined;
   const { sourceId, manga } = value as Partial<SourceMatch>;
@@ -29,7 +32,11 @@ export function readMatch(value: unknown): SourceMatch | undefined {
   return value as SourceMatch;
 }
 
-/** Case, Latin diacritics and punctuation drop out (apostrophes join their word: "Ren'ai" is "renai"); kana marks like dakuten stay, so letters and digits of any script compare. */
+/**
+ * Drops case, Latin diacritics and punctuation (apostrophes join their word:
+ * "Ren'ai" is "renai"); kana marks like dakuten stay, so letters and digits
+ * of any script compare.
+ */
 export function normalizeTitle(title: string): string {
   return title
     .toLowerCase()
@@ -41,7 +48,10 @@ export function normalizeTitle(title: string): string {
     .trim();
 }
 
-/** What titles compare by: also without spaces and romaji long vowels, so "Kaguya-sama … Zunōsen" equals "Kaguyasama … Zunousen". */
+/**
+ * Also without spaces and romaji long vowels, so "Kaguya-sama … Zunōsen"
+ * equals "Kaguyasama … Zunousen".
+ */
 function titleKey(title: string) {
   return normalizeTitle(title)
     .replace(/ /g, "")
@@ -74,13 +84,16 @@ export function pickMatch(
   );
 }
 
-/** The titles a manga is searched by (`search`, in order) and matched against (`all`). */
+/** `search`: titles to search by, in order; `all`: titles to match against. */
 export interface Titles {
   search: (string | null | undefined)[];
   all: (string | null | undefined)[];
 }
 
-/** The titles that read differently once normalized, so "Kimetsu no Yaiba" and "KIMETSU NO YAIBA" count once. */
+/**
+ * Titles that differ once normalized, so "Kimetsu no Yaiba" and
+ * "KIMETSU NO YAIBA" count once.
+ */
 export function uniqueTitles(titles: (string | null | undefined)[]) {
   const seen = new Set<string>();
   return titles.filter((title): title is string => {

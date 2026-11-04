@@ -1,6 +1,6 @@
 import type { AutoBadKind, ResultKind } from "./msu";
 
-/** Whole chapters still unread: a .5 release isn't one, so the gap is floored. */
+/** Whole chapters unread: a .5 release isn't one, so the gap is floored. */
 export function unreadChapters(read: number, latest: number): number {
   return Math.max(0, Math.floor(latest - read));
 }

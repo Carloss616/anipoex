@@ -21,7 +21,10 @@ const ageOf = (ms: number) => {
   return hours < 24 ? `${hours}h` : `${Math.floor(hours / 24)}d`;
 };
 
-/** What a source row says about its probe: derived on render, so a read chapter changes it without a rescan. */
+/**
+ * What a source row says about its probe: derived on render, so a read
+ * chapter changes it without a rescan.
+ */
 export function sourceStatus(
   probe: ProviderProbe | undefined,
   read: number,
@@ -41,7 +44,8 @@ export function sourceStatus(
     "outdated";
   return {
     label: `+${unread}`,
-    // Behind is info, as on its excluded badge: apart from a no match or a suspicious list.
+    // Behind is info, as on its excluded badge: apart from a no match or a
+    // suspicious list.
     color: suspicious
       ? "warning"
       : outdated

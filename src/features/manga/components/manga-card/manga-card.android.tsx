@@ -165,7 +165,7 @@ export function MangaCard({
     ...(height ? [heightModifier(height)] : []),
   ];
 
-  // Needs a width in `style`: Compose has no `aspectRatio`, so the cover's height comes from it.
+  // Needs a width in `style`: Compose has no `aspectRatio` to size the cover.
   const body =
     titlePosition === "below" ? (
       // A Box so the press overlay can cover the cover and the texts alike.

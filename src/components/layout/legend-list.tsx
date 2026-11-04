@@ -38,7 +38,7 @@ const AnimatedLegendListNative = withUniwind(
   SLOT_CLASS_NAMES,
 );
 
-// The web build's plain <div>s drop `withUniwind`'s `$$css` styles: classes go through as is.
+// Web's plain <div>s drop withUniwind's `$$css` styles: pass classes as is.
 const LegendListRoot = (
   Platform.OS === "web" ? LegendListBase : LegendListNative
 ) as typeof LegendListNative;
@@ -47,7 +47,7 @@ const AnimatedLegendListRoot = (
 ) as typeof LegendListNative;
 
 /**
- * Wraps a header or footer in a view with its class: the browser build has no class prop for them.
+ * Web has no class prop for a header or footer: wrap it in a classed View.
  * @platform web
  */
 function classedSlot(
@@ -78,7 +78,7 @@ export function LegendList<T>({
   ListFooterComponentClassName,
   ListFooterComponentStyle,
   renderItem,
-  // never forwarded: its own gap handling is web-only, and would stack on the padding below
+  // Not forwarded: its web-only gap handling would stack on the padding below
   columnWrapperStyle,
   keyboardShouldPersistTaps,
   itemLayoutAnimation,
@@ -108,7 +108,8 @@ export function LegendList<T>({
   useImperativeHandle(ref, () => listRef.current as LegendListRef);
 
   return (
-    // A blurred web screen is display: none, where the list measures its rows as 0 and keeps adding more
+    // A blurred web screen is display: none, where the list measures its rows
+    // as 0 and keeps adding more
     <Activity
       mode={
         Platform.OS === "web" && !focused && !visibleWhenBlurred
@@ -116,11 +117,14 @@ export function LegendList<T>({
           : "visible"
       }
     >
-      {/* rn-web puts `style` on the RefreshControl and its ScrollView: a top margin there lands twice */}
+      {/*
+       * rn-web puts `style` on the RefreshControl and its ScrollView: a top
+       * margin there lands twice
+       */}
       <View
         // Cells clip their paint; the one holding focus lets the ring out.
         className="[&_div:has(>[data-index]_:focus-visible)]:contain-[layout_style]! [&_div:has(>[data-index]_:focus-visible)]:z-1"
-        // A rail overhangs by its cells' padding, so both ends keep the content padding.
+        // A rail overhangs by half the gap: both ends keep content padding.
         style={
           horizontal
             ? { margin: -halfGap }
@@ -134,12 +138,12 @@ export function LegendList<T>({
         <Root
           ref={listRef}
           {...(itemLayoutAnimation && { itemLayoutAnimation })}
-          // Flattened: the web build's <div>s take one style object, not arrays.
+          // Flat: the web build's <div>s take one style object, not arrays.
           style={StyleSheet.flatten([
-            // a hidden screen measures 0 wide, and the list would size to its widest item
+            // A hidden screen is 0 wide; the list would size to its widest item
             { width: "auto" },
             !horizontal && { flexGrow: 1 },
-            // the content's negative `marginInline` would otherwise scroll sideways
+            // Else the content's negative `marginInline` scrolls sideways
             Platform.OS === "web" &&
               !horizontal &&
               ({ overflowX: "hidden" } as ViewStyle),
@@ -147,14 +151,14 @@ export function LegendList<T>({
           ])}
           contentContainerStyle={StyleSheet.flatten([
             !horizontal && { marginInline: -halfGap },
-            // Grows with the cells, so its end padding lands after the last one.
+            // Grows with the cells, so end padding lands after the last one.
             horizontal &&
               Platform.OS === "web" &&
               ({ width: "max-content" } as unknown as ViewStyle),
             !horizontal && {
               flexGrow: 1,
               marginBottom: -halfGap,
-              // a column, so the empty component can fill the height left under the header
+              // A column: the empty component fills the height under the header
               display: "flex",
               flexDirection: "column",
             },
@@ -173,7 +177,7 @@ export function LegendList<T>({
             : {
                 ListHeaderComponentClassName,
                 ListFooterComponentClassName,
-                // the browser build would put it on a <div> as an unknown attribute
+                // web would put it on a <div> as an unknown attribute
                 keyboardShouldPersistTaps,
               })}
           ListHeaderComponentStyle={StyleSheet.flatten([
@@ -185,7 +189,7 @@ export function LegendList<T>({
             if (!renderItem) return null;
 
             return (
-              // Half the gap on every side, so cells space evenly in both directions.
+              // Half the gap on each side spaces cells evenly both ways.
               <View
                 // The wrapper's focus rule finds the cell by it.
                 data-index={props.index}

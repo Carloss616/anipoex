@@ -10,9 +10,10 @@ import javax.crypto.Cipher
 import javax.crypto.CipherSpi
 
 /**
- * Android's cipher providers take "PKCS7Padding" (the extensions' AES helper asks for `AES/CBC/PKCS7PADDING`),
- * the JVM's only "PKCS5Padding": for a 16-byte block the two pad alike, so AES under that name runs
- * the JVM's own PKCS5 cipher.
+ * Android's cipher providers take "PKCS7Padding" (the extensions' AES
+ * helper asks for `AES/CBC/PKCS7PADDING`), the JVM's only "PKCS5Padding":
+ * for a 16-byte block the two pad alike, so AES under that name runs the
+ * JVM's own PKCS5 cipher.
  */
 object Pkcs7Padding {
     fun install() {

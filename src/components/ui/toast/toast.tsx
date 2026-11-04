@@ -110,7 +110,7 @@ export function ToastHost({
         classNames: {
           ...toastOptions?.classNames,
           toast: cn(
-            // `!` beats sonner's shadow, its focus ring too, so the ring is redrawn.
+            // `!` beats sonner's shadow and focus ring, so the ring is redrawn.
             "glass-chrome! shadow-lg focus-visible:ring-2 focus-visible:ring-black/20",
             "data-rich-colors:data-[type=success]:[--glass-tint:var(--success-bg)]!",
             "data-rich-colors:data-[type=info]:[--glass-tint:var(--info-bg)]!",
@@ -121,16 +121,12 @@ export function ToastHost({
           closeButton: cn(
             "shadow-sm",
             "active:not-disabled:scale-[0.97] motion-reduce:active:scale-100",
-            // success
             "group-data-rich-colors:group-data-[type=success]:[--normal-bg-hover:var(--success-bg-hover)]",
             "group-data-rich-colors:group-data-[type=success]:[--normal-border-hover:var(--success-border-hover)]",
-            // info
             "group-data-rich-colors:group-data-[type=info]:[--normal-bg-hover:var(--info-bg-hover)]",
             "group-data-rich-colors:group-data-[type=info]:[--normal-border-hover:var(--info-border-hover)]",
-            // warning
             "group-data-rich-colors:group-data-[type=warning]:[--normal-bg-hover:var(--warning-bg-hover)]",
             "group-data-rich-colors:group-data-[type=warning]:[--normal-border-hover:var(--warning-border-hover)]",
-            // error
             "group-data-rich-colors:group-data-[type=error]:[--normal-bg-hover:var(--error-bg-hover)]",
             "group-data-rich-colors:group-data-[type=error]:[--normal-border-hover:var(--error-border-hover)]",
             toastOptions?.classNames?.closeButton,

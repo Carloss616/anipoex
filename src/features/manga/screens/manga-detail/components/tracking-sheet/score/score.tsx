@@ -13,7 +13,7 @@ export interface ScoreProps {
   onConfirm: (score: number) => void;
 }
 
-/** The viewer's own score format decides the control: stars, or a long scale. */
+/** The viewer's score format decides the control: stars, or a long scale. */
 export function Score({ value, onCancel, onConfirm }: ScoreProps) {
   const { scale, score, change } = useScore(value);
 

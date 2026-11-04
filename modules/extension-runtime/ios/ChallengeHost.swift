@@ -1,19 +1,21 @@
 import UIKit
 import WebKit
 
-/// What the runtime asks the app for through `IosHost.call`: a Cloudflare challenge solved in a WKWebView, then that site's
-/// requests sent from the solved page. Some sites tie the clearance to the browser's own TLS fingerprint, which the JVM's
-/// doesn't match, so a cookie alone doesn't get the runtime through; the page's own fetch does.
+/// Solves a Cloudflare challenge in a WKWebView for the runtime
+/// (`IosHost.call`), then sends that site's requests from the solved page:
+/// some sites tie the clearance to the browser's TLS fingerprint, so a
+/// cookie alone doesn't get the JVM through.
 @MainActor
 final class ChallengeHost {
   static let shared = ChallengeHost()
 
-  // Under the runtime's 2-minute call timeout, which counts the time spent here.
+  // Under the runtime's 2-minute call timeout, which counts time spent here.
   private static let solveSeconds: Double = 60
   // A challenge that wants a tap shows itself; most solve on their own before.
   private static let showAfterSeconds: Double = 8
-  // shortcut: no signal tells a check that wants a tap from one still running, so the banner asks once
-  // it's been this long (unaided ones pass in ~4 s); read the widget if Cloudflare ever exposes one.
+  // shortcut: no signal tells a check that wants a tap from one still
+  // running, so the banner asks after this long (unaided ones pass in ~4 s);
+  // read the widget if Cloudflare ever exposes one.
   private static let askAfterSeconds: Double = 15
   // How long the banner says it passed before the sheet closes.
   private static let doneSeconds: Double = 1
@@ -23,7 +25,8 @@ final class ChallengeHost {
   // Its own store: the pages are the sources' sites, not the app's.
   private let store = WKWebsiteDataStore.nonPersistent()
   private var pages: [String: (view: WKWebView, idle: Task<Void, Never>)] = [:]
-  // The solve under way per host whose page closed: a second one would replace the first's page mid-fetch.
+  // The solve under way per host whose page closed: a second would replace
+  // the first's page mid-fetch.
   private var reopening: [String: Task<Void, Error>] = [:]
   // Pages live in the window, off screen: WebKit pauses a page outside one.
   lazy var shelf: UIView = {
@@ -35,14 +38,16 @@ final class ChallengeHost {
     return shelf
   }()
 
-  /// Safari's user agent: WKWebView's own leaves out the `Version` and `Safari` tokens, which a bot check notices.
+  /// Safari's user agent: WKWebView's lacks the `Version` and `Safari`
+  /// tokens, which a bot check notices.
   static let userAgent: String = {
     let version = UIDevice.current.systemVersion
     let os = version.replacingOccurrences(of: ".", with: "_")
     return "Mozilla/5.0 (iPhone; CPU iPhone OS \(os) like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/\(version) Mobile/15E148 Safari/604.1"
   }()
 
-  /// Answers `IosHost.call` with a `{"result"}`/`{"error"}` envelope; blocks its runtime thread until the main thread is done.
+  /// Answers `IosHost.call` with a `{"result"}`/`{"error"}` envelope,
+  /// blocking its runtime thread until the main thread is done.
   nonisolated static func answer(_ method: String, _ argsJson: String) -> String {
     let done = DispatchSemaphore(value: 0)
     let reply = Box()
@@ -75,7 +80,7 @@ final class ChallengeHost {
     configuration.websiteDataStore = store
     let view = WKWebView(frame: shelf.bounds, configuration: configuration)
     view.customUserAgent = Self.userAgent
-    // The view holds its delegate weakly; this one only has to outlive the solve.
+    // The view holds its delegate weakly; this one must outlive the solve.
     let watcher = StatusWatcher()
     view.navigationDelegate = watcher
     shelf.addSubview(view)
@@ -88,7 +93,8 @@ final class ChallengeHost {
       let cookies = await store.httpCookieStore.allCookies().filter { host.hasSuffix($0.domain.trimmingCharacters(in: ["."])) }
       // Cloudflare can let the browser through without issuing a clearance.
       if watcher.passed(view) || cookies.contains(where: { $0.name == "cf_clearance" }) {
-        // A still of the site stays in the sheet: the page goes back to the shelf at once, since a closed sheet would pause it.
+        // A still stays in the sheet: the page goes back to the shelf at once,
+        // since a closed sheet would pause it.
         if let stack = view.superview as? UIStackView, let still = view.snapshotView(afterScreenUpdates: false) {
           stack.insertArrangedSubview(still, at: 1)
         }
@@ -120,8 +126,9 @@ final class ChallengeHost {
     throw HostError(sheet?.sheet.presentingViewController == nil && sheet != nil ? "Cloudflare check closed" : "Cloudflare check timed out")
   }
 
-  /// Waits for the reload Cloudflare does once cleared: a page's JavaScript dies with it, so the page is used once it's the site's.
-  /// Not by its title, which Cloudflare translates to the device's language.
+  /// Waits for the reload Cloudflare does once cleared, since it kills the
+  /// page's JavaScript: the page is used once it's the site's. Not by its
+  /// title, which Cloudflare translates to the device's language.
   private func settle(_ view: WKWebView, _ watcher: StatusWatcher, until deadline: Date) async {
     while Date() < deadline, !watcher.passed(view) {
       try? await Task.sleep(for: .milliseconds(250))
@@ -130,7 +137,8 @@ final class ChallengeHost {
 
   private func fetch(_ args: [String: Any]) async throws -> [String: Any] {
     guard let url = args["url"] as? String, let host = URL(string: url)?.host else { throw HostError("Not a web URL") }
-    // Closed while idle: solving again reopens it, once for the requests that find it closed together.
+    // Closed while idle: solving again reopens it, once for all the requests
+    // that find it closed together.
     if pages[host] == nil {
       let solving = reopening[host] ?? Task { [self] in
         defer { reopening[host] = nil }
@@ -142,7 +150,7 @@ final class ChallengeHost {
     guard let view = pages[host]?.view else { throw HostError("The site's page is gone") }
     keep(view, for: host)
     let headers = (args["headers"] as? [[String]] ?? []).filter { $0.count == 2 }
-    // The page's fetch drops a Cookie header, so the runtime's cookies join the page's store.
+    // fetch drops a Cookie header, so the runtime's cookies join the store.
     let known = Set(await store.httpCookieStore.allCookies().map(\.name))
     for pair in (headers.first { $0[0].lowercased() == "cookie" }?[1] ?? "").split(separator: ";") {
       let parts = pair.trimmingCharacters(in: .whitespaces).split(separator: "=", maxSplits: 1).map(String.init)
@@ -182,14 +190,15 @@ final class ChallengeHost {
     pages[host] = (view, idle)
   }
 
-  /// Shows the page for a person to solve, in a sheet they can close, under the banner on why it opened.
+  /// Shows the page for a person to solve in a sheet they can close, under
+  /// a banner saying why it opened.
   private func present(_ view: WKWebView, host: String) -> (sheet: UIViewController, banner: WKWebView)? {
     guard var top = keyWindow?.rootViewController else { return nil }
     while let presented = top.presentedViewController { top = presented }
     let sheet = UIViewController()
     sheet.title = host
     sheet.view.backgroundColor = .systemBackground
-    // The note desktop shows too (challenge-banner.html), as tall as its text once loaded.
+    // Desktop's note too (challenge-banner.html), as tall as its loaded text.
     let banner = WKWebView()
     banner.scrollView.isScrollEnabled = false
     banner.isOpaque = false
@@ -248,7 +257,8 @@ final class ChallengeHost {
   // A page's fetch refuses these; the browser sends its own.
   private static let forbidden: Set<String> = ["cookie", "user-agent", "referer", "host", "connection", "accept-encoding", "content-length"]
 
-  // The page's own same-origin fetch, so WebKit adds the cookies and headers it sends for the site itself. Bodies travel as base64.
+  // The page's own same-origin fetch, so WebKit adds the cookies and
+  // headers it sends the site itself. Bodies travel as base64.
   private static let pageFetch = """
     const bytes = body ? Uint8Array.from(atob(body), (c) => c.charCodeAt(0)) : undefined;
     const response = await fetch(url, { method, headers, body: bytes, credentials: "include" });
@@ -266,8 +276,9 @@ final class ChallengeHost {
   }
 }
 
-/// The main frame's last HTTP status: a challenge answers with an error, the site itself doesn't, whether it cleared this
-/// browser or never challenged it.
+/// The main frame's last HTTP status: a challenge answers with an error,
+/// the site itself doesn't, whether it cleared this browser or never
+/// challenged it.
 @MainActor
 private final class StatusWatcher: NSObject, WKNavigationDelegate {
   private var status: Int?

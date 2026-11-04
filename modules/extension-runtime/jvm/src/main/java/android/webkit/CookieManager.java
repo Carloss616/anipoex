@@ -5,11 +5,15 @@ import java.util.List;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 
-/** Android's cookie store on the JVM, the one AndroidCookieJar and extensions share; OkHttp's Cookie gives it RFC 6265 domain, path and expiry rules. */
+/**
+ * Android's cookie store, shared by AndroidCookieJar and extensions;
+ * OkHttp's Cookie gives it RFC 6265 domain, path and expiry rules.
+ */
 public class CookieManager {
     private static final CookieManager INSTANCE = new CookieManager();
 
-    // shortcut: in memory, so cookies don't outlive the process as Android's do; persist them when a source needs a login to survive restarts.
+    // shortcut: in memory, so cookies don't outlive the process as Android's
+    // do; persist them when a source needs a login to survive restarts.
     private final List<Cookie> cookies = new ArrayList<>();
 
     private CookieManager() {}
@@ -36,16 +40,17 @@ public class CookieManager {
         if (cookie != null) put(cookie);
     }
 
-    /** Every live cookie, which the app's browser starts each WebView load with. */
+    /** Every live cookie, sent with each WebView load to the app's browser. */
     public synchronized List<Cookie> all() {
         long now = System.currentTimeMillis();
         cookies.removeIf(cookie -> cookie.expiresAt() <= now);
         return new ArrayList<>(cookies);
     }
 
-    /** Stores a cookie as it is, such as one the app's browser earned on a page. */
+    /** Stores a cookie as is, such as one the app's browser earned. */
     public synchronized void put(Cookie cookie) {
-        // A cookie replaces the one with its name, domain and path; an expired one only deletes it.
+        // A cookie replaces the one with its name, domain and path; an expired
+        // one only deletes it.
         cookies.removeIf(old -> old.name().equals(cookie.name()) && old.domain().equals(cookie.domain()) && old.path().equals(cookie.path()));
         if (cookie.expiresAt() > System.currentTimeMillis()) cookies.add(cookie);
     }

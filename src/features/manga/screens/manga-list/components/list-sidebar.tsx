@@ -7,7 +7,7 @@ import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { ListCounts } from "@/features/manga/utils/to-counts";
 import type { MediaListStatus } from "@/graphql/types.generated";
 
-/** Web: the lists as a column of tabs with their totals; the grid is their panel. */
+/** Web: the lists as a tab column with totals; the grid is their panel. */
 export const ListSidebar = memo(function ListSidebar({
   status,
   counts,

@@ -84,10 +84,12 @@ export function DetailList({
           modifiers={[fillMaxSize()]}
         >
           <LazyColumn modifiers={[fillMaxSize()]}>
-            {/* Compose has no negative padding: the header is stacked over the
-              hero and starts below the app bar, covering the art's last stretch. */}
+            {/* Compose has no negative padding: the header is stacked over
+                the hero and starts below the app bar, covering the art's
+                last stretch. */}
             <Box modifiers={[fillMaxWidth()]}>
-              {/* Top sentinel, no scroll events: the header fills once it leaves. */}
+              {/* Top sentinel, no scroll events: the header fills once it
+                  leaves. */}
               <Box
                 modifiers={[
                   fillMaxWidth(),
@@ -149,7 +151,8 @@ export function DetailList({
                       bottomEnd: index === last ? OUTER : INNER,
                     },
                   })}
-                  // Padding before the surface is its margin, painted as the sheet.
+                  // Padding before the surface is its margin, painted as the
+                  // sheet.
                   modifiers={[
                     background(sheet),
                     padding(start, index === 0 ? 0 : GAP, end, 0),
@@ -165,7 +168,8 @@ export function DetailList({
                 </Surface>
               )}
             </LazyColumn.Items>
-            {/* Not contentPadding: the sheet runs under the FAB to the bottom. */}
+            {/* Not contentPadding: the sheet runs under the FAB to the
+                bottom. */}
             <Box
               modifiers={[fillMaxWidth(), height(FAB_ROOM), background(sheet)]}
             />

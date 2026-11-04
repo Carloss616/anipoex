@@ -27,10 +27,10 @@ const INPUT_MODE: Record<
 } as const;
 
 const TRANSITION = "duration-200 ease-out";
-/** Must match `TRANSITION`: Tailwind reads class literals, the timer a number. */
+/** Must match `TRANSITION`: Tailwind reads literals, the timer a number. */
 const DURATION_MS = 200;
 
-/** The large title row and what crossfades with it: drawer travel and timing. */
+/** Large title row and its crossfade: drawer travel and timing. */
 const COLLAPSE = "duration-500 ease-sheet";
 
 /** The titles overlap as they cross; the blur hides the doubled words. */
@@ -187,7 +187,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           {options.headerLeft?.({ tintColor, canGoBack: !!back })}
         </ButtonGroup>
 
-        {/* Searching, the title yields its width to the group, where the field grows. */}
+        {/* Searching, the title yields its width to the field's group. */}
         <View
           aria-hidden={isLarge || isSearching}
           className={cn(
@@ -209,7 +209,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             "min-w-0 empty:hidden",
             !reduced && "transition-[flex-grow]",
             HANDOVER,
-            // The title's delay, or the group slides left while the gap is free.
+            // The title's delay, or the group slides left into the free gap.
             isLarge || isSearching ? "delay-0" : "delay-100",
             isSearching && "grow",
           )}
@@ -260,7 +260,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         </ButtonGroup>
       </View>
 
-      {/* Mounted and clipped so it grows open; max-h animates where auto height can't. */}
+      {/* Kept mounted and clipped: max-h animates, auto height can't. */}
       {canBeLarge && (
         <View
           aria-hidden={!isLarge}

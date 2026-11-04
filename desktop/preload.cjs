@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-// The app's runtime.web.ts runs extensions through the sidecar, and anilist.ts signs in through main.
+// runtime.web.ts runs extensions through the sidecar, anilist.ts signs in.
 contextBridge.exposeInMainWorld("anipoex", {
   runtime: (method, args) => ipcRenderer.invoke("runtime", method, args),
   signIn: (url) => ipcRenderer.invoke("sign-in", url),

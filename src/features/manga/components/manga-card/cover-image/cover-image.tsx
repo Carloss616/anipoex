@@ -20,7 +20,8 @@ export function CoverImage({
   return (
     <Image
       style={[{ backgroundColor: coverColor ?? overlay }, style]}
-      // Without headers: on web they turn the <img> into a CORS fetch, which the desktop's page scheme refuses.
+      // Without headers: on web they make the <img> a CORS fetch, which the
+      // desktop's page scheme refuses.
       source={uri}
       recyclingKey={uri}
       placeholder={coverThumb ? { uri: coverThumb } : undefined}

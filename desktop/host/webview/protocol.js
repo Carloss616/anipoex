@@ -1,4 +1,4 @@
-// The WebView protocol's shapes to and from Electron's, apart so they test without Electron.
+// WebView protocol <-> Electron shapes, apart so they test without Electron.
 
 export const CONSOLE_LEVELS = {
   info: "log",
@@ -7,7 +7,7 @@ export const CONSOLE_LEVELS = {
   debug: "debug",
 };
 
-/** An Electron cookie as the protocol's `{name, value, domain, path, expiresAt, secure, httpOnly, hostOnly}`. */
+/** An Electron cookie in the protocol's shape. */
 export const toCookie = ({
   name,
   value,
@@ -28,7 +28,7 @@ export const toCookie = ({
   hostOnly,
 });
 
-/** A protocol cookie as `session.cookies.set`'s details: a host-only one names no domain. */
+/** As `session.cookies.set`'s details: a host-only cookie names no domain. */
 export const toElectronCookie = (cookie) => {
   const domain = cookie.domain.replace(/^\./, "");
   const path = cookie.path || "/";
@@ -45,7 +45,7 @@ export const toElectronCookie = (cookie) => {
   };
 };
 
-/** `wvRespond`'s `{status, reason, mimeType, encoding, headers, body}` as CDP's `Fetch.fulfillRequest` params. */
+/** `wvRespond`'s response as CDP's `Fetch.fulfillRequest` params. */
 export const toFulfill = ({
   status,
   reason,
@@ -73,7 +73,8 @@ export const toFulfill = ({
   };
 };
 
-// Chromium's GREASE brand for a major version (user_agent_utils.cc), so a forged list reads like a real one.
+// Chromium's GREASE brand for a major version (user_agent_utils.cc), so a
+// forged list reads like a real one.
 const GREASE_CHARS = [" ", "(", ":", "-", ".", "/", ")", ";", "=", "?", "_"];
 const GREASE_VERSIONS = ["8", "99", "24"];
 const ORDERS = [
@@ -102,9 +103,10 @@ const brandList = (major, full) => {
 };
 
 /**
- * `Emulation.setUserAgentOverride` params for an extension's user agent: client hints and `navigator.platform` told
- * from it, as Android's helper does, since a UA its client hints contradict fails bot checks. A non-Chrome UA gets
- * none, as such browsers send none.
+ * `Emulation.setUserAgentOverride` params for an extension's user agent:
+ * client hints and `navigator.platform` told from it, as Android's helper
+ * does, since a UA its client hints contradict fails bot checks. A non-Chrome
+ * UA gets none, as such browsers send none.
  */
 export const uaOverride = (userAgent) => {
   const chrome = /Chrome\/(\d+)(\.[\d.]+)?/.exec(userAgent);
@@ -145,7 +147,10 @@ export const uaOverride = (userAgent) => {
   };
 };
 
-/** `wvLoadData`'s document as a data URL; Android's `encoding` is a charset, or "base64" for already encoded data. */
+/**
+ * `wvLoadData`'s document as a data URL; Android's `encoding` is a charset,
+ * or "base64" for already encoded data.
+ */
 export const dataUrl = (data, mimeType, encoding) =>
   encoding?.toLowerCase() === "base64"
     ? `data:${mimeType || "text/html"};base64,${data}`

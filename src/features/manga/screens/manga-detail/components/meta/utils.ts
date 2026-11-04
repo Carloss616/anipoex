@@ -2,7 +2,7 @@ import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { MediaStatus } from "@/graphql/types.generated";
 
-/** The text beside the cover: other titles, and publication status with year. */
+/** Text beside the cover: other titles, and publication status with year. */
 export function metaLines(manga: MangaDetail) {
   const title = manga.title?.userPreferred?.toLowerCase();
   const synonyms = manga.synonyms

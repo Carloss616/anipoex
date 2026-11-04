@@ -8,7 +8,10 @@ import { cn } from "panelui-native/utils/cn";
 import { Sheet, type SheetSide } from "panelui-web/sheet";
 import { View, type ViewProps } from "react-native";
 
-/** Web: one 16px inset for every sheet, tighter than panelui-web's 24px. */
+/**
+ * One 16px inset for every sheet, tighter than panelui-web's 24px.
+ * @platform web
+ */
 export const SHEET_INSET = {
   header: "p-4 pb-0",
   body: "px-4 pt-4",
@@ -19,9 +22,16 @@ export interface BottomSheetProps
   extends BottomSheetBaseProps,
     Pick<ModalBottomSheetProps, "containerColor" | "scrimColor"> {
   className?: string;
-  /** What the sheet shows. iOS only: SwiftUI animates a resize only against a value that changes. */
+  /**
+   * What the sheet shows: SwiftUI animates a resize only against a value that
+   * changes.
+   * @platform ios
+   */
   contentKey?: string | number;
-  /** Each time it turns true the sheet moves to its last snap point; the user can still drag it down. */
+  /**
+   * Each time it turns true the sheet moves to its last snap point; the user
+   * can still drag it down.
+   */
   expanded?: boolean;
   /**
    * Direction of the drawer.
@@ -30,7 +40,7 @@ export interface BottomSheetProps
    */
   direction?: SheetSide;
   /**
-   * The direction in which the snap points are applied. Leave empty to use any direction.
+   * The only direction the snap points apply in; any when left out.
    * @platform web
    */
   snapPointsDirection?: SheetSide;
@@ -43,7 +53,7 @@ const isHalf = (snapPoint: SnapPoint) =>
     snapPoint.fraction <= 0.5);
 
 /**
- * PanelUI's web Sheet; children can open a `Sheet.Next` from `panelui-web/sheet`.
+ * PanelUI's web Sheet: children can open a `Sheet.Next` from panelui-web.
  * @see `node_modules/@expo/ui/src/universal/BottomSheet/index.tsx`
  */
 function BottomSheetRoot({

@@ -10,13 +10,15 @@ import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 
 /**
- * Reader pages fetched as Mihon's reader fetches them, through the source's own client, so its interceptors run
- * (descramblers, rate limits, cookies); each lands in a file the app shows. The newest [limit] are kept.
+ * Reader pages fetched through the source's own client, as Mihon's reader
+ * does, so its interceptors run (descramblers, rate limits, cookies). Each
+ * lands in a file the app shows; the newest [limit] are kept.
  */
 class PageCache(private val dir: File, private val limit: Int = 500) {
     /**
-     * Returns the page's `file://` URI and the Content-Type the site gave it: null when it gave none, or when the page
-     * was already here (a reader scrolling back asks again), which is read again instead of downloaded.
+     * Returns the page's `file://` URI and the site's Content-Type: null when
+     * it gave none, or when the page is already here (a reader scrolling
+     * back), which is read again instead of downloaded.
      */
     suspend fun fetch(source: HttpSource, imageUrl: String, index: Int): Map<String, Any?> = withContext(Dispatchers.IO) {
         val name = MessageDigest.getInstance("SHA-256").digest(imageUrl.toByteArray()).joinToString("") { "%02x".format(it) }

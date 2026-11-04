@@ -1,8 +1,8 @@
 import type { MangaEntry } from "./to-entries";
 
-/** Whether one of the manga's titles or synonyms contains `needle` (already lowercased). */
+/** Whether a title or synonym of the manga contains `needle` (lowercased). */
 export function matchesQuery(manga: MangaEntry, needle: string) {
-  // Named fields, not Object.values: the cached title also carries its `__typename`.
+  // Named fields, not Object.values: the cached title carries `__typename`.
   const { userPreferred, english, romaji, native } = manga.title ?? {};
   return [
     userPreferred,
