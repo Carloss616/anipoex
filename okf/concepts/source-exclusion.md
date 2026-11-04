@@ -32,9 +32,9 @@ exists, and the list says which (`· auto` / `· you`).
 Excluding the source chosen for the manga also unchooses it, so the detail asks to pick a
 source again; its row can also just be **deselected**, which only clears the choice.
 
-Setting a [manual match](../stores/manual-matches.md) on an excluded source drops its
-exclusion and pin, so its next probe judges it again; otherwise a manual match is independent
-of all this.
+Setting a [manual match](../stores/manual-matches.md) on an excluded source drops its pin
+and keeps it excluded until its next probe judges it again; otherwise a manual match is
+independent of all this.
 
 Picking a source by hand that finds no match never excludes it: the detail says *No match*
 and offers **Choose another source**, which opens the source list. Only a scan excludes by
@@ -48,13 +48,16 @@ rescans, so bad sources come back auto-excluded.
 
 ## Auto-exclusion
 
-After a scan, the bad outcomes from [source probe](source-probe.md) are excluded by
-themselves, judged against the list entry's progress when the scan ends (reading on
-meanwhile counts). Each is dated by the probe that caused it. It never removes a manual
-choice and never touches a pinned source. The source chosen for the manga when the scan
-ends (one picked mid-scan too) is spared an error or a lag, which may pass while it is
+Each source is judged as its probe lands, on its own: the other sources of the scan don't
+hold it back, and what the user did meanwhile counts. The bad outcomes from
+[source probe](source-probe.md) are excluded by themselves, judged against the list entry's
+progress at that moment. Each is dated by the probe that caused it. It never removes a
+manual choice and never touches a pinned source. The source chosen for the manga at that
+moment (one picked mid-scan too) is spared an error or a lag, which may pass while it is
 being read, but not a no match: it has nothing to read, so it is excluded and unchosen.
-Recovered auto-exclusions are dropped only by the 7-day recheck below.
+A probe of a source that is still excluded by itself checks that exclusion again: dropped
+if the source now reads fine, re-dated if not. That happens in the 7-day recheck below and
+after a page is picked or removed by hand; otherwise excluded sources aren't probed.
 
 ## Where anipoex differs from MSU
 

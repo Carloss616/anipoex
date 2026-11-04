@@ -51,19 +51,9 @@ export function toggleExcluded(
   };
 }
 
-/** Forgets the source's exclusion and its pin, so its next probe is judged like any other. */
-export function reopenSource(
-  excluded: Excluded,
-  pinned: Pinned,
-  provider: string,
-  now: number,
-) {
-  const other = (id: string) => id !== provider;
-  return {
-    excluded: tombstoneLive(excluded, now, other),
-    pinned: tombstoneLive(pinned, now, other),
-  };
-}
+/** Forgets the source's pin: its exclusion becomes automatic, judged again by its next probe. */
+export const unpinSource = (pinned: Pinned, provider: string, now: number) =>
+  tombstoneLive(pinned, now, (id) => id !== provider);
 
 export const clearExclusions = (
   excluded: Excluded,

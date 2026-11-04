@@ -14,9 +14,10 @@ Probes are written when the user scans (the refresh button for every source, Res
 for one; Include, Retry auto-excluded and Reset all scan too), up to 10 sources at once,
 and whenever the chosen source is read outside a scan: picking it or a refresh records
 what came back (its chapters, no match, or an error), the same probe a scan would write;
-opening the sheet never probes. Rescans of different sources run together; while a source is being probed it offers Stop
-(beside its Rescan spinner, or in place of Rescan in the iOS menus), and Include waits only for that source's own probe. Scan all only starts when
-no scan runs. Stop drops that source from the scan, which goes on without it: its last probe
+opening the sheet never probes. Rescans of different sources run together; while a source is being probed it shows
+*scanning…* and offers Stop (beside its spinner, or in place of Rescan or Include in the iOS menus). An excluded row being
+probed shows that in place of Include, which waits only for that source's own probe. Scan all only starts when
+no scan runs. Each source is judged as its probe lands, not when the whole scan ends. Stop drops that source from the scan, which goes on without it: its last probe
 stays and its exclusion doesn't change; the source's own call still runs out in the
 background. Closing the sheet doesn't stop a scan. Android, iOS and
 desktop probe; the web app in a browser doesn't.

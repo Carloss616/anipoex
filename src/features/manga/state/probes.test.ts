@@ -55,7 +55,7 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { exclusions$, pins$ } = await import("./exclusions");
+const { exclusions$, pins$, decideByHand } = await import("./exclusions");
 const { source$ } = await import("./source");
 const {
   probes$,
@@ -407,7 +407,7 @@ describe("scanSources", () => {
     expect(ex.a.reason).toBe("outdated");
   });
 
-  it("auto-exclusion uses the read at the scan's end", async () => {
+  it("auto-exclusion uses the read when the source lands", async () => {
     let read = 0;
     const done = scan({
       sources: sources("a", "b"),
@@ -478,5 +478,49 @@ describe("scanSources", () => {
     await answer("a", [40]);
     await done;
     expect(exclusions$["201"].a.get().deletedAt).toBeDefined();
+  });
+
+  it("a source is judged as it lands, not when the others end", async () => {
+    const done = scan({ sources: sources("a", "b") });
+    await flush();
+    searchPending.a([]);
+    await flush();
+    expect(exclusions$["201"].a.get().reason).toBe("not-matched");
+    expect(scanning$["201"].b.get()).toBe(true);
+    await answer("b", [5]);
+    await done;
+  });
+
+  it("a rescan of a source excluded by itself checks it again", async () => {
+    exclusions$["201"].a.set({ reason: "not-matched", updatedAt: Date.now() });
+    const done = scan({ sources: sources("a"), only: ["a"] });
+    await answer("a", [5]);
+    await done;
+    expect(exclusions$["201"].a.get().deletedAt).toBeDefined();
+  });
+
+  it("a rescan leaves a source excluded by hand excluded", async () => {
+    exclusions$["201"].a.set({ reason: "other", updatedAt: 1 });
+    pins$["201"].a.set({ updatedAt: 1 });
+    const done = scan({ sources: sources("a"), only: ["a"] });
+    await answer("a", [5]);
+    await done;
+    expect(exclusions$["201"].a.get().deletedAt).toBeUndefined();
+  });
+
+  it("a rechecked source included during the scan stays included", async () => {
+    exclusions$["201"].a.set({
+      reason: "not-matched",
+      updatedAt: Date.now() - 8 * 86_400_000,
+    });
+    const done = scan({ sources: sources("a", "b") });
+    await flush();
+    searchPending.a([]);
+    await flush();
+    decideByHand(201, "a", false, "other");
+    await answer("b", [5]);
+    await done;
+    expect(exclusions$["201"].a.get().deletedAt).toBeDefined();
+    expect(pins$["201"].a.get().deletedAt).toBeUndefined();
   });
 });

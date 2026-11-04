@@ -4,6 +4,7 @@ import {
   DropdownMenu,
   // biome-ignore lint/style/noRestrictedImports: as above
   DropdownMenuItem,
+  IconButton,
   ListItem,
   Row,
   TextButton,
@@ -11,13 +12,15 @@ import {
 import {
   combinedClickable,
   fillMaxWidth,
+  semantics,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Computed, useValue } from "@legendapp/state/react";
+import { useValue } from "@legendapp/state/react";
 import { memo, useState } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useMatchUrl } from "../hooks/use-match-url";
@@ -34,7 +37,13 @@ export const ExcludedItem = memo(function ExcludedItem({
   mangaKey,
   actions,
 }: ExcludedItemProps) {
-  const error = useValue(() => probes$[mangaKey][source.id].error.get());
+  // Rechecked or picked by hand, it stays here until its probe judges it.
+  const scanning = useValue(
+    () => scanning$[mangaKey][source.id].get() === true,
+  );
+  const lastError = useValue(() => probes$[mangaKey][source.id].error.get());
+  // The last read's failure, hidden while the source is read again.
+  const error = scanning ? undefined : lastError;
   const [menuOpen, setMenuOpen] = useState(false);
   const [showError, setShowError] = useState(false);
   const searching = useSearching(mangaKey, source.id);
@@ -64,22 +73,39 @@ export const ExcludedItem = memo(function ExcludedItem({
       <ListItem.SupportingContent>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
           {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
-          <Badge color={REASONS[reason].color}>
-            {excludedBadge(reason, pinned)}
-          </Badge>
+          {scanning ? (
+            <Badge>scanning…</Badge>
+          ) : (
+            <Badge color={REASONS[reason].color}>
+              {excludedBadge(reason, pinned)}
+            </Badge>
+          )}
         </Row>
       </ListItem.SupportingContent>
       <ListItem.TrailingContent>
-        <Computed>
-          {() => (
-            <TextButton
-              enabled={!scanning$[mangaKey][source.id].get()}
-              onClick={() => actions.include(source.id)}
+        {scanning ? (
+          <Row verticalAlignment="center">
+            <Loader size="sm" />
+            <IconButton
+              onClick={() => actions.stop(source.id)}
+              modifiers={[
+                semantics({
+                  contentDescription: `Stop scanning ${source.name}`,
+                }),
+              ]}
             >
-              <Text style={{ typography: "labelLarge" }}>Include</Text>
-            </TextButton>
-          )}
-        </Computed>
+              <Icon
+                name={Icons.close}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
+            </IconButton>
+          </Row>
+        ) : (
+          <TextButton onClick={() => actions.include(source.id)}>
+            <Text style={{ typography: "labelLarge" }}>Include</Text>
+          </TextButton>
+        )}
         {/* A dialog window, not laid out in the row. */}
         {error && (
           <Dialog

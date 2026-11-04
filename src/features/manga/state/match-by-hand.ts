@@ -1,5 +1,5 @@
 import { mediaKey } from "../utils/msu";
-import { isLive, reopenSource } from "../utils/source-exclusions";
+import { isLive, unpinSource } from "../utils/source-exclusions";
 import { readMatch, type Titles } from "../utils/source-match";
 import { dropChapters } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
@@ -9,7 +9,7 @@ import { selectSource, source$, storeMatch } from "./source";
 const isChosen = (mangaId: number, sourceId: string) =>
   readMatch(source$[mangaId].peek())?.sourceId === sourceId;
 
-/** Makes `match` the source's page for the manga; the chosen source switches to it at once. An excluded source loses its exclusion and pin: the page corrects its match, and the rescan that follows judges it again. */
+/** Makes `match` the source's page for the manga; the chosen source switches to it at once. An excluded source stays excluded but loses its pin: the page corrects its match, and the rescan that follows keeps or drops the exclusion. */
 export function setMatchByHand(
   mangaId: number,
   source: { id: string; name: string },
@@ -17,16 +17,8 @@ export function setMatchByHand(
 ) {
   setManual(mangaId, source.id, match);
   const key = mediaKey(mangaId);
-  if (isLive(exclusions$[key][source.id].peek())) {
-    const next = reopenSource(
-      exclusions$[key].peek() ?? {},
-      pins$[key].peek() ?? {},
-      source.id,
-      Date.now(),
-    );
-    exclusions$[key].set(next.excluded);
-    pins$[key].set(next.pinned);
-  }
+  if (isLive(exclusions$[key][source.id].peek()))
+    pins$[key].set(unpinSource(pins$[key].peek() ?? {}, source.id, Date.now()));
   if (isChosen(mangaId, source.id))
     storeMatch(mangaId, source.id, {
       url: match.url,

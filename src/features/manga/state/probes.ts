@@ -105,7 +105,7 @@ export async function scanSources(args: {
   mangaId: number;
   sources: Source[];
   titles: Titles;
-  /** Read when the scan ends: the reader may raise progress meanwhile. */
+  /** Read as each source lands: the reader may raise progress meanwhile. */
   read: () => number;
   keep: string | undefined;
   only?: string[];
@@ -152,6 +152,37 @@ export async function scanSources(args: {
     total: targets.length,
     source: only && targets.length === 1 ? targets[0] : undefined,
   });
+  // Each source is judged as it lands, on the state of that moment: what the
+  // user decided meanwhile, the progress, the source picked now.
+  const judge = (id: string, probe: ProviderProbe) => {
+    const excludedNow = exclusions$[key].peek() ?? {};
+    const pinnedNow = pins$[key].peek() ?? {};
+    const progress = read();
+    const picked = readMatch(source$[mangaId].peek())?.sourceId ?? keep;
+    // A source still excluded by itself is checked again; any other is judged anew.
+    const next =
+      isLive(excludedNow[id]) && !isLive(pinnedNow[id])
+        ? recheckExclusions(
+            excludedNow,
+            { [id]: probe },
+            [id],
+            progress,
+            FAR_BEHIND_GAP,
+            Date.now(),
+          )
+        : autoExclude(
+            excludedNow,
+            pinnedNow,
+            { [id]: probe },
+            prev,
+            progress,
+            FAR_BEHIND_GAP,
+            picked,
+          );
+    exclusions$[key].set(next);
+    // An excluded source has nothing to read: the detail asks for another.
+    if (picked === id && isLive(next[id])) deselectSource(mangaId, id);
+  };
   const landed: ProbeMap = {};
   const stopped = new Set<string>();
   const done = () =>
@@ -188,39 +219,13 @@ export async function scanSources(args: {
           delete stops[`${key}/${source.id}`];
           landed[source.id] = probe;
           probes$[key][source.id].set(probe);
+          // Judged before its row is freed, so it moves once.
+          judge(source.id, probe);
           scanning$[key][source.id].delete();
           done();
         }),
       );
     }
-
-    const now = Date.now();
-    const progress = read();
-    // The source picked now, not at the start: the user may switch to one mid-scan.
-    const picked = readMatch(source$[mangaId].peek())?.sourceId ?? keep;
-    const rest = Object.fromEntries(
-      Object.entries(landed).filter(([id]) => !expired.includes(id)),
-    );
-    const rechecked = recheckExclusions(
-      exclusions$[key].peek() ?? {},
-      landed,
-      expired,
-      progress,
-      FAR_BEHIND_GAP,
-      now,
-    );
-    const next = autoExclude(
-      rechecked,
-      pins$[key].peek() ?? {},
-      rest,
-      prev,
-      progress,
-      FAR_BEHIND_GAP,
-      picked,
-    );
-    exclusions$[key].set(next);
-    // An excluded source has nothing to read: the detail asks for another.
-    if (picked && isLive(next[picked])) deselectSource(mangaId, picked);
   } finally {
     if (!only) scanningAll$[key].delete();
     activity.end(Object.values(landed).filter((p) => p.matched).length);

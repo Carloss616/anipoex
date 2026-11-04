@@ -1,4 +1,4 @@
-import { Computed, useValue } from "@legendapp/state/react";
+import { useValue } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
@@ -34,7 +34,13 @@ export const ExcludedItem = memo(function ExcludedItem({
   mangaKey,
   actions,
 }: ExcludedItemProps) {
-  const error = useValue(() => probes$[mangaKey][source.id].error.get());
+  // Rechecked or picked by hand, it stays here until its probe judges it.
+  const scanning = useValue(
+    () => scanning$[mangaKey][source.id].get() === true,
+  );
+  const lastError = useValue(() => probes$[mangaKey][source.id].error.get());
+  // The last read's failure, hidden while the source is read again.
+  const error = scanning ? undefined : lastError;
   const searching = useSearching(mangaKey, source.id);
   const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
@@ -71,25 +77,45 @@ export const ExcludedItem = memo(function ExcludedItem({
           <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
           <Frame.Description>
             {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
-            <Badge color={REASONS[reason].color}>
-              {excludedBadge(reason, pinned)}
-            </Badge>
+            {scanning ? (
+              <Badge>scanning…</Badge>
+            ) : (
+              <Badge color={REASONS[reason].color}>
+                {excludedBadge(reason, pinned)}
+              </Badge>
+            )}
           </Frame.Description>
         </Frame.Content>
         <Frame.Actions>
-          <Computed>
-            {() => (
+          {scanning ? (
+            <>
               <Button
                 variant="ghost"
-                size="sm"
-                disabled={scanning$[mangaKey][source.id].get() === true}
-                onClick={() => actions.include(source.id)}
-                aria-label={`Include ${source.name}`}
+                size="icon"
+                loading
+                aria-label={`Scanning ${source.name}`}
               >
-                Include
+                <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
               </Button>
-            )}
-          </Computed>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => actions.stop(source.id)}
+                aria-label={`Stop scanning ${source.name}`}
+              >
+                <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => actions.include(source.id)}
+              aria-label={`Include ${source.name}`}
+            >
+              Include
+            </Button>
+          )}
           {/* Last, as on Available rows. */}
           <Menu items={items}>
             <Button

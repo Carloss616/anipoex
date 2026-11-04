@@ -1,5 +1,10 @@
 # Bundle Update Log
 
+## 2026-11-04
+
+* **Each source is judged as it lands**: a scan no longer waits for all its sources before excluding any; each one's probe decides for it alone, on the state of that moment. Before, a source *Scan all* was rechecking and the user included meanwhile was excluded again when the scan ended (shown as `· you`).
+* **An excluded source being probed shows it**: its row shows *scanning…*, a spinner and Stop in place of Include. A page picked by hand on an excluded source now keeps it excluded, unpinned, until that probe drops or keeps the exclusion; before, it moved to the available ones first. Updated [source exclusion](concepts/source-exclusion.md), [source probes](stores/source-probes.md) and [manual matches](stores/manual-matches.md).
+
 ## 2026-11-03
 
 * **A page picked by hand reopens an excluded source**: setting a manual match on an excluded source now drops its exclusion and pin, whoever set them, so it moves to the available ones while it is probed again, and that probe can exclude it again (behind, failing, no chapters); before, it only dropped an automatic *no match* exclusion. The Excluded section's menu also searches titles in just its sources. Updated [manual matches](stores/manual-matches.md) and [source exclusion](concepts/source-exclusion.md).

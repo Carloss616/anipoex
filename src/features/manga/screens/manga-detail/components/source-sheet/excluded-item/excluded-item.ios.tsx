@@ -7,13 +7,19 @@ import {
   SwipeActions,
   VStack,
 } from "@expo/ui/swift-ui";
-import { disabled, lineLimit, tint } from "@expo/ui/swift-ui/modifiers";
-import { Computed, useValue } from "@legendapp/state/react";
+import {
+  accessibilityHidden,
+  frame,
+  lineLimit,
+  tint,
+} from "@expo/ui/swift-ui/modifiers";
+import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { Icons, sfSymbol } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icons, sfSymbol } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -33,7 +39,13 @@ export const ExcludedItem = memo(function ExcludedItem({
   onError,
 }: ExcludedItemProps) {
   const primary = useThemeColor("primary");
-  const error = useValue(() => probes$[mangaKey][source.id].error.get());
+  // Rechecked or picked by hand, it stays here until its probe judges it.
+  const scanning = useValue(
+    () => scanning$[mangaKey][source.id].get() === true,
+  );
+  const lastError = useValue(() => probes$[mangaKey][source.id].error.get());
+  // The last read's failure, hidden while the source is read again.
+  const error = scanning ? undefined : lastError;
   const searching = useSearching(mangaKey, source.id);
   const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const search = searchItem(source, searching, actions);
@@ -47,20 +59,16 @@ export const ExcludedItem = memo(function ExcludedItem({
         onPress={() => actions.openWebsite(source, url)}
       />
     );
+  // While this source scans, Include gives way to Stop, as Rescan does on Available rows.
   const include = (color?: string) => (
-    <Computed>
-      {() => (
-        <Button
-          label="Include"
-          systemImage="arrow.uturn.backward"
-          modifiers={[
-            ...(color ? [tint(color)] : []),
-            disabled(scanning$[mangaKey][source.id].get() === true),
-          ]}
-          onPress={() => actions.include(source.id)}
-        />
-      )}
-    </Computed>
+    <Button
+      label={scanning ? "Stop" : "Include"}
+      systemImage={scanning ? sfSymbol(Icons.close) : "arrow.uturn.backward"}
+      modifiers={color ? [tint(color)] : []}
+      onPress={() =>
+        scanning ? actions.stop(source.id) : actions.include(source.id)
+      }
+    />
   );
 
   return (
@@ -93,13 +101,28 @@ export const ExcludedItem = memo(function ExcludedItem({
                   </Text>
                   <HStack spacing={6}>
                     {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
-                    <Badge color={REASONS[reason].color}>
-                      {excludedBadge(reason, pinned)}
-                    </Badge>
+                    {scanning ? (
+                      <Badge>scanning…</Badge>
+                    ) : (
+                      <Badge color={REASONS[reason].color}>
+                        {excludedBadge(reason, pinned)}
+                      </Badge>
+                    )}
                   </HStack>
                 </VStack>
               </Label>
               <Spacer />
+              {/* Hidden, as the row already reads `scanning…`. */}
+              {scanning && (
+                <HStack
+                  modifiers={[
+                    frame({ width: BUTTON_ICON_SIZE }),
+                    accessibilityHidden(true),
+                  ]}
+                >
+                  <Loader size="sm" />
+                </HStack>
+              )}
             </HStack>
           </ContextMenu.Trigger>
         </ContextMenu>
