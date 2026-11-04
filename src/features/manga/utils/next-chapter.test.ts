@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { nextChapter } from "./next-chapter";
+import { continueChapter, nextChapter } from "./next-chapter";
 import type { Chapter } from "./to-chapters";
 
 const row = (number: number, scanlator: string | null = null): Chapter => ({
@@ -44,5 +44,43 @@ describe("nextChapter", () => {
 
   it("skips unnumbered rows", () => {
     expect(nextChapter(list, c12)).toBe(c13);
+  });
+});
+
+/** Rows from the most to the least recent, as `toChapters` gives them. */
+const rows = (...numbers: number[]): Chapter[] =>
+  numbers.map((number, i) => ({ ...row(number), id: `u${i}` }));
+
+describe("continueChapter", () => {
+  it("is the lowest number past the progress", () => {
+    expect(continueChapter(rows(60, 59, 58, 57), 57)?.number).toBe(58);
+  });
+
+  it("starts at the lowest number without progress", () => {
+    expect(continueChapter(rows(3, 2, 1), 0)?.number).toBe(1);
+  });
+
+  it("counts decimals", () => {
+    expect(continueChapter(rows(11, 10.5, 10), 10)?.number).toBe(10.5);
+  });
+
+  it("is none once everything is read", () => {
+    expect(continueChapter(rows(5, 4), 5)).toBeUndefined();
+  });
+
+  it("never picks an unnumbered row once reading", () => {
+    expect(continueChapter(rows(-1, -1), 3)).toBeUndefined();
+  });
+
+  it("starts at the oldest row when none is numbered", () => {
+    expect(continueChapter(rows(-1, -1, -1), 0)?.id).toBe("u2");
+  });
+
+  it("takes the first listed of a repeated number, like nextChapter", () => {
+    expect(continueChapter(rows(59, 58, 58), 57)?.id).toBe("u1");
+  });
+
+  it("is none for an empty list", () => {
+    expect(continueChapter([], 0)).toBeUndefined();
   });
 });

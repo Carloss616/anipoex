@@ -19,7 +19,9 @@ import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ChapterItem } from "../chapter-item";
-import { ART_HEIGHT } from "../hero";
+import { DetailHeader } from "../detail-header";
+import { ART_HEIGHT, Hero } from "../hero";
+import { SourcePicker } from "../source-picker";
 import type { DetailListProps } from "./detail-list";
 
 const NO_INSETS = listRowInsets({ top: 0, leading: 0, bottom: 0, trailing: 0 });
@@ -29,15 +31,14 @@ const NO_INSETS = listRowInsets({ top: 0, leading: 0, bottom: 0, trailing: 0 });
  * drawn up behind the navigation bar, the chapters a native card section.
  */
 export function DetailList({
-  hero,
-  header,
+  manga,
   chapters,
   total,
   loading,
   empty,
-  action,
-  mediaId,
-  entryId,
+  sourceSheet$,
+  continue$,
+  onContinue,
   maxHeaderHeight,
   onRefresh,
   className,
@@ -50,7 +51,11 @@ export function DetailList({
       </Text>
       <Badge>{total}</Badge>
       <Spacer />
-      {action}
+      <SourcePicker
+        manga={manga}
+        entryId={manga.mediaListEntry?.id}
+        open$={sourceSheet$}
+      />
     </HStack>
   );
 
@@ -83,12 +88,16 @@ export function DetailList({
             {/* A row's top edge can't move up, so the hero is only drawn
                 higher (layout unchanged) and the header pulled up by as much. */}
             <VStack modifiers={[offset({ y: -maxHeaderHeight })]}>
-              {hero}
+              <Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />
             </VStack>
             <VStack
               modifiers={[padding({ top: -(ART_HEIGHT + maxHeaderHeight) })]}
             >
-              {header}
+              <DetailHeader
+                manga={manga}
+                continue$={continue$}
+                onContinue={onContinue}
+              />
             </VStack>
           </VStack>
         </Section>
@@ -110,8 +119,9 @@ export function DetailList({
               {({ item }) => (
                 <ChapterItem
                   chapter={item}
-                  mediaId={mediaId}
-                  entryId={entryId}
+                  mediaId={manga.id}
+                  entryId={manga.mediaListEntry?.id}
+                  continue$={continue$}
                 />
               )}
             </List.ForEach>

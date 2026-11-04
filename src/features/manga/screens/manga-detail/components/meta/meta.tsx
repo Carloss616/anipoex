@@ -18,12 +18,6 @@ export function Meta({
 
   return (
     <View className={cn("items-start gap-2", className)}>
-      {!!synonyms && (
-        <Typography type="body-sm" muted numberOfLines={3}>
-          {synonyms}
-        </Typography>
-      )}
-
       {!!manga.author && (
         <View className="flex-row items-center gap-2">
           <Icon name={Icons.person} size={12} muted />
@@ -55,6 +49,12 @@ export function Meta({
             {`${manga.averageScore}% community`}
           </Typography>
         </View>
+      )}
+
+      {!!synonyms && (
+        <Typography type="body-sm" muted numberOfLines={1}>
+          {synonyms}
+        </Typography>
       )}
     </View>
   );

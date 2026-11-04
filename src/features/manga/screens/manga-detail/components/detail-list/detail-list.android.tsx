@@ -18,6 +18,7 @@ import {
   padding,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { Computed, useObservable } from "@legendapp/state/react";
 import { cn } from "panelui-native/utils/cn";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -29,6 +30,10 @@ import { Host } from "@/components/ui/host";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ChapterItem } from "../chapter-item";
+import { ContinueButton } from "../continue-button";
+import { DetailHeader } from "../detail-header";
+import { Hero } from "../hero";
+import { SourcePicker } from "../source-picker";
 import type { DetailListProps } from "./detail-list";
 
 const RADIUS = 12;
@@ -38,15 +43,14 @@ const RADIUS = 12;
  * lazy item, a slice of one card. Tonal elevation only: per-row shadows would seam.
  */
 export function DetailList({
-  hero,
-  header,
+  manga,
   chapters,
   total,
   loading,
   empty,
-  action,
-  mediaId,
-  entryId,
+  sourceSheet$,
+  continue$,
+  onContinue,
   maxHeaderHeight,
   refreshing,
   onRefresh,
@@ -54,6 +58,8 @@ export function DetailList({
 }: DetailListProps) {
   const m3 = useThemeM3Colors();
   const setHeaderScrolled = useSetHeaderScrolled();
+  // The FAB is expanded at the top; Compose has no scroll events.
+  const atTop$ = useObservable(true);
   const insets = useSafeAreaInsets();
   const last = chapters.length - 1;
   const start = GUTTER + insets.left;
@@ -61,86 +67,116 @@ export function DetailList({
 
   return (
     <Host className={cn("flex-1", className)}>
-      <PullToRefreshBox
-        isRefreshing={refreshing}
-        onRefresh={() => void onRefresh()}
-        contentAlignment="topCenter"
-        // Below the header, not under it.
-        indicator={{ modifiers: [offset(0, maxHeaderHeight)] }}
-        modifiers={[fillMaxSize()]}
-      >
-        <LazyColumn
-          contentPadding={{ bottom: GUTTER }}
+      <Box contentAlignment="bottomEnd" modifiers={[fillMaxSize()]}>
+        <PullToRefreshBox
+          isRefreshing={refreshing}
+          onRefresh={() => void onRefresh()}
+          contentAlignment="topCenter"
+          // Below the header, not under it.
+          indicator={{ modifiers: [offset(0, maxHeaderHeight)] }}
           modifiers={[fillMaxSize()]}
         >
-          {/* Compose has no negative padding: the header is stacked over the
+          <LazyColumn
+            // Room for the FAB over the last row.
+            contentPadding={{ bottom: GUTTER + 72 }}
+            modifiers={[fillMaxSize()]}
+          >
+            {/* Compose has no negative padding: the header is stacked over the
               hero and starts below the app bar, covering the art's last stretch. */}
-          <Box modifiers={[fillMaxWidth()]}>
-            {/* Top sentinel, no scroll events: the header fills once it leaves. */}
-            <Box
-              modifiers={[
-                fillMaxWidth(),
-                height(1),
-                onVisibilityChanged((atTop) => setHeaderScrolled(!atTop), {
-                  minFractionVisible: 0,
-                }),
-              ]}
-            />
-            {hero}
-            <Column modifiers={[padding(0, maxHeaderHeight, 0, 0)]}>
-              {header}
-            </Column>
-          </Box>
-          <Row
-            verticalAlignment="center"
-            horizontalArrangement={{ spacedBy: 8 }}
-            modifiers={[padding(start, 0, end, 4)]}
-          >
-            <Text
-              style={{ typography: "titleSmall" }}
-              color={m3.primary}
-              modifiers={[padding(16, 0, 0, 0)]}
+            <Box modifiers={[fillMaxWidth()]}>
+              {/* Top sentinel, no scroll events: the header fills once it leaves. */}
+              <Box
+                modifiers={[
+                  fillMaxWidth(),
+                  height(1),
+                  onVisibilityChanged(
+                    (atTop) => {
+                      setHeaderScrolled(!atTop);
+                      atTop$.set(atTop);
+                    },
+                    {
+                      minFractionVisible: 0,
+                    },
+                  ),
+                ]}
+              />
+              <Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />
+              <Column modifiers={[padding(0, maxHeaderHeight, 0, 0)]}>
+                <DetailHeader
+                  manga={manga}
+                  continue$={continue$}
+                  onContinue={onContinue}
+                />
+              </Column>
+            </Box>
+            <Row
+              verticalAlignment="center"
+              horizontalArrangement={{ spacedBy: 8 }}
+              modifiers={[padding(start, 0, end, 4)]}
             >
-              Chapters
-            </Text>
-            <Badge>{total}</Badge>
-            <Spacer modifiers={[weight(1)]} />
-            {action}
-          </Row>
-          {chapters.length === 0 &&
-            (loading ? <LoadingState /> : <EmptyState {...empty} />)}
-          <LazyColumn.Items
-            data={chapters}
-            keyExtractor={(chapter) => String(chapter.id)}
-          >
-            {({ item, index }) => (
-              <Surface
-                tonalElevation={1}
-                shape={Shape.RoundedCorner({
-                  cornerRadii: {
-                    topStart: index === 0 ? RADIUS : 0,
-                    topEnd: index === 0 ? RADIUS : 0,
-                    bottomStart: index === last ? RADIUS : 0,
-                    bottomEnd: index === last ? RADIUS : 0,
-                  },
-                })}
-                modifiers={[padding(start, 0, end, 0), fillMaxWidth()]}
+              {/* Not primary: the color is left for the Continue action. */}
+              <Text
+                style={{ typography: "titleSmall" }}
+                color={m3.onSurfaceVariant}
+                modifiers={[padding(16, 0, 0, 0)]}
               >
-                <Column>
-                  {index > 0 && (
-                    <HorizontalDivider modifiers={[padding(16, 0, 16, 0)]} />
-                  )}
-                  <ChapterItem
-                    chapter={item}
-                    mediaId={mediaId}
-                    entryId={entryId}
-                  />
-                </Column>
-              </Surface>
+                Chapters
+              </Text>
+              <Badge>{total}</Badge>
+              <Spacer modifiers={[weight(1)]} />
+              <SourcePicker
+                manga={manga}
+                entryId={manga.mediaListEntry?.id}
+                open$={sourceSheet$}
+              />
+            </Row>
+            {chapters.length === 0 &&
+              (loading ? <LoadingState /> : <EmptyState {...empty} />)}
+            <LazyColumn.Items
+              data={chapters}
+              keyExtractor={(chapter) => String(chapter.id)}
+            >
+              {({ item, index }) => (
+                <Surface
+                  tonalElevation={1}
+                  shape={Shape.RoundedCorner({
+                    cornerRadii: {
+                      topStart: index === 0 ? RADIUS : 0,
+                      topEnd: index === 0 ? RADIUS : 0,
+                      bottomStart: index === last ? RADIUS : 0,
+                      bottomEnd: index === last ? RADIUS : 0,
+                    },
+                  })}
+                  modifiers={[padding(start, 0, end, 0), fillMaxWidth()]}
+                >
+                  <Column>
+                    {index > 0 && (
+                      <HorizontalDivider modifiers={[padding(16, 0, 16, 0)]} />
+                    )}
+                    <ChapterItem
+                      chapter={item}
+                      mediaId={manga.id}
+                      entryId={manga.mediaListEntry?.id}
+                      continue$={continue$}
+                    />
+                  </Column>
+                </Surface>
+              )}
+            </LazyColumn.Items>
+          </LazyColumn>
+        </PullToRefreshBox>
+        <Box modifiers={[padding(0, 0, end, 16)]}>
+          <Computed>
+            {() => (
+              <ContinueButton
+                continue$={continue$}
+                onPress={onContinue}
+                expanded={atTop$.get()}
+              />
             )}
-          </LazyColumn.Items>
-        </LazyColumn>
-      </PullToRefreshBox>
+          </Computed>
+        </Box>
+      </Box>
     </Host>
   );
 }

@@ -172,7 +172,7 @@ export function ListContent({
                   </BadgedBox>
                 </ExtendedFloatingActionButton.Icon>
                 <ExtendedFloatingActionButton.Text>
-                  <Text style={{ fontWeight: "500" }}>Update all</Text>
+                  <Text>Update all</Text>
                 </ExtendedFloatingActionButton.Text>
               </ExtendedFloatingActionButton>
             )}

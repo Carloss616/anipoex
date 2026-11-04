@@ -81,11 +81,12 @@ export function ListContent({
   return (
     <View className="flex-1 flex-row">
       {wide && (
-        <HeaderInsetView>
+        <HeaderInsetView className="gutters box-content w-48 pr-4 pb-gb pl-gx">
           <ListSidebar
             filter={filter}
             counts={counts}
             onSelect={onFilterChange}
+            className="pt-4"
           />
         </HeaderInsetView>
       )}

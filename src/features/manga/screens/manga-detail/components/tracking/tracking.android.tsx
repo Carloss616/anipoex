@@ -1,16 +1,20 @@
-import { Column, OutlinedButton, Row, Spacer } from "@expo/ui/jetpack-compose";
-import { fillMaxWidth, weight } from "@expo/ui/jetpack-compose/modifiers";
+import { Column, OutlinedCard, Row, Spacer } from "@expo/ui/jetpack-compose";
+import {
+  clickable,
+  fillMaxWidth,
+  padding,
+  weight,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { useState } from "react";
 import { Code, Text } from "@/components/native/jetpack-compose/text";
-import { Badge } from "@/components/ui/badge";
-import { Icon, Icons } from "@/components/ui/icon";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { TrackingSheet } from "../tracking-sheet";
 import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
-/** An outlined button summing the entry up; the sheet edits it. */
+/** An outlined card summing the entry up, or inviting to add one; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);
   const { tracking, label, total, progress, percent } =
@@ -19,39 +23,52 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
 
   return (
     <>
-      <OutlinedButton
-        onClick={() => setIsPresented(true)}
-        contentPadding={{ start: 24, top: 16, end: 24, bottom: 16 }}
-        modifiers={[fillMaxWidth()]}
+      <OutlinedCard
+        modifiers={[fillMaxWidth(), clickable(() => setIsPresented(true))]}
       >
-        <Column
-          verticalArrangement={{ spacedBy: 8 }}
-          modifiers={[fillMaxWidth()]}
-        >
+        {label ? (
+          <Column
+            verticalArrangement={{ spacedBy: 8 }}
+            modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}
+          >
+            <Row
+              verticalAlignment="center"
+              horizontalArrangement={{ spacedBy: 8 }}
+            >
+              <Text>{label}</Text>
+              <Spacer modifiers={[weight(1)]} />
+              <Code>
+                {progress}
+                {!!total && `/${total}`}
+              </Code>
+              {!!total && (
+                <Text
+                  style={{ typography: "bodySmall" }}
+                  color={m3.onSurfaceVariant}
+                >
+                  {percent}%
+                </Text>
+              )}
+              <Icon
+                name={Icons.chevronRight}
+                size={BUTTON_ICON_SIZE}
+                color={m3.primary}
+              />
+            </Row>
+            {!!total && <Progress value={percent} />}
+          </Column>
+        ) : (
           <Row
             verticalAlignment="center"
             horizontalArrangement={{ spacedBy: 8 }}
+            modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}
           >
-            <Badge color={label ? "primary" : "secondary"} />
-            {/* The status reads as text; only the chevron wears the tint. */}
-            <Text color={m3.onSurface}>{label ?? "Not in list"}</Text>
+            <Text>Add to list</Text>
             <Spacer modifiers={[weight(1)]} />
-            <Code color={m3.onSurface}>
-              {progress}/{total ?? "_"}
-            </Code>
-            {!!total && (
-              <Text
-                style={{ typography: "bodySmall" }}
-                color={m3.onSurfaceVariant}
-              >
-                {percent}%
-              </Text>
-            )}
-            <Icon name={Icons.chevronRight} size={18} color="inherit" />
+            <Icon name={Icons.add} size={BUTTON_ICON_SIZE} color={m3.primary} />
           </Row>
-          <Progress value={percent} />
-        </Column>
-      </OutlinedButton>
+        )}
+      </OutlinedCard>
 
       <TrackingSheet
         isPresented={isPresented}

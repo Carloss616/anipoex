@@ -14,12 +14,6 @@ export function Meta({ manga }: { manga: MangaDetail }) {
 
   return (
     <VStack alignment="leading" spacing={8}>
-      {!!synonyms && (
-        <Text textStyle="subheadline" modifiers={[SECONDARY, lineLimit(3)]}>
-          {synonyms}
-        </Text>
-      )}
-
       {!!manga.author && (
         <HStack spacing={8}>
           <Icon name={Icons.person} size={12} muted />
@@ -52,6 +46,12 @@ export function Meta({ manga }: { manga: MangaDetail }) {
             {`${manga.averageScore}% community`}
           </Text>
         </HStack>
+      )}
+
+      {!!synonyms && (
+        <Text textStyle="subheadline" modifiers={[SECONDARY, lineLimit(1)]}>
+          {synonyms}
+        </Text>
       )}
     </VStack>
   );

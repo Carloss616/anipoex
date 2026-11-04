@@ -114,6 +114,7 @@ export type MangaDetailFragment = {
   status: Types.MediaStatus | null;
   chapters: number | null;
   startDate: { __typename: "FuzzyDate"; year: number | null } | null;
+  endDate: { __typename: "FuzzyDate"; year: number | null } | null;
   mediaListEntry: {
     __typename: "MediaList";
     id: number;
@@ -361,6 +362,16 @@ export const MangaDetailFragmentDoc = {
           {
             kind: "Field",
             name: { kind: "Name", value: "startDate" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "year" } },
+              ],
+            },
+          },
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "endDate" },
             selectionSet: {
               kind: "SelectionSet",
               selections: [

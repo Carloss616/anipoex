@@ -1,6 +1,9 @@
-import { useObservable } from "@legendapp/state/react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Computed, useObservable } from "@legendapp/state/react";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Typography } from "panelui-native/components/typography";
+import { cn } from "panelui-native/utils/cn";
 import { useEffect, useState } from "react";
+import { Platform } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
@@ -20,19 +23,19 @@ import { startTitleSearch } from "@/features/manga/state/title-search";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { shareUrl } from "@/utils/copy-url";
 import { openExternal } from "@/utils/open-external";
 import { noop } from "@/utils/utils";
-import { DetailHeader } from "./components/detail-header";
+import { ContinueSync } from "./components/continue-sync";
 import { DetailList } from "./components/detail-list";
-import { Hero } from "./components/hero";
-import { SourcePicker } from "./components/source-picker";
 import { SourceSheet } from "./components/source-sheet";
+import type { ContinueAction } from "./hooks/use-continue";
 
 const MENU_ACTIONS = [
   {
     icon: Icons.share,
     label: "Share",
-    onPress: () => noop(),
+    onPress: (id: string) => shareUrl(`https://anilist.co/manga/${id}`),
   },
   {
     icon: Icons.download,
@@ -56,6 +59,11 @@ export function MangaDetail() {
   const { match, matching } = useSourceMatch(Number(id));
   // An observable, so opening the sheet re-renders neither this screen nor its list.
   const sourceSheet$ = useObservable(false);
+  // Web: the header shows the title once it scrolls away.
+  const titleOut$ = useObservable(false);
+  // Read by the rows and buttons, not by this screen.
+  const continue$ = useObservable<ContinueAction | null>(null);
+  const router = useRouter();
   // Destructured so `refreshAll` only changes with the match: each new toolbar re-renders the whole stack.
   const {
     chapters,
@@ -77,6 +85,15 @@ export function MangaDetail() {
 
   // A new pick hides the previous source's rows so the loading state shows.
   const rows = matching ? [] : chapters;
+  const openContinue = () => {
+    const action = continue$.peek();
+    if (action?.chapter)
+      router.push({
+        pathname: "/manga/[id]/reader",
+        params: { id, chapter: action.chapter.id },
+      });
+    else if (action) sourceSheet$.set(true);
+  };
 
   const refreshAll = () =>
     Promise.all([
@@ -149,6 +166,30 @@ export function MangaDetail() {
   return (
     <>
       <Stack.Title large>{manga.title?.userPreferred}</Stack.Title>
+      {Platform.OS === "web" && (
+        // A title function is never large: the header stays bare at the top.
+        <Stack.Screen
+          options={{
+            headerTitle: ({ children }) => (
+              <Computed>
+                {() => (
+                  <Typography
+                    type="h2"
+                    numberOfLines={1}
+                    aria-hidden={!titleOut$.get()}
+                    className={cn(
+                      "transition-opacity duration-300",
+                      !titleOut$.get() && "opacity-0",
+                    )}
+                  >
+                    {children}
+                  </Typography>
+                )}
+              </Computed>
+            ),
+          }}
+        />
+      )}
       <Toolbar loading={refreshing}>
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
@@ -176,24 +217,24 @@ export function MangaDetail() {
       </Toolbar>
 
       <DetailList
+        manga={manga}
         refreshing={refreshing}
         onRefresh={refreshAll}
         maxHeaderHeight={maxHeaderHeight}
-        hero={<Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />}
         chapters={rows}
         total={manga.chapters ?? rows.length}
         loading={matching || chaptersLoading || (!!pendingId && !resumed)}
         empty={empty}
-        action={
-          <SourcePicker
-            manga={manga}
-            entryId={manga.mediaListEntry?.id}
-            open$={sourceSheet$}
-          />
-        }
-        mediaId={manga.id}
-        entryId={manga.mediaListEntry?.id}
-        header={<DetailHeader manga={manga} />}
+        sourceSheet$={sourceSheet$}
+        continue$={continue$}
+        onContinue={openContinue}
+        titleOut$={titleOut$}
+      />
+      <ContinueSync
+        manga={manga}
+        chapters={rows}
+        match={match}
+        continue$={continue$}
       />
       <SourceSheet
         manga={manga}

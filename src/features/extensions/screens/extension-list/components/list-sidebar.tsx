@@ -1,4 +1,5 @@
 import { Typography } from "panelui-native/components/typography";
+import { cn } from "panelui-native/utils/cn";
 import { Tabs } from "panelui-web/tabs";
 import { View } from "react-native";
 import {
@@ -13,13 +14,15 @@ export function ListSidebar({
   filter,
   counts,
   onSelect,
+  className,
 }: {
   filter: ExtensionFilter;
   counts: ExtensionCounts;
   onSelect: (filter: ExtensionFilter) => void;
+  className?: string;
 }) {
   return (
-    <View className="gutters box-content w-48 flex-1 gap-0.5 border-border border-r p-4 pb-gb pl-gx">
+    <View className={cn("gap-0.5", className)}>
       <Typography type="body-sm" muted className="px-4.25 pb-2.5">
         Filters
       </Typography>

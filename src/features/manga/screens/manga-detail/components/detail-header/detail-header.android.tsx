@@ -1,16 +1,22 @@
-import { Column, FilterChip, Row } from "@expo/ui/jetpack-compose";
+import { Column, Row, Shape, Surface } from "@expo/ui/jetpack-compose";
 import { horizontalScroll, padding } from "@expo/ui/jetpack-compose/modifiers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { MangaCard } from "@/features/manga/components/manga-card";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Meta } from "../meta";
 import { Synopsis } from "../synopsis";
 import { Tracking } from "../tracking";
 import type { DetailHeaderProps } from "./detail-header";
 
+const TAG = Shape.RoundedCorner({
+  cornerRadii: { topStart: 8, topEnd: 8, bottomStart: 8, bottomEnd: 8 },
+});
+
 export function DetailHeader({ manga }: DetailHeaderProps) {
   const insets = useSafeAreaInsets();
+  const m3 = useThemeM3Colors();
   const hasGenres = !!manga.genres?.length;
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
@@ -39,12 +45,17 @@ export function DetailHeader({ manga }: DetailHeaderProps) {
           // After the scroll, so the inset is part of what scrolls.
           modifiers={[horizontalScroll(), padding(start, 24, end, 24)]}
         >
+          {/* Labels, not chips: a chip reads as a filter or an action. */}
           {manga.genres?.map((g) => (
-            <FilterChip key={g} selected={false}>
-              <FilterChip.Label>
-                <Text style={{ typography: "labelLarge" }}>{g}</Text>
-              </FilterChip.Label>
-            </FilterChip>
+            <Surface key={g} color={m3.secondaryContainer} shape={TAG}>
+              <Text
+                style={{ typography: "labelLarge" }}
+                color={m3.onSecondaryContainer}
+                modifiers={[padding(12, 6, 12, 6)]}
+              >
+                {g ?? ""}
+              </Text>
+            </Surface>
           ))}
         </Row>
       )}

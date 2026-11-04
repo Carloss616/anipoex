@@ -6,20 +6,18 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useState } from "react";
 import { Code, Text } from "@/components/native/swift-ui/text";
-import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { TrackingSheet } from "../tracking-sheet";
 import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
-/** A glass button summing the entry up; the sheet edits it. */
+/** A glass button summing the entry up, or inviting to add one; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);
   const { tracking, label, total, progress, percent } =
     useTrackingSummary(manga);
-  const foreground = useThemeColor("foreground");
+  const fgPrimary = foregroundStyle("primary");
 
   return (
     <>
@@ -27,37 +25,42 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
         onPress={() => setIsPresented(true)}
         modifiers={[buttonStyle("glass")]}
       >
-        <VStack
-          alignment="leading"
-          spacing={8}
-          modifiers={[padding({ vertical: 16 })]}
-        >
-          <HStack spacing={8}>
-            <Badge color={label ? "primary" : "secondary"} />
-            {/* The status and count read as text; only the chevron wears the tint. */}
-            <Text modifiers={[foregroundStyle(foreground)]}>
-              {label ?? "Not in list"}
-            </Text>
+        {label ? (
+          <VStack
+            alignment="leading"
+            spacing={8}
+            modifiers={[padding({ all: 16 })]}
+          >
+            <HStack spacing={8}>
+              <Text modifiers={[fgPrimary]}>{label}</Text>
+              <Spacer />
+              <Code modifiers={[fgPrimary]}>
+                {progress}
+                {!!total && `/${total}`}
+              </Code>
+              {!!total && (
+                <Text
+                  textStyle="caption"
+                  modifiers={[foregroundStyle("secondary")]}
+                >
+                  {percent}%
+                </Text>
+              )}
+              <Icon
+                name={Icons.chevronRight}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
+            </HStack>
+            {!!total && <Progress value={percent} />}
+          </VStack>
+        ) : (
+          <HStack spacing={8} modifiers={[padding({ all: 16 })]}>
+            <Text modifiers={[fgPrimary]}>Add to list</Text>
             <Spacer />
-            <Code modifiers={[foregroundStyle(foreground)]}>
-              {progress}/{total ?? "_"}
-            </Code>
-            {!!total && (
-              <Text
-                textStyle="caption"
-                modifiers={[foregroundStyle("secondary")]}
-              >
-                {percent}%
-              </Text>
-            )}
-            <Icon
-              name={Icons.chevronRight}
-              size={BUTTON_ICON_SIZE}
-              color="inherit"
-            />
+            <Icon name={Icons.add} size={BUTTON_ICON_SIZE} color="inherit" />
           </HStack>
-          <Progress value={percent} />
-        </VStack>
+        )}
       </Button>
 
       <TrackingSheet

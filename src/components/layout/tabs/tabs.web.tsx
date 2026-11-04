@@ -56,10 +56,15 @@ export function Tabs() {
   const pathname = usePathname();
 
   return (
-    <TabsBase>
+    <TabsBase className="relative">
       <TabSlot className="flex-1" />
       <TabList asChild>
-        <PanelTabList className={cn(pathname.endsWith("/reader") && "hidden")}>
+        <PanelTabList
+          className={cn(
+            pathname !== "/manga" && "glass-muted",
+            pathname.endsWith("/reader") && "hidden",
+          )}
+        >
           {ROUTES.map((item) => (
             <TabTrigger
               key={item.name}
@@ -123,25 +128,22 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
 
   return (
     <View
-      pointerEvents="box-none"
       className={cn(
         className,
-        "justify-center! absolute bottom-0 w-full items-center p-4",
+        "glass-chrome absolute bottom-4 left-1/2 -translate-x-1/2 flex-row items-center gap-2 rounded-full border p-1.5 shadow-lg",
       )}
       {...props}
     >
-      <View className="glass-chrome flex-row items-center gap-2 rounded-full border p-1.5 shadow-lg">
-        <PanelTabs
-          value={value ?? ROUTES[0].name}
-          onValueChange={(name) => switchTab(String(name), {})}
-          variant="pills"
-        >
-          <PanelTabs.List className="max-sm:*:data-[slot=tabs-indicator]:hidden">
-            {children}
-          </PanelTabs.List>
-        </PanelTabs>
-        <ThemeToggle />
-      </View>
+      <PanelTabs
+        value={value ?? ROUTES[0].name}
+        onValueChange={(name) => switchTab(String(name), {})}
+        variant="pills"
+      >
+        <PanelTabs.List className="max-sm:*:data-[slot=tabs-indicator]:hidden">
+          {children}
+        </PanelTabs.List>
+      </PanelTabs>
+      <ThemeToggle />
     </View>
   );
 }

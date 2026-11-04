@@ -14,6 +14,8 @@ import {
   sheetRequest$,
 } from "../../state/scan-views";
 
+const DETAIL = /^\/manga\/\d+$/;
+
 /** The running scans over every screen, each hidden while its manga's source sheet is open; a tap opens that sheet. */
 export function ScanFloat() {
   const pathname = usePathname();
@@ -33,8 +35,11 @@ export function ScanFloat() {
   return (
     <View
       pointerEvents="box-none"
-      // The lists' bottom gutter: it clears the floating tab bar.
-      className="gutters absolute inset-0 items-center justify-end gap-2 px-gx pb-gb"
+      // Clears the tab bar, and below lg the detail's floating Continue.
+      className={cn(
+        "gutters absolute inset-0 items-center justify-end gap-2 px-gx pb-gb",
+        DETAIL.test(pathname) && "max-lg:pb-[calc(var(--spacing-gb)+3.5rem)]",
+      )}
     >
       <For each={scanViews$} item={ScanCard} itemProps={{ onOpen: open }} />
     </View>

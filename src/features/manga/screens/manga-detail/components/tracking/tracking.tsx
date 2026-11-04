@@ -2,13 +2,13 @@ import { Typography } from "panelui-native/components/typography";
 import { Button } from "panelui-web/button";
 import { useState } from "react";
 import { View } from "react-native";
-import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { TrackingSheet } from "../tracking-sheet";
 import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
+/** A card summing the entry up, or inviting to add one; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);
   const { tracking, label, total, progress, percent } =
@@ -17,32 +17,35 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
   return (
     <>
       <Button
-        variant="secondary"
-        shape="pill"
+        variant="outline"
         onClick={() => setIsPresented(true)}
-        className="h-auto w-full py-4"
+        className="h-auto flex-col items-stretch rounded-2xl p-4"
       >
-        <View className="w-full gap-2">
+        {label ? (
+          <>
+            <View className="flex-row items-center gap-2">
+              <Typography className="text-inherit">{label}</Typography>
+              <View className="flex-1" />
+              <Typography.Code className="self-auto">
+                {progress}
+                {!!total && `/${total}`}
+              </Typography.Code>
+              {!!total && (
+                <Typography type="body-xs" muted>
+                  {percent}%
+                </Typography>
+              )}
+              <Icon name={Icons.chevronRight} size={BUTTON_ICON_SIZE} />
+            </View>
+            {!!total && <Progress value={percent} />}
+          </>
+        ) : (
           <View className="flex-row items-center gap-2">
-            <Badge color={label ? "primary" : "secondary"} />
-            <Typography>{label ?? "Not in list"}</Typography>
+            <Typography className="text-inherit">Add to list</Typography>
             <View className="flex-1" />
-            <Typography.Code className="self-auto">
-              {progress}/{total ?? "_"}
-            </Typography.Code>
-            {!!total && (
-              <Typography type="body-xs" muted>
-                {percent}%
-              </Typography>
-            )}
-            <Icon
-              name={Icons.chevronRight}
-              size={BUTTON_ICON_SIZE}
-              className="text-primary"
-            />
+            <Icon name={Icons.add} size={BUTTON_ICON_SIZE} />
           </View>
-          <Progress value={percent} />
-        </View>
+        )}
       </Button>
 
       <TrackingSheet

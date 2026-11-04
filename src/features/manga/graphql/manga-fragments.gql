@@ -50,6 +50,9 @@ fragment MangaDetail on Media {
   startDate {
     year
   }
+  endDate {
+    year
+  }
   mediaListEntry {
     id
     ...MangaTracking @nonreactive

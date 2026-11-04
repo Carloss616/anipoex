@@ -60,9 +60,10 @@ export function Hero({
             ]}
             contentFit="cover"
             transition={400}
+            // The web's wide layout shows a banner as is; the cover fallback stays soft.
             blurRadius={Platform.select({
               ios: 8,
-              web: 4,
+              web: banner ? 0 : 4,
               default: 2,
             })}
           />

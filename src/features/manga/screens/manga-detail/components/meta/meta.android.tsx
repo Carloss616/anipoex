@@ -16,17 +16,6 @@ export function Meta({ manga }: { manga: MangaDetail }) {
 
   return (
     <Column verticalArrangement={{ spacedBy: 8 }}>
-      {!!synonyms && (
-        <Text
-          style={BODY}
-          color={m3.onSurfaceVariant}
-          maxLines={3}
-          overflow="ellipsis"
-        >
-          {synonyms}
-        </Text>
-      )}
-
       {!!manga.author && (
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 8 }}>
           <Icon name={Icons.person} size={12} muted />
@@ -57,6 +46,17 @@ export function Meta({ manga }: { manga: MangaDetail }) {
             {`${manga.averageScore}% community`}
           </Text>
         </Row>
+      )}
+
+      {!!synonyms && (
+        <Text
+          style={BODY}
+          color={m3.onSurfaceVariant}
+          maxLines={1}
+          overflow="ellipsis"
+        >
+          {synonyms}
+        </Text>
       )}
     </Column>
   );

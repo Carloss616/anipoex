@@ -128,6 +128,11 @@ export const Icons = {
     android: require("@expo/material-symbols/check.xml"),
     web: "check",
   }),
+  read: Icon.select({
+    ios: "checkmark",
+    android: require("@expo/material-symbols/done_all.xml"),
+    web: "check-check",
+  }),
   checkCircle: Icon.select({
     ios: "checkmark.circle",
     android: require("@expo/material-symbols/check_circle.xml"),

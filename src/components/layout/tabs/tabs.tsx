@@ -1,20 +1,34 @@
+import { useValue } from "@legendapp/state/react";
 import { usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/native-tabs";
 import { Platform } from "react-native";
+import { ContinueAccessory } from "@/features/manga/components/continue-accessory";
+import { HAS_ACCESSORY } from "@/features/manga/components/continue-accessory/constants";
 import { openViewSheet } from "@/features/manga/screens/manga-list/components/view-sheet";
+import { continueReading$ } from "@/features/manga/state/continue-reading";
 import { useNativeTabsTheme } from "@/hooks/use-theme";
 
 export function Tabs() {
   const tabTheme = useNativeTabsTheme();
   const pathname = usePathname();
+  const continuing = useValue(() => !!continueReading$.get());
 
   return (
     <NativeTabs
       minimizeBehavior="onScrollDown"
       sidebarAdaptable
-      hidden={pathname.endsWith("/reader")}
+      hidden={
+        Platform.OS === "android"
+          ? /^\/manga\/[^/]+(\/reader)?$/.test(pathname)
+          : pathname.endsWith("/reader")
+      }
       {...tabTheme}
     >
+      {HAS_ACCESSORY && continuing && (
+        <NativeTabs.BottomAccessory>
+          <ContinueAccessory />
+        </NativeTabs.BottomAccessory>
+      )}
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
