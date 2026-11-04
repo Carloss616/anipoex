@@ -8,11 +8,15 @@ import {
   lineLimit,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
+import { observable } from "@legendapp/state";
+import { useValue } from "@legendapp/state/react";
 import {
   toast as panelToast,
   ToastViewport,
 } from "panelui-native/components/toast";
 import { PortalHost, PortalProvider } from "panelui-native/primitives/portal";
+import { type ReactNode, useEffect } from "react";
+import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Host } from "../host";
@@ -25,13 +29,37 @@ import type {
   ToastVariant,
 } from "./toast";
 
-// PanelUI's toast draws through a portal; no other screen needs one on iOS.
+// A native sheet covers the root view, so while one hosts the toasts the root's host steps aside.
+const sheetHosts$ = observable(0);
+const NO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 };
+
+// The toast's portal: its viewport sits at the root, its host may be in a sheet.
+export function ToastProvider({ children }: { children: ReactNode }) {
+  return <PortalProvider>{children}</PortalProvider>;
+}
+
+// The viewport never unmounts: its cleanup pauses every toast's timer.
 export function ToastHost() {
+  const covered = useValue(() => sheetHosts$.get() > 0);
   return (
-    <PortalProvider>
+    <>
       <ToastViewport />
+      {!covered && <PortalHost />}
+    </>
+  );
+}
+
+// shortcut: one sheet hosts at a time; nested sheet hosts would show each toast twice.
+export function SheetToastHost() {
+  useEffect(() => {
+    sheetHosts$.set((count) => count + 1);
+    return () => sheetHosts$.set((count) => count - 1);
+  }, []);
+  return (
+    // The screen's insets don't reach into the sheet: the toast sits at its top.
+    <SafeAreaInsetsContext.Provider value={NO_INSETS}>
       <PortalHost />
-    </PortalProvider>
+    </SafeAreaInsetsContext.Provider>
   );
 }
 

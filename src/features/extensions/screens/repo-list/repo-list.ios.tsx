@@ -41,6 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Host } from "@/components/ui/host";
 import { BUTTON_ICON_SIZE, Icon, Icons, sfSymbol } from "@/components/ui/icon";
+import { SheetToastHost } from "@/components/ui/toast";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
 import { TrustDialog } from "@/features/extensions/components/trust-dialog";
 import { useRepoList } from "@/features/extensions/hooks/use-repo-list";
@@ -200,6 +201,7 @@ export function RepoList() {
         </VStack>
       </Host>
       <TrustDialog repo={pending} onDismiss={dismiss} onTrust={trust} />
+      <SheetToastHost />
     </>
   );
 }
@@ -278,7 +280,7 @@ const RepoRow = memo(function RepoRow({
           </Dialog>
         </ContextMenu.Trigger>
       </ContextMenu>
-      <SwipeActions.Actions allowsFullSwipe={false}>
+      <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
         <Button
           label="Remove"
           systemImage={sfSymbol(Icons.trash)}
@@ -286,6 +288,8 @@ const RepoRow = memo(function RepoRow({
           modifiers={[tint(destructive)]}
           onPress={() => setRemoving(true)}
         />
+      </SwipeActions.Actions>
+      <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
         <Button
           label="Copy"
           systemImage={sfSymbol(Icons.copy)}

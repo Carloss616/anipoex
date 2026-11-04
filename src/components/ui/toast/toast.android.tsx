@@ -4,12 +4,17 @@ import {
   type SnackbarHostRef,
 } from "@expo/ui/jetpack-compose";
 import { align, fillMaxWidth } from "@expo/ui/jetpack-compose/modifiers";
+import type { ReactNode } from "react";
 import { SafeAreaView as SafeAreaViewBase } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 import { Host } from "../host";
 import type { ShowToast, Toast } from "./toast";
 
 const SafeAreaView = withUniwind(SafeAreaViewBase);
+
+export const ToastProvider = ({ children }: { children: ReactNode }) =>
+  children;
+export const SheetToastHost = () => null;
 
 // one global host, so `show` threads no ref; context if a screen ever needs
 // its own stack.

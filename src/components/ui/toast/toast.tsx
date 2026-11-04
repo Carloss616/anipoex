@@ -1,6 +1,7 @@
 import { useValue } from "@legendapp/state/react";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
+import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Toaster as Sonner, toast as sonner, type ToasterProps } from "sonner";
 import { theme$ } from "@/state/theme";
@@ -32,6 +33,19 @@ const richColorsOf = (key: string, _token?: string) => {
     [`--${key}-text`]: `var(--color-${token}-foreground)`,
   };
 };
+
+/**
+ * Wraps the app: the iOS toast's portal, so a sheet can host it.
+ * @platform ios
+ */
+export const ToastProvider = ({ children }: { children: ReactNode }) =>
+  children;
+
+/**
+ * Hosts the toasts inside a native sheet, which covers the root's host.
+ * @platform ios
+ */
+export const SheetToastHost = () => null;
 
 /**
  * Web: sonner, portaled to `<body>`: inside the app root it stacks under the

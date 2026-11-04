@@ -9,7 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ToastHost } from "@/components/ui/toast";
+import { ToastHost, ToastProvider } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
 import { client } from "@/graphql/client";
 import { useCacheRestored } from "@/graphql/use-cache-restored";
@@ -42,13 +42,15 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ApolloProvider client={client}>
-        <ThemeProvider value={theme}>
-          <Layout />
-          <ToastHost />
-          <StatusBar style={theme.dark ? "light" : "dark"} />
-        </ThemeProvider>
-      </ApolloProvider>
+      <ToastProvider>
+        <ApolloProvider client={client}>
+          <ThemeProvider value={theme}>
+            <Layout />
+            <ToastHost />
+            <StatusBar style={theme.dark ? "light" : "dark"} />
+          </ThemeProvider>
+        </ApolloProvider>
+      </ToastProvider>
     </GestureHandlerRootView>
   );
 }
