@@ -8,7 +8,11 @@ import {
   lineLimit,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
-import { toast as panelToast } from "panelui-native/components/toast";
+import {
+  toast as panelToast,
+  ToastViewport,
+} from "panelui-native/components/toast";
+import { PortalHost, PortalProvider } from "panelui-native/primitives/portal";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Host } from "../host";
@@ -21,13 +25,14 @@ import type {
   ToastVariant,
 } from "./toast";
 
-/**
- * PanelUI's viewport is mounted by `PanelUIProvider`, so there is nothing to
- * render here — [Android](./toast.android.tsx) is the platform that needs a
- * host of its own.
- */
+// PanelUI's toast draws through a portal; no other screen needs one on iOS.
 export function ToastHost() {
-  return null;
+  return (
+    <PortalProvider>
+      <ToastViewport />
+      <PortalHost />
+    </PortalProvider>
+  );
 }
 
 interface ToastContentProps extends ShowToastOptions {

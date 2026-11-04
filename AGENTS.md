@@ -52,7 +52,7 @@ Legend State gotchas:
 - A screen whose native header hides and shows must be a push, not a modal: on iOS, changing a modal's header visibility remounts the screen and loses its state (the reader is a push with `animation: "slide_from_bottom"`, `src/app/(tabs)/manga/_layout.tsx`).
 - A `Stack.Toolbar` in a header slot forces `headerShown: true` over `Stack.Header hidden`: unmount the toolbar while the header is hidden.
 - A sheet route is `formSheet` on native and `transparentModal` on web, where the stack draws `modal` and `formSheet` as plain pages: the web screen draws its own `BottomSheet`, and the screen below passes `visibleWhenBlurred` to its `LegendList`, which otherwise hides as blurred (`src/app/(tabs)/extensions/_layout.tsx`, `extension-list.tsx`).
-- An Android `formSheet` never rises with the keyboard: react-native-keyboard-controller, which `PanelUIProvider` mounts, replaces the decor-view insets listener react-native-screens reads the keyboard from. A sheet with a field opens at one full detent there (`repos` in `src/app/(tabs)/extensions/_layout.tsx`).
+- No react-native-keyboard-controller `KeyboardProvider`, so no `PanelUIProvider` (which mounts it): it replaces the decor-view insets listener react-native-screens reads the keyboard from, and an Android `formSheet` stops rising with the keyboard. The root is a `GestureHandlerRootView`, and the iOS toast hosts PanelUI's portal itself (`src/app/_layout.tsx`, `toast.ios.tsx`).
 - `router.navigate` pushes like `push`: a web tab bar calling it put a second `manga/index` on the stack, and both screens' `ViewSheet`s opened on their shared module-level `open$`, each making the other inert. Switch tabs with `useTabTrigger().switchTab` (`src/components/layout/tabs/tabs.web.tsx`).
 
 # Styling

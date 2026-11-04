@@ -7,8 +7,8 @@ import { ThemeProvider } from "expo-router";
 import { Stack } from "expo-router/stack";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { PanelUIProvider } from "panelui-native/provider";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ToastHost } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
 import { client } from "@/graphql/client";
@@ -41,7 +41,7 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <PanelUIProvider background={false}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <ApolloProvider client={client}>
         <ThemeProvider value={theme}>
           <Layout />
@@ -49,7 +49,7 @@ export default function RootLayout() {
           <StatusBar style={theme.dark ? "light" : "dark"} />
         </ThemeProvider>
       </ApolloProvider>
-    </PanelUIProvider>
+    </GestureHandlerRootView>
   );
 }
 

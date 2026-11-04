@@ -28,8 +28,7 @@ export default function Layout() {
           default: {
             presentation: "formSheet",
             headerShown: false,
-            // Full height: keyboard-controller takes the insets the sheet would rise with.
-            sheetAllowedDetents: [1],
+            sheetAllowedDetents: [0.5, 1],
             sheetCornerRadius: 28,
             contentStyle: { backgroundColor: m3?.surfaceContainerLow },
           },
