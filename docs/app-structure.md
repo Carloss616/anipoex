@@ -116,6 +116,7 @@ export default function AnimeDetailScreen() {
 ### Code style
 
 - Module-level constants (`const LABEL = …`) go after the last import, never between imports.
+- A prop or function of a cross-platform module that applies to one platform says so with a JSDoc `@platform web` (or `ios`, `android`) tag on its own line under the one-line text, not a `Web:` prefix (`src/components/ui/bottom-sheet/bottom-sheet.tsx`). Code in a web-only file needs neither.
 - An icon in `Icons` (`src/components/ui/icon/icons.ts`) is always referenced from there, never as its glyph name, so changing the registry changes every place: also SwiftUI `systemImage` (`sfSymbol(Icons.refresh)`) and toolbar `icon` props. Only glyphs it doesn't hold stay inline.
 
 ### Feature vs global
@@ -163,4 +164,5 @@ Native screens (`.ios.tsx` / `.android.tsx`) write SwiftUI / Jetpack Compose thr
 - **A `Host` that slides in by transform takes `ignoreSafeArea="all"`.** Started above the safe area, it gets a top inset that SwiftUI keeps after it settles, so the content draws below the `Host` while Yoga's box stays in place (`toast.ios.tsx`).
 - **Loops run in Reanimated, not Compose.** In the source sheet's list, `@expo/ui`'s animated modifiers (`background` with `animationSpec`, `graphicsLayer` with `animated`) jump to their target, and it has no repeating animation: a pulse is PanelUI's `Skeleton` in an `RNHostView` (`rail-content/rail-content.android.tsx`).
 - **Sheets sit beside lists, not in their rows.** A `BottomSheet` inside a Compose `LazyColumn` row closes and reopens when the list re-lays out (it empties while scrolled): render it next to the list and share its open state through an observable (`manga-detail/components/source-sheet/source-sheet.tsx`).
+- **A glass field goes above the `List`, not in a row**: an inset-grouped section clips its rows and the list its top edge, cropping the shadow. It sits in the header's `VStack` (`source-sheet/sheet-content/sheet-content.ios.tsx`, `repo-list.ios.tsx`).
 - **iOS header buttons**: a sheet's title row uses glass circles with a secondary icon in a 20pt frame (`tracking-sheet/overview/overview.ios.tsx`); two or more share one glass capsule, as a native toolbar groups its items, with an active one tinted primary (`source-sheet/sheet-content/sheet-content.ios.tsx`); a `Section` header's action is text, a borderless button or a `Menu` from `@/components/ui/menu` with a text label (`source-sheet.ios.tsx` "Manage", the extension list's "Update all").

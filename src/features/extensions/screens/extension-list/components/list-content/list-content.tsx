@@ -50,9 +50,13 @@ export interface ListContentProps {
   activeFilters: ActiveFilter[];
   /** What an empty list says: no match for the filter, or no repository yet. */
   emptyState: Pick<EmptyStateProps, "title" | "description">;
+  /**
+   * The repositories sheet is open over it, so it stays on show.
+   * @platform web
+   */
+  covered?: boolean;
 }
 
-/** Web, laid out like the manga list. */
 export function ListContent({
   extensions,
   query$,
@@ -64,6 +68,7 @@ export function ListContent({
   onLanguageChange,
   activeFilters,
   emptyState,
+  covered,
 }: ListContentProps) {
   const sections = useSections({ extensions, filter, language, query$ });
   const headerScroll = useHeaderScroll();
@@ -88,6 +93,7 @@ export function ListContent({
         <LegendList
           recycleItems
           itemLayoutAnimation={LinearTransition}
+          visibleWhenBlurred={covered}
           data={rows}
           keyExtractor={(row) => row.key}
           getItemType={(row) => row.kind}

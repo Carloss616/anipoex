@@ -1,6 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { pb } from "./fixtures";
-import { fetchIndex, fetchRepo, parseIndex, type Repo, repoUrl } from "./repo";
+import { ext, pb } from "./fixtures";
+import {
+  fetchIndex,
+  fetchRepo,
+  parseIndex,
+  type Repo,
+  repoSummary,
+  repoUrl,
+} from "./repo";
 
 const EXAMPLE = "https://raw.githubusercontent.com/example/extensions/repo";
 const EXAMPLE_KEY = "a".repeat(64);
@@ -145,6 +152,25 @@ describe("parseIndex", () => {
   });
 });
 
+describe("repoSummary", () => {
+  const repo = { name: "Example" } as Repo;
+  const listed = (n: number, from = "Example") =>
+    Array.from({ length: n }, (_, i) =>
+      ext({ id: `${from}-${i}`, repo: from }),
+    );
+
+  it("counts only the repo's own extensions, with a plural past one", () => {
+    expect(repoSummary(repo, [...listed(1), ...listed(3, "Other")])).toBe(
+      "1 extension",
+    );
+    expect(repoSummary(repo, listed(1452))).toBe("1,452 extensions");
+  });
+
+  it("says nothing while none are listed", () => {
+    expect(repoSummary(repo, [])).toBeUndefined();
+  });
+});
+
 describe("repoUrl", () => {
   it("rewrites github raw urls to raw.githubusercontent.com", () => {
     expect(
@@ -190,6 +216,7 @@ describe("fetch", () => {
     signingKey: EXAMPLE_KEY,
     indexUrl: `${baseUrl}/repo.json`,
     legacy: true,
+    website: "https://example.com/",
   });
 
   const V2_STORE = { name: "Example", signingKey: EXAMPLE_KEY.toUpperCase() };
@@ -298,6 +325,29 @@ describe("fetch", () => {
     const proto = await fetchRepo(`${V2}/index.pb`);
     expect(proto.extensionListUrl).toBe(`${V2}/list.pb`);
     expect(await fetchIndex(proto)).toEqual([PB_ENTRY]);
+  });
+
+  it("keeps a v2 store's contact website, in json and in protobuf", async () => {
+    respond({
+      [`${V2}/index.json`]: {
+        ...V2_STORE,
+        contact: { website: "https://example.com/" },
+      },
+      [`${V2}/index.pb`]: pbStore(
+        pb.bytes(4, pb.text(1, "https://example.com/")),
+      ),
+      [`${V2}/bad.json`]: {
+        ...V2_STORE,
+        contact: { website: "javascript:alert(1)" },
+      },
+    });
+    expect((await fetchRepo(`${V2}/index.json`)).website).toBe(
+      "https://example.com/",
+    );
+    expect((await fetchRepo(`${V2}/index.pb`)).website).toBe(
+      "https://example.com/",
+    );
+    expect((await fetchRepo(`${V2}/bad.json`)).website).toBeUndefined();
   });
 
   it("reads a protobuf store, gzipped or not, with exact source ids", async () => {

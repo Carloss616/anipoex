@@ -73,6 +73,7 @@ describe("decodeStore", () => {
     expect(decodeStore(new Uint8Array(STORE))).toEqual({
       name: "Example",
       signingKey: "a".repeat(64),
+      contact: { website: "https://example.com" },
       extensionList: { extensions: [EXPECTED_EXTENSION] },
     });
   });

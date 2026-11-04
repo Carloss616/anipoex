@@ -1,5 +1,10 @@
 import { useValue } from "@legendapp/state/react";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Stack,
+  useLocalSearchParams,
+  usePathname,
+  useRouter,
+} from "expo-router";
 import { useEffect, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
 import type { ActiveFilter } from "@/components/blocks/active-filters";
@@ -34,6 +39,7 @@ export function ExtensionList() {
   const { height } = useWindowDimensions();
   const searchBarTheme = useStackSearchBarTheme();
   const large = height > 640;
+  const covered = usePathname() === "/extensions/repos";
 
   useEffect(() => {
     void loadExtensions();
@@ -89,6 +95,7 @@ export function ExtensionList() {
         languages={languages}
         onLanguageChange={setLanguage}
         activeFilters={activeFilters}
+        covered={covered}
         emptyState={
           repos.length === 0 && extensions.length === 0 ? NO_REPOS : NO_MATCH
         }

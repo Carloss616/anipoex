@@ -16,24 +16,21 @@ import {
   glassEffect,
   labelStyle,
   onSubmit as onSubmitModifier,
-  padding,
   submitLabel,
 } from "@expo/ui/swift-ui/modifiers";
 import { useEffect, useRef, useState } from "react";
 import { useFont } from "@/components/native/swift-ui/text";
+import {
+  HEIGHT,
+  TextFieldGroup,
+} from "@/components/native/swift-ui/text-field-group";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
 import { Icon, Icons, sfSymbol } from "../icon";
 import type { SearchBarProps } from "./search-bar";
 
-const HEIGHT = 48;
-
-/**
- * iOS SearchBar: PanelUI's props, drawn in SwiftUI — a `TextField` in a Liquid
- * Glass capsule with a search glyph and a clear button, and a glass circle
- * beside it for `cancel`. Loading has no slot to land in and stays web-only.
- */
+// `loading` has no slot in SwiftUI and stays web-only.
 export function SearchBar({
   value,
   defaultValue,
@@ -100,22 +97,13 @@ export function SearchBar({
             ),
           ]}
         >
-          <HStack
-            spacing={8}
-            modifiers={[
-              padding({ horizontal: 16 }),
-              frame({
-                maxWidth: Infinity,
-                minHeight: HEIGHT,
-                maxHeight: HEIGHT,
-              }),
-              glassEffect({
-                glass: { variant: "regular", interactive: true },
-                shape: "capsule",
-              }),
-            ]}
+          <TextFieldGroup
+            prefix={icon ?? <Icon name={Icons.search} size={17} muted />}
+            suffix={accessory}
+            clearLabel={clearLabel}
+            clearAction={clear}
+            showClear={isClearable && !!(value ?? query)}
           >
-            {icon ?? <Icon name={Icons.search} size={17} muted />}
             <TextField
               ref={field}
               text={text}
@@ -132,20 +120,7 @@ export function SearchBar({
                 font,
               ]}
             />
-            {accessory}
-            {isClearable && (value ?? query) ? (
-              <Button
-                label={clearLabel}
-                systemImage="xmark.circle.fill"
-                onPress={clear}
-                modifiers={[
-                  labelStyle("iconOnly"),
-                  buttonStyle("plain"),
-                  foregroundStyle("secondary"),
-                ]}
-              />
-            ) : null}
-          </HStack>
+          </TextFieldGroup>
           {showCancel ? (
             <Button
               label={cancelLabel}

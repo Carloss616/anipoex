@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-03
+
+* **A repo keeps its website**: adding a repo now saves the site it names (`meta.website`, or a v2 store's `contact.website`), and removing one asks first. Updated [extension repos](stores/extension-repos.md).
+
 ## 2026-11-02
 
 * **A source's own data for a manga is kept**: what a source attaches to a manga in its search results (`memo`, as Mihon stores it) now stays with the match, the manual match and the stored chapters, and goes back to the source when it lists the chapters; some sources list none, or fail, without it. Matches made before keep none until the source is picked again. Updated [chosen source](stores/source-matches.md), [manual matches](stores/manual-matches.md) and [source chapters](stores/source-chapters.md).

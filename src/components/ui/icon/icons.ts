@@ -1,12 +1,13 @@
 import { Icon } from "./icon";
 
-/**
- * Every cross-platform icon, keyed by meaning. Platform-only symbols typed
- * for a native API (`SFSymbol` records, `NativeTabs` `sf`/`md`) stay next to
- * their platform file.
- */
+// Symbols typed for one native API (`SFSymbol` records, `NativeTabs` `sf`/`md`) stay in their platform file.
 export const Icons = {
   // Actions
+  add: Icon.select({
+    ios: "plus",
+    android: require("@expo/material-symbols/add.xml"),
+    web: "plus",
+  }),
   refresh: Icon.select({
     ios: "arrow.clockwise",
     android: require("@expo/material-symbols/refresh.xml"),
@@ -41,6 +42,16 @@ export const Icons = {
     ios: "ellipsis",
     android: require("@expo/material-symbols/more_vert.xml"),
     web: "ellipsis-vertical",
+  }),
+  copy: Icon.select({
+    ios: "doc.on.doc",
+    android: require("@expo/material-symbols/content_copy.xml"),
+    web: "copy",
+  }),
+  trash: Icon.select({
+    ios: "trash",
+    android: require("@expo/material-symbols/delete.xml"),
+    web: "trash-2",
   }),
   search: Icon.select({
     ios: "magnifyingglass",

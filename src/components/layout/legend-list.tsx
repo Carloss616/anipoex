@@ -38,15 +38,7 @@ const AnimatedLegendListNative = withUniwind(
   SLOT_CLASS_NAMES,
 );
 
-/**
- * On web the list is its browser build: plain <div>s, not react-native-web.
- * `withUniwind` hands class names over as `{ $$css: true }` style entries that
- * only react-native-web turns into CSS classes; these <div>s would drop them.
- * So on web the class names go straight through: the browser build takes
- * `className` and `contentContainerClassName` as real CSS classes, and the
- * header and footer, which have no class prop there, get theirs from
- * `classedSlot`.
- */
+// The web build's plain <div>s drop `withUniwind`'s `$$css` styles: classes go through as is.
 const LegendListRoot = (
   Platform.OS === "web" ? LegendListBase : LegendListNative
 ) as typeof LegendListNative;
@@ -54,7 +46,10 @@ const AnimatedLegendListRoot = (
   Platform.OS === "web" ? AnimatedLegendList : AnimatedLegendListNative
 ) as typeof LegendListNative;
 
-/** Web: the slot inside a react-native-web view carrying its class. */
+/**
+ * Wraps a header or footer in a view with its class: the browser build has no class prop for them.
+ * @platform web
+ */
 function classedSlot(
   slot: LegendListBaseProps<unknown>["ListHeaderComponent"],
   className: string | undefined,
@@ -87,11 +82,18 @@ export function LegendList<T>({
   columnWrapperStyle,
   keyboardShouldPersistTaps,
   itemLayoutAnimation,
+  visibleWhenBlurred = false,
   ref,
   ...props
 }: LegendListBaseProps<T> &
   UniwindClassNameProps &
-  Pick<AnimatedLegendListProps<T>, "itemLayoutAnimation">) {
+  Pick<AnimatedLegendListProps<T>, "itemLayoutAnimation"> & {
+    /**
+     * Keeps the list on show while a transparent modal covers its screen.
+     * @platform web
+     */
+    visibleWhenBlurred?: boolean;
+  }) {
   // Picked once per call site: switching it would remount the list.
   const Root = itemLayoutAnimation ? AnimatedLegendListRoot : LegendListRoot;
   const gap =
@@ -106,10 +108,15 @@ export function LegendList<T>({
   useImperativeHandle(ref, () => listRef.current as LegendListRef);
 
   return (
-    // Web: a blurred screen is display: none, where the list measures its rows as 0 and keeps adding more
-    <Activity mode={Platform.OS === "web" && !focused ? "hidden" : "visible"}>
-      {/* The top margin sits on a wrapper because rn-web puts `style` on both the
-      RefreshControl and the ScrollView it wraps, so on the list it would land twice */}
+    // A blurred web screen is display: none, where the list measures its rows as 0 and keeps adding more
+    <Activity
+      mode={
+        Platform.OS === "web" && !focused && !visibleWhenBlurred
+          ? "hidden"
+          : "visible"
+      }
+    >
+      {/* rn-web puts `style` on the RefreshControl and its ScrollView: a top margin there lands twice */}
       <View
         // Cells clip their paint; the one holding focus lets the ring out.
         className="[&_div:has(>[data-index]_:focus-visible)]:contain-[layout_style]! [&_div:has(>[data-index]_:focus-visible)]:z-1"
@@ -140,7 +147,7 @@ export function LegendList<T>({
           ])}
           contentContainerStyle={StyleSheet.flatten([
             !horizontal && { marginInline: -halfGap },
-            // Web: grows with the cells, so its end padding lands after the last one.
+            // Grows with the cells, so its end padding lands after the last one.
             horizontal &&
               Platform.OS === "web" &&
               ({ width: "max-content" } as unknown as ViewStyle),

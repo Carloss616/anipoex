@@ -23,6 +23,7 @@ type StoreExtensionList = { extensions: StoreExtension[] };
 type Store = {
   name?: string;
   signingKey?: string;
+  contact?: { website?: string };
   extensionList?: StoreExtensionList;
   extensionListUrl?: string;
 };
@@ -158,9 +159,11 @@ const extensionList = (fields: Fields): StoreExtensionList => ({
 export const decodeStore = (bytes: Uint8Array): Store => {
   const fields = readFields(bytes);
   const list = message(fields, 101);
+  const contact = message(fields, 4);
   return {
     name: text(fields, 1),
     signingKey: text(fields, 3),
+    contact: contact && { website: text(contact, 1) },
     extensionList: list && extensionList(list),
     extensionListUrl: text(fields, 102),
   };

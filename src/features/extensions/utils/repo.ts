@@ -1,5 +1,6 @@
 import { gunzipSync } from "fflate";
 import { isWebUrl } from "@/utils/is-web-url";
+import type { Extension } from "./extension";
 import { decodeExtensionList, decodeStore } from "./protobuf";
 
 /**
@@ -14,6 +15,8 @@ export type Repo = {
   indexUrl: string;
   legacy: boolean;
   extensionListUrl?: string;
+  /** The repo's own site: a legacy `meta.website` or a store's `contact.website`. */
+  website?: string;
 };
 
 export type RepoEntry = {
@@ -104,7 +107,12 @@ const legacyMeta = (value: unknown) => {
   const name = str(value.meta.name);
   const signingKey = key(value.meta.signingKeyFingerprint);
   if (!name || !signingKey) return undefined;
-  return { name, signingKey, indexV2: str(value.index_v2) };
+  return {
+    name,
+    signingKey,
+    website: webUrl(value.meta.website),
+    indexV2: str(value.index_v2),
+  };
 };
 
 const protobufStore = (body: Uint8Array): Json => {
@@ -135,6 +143,7 @@ const resolve = async (url: string, hops: number): Promise<Repo> => {
       name: legacy.name,
       signingKey: legacy.signingKey,
       legacy: true,
+      ...(legacy.website && { website: legacy.website }),
     };
   if (indexUrl !== url || body.length === 0) throw new Error(NOT_A_REPO);
   const store = isObject(value) ? value : protobufStore(body);
@@ -142,12 +151,16 @@ const resolve = async (url: string, hops: number): Promise<Repo> => {
   const signingKey = key(store.signingKey);
   if (!name || !signingKey) throw new Error(NOT_A_REPO);
   const extensionListUrl = str(store.extensionListUrl);
+  const website = isObject(store.contact)
+    ? webUrl(store.contact.website)
+    : undefined;
   return {
     ...base,
     name,
     signingKey,
     legacy: false,
     ...(extensionListUrl && { extensionListUrl }),
+    ...(website && { website }),
   };
 };
 
@@ -252,3 +265,14 @@ export const fetchIndex = async (repo: Repo): Promise<RepoEntry[]> => {
     repo.baseUrl,
   );
 };
+
+/** "1,452 extensions"; nothing while none are listed (still loading). */
+export function repoSummary(
+  repo: Repo,
+  extensions: Extension[],
+): string | undefined {
+  // shortcut: repos sharing a name share a count; key by `indexUrl` if that happens.
+  const count = extensions.filter((e) => e.repo === repo.name).length;
+  if (count === 0) return undefined;
+  return `${count.toLocaleString("en")} extension${count === 1 ? "" : "s"}`;
+}
