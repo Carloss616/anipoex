@@ -14,7 +14,7 @@ import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Icons, sfSymbol } from "@/components/ui/icon";
-import { isScanBusy, probes$ } from "@/features/manga/state/probes";
+import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useMatchUrl } from "../hooks/use-match-url";
@@ -55,7 +55,7 @@ export const ExcludedItem = memo(function ExcludedItem({
           systemImage="arrow.uturn.backward"
           modifiers={[
             ...(color ? [tint(color)] : []),
-            disabled(isScanBusy(mangaKey)),
+            disabled(scanning$[mangaKey][source.id].get() === true),
           ]}
           onPress={() => actions.include(source.id)}
         />

@@ -40,27 +40,31 @@ const titles = { search: ["T"], all: ["T"] };
 beforeEach(() => search.mockClear());
 
 describe("setMatchByHand", () => {
-  it("lifts an automatic no-match exclusion without pinning", () => {
-    exclusions$["3001"].set({ a: { reason: "not-matched", updatedAt: 1 } });
+  it("lifts an automatic exclusion without pinning", () => {
+    exclusions$["3001"].set({ a: { reason: "outdated", updatedAt: 1 } });
     setMatchByHand(3001, A, page);
     expect(readManual(3001, "a")).toEqual(page);
     expect(exclusions$["3001"].a.deletedAt.peek()).toBeNumber();
     expect(pins$["3001"].a.peek()).toBeUndefined();
   });
 
-  it("leaves a manual exclusion and its pin alone", () => {
-    exclusions$["3008"].set({ a: { reason: "not-matched", updatedAt: 1 } });
-    pins$["3008"].set({ a: { updatedAt: 1 } });
-    setMatchByHand(3008, A, page);
-    expect(exclusions$["3008"].a.deletedAt.peek()).toBeUndefined();
-    expect(pins$["3008"].a.updatedAt.peek()).toBe(1);
+  it("lifts a manual exclusion and its pin", () => {
+    exclusions$["3009"].set({
+      a: { reason: "other", updatedAt: 1 },
+      b: { reason: "other", updatedAt: 1 },
+    });
+    pins$["3009"].set({ a: { updatedAt: 1 }, b: { updatedAt: 1 } });
+    setMatchByHand(3009, A, page);
+    expect(exclusions$["3009"].a.deletedAt.peek()).toBeNumber();
+    expect(pins$["3009"].a.deletedAt.peek()).toBeNumber();
+    expect(exclusions$["3009"].b.deletedAt.peek()).toBeUndefined();
+    expect(pins$["3009"].b.deletedAt.peek()).toBeUndefined();
   });
 
-  it("leaves an automatic exclusion for another reason alone", () => {
-    exclusions$["3009"].set({ a: { reason: "error-found", updatedAt: 1 } });
-    setMatchByHand(3009, A, page);
-    expect(exclusions$["3009"].a.deletedAt.peek()).toBeUndefined();
-    expect(pins$["3009"].a.peek()).toBeUndefined();
+  it("leaves an included source's pin alone", () => {
+    pins$["3008"].set({ a: { updatedAt: 1 } });
+    setMatchByHand(3008, A, page);
+    expect(pins$["3008"].a.deletedAt.peek()).toBeUndefined();
   });
 
   it("sets the chosen source's match", () => {

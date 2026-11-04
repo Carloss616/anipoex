@@ -29,6 +29,7 @@ import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
+import { isTitleSearching } from "@/features/manga/state/title-search";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { AvailableItem } from "../available-item";
 import { ExcludedItem } from "../excluded-item";
@@ -67,7 +68,15 @@ export function SheetContent({
   const actions = useSourceActions({ manga, read, selectedId });
   // In the body, not the list's callback, so the Compiler keeps it stable.
   const excludedMenu = () =>
-    excludedMenuItems(excluded, isScanBusy(key), actions);
+    excludedMenuItems(
+      excluded,
+      isScanBusy(key),
+      isTitleSearching(
+        key,
+        excluded.map((row) => row.source.id),
+      ),
+      actions,
+    );
   const title = useTitleMode(manga.id, key);
   const SearchTitlesButton = title.searching
     ? FilledTonalIconButton

@@ -2,6 +2,8 @@
 
 ## 2026-11-03
 
+* **A page picked by hand reopens an excluded source**: setting a manual match on an excluded source now drops its exclusion and pin, whoever set them, so it moves to the available ones while it is probed again, and that probe can exclude it again (behind, failing, no chapters); before, it only dropped an automatic *no match* exclusion. The Excluded section's menu also searches titles in just its sources. Updated [manual matches](stores/manual-matches.md) and [source exclusion](concepts/source-exclusion.md).
+* **A source's scan can be stopped**: while a source is being probed it offers Stop, which drops it from the scan and keeps its last probe; Include on an excluded row now waits only for that source, not for any scan of the manga. Updated [source probes](stores/source-probes.md).
 * **A repo keeps its website**: adding a repo now saves the site it names (`meta.website`, or a v2 store's `contact.website`), and removing one asks first. Updated [extension repos](stores/extension-repos.md).
 
 ## 2026-11-02

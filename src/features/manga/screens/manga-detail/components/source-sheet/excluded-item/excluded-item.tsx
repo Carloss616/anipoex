@@ -6,7 +6,7 @@ import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu, type MenuItem } from "@/components/ui/menu";
-import { isScanBusy, probes$ } from "@/features/manga/state/probes";
+import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { type ExcludeReason, REASONS } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import type { ErrorRequest } from "../available-item";
@@ -82,7 +82,7 @@ export const ExcludedItem = memo(function ExcludedItem({
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={isScanBusy(mangaKey)}
+                disabled={scanning$[mangaKey][source.id].get() === true}
                 onClick={() => actions.include(source.id)}
                 aria-label={`Include ${source.name}`}
               >

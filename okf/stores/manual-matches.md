@@ -15,12 +15,12 @@ found nothing or the wrong manga.
 
 It is read before any title search: picking the source uses it as the
 [chosen source](source-matches.md)'s match, and a [probe](../concepts/source-probe.md) reads
-its chapters instead of searching. It says only which page is the manga; whether the source
-is worth reading stays the scans' and the user's call: a manual match doesn't
-[include or pin](../concepts/source-exclusion.md) the source, and excluding or including it,
-by hand or by a scan, leaves the manual match alone. The one exception: setting it drops an
-automatic *no match* exclusion of that source, which the page disproves (without a pin, so the
-next scan judges the source again). A scan can still find it outdated, failing, or with no
-chapters, and exclude it like any other. A new pick on the same source replaces it; removing it
+its chapters instead of searching. Setting it on an excluded source is a correction of its
+match, not a verdict on the source: the exclusion and its [pin](source-pins.md) go, whoever set
+them, so the source moves to the available ones while it is probed again (its probe shows there
+and can be stopped), and that probe judges it like any other: a scan can find it outdated,
+failing, or with no chapters, and exclude it again. On a source that isn't excluded it changes
+nothing, pin included. Excluding or including the source later, by hand or by a scan, leaves the
+manual match alone. A new pick on the same source replaces it; removing it
 sends the source back to matching by title. Reset all keeps it. One record per manga and
 source. Survives sign-out and doesn't sync.

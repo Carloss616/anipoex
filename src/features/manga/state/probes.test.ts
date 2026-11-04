@@ -64,8 +64,10 @@ const {
   scanSources,
   probeSource,
   isScanning,
+  stopScan,
 } = await import("./probes");
 const { fetchChapters } = await import("../utils/fetch-chapters");
+const { PARALLEL_BATCH } = await import("../utils/msu");
 const { setManual } = await import("./manual-matches");
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -201,6 +203,35 @@ describe("scanSources", () => {
     expect(scanning$["201"].b.get()).toBe(true);
     searchPending.b([]);
     await done;
+    expect(scanning$["201"].get()).toEqual({});
+  });
+
+  it("a stopped source frees its row and keeps its last probe", async () => {
+    probes$["201"].b.set({ latest: 7 } as never);
+    const done = scan({ sources: sources("a", "b") });
+    await flush();
+    stopScan("201", "b");
+    expect(scanning$["201"].b.get()).toBeUndefined();
+    await answer("a", [3]);
+    await done;
+    expect(probes$["201"].b.get()?.latest).toBe(7);
+    expect(probes$["201"].a.get()?.latest).toBe(3);
+    expect(activity.progress).toHaveBeenLastCalledWith(2);
+    // The stopped call answering late changes nothing.
+    searchPending.b([]);
+    await flush();
+    expect(probes$["201"].b.get()?.latest).toBe(7);
+  });
+
+  it("a source stopped before its batch is never read", async () => {
+    const ids = Array.from({ length: PARALLEL_BATCH + 1 }, (_, i) => `s${i}`);
+    const last = ids[PARALLEL_BATCH];
+    const done = scan({ sources: sources(...ids) });
+    await flush();
+    stopScan("201", last);
+    for (const id of ids.slice(0, PARALLEL_BATCH)) searchPending[id]([]);
+    await done;
+    expect(searchCalls).not.toContain(last);
     expect(scanning$["201"].get()).toEqual({});
   });
 

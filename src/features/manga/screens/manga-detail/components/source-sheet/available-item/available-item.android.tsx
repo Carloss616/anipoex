@@ -133,6 +133,23 @@ export const AvailableItem = memo(function AvailableItem({
               />
             )}
           </IconButton>
+          {/* Beside the loader: a slow source can hold a scan for minutes. */}
+          {scanning && (
+            <IconButton
+              onClick={() => actions.stop(source.id)}
+              modifiers={[
+                semantics({
+                  contentDescription: `Stop scanning ${source.name}`,
+                }),
+              ]}
+            >
+              <Icon
+                name={Icons.close}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
+            </IconButton>
+          )}
           {/* Its own click, so TalkBack still finds a radio next to the row's long-press. */}
           <RadioButton selected={selected} onClick={select} />
           {/* A dialog window, not laid out in the row. */}

@@ -51,17 +51,18 @@ export function toggleExcluded(
   };
 }
 
-/** Drops the source's exclusion when a scan set it for finding nothing; one decided by hand, or for another reason, stays. */
-export function liftAutoNoMatch(
+/** Forgets the source's exclusion and its pin, so its next probe is judged like any other. */
+export function reopenSource(
   excluded: Excluded,
   pinned: Pinned,
   provider: string,
   now: number,
-): Excluded {
-  const rec = excluded[provider];
-  if (!isLive(rec) || rec?.reason !== "not-matched" || isLive(pinned[provider]))
-    return excluded;
-  return { ...excluded, [provider]: tombstone(rec, now) };
+) {
+  const other = (id: string) => id !== provider;
+  return {
+    excluded: tombstoneLive(excluded, now, other),
+    pinned: tombstoneLive(pinned, now, other),
+  };
 }
 
 export const clearExclusions = (

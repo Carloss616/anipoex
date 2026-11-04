@@ -18,7 +18,7 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { isScanBusy, probes$ } from "@/features/manga/state/probes";
+import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
@@ -73,7 +73,7 @@ export const ExcludedItem = memo(function ExcludedItem({
         <Computed>
           {() => (
             <TextButton
-              enabled={!isScanBusy(mangaKey)}
+              enabled={!scanning$[mangaKey][source.id].get()}
               onClick={() => actions.include(source.id)}
             >
               <Text style={{ typography: "labelLarge" }}>Include</Text>

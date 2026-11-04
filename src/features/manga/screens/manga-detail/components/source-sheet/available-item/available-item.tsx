@@ -21,6 +21,9 @@ import {
 } from "../utils/row-content";
 import { sourceStatus } from "../utils/source-status";
 
+// The row's end padding clears 2, 3 or 4 buttons (rescan and ⋯, plus the check and stop).
+const PADDING = ["pe-27.5", "pe-34", "pe-40.5"];
+
 /** What the iOS swipe hands the sheet's reason dialog. */
 export type ExcludeRequest = { source: Source; suspicious: boolean };
 
@@ -120,7 +123,7 @@ export const AvailableItem = memo(function AvailableItem({
         <Frame.Row
           onClick={() => onSelect(source.id)}
           aria-selected={selected}
-          className={selected ? "pe-34" : "pe-27.5"}
+          className={PADDING[Number(selected) + Number(scanning)]}
         >
           <Frame.Media>
             <Tile source={source} />
@@ -167,6 +170,17 @@ export const AvailableItem = memo(function AvailableItem({
           >
             <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
           </Button>
+          {/* Beside the spinner: a slow source can hold a scan for minutes. */}
+          {scanning && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => actions.stop(source.id)}
+              aria-label={`Stop scanning ${source.name}`}
+            >
+              <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
+            </Button>
+          )}
           <Menu items={items}>
             <Button
               variant="ghost"

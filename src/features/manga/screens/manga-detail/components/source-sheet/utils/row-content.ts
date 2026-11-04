@@ -17,12 +17,17 @@ const RESET_DIALOG: MenuItemDialogConfig = {
   confirmLabel: "Reset",
 };
 
-/** The Excluded section's menu: retry while any exclusion is automatic, then a confirmed reset; both off during a scan. */
+/** The Excluded section's menu: a title search of its sources, retry while any exclusion is automatic, then a confirmed reset; those two off during a scan. */
 export const excludedMenuItems = (
-  excluded: { pinned: boolean }[],
+  excluded: { pinned: boolean; source: { id: string } }[],
   busy: boolean,
-  actions: Pick<SourceActions, "retryAuto" | "resetAll">,
+  searching: boolean,
+  actions: Pick<SourceActions, "retryAuto" | "resetAll" | "searchIn">,
 ): MenuAction[] => [
+  {
+    label: searching ? "Stop searching" : "Search titles",
+    onPress: () => actions.searchIn(excluded.map((row) => row.source.id)),
+  },
   ...(excluded.some((row) => !row.pinned)
     ? [
         {

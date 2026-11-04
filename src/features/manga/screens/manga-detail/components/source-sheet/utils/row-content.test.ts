@@ -52,17 +52,30 @@ describe("row content", () => {
   });
 
   it("offers retry only while an exclusion is automatic", () => {
-    const actions = { retryAuto: () => {}, resetAll: () => {} };
-    const labels = (pinned: boolean[], busy = false) =>
+    const actions = {
+      retryAuto: () => {},
+      resetAll: () => {},
+      searchIn: () => {},
+    };
+    const labels = (pinned: boolean[], busy = false, searching = false) =>
       excludedMenuItems(
-        pinned.map((p) => ({ pinned: p })),
+        pinned.map((p, i) => ({ pinned: p, source: { id: `s${i}` } })),
         busy,
+        searching,
         actions,
       ).map((item) => `${item.label}${item.disabled ? " (off)" : ""}`);
 
-    expect(labels([true, false])).toEqual(["Retry auto-excluded", "Reset all"]);
-    expect(labels([true])).toEqual(["Reset all"]);
+    expect(labels([true, false])).toEqual([
+      "Search titles",
+      "Retry auto-excluded",
+      "Reset all",
+    ]);
+    expect(labels([true], false, true)).toEqual([
+      "Stop searching",
+      "Reset all",
+    ]);
     expect(labels([false], true)).toEqual([
+      "Search titles",
       "Retry auto-excluded (off)",
       "Reset all (off)",
     ]);

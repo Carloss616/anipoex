@@ -14,6 +14,7 @@ import {
   isScanning,
   scanning$,
   scanSources,
+  stopScan,
 } from "@/features/manga/state/probes";
 import { deselectSource } from "@/features/manga/state/source";
 import {
@@ -65,6 +66,8 @@ export function useSourceActions({
     });
   const scanAll = () => void scan();
   const rescan = (id: string) => void scan([id]);
+  // While the source scans, its rescan control stops it.
+  const stop = (id: string) => stopScan(key, id);
 
   const toggle = (id: string, exclude: boolean, reason: ExcludeReason) =>
     decideByHand(manga.id, id, exclude, reason);
@@ -77,12 +80,20 @@ export function useSourceActions({
   return {
     scanAll,
     rescan,
+    stop,
     searchOn: (id: string) => void startTitleSearch(manga.id, [id], query()),
     stopSearch: (id?: string) => stopTitleSearch(manga.id, id),
     // On while any source searches: then it stops them all.
     searchAll: (ids: string[]) =>
       isTitleSearching(key)
         ? stopTitleSearch(manga.id)
+        : void startTitleSearch(manga.id, ids, query()),
+    // The same for a few sources (the Excluded section): stops only those.
+    searchIn: (ids: string[]) =>
+      isTitleSearching(key, ids)
+        ? ids.forEach((id) => {
+            stopTitleSearch(manga.id, id);
+          })
         : void startTitleSearch(manga.id, ids, query()),
     // The sheet stays open; the row's status follows the new page.
     setMatch: (id: string, match: ManualMatch) => {
@@ -108,9 +119,9 @@ export function useSourceActions({
       deselectSource(manga.id, id);
     },
     deselect: (id: string) => deselectSource(manga.id, id),
-    // A dialog opened before a scan can confirm during it; the one-scan guard would drop the follow-up scan, so nothing is written.
+    // A dialog opened before this source's probe can confirm during it; the rescan guard would drop the follow-up, so nothing is written.
     include: (id: string) => {
-      if (isScanning(manga.id)) return;
+      if (scanning$[key][id].peek()) return;
       toggle(id, false, "other");
       rescan(id);
     },

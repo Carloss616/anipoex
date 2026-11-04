@@ -11,7 +11,6 @@ import {
   accessibilityAddTraits,
   accessibilityHidden,
   buttonStyle,
-  disabled,
   foregroundStyle,
   frame,
   lineLimit,
@@ -67,13 +66,14 @@ export const AvailableItem = memo(function AvailableItem({
   const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const search = searchItem(source, searching, actions);
   const url = useMatchUrl(mangaKey, source.id);
-  // Off only while this source scans: rescans of other rows run beside it.
+  // While this source scans, it stops it: a slow one can hold a scan for minutes.
   const rescan = (
     <Button
-      label="Rescan"
-      systemImage={sfSymbol(Icons.refresh)}
-      modifiers={[disabled(scanning)]}
-      onPress={() => actions.rescan(source.id)}
+      label={scanning ? "Stop" : "Rescan"}
+      systemImage={sfSymbol(scanning ? Icons.close : Icons.refresh)}
+      onPress={() =>
+        scanning ? actions.stop(source.id) : actions.rescan(source.id)
+      }
     />
   );
   // The swipe's buttons are narrow: there it's just "Website".

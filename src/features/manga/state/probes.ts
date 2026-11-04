@@ -44,6 +44,12 @@ export const isScanning = (mangaId: number) =>
 export const isScanBusy = (key: string) =>
   Object.keys(scanning$[key].get() ?? {}).length > 0;
 
+/** Per `key/id`, what stops waiting on that source while a scan holds it; not persisted. */
+const stops: Record<string, () => void> = {};
+
+/** Stops waiting on one source of a running scan: the scan goes on without it, which keeps its last probe; the runtime's call runs out on its own. */
+export const stopScan = (key: string, id: string) => stops[`${key}/${id}`]?.();
+
 syncObservable(probes$, {
   persist: { name: "source-probes", plugin: ObservablePersist },
 });
@@ -147,16 +153,43 @@ export async function scanSources(args: {
     source: only && targets.length === 1 ? targets[0] : undefined,
   });
   const landed: ProbeMap = {};
+  const stopped = new Set<string>();
+  const done = () =>
+    activity.progress(Object.keys(landed).length + stopped.size);
+  // A stop frees the row at once; before its batch, the source is never read.
+  const halts = Object.fromEntries(
+    targets.map((s) => {
+      const id = `${key}/${s.id}`;
+      return [
+        s.id,
+        new Promise<null>((resolve) => {
+          stops[id] = () => {
+            delete stops[id];
+            stopped.add(s.id);
+            scanning$[key][s.id].delete();
+            done();
+            resolve(null);
+          };
+        }),
+      ];
+    }),
+  );
 
   try {
     for (let i = 0; i < targets.length; i += PARALLEL_BATCH) {
       await Promise.all(
         targets.slice(i, i + PARALLEL_BATCH).map(async (source) => {
-          const probe = await probeSource(mangaId, source, titles);
+          if (stopped.has(source.id)) return;
+          const probe = await Promise.race([
+            probeSource(mangaId, source, titles),
+            halts[source.id],
+          ]);
+          if (!probe) return;
+          delete stops[`${key}/${source.id}`];
           landed[source.id] = probe;
           probes$[key][source.id].set(probe);
           scanning$[key][source.id].delete();
-          activity.progress(Object.keys(landed).length);
+          done();
         }),
       );
     }

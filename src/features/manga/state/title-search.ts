@@ -162,6 +162,8 @@ export function stopTitleSearch(mangaId: number, sourceId?: string) {
   }
 }
 
-/** Whether any source of the manga searches by title; tracked, for a `Computed` or `useValue`. */
-export const isTitleSearching = (key: string) =>
-  Object.keys(titleSearch$[key].get() ?? {}).length > 0;
+/** Whether any source of the manga (or of `ids`) searches by title; tracked, for a `Computed` or `useValue`. */
+export const isTitleSearching = (key: string, ids?: string[]) =>
+  ids
+    ? ids.some((id) => titleSearch$[key][id].get() !== undefined)
+    : Object.keys(titleSearch$[key].get() ?? {}).length > 0;
