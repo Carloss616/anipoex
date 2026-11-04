@@ -53,6 +53,7 @@ export function MangaCard({
   progress,
   unread,
   style,
+  radius = COVER_RADIUS,
   accessibilityLabel: a11yLabel,
   testID,
   onPress,
@@ -86,7 +87,7 @@ export function MangaCard({
             tint: coverColor ?? card,
           },
           shape: "roundedRectangle",
-          cornerRadius: COVER_RADIUS,
+          cornerRadius: radius,
         }),
         ...(onPress ? [onTapGesture(onPress)] : []),
         ...(onLongPress ? [onLongPressGesture(onLongPress)] : []),
@@ -97,7 +98,7 @@ export function MangaCard({
         <ZStack
           modifiers={[
             background(coverColor ?? overlay),
-            clipShape("roundedRectangle", COVER_RADIUS),
+            clipShape("roundedRectangle", radius),
           ]}
         >
           {coverThumb && <Image source={{ uri: coverThumb }} />}
@@ -164,7 +165,7 @@ export function MangaCard({
             alignment="bottom"
             modifiers={[
               fixedSize({ horizontal: false, vertical: true }),
-              clipShape("roundedRectangle", COVER_RADIUS),
+              clipShape("roundedRectangle", radius),
             ]}
           >
             <Rectangle

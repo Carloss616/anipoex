@@ -40,6 +40,8 @@ export interface MangaCardProps {
   /** Chapters left, as a top-right badge: green above 0, neutral at 0 (up to date). */
   unread?: number;
   style?: StyleProp<ViewStyle>;
+  /** The cover's corner radius; each platform's `COVER_RADIUS` when omitted. */
+  radius?: number;
   className?: string;
   /** Spoken name for the card — `title` is a node, so it can't be read off it. */
   accessibilityLabel?: string;
@@ -146,6 +148,7 @@ export function MangaCard({
   progress,
   unread,
   style,
+  radius,
   className,
   accessibilityLabel,
   testID,
@@ -256,7 +259,7 @@ export function MangaCard({
     </View>
   );
   // The card inherits it, so the focus ring follows its corners.
-  const radius = { borderRadius: below ? COVER_RADIUS : 16 };
+  const corners = { borderRadius: radius ?? (below ? COVER_RADIUS : 16) };
 
   // A disabled Pressable is pointer-events: none on web, which would also stop the tilt.
   if (!pressable) {
@@ -264,7 +267,7 @@ export function MangaCard({
       <View
         role={accessibilityLabel ? "img" : undefined}
         aria-label={accessibilityLabel}
-        style={radius}
+        style={corners}
         data-title={titlePosition}
         className="group"
       >
@@ -280,7 +283,7 @@ export function MangaCard({
       onLongPress={onLongPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={radius}
+      style={corners}
       data-title={titlePosition}
       className={cn(PRESS, "group focus-visible:ring-ring")}
     >

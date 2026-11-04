@@ -1,6 +1,5 @@
-import { Column, OutlinedCard, Row, Spacer } from "@expo/ui/jetpack-compose";
+import { Column, Row, Shape, Spacer, Surface } from "@expo/ui/jetpack-compose";
 import {
-  clickable,
   fillMaxWidth,
   padding,
   weight,
@@ -14,7 +13,11 @@ import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { TrackingSheet } from "../tracking-sheet";
 import { useTrackingSummary } from "./hooks/use-tracking-summary";
 
-/** An outlined card summing the entry up, or inviting to add one; the sheet edits it. */
+const CARD = Shape.RoundedCorner({
+  cornerRadii: { topStart: 24, topEnd: 24, bottomStart: 24, bottomEnd: 24 },
+});
+
+/** A tonal card summing the entry up, or inviting to add one; the sheet edits it. */
 export function Tracking({ manga }: { manga: MangaDetail }) {
   const [isPresented, setIsPresented] = useState(false);
   const { tracking, label, total, progress, percent } =
@@ -23,8 +26,11 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
 
   return (
     <>
-      <OutlinedCard
-        modifiers={[fillMaxWidth(), clickable(() => setIsPresented(true))]}
+      <Surface
+        color={m3.surfaceContainerHigh}
+        shape={CARD}
+        onClick={() => setIsPresented(true)}
+        modifiers={[fillMaxWidth()]}
       >
         {label ? (
           <Column
@@ -68,7 +74,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
             <Icon name={Icons.add} size={BUTTON_ICON_SIZE} color={m3.primary} />
           </Row>
         )}
-      </OutlinedCard>
+      </Surface>
 
       <TrackingSheet
         isPresented={isPresented}

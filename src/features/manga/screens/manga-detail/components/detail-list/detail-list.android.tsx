@@ -1,7 +1,6 @@
 import {
   Box,
   Column,
-  HorizontalDivider,
   LazyColumn,
   PullToRefreshBox,
   Row,
@@ -10,6 +9,7 @@ import {
   Surface,
 } from "@expo/ui/jetpack-compose";
 import {
+  background,
   fillMaxSize,
   fillMaxWidth,
   height,
@@ -36,11 +36,17 @@ import { Hero } from "../hero";
 import { SourcePicker } from "../source-picker";
 import type { DetailListProps } from "./detail-list";
 
-const RADIUS = 12;
+const OUTER = 20;
+const INNER = 4;
+const GAP = 2;
+const SHEET = Shape.RoundedCorner({
+  cornerRadii: { topStart: 28, topEnd: 28 },
+});
+const FAB_ROOM = GUTTER + 72;
 
 /**
  * The header is transparent, so the hero starts at the top; each chapter is a
- * lazy item, a slice of one card. Tonal elevation only: per-row shadows would seam.
+ * lazy item, one segment of a grouped list.
  */
 export function DetailList({
   manga,
@@ -64,6 +70,7 @@ export function DetailList({
   const last = chapters.length - 1;
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
+  const sheet = m3.surfaceContainerLowest;
 
   return (
     <Host className={cn("flex-1", className)}>
@@ -76,11 +83,7 @@ export function DetailList({
           indicator={{ modifiers: [offset(0, maxHeaderHeight)] }}
           modifiers={[fillMaxSize()]}
         >
-          <LazyColumn
-            // Room for the FAB over the last row.
-            contentPadding={{ bottom: GUTTER + 72 }}
-            modifiers={[fillMaxSize()]}
-          >
+          <LazyColumn modifiers={[fillMaxSize()]}>
             {/* Compose has no negative padding: the header is stacked over the
               hero and starts below the app bar, covering the art's last stretch. */}
             <Box modifiers={[fillMaxWidth()]}>
@@ -109,60 +112,63 @@ export function DetailList({
                 />
               </Column>
             </Box>
-            <Row
-              verticalAlignment="center"
-              horizontalArrangement={{ spacedBy: 8 }}
-              modifiers={[padding(start, 0, end, 4)]}
-            >
-              {/* Not primary: the color is left for the Continue action. */}
-              <Text
-                style={{ typography: "titleSmall" }}
-                color={m3.onSurfaceVariant}
-                modifiers={[padding(16, 0, 0, 0)]}
+            <Surface color={sheet} shape={SHEET} modifiers={[fillMaxWidth()]}>
+              <Row
+                verticalAlignment="center"
+                horizontalArrangement={{ spacedBy: 8 }}
+                modifiers={[padding(start, 20, end, 12)]}
               >
-                Chapters
-              </Text>
-              <Badge>{total}</Badge>
-              <Spacer modifiers={[weight(1)]} />
-              <SourcePicker
-                manga={manga}
-                entryId={manga.mediaListEntry?.id}
-                open$={sourceSheet$}
-              />
-            </Row>
-            {chapters.length === 0 &&
-              (loading ? <LoadingState /> : <EmptyState {...empty} />)}
+                {/* Not primary: the color is left for the Continue action. */}
+                <Text style={{ typography: "titleLarge" }}>Chapters</Text>
+                <Badge>{total}</Badge>
+                <Spacer modifiers={[weight(1)]} />
+                <SourcePicker
+                  manga={manga}
+                  entryId={manga.mediaListEntry?.id}
+                  open$={sourceSheet$}
+                />
+              </Row>
+            </Surface>
+            {chapters.length === 0 && (
+              <Box modifiers={[fillMaxWidth(), background(sheet)]}>
+                {loading ? <LoadingState /> : <EmptyState {...empty} />}
+              </Box>
+            )}
             <LazyColumn.Items
               data={chapters}
               keyExtractor={(chapter) => String(chapter.id)}
             >
               {({ item, index }) => (
                 <Surface
-                  tonalElevation={1}
+                  color={m3.surfaceContainerLow}
                   shape={Shape.RoundedCorner({
                     cornerRadii: {
-                      topStart: index === 0 ? RADIUS : 0,
-                      topEnd: index === 0 ? RADIUS : 0,
-                      bottomStart: index === last ? RADIUS : 0,
-                      bottomEnd: index === last ? RADIUS : 0,
+                      topStart: index === 0 ? OUTER : INNER,
+                      topEnd: index === 0 ? OUTER : INNER,
+                      bottomStart: index === last ? OUTER : INNER,
+                      bottomEnd: index === last ? OUTER : INNER,
                     },
                   })}
-                  modifiers={[padding(start, 0, end, 0), fillMaxWidth()]}
+                  // Padding before the surface is its margin, painted as the sheet.
+                  modifiers={[
+                    background(sheet),
+                    padding(start, index === 0 ? 0 : GAP, end, 0),
+                    fillMaxWidth(),
+                  ]}
                 >
-                  <Column>
-                    {index > 0 && (
-                      <HorizontalDivider modifiers={[padding(16, 0, 16, 0)]} />
-                    )}
-                    <ChapterItem
-                      chapter={item}
-                      mediaId={manga.id}
-                      entryId={manga.mediaListEntry?.id}
-                      continue$={continue$}
-                    />
-                  </Column>
+                  <ChapterItem
+                    chapter={item}
+                    mediaId={manga.id}
+                    entryId={manga.mediaListEntry?.id}
+                    continue$={continue$}
+                  />
                 </Surface>
               )}
             </LazyColumn.Items>
+            {/* Not contentPadding: the sheet runs under the FAB to the bottom. */}
+            <Box
+              modifiers={[fillMaxWidth(), height(FAB_ROOM), background(sheet)]}
+            />
           </LazyColumn>
         </PullToRefreshBox>
         <Box modifiers={[padding(0, 0, end, 16)]}>

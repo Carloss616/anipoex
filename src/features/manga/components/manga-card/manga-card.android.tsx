@@ -49,6 +49,7 @@ export function MangaCard({
   progress,
   unread,
   style,
+  radius = COVER_RADIUS,
   accessibilityLabel,
   testID,
   onPress,
@@ -84,7 +85,7 @@ export function MangaCard({
   const content = (
     <Box
       contentAlignment="center"
-      modifiers={[fillMaxSize(), clip(Shapes.RoundedCorner(COVER_RADIUS))]}
+      modifiers={[fillMaxSize(), clip(Shapes.RoundedCorner(radius))]}
     >
       {cover ? (
         <CoverImage
