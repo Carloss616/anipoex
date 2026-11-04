@@ -9,11 +9,12 @@ import type { BadgeProps } from "./badge";
 
 /**
  * The app scheme's roles where M3 has one (`primary`, `error`, the neutral
- * surface); `success` and `warning` have none, so those seed a scheme of
- * their own, harmonized with the theme the way M3 builds custom colors.
+ * surface); `success`, `warning` and `info` have none, so those seed a
+ * scheme of their own, harmonized with the theme the way M3 builds custom
+ * colors.
  */
 export function useColors(color: SemanticColor | "inherit") {
-  const custom = color === "success" || color === "warning";
+  const custom = color === "success" || color === "warning" || color === "info";
   const m3 = useThemeM3Colors(
     custom ? SEMANTIC_COLOR[color].token.fill : "primary",
   );

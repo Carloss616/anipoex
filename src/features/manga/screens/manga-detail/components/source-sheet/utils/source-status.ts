@@ -41,8 +41,14 @@ export function sourceStatus(
     "outdated";
   return {
     label: `+${unread}`,
-    color:
-      suspicious || outdated ? "warning" : unread > 0 ? "success" : "secondary",
+    // Behind is info, as on its excluded badge: apart from a no match or a suspicious list.
+    color: suspicious
+      ? "warning"
+      : outdated
+        ? "info"
+        : unread > 0
+          ? "success"
+          : "secondary",
     chapter: probe.latest,
     suspicious,
     age,

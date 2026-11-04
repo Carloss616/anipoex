@@ -33,7 +33,7 @@ describe("sourceStatus", () => {
     expect([s.label, s.color]).toEqual(["no match", "warning"]);
   });
 
-  it("unread, suspicious, and zero", () => {
+  it("unread, suspicious, behind and zero", () => {
     expect(at({ latest: 252 }, 18)).toMatchObject({
       label: "+234",
       color: "success",
@@ -49,7 +49,7 @@ describe("sourceStatus", () => {
     });
     expect(at({ latest: 5 }, 30)).toMatchObject({
       label: "+0",
-      color: "warning",
+      color: "info",
     });
   });
 

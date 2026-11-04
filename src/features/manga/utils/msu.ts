@@ -36,7 +36,7 @@ export const REASONS: Record<
   ExcludeReason,
   { menu: string; badge: string; color: SemanticColor }
 > = {
-  outdated: { menu: "Behind / outdated", badge: "behind", color: "warning" },
+  outdated: { menu: "Behind / outdated", badge: "behind", color: "info" },
   "bad-numbering": {
     menu: "Wrong chapter numbers",
     badge: "bad numbers",
