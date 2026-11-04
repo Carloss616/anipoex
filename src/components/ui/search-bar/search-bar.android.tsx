@@ -102,7 +102,6 @@ export function SearchBar({
         {accessory || (isClearable && (value ?? query)) ? (
           <TextField.TrailingIcon>
             <Row verticalAlignment="center">
-              {accessory}
               {isClearable && (value ?? query) ? (
                 <IconButton
                   onClick={clear}
@@ -115,6 +114,7 @@ export function SearchBar({
                   />
                 </IconButton>
               ) : null}
+              {accessory}
             </Row>
           </TextField.TrailingIcon>
         ) : null}
