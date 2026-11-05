@@ -1,0 +1,30 @@
+query MangaSearch(
+  $page: Int!
+  $search: String
+  $genre: String
+  $format: MediaFormat
+  $country: CountryCode
+  $status: MediaStatus
+  $sort: [MediaSort]
+  $startDateGreater: FuzzyDateInt
+) {
+  Page(page: $page, perPage: 30) {
+    pageInfo {
+      hasNextPage
+    }
+    media(
+      type: MANGA
+      isAdult: false
+      search: $search
+      genre: $genre
+      format: $format
+      countryOfOrigin: $country
+      status: $status
+      sort: $sort
+      startDate_greater: $startDateGreater
+    ) {
+      id
+      ...MangaMedia @nonreactive
+    }
+  }
+}
