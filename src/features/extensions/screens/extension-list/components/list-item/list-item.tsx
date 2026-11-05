@@ -14,7 +14,6 @@ import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
   type Extension,
-  type ExtensionOperation,
   extensionOperations$,
   hasUpdate,
   installExtension,
@@ -29,41 +28,30 @@ import { uninstallItem } from "./utils/uninstall-item";
 
 export interface ListItemProps {
   extension: Extension;
+  /**
+   * Its place in its section, for the group's rounded ends.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
-type ActionButtonProps = Omit<
-  ComponentProps<typeof Button>,
-  "size" | "loading"
-> & {
+type ActionButtonProps = Omit<ComponentProps<typeof Button>, "size"> & {
   id: string;
   icon: IconName;
-  /** What this button starts: its icon turns into a loader while that runs. */
-  operation: ExtensionOperation;
 };
 
 /**
  * Reads the operation itself so only this button re-renders; every action
- * is off while one runs. Spreads the rest so a menu trigger keeps its props
- * and ref.
+ * is off while one runs, which the tile shows. Spreads the rest so a menu
+ * trigger keeps its props and ref.
  */
-function ActionButton({
-  id,
-  operation,
-  icon,
-  variant,
-  ...props
-}: ActionButtonProps) {
-  const current = useValue(extensionOperations$[id]);
-  const loading = current === operation;
+function ActionButton({ id, icon, variant, ...props }: ActionButtonProps) {
+  const running = useValue(() => !!extensionOperations$[id].get());
 
   return (
-    <Button
-      size="icon"
-      variant={variant}
-      {...props}
-      disabled={!!current}
-      loading={loading}
-    >
+    <Button size="icon" variant={variant} {...props} disabled={running}>
       <Icon name={icon} size={BUTTON_ICON_SIZE} />
     </Button>
   );
@@ -73,6 +61,7 @@ export const ListItem = memo(function ListItem({
   extension: e,
 }: ListItemProps) {
   const mode = useValue(theme$.mode);
+  const running = useValue(() => !!extensionOperations$[e.id].get());
   const { websiteUrl } = e;
   const primary = useThemeColor("primary");
 
@@ -83,6 +72,7 @@ export const ListItem = memo(function ListItem({
           initials={e.initials}
           iconUrl={e.iconUrl}
           color={sourceColor(e, mode)}
+          loading={running}
         />
       </Frame.Media>
       <Frame.Content>
@@ -118,7 +108,6 @@ export const ListItem = memo(function ListItem({
         {!e.installed ? (
           <ActionButton
             id={e.id}
-            operation="installing"
             icon={Icons.download}
             variant="ghost"
             onClick={() => installExtension(e.id)}
@@ -127,7 +116,6 @@ export const ListItem = memo(function ListItem({
         ) : hasUpdate(e) ? (
           <ActionButton
             id={e.id}
-            operation="updating"
             icon={Icons.update}
             onClick={() => updateExtension(e.id)}
             aria-label={`Update ${e.name}`}
@@ -137,7 +125,6 @@ export const ListItem = memo(function ListItem({
           <Menu items={[uninstallItem(e)]}>
             <ActionButton
               id={e.id}
-              operation="uninstalling"
               icon={Icons.more}
               variant="ghost"
               aria-label={`More actions for ${e.name}`}

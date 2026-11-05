@@ -49,10 +49,9 @@ export type ExtensionListRow =
       kind: "extension";
       key: string;
       extension: Extension;
-      /** A divider above it: every row of a section but the first. */
-      divided: boolean;
-      /** The last row of its section. */
-      last: boolean;
+      /** Its place in its section, for dividers and rounded ends. */
+      index: number;
+      count: number;
     };
 
 export function toRows(sections: ExtensionSection[]): ExtensionListRow[] {
@@ -62,8 +61,8 @@ export function toRows(sections: ExtensionSection[]): ExtensionListRow[] {
       kind: "extension" as const,
       key: extension.id,
       extension,
-      divided: i > 0,
-      last: i === section.data.length - 1,
+      index: i,
+      count: section.data.length,
     })),
   ]);
 }

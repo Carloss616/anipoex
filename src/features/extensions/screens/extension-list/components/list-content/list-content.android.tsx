@@ -21,6 +21,7 @@ import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
+import { SEGMENTED_GAP } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
@@ -124,13 +125,10 @@ export function ListContent({
                       <Row
                         verticalAlignment="center"
                         horizontalArrangement={{ spacedBy: 8 }}
-                        modifiers={[padding(16, 16, 16, 4)]}
+                        modifiers={[padding(GUTTER, 16, GUTTER, 8)]}
                       >
                         <Text
-                          style={{
-                            typography: "bodyMedium",
-                            fontWeight: "500",
-                          }}
+                          style={{ typography: "titleSmall" }}
                           color={m3.primary}
                         >
                           {r.section.title}
@@ -138,7 +136,22 @@ export function ListContent({
                         <Badge>{r.section.data.length}</Badge>
                       </Row>
                     ) : (
-                      <ListItem extension={r.extension} />
+                      <Box
+                        modifiers={[
+                          padding(
+                            GUTTER,
+                            r.index > 0 ? SEGMENTED_GAP : 0,
+                            GUTTER,
+                            0,
+                          ),
+                        ]}
+                      >
+                        <ListItem
+                          extension={r.extension}
+                          index={r.index}
+                          count={r.count}
+                        />
+                      </Box>
                     )
                   }
                 </LazyColumn.Items>

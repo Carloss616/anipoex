@@ -66,25 +66,13 @@ describe("toRows", () => {
     ]);
   });
 
-  it("divides every extension row but the first of its section", () => {
-    // The divider sits above a row, so a header never gets one under it.
+  it("gives each extension row its place in its section", () => {
     const rows = toRows(toSections(LIST, all));
     expect(
-      rows.map((r) => (r.kind === "extension" ? r.divided : null)),
-    ).toEqual([null, false, true, true, null, false, true]);
-  });
-
-  it("marks the last row of each section", () => {
-    const rows = toRows(toSections(LIST, all));
-    expect(rows.map((r) => (r.kind === "extension" ? r.last : null))).toEqual([
-      null,
-      false,
-      false,
-      true,
-      null,
-      false,
-      true,
-    ]);
+      rows.map((r) =>
+        r.kind === "extension" ? `${r.index}/${r.count}` : null,
+      ),
+    ).toEqual([null, "0/3", "1/3", "2/3", null, "0/2", "1/2"]);
   });
 
   it("carries the section on its header row", () => {

@@ -1,25 +1,14 @@
-import {
-  FilledTonalIconButton,
-  IconButton,
-  ListItem as ListItemView,
-  Row,
-} from "@expo/ui/jetpack-compose";
+import { Button, FilledTonalIconButton, Row } from "@expo/ui/jetpack-compose";
 import { semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
+import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import {
-  BUTTON_ICON_SIZE,
-  Icon,
-  type IconName,
-  Icons,
-} from "@/components/ui/icon";
-import { Loader } from "@/components/ui/loader";
-import { Menu } from "@/components/ui/menu";
+import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { ContextMenu, type MenuItem } from "@/components/ui/menu";
 import {
   describeVersion,
-  type ExtensionOperation,
   extensionOperations$,
   hasUpdate,
   installExtension,
@@ -33,142 +22,101 @@ import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
 import { uninstallItem } from "./utils/uninstall-item";
 
-const label = (text: string) => [semantics({ contentDescription: text })];
-
-interface ActionButtonProps {
-  id: string;
-  /** What this button starts: its icon turns into a loader while that runs. */
-  operation: ExtensionOperation;
-  icon: IconName;
-  label: string;
-  variant?: "standard" | "tonal" | "muted";
-  /** The menu hands its trigger an `onPress` to open it. */
-  onPress?: () => void;
-}
-
 /**
- * Reads the operation itself so only this button re-renders; every action
- * is off while one runs.
+ * One segmented row: its single action at the end (install tonal, update
+ * filled), the rest in its context menu, which a tap opens too.
  */
-function ActionButton({
-  id,
-  operation,
-  icon,
-  label: text,
-  variant = "standard",
-  onPress,
-}: ActionButtonProps) {
-  const current = useValue(extensionOperations$[id]);
-  const m3 = useThemeM3Colors();
-  const Button = variant === "tonal" ? FilledTonalIconButton : IconButton;
-
-  return (
-    <Button
-      enabled={!current}
-      onClick={onPress}
-      colors={
-        variant === "muted" ? { contentColor: m3.onSurfaceVariant } : undefined
-      }
-      modifiers={label(text)}
-    >
-      {current === operation ? (
-        <Loader size="sm" />
-      ) : (
-        <Icon name={icon} size={BUTTON_ICON_SIZE} color="inherit" />
-      )}
-    </Button>
-  );
-}
-
 export const ListItem = memo(function ListItem({
   extension: e,
+  index = 0,
+  count = 1,
 }: ListItemProps) {
   const mode = useValue(theme$.mode);
-  const { websiteUrl } = e;
+  const running = useValue(() => !!extensionOperations$[e.id].get());
   const m3 = useThemeM3Colors();
+  const { websiteUrl } = e;
+  const update = e.installed && hasUpdate(e);
 
-  return (
-    <ListItemView colors={{ containerColor: "transparent" }}>
-      <ListItemView.LeadingContent>
+  const menu: MenuItem[] = [
+    ...(websiteUrl
+      ? [
+          {
+            label: "Open website",
+            icon: Icons.website,
+            onPress: () => openExternal(websiteUrl),
+          },
+        ]
+      : []),
+    ...(e.installed
+      ? [{ ...uninstallItem(e), icon: Icons.trash, disabled: running }]
+      : []),
+  ];
+
+  const row = (
+    <SegmentedListItem
+      index={index}
+      count={count}
+      containerColor={m3.surfaceContainer}
+    >
+      <SegmentedListItem.Leading>
         <SourceTile
           initials={e.initials}
           iconUrl={e.iconUrl}
           color={sourceColor(e, mode)}
+          loading={running}
         />
-      </ListItemView.LeadingContent>
-      <ListItemView.HeadlineContent>
-        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
-          <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
-            {e.name}
-          </Text>
-          {e.installed && (
-            <Icon
-              name={Icons.checkCircle}
-              size={14}
-              color={m3.primary}
-              accessibilityLabel="Installed"
-            />
-          )}
-        </Row>
-      </ListItemView.HeadlineContent>
-      <ListItemView.SupportingContent>
+      </SegmentedListItem.Leading>
+      <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+        <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
+          {e.name}
+        </Text>
+        {e.installed && (
+          <Icon
+            name={Icons.checkCircle}
+            size={14}
+            color={m3.primary}
+            accessibilityLabel="Installed"
+          />
+        )}
+      </Row>
+      <SegmentedListItem.Supporting>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
           <Badge>{e.language.code.toUpperCase()}</Badge>
           {e.nsfw && <Badge color="destructive">18+</Badge>}
+          {/* The badges' size: a second baseline makes a three-line row. */}
           <Text
-            style={{ typography: "bodyMedium" }}
+            style={{ typography: "labelSmall", fontWeight: "400" }}
+            color={m3.onSurfaceVariant}
             maxLines={1}
             overflow="ellipsis"
           >
             {`· ${describeVersion(e)}`}
           </Text>
         </Row>
-      </ListItemView.SupportingContent>
-      <ListItemView.TrailingContent>
-        <Row verticalAlignment="center">
-          {websiteUrl && (
-            <IconButton
-              onClick={() => openExternal(websiteUrl)}
-              modifiers={label("Open website")}
-            >
-              <Icon
-                name={Icons.website}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
-            </IconButton>
-          )}
-          {!e.installed ? (
-            <ActionButton
-              id={e.id}
-              operation="installing"
-              icon={Icons.download}
-              label={`Install ${e.name}`}
-              onPress={() => installExtension(e.id)}
+      </SegmentedListItem.Supporting>
+      {!e.installed ? (
+        <SegmentedListItem.Trailing>
+          <FilledTonalIconButton
+            enabled={!running}
+            onClick={() => installExtension(e.id)}
+            modifiers={[semantics({ contentDescription: `Install ${e.name}` })]}
+          >
+            <Icon
+              name={Icons.download}
+              size={BUTTON_ICON_SIZE}
+              color="inherit"
             />
-          ) : hasUpdate(e) ? (
-            <ActionButton
-              id={e.id}
-              operation="updating"
-              icon={Icons.update}
-              label={`Update ${e.name}`}
-              variant="tonal"
-              onPress={() => updateExtension(e.id)}
-            />
-          ) : null}
-          {e.installed && (
-            <Menu items={[uninstallItem(e)]}>
-              <ActionButton
-                id={e.id}
-                operation="uninstalling"
-                icon={Icons.more}
-                label={`More actions for ${e.name}`}
-                variant="muted"
-              />
-            </Menu>
-          )}
-        </Row>
-      </ListItemView.TrailingContent>
-    </ListItemView>
+          </FilledTonalIconButton>
+        </SegmentedListItem.Trailing>
+      ) : update ? (
+        <SegmentedListItem.Trailing>
+          <Button enabled={!running} onClick={() => updateExtension(e.id)}>
+            <Text style={{ typography: "labelLarge" }}>Update</Text>
+          </Button>
+        </SegmentedListItem.Trailing>
+      ) : null}
+    </SegmentedListItem>
   );
+
+  return menu.length > 0 ? <ContextMenu items={menu}>{row}</ContextMenu> : row;
 });

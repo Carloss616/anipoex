@@ -1,9 +1,9 @@
 import {
   Box,
   Column,
+  FilledTonalIconButton,
   IconButton,
   LazyColumn,
-  ListItem,
   OutlinedTextField,
   Row,
   Spacer,
@@ -21,17 +21,21 @@ import {
   size,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Computed, Memo, useValue } from "@legendapp/state/react";
+import { Memo, useValue } from "@legendapp/state/react";
 import { memo, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
+import {
+  SEGMENTED_GAP,
+  SegmentedListItem,
+} from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Menu } from "@/components/ui/menu";
+import { ContextMenu } from "@/components/ui/menu";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
 import { TrustDialog } from "@/features/extensions/components/trust-dialog";
 import { useRepoList } from "@/features/extensions/hooks/use-repo-list";
@@ -86,7 +90,7 @@ export function RepoList() {
             <Row
               verticalAlignment="center"
               horizontalArrangement={{ spacedBy: 8 }}
-              modifiers={[padding(GUTTER, 0, GUTTER, 0)]}
+              modifiers={[padding(GUTTER, 0, GUTTER, 16)]}
             >
               <Text style={{ typography: "titleLarge" }}>Repositories</Text>
               {/* M3's badge reads high against a centered title. */}
@@ -98,7 +102,7 @@ export function RepoList() {
                 {() => {
                   const open = fieldOpen$.get();
                   return (
-                    <IconButton
+                    <FilledTonalIconButton
                       onClick={toggleField}
                       modifiers={[
                         semantics({
@@ -113,7 +117,7 @@ export function RepoList() {
                         size={BUTTON_ICON_SIZE}
                         color="inherit"
                       />
-                    </IconButton>
+                    </FilledTonalIconButton>
                   );
                 }}
               </Memo>
@@ -139,7 +143,7 @@ export function RepoList() {
                       isError={!!error}
                       modifiers={[
                         fillMaxWidth(),
-                        padding(GUTTER, 8, GUTTER, 8),
+                        padding(GUTTER, 0, GUTTER, 16),
                       ]}
                     >
                       <OutlinedTextField.Label>
@@ -197,7 +201,14 @@ export function RepoList() {
               data={repos}
               keyExtractor={(repo) => repo.indexUrl}
             >
-              {({ item: repo }) => <RepoRow repo={repo} onRemove={remove} />}
+              {({ item: repo, index }) => (
+                <RepoRow
+                  repo={repo}
+                  index={index}
+                  count={repos.length}
+                  onRemove={remove}
+                />
+              )}
             </LazyColumn.Items>
             {repos.length === 0 && (
               <EmptyState
@@ -213,61 +224,47 @@ export function RepoList() {
   );
 }
 
-// The menu hands its opener in as `onPress`.
-function MoreButton({
-  label,
-  onPress,
-}: {
-  label: string;
-  onPress?: () => void;
-}) {
-  return (
-    <IconButton
-      onClick={onPress}
-      modifiers={[semantics({ contentDescription: label })]}
-    >
-      <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
-    </IconButton>
-  );
-}
-
 const RepoRow = memo(function RepoRow({
   repo,
+  index,
+  count,
   onRemove,
 }: {
   repo: Repo;
+  index: number;
+  count: number;
   onRemove: (repo: Repo) => void;
 }) {
+  const m3 = useThemeM3Colors();
+  // A string, so the row re-renders only when the count changes.
+  const summary = useValue(() => repoSummary(repo, extensions$.get()));
   return (
-    <ListItem colors={{ containerColor: "transparent" }}>
-      <ListItem.HeadlineContent>
-        <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
-          {repo.name}
-        </Text>
-      </ListItem.HeadlineContent>
-      <ListItem.SupportingContent>
-        <Computed>
-          {() => {
-            const summary = repoSummary(repo, extensions$.get());
-            return (
-              summary && (
-                <Text
-                  style={{ typography: "bodyMedium" }}
-                  maxLines={1}
-                  overflow="ellipsis"
-                >
-                  {summary}
-                </Text>
-              )
-            );
-          }}
-        </Computed>
-      </ListItem.SupportingContent>
-      <ListItem.TrailingContent>
-        <Menu items={repoMenuItems(repo, () => onRemove(repo))}>
-          <MoreButton label={`More actions for ${repo.name}`} />
-        </Menu>
-      </ListItem.TrailingContent>
-    </ListItem>
+    <Box
+      modifiers={[padding(GUTTER, index > 0 ? SEGMENTED_GAP : 0, GUTTER, 0)]}
+    >
+      {/* No tap of its own: a tap opens the menu as a long press does. */}
+      <ContextMenu items={repoMenuItems(repo, () => onRemove(repo))}>
+        <SegmentedListItem
+          index={index}
+          count={count}
+          containerColor={m3.surfaceContainerHigh}
+        >
+          <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
+            {repo.name}
+          </Text>
+          {summary && (
+            <SegmentedListItem.Supporting>
+              <Text
+                style={{ typography: "bodyMedium" }}
+                maxLines={1}
+                overflow="ellipsis"
+              >
+                {summary}
+              </Text>
+            </SegmentedListItem.Supporting>
+          )}
+        </SegmentedListItem>
+      </ContextMenu>
+    </Box>
   );
 });

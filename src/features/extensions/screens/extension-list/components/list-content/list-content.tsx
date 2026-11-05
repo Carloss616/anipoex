@@ -141,12 +141,14 @@ export function ListContent({
               <Frame
                 className={cn(
                   "gutters mx-gx rounded-t-none border-t-0 md:ml-4",
-                  row.last ? "mb-4" : "rounded-b-none border-b-0",
+                  row.index === row.count - 1
+                    ? "mb-4"
+                    : "rounded-b-none border-b-0",
                 )}
               >
                 <Frame.Panel
                   data-attached="column"
-                  className={cn(row.divided && "rounded-t-none!")}
+                  className={cn(row.index > 0 && "rounded-t-none!")}
                 >
                   <ListItem extension={row.extension} />
                 </Frame.Panel>

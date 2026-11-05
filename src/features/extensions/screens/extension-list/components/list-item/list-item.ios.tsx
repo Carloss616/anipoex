@@ -23,7 +23,6 @@ import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon, Icons } from "@/components/ui/icon";
-import { Loader } from "@/components/ui/loader";
 import { ContextMenu, type MenuAction } from "@/components/ui/menu";
 import {
   describeVersion,
@@ -41,15 +40,11 @@ import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
 import { uninstallDialog } from "./utils/uninstall-item";
 
-/**
- * The row's one action, App Store style: a pill that turns into a loader
- * while any operation runs.
- */
+/** The row's one action: Install as text, Update as a pill; off while an operation runs (the tile shows it). */
 function RowAction({ extension: e }: ListItemProps) {
   const running = useValue(() => !!extensionOperations$[e.id].get());
   const font = useFont("subheadline", "semibold");
 
-  if (running) return <Loader size="sm" />;
   if (e.installed && !hasUpdate(e)) return null;
 
   const update = e.installed;
@@ -58,10 +53,12 @@ function RowAction({ extension: e }: ListItemProps) {
       label={update ? "Update" : "Install"}
       onPress={() => (update ? updateExtension : installExtension)(e.id)}
       modifiers={[
-        buttonStyle(update ? "glassProminent" : "glass"),
+        // Install as text, so the rarer Update pill stands out down the list.
+        buttonStyle(update ? "glassProminent" : "borderless"),
         buttonBorderShape("capsule"),
         controlSize("small"),
         font,
+        disabled(running),
         accessibilityLabel(`${update ? "Update" : "Install"} ${e.name}`),
       ]}
     />
@@ -124,6 +121,7 @@ export const ListItem = memo(function ListItem({
             initials={e.initials}
             iconUrl={e.iconUrl}
             color={sourceColor(e, mode)}
+            loading={running}
           />
         }
       >
@@ -186,22 +184,26 @@ export const ListItem = memo(function ListItem({
           row
         )}
       </ContextMenu>
-      {(e.installed || website) && (
-        <SwipeActions.Actions allowsFullSwipe={false}>
-          {e.installed && (
-            <Computed>
-              {() => (
-                <Button
-                  label="Uninstall"
-                  systemImage="trash"
-                  // No destructive role: SwiftUI would delete the row before
-                  // the alert confirms.
-                  modifiers={[tint(destructive), disabled(busy())]}
-                  onPress={() => setUninstalling(true)}
-                />
-              )}
-            </Computed>
-          )}
+      {e.installed && (
+        // Uninstall on the leading edge, apart from the rest, as Exclude on
+        // source rows.
+        <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
+          <Computed>
+            {() => (
+              <Button
+                label="Uninstall"
+                systemImage="trash"
+                // No destructive role: SwiftUI would delete the row before
+                // the alert confirms.
+                modifiers={[tint(destructive), disabled(busy())]}
+                onPress={() => setUninstalling(true)}
+              />
+            )}
+          </Computed>
+        </SwipeActions.Actions>
+      )}
+      {website && (
+        <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
           {website}
         </SwipeActions.Actions>
       )}
