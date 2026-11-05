@@ -13,7 +13,7 @@ Start with the [product overview](overview.md); [README](README.md) explains the
 
 # Domain concepts
 
-* [Concepts](concepts/) - Tracker and viewer, manga, list entry, statuses, tracking rules, score format, fuzzy dates, sources, source probes, source exclusions, extensions, chapters.
+* [Concepts](concepts/) - Tracker and viewer, manga, list entry, statuses, tracking rules, score format, fuzzy dates, sources, source probes, source exclusions, extensions, chapters, continue reading.
 
 # AniList operations
 

@@ -2,6 +2,7 @@
 
 ## 2026-11-05
 
+* **Continue reading on Home**: mangas with a chosen source whose stored chapter list for the matched page has chapters past a progress above 0, newest release first. A tap opens the reader at the first unread chapter. Lists are only as fresh as the last detail visit or scan. New [continue reading](concepts/continue-reading.md), linked from [unread chapters](metrics/unread-chapters.md).
 * **Home loads in one request**: every visible Home section comes from a single AniList query; each section is switched on by the Home layout, so hidden sections cost nothing and a load is one request against AniList's rate limit. Added [HomeSections](operations/home-sections.md).
 * **Home has a layout**: which sections Home shows and in what order is kept on the device. It defaults to the *balanced* preset, *discover* and *personal* are the other two, and it becomes *custom* once the user toggles or moves a section. Added [Home layout](stores/home-layout.md).
 * **Recent searches**: the last 10 AniList searches submitted are kept on the device, newest first and once per text in any letter case. Added [search history](stores/search-history.md).

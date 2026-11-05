@@ -1,0 +1,8 @@
+query ContinueMedia($ids: [Int]) {
+  Page(perPage: 50) {
+    media(id_in: $ids, type: MANGA) {
+      id
+      ...MangaMedia @nonreactive
+    }
+  }
+}

@@ -20,6 +20,9 @@ The `+N` a [source](../concepts/source.md) shows is `max(0, floor(latest − rea
 It floors because a `.5` release isn't a whole unread chapter. This is the plugin's
 rule, so both apps show the same number.
 
+Home's [continue reading](../concepts/continue-reading.md) counts the chosen source's stored
+chapters past the progress instead.
+
 ## What a source row shows
 
 The status, then `· c.{latest}` (`c.{latest}?` when the numbering is suspicious), then

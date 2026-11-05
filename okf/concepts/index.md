@@ -24,3 +24,4 @@ Domain ideas and rules. Read these before the [operations](../operations/) and
 * [Source exclusion](source-exclusion.md) - Dropping a source for one manga: reasons, pins, retry/reset, and auto-exclusion after a scan.
 * [Extension](extension.md) - A source as an installable, versioned package from an added repo. Android, iOS (sideload) and the desktop app (macOS).
 * [Chapter](chapter.md) - A chapter row on the detail screen, read from the matched manga in the chosen source.
+* [Continue reading](continue-reading.md) - Home's started mangas whose chosen source has chapters past their progress, newest release first.
