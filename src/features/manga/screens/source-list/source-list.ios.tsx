@@ -24,7 +24,6 @@ import {
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { Computed } from "@legendapp/state/react";
-import { useRouter } from "expo-router";
 import { useState } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
@@ -73,8 +72,7 @@ const GROUP_SLOT_SM = [
 ];
 
 export function SourceList() {
-  const { manga, read, selectedId, pick } = useSourceList();
-  const router = useRouter();
+  const { manga, read, selectedId, pick, close } = useSourceList();
 
   if (!manga) return null;
   return (
@@ -83,7 +81,7 @@ export function SourceList() {
       read={read}
       selectedId={selectedId}
       onSelect={(id) => {
-        router.back();
+        close();
         pick(id);
       }}
     />

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { sourceListHref, sourceListMangaId } from "./source-list-href";
+import {
+  isOverDetail,
+  sourceListHref,
+  sourceListMangaId,
+} from "./source-list-href";
 
 describe("sourceListHref", () => {
   it("links the manga's source list", () => {
@@ -14,6 +18,27 @@ describe("sourceListHref", () => {
       pathname: "/manga/[id]/sources",
       params: { id: "12", expanded: "1" },
     });
+  });
+});
+
+describe("isOverDetail", () => {
+  const detail = (id: string) => ({ name: "[id]/index", params: { id } });
+  const list = { name: "[id]/sources", params: { id: "12" } };
+
+  it("is true with the manga's detail right under the list", () => {
+    expect(isOverDetail({ routes: [detail("12"), list], index: 1 }, "12")).toBe(
+      true,
+    );
+  });
+
+  it("is false when a link opened the list alone", () => {
+    expect(isOverDetail({ routes: [list], index: 0 }, "12")).toBe(false);
+  });
+
+  it("is false over another manga's detail", () => {
+    expect(isOverDetail({ routes: [detail("7"), list], index: 1 }, "12")).toBe(
+      false,
+    );
   });
 });
 

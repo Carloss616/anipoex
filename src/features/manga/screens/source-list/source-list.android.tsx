@@ -24,7 +24,6 @@ import {
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Computed } from "@legendapp/state/react";
-import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -70,8 +69,7 @@ function TitlesButton({ onPress }: { onPress?: () => void }) {
 }
 
 export function SourceList() {
-  const { manga, read, selectedId, pick } = useSourceList();
-  const router = useRouter();
+  const { manga, read, selectedId, pick, close } = useSourceList();
 
   if (!manga) return null;
   return (
@@ -80,7 +78,7 @@ export function SourceList() {
       read={read}
       selectedId={selectedId}
       onSelect={(id) => {
-        router.back();
+        close();
         pick(id);
       }}
     />

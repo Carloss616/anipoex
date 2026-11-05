@@ -1,5 +1,4 @@
 import { Computed } from "@legendapp/state/react";
-import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
@@ -41,8 +40,14 @@ export interface ListBodyProps {
 
 /** Which source the chapter list reads, drawn as a sheet over the detail. */
 export function SourceList() {
-  const { manga, read, selectedId, expanded, pick } = useSourceList();
-  const router = useRouter();
+  const {
+    manga,
+    read,
+    selectedId,
+    expanded,
+    pick,
+    close: leave,
+  } = useSourceList();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -54,7 +59,7 @@ export function SourceList() {
     if (!open) return;
     setOpen(false);
     // shortcut: the sheet has no close-end event; leave once it's down.
-    setTimeout(() => router.back(), SHEET_CLOSE_MS);
+    setTimeout(leave, SHEET_CLOSE_MS);
   };
 
   if (!manga) return null;
