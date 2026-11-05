@@ -26,6 +26,7 @@ import { memo, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
+import { nestedScrollInteropConnection } from "@/components/native/jetpack-compose/nested-scroll-interop-connection";
 import {
   SEGMENTED_GAP,
   SegmentedListItem,
@@ -75,7 +76,7 @@ export function RepoList() {
   return (
     <>
       <Host className="flex-1">
-        <Column modifiers={[fillMaxSize()]}>
+        <Column modifiers={[fillMaxSize(), nestedScrollInteropConnection()]}>
           {/* M3's drag handle, as the other sheets draw it. */}
           <Box
             modifiers={[

@@ -28,6 +28,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
+import { nestedScrollInteropConnection } from "@/components/native/jetpack-compose/nested-scroll-interop-connection";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
@@ -117,6 +118,7 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
         verticalArrangement={{ spacedBy: 16 }}
         modifiers={[
           fillMaxSize(),
+          nestedScrollInteropConnection(),
           padding(insets.left, 0, insets.right, GUTTER),
         ]}
       >

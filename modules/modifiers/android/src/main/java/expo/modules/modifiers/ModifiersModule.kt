@@ -12,6 +12,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.records.Field
@@ -51,10 +52,18 @@ class ModifiersModule : Module() {
         LaunchedEffect(scrolled) { dispatch("pinnedScrollBehavior", mapOf("scrolled" to scrolled)) }
         Modifier.nestedScroll(behavior.nestedScrollConnection)
       }
+
+      // A Compose list in a native form sheet: hands the sheet's behavior the
+      // scroll the list leaves, or both take the same drag.
+      // https://developer.android.com/develop/ui/compose/touch-input/pointer-input/scroll#compose-in-view
+      ModifierRegistry.register("nestedScrollInteropConnection") { _, _, _, _ ->
+        Modifier.nestedScroll(rememberNestedScrollInteropConnection())
+      }
     }
     OnDestroy {
       ModifierRegistry.unregister("linearGradient")
       ModifierRegistry.unregister("pinnedScrollBehavior")
+      ModifierRegistry.unregister("nestedScrollInteropConnection")
     }
   }
 }
