@@ -18,23 +18,28 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -181,7 +186,9 @@ fun FunctionalComposableScope.TopAppBarContent(
           .background(color)
       ) {
         Column {
-          Bar(props, font, onSearchTextChange)
+          // A filled bar takes the next container role: one step apart, the field blends in.
+          val filled = target.alpha > 0f && target != MaterialTheme.colorScheme.surface
+          Bar(props, font, filled, onSearchTextChange)
           if (hasTabs) {
             PrimaryScrollableTabRow(
               selectedTabIndex = pagerState.currentPage.coerceIn(0, props.tabs.lastIndex),
@@ -234,6 +241,7 @@ fun FunctionalComposableScope.TopAppBarContent(
 private fun FunctionalComposableScope.Bar(
   props: TopAppBarProps,
   font: androidx.compose.ui.text.font.FontFamily?,
+  filled: Boolean,
   onSearchTextChange: (SearchTextEvent) -> Unit
 ) {
   val hasSlot = { name: String ->
@@ -272,20 +280,42 @@ private fun FunctionalComposableScope.Bar(
   // No expanded search view: the field filters what's on screen in place.
   val searchState = rememberSearchBarState()
   val focus = LocalFocusManager.current
+  val interaction = remember { MutableInteractionSource() }
+  val focused by interaction.collectIsFocusedAsState()
   LaunchedEffect(field) {
     snapshotFlow { field.text.toString() }
       .drop(1)
       .collect { onSearchTextChange(SearchTextEvent(it)) }
   }
-  AppBarWithSearch(
-    state = searchState,
-    inputField = {
+  // AppBarWithSearch's layout without it: its collapsed bar wraps the field in
+  // DisableSoftKeyboard, leaving typing to an expanded search view we don't have.
+  Row(verticalAlignment = Alignment.CenterVertically) {
+    if (hasSlot("navigationIcon")) {
+      Box(Modifier.padding(start = 4.dp)) {
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface, content = navigationIcon)
+      }
+    }
+    Surface(
+      modifier = Modifier.weight(1f).padding(horizontal = 8.dp, vertical = 4.dp),
+      shape = SearchBarDefaults.inputFieldShape,
+      color = if (filled) MaterialTheme.colorScheme.surfaceContainerHighest else SearchBarDefaults.colors().containerColor
+    ) {
       SearchBarDefaults.InputField(
         textFieldState = field,
         searchBarState = searchState,
         onSearch = { focus.clearFocus() },
         placeholder = { Text(search.placeholder, fontFamily = font, maxLines = 1) },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        // Focused, back returns the bar to how it was: empty and unfocused.
+        leadingIcon = {
+          if (focused) {
+            IconButton(onClick = { field.clearText(); focus.clearFocus() }) {
+              Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
+            }
+          } else {
+            Icon(Icons.Default.Search, contentDescription = null)
+          }
+        },
+        interactionSource = interaction,
         trailingIcon = if (field.text.isEmpty()) null else {
           {
             IconButton(onClick = { field.clearText() }) {
@@ -294,13 +324,11 @@ private fun FunctionalComposableScope.Bar(
           }
         }
       )
-    },
-    navigationIcon = if (hasSlot("navigationIcon")) navigationIcon else null,
-    actions = if (hasSlot("actions")) actions else null,
-    windowInsets = WindowInsets(0),
-    colors = SearchBarDefaults.appBarWithSearchColors(
-      appBarContainerColor = Color.Transparent,
-      scrolledAppBarContainerColor = Color.Transparent
-    )
-  )
+    }
+    if (hasSlot("actions")) {
+      Row(Modifier.padding(end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) { actions() }
+      }
+    }
+  }
 }
