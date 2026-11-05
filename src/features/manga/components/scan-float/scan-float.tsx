@@ -3,37 +3,30 @@ import { For, useValue } from "@legendapp/state/react";
 import { router, usePathname } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import { Pressable, View } from "react-native";
 import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
 import {
-  openSheet$,
-  type ScanView,
-  scanViews$,
-  sheetRequest$,
-} from "../../state/scan-views";
+  sourceListHref,
+  sourceListMangaId,
+} from "@/features/manga/utils/source-list-href";
+import { type ScanView, scanViews$ } from "../../state/scan-views";
 
 const DETAIL = /^\/manga\/\d+$/;
 
 /**
  * The running scans over every screen, each hidden while its manga's source
- * sheet is open; a tap opens that sheet.
+ * list is open; a tap opens that list over the manga's detail.
  */
 export function ScanFloat() {
   const pathname = usePathname();
+  const covered = sourceListMangaId(pathname);
   const open = (mangaId: number) => {
-    sheetRequest$.set(mangaId);
-    const href = `/manga/${mangaId}` as const;
-    if (pathname !== href) router.navigate(href);
+    const detail = `/manga/${mangaId}` as const;
+    if (pathname !== detail) router.navigate(detail);
+    router.push(sourceListHref(mangaId));
   };
-  // A request the sheet never took (its page failed to load) is dropped on
-  // leaving that page, so a later visit doesn't open the sheet by itself.
-  useEffect(() => {
-    const requested = sheetRequest$.peek();
-    if (requested !== null && pathname !== `/manga/${requested}`)
-      sheetRequest$.set(null);
-  }, [pathname]);
 
   return (
     <View
@@ -44,7 +37,11 @@ export function ScanFloat() {
         DETAIL.test(pathname) && "max-lg:pb-[calc(var(--spacing-gb)+3.5rem)]",
       )}
     >
-      <For each={scanViews$} item={ScanCard} itemProps={{ onOpen: open }} />
+      <For
+        each={scanViews$}
+        item={ScanCard}
+        itemProps={{ onOpen: open, covered }}
+      />
     </View>
   );
 }
@@ -52,12 +49,15 @@ export function ScanFloat() {
 const ScanCard = memo(function ScanCard({
   item$,
   onOpen,
+  covered,
 }: {
   item$: Observable<ScanView>;
   onOpen: (mangaId: number) => void;
+  /** The manga whose source list is open: its views hide under it. */
+  covered: number | null;
 }) {
   const view = useValue(item$);
-  const hidden = useValue(() => openSheet$.get() === item$.mangaId.get());
+  const hidden = view?.mangaId === covered;
   if (!view || hidden) return null;
 
   return (

@@ -1,10 +1,11 @@
 import { Stack } from "expo-router";
 import { Platform } from "react-native";
 import { header } from "@/components/layout/header";
-import { useStackTheme } from "@/hooks/use-theme";
+import { useStackTheme, useThemeM3Colors } from "@/hooks/use-theme";
 
 export default function Layout() {
   const stackTheme = useStackTheme();
+  const m3 = useThemeM3Colors();
 
   // `header` isn't in useStackTheme: it imports Icon and Host, which import the theme.
   return (
@@ -25,6 +26,33 @@ export default function Layout() {
             left: "hidden",
             right: "hidden",
           },
+        }}
+      />
+      <Stack.Screen
+        name="[id]/sources"
+        options={({ route }) => {
+          // "Search on …" opens it raised.
+          const expanded = (route.params as { expanded?: string } | undefined)
+            ?.expanded;
+          const initial = expanded ? ("last" as const) : 0;
+          return Platform.select({
+            web: { presentation: "transparentModal", headerShown: false },
+            ios: {
+              presentation: "formSheet",
+              headerShown: false,
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [0.5, 1],
+              sheetInitialDetentIndex: initial,
+            },
+            default: {
+              presentation: "formSheet",
+              headerShown: false,
+              sheetAllowedDetents: [0.5, 1],
+              sheetInitialDetentIndex: initial,
+              sheetCornerRadius: 28,
+              contentStyle: { backgroundColor: m3?.surfaceContainerLow },
+            },
+          });
         }}
       />
     </Stack>

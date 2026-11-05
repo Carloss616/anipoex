@@ -12,8 +12,8 @@ import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { useSourcePicker } from "../../hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
-export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
-  const picker = useSourcePicker(manga, entryId, open$);
+export function SourcePicker({ manga }: SourcePickerProps) {
+  const picker = useSourcePicker(manga);
 
   return (
     <>

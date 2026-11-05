@@ -24,6 +24,7 @@ import {
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { Computed } from "@legendapp/state/react";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
@@ -47,9 +48,10 @@ import {
 import { ExcludedItem } from "./components/excluded-item";
 import { SectionHeader } from "./components/section-header";
 import { useSourceActions } from "./hooks/use-source-actions";
+import { useSourceList } from "./hooks/use-source-list";
 import { useSources } from "./hooks/use-sources";
 import { useTitleMode } from "./hooks/use-title-mode";
-import type { SourceListProps } from "./source-list";
+import type { ListBodyProps } from "./source-list";
 import {
   errorDialog,
   excludedMenuItems,
@@ -69,16 +71,34 @@ const GROUP_SLOT_SM = [
   contentShape(shapes.rectangle()),
 ];
 
-export function SourceList({
+export function SourceList() {
+  const { manga, read, selectedId, pick } = useSourceList();
+  const router = useRouter();
+
+  if (!manga) return null;
+  return (
+    <ListBody
+      manga={manga}
+      read={read}
+      selectedId={selectedId}
+      onSelect={(id) => {
+        router.back();
+        pick(id);
+      }}
+      onDismiss={() => router.back()}
+    />
+  );
+}
+
+function ListBody({
   manga,
   read,
-  isPresented,
   selectedId,
   onSelect,
   onDismiss,
-}: SourceListProps) {
+}: ListBodyProps & { onDismiss: () => void }) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
-    useSources({ mangaId: manga.id, isPresented });
+    useSources({ mangaId: manga.id });
   const actions = useSourceActions({ manga, read, selectedId });
   const excludedMenu = () =>
     excludedMenuItems(
@@ -105,7 +125,7 @@ export function SourceList({
 
   return (
     <BottomSheet
-      isPresented={isPresented}
+      isPresented
       onDismiss={onDismiss}
       expanded={title.searching}
       contentKey={`${available.length}-${excluded.length}`}

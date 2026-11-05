@@ -1,4 +1,5 @@
 import type { Observable } from "@legendapp/state";
+import { usePathname } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
@@ -11,6 +12,7 @@ import { LoadingState } from "@/components/blocks/loading-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
+import { sourceListMangaId } from "@/features/manga/utils/source-list-href";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
@@ -28,8 +30,6 @@ export interface DetailListProps {
   chapters: Chapter[];
   /** The count in the chapters' section header. */
   total: number;
-  /** Opens the source sheet, from the section header's picker. */
-  sourceSheet$: Observable<boolean>;
   continue$: Continue$;
   /** Opens `continue$`'s action. */
   onContinue: () => void;
@@ -65,7 +65,6 @@ export function DetailList({
   total,
   loading,
   empty,
-  sourceSheet$,
   continue$,
   onContinue,
   titleOut$,
@@ -76,11 +75,11 @@ export function DetailList({
   const headerHeight = useHeaderHeight();
   const wide = useBreakpoint().isAtLeast("lg");
   const entryId = manga.mediaListEntry?.id;
+  // The source list draws over the detail, which stays in sight under it.
+  const covered = sourceListMangaId(usePathname()) === manga.id;
   const last = chapters.length;
   const hero = <Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />;
-  const action = (
-    <SourcePicker manga={manga} entryId={entryId} open$={sourceSheet$} />
-  );
+  const action = <SourcePicker manga={manga} />;
   const rows: Row[] = last > 0 ? [HEADER, ...chapters] : [];
 
   // Relative: an absolute offset from the shorter sidebar threw the chapters
@@ -122,6 +121,7 @@ export function DetailList({
         )}
         <View className="flex-1">
           <LegendList
+            visibleWhenBlurred={covered}
             refScrollView={listSync.ref}
             {...headerScroll}
             onScroll={(event) => {

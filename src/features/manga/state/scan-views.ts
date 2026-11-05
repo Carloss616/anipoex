@@ -14,9 +14,3 @@ export interface ScanView {
  * not persisted.
  */
 export const scanViews$ = observable<Record<string, ScanView>>({});
-
-/** The manga whose source sheet is open: its scans' views hide under it. */
-export const openSheet$ = observable<number | null>(null);
-
-/** A tap on a view asks the manga's focused detail screen to open its sheet. */
-export const sheetRequest$ = observable<number | null>(null);

@@ -1,4 +1,3 @@
-import type { Observable } from "@legendapp/state";
 import { Button } from "panelui-web/button";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
@@ -8,12 +7,6 @@ export type SourcePickerManga = Pick<MangaDetail, "id" | "title" | "synonyms">;
 
 export interface SourcePickerProps {
   manga: SourcePickerManga;
-  entryId: number | null | undefined;
-  /**
-   * Whether the source sheet is open; the sheet renders beside the chapter
-   * list (`SourceSheet`).
-   */
-  open$: Observable<boolean>;
 }
 
 /**
@@ -21,8 +14,8 @@ export interface SourcePickerProps {
  * it changes. Named for the control rather than `Source`, which is the shape a
  * registry hands over.
  */
-export function SourcePicker({ manga, entryId, open$ }: SourcePickerProps) {
-  const picker = useSourcePicker(manga, entryId, open$);
+export function SourcePicker({ manga }: SourcePickerProps) {
+  const picker = useSourcePicker(manga);
 
   return (
     <>

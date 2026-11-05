@@ -1,14 +1,20 @@
 import { Computed } from "@legendapp/state/react";
+import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { Sheet } from "panelui-web/sheet";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
-import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  SHEET_CLOSE_MS,
+  SHEET_INSET,
+} from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -19,32 +25,70 @@ import { AvailableItem } from "./components/available-item";
 import { ExcludedItem } from "./components/excluded-item";
 import { SectionHeader } from "./components/section-header";
 import { useSourceActions } from "./hooks/use-source-actions";
+import { useSourceList } from "./hooks/use-source-list";
 import { useSources } from "./hooks/use-sources";
 import { useTitleMode } from "./hooks/use-title-mode";
 import { excludedMenuItems } from "./utils/row-content";
 import { type SheetItem, sheetItemKey, sheetItems } from "./utils/sheet-items";
 import { titleMenuItems } from "./utils/title-menu";
 
-export interface SourceListProps {
+export interface ListBodyProps {
   manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
   read: number;
-  isPresented: boolean;
   selectedId: string | undefined;
   onSelect: (id: string) => void;
-  onDismiss: () => void;
 }
 
-/** The sheet, drawn per platform; `SourceSheet` wires it to the picker. */
-export function SourceList({
+/** Which source the chapter list reads, drawn as a sheet over the detail. */
+export function SourceList() {
+  const { manga, read, selectedId, expanded, pick } = useSourceList();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(true);
+  }, []);
+
+  const close = () => {
+    // A second dismiss while it closes would go back twice.
+    if (!open) return;
+    setOpen(false);
+    // shortcut: the sheet has no close-end event; leave once it's down.
+    setTimeout(() => router.back(), SHEET_CLOSE_MS);
+  };
+
+  if (!manga) return null;
+  return (
+    <ListBody
+      manga={manga}
+      read={read}
+      selectedId={selectedId}
+      onSelect={(id) => {
+        close();
+        pick(id);
+      }}
+      isPresented={open}
+      expanded={expanded}
+      onDismiss={close}
+    />
+  );
+}
+
+function ListBody({
   manga,
   read,
-  isPresented,
   selectedId,
   onSelect,
+  isPresented,
+  expanded,
   onDismiss,
-}: SourceListProps) {
+}: ListBodyProps & {
+  isPresented: boolean;
+  expanded: boolean;
+  onDismiss: () => void;
+}) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
-    useSources({ mangaId: manga.id, isPresented });
+    useSources({ mangaId: manga.id });
   const actions = useSourceActions({ manga, read, selectedId });
   // In the body, not the list's callback, so the Compiler keeps it stable.
   const excludedMenu = () =>
@@ -73,7 +117,7 @@ export function SourceList({
     <BottomSheet
       isPresented={isPresented}
       onDismiss={onDismiss}
-      expanded={title.searching}
+      expanded={expanded || title.searching}
       contentKey={`${available.length}-${excluded.length}`}
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"

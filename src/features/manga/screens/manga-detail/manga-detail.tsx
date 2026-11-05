@@ -19,8 +19,8 @@ import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceChapters } from "@/features/manga/hooks/use-source-chapters";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
-import { SourceSheet } from "@/features/manga/screens/source-list";
 import { startTitleSearch } from "@/features/manga/state/title-search";
+import { sourceListHref } from "@/features/manga/utils/source-list-href";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -57,8 +57,6 @@ export function MangaDetail() {
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
   const sources = useInstalledSources();
   const { match, matching } = useSourceMatch(Number(id));
-  // An observable, so opening the sheet re-renders neither screen nor list.
-  const sourceSheet$ = useObservable(false);
   // Web: the header shows the title once it scrolls away.
   const titleOut$ = useObservable(false);
   // Read by the rows and buttons, not by this screen.
@@ -94,7 +92,7 @@ export function MangaDetail() {
         pathname: "/manga/[id]/reader",
         params: { id, chapter: action.chapter.id },
       });
-    else if (action) sourceSheet$.set(true);
+    else if (action) router.push(sourceListHref(id));
   };
 
   const refreshAll = () =>
@@ -134,12 +132,12 @@ export function MangaDetail() {
                       [match.sourceId],
                       searchTitles(manga).search[0] ?? "",
                     );
-                  sourceSheet$.set(true);
+                  router.push(sourceListHref(id, true));
                 },
               },
               {
                 label: "Choose another source",
-                onPress: () => sourceSheet$.set(true),
+                onPress: () => router.push(sourceListHref(id)),
               },
             ],
           }
@@ -227,7 +225,6 @@ export function MangaDetail() {
         total={manga.chapters ?? rows.length}
         loading={matching || chaptersLoading || (!!pendingId && !resumed)}
         empty={empty}
-        sourceSheet$={sourceSheet$}
         continue$={continue$}
         onContinue={openContinue}
         titleOut$={titleOut$}
@@ -237,11 +234,6 @@ export function MangaDetail() {
         chapters={rows}
         match={match}
         continue$={continue$}
-      />
-      <SourceSheet
-        manga={manga}
-        entryId={manga.mediaListEntry?.id}
-        open$={sourceSheet$}
       />
     </>
   );

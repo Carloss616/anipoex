@@ -13,16 +13,17 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Badge } from "@/components/ui/badge";
-import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
+import {
+  BottomSheet,
+  SHEET_CLOSE_MS,
+  SHEET_INSET,
+} from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
 import { TrustDialog } from "@/features/extensions/components/trust-dialog";
 import { useRepoList } from "@/features/extensions/hooks/use-repo-list";
 import { repoMenuItems } from "./utils";
-
-// panelui-web's sheet closes in 450ms.
-const CLOSE_MS = 450;
 
 export function RepoList() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export function RepoList() {
       onDismiss={() => {
         setOpen(false);
         // shortcut: the sheet has no close-end event; leave once it's down.
-        setTimeout(() => router.back(), CLOSE_MS);
+        setTimeout(() => router.back(), SHEET_CLOSE_MS);
       }}
     >
       <RepoListBody />

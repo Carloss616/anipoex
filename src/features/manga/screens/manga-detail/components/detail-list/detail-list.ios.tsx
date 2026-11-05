@@ -36,7 +36,6 @@ export function DetailList({
   total,
   loading,
   empty,
-  sourceSheet$,
   continue$,
   onContinue,
   maxHeaderHeight,
@@ -51,11 +50,7 @@ export function DetailList({
       </Text>
       <Badge>{total}</Badge>
       <Spacer />
-      <SourcePicker
-        manga={manga}
-        entryId={manga.mediaListEntry?.id}
-        open$={sourceSheet$}
-      />
+      <SourcePicker manga={manga} />
     </HStack>
   );
 

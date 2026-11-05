@@ -9,6 +9,13 @@ import { Sheet, type SheetSide } from "panelui-web/sheet";
 import { View, type ViewProps } from "react-native";
 
 /**
+ * How long panelui-web's sheet takes to close: a route drawn as one leaves
+ * after it.
+ * @platform web
+ */
+export const SHEET_CLOSE_MS = 450;
+
+/**
  * One 16px inset for every sheet, tighter than panelui-web's 24px.
  * @platform web
  */
