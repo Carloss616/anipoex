@@ -39,6 +39,8 @@ function Header({ options, back, navigation }: NativeStackHeaderProps) {
         search={
           search && {
             placeholder: search.placeholder,
+            // A screen that handles submit shows results elsewhere: start over.
+            clearOnSubmit: !!search.onSearchButtonPress,
             onChangeText: (text) =>
               search.onChangeText?.({ nativeEvent: { text } } as never),
             onSubmit: (text) =>

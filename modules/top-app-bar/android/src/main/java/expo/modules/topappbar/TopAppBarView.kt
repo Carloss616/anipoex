@@ -79,7 +79,9 @@ data class PageChangeEvent(@Field val index: Int = 0) : Record
 
 data class TopAppBarSearch(
   @Field val placeholder: String = "Search",
-  @Field val text: String = ""
+  @Field val text: String = "",
+  // A search that submits starts over: its text lives here, not in JS.
+  @Field val clearOnSubmit: Boolean = false
 ) : Record
 
 data class TopAppBarTab(
@@ -305,7 +307,11 @@ private fun FunctionalComposableScope.Bar(
       SearchBarDefaults.InputField(
         textFieldState = field,
         searchBarState = searchState,
-        onSearch = { onSearchSubmit(SearchTextEvent(it)); focus.clearFocus() },
+        onSearch = {
+          onSearchSubmit(SearchTextEvent(it))
+          if (search.clearOnSubmit) field.clearText()
+          focus.clearFocus()
+        },
         placeholder = { Text(search.placeholder, fontFamily = font, maxLines = 1) },
         // Focused, back returns the bar to how it was: empty and unfocused.
         leadingIcon = {

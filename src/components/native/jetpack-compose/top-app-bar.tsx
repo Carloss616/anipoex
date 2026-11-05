@@ -19,6 +19,8 @@ export interface TopAppBarProps {
     onChangeText: (text: string) => void;
     /** Fires on the keyboard's search key, with the field's text. */
     onSubmit?: (text: string) => void;
+    /** Empties the field after a submit, for a search that opens results. */
+    clearOnSubmit?: boolean;
   };
   /** Before any scroll; the theme's surface when omitted. */
   containerColor?: ColorValue;
@@ -42,7 +44,11 @@ export interface TopAppBarProps {
 }
 
 type NativeProps = Omit<TopAppBarProps, "search" | "onPageChange"> & {
-  search?: { placeholder?: string; text?: string };
+  search?: {
+    placeholder?: string;
+    text?: string;
+    clearOnSubmit?: boolean;
+  };
   fontFamily?: string;
   tabFontFamily?: string;
   topInset?: number;
@@ -81,7 +87,13 @@ export function TopAppBar({
   return (
     <NativeAppBar
       {...props}
-      search={search && { placeholder: search.placeholder, text: search.text }}
+      search={
+        search && {
+          placeholder: search.placeholder,
+          text: search.text,
+          clearOnSubmit: search.clearOnSubmit,
+        }
+      }
       fontFamily={fontFamily}
       tabFontFamily={tabFontFamily}
       topInset={top}
