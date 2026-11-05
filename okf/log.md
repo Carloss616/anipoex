@@ -2,6 +2,7 @@
 
 ## 2026-11-05
 
+* **Home loads in one request**: every visible Home section comes from a single AniList query; each section is switched on by the Home layout, so hidden sections cost nothing and a load is one request against AniList's rate limit. Added [HomeSections](operations/home-sections.md).
 * **Home has a layout**: which sections Home shows and in what order is kept on the device. It defaults to the *balanced* preset, *discover* and *personal* are the other two, and it becomes *custom* once the user toggles or moves a section. Added [Home layout](stores/home-layout.md).
 * **Recent searches**: the last 10 AniList searches submitted are kept on the device, newest first and once per text in any letter case. Added [search history](stores/search-history.md).
 * **AniList search**: a submitted search pages 30 manga at a time, never adult, sorted by match when there is text and by popularity otherwise. Manhwa and manhua are manga from Korea and China, and a year means started that year or later. Its params live in the `/search` URL. Added [MangaSearch](operations/manga-search.md).

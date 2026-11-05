@@ -19,7 +19,12 @@ if (!GRAPHQL_URL) throw new Error("Missing AniList GraphQL URL");
 
 const storage = createMMKV({ id: "apollo-cache" });
 
-export const cache = new InMemoryCache();
+export const cache = new InMemoryCache({
+  // Without it a fragment on a union member (`HomeActivity`) never matches.
+  possibleTypes: {
+    ActivityUnion: ["TextActivity", "ListActivity", "MessageActivity"],
+  },
+});
 
 const authLink = new SetContextLink((prevContext) => {
   const token = session$.token.peek();

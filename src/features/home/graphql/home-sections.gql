@@ -1,0 +1,128 @@
+fragment HomeActivity on ListActivity {
+  id
+  status
+  progress
+  createdAt
+  user {
+    id
+    name
+    avatar {
+      medium
+    }
+  }
+  media {
+    id
+    ...MangaMedia @nonreactive
+  }
+}
+
+query HomeSections(
+  $userId: Int!
+  $year: FuzzyDateInt!
+  $trending: Boolean!
+  $because: Boolean!
+  $genres: Boolean!
+  $following: Boolean!
+  $releasing: Boolean!
+  $new: Boolean!
+  $top: Boolean!
+  $manhwa: Boolean!
+  $planning: Boolean!
+  $global: Boolean!
+) {
+  trending: Page(perPage: 10) @include(if: $trending) {
+    media(type: MANGA, isAdult: false, sort: TRENDING_DESC) {
+      id
+      ...MangaMedia @nonreactive
+    }
+  }
+  releasing: Page(perPage: 10) @include(if: $releasing) {
+    media(
+      type: MANGA
+      isAdult: false
+      status: RELEASING
+      sort: POPULARITY_DESC
+    ) {
+      id
+      ...MangaMedia @nonreactive
+    }
+  }
+  new: Page(perPage: 10) @include(if: $new) {
+    media(
+      type: MANGA
+      isAdult: false
+      startDate_greater: $year
+      sort: POPULARITY_DESC
+    ) {
+      id
+      ...MangaMedia @nonreactive
+    }
+  }
+  top: Page(perPage: 10) @include(if: $top) {
+    media(type: MANGA, isAdult: false, sort: SCORE_DESC) {
+      id
+      ...MangaMedia @nonreactive
+    }
+  }
+  manhwa: Page(perPage: 10) @include(if: $manhwa) {
+    media(
+      type: MANGA
+      isAdult: false
+      countryOfOrigin: "KR"
+      sort: POPULARITY_DESC
+    ) {
+      id
+      ...MangaMedia @nonreactive
+    }
+  }
+  planning: Page(perPage: 10) @include(if: $planning) {
+    mediaList(
+      userId: $userId
+      type: MANGA
+      status: PLANNING
+      sort: UPDATED_TIME_DESC
+    ) {
+      id
+      media {
+        id
+        ...MangaMedia @nonreactive
+      }
+    }
+  }
+  because: Page(perPage: 1) @include(if: $because) {
+    mediaList(
+      userId: $userId
+      type: MANGA
+      status: COMPLETED
+      sort: UPDATED_TIME_DESC
+    ) {
+      id
+      media {
+        id
+        title {
+          userPreferred
+        }
+        recommendations(sort: RATING_DESC, perPage: 10) {
+          nodes {
+            id
+            mediaRecommendation {
+              id
+              ...MangaMedia @nonreactive
+            }
+          }
+        }
+      }
+    }
+  }
+  following: Page(perPage: 8) @include(if: $following) {
+    activities(isFollowing: true, type: MANGA_LIST, sort: ID_DESC) {
+      ...HomeActivity
+    }
+  }
+  global: Page(perPage: 8) @include(if: $global) {
+    activities(type: MANGA_LIST, sort: ID_DESC) {
+      ...HomeActivity
+    }
+  }
+  genres: GenreCollection @include(if: $genres)
+}
