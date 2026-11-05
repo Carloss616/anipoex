@@ -136,8 +136,12 @@ fun FunctionalComposableScope.TopAppBarContent(
   val enterAlways = props.scrollBehavior == "enterAlways"
   val behavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
   val scrolled = enterAlways && behavior.state.overlappedFraction > 0.01f
+  val scrolledColor = MaterialTheme.colorScheme.surfaceContainer
   val base = props.containerColor.composeOrNull ?: MaterialTheme.colorScheme.surface
-  val color by animateColorAsState(if (scrolled) MaterialTheme.colorScheme.surfaceContainer else base)
+  // Transparent is clear black: fading from it to a light fill passes through gray,
+  // a flash. Clear means the scrolled tone at no alpha, so only alpha moves.
+  val target = (if (scrolled) scrolledColor else base).let { if (it.alpha == 0f) scrolledColor.copy(alpha = 0f) else it }
+  val color by animateColorAsState(target)
 
   val hasTabs = props.tabs.isNotEmpty()
   val pagerState = rememberPagerState(initialPage = props.page.coerceAtLeast(0)) { pages.size }

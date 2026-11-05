@@ -1,7 +1,14 @@
 package expo.modules.modifiers
 
 import android.graphics.Color
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -14,6 +21,7 @@ import expo.modules.ui.ModifierRegistry
 import expo.modules.ui.compose
 
 /** Compose modifiers @expo/ui lacks, for any of its components. */
+@OptIn(ExperimentalMaterial3Api::class)
 class ModifiersModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("Modifiers")
@@ -33,8 +41,21 @@ class ModifiersModule : Module() {
           drawRect(Brush.linearGradient(*stops.toTypedArray(), start = start, end = end))
         }
       }
+
+      // M3's pinned bar behavior, reporting only whether the content scrolled
+      // under it: a bar in another Host can't take the connection itself.
+      ModifierRegistry.register("pinnedScrollBehavior") { _, _, _, dispatch ->
+        val behavior = TopAppBarDefaults.pinnedScrollBehavior()
+        // A pixel of slack: the summed scroll deltas may not land on zero.
+        val scrolled by remember { derivedStateOf { behavior.state.contentOffset < -1f } }
+        LaunchedEffect(scrolled) { dispatch("pinnedScrollBehavior", mapOf("scrolled" to scrolled)) }
+        Modifier.nestedScroll(behavior.nestedScrollConnection)
+      }
     }
-    OnDestroy { ModifierRegistry.unregister("linearGradient") }
+    OnDestroy {
+      ModifierRegistry.unregister("linearGradient")
+      ModifierRegistry.unregister("pinnedScrollBehavior")
+    }
   }
 }
 

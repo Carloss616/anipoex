@@ -16,7 +16,11 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.core.view.size
 import expo.modules.kotlin.records.Field
 import expo.modules.kotlin.records.Record
@@ -101,10 +105,12 @@ fun FunctionalComposableScope.DropdownMenuItemContent(props: DropdownMenuItemPro
   val checked = props.checked
 
   when {
+    // Not the shaped overload: it's a selectable Surface, which TalkBack reads
+    // as "not checked". The classic clickable row, inset and clipped like it.
     checked == null -> DropdownMenuItem(
-      onClick = press,
       text = text,
-      shape = shapes.shape,
+      onClick = press,
+      modifier = Modifier.padding(horizontal = 4.dp).clip(shapes.shape),
       leadingIcon = icon,
       enabled = props.enabled
     )

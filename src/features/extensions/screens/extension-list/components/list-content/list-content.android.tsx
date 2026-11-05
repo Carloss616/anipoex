@@ -9,20 +9,18 @@ import {
 import {
   align,
   fillMaxSize,
-  fillMaxWidth,
-  height,
   offset,
-  onVisibilityChanged,
   padding,
   verticalScroll,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Computed, useObservable } from "@legendapp/state/react";
+import { Computed, useObservable, useValue } from "@legendapp/state/react";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { type ReactNode, useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
+import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
@@ -70,6 +68,7 @@ export function ListContent({
   emptyState,
 }: ListContentProps) {
   const sections = useSections({ extensions, filter, language, query$ });
+  const query = useValue(query$);
   const headerHeight = useHeaderHeight();
   const m3 = useThemeM3Colors();
   const atTop$ = useObservable(true);
@@ -79,7 +78,8 @@ export function ListContent({
   const shown = sections.reduce((n, s) => n + s.data.length, 0);
   const empty = sections.length === 0;
 
-  // The sentinel leaves with the list: with nothing to scroll, header rests.
+  // The scroll behavior leaves with the list: with nothing to scroll, the
+  // header rests.
   useEffect(() => {
     if (empty) setHeaderScrolled(false);
   }, [empty, setHeaderScrolled]);
@@ -93,59 +93,57 @@ export function ListContent({
               <ActiveFilters filters={activeFilters} />
             </EmptyState>
           ) : (
-            <LazyColumn
-              // Remount per filter, or Compose keeps the scroll on the old
-              // first key.
-              key={filter}
-              modifiers={[fillMaxSize()]}
-              contentPadding={{
-                start: insets.left,
-                end: insets.right,
-                // Room for the FAB under the last row.
-                bottom: counts.updates > 0 ? 80 : 0,
-              }}
+            <Box
+              // Remount per filter or search, or Compose keeps the scroll on
+              // the old first key; the scroll behavior starts over with it.
+              key={`${filter}:${query}`}
+              modifiers={[
+                fillMaxSize(),
+                pinnedScrollBehavior((scrolled) => {
+                  atTop$.set(!scrolled);
+                  setHeaderScrolled(scrolled);
+                }),
+              ]}
             >
-              {/* Top sentinel: Compose's `firstVisibleItemIndex == 0`,
-                without scroll events. */}
-              <Box
-                modifiers={[
-                  fillMaxWidth(),
-                  height(1),
-                  onVisibilityChanged(
-                    (visible) => {
-                      atTop$.set(visible);
-                      setHeaderScrolled(!visible);
-                    },
-                    { minFractionVisible: 0 },
-                  ),
-                ]}
-              />
-              <ActiveFilters
-                filters={activeFilters}
-                total={extensionCount(shown)}
-              />
-              <LazyColumn.Items data={rows} keyExtractor={(r) => r.key}>
-                {({ item: r }) =>
-                  r.kind === "header" ? (
-                    <Row
-                      verticalAlignment="center"
-                      horizontalArrangement={{ spacedBy: 8 }}
-                      modifiers={[padding(16, 16, 16, 4)]}
-                    >
-                      <Text
-                        style={{ typography: "bodyMedium", fontWeight: "500" }}
-                        color={m3.primary}
+              <LazyColumn
+                modifiers={[fillMaxSize()]}
+                contentPadding={{
+                  start: insets.left,
+                  end: insets.right,
+                  // Room for the FAB under the last row.
+                  bottom: counts.updates > 0 ? 80 : 0,
+                }}
+              >
+                <ActiveFilters
+                  filters={activeFilters}
+                  total={extensionCount(shown)}
+                />
+                <LazyColumn.Items data={rows} keyExtractor={(r) => r.key}>
+                  {({ item: r }) =>
+                    r.kind === "header" ? (
+                      <Row
+                        verticalAlignment="center"
+                        horizontalArrangement={{ spacedBy: 8 }}
+                        modifiers={[padding(16, 16, 16, 4)]}
                       >
-                        {r.section.title}
-                      </Text>
-                      <Badge>{r.section.data.length}</Badge>
-                    </Row>
-                  ) : (
-                    <ListItem extension={r.extension} />
-                  )
-                }
-              </LazyColumn.Items>
-            </LazyColumn>
+                        <Text
+                          style={{
+                            typography: "bodyMedium",
+                            fontWeight: "500",
+                          }}
+                          color={m3.primary}
+                        >
+                          {r.section.title}
+                        </Text>
+                        <Badge>{r.section.data.length}</Badge>
+                      </Row>
+                    ) : (
+                      <ListItem extension={r.extension} />
+                    )
+                  }
+                </LazyColumn.Items>
+              </LazyColumn>
+            </Box>
           )}
         </RefreshBox>
 
