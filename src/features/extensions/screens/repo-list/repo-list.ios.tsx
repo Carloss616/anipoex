@@ -1,6 +1,5 @@
 import {
   Button,
-  ContextMenu,
   HStack,
   List,
   Section,
@@ -41,13 +40,14 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Host } from "@/components/ui/host";
 import { BUTTON_ICON_SIZE, Icon, Icons, sfSymbol } from "@/components/ui/icon";
+import { ContextMenu } from "@/components/ui/menu";
 import { SheetToastHost } from "@/components/ui/toast";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
 import { TrustDialog } from "@/features/extensions/components/trust-dialog";
 import { useRepoList } from "@/features/extensions/hooks/use-repo-list";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openExternal } from "@/utils/open-external";
-import { copyRepoUrl, removeRepoDialog } from "./utils";
+import { copyRepoUrl, removeRepoDialog, repoMenuItems } from "./utils";
 
 export function RepoList() {
   const {
@@ -229,57 +229,38 @@ const RepoRow = memo(function RepoRow({
 
   return (
     <SwipeActions>
-      <ContextMenu>
-        <ContextMenu.Items>
-          {websiteButton}
-          <Button
-            label="Copy URL"
-            systemImage={sfSymbol(Icons.copy)}
-            onPress={() => copyRepoUrl(repo)}
-          />
-          <Button
-            label="Remove"
-            systemImage={sfSymbol(Icons.trash)}
-            role="destructive"
-            onPress={() => setRemoving(true)}
-          />
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
-          <Dialog
-            {...removeRepoDialog(repo)}
-            alert
-            role="destructive"
-            open={removing}
-            onOpenChange={setRemoving}
-            onConfirm={() => onRemove(repo)}
-          >
-            <Dialog.Trigger>
-              <VStack alignment="leading" spacing={2} modifiers={ROW_FILL}>
-                <Text weight="medium" modifiers={[lineLimit(1)]}>
-                  {repo.name}
-                </Text>
-                <Computed>
-                  {() => {
-                    const summary = repoSummary(repo, extensions$.get());
-                    return (
-                      summary && (
-                        <Text
-                          textStyle="subheadline"
-                          modifiers={[
-                            foregroundStyle("secondary"),
-                            lineLimit(1),
-                          ]}
-                        >
-                          {summary}
-                        </Text>
-                      )
-                    );
-                  }}
-                </Computed>
-              </VStack>
-            </Dialog.Trigger>
-          </Dialog>
-        </ContextMenu.Trigger>
+      <ContextMenu items={repoMenuItems(repo, () => setRemoving(true), false)}>
+        <Dialog
+          {...removeRepoDialog(repo)}
+          alert
+          role="destructive"
+          open={removing}
+          onOpenChange={setRemoving}
+          onConfirm={() => onRemove(repo)}
+        >
+          <Dialog.Trigger>
+            <VStack alignment="leading" spacing={2} modifiers={ROW_FILL}>
+              <Text weight="medium" modifiers={[lineLimit(1)]}>
+                {repo.name}
+              </Text>
+              <Computed>
+                {() => {
+                  const summary = repoSummary(repo, extensions$.get());
+                  return (
+                    summary && (
+                      <Text
+                        textStyle="subheadline"
+                        modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
+                      >
+                        {summary}
+                      </Text>
+                    )
+                  );
+                }}
+              </Computed>
+            </VStack>
+          </Dialog.Trigger>
+        </Dialog>
       </ContextMenu>
       <SwipeActions.Actions edge="leading" allowsFullSwipe={false}>
         <Button

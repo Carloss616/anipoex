@@ -1,6 +1,5 @@
 import {
   Button,
-  ContextMenu,
   HStack,
   Spacer,
   SwipeActions,
@@ -20,6 +19,7 @@ import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
+import { ContextMenu } from "@/components/ui/menu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { noop } from "@/utils/utils";
 import type { ChapterItemProps } from "./chapter-item";
@@ -43,66 +43,65 @@ export function ChapterItem({
 
   return (
     <SwipeActions>
-      <ContextMenu>
-        <ContextMenu.Items>{download}</ContextMenu.Items>
-        <ContextMenu.Trigger>
-          <Button
-            onPress={() =>
-              router.push({
-                pathname: "/manga/[id]/reader",
-                params: {
-                  id: mediaId,
-                  chapter: chapter.id,
-                },
-              })
-            }
-            modifiers={[buttonStyle("plain")]}
-          >
-            {/* A plain button only takes touches on its label, so the
+      <ContextMenu
+        items={[{ label: "Download", icon: Icons.download, onPress: noop }]}
+      >
+        <Button
+          onPress={() =>
+            router.push({
+              pathname: "/manga/[id]/reader",
+              params: {
+                id: mediaId,
+                chapter: chapter.id,
+              },
+            })
+          }
+          modifiers={[buttonStyle("plain")]}
+        >
+          {/* A plain button only takes touches on its label, so the
                 label fills the row. */}
-            <HStack
-              spacing={8}
-              modifiers={[
-                padding({ vertical: 16, horizontal: 16 }),
-                ...ROW_FILL,
-                ...(read ? [opacity(0.64)] : []),
-              ]}
-            >
-              <VStack alignment="leading" spacing={2}>
-                <HStack spacing={6}>
-                  {read && (
-                    <HStack spacing={-7}>
-                      <Icon
-                        name={Icons.read}
-                        size={12}
-                        color={primary}
-                        modifiers={[accessibilityLabel("Read")]}
-                      />
-                      <Icon
-                        name={Icons.read}
-                        size={12}
-                        color={primary}
-                        modifiers={[accessibilityHidden()]}
-                      />
-                    </HStack>
-                  )}
-                  {next && <Badge color="primary" />}
-                  <Text weight="medium" modifiers={[lineLimit(1)]}>
-                    {chapter.title}
-                  </Text>
-                </HStack>
-                <Text
-                  textStyle="subheadline"
-                  modifiers={[foregroundStyle("secondary")]}
-                >
-                  {chapter.date}
+          <HStack
+            spacing={8}
+            modifiers={[
+              padding({ vertical: 16, horizontal: 16 }),
+              ...ROW_FILL,
+              ...(read ? [opacity(0.64)] : []),
+            ]}
+          >
+            <VStack alignment="leading" spacing={2}>
+              <HStack spacing={6}>
+                {read && (
+                  <HStack spacing={-7}>
+                    <Icon
+                      name={Icons.read}
+                      size={12}
+                      color={primary}
+                      modifiers={[accessibilityLabel("Read")]}
+                    />
+                    <Icon
+                      name={Icons.read}
+                      size={12}
+                      color={primary}
+                      modifiers={[accessibilityHidden()]}
+                    />
+                  </HStack>
+                )}
+                {next && <Badge color="primary" />}
+                <Text weight="medium" modifiers={[lineLimit(1)]}>
+                  {chapter.title}
                 </Text>
-              </VStack>
-              <Spacer />
-              {next && <Badge color="primary">Next</Badge>}
-            </HStack>
-          </Button>
-        </ContextMenu.Trigger>
+              </HStack>
+              <Text
+                textStyle="subheadline"
+                modifiers={[foregroundStyle("secondary")]}
+              >
+                {chapter.date}
+              </Text>
+            </VStack>
+            <Spacer />
+            {next && <Badge color="primary">Next</Badge>}
+          </HStack>
+        </Button>
       </ContextMenu>
       <SwipeActions.Actions>{download}</SwipeActions.Actions>
     </SwipeActions>

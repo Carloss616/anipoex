@@ -1,6 +1,5 @@
 import {
   Button,
-  ContextMenu,
   HStack,
   Label,
   Spacer,
@@ -25,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
+import { ContextMenu, type MenuAction } from "@/components/ui/menu";
 import {
   describeVersion,
   extensionOperations$,
@@ -80,6 +80,41 @@ export const ListItem = memo(function ListItem({
   const [uninstalling, setUninstalling] = useState(false);
   const { websiteUrl } = e;
   const busy = () => !!extensionOperations$[e.id].get();
+  const running = useValue(busy);
+  // Uninstall confirms in the row's alert, which the swipe opens too.
+  const menu: MenuAction[] = [
+    ...(!e.installed || hasUpdate(e)
+      ? [
+          {
+            label: e.installed ? "Update" : "Install",
+            icon: e.installed ? Icons.update : Icons.download,
+            disabled: running,
+            onPress: () =>
+              (e.installed ? updateExtension : installExtension)(e.id),
+          },
+        ]
+      : []),
+    ...(websiteUrl
+      ? [
+          {
+            label: "Website",
+            icon: Icons.website,
+            onPress: () => openExternal(websiteUrl),
+          },
+        ]
+      : []),
+    ...(e.installed
+      ? [
+          {
+            label: "Uninstall",
+            icon: Icons.trash,
+            destructive: true,
+            disabled: running,
+            onPress: () => setUninstalling(true),
+          },
+        ]
+      : []),
+  ];
 
   const row = (
     <HStack modifiers={ROW_FILL}>
@@ -133,57 +168,23 @@ export const ListItem = memo(function ListItem({
 
   return (
     <SwipeActions>
-      <ContextMenu>
-        <ContextMenu.Items>
-          {(!e.installed || hasUpdate(e)) && (
-            <Computed>
-              {() => (
-                <Button
-                  label={e.installed ? "Update" : "Install"}
-                  systemImage={
-                    e.installed ? "arrow.clockwise" : "arrow.down.circle"
-                  }
-                  modifiers={[disabled(busy())]}
-                  onPress={() =>
-                    (e.installed ? updateExtension : installExtension)(e.id)
-                  }
-                />
-              )}
-            </Computed>
-          )}
-          {website}
-          {e.installed && (
-            <Computed>
-              {() => (
-                <Button
-                  label="Uninstall"
-                  systemImage="trash"
-                  role="destructive"
-                  modifiers={[disabled(busy())]}
-                  onPress={() => setUninstalling(true)}
-                />
-              )}
-            </Computed>
-          )}
-        </ContextMenu.Items>
-        <ContextMenu.Trigger>
-          {e.installed ? (
-            // The alert hangs off the row content: a swipe or menu row only
-            // opens it.
-            <Dialog
-              {...uninstallDialog(e)}
-              alert
-              role="destructive"
-              open={uninstalling}
-              onOpenChange={setUninstalling}
-              onConfirm={() => uninstallExtension(e.id)}
-            >
-              <Dialog.Trigger>{row}</Dialog.Trigger>
-            </Dialog>
-          ) : (
-            row
-          )}
-        </ContextMenu.Trigger>
+      <ContextMenu items={menu}>
+        {e.installed ? (
+          // The alert hangs off the row content: a swipe or menu row only
+          // opens it.
+          <Dialog
+            {...uninstallDialog(e)}
+            alert
+            role="destructive"
+            open={uninstalling}
+            onOpenChange={setUninstalling}
+            onConfirm={() => uninstallExtension(e.id)}
+          >
+            <Dialog.Trigger>{row}</Dialog.Trigger>
+          </Dialog>
+        ) : (
+          row
+        )}
       </ContextMenu>
       {(e.installed || website) && (
         <SwipeActions.Actions allowsFullSwipe={false}>

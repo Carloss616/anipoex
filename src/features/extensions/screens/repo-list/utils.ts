@@ -12,8 +12,12 @@ export const removeRepoDialog = (repo: Repo): MenuItemDialogConfig => ({
   confirmLabel: "Remove",
 });
 
-/** The row's actions for the house `Menu`; iOS builds its own context menu. */
-export function repoMenuItems(repo: Repo, onRemove: () => void): MenuItem[] {
+/** The row's actions; `confirm: false` where the row already confirms Remove (iOS, for its swipe too). */
+export function repoMenuItems(
+  repo: Repo,
+  onRemove: () => void,
+  confirm = true,
+): MenuItem[] {
   const { website } = repo;
   return [
     ...(website
@@ -26,13 +30,20 @@ export function repoMenuItems(repo: Repo, onRemove: () => void): MenuItem[] {
         ]
       : []),
     { label: "Copy URL", icon: Icons.copy, onPress: () => copyRepoUrl(repo) },
-    {
-      label: "Remove",
-      icon: Icons.trash,
-      destructive: true,
-      onPress: onRemove,
-      onPressMode: "dialog",
-      dialogConfig: removeRepoDialog(repo),
-    },
+    confirm
+      ? {
+          label: "Remove",
+          icon: Icons.trash,
+          destructive: true,
+          onPress: onRemove,
+          onPressMode: "dialog",
+          dialogConfig: removeRepoDialog(repo),
+        }
+      : {
+          label: "Remove",
+          icon: Icons.trash,
+          destructive: true,
+          onPress: onRemove,
+        },
   ];
 }
