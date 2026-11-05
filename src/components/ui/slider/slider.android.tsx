@@ -25,7 +25,7 @@ export function Slider({
         value={current}
         min={min}
         max={max}
-        steps={step}
+        steps={step ? Math.max(0, Math.round((max - min) / step) - 1) : 0}
         enabled={!disabled}
         onValueChange={(next) =>
           onValueChange?.(
