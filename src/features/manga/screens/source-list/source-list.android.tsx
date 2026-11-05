@@ -9,22 +9,29 @@ import {
   Spacer,
 } from "@expo/ui/jetpack-compose";
 import {
+  align,
+  background,
+  clip,
+  fillMaxSize,
   fillMaxWidth,
   height,
   padding,
+  Shapes,
   selectableGroup,
   semantics,
+  size,
   verticalScroll,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Computed } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { Host } from "@/components/ui/host";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
@@ -76,18 +83,11 @@ export function SourceList() {
         router.back();
         pick(id);
       }}
-      onDismiss={() => router.back()}
     />
   );
 }
 
-function ListBody({
-  manga,
-  read,
-  selectedId,
-  onSelect,
-  onDismiss,
-}: ListBodyProps & { onDismiss: () => void }) {
+function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id });
   const actions = useSourceActions({ manga, read, selectedId });
@@ -109,22 +109,29 @@ function ListBody({
     : FilledTonalIconButton;
   const reading = all.find((source) => source.id === selectedId);
   const m3 = useThemeM3Colors();
+  const insets = useSafeAreaInsets();
 
   const items = sheetItems(available, excluded);
 
   return (
-    <BottomSheet
-      isPresented
-      onDismiss={onDismiss}
-      expanded={title.searching}
-      contentKey={`${available.length}-${excluded.length}`}
-      snapPoints={["half", "full"]}
-      snapPointsDirection="bottom"
-    >
+    <Host className="flex-1">
       <Column
         verticalArrangement={{ spacedBy: 16 }}
-        modifiers={[padding(0, 0, 0, GUTTER)]}
+        modifiers={[
+          fillMaxSize(),
+          padding(insets.left, 0, insets.right, GUTTER),
+        ]}
       >
+        {/* M3's drag handle, as the other sheets draw it; 6 + the gap is 22. */}
+        <Box
+          modifiers={[
+            align("centerHorizontally"),
+            padding(0, 22, 0, 6),
+            size(32, 4),
+            clip(Shapes.RoundedCorner(2)),
+            background(m3.onSurfaceVariant),
+          ]}
+        />
         <Column
           verticalArrangement={{ spacedBy: 16 }}
           modifiers={[padding(GUTTER, 0, GUTTER, 0)]}
@@ -333,6 +340,6 @@ function ListBody({
           </LazyColumn>
         )}
       </Column>
-    </BottomSheet>
+    </Host>
   );
 }

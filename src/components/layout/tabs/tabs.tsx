@@ -19,7 +19,7 @@ export function Tabs() {
       sidebarAdaptable
       hidden={
         Platform.OS === "android"
-          ? /^\/manga\/[^/]+(\/reader)?$/.test(pathname)
+          ? /^\/manga\/[^/]+(\/reader|\/sources)?$/.test(pathname)
           : pathname.endsWith("/reader")
       }
       {...tabTheme}
