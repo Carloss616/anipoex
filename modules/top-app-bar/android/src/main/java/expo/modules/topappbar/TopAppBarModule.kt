@@ -10,9 +10,10 @@ class TopAppBarModule : Module() {
 
     ExpoUIView<TopAppBarProps>("TopAppBarView") {
       val onSearchTextChange by Event<SearchTextEvent>()
+      val onSearchSubmit by Event<SearchTextEvent>()
       val onPageChange by Event<PageChangeEvent>()
       Content { props ->
-        TopAppBarContent(props, { onSearchTextChange(it) }, { onPageChange(it) })
+        TopAppBarContent(props, { onSearchTextChange(it) }, { onSearchSubmit(it) }, { onPageChange(it) })
       }
     }
   }

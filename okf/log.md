@@ -2,6 +2,7 @@
 
 ## 2026-11-05
 
+* **AniList search**: a submitted search pages 30 manga at a time, never adult, sorted by match when there is text and by popularity otherwise. Manhwa and manhua are manga from Korea and China, and a year means started that year or later. Its params live in the `/search` URL. Added [MangaSearch](operations/manga-search.md).
 * **Settings has its own page**: the greeting, Sign out, theme and DNS that Home showed move to `/settings`, opened from Home's account button; Home becomes a stack of its own. Updated [viewer](concepts/viewer.md), [extension DNS](stores/extension-dns.md) and the [overview](overview.md).
 
 ## 2026-11-04

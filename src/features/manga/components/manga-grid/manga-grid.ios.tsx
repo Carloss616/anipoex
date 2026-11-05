@@ -1,30 +1,40 @@
-import { useApolloClient } from "@apollo/client/react";
 import { HStack, LazyVStack, ScrollView, ZStack } from "@expo/ui/swift-ui";
-import { padding, refreshable } from "@expo/ui/swift-ui/modifiers";
+import {
+  frame,
+  onAppear,
+  padding,
+  refreshable,
+} from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
+import { Loader } from "@/components/ui/loader";
 import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
-import { ListEmpty } from "../list-empty";
-import { ListItem } from "../list-item";
-import type { ListGridProps } from "./list-grid";
+import { GridItem } from "./grid-item";
+import type { MangaGridProps } from "./manga-grid";
 import { cellWidth, toRows } from "./utils";
 
 /** Between the cards of a row. */
 const GAP = 8;
 
-/** Renders inside the screen's Host, which stacks it under the view sheet. */
-export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
+/** Renders inside the screen's Host. */
+export function MangaGrid({
+  manga$,
+  loading,
+  empty,
+  header,
+  scrollKey,
+  onRefresh,
+  onEndReached,
+}: MangaGridProps) {
   const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { manga$, loading, refetching, refetch } = list;
   const manga = useValue(manga$);
-  const client = useApolloClient();
 
   const columns = columnsFor(current, useValue(listView$.density));
   const titlePosition = toTitlePosition(useValue(listView$.title));
@@ -36,23 +46,25 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
   );
   const rows = toRows(manga, columns);
 
-  if (loading && !refetching) {
+  if (loading) {
     return <LoadingState />;
   }
 
   return (
     <ZStack>
       <ScrollView
-        modifiers={[
-          refreshable(async () => {
-            await Promise.all([
-              refetch(),
-              client.refetchQueries({ include: ["MangaListCounts"] }),
-              // The error link toasts it; this just stops an unhandled
+        key={scrollKey}
+        modifiers={
+          onRefresh
+            ? // The error link toasts a failure; this just stops an unhandled
               // rejection.
-            ]).catch(() => {});
-          }),
-        ]}
+              [
+                refreshable(async () => {
+                  await onRefresh().catch(() => {});
+                }),
+              ]
+            : []
+        }
       >
         <LazyVStack
           alignment="leading"
@@ -75,7 +87,7 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
                 modifiers={[padding({ horizontal: GUTTER })]}
               >
                 {row.map((item) => (
-                  <ListItem
+                  <GridItem
                     key={item.id}
                     item={item}
                     width={cell}
@@ -85,10 +97,21 @@ export function ListGrid({ list, query$, genre$, header }: ListGridProps) {
               </HStack>
             )}
           </LazyVStack.ForEach>
+          {onEndReached && rows.length > 0 && (
+            // Loads the next page as it scrolls into view.
+            <HStack
+              modifiers={[
+                frame({ maxWidth: Infinity }),
+                onAppear(onEndReached),
+              ]}
+            >
+              <Loader />
+            </HStack>
+          )}
         </LazyVStack>
       </ScrollView>
       {/* Over the grid, centred in view; a lazy row can't fill it. */}
-      {rows.length === 0 && <ListEmpty genre$={genre$} query$={query$} />}
+      {rows.length === 0 && empty}
     </ZStack>
   );
 }

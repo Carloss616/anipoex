@@ -41,6 +41,8 @@ function Header({ options, back, navigation }: NativeStackHeaderProps) {
             placeholder: search.placeholder,
             onChangeText: (text) =>
               search.onChangeText?.({ nativeEvent: { text } } as never),
+            onSubmit: (text) =>
+              search.onSearchButtonPress?.({ nativeEvent: { text } } as never),
           }
         }
         containerColor={background ?? "transparent"}

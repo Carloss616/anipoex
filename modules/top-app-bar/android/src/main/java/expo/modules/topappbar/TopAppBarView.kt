@@ -113,6 +113,7 @@ data class TopAppBarProps(
 fun FunctionalComposableScope.TopAppBarContent(
   props: TopAppBarProps,
   onSearchTextChange: (SearchTextEvent) -> Unit,
+  onSearchSubmit: (SearchTextEvent) -> Unit,
   onPageChange: (PageChangeEvent) -> Unit
 ) {
   val font = appContext.reactContext?.let { resolveFontFamily(props.fontFamily, it) }
@@ -188,7 +189,7 @@ fun FunctionalComposableScope.TopAppBarContent(
         Column {
           // A filled bar takes the next container role: one step apart, the field blends in.
           val filled = target.alpha > 0f && target != MaterialTheme.colorScheme.surface
-          Bar(props, font, filled, onSearchTextChange)
+          Bar(props, font, filled, onSearchTextChange, onSearchSubmit)
           if (hasTabs) {
             PrimaryScrollableTabRow(
               selectedTabIndex = pagerState.currentPage.coerceIn(0, props.tabs.lastIndex),
@@ -242,7 +243,8 @@ private fun FunctionalComposableScope.Bar(
   props: TopAppBarProps,
   font: androidx.compose.ui.text.font.FontFamily?,
   filled: Boolean,
-  onSearchTextChange: (SearchTextEvent) -> Unit
+  onSearchTextChange: (SearchTextEvent) -> Unit,
+  onSearchSubmit: (SearchTextEvent) -> Unit
 ) {
   val hasSlot = { name: String ->
     (0 until view.size).any { isSlotWithName(view.getChildAt(it) as ExpoComposeView<*>, name) }
@@ -303,7 +305,7 @@ private fun FunctionalComposableScope.Bar(
       SearchBarDefaults.InputField(
         textFieldState = field,
         searchBarState = searchState,
-        onSearch = { focus.clearFocus() },
+        onSearch = { onSearchSubmit(SearchTextEvent(it)); focus.clearFocus() },
         placeholder = { Text(search.placeholder, fontFamily = font, maxLines = 1) },
         // Focused, back returns the bar to how it was: empty and unfocused.
         leadingIcon = {

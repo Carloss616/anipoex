@@ -4,8 +4,10 @@ import {
   hasSearch,
   parseSearchParams,
   searchTitle,
+  sortOf,
   toRouteParams,
   toSearchVariables,
+  toSetParams,
 } from "./search-params";
 
 describe("parseSearchParams", () => {
@@ -104,6 +106,34 @@ describe("toRouteParams", () => {
       year: "2024",
     };
     expect(toRouteParams(parseSearchParams(raw))).toEqual(raw);
+  });
+
+  test("leaves out a param that was cleared", () => {
+    expect(toRouteParams({ q: "solo", genre: undefined })).toEqual({
+      q: "solo",
+    });
+  });
+});
+
+describe("sortOf", () => {
+  test("defaults to relevance with a query and popularity without", () => {
+    expect(sortOf({ q: "x" })).toBe("relevance");
+    expect(sortOf({})).toBe("popularity");
+    expect(sortOf({ sort: "score" })).toBe("score");
+  });
+});
+
+describe("toSetParams", () => {
+  test("clears every param it doesn't set", () => {
+    expect(toSetParams({ q: "solo" })).toEqual({
+      q: "solo",
+      genre: undefined,
+      format: undefined,
+      sort: undefined,
+      status: undefined,
+      country: undefined,
+      year: undefined,
+    });
   });
 });
 

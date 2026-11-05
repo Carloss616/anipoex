@@ -17,6 +17,8 @@ export interface TopAppBarProps {
     /** The field's starting text. */
     text?: string;
     onChangeText: (text: string) => void;
+    /** Fires on the keyboard's search key, with the field's text. */
+    onSubmit?: (text: string) => void;
   };
   /** Before any scroll; the theme's surface when omitted. */
   containerColor?: ColorValue;
@@ -45,6 +47,7 @@ type NativeProps = Omit<TopAppBarProps, "search" | "onPageChange"> & {
   tabFontFamily?: string;
   topInset?: number;
 } & ViewEvent<"onSearchTextChange", { text: string }> &
+  ViewEvent<"onSearchSubmit", { text: string }> &
   ViewEvent<"onPageChange", { index: number }>;
 
 const NativeAppBar = requireNativeView<NativeProps>(
@@ -87,6 +90,7 @@ export function TopAppBar({
       onSearchTextChange={({ nativeEvent }) =>
         search?.onChangeText(nativeEvent.text)
       }
+      onSearchSubmit={({ nativeEvent }) => search?.onSubmit?.(nativeEvent.text)}
       onPageChange={({ nativeEvent }) => onPageChange?.(nativeEvent.index)}
     />
   );

@@ -24,17 +24,19 @@ function useProgress({
     from: { __typename, id },
   });
   const read = data.mediaListEntry?.progress ?? 0;
-  return {
-    ...toProgress(read, data.chapters),
-    unread: useUnreadCount(id, read),
-  };
+  const unread = useUnreadCount(id, read);
+  // A search result off the list has no progress to show.
+  if (!data.mediaListEntry) {
+    return { label: undefined, spoken: undefined, fraction: undefined, unread };
+  }
+  return { ...toProgress(read, data.chapters), unread };
 }
 
 /**
  * On native it navigates on press, since `Link.Trigger` can't live in the
  * grid's Host. The label is a string: native `Text` drops component children.
  */
-export const ListItem = memo(function ListItem({
+export const GridItem = memo(function GridItem({
   item,
   width,
   titlePosition,

@@ -12,6 +12,7 @@ export default function Layout() {
   return (
     <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="search" />
       <Stack.Screen name="settings/index" />
     </Stack>
   );

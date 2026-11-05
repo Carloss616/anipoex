@@ -72,6 +72,10 @@ export function parseSearchParams(raw: RawParams): SearchParams {
 
 export const hasSearch = (p: SearchParams) => Object.keys(p).length > 0;
 
+/** The sort AniList gets: the picked one, else by match for a query. */
+export const sortOf = (p: SearchParams): SearchSort =>
+  p.sort ?? (p.q ? "relevance" : "popularity");
+
 export function toSearchVariables(
   p: SearchParams,
   page: number,
@@ -84,14 +88,32 @@ export function toSearchVariables(
     format: format?.format,
     country: format ? format.country : p.country,
     status: p.status && STATUS_KEYS[p.status],
-    sort: [SORT_KEYS[p.sort ?? (p.q ? "relevance" : "popularity")]],
+    sort: [SORT_KEYS[sortOf(p)]],
     startDateGreater: p.year && p.year * 10000,
   };
 }
 
 /** For `router.push` and `router.setParams`. */
 export const toRouteParams = (p: SearchParams): Record<string, string> =>
-  Object.fromEntries(Object.entries(p).map(([k, v]) => [k, String(v)]));
+  Object.fromEntries(
+    Object.entries(p).flatMap(([k, v]) =>
+      v === undefined ? [] : [[k, String(v)]],
+    ),
+  );
+
+/** For `router.setParams`, which keeps any param it isn't given. */
+export const toSetParams = (
+  p: SearchParams,
+): Record<keyof SearchParams, string | undefined> => ({
+  q: undefined,
+  genre: undefined,
+  format: undefined,
+  sort: undefined,
+  status: undefined,
+  country: undefined,
+  year: undefined,
+  ...toRouteParams(p),
+});
 
 /** The query, else the Home section these params show, else the genre. */
 export function searchTitle(p: SearchParams): string {

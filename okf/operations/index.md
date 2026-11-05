@@ -16,6 +16,8 @@ all of them:
 * [MangaList](manga-list.md) - One list status of the viewer's manga, as cards.
 * [MangaListCounts](manga-list-counts.md) - Entry ids per list, to count each status.
 * [MangaDetail](manga-detail.md) - One manga with its detail fields and full list entry.
+* [HomeSections](home-sections.md) - Every visible Home section in one request.
+* [MangaSearch](manga-search.md) - One page of AniList manga matching a submitted search.
 
 # Mutations
 
