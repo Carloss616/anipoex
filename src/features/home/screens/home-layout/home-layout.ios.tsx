@@ -2,8 +2,10 @@ import { Button, List, Picker, Section, Toggle } from "@expo/ui/swift-ui";
 import {
   environment,
   foregroundStyle,
+  listRowBackground,
   listStyle,
   pickerStyle,
+  scrollContentBackground,
   tag,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -11,6 +13,7 @@ import { Stack } from "expo-router";
 import { memo } from "react";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import {
   ACCOUNT_SECTIONS,
   PRESET_LABELS,
@@ -33,6 +36,8 @@ import {
  */
 export function HomeLayout() {
   const { preset, order, on } = useValue(homeLayout$);
+  // The theme's surfaces, not the system's grouped grays.
+  const rowBackground = listRowBackground(useThemeColor("muted"));
   const linkFont = useFont("body");
 
   const move = (sources: number[], destination: number) => {
@@ -51,10 +56,15 @@ export function HomeLayout() {
         <List
           modifiers={[
             listStyle("insetGrouped"),
+            scrollContentBackground("hidden"),
             environment("editMode", "active"),
           ]}
         >
-          <Section title="Preset" footer={<Text>{PRESET_NOTES[preset]}</Text>}>
+          <Section
+            modifiers={[rowBackground]}
+            title="Preset"
+            footer={<Text>{PRESET_NOTES[preset]}</Text>}
+          >
             <Picker
               selection={preset}
               onSelectionChange={(next) =>
@@ -69,7 +79,7 @@ export function HomeLayout() {
               ))}
             </Picker>
           </Section>
-          <Section title="Sections">
+          <Section modifiers={[rowBackground]} title="Sections">
             <List.ForEach
               data={order}
               keyExtractor={(id) => id}
@@ -79,7 +89,7 @@ export function HomeLayout() {
               {({ item: id }) => <SectionRow id={id} on={on.includes(id)} />}
             </List.ForEach>
           </Section>
-          <Section>
+          <Section modifiers={[rowBackground]}>
             <Button
               label="Reset to Balanced"
               onPress={() => homeLayout$.set(withPreset("balanced"))}

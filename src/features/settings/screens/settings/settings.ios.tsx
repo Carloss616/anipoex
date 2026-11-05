@@ -12,7 +12,9 @@ import {
   clipShape,
   foregroundStyle,
   frame,
+  listRowBackground,
   listStyle,
+  scrollContentBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
@@ -41,13 +43,20 @@ export function Settings() {
   const avatarUrl = useValue(session$.user.avatarUrl);
   const initial = useValue(() => session$.user.name.get()?.[0] ?? "?");
   const overlay = useThemeColor("overlay");
+  // The theme's surfaces, not the system's grouped grays.
+  const rowBackground = listRowBackground(useThemeColor("muted"));
 
   return (
     <>
       <Stack.Title large>Settings</Stack.Title>
       <Host className="flex-1">
-        <List modifiers={[listStyle("insetGrouped")]}>
-          <Section>
+        <List
+          modifiers={[
+            listStyle("insetGrouped"),
+            scrollContentBackground("hidden"),
+          ]}
+        >
+          <Section modifiers={[rowBackground]}>
             <HStack spacing={12} modifiers={ROW_FILL}>
               <ZStack
                 modifiers={[
@@ -74,6 +83,7 @@ export function Settings() {
             </HStack>
           </Section>
           <Section
+            modifiers={[rowBackground]}
             title="Home"
             footer={
               <Text textStyle="footnote">
@@ -92,7 +102,7 @@ export function Settings() {
               </HStack>
             </Button>
           </Section>
-          <Section title="Appearance">
+          <Section modifiers={[rowBackground]} title="Appearance">
             <HStack modifiers={ROW_FILL}>
               <Text>Theme</Text>
               <Spacer />
@@ -103,14 +113,14 @@ export function Settings() {
               <ThemePicker />
             </VStack>
           </Section>
-          <Section title="Network">
+          <Section modifiers={[rowBackground]} title="Network">
             <HStack modifiers={ROW_FILL}>
               <Text>DNS</Text>
               <Spacer />
               <DnsPicker />
             </HStack>
           </Section>
-          <Section>
+          <Section modifiers={[rowBackground]}>
             <Button
               label="Sign out"
               role="destructive"
