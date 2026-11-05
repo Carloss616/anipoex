@@ -38,5 +38,11 @@ export function useHomeSections(visible: SectionId[]): {
       : { variables, context: { errorMessage: "Couldn't load Home" } },
   );
 
-  return { data, loading, error: error != null, refetch };
+  return {
+    data,
+    loading,
+    error: error != null,
+    // Apollo reads an argument as new variables: a button's press event would be one.
+    refetch: () => void refetch().catch(() => {}),
+  };
 }

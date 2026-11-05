@@ -59,6 +59,11 @@ export const Icons = {
     android: require("@expo/material-symbols/search.xml"),
     web: "search",
   }),
+  history: Icon.select({
+    ios: "clock.arrow.circlepath",
+    android: require("@expo/material-symbols/history.xml"),
+    web: "history",
+  }),
   searchTitles: Icon.select({
     ios: "doc.text.magnifyingglass",
     android: require("@expo/material-symbols/find_in_page.xml"),

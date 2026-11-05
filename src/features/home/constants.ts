@@ -87,3 +87,26 @@ export const SECTIONS: Record<
   planning: { title: "From your Planning", kind: "rail" },
   global: { title: "Reading now on AniList", kind: "activity" },
 };
+
+export const PRESET_LABELS: Record<Preset | "custom", string> = {
+  balanced: "Balanced",
+  discover: "Discover",
+  personal: "Personal",
+  custom: "Custom",
+};
+
+/** What each preset puts on Home, for the layout editor. */
+export const PRESET_NOTES: Record<Preset | "custom", string> = {
+  balanced: "Your reading first, then the catalog.",
+  discover: "Only the catalog: trends, genres and new releases.",
+  personal: "Your list first; Trending goes last.",
+  custom: "You changed the sections or their order.",
+};
+
+/** Sections that read the user's AniList account. */
+export const ACCOUNT_SECTIONS: SectionId[] = [
+  "continue",
+  "because",
+  "following",
+  "planning",
+];

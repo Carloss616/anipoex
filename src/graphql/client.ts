@@ -24,6 +24,13 @@ export const cache = new InMemoryCache({
   possibleTypes: {
     ActivityUnion: ["TextActivity", "ListActivity", "MessageActivity"],
   },
+  typePolicies: {
+    // A user's avatar has no id: merge the sizes each query asks for
+    // (large for the viewer, medium in activity) instead of replacing them.
+    UserAvatar: { merge: true },
+    // Nor has a Page: a later query with other fields completes it.
+    Page: { merge: true },
+  },
 });
 
 const authLink = new SetContextLink((prevContext) => {

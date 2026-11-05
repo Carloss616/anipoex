@@ -5,7 +5,13 @@ import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
-import { type HTMLAttributes, useEffect, useRef, useState } from "react";
+import {
+  type HTMLAttributes,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { type StyleProp, type TextStyle, View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
@@ -97,6 +103,16 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     setIsSearching(true);
     search?.onOpen?.();
   };
+
+  // `Stack.SearchBar`'s ref, as on native: a screen can clear its own field.
+  useImperativeHandle(search?.ref, () => ({
+    focus: openSearch,
+    blur: () => inputRef.current?.blur(),
+    clearText: () => emit(""),
+    setText: emit,
+    toggleCancelButton: () => {},
+    cancelSearch: closeSearch,
+  }));
 
   useEffect(() => {
     if (!isSearching) return setIsExpanded(false);
