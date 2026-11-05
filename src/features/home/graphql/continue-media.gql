@@ -1,3 +1,5 @@
+# shortcut: one page of 50; past 50 continuing mangas the rest only show
+# with progress the manga list already cached. Page through id_in then.
 query ContinueMedia($ids: [Int]) {
   Page(perPage: 50) {
     media(id_in: $ids, type: MANGA) {

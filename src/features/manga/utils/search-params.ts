@@ -63,7 +63,8 @@ export function parseSearchParams(raw: RawParams): SearchParams {
     sort: oneOf(SORTS, first(raw.sort)),
     status: oneOf(STATUSES, first(raw.status)),
     country: oneOf(COUNTRIES, first(raw.country)),
-    year: Number.isInteger(year) && year > 0 ? year : undefined,
+    year:
+      Number.isInteger(year) && year >= 1000 && year <= 9999 ? year : undefined,
   };
   return Object.fromEntries(
     Object.entries(params).filter(([, v]) => v !== undefined),
@@ -88,7 +89,10 @@ export function toSearchVariables(
     format: format?.format,
     country: format ? format.country : p.country,
     status: p.status && STATUS_KEYS[p.status],
-    sort: [SORT_KEYS[sortOf(p)]],
+    // AniList matches against the text: with none, it can't rank by it.
+    sort: [
+      SORT_KEYS[sortOf(p) === "relevance" && !p.q ? "popularity" : sortOf(p)],
+    ],
     startDateGreater: p.year && p.year * 10000,
   };
 }

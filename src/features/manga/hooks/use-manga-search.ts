@@ -1,7 +1,7 @@
 import { NetworkStatus } from "@apollo/client";
 import { skipToken, useQuery } from "@apollo/client/react";
 import { useObservable } from "@legendapp/state/react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { MangaSearchDocument } from "../graphql/manga-search.generated";
 import {
   hasSearch,
@@ -32,21 +32,15 @@ export function useMangaSearch(params: SearchParams) {
     manga$.set(data?.Page?.media?.filter((m) => m != null) ?? []);
   }, [data, manga$]);
 
-  // Counting loaded rows would ask for a page again when one was all repeats.
-  const page = useRef(1);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a new search starts at page 1.
-  useEffect(() => {
-    page.current = 1;
-  }, [key]);
-
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
-  const hasMore = !!data?.Page?.pageInfo?.hasNextPage;
+  const pageInfo = data?.Page?.pageInfo;
+  const hasMore = !!pageInfo?.hasNextPage;
 
   const loadMore = () => {
     if (!hasMore || loadingMore) return;
-    const next = page.current + 1;
     void fetchMore({
-      variables: { page: next },
+      // The cache keeps the merged list, so it also knows the last page loaded.
+      variables: { page: (pageInfo?.currentPage ?? 1) + 1 },
       updateQuery: (prev, { fetchMoreResult }) => {
         const more = fetchMoreResult.Page;
         if (!more) return prev;
@@ -58,11 +52,7 @@ export function useMangaSearch(params: SearchParams) {
           Page: { ...more, media: [...(prev.Page?.media ?? []), ...fresh] },
         };
       },
-    })
-      .then(() => {
-        page.current = next;
-      })
-      .catch(() => {});
+    }).catch(() => {});
   };
 
   return {

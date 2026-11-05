@@ -13,7 +13,19 @@ import { type ContinueItem, continueItems } from "../utils/continue-items";
 
 /** Mangas with a selected source and chapters past their AniList progress. */
 export function useContinueReading(): ContinueItem[] {
-  const idsKey = useValue(() => Object.keys(source$.get()).join());
+  // Only a matched page with its stored list can continue: progress is asked
+  // for these alone, not for every manga a source was ever picked for.
+  const idsKey = useValue(() =>
+    Object.keys(source$.get())
+      .map(Number)
+      .filter((id) => {
+        const match = readMatch(source$[id].get());
+        if (!match?.manga) return false;
+        const stored = chapters$[chaptersKey(id, match.sourceId)].get();
+        return stored?.manga.url === match.manga.url;
+      })
+      .join(),
+  );
   const ids = idsKey ? idsKey.split(",").map(Number) : [];
 
   // Fills the cache; the query spreads MangaMedia `@nonreactive`, so progress

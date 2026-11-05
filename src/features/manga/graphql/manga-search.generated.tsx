@@ -103,7 +103,11 @@ export type MangaSearchQueryVariables = Exact<{
 export type MangaSearchQuery = {
   Page: {
     __typename: "Page";
-    pageInfo: { __typename: "PageInfo"; hasNextPage: boolean | null } | null;
+    pageInfo: {
+      __typename: "PageInfo";
+      currentPage: number | null;
+      hasNextPage: boolean | null;
+    } | null;
     media: Array<{
       __typename: "Media";
       id: number;
@@ -252,6 +256,10 @@ export const MangaSearchDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "currentPage" },
+                      },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "hasNextPage" },

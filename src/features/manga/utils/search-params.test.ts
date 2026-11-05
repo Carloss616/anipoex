@@ -34,6 +34,10 @@ describe("parseSearchParams", () => {
     ).toEqual({});
   });
 
+  test("drops a year that isn't four digits", () => {
+    expect(parseSearchParams({ year: "500000" })).toEqual({});
+  });
+
   test("reads the year as a number", () => {
     expect(parseSearchParams({ year: "2025" })).toEqual({ year: 2025 });
   });
@@ -58,6 +62,12 @@ describe("toSearchVariables", () => {
 
   test("sorts a browse by popularity", () => {
     expect(toSearchVariables({}, 1).sort).toEqual([MediaSort.PopularityDesc]);
+  });
+
+  test("relevance without a query sorts by popularity", () => {
+    expect(toSearchVariables({ sort: "relevance" }, 1).sort).toEqual([
+      MediaSort.PopularityDesc,
+    ]);
   });
 
   test("maps the named sorts", () => {
