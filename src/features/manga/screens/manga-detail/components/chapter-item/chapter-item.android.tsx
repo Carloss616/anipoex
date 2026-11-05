@@ -39,7 +39,7 @@ export function ChapterItem({
             params: { id: mediaId, chapter: chapter.id },
           })
         }
-        modifiers={read ? [alpha(0.64)] : undefined}
+        modifiers={read ? [alpha(0.64)] : []}
       >
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
           {read && (

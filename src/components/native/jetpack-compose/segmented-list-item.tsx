@@ -38,6 +38,7 @@ const SlotView = requireNativeView<{ slotName: string; children: ReactNode }>(
 export function SegmentedListItem({
   onPress,
   onLongPress,
+  modifiers = [],
   ...props
 }: SegmentedListItemProps) {
   return (
@@ -45,6 +46,9 @@ export function SegmentedListItem({
       // Slots are found as the module composes: a new one shows only on a remount.
       key={slotNames(props.children)}
       {...props}
+      // Never undefined: a recycled row that drops its list sends null, which
+      // the native list prop can't read.
+      modifiers={modifiers}
       longPressable={!!onLongPress}
       onItemPress={onPress}
       onItemLongPress={onLongPress}
