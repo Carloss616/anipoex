@@ -113,233 +113,250 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
   const items = sheetItems(available, excluded);
 
   return (
-    <Host className="flex-1">
-      <Column
-        verticalArrangement={{ spacedBy: 16 }}
-        modifiers={[
-          fillMaxSize(),
-          nestedScrollInteropConnection(),
-          padding(insets.left, 0, insets.right, GUTTER),
-        ]}
-      >
-        {/* M3's drag handle, as the other sheets draw it; 6 + the gap is 22. */}
-        <Box
-          modifiers={[
-            align("centerHorizontally"),
-            padding(0, 22, 0, 6),
-            size(32, 4),
-            clip(Shapes.RoundedCorner(2)),
-            background(m3.onSurfaceVariant),
-          ]}
-        />
+    <>
+      {/* Two Hosts: the sheet drags from the header, while the list's Host
+          hands it only the scroll the list leaves. */}
+      <Host matchContents={{ vertical: true }}>
         <Column
           verticalArrangement={{ spacedBy: 16 }}
-          modifiers={[padding(GUTTER, 0, GUTTER, 0)]}
+          modifiers={[padding(insets.left, 0, insets.right, 16)]}
         >
-          <Column>
-            <Row
-              verticalAlignment="center"
-              horizontalArrangement={{ spacedBy: 8 }}
-            >
-              <Text style={{ typography: "titleLarge" }}>Sources</Text>
-              {/* M3's badge reads high against a centered title. */}
-              <Box modifiers={[padding(0, 4, 0, 0)]}>
-                <Badge>{available.length + excluded.length}</Badge>
-              </Box>
-              <Spacer modifiers={[weight(1)]} />
-              <Row horizontalArrangement={{ spacedBy: 8 }}>
-                <SearchTitlesButton
-                  onClick={() =>
-                    // Excluded too: the right page may be on one dropped for
-                    // no match.
-                    actions.searchAll(
-                      [...available, ...excluded].map((row) => row.source.id),
-                    )
-                  }
-                  modifiers={[
-                    semantics({
-                      contentDescription: "Search titles in all sources",
-                    }),
-                  ]}
-                >
-                  <Icon
-                    name={
-                      title.searching
-                        ? Icons.searchTitlesOff
-                        : Icons.searchTitles
-                    }
-                    size={BUTTON_ICON_SIZE}
-                    color="inherit"
-                  />
-                </SearchTitlesButton>
-                <Computed>
-                  {() => {
-                    const scanning = scanningAll$[key].get() === true;
-
-                    return (
-                      <FilledTonalIconButton
-                        enabled={!scanning}
-                        onClick={actions.scanAll}
-                        modifiers={[
-                          semantics({ contentDescription: "Scan all sources" }),
-                        ]}
-                      >
-                        {scanning ? (
-                          <Loader size="sm" />
-                        ) : (
-                          <Icon
-                            name={Icons.refresh}
-                            size={BUTTON_ICON_SIZE}
-                            color="inherit"
-                          />
-                        )}
-                      </FilledTonalIconButton>
-                    );
-                  }}
-                </Computed>
-              </Row>
-            </Row>
-            <Computed>
-              {() => {
-                const progress = scanProgress$[key].get();
-
-                return progress ? (
-                  <Column
-                    verticalArrangement={{ spacedBy: 8 }}
-                    modifiers={[padding(0, 4, 0, 0)]}
-                  >
-                    <Text
-                      style={{ typography: "bodyMedium" }}
-                      color={m3.onSurfaceVariant}
-                    >
-                      {`Scanning ${progress.done} of ${progress.total}`}
-                    </Text>
-                    <Progress value={progress.done} maxValue={progress.total} />
-                  </Column>
-                ) : (
-                  <Row
-                    verticalAlignment="center"
-                    horizontalArrangement={{ spacedBy: 6 }}
-                  >
-                    <Text
-                      style={{ typography: "bodyMedium" }}
-                      color={m3.onSurfaceVariant}
-                      maxLines={1}
-                      overflow="ellipsis"
-                    >
-                      {reading
-                        ? `Reading on ${reading.baseName ?? reading.name}`
-                        : read > 0
-                          ? "Read"
-                          : "Not started"}
-                    </Text>
-                    {read > 0 && <Badge>c.{read}</Badge>}
-                  </Row>
-                );
-              }}
-            </Computed>
-          </Column>
-          {title.searching ? (
-            <SearchBar
-              key={title.fieldKey}
-              defaultValue={title.query}
-              onChangeText={title.type}
-              onSubmit={title.submit}
-              placeholder="Title to search"
-              accessory={
-                // The check follows the field: an edit unchecks the title.
-                <Computed>
-                  {() => (
-                    <Menu
-                      items={titleMenuItems(
-                        manga,
-                        title.fieldText(),
-                        title.pick,
-                      )}
-                    >
-                      <TitlesButton />
-                    </Menu>
-                  )}
-                </Computed>
-              }
-            />
-          ) : (
-            <SearchBar
-              defaultValue={query}
-              debounce={150}
-              onDebouncedChange={setQuery}
-              placeholder="Search sources"
-            />
-          )}
-        </Column>
-
-        {items.length === 0 ? (
-          // A fixed height: centred in the full sheet, it sits below the
-          // half snap.
-          <Box modifiers={[fillMaxWidth(), height(EMPTY_HEIGHT)]}>
-            {/* Scrolls inside the box, so the description variant never
-                clips silently. */}
-            <EmptyState {...empty} modifiers={[verticalScroll()]} />
-          </Box>
-        ) : (
-          // One lazy list; the group gives TalkBack the radios' collection.
-          <LazyColumn
-            modifiers={[fillMaxWidth(), weight(1), selectableGroup()]}
+          {/* M3's drag handle, as the other sheets draw it; 6 + the gap is 22. */}
+          <Box
+            modifiers={[
+              align("centerHorizontally"),
+              padding(0, 22, 0, 6),
+              size(32, 4),
+              clip(Shapes.RoundedCorner(2)),
+              background(m3.onSurfaceVariant),
+            ]}
+          />
+          <Column
+            verticalArrangement={{ spacedBy: 16 }}
+            modifiers={[padding(GUTTER, 0, GUTTER, 0)]}
           >
-            {/* Keyed by source: a scan reorders rows while a menu may be open. */}
-            <LazyColumn.Items
-              data={items}
-              keyExtractor={sheetItemKey}
-              recycling={false}
-            >
-              {({ item }) =>
-                item.kind === "header" ? (
-                  item.id === "available" ? (
-                    <SectionHeader title="Available" count={available.length} />
+            <Column>
+              <Row
+                verticalAlignment="center"
+                horizontalArrangement={{ spacedBy: 8 }}
+              >
+                <Text style={{ typography: "titleLarge" }}>Sources</Text>
+                {/* M3's badge reads high against a centered title. */}
+                <Box modifiers={[padding(0, 4, 0, 0)]}>
+                  <Badge>{available.length + excluded.length}</Badge>
+                </Box>
+                <Spacer modifiers={[weight(1)]} />
+                <Row horizontalArrangement={{ spacedBy: 8 }}>
+                  <SearchTitlesButton
+                    onClick={() =>
+                      // Excluded too: the right page may be on one dropped for
+                      // no match.
+                      actions.searchAll(
+                        [...available, ...excluded].map((row) => row.source.id),
+                      )
+                    }
+                    modifiers={[
+                      semantics({
+                        contentDescription: "Search titles in all sources",
+                      }),
+                    ]}
+                  >
+                    <Icon
+                      name={
+                        title.searching
+                          ? Icons.searchTitlesOff
+                          : Icons.searchTitles
+                      }
+                      size={BUTTON_ICON_SIZE}
+                      color="inherit"
+                    />
+                  </SearchTitlesButton>
+                  <Computed>
+                    {() => {
+                      const scanning = scanningAll$[key].get() === true;
+
+                      return (
+                        <FilledTonalIconButton
+                          enabled={!scanning}
+                          onClick={actions.scanAll}
+                          modifiers={[
+                            semantics({
+                              contentDescription: "Scan all sources",
+                            }),
+                          ]}
+                        >
+                          {scanning ? (
+                            <Loader size="sm" />
+                          ) : (
+                            <Icon
+                              name={Icons.refresh}
+                              size={BUTTON_ICON_SIZE}
+                              color="inherit"
+                            />
+                          )}
+                        </FilledTonalIconButton>
+                      );
+                    }}
+                  </Computed>
+                </Row>
+              </Row>
+              <Computed>
+                {() => {
+                  const progress = scanProgress$[key].get();
+
+                  return progress ? (
+                    <Column
+                      verticalArrangement={{ spacedBy: 8 }}
+                      modifiers={[padding(0, 4, 0, 0)]}
+                    >
+                      <Text
+                        style={{ typography: "bodyMedium" }}
+                        color={m3.onSurfaceVariant}
+                      >
+                        {`Scanning ${progress.done} of ${progress.total}`}
+                      </Text>
+                      <Progress
+                        value={progress.done}
+                        maxValue={progress.total}
+                      />
+                    </Column>
                   ) : (
-                    <SectionHeader
-                      title="Excluded"
-                      count={excluded.length}
-                      menu={excludedMenu}
+                    <Row
+                      verticalAlignment="center"
+                      horizontalArrangement={{ spacedBy: 6 }}
+                    >
+                      <Text
+                        style={{ typography: "bodyMedium" }}
+                        color={m3.onSurfaceVariant}
+                        maxLines={1}
+                        overflow="ellipsis"
+                      >
+                        {reading
+                          ? `Reading on ${reading.baseName ?? reading.name}`
+                          : read > 0
+                            ? "Read"
+                            : "Not started"}
+                      </Text>
+                      {read > 0 && <Badge>c.{read}</Badge>}
+                    </Row>
+                  );
+                }}
+              </Computed>
+            </Column>
+            {title.searching ? (
+              <SearchBar
+                key={title.fieldKey}
+                defaultValue={title.query}
+                onChangeText={title.type}
+                onSubmit={title.submit}
+                placeholder="Title to search"
+                accessory={
+                  // The check follows the field: an edit unchecks the title.
+                  <Computed>
+                    {() => (
+                      <Menu
+                        items={titleMenuItems(
+                          manga,
+                          title.fieldText(),
+                          title.pick,
+                        )}
+                      >
+                        <TitlesButton />
+                      </Menu>
+                    )}
+                  </Computed>
+                }
+              />
+            ) : (
+              <SearchBar
+                defaultValue={query}
+                debounce={150}
+                onDebouncedChange={setQuery}
+                placeholder="Search sources"
+              />
+            )}
+          </Column>
+        </Column>
+      </Host>
+      <Host className="flex-1">
+        <Column
+          modifiers={[
+            fillMaxSize(),
+            nestedScrollInteropConnection(),
+            padding(insets.left, 0, insets.right, GUTTER),
+          ]}
+        >
+          {items.length === 0 ? (
+            // A fixed height: centred in the full sheet, it sits below the
+            // half snap.
+            <Box modifiers={[fillMaxWidth(), height(EMPTY_HEIGHT)]}>
+              {/* Scrolls inside the box, so the description variant never
+                clips silently. */}
+              <EmptyState {...empty} modifiers={[verticalScroll()]} />
+            </Box>
+          ) : (
+            // One lazy list; the group gives TalkBack the radios' collection.
+            <LazyColumn
+              modifiers={[fillMaxWidth(), weight(1), selectableGroup()]}
+            >
+              {/* Keyed by source: a scan reorders rows while a menu may be open. */}
+              <LazyColumn.Items
+                data={items}
+                keyExtractor={sheetItemKey}
+                recycling={false}
+              >
+                {({ item }) =>
+                  item.kind === "header" ? (
+                    item.id === "available" ? (
+                      <SectionHeader
+                        title="Available"
+                        count={available.length}
+                      />
+                    ) : (
+                      <SectionHeader
+                        title="Excluded"
+                        count={excluded.length}
+                        menu={excludedMenu}
+                      />
+                    )
+                  ) : item.kind === "no-sources" ? (
+                    <Text
+                      style={{ typography: "bodyMedium" }}
+                      color={m3.onSurfaceVariant}
+                      modifiers={[padding(GUTTER, 8, GUTTER, 8)]}
+                    >
+                      No sources
+                    </Text>
+                  ) : item.kind === "available" ? (
+                    <AvailableItem
+                      source={item.row.source}
+                      mangaKey={key}
+                      sources={all}
+                      read={read}
+                      openedAt={openedAt}
+                      selected={item.row.source.id === selectedId}
+                      index={item.index}
+                      count={item.count}
+                      actions={actions}
+                      onSelect={onSelect}
+                    />
+                  ) : (
+                    <ExcludedItem
+                      source={item.row.source}
+                      reason={item.row.reason}
+                      pinned={item.row.pinned}
+                      index={item.index}
+                      count={item.count}
+                      mangaKey={key}
+                      actions={actions}
                     />
                   )
-                ) : item.kind === "no-sources" ? (
-                  <Text
-                    style={{ typography: "bodyMedium" }}
-                    color={m3.onSurfaceVariant}
-                    modifiers={[padding(GUTTER, 8, GUTTER, 8)]}
-                  >
-                    No sources
-                  </Text>
-                ) : item.kind === "available" ? (
-                  <AvailableItem
-                    source={item.row.source}
-                    mangaKey={key}
-                    sources={all}
-                    read={read}
-                    openedAt={openedAt}
-                    selected={item.row.source.id === selectedId}
-                    index={item.index}
-                    count={item.count}
-                    actions={actions}
-                    onSelect={onSelect}
-                  />
-                ) : (
-                  <ExcludedItem
-                    source={item.row.source}
-                    reason={item.row.reason}
-                    pinned={item.row.pinned}
-                    index={item.index}
-                    count={item.count}
-                    mangaKey={key}
-                    actions={actions}
-                  />
-                )
-              }
-            </LazyColumn.Items>
-          </LazyColumn>
-        )}
-      </Column>
-    </Host>
+                }
+              </LazyColumn.Items>
+            </LazyColumn>
+          )}
+        </Column>
+      </Host>
+    </>
   );
 }

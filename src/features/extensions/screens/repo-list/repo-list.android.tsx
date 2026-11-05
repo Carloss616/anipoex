@@ -75,8 +75,9 @@ export function RepoList() {
 
   return (
     <>
-      <Host className="flex-1">
-        <Column modifiers={[fillMaxSize(), nestedScrollInteropConnection()]}>
+      {/* Two Hosts, as in the source list: the sheet drags from the header. */}
+      <Host matchContents={{ vertical: true }}>
+        <Column>
           {/* M3's drag handle, as the other sheets draw it. */}
           <Box
             modifiers={[
@@ -194,6 +195,10 @@ export function RepoList() {
               }}
             </Memo>
           </Column>
+        </Column>
+      </Host>
+      <Host className="flex-1">
+        <Column modifiers={[fillMaxSize(), nestedScrollInteropConnection()]}>
           <LazyColumn
             modifiers={[weight(1)]}
             contentPadding={{ start: insets.left, end: insets.right }}
