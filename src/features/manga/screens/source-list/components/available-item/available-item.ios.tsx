@@ -23,14 +23,14 @@ import { BUTTON_ICON_SIZE, Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useMatchUrl } from "../hooks/use-match-url";
-import { useSearching } from "../hooks/use-searching";
-import { useSourceScan } from "../hooks/use-source-scan";
+import { useMatchUrl } from "../../hooks/use-match-url";
+import { useSearching } from "../../hooks/use-searching";
+import { useSourceScan } from "../../hooks/use-source-scan";
+import { searchItem, statusDetail } from "../../utils/row-content";
+import { availableRowMenu } from "../../utils/row-menu";
+import { sourceStatus } from "../../utils/source-status";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { searchItem, statusDetail } from "../utils/row-content";
-import { availableRowMenu } from "../utils/row-menu";
-import { sourceStatus } from "../utils/source-status";
 import type { AvailableItemProps } from "./available-item";
 
 export const AvailableItem = memo(function AvailableItem({

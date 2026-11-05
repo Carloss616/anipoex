@@ -36,16 +36,16 @@ import {
 } from "@/features/manga/state/probes";
 import { isTitleSearching } from "@/features/manga/state/title-search";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { AvailableItem } from "../available-item";
-import { ExcludedItem } from "../excluded-item";
-import { useSourceActions } from "../hooks/use-source-actions";
-import { useSources } from "../hooks/use-sources";
-import { useTitleMode } from "../hooks/use-title-mode";
-import { SectionHeader } from "../section-header";
-import { excludedMenuItems } from "../utils/row-content";
-import { sheetItemKey, sheetItems } from "../utils/sheet-items";
-import { titleMenuItems } from "../utils/title-menu";
-import type { SheetContentProps } from "./sheet-content";
+import { AvailableItem } from "./components/available-item";
+import { ExcludedItem } from "./components/excluded-item";
+import { SectionHeader } from "./components/section-header";
+import { useSourceActions } from "./hooks/use-source-actions";
+import { useSources } from "./hooks/use-sources";
+import { useTitleMode } from "./hooks/use-title-mode";
+import type { SourceListProps } from "./source-list";
+import { excludedMenuItems } from "./utils/row-content";
+import { sheetItemKey, sheetItems } from "./utils/sheet-items";
+import { titleMenuItems } from "./utils/title-menu";
 
 const EMPTY_HEIGHT = 320;
 
@@ -60,14 +60,14 @@ function TitlesButton({ onPress }: { onPress?: () => void }) {
   );
 }
 
-export function SheetContent({
+export function SourceList({
   manga,
   read,
   isPresented,
   selectedId,
   onSelect,
   onDismiss,
-}: SheetContentProps) {
+}: SourceListProps) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });

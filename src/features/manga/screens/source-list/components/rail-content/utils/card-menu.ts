@@ -1,6 +1,6 @@
 import type { MenuAction, MenuGroup } from "@/components/ui/menu";
 import type { SourceManga } from "@/features/extensions";
-import type { RailItem } from "../../utils/rail-items";
+import type { RailItem } from "../../../utils/rail-items";
 
 /**
  * A card's menu: under its full title (cards cut it at two lines), the match

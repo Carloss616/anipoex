@@ -1,5 +1,6 @@
-import { Column, Row } from "@expo/ui/jetpack-compose";
+import { Column, Row, TextButton } from "@expo/ui/jetpack-compose";
 import { padding } from "@expo/ui/jetpack-compose/modifiers";
+import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
 import {
@@ -9,72 +10,55 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { ContextMenu } from "@/components/ui/menu";
-import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
-import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { useMatchUrl } from "../hooks/use-match-url";
-import { useSearching } from "../hooks/use-searching";
-import { useSourceScan } from "../hooks/use-source-scan";
+import { probes$, scanning$ } from "@/features/manga/state/probes";
+import { REASONS } from "@/features/manga/utils/msu";
+import { useMatchUrl } from "../../hooks/use-match-url";
+import { useSearching } from "../../hooks/use-searching";
+import { excludedBy } from "../../utils/row-content";
+import { excludedRowMenu } from "../../utils/row-menu";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { statusDetail } from "../utils/row-content";
-import { availableRowMenu } from "../utils/row-menu";
-import { sourceStatus } from "../utils/source-status";
-import type { AvailableItemProps } from "./available-item";
+import type { ExcludedItemProps } from "./excluded-item";
 
-export const AvailableItem = memo(function AvailableItem({
+export const ExcludedItem = memo(function ExcludedItem({
   source,
-  mangaKey,
-  sources,
-  read,
-  openedAt,
-  selected,
+  reason,
+  pinned,
   index = 0,
   count = 1,
+  mangaKey,
   actions,
-  onSelect,
-}: AvailableItemProps) {
-  const m3 = useThemeM3Colors();
-  const { probe, scanning, suspicious } = useSourceScan(
-    mangaKey,
-    source.id,
-    sources,
+}: ExcludedItemProps) {
+  // Rechecked or picked by hand, it stays here until its probe judges it.
+  const scanning = useValue(
+    () => scanning$[mangaKey][source.id].get() === true,
   );
-  const status = sourceStatus(
-    probe,
-    read,
-    FAR_BEHIND_GAP,
-    suspicious,
-    openedAt,
-  );
-  const detail = statusDetail(status);
+  const lastError = useValue(() => probes$[mangaKey][source.id].error.get());
   // The last read's failure, hidden while the source is read again.
-  const error = scanning ? undefined : probe?.error;
+  const error = scanning ? undefined : lastError;
   const searching = useSearching(mangaKey, source.id);
   const url = useMatchUrl(mangaKey, source.id);
-  // M3 single-select rows hold no second action: rescan and stop are in the menu.
-  const menu = availableRowMenu({
+  const menu = excludedRowMenu({
     source,
     url,
     searching,
     scanning,
     error,
     actions,
-    selected,
-    suspicious,
-    withRescan: true,
+    withStop: true,
+    withInclude: false,
   });
 
   return (
     <Column
       modifiers={[padding(GUTTER, index > 0 ? SEGMENTED_GAP : 0, GUTTER, 0)]}
     >
+      {/* No tap of its own: a tap opens the menu as a long press does. */}
       <ContextMenu items={menu}>
         <SegmentedListItem
           index={index}
           // Its rail takes the group's closing corners when it shows.
           count={searching ? count + 1 : count}
-          selected={selected}
-          onPress={() => onSelect(source.id)}
         >
           <SegmentedListItem.Leading>
             <Tile source={source} loading={scanning} />
@@ -91,21 +75,22 @@ export const AvailableItem = memo(function AvailableItem({
               {scanning ? (
                 <Badge>scanning…</Badge>
               ) : (
-                <Badge color={status.color}>{status.label}</Badge>
-              )}
-              {detail.chapter && <Badge>{detail.chapter}</Badge>}
-              {detail.age && (
-                <Text
-                  style={{ typography: "labelSmall", fontWeight: "400" }}
-                  color={m3.onSurfaceVariant}
-                  maxLines={1}
-                  overflow="ellipsis"
-                >
-                  {detail.age}
-                </Text>
+                <>
+                  <Badge color={REASONS[reason].color}>
+                    {REASONS[reason].badge}
+                  </Badge>
+                  <Badge>{excludedBy(pinned)}</Badge>
+                </>
               )}
             </Row>
           </SegmentedListItem.Supporting>
+          {!scanning && (
+            <SegmentedListItem.Trailing>
+              <TextButton onClick={() => actions.include(source.id)}>
+                <Text style={{ typography: "labelLarge" }}>Include</Text>
+              </TextButton>
+            </SegmentedListItem.Trailing>
+          )}
         </SegmentedListItem>
       </ContextMenu>
       <Rail
@@ -113,7 +98,7 @@ export const AvailableItem = memo(function AvailableItem({
         mangaId={Number(mangaKey)}
         source={source}
         actions={actions}
-        selected={selected}
+        selected={false}
         last={index === count - 1}
       />
     </Column>

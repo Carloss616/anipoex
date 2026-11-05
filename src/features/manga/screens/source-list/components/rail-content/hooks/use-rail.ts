@@ -6,8 +6,12 @@ import {
   loadMoreTitles,
   titleSearch$,
 } from "@/features/manga/state/title-search";
-import type { SourceActions } from "../../hooks/use-source-actions";
-import { type RailItem, railItems, railNotice } from "../../utils/rail-items";
+import type { SourceActions } from "../../../hooks/use-source-actions";
+import {
+  type RailItem,
+  railItems,
+  railNotice,
+} from "../../../utils/rail-items";
 import { cardMenu } from "../utils/card-menu";
 
 /** A source's rail: its results, current match first, and each card's menu. */

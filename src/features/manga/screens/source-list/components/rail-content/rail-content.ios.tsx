@@ -30,7 +30,7 @@ import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { COVER } from "../constants";
+import { COVER } from "../../constants";
 import type { RailProps } from "../rail";
 import { RailCard } from "../rail-card";
 import { useRail } from "./hooks/use-rail";

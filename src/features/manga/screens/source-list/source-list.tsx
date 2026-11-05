@@ -15,17 +15,17 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import { isTitleSearching } from "@/features/manga/state/title-search";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
-import { AvailableItem } from "../available-item";
-import { ExcludedItem } from "../excluded-item";
-import { useSourceActions } from "../hooks/use-source-actions";
-import { useSources } from "../hooks/use-sources";
-import { useTitleMode } from "../hooks/use-title-mode";
-import { SectionHeader } from "../section-header";
-import { excludedMenuItems } from "../utils/row-content";
-import { type SheetItem, sheetItemKey, sheetItems } from "../utils/sheet-items";
-import { titleMenuItems } from "../utils/title-menu";
+import { AvailableItem } from "./components/available-item";
+import { ExcludedItem } from "./components/excluded-item";
+import { SectionHeader } from "./components/section-header";
+import { useSourceActions } from "./hooks/use-source-actions";
+import { useSources } from "./hooks/use-sources";
+import { useTitleMode } from "./hooks/use-title-mode";
+import { excludedMenuItems } from "./utils/row-content";
+import { type SheetItem, sheetItemKey, sheetItems } from "./utils/sheet-items";
+import { titleMenuItems } from "./utils/title-menu";
 
-export interface SheetContentProps {
+export interface SourceListProps {
   manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
   read: number;
   isPresented: boolean;
@@ -35,14 +35,14 @@ export interface SheetContentProps {
 }
 
 /** The sheet, drawn per platform; `SourceSheet` wires it to the picker. */
-export function SheetContent({
+export function SourceList({
   manga,
   read,
   isPresented,
   selectedId,
   onSelect,
   onDismiss,
-}: SheetContentProps) {
+}: SourceListProps) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });

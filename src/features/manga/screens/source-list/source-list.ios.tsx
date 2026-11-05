@@ -43,19 +43,19 @@ import {
   AvailableItem,
   type ErrorRequest,
   type ExcludeRequest,
-} from "../available-item";
-import { ExcludedItem } from "../excluded-item";
-import { useSourceActions } from "../hooks/use-source-actions";
-import { useSources } from "../hooks/use-sources";
-import { useTitleMode } from "../hooks/use-title-mode";
-import { SectionHeader } from "../section-header";
+} from "./components/available-item";
+import { ExcludedItem } from "./components/excluded-item";
+import { SectionHeader } from "./components/section-header";
+import { useSourceActions } from "./hooks/use-source-actions";
+import { useSources } from "./hooks/use-sources";
+import { useTitleMode } from "./hooks/use-title-mode";
+import type { SourceListProps } from "./source-list";
 import {
   errorDialog,
   excludedMenuItems,
   excludeReasons,
-} from "../utils/row-content";
-import { titleMenuItems } from "../utils/title-menu";
-import type { SheetContentProps } from "./sheet-content";
+} from "./utils/row-content";
+import { titleMenuItems } from "./utils/title-menu";
 
 /** A glass circle's icon slot, as on the tracking overview's menu button. */
 // A plain button only takes taps on its label: it fills its slot in the group.
@@ -69,14 +69,14 @@ const GROUP_SLOT_SM = [
   contentShape(shapes.rectangle()),
 ];
 
-export function SheetContent({
+export function SourceList({
   manga,
   read,
   isPresented,
   selectedId,
   onSelect,
   onDismiss,
-}: SheetContentProps) {
+}: SourceListProps) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id, isPresented });
   const actions = useSourceActions({ manga, read, selectedId });

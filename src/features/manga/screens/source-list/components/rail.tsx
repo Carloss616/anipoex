@@ -1,7 +1,7 @@
 import { memo } from "react";
 import type { Source } from "@/features/manga/utils/source";
-import { useSearching } from "./hooks/use-searching";
-import type { SourceActions } from "./hooks/use-source-actions";
+import { useSearching } from "../hooks/use-searching";
+import type { SourceActions } from "../hooks/use-source-actions";
 import { RailContent } from "./rail-content";
 
 export interface RailProps {

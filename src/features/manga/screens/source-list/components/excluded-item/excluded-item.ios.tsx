@@ -22,12 +22,12 @@ import { ContextMenu } from "@/components/ui/menu";
 import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useMatchUrl } from "../hooks/use-match-url";
-import { useSearching } from "../hooks/use-searching";
+import { useMatchUrl } from "../../hooks/use-match-url";
+import { useSearching } from "../../hooks/use-searching";
+import { excludedBy, searchItem } from "../../utils/row-content";
+import { excludedRowMenu } from "../../utils/row-menu";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { excludedBy, searchItem } from "../utils/row-content";
-import { excludedRowMenu } from "../utils/row-menu";
 import type { ExcludedItemProps } from "./excluded-item";
 
 export const ExcludedItem = memo(function ExcludedItem({

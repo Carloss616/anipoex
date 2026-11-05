@@ -19,6 +19,7 @@ import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceChapters } from "@/features/manga/hooks/use-source-chapters";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
+import { SourceSheet } from "@/features/manga/screens/source-list";
 import { startTitleSearch } from "@/features/manga/state/title-search";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
@@ -28,7 +29,6 @@ import { openExternal } from "@/utils/open-external";
 import { noop } from "@/utils/utils";
 import { ContinueSync } from "./components/continue-sync";
 import { DetailList } from "./components/detail-list";
-import { SourceSheet } from "./components/source-sheet";
 import type { ContinueAction } from "./hooks/use-continue";
 
 const MENU_ACTIONS = [

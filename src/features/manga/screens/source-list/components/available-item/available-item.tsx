@@ -7,15 +7,15 @@ import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu, Menu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
-import { useMatchUrl } from "../hooks/use-match-url";
-import { useSearching } from "../hooks/use-searching";
-import type { SourceActions } from "../hooks/use-source-actions";
-import { useSourceScan } from "../hooks/use-source-scan";
+import { useMatchUrl } from "../../hooks/use-match-url";
+import { useSearching } from "../../hooks/use-searching";
+import type { SourceActions } from "../../hooks/use-source-actions";
+import { useSourceScan } from "../../hooks/use-source-scan";
+import { statusDetail } from "../../utils/row-content";
+import { availableRowMenu } from "../../utils/row-menu";
+import { sourceStatus } from "../../utils/source-status";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { statusDetail } from "../utils/row-content";
-import { availableRowMenu } from "../utils/row-menu";
-import { sourceStatus } from "../utils/source-status";
 
 // End padding for 2 or 3 buttons (rescan or stop and ⋯, plus the check).
 const PADDING = ["pe-27.5", "pe-34"];

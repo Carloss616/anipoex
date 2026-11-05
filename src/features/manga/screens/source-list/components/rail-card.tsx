@@ -1,6 +1,6 @@
 import { MangaCard } from "@/features/manga/components/manga-card";
-import { COVER, CURRENT_MARK } from "./constants";
-import type { RailItem } from "./utils/rail-items";
+import { COVER, CURRENT_MARK } from "../constants";
+import type { RailItem } from "../utils/rail-items";
 
 export interface RailCardProps {
   item: RailItem;

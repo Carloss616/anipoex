@@ -4,9 +4,9 @@ import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { openSheet$, sheetRequest$ } from "@/features/manga/state/scan-views";
 import { stopTitleSearch } from "@/features/manga/state/title-search";
-import { useSourcePicker } from "../../hooks/use-source-picker";
-import type { SourcePickerManga } from "../source-picker";
-import { SheetContent } from "./sheet-content";
+import type { SourcePickerManga } from "../manga-detail/components/source-picker";
+import { useSourcePicker } from "../manga-detail/hooks/use-source-picker";
+import { SourceList } from "./source-list";
 
 export interface SourceSheetProps {
   manga: SourcePickerManga;
@@ -54,7 +54,7 @@ export function SourceSheet({ manga, entryId, open$ }: SourceSheetProps) {
   );
 
   return (
-    <SheetContent
+    <SourceList
       manga={manga}
       read={picker.read}
       isPresented={isPresented}
