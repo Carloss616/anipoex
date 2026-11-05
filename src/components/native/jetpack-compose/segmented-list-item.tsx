@@ -1,7 +1,7 @@
 import type { ViewEvent } from "@expo/ui/jetpack-compose";
 import type { ModifierConfig } from "@expo/ui/jetpack-compose/modifiers";
 import { requireNativeView } from "expo";
-import type { ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 
 type ItemEvent = { index: number };
 
@@ -31,7 +31,7 @@ const SlotView = requireNativeView<{ slotName: string; children: ReactNode }>(
   "SlotView",
 );
 
-/** M3 Expressive segmented list item (`modules/segmented-list-item`), in a Column or LazyColumn. */
+/** M3 Expressive segmented list item (`modules/segmented-list-item`); a slot that comes or goes remounts it. */
 export function SegmentedListItem({
   onPress,
   onLongPress,
@@ -39,6 +39,8 @@ export function SegmentedListItem({
 }: SegmentedListItemProps) {
   return (
     <NativeItem
+      // Slots are found as the module composes: a new one shows only on a remount.
+      key={slotNames(props.children)}
       {...props}
       longPressable={!!onLongPress}
       onItemPress={onPress}
@@ -54,9 +56,23 @@ export const SEGMENTED_GAP = 2;
 export const SEGMENTED_CORNER = { outer: 16, inner: 4 };
 
 const slot = (name: string) =>
-  function Slot({ children }: { children: ReactNode }) {
-    return <SlotView slotName={name}>{children}</SlotView>;
-  };
+  Object.assign(
+    function Slot({ children }: { children: ReactNode }) {
+      return <SlotView slotName={name}>{children}</SlotView>;
+    },
+    { slotName: name },
+  );
+
+const slotNames = (children: ReactNode) =>
+  Children.toArray(children)
+    .flatMap((child) =>
+      isValidElement(child) &&
+      typeof child.type === "function" &&
+      "slotName" in child.type
+        ? [child.type.slotName]
+        : [],
+    )
+    .join();
 
 SegmentedListItem.Leading = slot("leading");
 SegmentedListItem.Trailing = slot("trailing");

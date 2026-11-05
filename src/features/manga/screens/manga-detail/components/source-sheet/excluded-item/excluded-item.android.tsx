@@ -81,14 +81,13 @@ export const ExcludedItem = memo(function ExcludedItem({
               )}
             </Row>
           </SegmentedListItem.Supporting>
-          {/* Always mounted: a slot added after the row mounts isn't laid out. */}
-          <SegmentedListItem.Trailing>
-            {!scanning && (
+          {!scanning && (
+            <SegmentedListItem.Trailing>
               <TextButton onClick={() => actions.include(source.id)}>
                 <Text style={{ typography: "labelLarge" }}>Include</Text>
               </TextButton>
-            )}
-          </SegmentedListItem.Trailing>
+            </SegmentedListItem.Trailing>
+          )}
         </SegmentedListItem>
       </ContextMenu>
       <Rail
