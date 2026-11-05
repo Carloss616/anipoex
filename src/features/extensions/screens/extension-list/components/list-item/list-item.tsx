@@ -91,7 +91,7 @@ export const ListItem = memo(function ListItem({
         <Frame.Description>
           <Badge>{e.language.code.toUpperCase()}</Badge>{" "}
           {e.nsfw && <Badge color="destructive">18+</Badge>}{" "}
-          {`· ${describeVersion(e)}`}
+          <Badge>{describeVersion(e)}</Badge>
         </Frame.Description>
       </Frame.Content>
       <Frame.Actions>

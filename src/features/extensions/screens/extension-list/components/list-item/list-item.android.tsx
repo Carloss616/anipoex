@@ -83,15 +83,7 @@ export const ListItem = memo(function ListItem({
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
           <Badge>{e.language.code.toUpperCase()}</Badge>
           {e.nsfw && <Badge color="destructive">18+</Badge>}
-          {/* The badges' size: a second baseline makes a three-line row. */}
-          <Text
-            style={{ typography: "labelSmall", fontWeight: "400" }}
-            color={m3.onSurfaceVariant}
-            maxLines={1}
-            overflow="ellipsis"
-          >
-            {`· ${describeVersion(e)}`}
-          </Text>
+          <Badge>{describeVersion(e)}</Badge>
         </Row>
       </SegmentedListItem.Supporting>
       {!e.installed ? (

@@ -12,7 +12,6 @@ import {
   buttonStyle,
   controlSize,
   disabled,
-  foregroundStyle,
   lineLimit,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
@@ -142,12 +141,7 @@ export const ListItem = memo(function ListItem({
           <HStack spacing={6}>
             <Badge>{e.language.code.toUpperCase()}</Badge>
             {e.nsfw && <Badge color="destructive">18+</Badge>}
-            <Text
-              textStyle="subheadline"
-              modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
-            >
-              {`· ${describeVersion(e)}`}
-            </Text>
+            <Badge>{describeVersion(e)}</Badge>
           </HStack>
         </VStack>
       </Label>
