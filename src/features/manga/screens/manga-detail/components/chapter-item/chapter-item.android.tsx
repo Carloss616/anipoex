@@ -1,13 +1,11 @@
-import { IconButton, ListItem, Row } from "@expo/ui/jetpack-compose";
-import {
-  alpha,
-  clickable,
-  semantics,
-} from "@expo/ui/jetpack-compose/modifiers";
+import { IconButton, Row } from "@expo/ui/jetpack-compose";
+import { alpha, semantics } from "@expo/ui/jetpack-compose/modifiers";
 import { useRouter } from "expo-router";
+import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { ContextMenu } from "@/components/ui/menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { noop } from "@/utils/utils";
 import type { ChapterItemProps } from "./chapter-item";
@@ -19,6 +17,8 @@ export function ChapterItem({
   mediaId,
   entryId,
   continue$,
+  index = 0,
+  count = 1,
 }: ChapterItemProps) {
   const router = useRouter();
   const read = useChapterRead(entryId, chapter.number);
@@ -26,22 +26,21 @@ export function ChapterItem({
   const m3 = useThemeM3Colors();
 
   return (
-    <ListItem
-      colors={{ containerColor: "transparent" }}
-      modifiers={[
-        clickable(() =>
+    <ContextMenu
+      items={[{ label: "Download", icon: Icons.download, onPress: noop }]}
+    >
+      <SegmentedListItem
+        index={index}
+        count={count}
+        containerColor={m3.surfaceContainerLow}
+        onPress={() =>
           router.push({
             pathname: "/manga/[id]/reader",
-            params: {
-              id: mediaId,
-              chapter: chapter.id,
-            },
-          }),
-        ),
-        ...(read ? [alpha(0.64)] : []),
-      ]}
-    >
-      <ListItem.HeadlineContent>
+            params: { id: mediaId, chapter: chapter.id },
+          })
+        }
+        modifiers={read ? [alpha(0.64)] : undefined}
+      >
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
           {read && (
             <Icon
@@ -56,32 +55,35 @@ export function ChapterItem({
             {chapter.title}
           </Text>
         </Row>
-      </ListItem.HeadlineContent>
-      {/* An empty slot still takes a line and lifts the title off center. */}
-      {chapter.date !== "" && (
-        <ListItem.SupportingContent>
-          <Text style={{ typography: "bodyMedium" }}>{chapter.date}</Text>
-        </ListItem.SupportingContent>
-      )}
-      <ListItem.TrailingContent>
-        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 4 }}>
-          {next && <Badge color="primary">Next</Badge>}
-          <IconButton
-            onClick={noop}
-            modifiers={[
-              semantics({
-                contentDescription: `Download chapter ${chapter.title}`,
-              }),
-            ]}
+        {/* An empty slot still takes a line and lifts the title off center. */}
+        {chapter.date !== "" && (
+          <SegmentedListItem.Supporting>
+            <Text style={{ typography: "bodyMedium" }}>{chapter.date}</Text>
+          </SegmentedListItem.Supporting>
+        )}
+        <SegmentedListItem.Trailing>
+          <Row
+            verticalAlignment="center"
+            horizontalArrangement={{ spacedBy: 4 }}
           >
-            <Icon
-              name={Icons.download}
-              size={BUTTON_ICON_SIZE}
-              color="inherit"
-            />
-          </IconButton>
-        </Row>
-      </ListItem.TrailingContent>
-    </ListItem>
+            {next && <Badge color="primary">Next</Badge>}
+            <IconButton
+              onClick={noop}
+              modifiers={[
+                semantics({
+                  contentDescription: `Download chapter ${chapter.title}`,
+                }),
+              ]}
+            >
+              <Icon
+                name={Icons.download}
+                size={BUTTON_ICON_SIZE}
+                color="inherit"
+              />
+            </IconButton>
+          </Row>
+        </SegmentedListItem.Trailing>
+      </SegmentedListItem>
+    </ContextMenu>
   );
 }

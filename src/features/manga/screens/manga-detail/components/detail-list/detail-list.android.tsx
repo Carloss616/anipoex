@@ -24,6 +24,7 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
+import { SEGMENTED_GAP } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
@@ -36,9 +37,6 @@ import { Hero } from "../hero";
 import { SourcePicker } from "../source-picker";
 import type { DetailListProps } from "./detail-list";
 
-const OUTER = 20;
-const INNER = 4;
-const GAP = 2;
 const SHEET = Shape.RoundedCorner({
   cornerRadii: { topStart: 28, topEnd: 28 },
 });
@@ -67,7 +65,6 @@ export function DetailList({
   // The FAB is expanded at the top.
   const atTop$ = useObservable(true);
   const insets = useSafeAreaInsets();
-  const last = chapters.length - 1;
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
   const sheet = m3.surfaceContainerLowest;
@@ -133,21 +130,11 @@ export function DetailList({
                 keyExtractor={(chapter) => String(chapter.id)}
               >
                 {({ item, index }) => (
-                  <Surface
-                    color={m3.surfaceContainerLow}
-                    shape={Shape.RoundedCorner({
-                      cornerRadii: {
-                        topStart: index === 0 ? OUTER : INNER,
-                        topEnd: index === 0 ? OUTER : INNER,
-                        bottomStart: index === last ? OUTER : INNER,
-                        bottomEnd: index === last ? OUTER : INNER,
-                      },
-                    })}
-                    // Padding before the surface is its margin, painted as the
-                    // sheet.
+                  // Padding before the row is its margin, painted as the sheet.
+                  <Box
                     modifiers={[
                       background(sheet),
-                      padding(start, index === 0 ? 0 : GAP, end, 0),
+                      padding(start, index === 0 ? 0 : SEGMENTED_GAP, end, 0),
                       fillMaxWidth(),
                     ]}
                   >
@@ -156,8 +143,10 @@ export function DetailList({
                       mediaId={manga.id}
                       entryId={manga.mediaListEntry?.id}
                       continue$={continue$}
+                      index={index}
+                      count={chapters.length}
                     />
-                  </Surface>
+                  </Box>
                 )}
               </LazyColumn.Items>
               {/* Not contentPadding: the sheet runs under the FAB to the

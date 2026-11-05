@@ -18,6 +18,7 @@ import expo.modules.kotlin.views.FunctionalComposableScope
 import expo.modules.ui.ModifierList
 import expo.modules.ui.ModifierRegistry
 import expo.modules.ui.UIComposableScope
+import expo.modules.ui.composeOrNull
 import expo.modules.ui.isSlotView
 import expo.modules.ui.isSlotWithName
 
@@ -31,6 +32,8 @@ data class SegmentedListItemProps(
   val enabled: Boolean = true,
   /** Whether a long press does something, so the row offers it to TalkBack. */
   val longPressable: Boolean = false,
+  /** Its fill when not selected; M3's segmented color (surface) when left out. */
+  val containerColor: android.graphics.Color? = null,
   val modifiers: ModifierList = emptyList()
 ) : ComposeProps
 
@@ -53,6 +56,9 @@ fun FunctionalComposableScope.SegmentedListItemContent(
   val headline: @Composable () -> Unit = { Children(UIComposableScope(), filter = { !isSlotView(it) }) }
   val trailing = slot("trailing")
   val selected = props.selected
+  val colors = props.containerColor.composeOrNull
+    ?.let { ListItemDefaults.segmentedColors(containerColor = it) }
+    ?: ListItemDefaults.segmentedColors()
 
   if (selected == null) {
     SegmentedListItem(
@@ -65,6 +71,7 @@ fun FunctionalComposableScope.SegmentedListItemContent(
       overlineContent = slot("overline"),
       supportingContent = slot("supporting"),
       onLongClick = longPress,
+      colors = colors,
       content = headline
     )
   } else {
@@ -85,6 +92,7 @@ fun FunctionalComposableScope.SegmentedListItemContent(
       overlineContent = slot("overline"),
       supportingContent = slot("supporting"),
       onLongClick = longPress,
+      colors = colors,
       content = headline
     )
   }

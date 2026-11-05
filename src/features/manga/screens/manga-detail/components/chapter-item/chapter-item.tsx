@@ -18,6 +18,13 @@ export interface ChapterItemProps {
   /** The list entry; chapters up to its progress are dimmed. */
   entryId: number | null | undefined;
   continue$: Continue$;
+  /**
+   * Its place in the list, for its corners.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
 /** One chapter row; the list around it draws the card. */

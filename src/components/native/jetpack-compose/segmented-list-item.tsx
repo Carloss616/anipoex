@@ -2,6 +2,7 @@ import type { ViewEvent } from "@expo/ui/jetpack-compose";
 import type { ModifierConfig } from "@expo/ui/jetpack-compose/modifiers";
 import { requireNativeView } from "expo";
 import { Children, isValidElement, type ReactNode } from "react";
+import type { ColorValue } from "react-native";
 
 type ItemEvent = { index: number };
 
@@ -12,6 +13,8 @@ interface SegmentedListItemProps {
   /** Leave out for an action row; set, the row is one choice of a single-select list, with its radio. */
   selected?: boolean;
   enabled?: boolean;
+  /** Its fill when not selected; M3's segmented color (surface) when left out. */
+  containerColor?: ColorValue;
   onPress?: () => void;
   onLongPress?: () => void;
   modifiers?: ModifierConfig[];
