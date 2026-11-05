@@ -1,4 +1,11 @@
-import { Button, HStack, ScrollView, Spacer, VStack } from "@expo/ui/swift-ui";
+import {
+  Button,
+  HStack,
+  LazyHStack,
+  ScrollView,
+  Spacer,
+  VStack,
+} from "@expo/ui/swift-ui";
 import {
   buttonStyle,
   padding,
@@ -38,7 +45,7 @@ export function RailSection({ title, media, params }: RailSectionProps) {
         )}
       </HStack>
       <ScrollView axes="horizontal" modifiers={[scrollIndicators("hidden")]}>
-        <HStack
+        <LazyHStack
           alignment="top"
           spacing={10}
           modifiers={[padding({ horizontal: GUTTER })]}
@@ -51,7 +58,7 @@ export function RailSection({ title, media, params }: RailSectionProps) {
               titlePosition="below"
             />
           ))}
-        </HStack>
+        </LazyHStack>
       </ScrollView>
     </VStack>
   );

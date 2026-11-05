@@ -2,6 +2,7 @@ import { useFragment } from "@apollo/client/react";
 import {
   Button,
   HStack,
+  LazyHStack,
   Rectangle,
   ScrollView,
   Spacer,
@@ -81,11 +82,11 @@ export function HeroSection({ title, media, params }: HeroSectionProps) {
           padding({ horizontal: GUTTER }),
         ]}
       >
-        <HStack spacing={10} modifiers={[scrollTargetLayout()]}>
+        <LazyHStack spacing={10} modifiers={[scrollTargetLayout()]}>
           {media.slice(0, 10).map((item, i) => (
             <HeroCard key={item.id} item={item} rank={i + 1} />
           ))}
-        </HStack>
+        </LazyHStack>
       </ScrollView>
     </VStack>
   );

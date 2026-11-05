@@ -1,5 +1,11 @@
 import { useFragment } from "@apollo/client/react";
-import { HStack, ScrollView, VStack, ZStack } from "@expo/ui/swift-ui";
+import {
+  HStack,
+  LazyHStack,
+  ScrollView,
+  VStack,
+  ZStack,
+} from "@expo/ui/swift-ui";
 import {
   accessibilityAddTraits,
   accessibilityElement,
@@ -24,6 +30,8 @@ import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { ContinueSectionProps } from "./continue-section";
 
+const CARD_WIDTH = 240;
+
 export function ContinueSection({ title, items }: ContinueSectionProps) {
   return (
     <VStack alignment="leading" spacing={8}>
@@ -35,11 +43,11 @@ export function ContinueSection({ title, items }: ContinueSectionProps) {
         {title}
       </Text>
       <ScrollView axes="horizontal" modifiers={[scrollIndicators("hidden")]}>
-        <HStack spacing={10} modifiers={[padding({ horizontal: GUTTER })]}>
+        <LazyHStack spacing={10} modifiers={[padding({ horizontal: GUTTER })]}>
           {items.map((item) => (
             <ContinueCard key={item.mangaId} item={item} />
           ))}
-        </HStack>
+        </LazyHStack>
       </ScrollView>
     </VStack>
   );
@@ -68,7 +76,7 @@ const ContinueCard = memo(function ContinueCard({
       spacing={10}
       modifiers={[
         padding({ all: 10 }),
-        frame({ width: 240, alignment: "leading" }),
+        frame({ width: CARD_WIDTH, alignment: "leading" }),
         background(cell),
         clipShape("roundedRectangle", 18),
         onTapGesture(() =>
