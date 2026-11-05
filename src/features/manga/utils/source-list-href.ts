@@ -2,6 +2,9 @@ import type { Href } from "expo-router";
 
 const PATH = /^\/manga\/(\d+)\/sources$/;
 
+/** The detail's route name in Home's and Manga's stacks. */
+export const DETAIL_ROUTE = "manga/[id]/index";
+
 /** The manga's source list; `expanded` opens it at its full height. */
 export const sourceListHref = (
   mangaId: number | string,
@@ -11,14 +14,14 @@ export const sourceListHref = (
   params: { id: String(mangaId), ...(expanded && { expanded: "1" }) },
 });
 
-/** Whether the manga stack has the manga's detail right under its list. */
+/** Whether the stack has the manga's detail right under its list. */
 export function isOverDetail(
   state: { routes: { name: string; params?: object }[]; index: number },
   mangaId: string,
 ) {
   const below = state.routes[state.index - 1];
   return (
-    below?.name === "[id]/index" &&
+    below?.name === DETAIL_ROUTE &&
     (below.params as { id?: string } | undefined)?.id === mangaId
   );
 }

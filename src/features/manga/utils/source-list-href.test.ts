@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import {
+  DETAIL_ROUTE,
   isOverDetail,
   sourceListHref,
   sourceListMangaId,
@@ -22,8 +23,8 @@ describe("sourceListHref", () => {
 });
 
 describe("isOverDetail", () => {
-  const detail = (id: string) => ({ name: "[id]/index", params: { id } });
-  const list = { name: "[id]/sources", params: { id: "12" } };
+  const detail = (id: string) => ({ name: DETAIL_ROUTE, params: { id } });
+  const list = { name: "manga/[id]/sources", params: { id: "12" } };
 
   it("is true with the manga's detail right under the list", () => {
     expect(isOverDetail({ routes: [detail("12"), list], index: 1 }, "12")).toBe(

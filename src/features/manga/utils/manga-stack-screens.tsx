@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { Platform } from "react-native";
 import type { useThemeM3Colors } from "@/hooks/use-theme";
+import { DETAIL_ROUTE } from "./source-list-href";
 
 /**
  * The manga detail, reader and sources: Home's and Manga's stacks both push
@@ -8,7 +9,7 @@ import type { useThemeM3Colors } from "@/hooks/use-theme";
  */
 export function mangaStackScreens(m3: ReturnType<typeof useThemeM3Colors>) {
   return [
-    <Stack.Screen key="detail" name="manga/[id]/index" />,
+    <Stack.Screen key="detail" name={DETAIL_ROUTE} />,
     <Stack.Screen
       key="reader"
       name="manga/[id]/reader"
