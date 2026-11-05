@@ -182,6 +182,7 @@ export function ChapterReader() {
                         : "Load next chapter",
                     onPress: () => {
                       page$.set(1);
+                      visible$.set(true);
                       router.setParams({ chapter: next.id });
                     },
                   }
@@ -199,7 +200,9 @@ export function ChapterReader() {
       <Computed>
         {() => (
           <Stack.Header
-            hidden={!visible$.get()}
+            // With no pages there's no tap to bring it back, and it holds the
+            // back button: a next chapter loading after a scroll down hid it.
+            hidden={pages.length > 0 && !visible$.get()}
             blurEffect="systemChromeMaterial"
             style={headerStyle}
           />
