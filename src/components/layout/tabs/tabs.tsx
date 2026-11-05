@@ -19,7 +19,8 @@ export function Tabs() {
       sidebarAdaptable
       hidden={
         Platform.OS === "android"
-          ? /^\/manga\/[^/]+(\/reader|\/sources)?$/.test(pathname)
+          ? // Android hides the bar on every page pushed into Manga or Settings.
+            /^\/(manga|settings)\/./.test(pathname)
           : pathname.endsWith("/reader")
       }
       {...tabTheme}
