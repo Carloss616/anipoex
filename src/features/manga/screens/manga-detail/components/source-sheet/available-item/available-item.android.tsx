@@ -93,16 +93,15 @@ export const AvailableItem = memo(function AvailableItem({
               ) : (
                 <Badge color={status.color}>{status.label}</Badge>
               )}
-              {detail !== "" && (
-                // The badge's labelSmall: a second baseline makes M3's list
-                // item a top-aligned three-line row.
+              {detail.chapter && <Badge>{detail.chapter}</Badge>}
+              {detail.age && (
                 <Text
                   style={{ typography: "labelSmall", fontWeight: "400" }}
                   color={m3.onSurfaceVariant}
                   maxLines={1}
                   overflow="ellipsis"
                 >
-                  {detail}
+                  {detail.age}
                 </Text>
               )}
             </Row>

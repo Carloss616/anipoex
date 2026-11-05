@@ -112,7 +112,7 @@ export const AvailableItem = memo(function AvailableItem({
                 ) : (
                   <Badge color={status.color}>{status.label}</Badge>
                 )}{" "}
-                {detail}
+                {detail.chapter && <Badge>{detail.chapter}</Badge>} {detail.age}
               </Frame.Description>
             </Frame.Content>
           </Frame.Row>

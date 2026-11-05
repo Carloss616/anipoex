@@ -123,12 +123,13 @@ export const AvailableItem = memo(function AvailableItem({
                     ) : (
                       <Badge color={status.color}>{status.label}</Badge>
                     )}
-                    {detail !== "" && (
+                    {detail.chapter && <Badge>{detail.chapter}</Badge>}
+                    {detail.age && (
                       <Text
                         textStyle="subheadline"
                         modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
                       >
-                        {detail}
+                        {detail.age}
                       </Text>
                     )}
                   </HStack>

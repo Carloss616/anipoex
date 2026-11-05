@@ -15,7 +15,7 @@ import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { excludedBadge } from "../utils/row-content";
+import { excludedBy } from "../utils/row-content";
 import { excludedRowMenu } from "../utils/row-menu";
 
 export interface ExcludedItemProps {
@@ -76,9 +76,12 @@ export const ExcludedItem = memo(function ExcludedItem({
               {scanning ? (
                 <Badge>scanning…</Badge>
               ) : (
-                <Badge color={REASONS[reason].color}>
-                  {excludedBadge(reason, pinned)}
-                </Badge>
+                <>
+                  <Badge color={REASONS[reason].color}>
+                    {REASONS[reason].badge}
+                  </Badge>{" "}
+                  <Badge>{excludedBy(pinned)}</Badge>
+                </>
               )}
             </Frame.Description>
           </Frame.Content>

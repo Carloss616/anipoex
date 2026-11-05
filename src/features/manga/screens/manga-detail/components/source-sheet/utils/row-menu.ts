@@ -97,7 +97,7 @@ export function availableRowMenu(
   ];
 }
 
-/** An excluded row's menu; Stop and Include join where the row has no button for them. */
+/** An excluded row's menu; Stop and Include join where asked (native rows without a button for them, iOS always). */
 export function excludedRowMenu(
   row: RowMenuState & { withStop: boolean; withInclude: boolean },
 ): MenuItem[] {

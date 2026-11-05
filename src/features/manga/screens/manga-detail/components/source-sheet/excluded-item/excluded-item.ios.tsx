@@ -6,11 +6,16 @@ import {
   SwipeActions,
   VStack,
 } from "@expo/ui/swift-ui";
-import { lineLimit, tint } from "@expo/ui/swift-ui/modifiers";
+import {
+  accessibilityLabel,
+  buttonStyle,
+  lineLimit,
+  tint,
+} from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
-import { Text } from "@/components/native/swift-ui/text";
+import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
@@ -21,7 +26,7 @@ import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { excludedBadge, searchItem } from "../utils/row-content";
+import { excludedBy, searchItem } from "../utils/row-content";
 import { excludedRowMenu } from "../utils/row-menu";
 import type { ExcludedItemProps } from "./excluded-item";
 
@@ -34,6 +39,7 @@ export const ExcludedItem = memo(function ExcludedItem({
   onError,
 }: ExcludedItemProps) {
   const primary = useThemeColor("primary");
+  const font = useFont("subheadline", "semibold");
   // Rechecked or picked by hand, it stays here until its probe judges it.
   const scanning = useValue(
     () => scanning$[mangaKey][source.id].get() === true,
@@ -54,19 +60,6 @@ export const ExcludedItem = memo(function ExcludedItem({
         onPress={() => actions.openWebsite(source, url)}
       />
     );
-  // While this source scans, Include gives way to Stop, as Rescan does on
-  // Available rows.
-  const include = (color?: string) => (
-    <Button
-      label={scanning ? "Stop" : "Include"}
-      systemImage={scanning ? sfSymbol(Icons.close) : "arrow.uturn.backward"}
-      modifiers={color ? [tint(color)] : []}
-      onPress={() =>
-        scanning ? actions.stop(source.id) : actions.include(source.id)
-      }
-    />
-  );
-
   const menu = excludedRowMenu({
     source,
     url,
@@ -75,6 +68,7 @@ export const ExcludedItem = memo(function ExcludedItem({
     error,
     actions,
     withStop: true,
+    // iOS menus hold every action, the row's own included.
     withInclude: true,
     onSeeError: error
       ? () => onError?.({ source, error, excluded: true })
@@ -96,14 +90,29 @@ export const ExcludedItem = memo(function ExcludedItem({
                   {scanning ? (
                     <Badge>scanning…</Badge>
                   ) : (
-                    <Badge color={REASONS[reason].color}>
-                      {excludedBadge(reason, pinned)}
-                    </Badge>
+                    <>
+                      <Badge color={REASONS[reason].color}>
+                        {REASONS[reason].badge}
+                      </Badge>
+                      <Badge>{excludedBy(pinned)}</Badge>
+                    </>
                   )}
                 </HStack>
               </VStack>
             </Label>
             <Spacer />
+            {/* Its one action, as text: Stop is in the menu while it scans. */}
+            {!scanning && (
+              <Button
+                label="Include"
+                onPress={() => actions.include(source.id)}
+                modifiers={[
+                  buttonStyle("borderless"),
+                  font,
+                  accessibilityLabel(`Include ${source.name}`),
+                ]}
+              />
+            )}
           </HStack>
         </ContextMenu>
         <Rail
@@ -113,8 +122,7 @@ export const ExcludedItem = memo(function ExcludedItem({
           actions={actions}
         />
       </VStack>
-      {/* Right edge only: search, include and website, where Available rows
-          search. */}
+      {/* Right edge only: search and website; Include is on the row. */}
       <SwipeActions.Actions edge="trailing">
         <Button
           label={searching ? "Stop" : "Search"}
@@ -122,7 +130,6 @@ export const ExcludedItem = memo(function ExcludedItem({
           modifiers={[tint(primary)]}
           onPress={search.onPress}
         />
-        {include(primary)}
         {website("Website")}
       </SwipeActions.Actions>
     </SwipeActions>

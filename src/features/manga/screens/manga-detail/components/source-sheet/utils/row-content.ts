@@ -78,13 +78,17 @@ export const errorDialog = (
 });
 
 /**
- * What follows the badge on an available row: `c.{chapter}` (`?` when
- * suspicious) and the age, each when present.
+ * What follows the badge on an available row, each part empty when missing:
+ * `c.{chapter}` (`?` when suspicious), as a neutral badge, then `· {age}`.
  */
-export const statusDetail = ({ chapter, suspicious, age }: SourceStatus) =>
-  [chapter !== undefined && `c.${chapter}${suspicious ? "?" : ""}`, age]
-    .filter(Boolean)
-    .join(" · ");
+export const statusDetail = ({ chapter, suspicious, age }: SourceStatus) => {
+  const chapterText =
+    chapter === undefined ? "" : `c.${chapter}${suspicious ? "?" : ""}`;
+  return {
+    chapter: chapterText,
+    age: age ? (chapterText ? `· ${age}` : age) : "",
+  };
+};
 
 /**
  * The reasons a row's menu offers, `bad-numbering` first when its numbering
@@ -95,9 +99,8 @@ export const excludeReasons = (suspicious: boolean): ExcludeReason[] =>
     ? ["bad-numbering", ...ORDER.filter((r) => r !== "bad-numbering")]
     : ORDER;
 
-/** An excluded row's badge: the reason, then whether you or a scan chose it. */
-export const excludedBadge = (reason: ExcludeReason, pinned: boolean) =>
-  `${REASONS[reason].badge} · ${pinned ? "you" : "auto"}`;
+/** Who excluded a row, for its neutral badge beside the reason's. */
+export const excludedBy = (pinned: boolean) => (pinned ? "you" : "auto");
 
 /** The row menu's title-search item: start searching the source, or stop. */
 export const searchItem = (

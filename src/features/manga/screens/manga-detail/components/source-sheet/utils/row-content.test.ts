@@ -1,16 +1,16 @@
 import { describe, expect, it } from "bun:test";
 import {
-  excludedBadge,
+  excludedBy,
   excludedMenuItems,
   excludeReasons,
   statusDetail,
 } from "./row-content";
 
 describe("row content", () => {
-  it("joins chapter and age when present", () => {
+  it("splits chapter and age, each when present", () => {
     expect(
       statusDetail({ label: "+11", color: "success", chapter: 374, age: "2h" }),
-    ).toBe("c.374 · 2h");
+    ).toEqual({ chapter: "c.374", age: "· 2h" });
     expect(
       statusDetail({
         label: "+234",
@@ -19,14 +19,17 @@ describe("row content", () => {
         suspicious: true,
         age: "3d",
       }),
-    ).toBe("c.597? · 3d");
+    ).toEqual({ chapter: "c.597?", age: "· 3d" });
     expect(
       statusDetail({ label: "error", color: "destructive", age: "10m" }),
-    ).toBe("10m");
-    expect(statusDetail({ label: "not scanned", color: "secondary" })).toBe("");
+    ).toEqual({ chapter: "", age: "10m" });
+    expect(statusDetail({ label: "not scanned", color: "secondary" })).toEqual({
+      chapter: "",
+      age: "",
+    });
     expect(
       statusDetail({ label: "+0", color: "warning", chapter: 0, age: "1d" }),
-    ).toBe("c.0 · 1d");
+    ).toEqual({ chapter: "c.0", age: "· 1d" });
   });
 
   it("puts bad-numbering first when suspicious", () => {
@@ -47,8 +50,8 @@ describe("row content", () => {
   });
 
   it("labels who excluded", () => {
-    expect(excludedBadge("outdated", false)).toBe("behind · auto");
-    expect(excludedBadge("bad-numbering", true)).toBe("bad numbers · you");
+    expect(excludedBy(false)).toBe("auto");
+    expect(excludedBy(true)).toBe("you");
   });
 
   it("offers retry only while an exclusion is automatic", () => {

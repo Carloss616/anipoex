@@ -16,7 +16,7 @@ import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { excludedBadge } from "../utils/row-content";
+import { excludedBy } from "../utils/row-content";
 import { excludedRowMenu } from "../utils/row-menu";
 import type { ExcludedItemProps } from "./excluded-item";
 
@@ -75,9 +75,12 @@ export const ExcludedItem = memo(function ExcludedItem({
               {scanning ? (
                 <Badge>scanning…</Badge>
               ) : (
-                <Badge color={REASONS[reason].color}>
-                  {excludedBadge(reason, pinned)}
-                </Badge>
+                <>
+                  <Badge color={REASONS[reason].color}>
+                    {REASONS[reason].badge}
+                  </Badge>
+                  <Badge>{excludedBy(pinned)}</Badge>
+                </>
               )}
             </Row>
           </SegmentedListItem.Supporting>
