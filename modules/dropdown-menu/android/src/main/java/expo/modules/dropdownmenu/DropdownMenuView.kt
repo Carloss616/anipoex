@@ -3,6 +3,10 @@ package expo.modules.dropdownmenu
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CheckableDropdownMenuItem
@@ -16,6 +20,9 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,7 +76,11 @@ fun FunctionalComposableScope.DropdownMenuContent(props: DropdownMenuProps, onDi
   Box(ModifierRegistry.applyModifiers(props.modifiers, appContext, composableScope, globalEventDispatcher)) {
     Children(UIComposableScope(), filter = { isSlotWithName(it, "trigger") })
     DropdownMenuPopup(expanded = props.expanded, onDismissRequest = { onDismissRequest(DropdownMenuEvent()) }) {
-      Column(verticalArrangement = Arrangement.spacedBy(MenuDefaults.GroupSpacing)) {
+      // Unlike DropdownMenu, the Expressive popup's column doesn't scroll itself.
+      Column(
+        Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(MenuDefaults.GroupSpacing)
+      ) {
         Children(UIComposableScope(), filter = { !isSlotView(it) })
       }
     }
@@ -127,10 +138,24 @@ fun FunctionalComposableScope.DropdownMenuItemContent(props: DropdownMenuItemPro
       selected = checked,
       onClick = press,
       text = text,
+      modifier = Modifier.bringIntoViewRequester(selectedInView(checked)),
       shapes = shapes,
       leadingIcon = icon,
       selectedLeadingIcon = check,
       enabled = props.enabled
     )
   }
+}
+
+/** Scrolls a long menu to its selected choice as it opens; picks made while open stay put. */
+@Composable
+private fun selectedInView(selected: Boolean): BringIntoViewRequester {
+  val requester = remember { BringIntoViewRequester() }
+  LaunchedEffect(Unit) {
+    if (!selected) return@LaunchedEffect
+    // Laid out first: there's nothing to bring before the popup's first frame.
+    withFrameNanos {}
+    requester.bringIntoView()
+  }
+  return requester
 }
