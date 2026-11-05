@@ -16,6 +16,8 @@ IndexedDB), and nothing persists during web's server render.
 
 * [Manga list view](manga-list-view.md) - Grid density and title position.
 * [Theme](theme.md) - Theme family and light / dark / system preference.
+* [Home layout](home-layout.md) - Which Home sections show and in what order; a preset or the user's own.
+* [Search history](search-history.md) - The last 10 AniList searches submitted, suggested while typing.
 * [Extension repos](extension-repos.md) - The repos extensions are installed from; none until the user adds one.
 * [Extension DNS](extension-dns.md) - The resolver extensions use; Cloudflare over HTTPS unless the user picks another.
 * [Extension cookies](extension-cookies.md) - Cookies sites set for extensions, kept like a browser's; Cloudflare challenges solved on Android.
