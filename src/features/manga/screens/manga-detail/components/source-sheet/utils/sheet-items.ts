@@ -1,14 +1,11 @@
 import type { ExcludedRow, SourceRow } from "./split-sources";
 
-/**
- * One entry of the sheet's flat list: a section header, a source row or
- * Available's empty line; `first` rows draw no divider above.
- */
+/** One entry of the sheet's flat list; a row knows its place in its section. */
 export type SheetItem =
   | { kind: "header"; id: "available" | "excluded" }
   | { kind: "no-sources" }
-  | { kind: "available"; row: SourceRow; first: boolean }
-  | { kind: "excluded"; row: ExcludedRow; first: boolean };
+  | { kind: "available"; row: SourceRow; index: number; count: number }
+  | { kind: "excluded"; row: ExcludedRow; index: number; count: number };
 
 export const sheetItemKey = (item: SheetItem) =>
   item.kind === "no-sources"
@@ -27,18 +24,20 @@ export function sheetItems(
   return [
     { kind: "header", id: "available" },
     ...(available.length === 0 ? [{ kind: "no-sources" } as const] : []),
-    ...available.map((row, i) => ({
+    ...available.map((row, index) => ({
       kind: "available" as const,
       row,
-      first: i === 0,
+      index,
+      count: available.length,
     })),
     ...(excluded.length > 0
       ? [{ kind: "header", id: "excluded" } as const]
       : []),
-    ...excluded.map((row, i) => ({
+    ...excluded.map((row, index) => ({
       kind: "excluded" as const,
       row,
-      first: i === 0,
+      index,
+      count: excluded.length,
     })),
   ];
 }

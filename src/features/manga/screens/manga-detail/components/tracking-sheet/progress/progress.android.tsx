@@ -6,6 +6,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { NumberInput } from "@/components/ui/number-input";
+import { Progress as ProgressBar } from "@/components/ui/progress";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
 import { useProgress } from "./hooks/use-progress";
@@ -27,15 +28,20 @@ export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
         Progress
       </Text>
 
-      <Column modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}>
+      <Column
+        verticalArrangement={{ spacedBy: 16 }}
+        modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}
+      >
         <NumberInput
-          suffix={total ? `/${total}` : undefined}
+          variant="display"
+          description={total ? `of ${total} chapters` : "chapters read"}
           value={value}
           min={0}
           max={total ?? Number.MAX_SAFE_INTEGER}
           step={1}
           onValueChange={step}
         />
+        {!!total && <ProgressBar value={value} maxValue={total} />}
       </Column>
 
       <ChangesPreview changes={changes} />

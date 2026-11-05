@@ -9,7 +9,9 @@ const ex = (id: string) => ({
   pinned: false,
 });
 const shape = (items: ReturnType<typeof sheetItems>) =>
-  items.map((i) => `${sheetItemKey(i)}${"first" in i && i.first ? "!" : ""}`);
+  items.map(
+    (i) => `${sheetItemKey(i)}${"index" in i && i.index === 0 ? "!" : ""}`,
+  );
 
 describe("sheetItems", () => {
   it("is empty when both sections are", () =>

@@ -1,14 +1,17 @@
 import AddIcon from "@expo/material-symbols/add.xml";
 import RemoveIcon from "@expo/material-symbols/remove.xml";
 import {
+  BasicTextField,
   Column,
+  FilledIconButton,
   FilledTonalIconButton,
   OutlinedTextField,
   Row,
+  Shape,
   type TextFieldRef,
   useNativeState,
 } from "@expo/ui/jetpack-compose";
-import { weight } from "@expo/ui/jetpack-compose/modifiers";
+import { fillMaxWidth, size, weight } from "@expo/ui/jetpack-compose/modifiers";
 import { useEffect, useRef } from "react";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useFontFamily } from "@/hooks/use-font";
@@ -18,6 +21,13 @@ import { EnsureHost } from "../host";
 import { Icon } from "../icon";
 import { useStepRepeat } from "./hooks/use-step-repeat";
 import type { NumberInputProps } from "./number-input";
+
+/** M3 Expressive's large icon button: 56dp tall, + wider as the main action. */
+const LARGE = { height: 56, minus: 64, plus: 96, radius: 18 };
+const corners = (r: number) =>
+  Shape.RoundedCorner({
+    cornerRadii: { topStart: r, topEnd: r, bottomStart: r, bottomEnd: r },
+  });
 
 /**
  * M3 has no stepper: two icon buttons that repeat while held, around a field
@@ -39,6 +49,7 @@ export function NumberInput({
   description,
   prefix,
   suffix,
+  variant = "field",
 }: NumberInputProps) {
   const text = useNativeState(String(value));
   const fontFamily = useFontFamily("normal");
@@ -77,6 +88,80 @@ export function NumberInput({
     if (clamped !== value) onValueChange?.(clamped);
   };
 
+  const keyboard = {
+    keyboardOptions: { keyboardType: "number", imeAction: "done" },
+    keyboardActions: { onDone: () => field.current?.blur() },
+  } as const;
+
+  if (variant === "display") {
+    return (
+      <EnsureHost matchContents={{ vertical: true }} className="w-full">
+        <Column
+          horizontalAlignment="center"
+          verticalArrangement={{ spacedBy: 16 }}
+          modifiers={[fillMaxWidth()]}
+        >
+          <Column horizontalAlignment="center" modifiers={[fillMaxWidth()]}>
+            <BasicTextField
+              ref={field}
+              value={text}
+              enabled={!disabled}
+              singleLine
+              {...keyboard}
+              // displayLarge, the M3 type scale's largest.
+              textStyle={{
+                fontFamily,
+                fontSize: 57,
+                lineHeight: 64,
+                textAlign: "center",
+                color: m3.onSurface,
+              }}
+              onValueChange={commit}
+              modifiers={[fillMaxWidth()]}
+            />
+            {description && (
+              <Text
+                style={{ typography: "bodyMedium" }}
+                color={m3.onSurfaceVariant}
+              >
+                {description}
+              </Text>
+            )}
+          </Column>
+          <Row
+            verticalAlignment="center"
+            horizontalArrangement={{ spacedBy: 12 }}
+          >
+            <FilledTonalIconButton
+              enabled={!disabled && value > min}
+              onClick={decrement.onPress}
+              shape={corners(LARGE.radius)}
+              modifiers={[size(LARGE.minus, LARGE.height), decrement.modifier]}
+            >
+              <Icon
+                name={RemoveIcon}
+                accessibilityLabel="Decrease"
+                color="inherit"
+              />
+            </FilledTonalIconButton>
+            <FilledIconButton
+              enabled={!disabled && value < max}
+              onClick={increment.onPress}
+              shape={corners(LARGE.height / 2)}
+              modifiers={[size(LARGE.plus, LARGE.height), increment.modifier]}
+            >
+              <Icon
+                name={AddIcon}
+                accessibilityLabel="Increase"
+                color="inherit"
+              />
+            </FilledIconButton>
+          </Row>
+        </Column>
+      </EnsureHost>
+    );
+  }
+
   const content = (
     <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 8 }}>
       <FilledTonalIconButton
@@ -84,7 +169,7 @@ export function NumberInput({
         onClick={decrement.onPress}
         modifiers={[decrement.modifier]}
       >
-        <Icon name={RemoveIcon} color="inherit" />
+        <Icon name={RemoveIcon} accessibilityLabel="Decrease" color="inherit" />
       </FilledTonalIconButton>
       <OutlinedTextField
         ref={field}
@@ -92,12 +177,7 @@ export function NumberInput({
         value={text}
         enabled={!disabled}
         singleLine
-        keyboardOptions={{ keyboardType: "number", imeAction: "done" }}
-        keyboardActions={{
-          onDone: () => {
-            field.current?.blur();
-          },
-        }}
+        {...keyboard}
         textStyle={{ fontFamily, textAlign: "right" }}
         onValueChange={commit}
       >
@@ -137,7 +217,7 @@ export function NumberInput({
         onClick={increment.onPress}
         modifiers={[increment.modifier]}
       >
-        <Icon name={AddIcon} color="inherit" />
+        <Icon name={AddIcon} accessibilityLabel="Increase" color="inherit" />
       </FilledTonalIconButton>
     </Row>
   );

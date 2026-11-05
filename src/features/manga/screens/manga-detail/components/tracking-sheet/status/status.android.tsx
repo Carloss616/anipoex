@@ -1,20 +1,37 @@
-import { Column, RadioButton, Row } from "@expo/ui/jetpack-compose";
+import BookmarkIcon from "@expo/material-symbols/bookmark.xml";
+import CancelIcon from "@expo/material-symbols/cancel.xml";
+import MenuBookIcon from "@expo/material-symbols/menu_book.xml";
+import ReplayIcon from "@expo/material-symbols/replay.xml";
+import { Column } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
-  height,
   padding,
-  selectable,
   selectableGroup,
   verticalScroll,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import {
+  SEGMENTED_GAP,
+  SegmentedListItem,
+} from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { Icon, type IconName, Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
+import { MediaListStatus } from "@/graphql/types.generated";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
 import { useStatus } from "./hooks/use-status";
 import type { StatusProps } from "./status";
+
+const STATUS_ICON: Record<MediaListStatus, IconName> = {
+  [MediaListStatus.Current]: MenuBookIcon,
+  [MediaListStatus.Planning]: BookmarkIcon,
+  [MediaListStatus.Completed]: Icons.checkCircle,
+  [MediaListStatus.Paused]: Icons.pause,
+  [MediaListStatus.Dropped]: CancelIcon,
+  [MediaListStatus.Repeating]: ReplayIcon,
+};
 
 export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
   const { isLandscape } = useBreakpoint();
@@ -39,31 +56,27 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
           fillMaxWidth(),
           ...(isLandscape ? [weight(1)] : []),
           verticalScroll(),
-          padding(0, 16, 0, 16),
+          padding(16, 16, 16, 16),
         ]}
       >
-        {/* M3's radio group: the whole row is the target, the disc only
-            reports state, and the group reads as one choice. */}
-        <Column modifiers={[selectableGroup()]}>
-          {MANGA_STATUS_ENTRIES.map(([status, title]) => (
-            <Row
+        {/* M3 single-select list: each row is a radio, the group one choice. */}
+        <Column
+          verticalArrangement={{ spacedBy: SEGMENTED_GAP }}
+          modifiers={[selectableGroup()]}
+        >
+          {MANGA_STATUS_ENTRIES.map(([status, title], index) => (
+            <SegmentedListItem
               key={status}
-              verticalAlignment="center"
-              horizontalArrangement={{ spacedBy: 16 }}
-              modifiers={[
-                fillMaxWidth(),
-                height(56),
-                selectable(
-                  selected === status,
-                  () => setSelected(status),
-                  "radioButton",
-                ),
-                padding(16, 0, 16, 0),
-              ]}
+              index={index}
+              count={MANGA_STATUS_ENTRIES.length}
+              selected={selected === status}
+              onPress={() => setSelected(status)}
             >
-              <RadioButton selected={selected === status} />
+              <SegmentedListItem.Leading>
+                <Icon name={STATUS_ICON[status]} color="inherit" />
+              </SegmentedListItem.Leading>
               <Text>{title}</Text>
-            </Row>
+            </SegmentedListItem>
           ))}
         </Column>
       </Column>

@@ -11,13 +11,19 @@ import { useState } from "react";
 import { useCSSVariable } from "uniwind";
 import { Image } from "@/components/native/jetpack-compose/image";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { Loader } from "@/components/ui/loader";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
 import type { SourceTileProps } from "./source-tile";
 
 const SIDE = 40;
 
-export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
+export function SourceTile({
+  initials,
+  color,
+  iconUrl,
+  loading = false,
+}: SourceTileProps) {
   const border = useThemeColor("border");
   // Each theme family sets its own rounding: read `rounded-lg`, don't fix it.
   const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
@@ -55,6 +61,7 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
           modifiers={[matchParentSize()]}
         />
       )}
+      {loading && <Loader size="sm" />}
     </Box>
   );
 }

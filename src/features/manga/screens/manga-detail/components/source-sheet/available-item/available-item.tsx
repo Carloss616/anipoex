@@ -4,7 +4,7 @@ import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Menu, type MenuItem } from "@/components/ui/menu";
+import { ContextMenu, Menu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import { useMatchUrl } from "../hooks/use-match-url";
@@ -13,16 +13,12 @@ import type { SourceActions } from "../hooks/use-source-actions";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import {
-  errorDialog,
-  excludeMenu,
-  searchItem,
-  statusDetail,
-} from "../utils/row-content";
+import { statusDetail } from "../utils/row-content";
+import { availableRowMenu } from "../utils/row-menu";
 import { sourceStatus } from "../utils/source-status";
 
-// End padding for 2, 3 or 4 buttons (rescan and ⋯, plus the check and stop).
-const PADDING = ["pe-27.5", "pe-34", "pe-40.5"];
+// End padding for 2 or 3 buttons (rescan or stop and ⋯, plus the check).
+const PADDING = ["pe-27.5", "pe-34"];
 
 /** What the iOS swipe hands the sheet's reason dialog. */
 export type ExcludeRequest = { source: Source; suspicious: boolean };
@@ -39,15 +35,19 @@ export interface AvailableItemProps {
   /** When the sheet opened: the probe ages count from it. */
   openedAt: number;
   selected: boolean;
+  /**
+   * Its place in its section, for the group's rounded ends.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
   actions: SourceActions;
   onSelect: (id: string) => void;
   /** iOS: the swipe's Exclude asks for a reason in the sheet's dialog. */
   onExclude?: (row: ExcludeRequest) => void;
   /** iOS: See error shows the message in the sheet's dialog. */
   onError?: (row: ErrorRequest) => void;
-  /** Android: the long-press menu is open on this row. */
-  menuOpen?: boolean;
-  onMenu?: (id: string | null) => void;
 }
 
 export const AvailableItem = memo(function AvailableItem({
@@ -76,71 +76,47 @@ export const AvailableItem = memo(function AvailableItem({
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
   const searching = useSearching(mangaKey, source.id);
-  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
-  const items: MenuItem[] = [
-    { ...searchItem(source, searching, actions), icon: searchIcon },
-    ...(url || source.homeUrl
-      ? [
-          {
-            label: "Open website",
-            icon: Icons.website,
-            onPress: () => actions.openWebsite(source, url),
-          },
-        ]
-      : []),
-    ...(error
-      ? [
-          {
-            label: "See error",
-            icon: Icons.error,
-            onPressMode: "dialog" as const,
-            dialogConfig: errorDialog(source.name, error),
-            onPress: () => actions.rescan(source.id),
-          },
-        ]
-      : []),
-    ...(selected
-      ? [
-          {
-            label: "Deselect",
-            icon: Icons.deselect,
-            onPress: () => actions.deselect(source.id),
-          },
-        ]
-      : []),
-    {
-      ...excludeMenu(suspicious, (reason) =>
-        actions.exclude(source.id, reason),
-      ),
-      icon: Icons.exclude,
-    },
-  ];
+  // Rescan and Stop are buttons on the row here.
+  const items = availableRowMenu({
+    source,
+    url,
+    searching,
+    scanning,
+    error,
+    actions,
+    selected,
+    suspicious,
+    withRescan: false,
+  });
 
   return (
     <View>
       <View>
-        <Frame.Row
-          onClick={() => onSelect(source.id)}
-          aria-selected={selected}
-          className={PADDING[Number(selected) + Number(scanning)]}
-        >
-          <Frame.Media>
-            <Tile source={source} />
-          </Frame.Media>
-          <Frame.Content>
-            <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
-            <Frame.Description>
-              {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
-              {scanning ? (
-                <Badge>scanning…</Badge>
-              ) : (
-                <Badge color={status.color}>{status.label}</Badge>
-              )}{" "}
-              {detail}
-            </Frame.Description>
-          </Frame.Content>
-        </Frame.Row>
+        {/* Right-click opens the ⋯ menu's rows at the pointer. */}
+        <ContextMenu items={items}>
+          <Frame.Row
+            onClick={() => onSelect(source.id)}
+            aria-selected={selected}
+            className={PADDING[Number(selected)]}
+          >
+            <Frame.Media>
+              <Tile source={source} loading={scanning} />
+            </Frame.Media>
+            <Frame.Content>
+              <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
+              <Frame.Description>
+                {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
+                {scanning ? (
+                  <Badge>scanning…</Badge>
+                ) : (
+                  <Badge color={status.color}>{status.label}</Badge>
+                )}{" "}
+                {detail}
+              </Frame.Description>
+            </Frame.Content>
+          </Frame.Row>
+        </ContextMenu>
         {/* Over the row, not in it: a <button> can't hold buttons. */}
         <Frame.Actions className="absolute inset-e-4 inset-y-0">
           {/* A mark, not an action: a disabled button only for the same box
@@ -162,28 +138,20 @@ export const AvailableItem = memo(function AvailableItem({
               />
             </Button>
           )}
-          {/* Off only while this source scans: rescans of other rows run
-              beside it. */}
+          {/* Rescan turns to Stop while it scans: a slow source can scan for minutes. */}
           <Button
             variant="ghost"
             size="icon"
-            loading={scanning}
-            onClick={() => actions.rescan(source.id)}
-            aria-label={`Rescan ${source.name}`}
+            onClick={() =>
+              scanning ? actions.stop(source.id) : actions.rescan(source.id)
+            }
+            aria-label={`${scanning ? "Stop scanning" : "Rescan"} ${source.name}`}
           >
-            <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
+            <Icon
+              name={scanning ? Icons.close : Icons.refresh}
+              size={BUTTON_ICON_SIZE}
+            />
           </Button>
-          {/* Beside the spinner: a slow source can hold a scan for minutes. */}
-          {scanning && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => actions.stop(source.id)}
-              aria-label={`Stop scanning ${source.name}`}
-            >
-              <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
-            </Button>
-          )}
           <Menu items={items}>
             <Button
               variant="ghost"

@@ -1,8 +1,8 @@
 import {
   Box,
   Column,
+  FilledIconButton,
   FilledTonalIconButton,
-  HorizontalDivider,
   IconButton,
   LazyColumn,
   Row,
@@ -18,7 +18,7 @@ import {
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Computed } from "@legendapp/state/react";
-import { useState } from "react";
+
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
@@ -27,8 +27,13 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
+import { Progress } from "@/components/ui/progress";
 import { SearchBar } from "@/components/ui/search-bar";
-import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
+import {
+  isScanBusy,
+  scanningAll$,
+  scanProgress$,
+} from "@/features/manga/state/probes";
 import { isTitleSearching } from "@/features/manga/state/title-search";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { AvailableItem } from "../available-item";
@@ -78,10 +83,11 @@ export function SheetContent({
       actions,
     );
   const title = useTitleMode(manga.id, key);
+  // A toggle: filled while title search is on.
   const SearchTitlesButton = title.searching
-    ? FilledTonalIconButton
-    : IconButton;
-  const [menuId, setMenuId] = useState<string | null>(null);
+    ? FilledIconButton
+    : FilledTonalIconButton;
+  const reading = all.find((source) => source.id === selectedId);
   const m3 = useThemeM3Colors();
 
   const items = sheetItems(available, excluded);
@@ -114,8 +120,7 @@ export function SheetContent({
                 <Badge>{available.length + excluded.length}</Badge>
               </Box>
               <Spacer modifiers={[weight(1)]} />
-              {/* A toggle: tonal while title search is on. */}
-              <Row>
+              <Row horizontalArrangement={{ spacedBy: 8 }}>
                 <SearchTitlesButton
                   onClick={() =>
                     // Excluded too: the right page may be on one dropped for
@@ -145,7 +150,7 @@ export function SheetContent({
                     const scanning = scanningAll$[key].get() === true;
 
                     return (
-                      <IconButton
+                      <FilledTonalIconButton
                         enabled={!scanning}
                         onClick={actions.scanAll}
                         modifiers={[
@@ -161,24 +166,51 @@ export function SheetContent({
                             color="inherit"
                           />
                         )}
-                      </IconButton>
+                      </FilledTonalIconButton>
                     );
                   }}
                 </Computed>
               </Row>
             </Row>
-            <Row
-              verticalAlignment="center"
-              horizontalArrangement={{ spacedBy: 6 }}
-            >
-              <Text
-                style={{ typography: "bodyMedium" }}
-                color={m3.onSurfaceVariant}
-              >
-                {read > 0 ? "Read" : "Not started"}
-              </Text>
-              {read > 0 && <Badge>c.{read}</Badge>}
-            </Row>
+            <Computed>
+              {() => {
+                const progress = scanProgress$[key].get();
+
+                return progress ? (
+                  <Column
+                    verticalArrangement={{ spacedBy: 8 }}
+                    modifiers={[padding(0, 4, 0, 0)]}
+                  >
+                    <Text
+                      style={{ typography: "bodyMedium" }}
+                      color={m3.onSurfaceVariant}
+                    >
+                      {`Scanning ${progress.done} of ${progress.total}`}
+                    </Text>
+                    <Progress value={progress.done} maxValue={progress.total} />
+                  </Column>
+                ) : (
+                  <Row
+                    verticalAlignment="center"
+                    horizontalArrangement={{ spacedBy: 6 }}
+                  >
+                    <Text
+                      style={{ typography: "bodyMedium" }}
+                      color={m3.onSurfaceVariant}
+                      maxLines={1}
+                      overflow="ellipsis"
+                    >
+                      {reading
+                        ? `Reading on ${reading.baseName ?? reading.name}`
+                        : read > 0
+                          ? "Read"
+                          : "Not started"}
+                    </Text>
+                    {read > 0 && <Badge>c.{read}</Badge>}
+                  </Row>
+                );
+              }}
+            </Computed>
           </Column>
           {title.searching ? (
             <SearchBar
@@ -227,7 +259,12 @@ export function SheetContent({
           <LazyColumn
             modifiers={[fillMaxWidth(), weight(1), selectableGroup()]}
           >
-            <LazyColumn.Items data={items} keyExtractor={sheetItemKey}>
+            {/* Keyed by source: a scan reorders rows while a menu may be open. */}
+            <LazyColumn.Items
+              data={items}
+              keyExtractor={sheetItemKey}
+              recycling={false}
+            >
               {({ item }) =>
                 item.kind === "header" ? (
                   item.id === "available" ? (
@@ -247,36 +284,29 @@ export function SheetContent({
                   >
                     No sources
                   </Text>
+                ) : item.kind === "available" ? (
+                  <AvailableItem
+                    source={item.row.source}
+                    mangaKey={key}
+                    sources={all}
+                    read={read}
+                    openedAt={openedAt}
+                    selected={item.row.source.id === selectedId}
+                    index={item.index}
+                    count={item.count}
+                    actions={actions}
+                    onSelect={onSelect}
+                  />
                 ) : (
-                  <Column>
-                    {!item.first && (
-                      <HorizontalDivider
-                        modifiers={[padding(GUTTER, 0, GUTTER, 0)]}
-                      />
-                    )}
-                    {item.kind === "available" ? (
-                      <AvailableItem
-                        source={item.row.source}
-                        mangaKey={key}
-                        sources={all}
-                        read={read}
-                        openedAt={openedAt}
-                        selected={item.row.source.id === selectedId}
-                        menuOpen={menuId === item.row.source.id}
-                        actions={actions}
-                        onSelect={onSelect}
-                        onMenu={setMenuId}
-                      />
-                    ) : (
-                      <ExcludedItem
-                        source={item.row.source}
-                        reason={item.row.reason}
-                        pinned={item.row.pinned}
-                        mangaKey={key}
-                        actions={actions}
-                      />
-                    )}
-                  </Column>
+                  <ExcludedItem
+                    source={item.row.source}
+                    reason={item.row.reason}
+                    pinned={item.row.pinned}
+                    index={item.index}
+                    count={item.count}
+                    mangaKey={key}
+                    actions={actions}
+                  />
                 )
               }
             </LazyColumn.Items>

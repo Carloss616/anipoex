@@ -1,39 +1,31 @@
-import {
-  Column,
-  // biome-ignore lint/style/noRestrictedImports: opened by long-press, as on Available rows
-  DropdownMenu,
-  // biome-ignore lint/style/noRestrictedImports: as above
-  DropdownMenuItem,
-  IconButton,
-  ListItem,
-  Row,
-  TextButton,
-} from "@expo/ui/jetpack-compose";
-import {
-  combinedClickable,
-  fillMaxWidth,
-  semantics,
-} from "@expo/ui/jetpack-compose/modifiers";
+import { Column, Row, TextButton } from "@expo/ui/jetpack-compose";
+import { padding } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
-import { memo, useState } from "react";
+import { memo } from "react";
+import { GUTTER } from "@/components/native/constants";
+import {
+  SEGMENTED_GAP,
+  SegmentedListItem,
+} from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { Dialog } from "@/components/ui/dialog";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Loader } from "@/components/ui/loader";
+import { ContextMenu } from "@/components/ui/menu";
 import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { errorDialog, excludedBadge, searchItem } from "../utils/row-content";
+import { excludedBadge } from "../utils/row-content";
+import { excludedRowMenu } from "../utils/row-menu";
 import type { ExcludedItemProps } from "./excluded-item";
 
 export const ExcludedItem = memo(function ExcludedItem({
   source,
   reason,
   pinned,
+  index = 0,
+  count = 1,
   mangaKey,
   actions,
 }: ExcludedItemProps) {
@@ -44,140 +36,68 @@ export const ExcludedItem = memo(function ExcludedItem({
   const lastError = useValue(() => probes$[mangaKey][source.id].error.get());
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : lastError;
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showError, setShowError] = useState(false);
   const searching = useSearching(mangaKey, source.id);
-  const search = searchItem(source, searching, actions);
-  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
-
-  const item = (
-    <ListItem
-      colors={{ containerColor: "transparent" }}
-      // A tap or long-press opens its menu, as on Available rows.
-      modifiers={[
-        combinedClickable({
-          onClick: () => setMenuOpen(true),
-          onLongClick: () => setMenuOpen(true),
-        }),
-      ]}
-    >
-      <ListItem.LeadingContent>
-        <Tile source={source} />
-      </ListItem.LeadingContent>
-      <ListItem.HeadlineContent>
-        <Text style={{ fontWeight: "500" }}>
-          {source.baseName ?? source.name}
-        </Text>
-      </ListItem.HeadlineContent>
-      <ListItem.SupportingContent>
-        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
-          {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
-          {scanning ? (
-            <Badge>scanning…</Badge>
-          ) : (
-            <Badge color={REASONS[reason].color}>
-              {excludedBadge(reason, pinned)}
-            </Badge>
-          )}
-        </Row>
-      </ListItem.SupportingContent>
-      <ListItem.TrailingContent>
-        {scanning ? (
-          <Row verticalAlignment="center">
-            <Loader size="sm" />
-            <IconButton
-              onClick={() => actions.stop(source.id)}
-              modifiers={[
-                semantics({
-                  contentDescription: `Stop scanning ${source.name}`,
-                }),
-              ]}
-            >
-              <Icon
-                name={Icons.close}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
-            </IconButton>
-          </Row>
-        ) : (
-          <TextButton onClick={() => actions.include(source.id)}>
-            <Text style={{ typography: "labelLarge" }}>Include</Text>
-          </TextButton>
-        )}
-        {/* A dialog window, not laid out in the row. */}
-        {error && (
-          <Dialog
-            {...errorDialog(source.name, error, true)}
-            open={showError}
-            onOpenChange={setShowError}
-            onConfirm={() => actions.include(source.id)}
-          />
-        )}
-      </ListItem.TrailingContent>
-    </ListItem>
-  );
+  const menu = excludedRowMenu({
+    source,
+    url,
+    searching,
+    scanning,
+    error,
+    actions,
+    withStop: true,
+    withInclude: false,
+  });
 
   return (
-    <Column>
-      <DropdownMenu
-        expanded={menuOpen}
-        onDismissRequest={() => setMenuOpen(false)}
-        modifiers={[fillMaxWidth()]}
-      >
-        <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
-        <DropdownMenu.Items>
-          <DropdownMenuItem
-            onClick={() => {
-              setMenuOpen(false);
-              search.onPress();
-            }}
-          >
-            <DropdownMenuItem.Text>
-              <Text style={{ typography: "labelLarge" }}>{search.label}</Text>
-            </DropdownMenuItem.Text>
-            <DropdownMenuItem.LeadingIcon>
-              <Icon name={searchIcon} size={BUTTON_ICON_SIZE} />
-            </DropdownMenuItem.LeadingIcon>
-          </DropdownMenuItem>
-          {(url || source.homeUrl) && (
-            <DropdownMenuItem
-              onClick={() => {
-                setMenuOpen(false);
-                actions.openWebsite(source, url);
-              }}
+    <Column
+      modifiers={[padding(GUTTER, index > 0 ? SEGMENTED_GAP : 0, GUTTER, 0)]}
+    >
+      {/* No tap of its own: a tap opens the menu as a long press does. */}
+      <ContextMenu items={menu}>
+        <SegmentedListItem
+          index={index}
+          // Its rail takes the group's closing corners when it shows.
+          count={searching ? count + 1 : count}
+        >
+          <SegmentedListItem.Leading>
+            <Tile source={source} loading={scanning} />
+          </SegmentedListItem.Leading>
+          <Text style={{ fontWeight: "500" }}>
+            {source.baseName ?? source.name}
+          </Text>
+          <SegmentedListItem.Supporting>
+            <Row
+              verticalAlignment="center"
+              horizontalArrangement={{ spacedBy: 6 }}
             >
-              <DropdownMenuItem.Text>
-                <Text style={{ typography: "labelLarge" }}>Open website</Text>
-              </DropdownMenuItem.Text>
-              <DropdownMenuItem.LeadingIcon>
-                <Icon name={Icons.website} size={BUTTON_ICON_SIZE} />
-              </DropdownMenuItem.LeadingIcon>
-            </DropdownMenuItem>
-          )}
-          {error && (
-            <DropdownMenuItem
-              onClick={() => {
-                setMenuOpen(false);
-                setShowError(true);
-              }}
-            >
-              <DropdownMenuItem.Text>
-                <Text style={{ typography: "labelLarge" }}>See error</Text>
-              </DropdownMenuItem.Text>
-              <DropdownMenuItem.LeadingIcon>
-                <Icon name={Icons.error} size={BUTTON_ICON_SIZE} />
-              </DropdownMenuItem.LeadingIcon>
-            </DropdownMenuItem>
-          )}
-        </DropdownMenu.Items>
-      </DropdownMenu>
+              {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+              {scanning ? (
+                <Badge>scanning…</Badge>
+              ) : (
+                <Badge color={REASONS[reason].color}>
+                  {excludedBadge(reason, pinned)}
+                </Badge>
+              )}
+            </Row>
+          </SegmentedListItem.Supporting>
+          {/* Always mounted: a slot added after the row mounts isn't laid out. */}
+          <SegmentedListItem.Trailing>
+            {!scanning && (
+              <TextButton onClick={() => actions.include(source.id)}>
+                <Text style={{ typography: "labelLarge" }}>Include</Text>
+              </TextButton>
+            )}
+          </SegmentedListItem.Trailing>
+        </SegmentedListItem>
+      </ContextMenu>
       <Rail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}
         source={source}
         actions={actions}
+        selected={false}
+        last={index === count - 1}
       />
     </Column>
   );

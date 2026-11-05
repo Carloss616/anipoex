@@ -1,10 +1,10 @@
-import { cloneElement, useState } from "react";
+import { cloneElement, type ReactNode, useState } from "react";
 import { DropdownMenu } from "@/components/native/jetpack-compose/dropdown-menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Dialog } from "../dialog";
 import { BUTTON_ICON_SIZE, Icon } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
-import type { MenuProps } from "./menu";
+import type { ContextMenuProps, MenuProps } from "./menu";
 import { toSegments } from "./utils";
 
 /**
@@ -14,6 +14,52 @@ import { toSegments } from "./utils";
  */
 export function Menu({ items, children, selection = "radio" }: MenuProps) {
   const [open, setOpen] = useState(false);
+  return (
+    <DropdownFor
+      items={items}
+      selection={selection}
+      open={open}
+      setOpen={setOpen}
+    >
+      {cloneElement(children, { onPress: () => setOpen(true) })}
+    </DropdownFor>
+  );
+}
+
+/** Compose has no context menu: this menu, opened by a long press, or a tap where it has none. */
+export function ContextMenu({
+  items,
+  children,
+  selection = "radio",
+}: ContextMenuProps) {
+  const [open, setOpen] = useState(false);
+  return (
+    <DropdownFor
+      items={items}
+      selection={selection}
+      open={open}
+      setOpen={setOpen}
+    >
+      {cloneElement(children, {
+        onLongPress: () => setOpen(true),
+        onPress: children.props.onPress ?? (() => setOpen(true)),
+      })}
+    </DropdownFor>
+  );
+}
+
+function DropdownFor({
+  items,
+  selection,
+  open,
+  setOpen,
+  children,
+}: Required<Pick<MenuProps, "items" | "selection">> & {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  /** The trigger, already wired to open it. */
+  children: ReactNode;
+}) {
   const { rows, pending, close } = useMenuDialogState(items);
   const segments = toSegments(rows);
   const m3 = useThemeM3Colors();
@@ -21,9 +67,7 @@ export function Menu({ items, children, selection = "radio" }: MenuProps) {
   return (
     <>
       <DropdownMenu expanded={open} onDismiss={() => setOpen(false)}>
-        <DropdownMenu.Trigger>
-          {cloneElement(children, { onPress: () => setOpen(true) })}
-        </DropdownMenu.Trigger>
+        <DropdownMenu.Trigger>{children}</DropdownMenu.Trigger>
         {segments.map((segment, index) => {
           const mode = segment.selection ?? selection;
           return (

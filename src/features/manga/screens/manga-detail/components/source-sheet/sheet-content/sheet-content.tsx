@@ -214,7 +214,7 @@ export function SheetContent({
               </Typography>
             ) : (
               <>
-                {!item.first && (
+                {item.index > 0 && (
                   <View role="separator" className="mx-4 h-px bg-border" />
                 )}
                 {item.kind === "available" ? (

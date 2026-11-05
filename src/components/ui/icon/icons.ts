@@ -94,6 +94,11 @@ export const Icons = {
     android: require("@expo/material-symbols/visibility_off.xml"),
     web: "eye-off",
   }),
+  undo: Icon.select({
+    ios: "arrow.uturn.backward",
+    android: require("@expo/material-symbols/undo.xml"),
+    web: "undo-2",
+  }),
   close: Icon.select({
     ios: "xmark",
     android: require("@expo/material-symbols/close.xml"),

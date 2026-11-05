@@ -27,6 +27,11 @@ export interface NumberInputProps {
   placeholder?: string;
   /** @platform android */
   description?: string;
+  /**
+   * `display`: a large centered number typed in place, large buttons below (M3 Expressive).
+   * @platform android
+   */
+  variant?: "field" | "display";
 }
 
 /** The buttons repeat while held; ↑/↓ step too. */

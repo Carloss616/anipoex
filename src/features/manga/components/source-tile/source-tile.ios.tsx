@@ -10,14 +10,22 @@ import { useState } from "react";
 import { useCSSVariable } from "uniwind";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
+import { Loader } from "@/components/ui/loader";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { dp } from "@/utils/utils";
 import type { SourceTileProps } from "./source-tile";
 
 const SIDE = 40;
+/** The loader's circle, as Android's contained loading indicator. */
+const RING = 28;
 
-export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
-  const border = useThemeColor("border");
+export function SourceTile({
+  initials,
+  color,
+  iconUrl,
+  loading = false,
+}: SourceTileProps) {
+  const [border, popover] = useThemeColor(["border", "popover"]);
   // Each theme family sets its own rounding: read `rounded-lg`, don't fix it.
   const radius = dp(useCSSVariable("--radius-lg") as string | number) ?? 8;
   // The url that loaded, so a recycled row with another source starts over.
@@ -58,6 +66,17 @@ export function SourceTile({ initials, color, iconUrl }: SourceTileProps) {
           modifiers={[frame({ width: SIDE, height: SIDE })]}
           onLoad={() => setLoadedUrl(iconUrl)}
         />
+      )}
+      {loading && (
+        <ZStack
+          modifiers={[
+            frame({ width: RING, height: RING }),
+            background(popover),
+            clipShape("circle"),
+          ]}
+        >
+          <Loader size="sm" />
+        </ZStack>
       )}
     </ZStack>
   );

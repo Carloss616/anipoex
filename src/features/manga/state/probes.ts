@@ -39,6 +39,11 @@ export const scanning$ = observable<Record<string, Record<string, true>>>({});
 /** Per manga: the running scan is a Scan all (no `only`). Not persisted. */
 export const scanningAll$ = observable<Record<string, true>>({});
 
+/** Per manga, a Scan all's sources landed or stopped out of its total; not persisted. */
+export const scanProgress$ = observable<
+  Record<string, { done: number; total: number }>
+>({});
+
 /** Whether a scan of the manga runs now; for call time, not render. */
 export const isScanning = (mangaId: number) =>
   Object.keys(scanning$[mediaKey(mangaId)].peek() ?? {}).length > 0;
@@ -161,7 +166,10 @@ export async function scanSources(args: {
   const prev = { ...probes$[key].peek() };
   // Added beside the sources other rescans are probing, not over them.
   for (const s of targets) scanning$[key][s.id].set(true);
-  if (!only) scanningAll$[key].set(true);
+  if (!only) {
+    scanningAll$[key].set(true);
+    scanProgress$[key].set({ done: 0, total: targets.length });
+  }
   const activity = startScanActivity({
     mangaId,
     name: name ?? titles.search[0] ?? "",
@@ -201,8 +209,11 @@ export async function scanSources(args: {
   };
   const landed: ProbeMap = {};
   const stopped = new Set<string>();
-  const done = () =>
-    activity.progress(Object.keys(landed).length + stopped.size);
+  const done = () => {
+    const count = Object.keys(landed).length + stopped.size;
+    activity.progress(count);
+    if (!only) scanProgress$[key].done.set(count);
+  };
   // A stop frees the row at once; before its batch, the source is never read.
   const halts = Object.fromEntries(
     targets.map((s) => {
@@ -243,7 +254,10 @@ export async function scanSources(args: {
       );
     }
   } finally {
-    if (!only) scanningAll$[key].delete();
+    if (!only) {
+      scanningAll$[key].delete();
+      scanProgress$[key].delete();
+    }
     activity.end(Object.values(landed).filter((p) => p.matched).length);
   }
 }

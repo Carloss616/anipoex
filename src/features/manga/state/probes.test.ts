@@ -61,6 +61,7 @@ const {
   probes$,
   scanning$,
   scanningAll$,
+  scanProgress$,
   scanSources,
   probeSource,
   isScanning,
@@ -112,6 +113,7 @@ beforeEach(() => {
   probes$.set({});
   scanning$.set({});
   scanningAll$.set({});
+  scanProgress$.set({});
   exclusions$.set({});
   pins$.set({});
   source$.set({});
@@ -300,16 +302,19 @@ describe("scanSources", () => {
     expect(isScanning(201)).toBe(false);
   });
 
-  it("a scan all flags the manga until it ends", async () => {
+  it("a scan all flags the manga and counts landings until it ends", async () => {
     const done = scan({ sources: sources("a", "b") });
     await flush();
     expect(scanningAll$["201"].get()).toBe(true);
+    expect(scanProgress$["201"].get()).toEqual({ done: 0, total: 2 });
     searchPending.a([]);
     await flush();
     expect(scanningAll$["201"].get()).toBe(true);
+    expect(scanProgress$["201"].get()).toEqual({ done: 1, total: 2 });
     searchPending.b([]);
     await done;
     expect(scanningAll$["201"].get()).toBeUndefined();
+    expect(scanProgress$["201"].get()).toBeUndefined();
   });
 
   it("a scan reports each landing and ends with its matches", async () => {

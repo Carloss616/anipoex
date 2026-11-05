@@ -5,7 +5,7 @@ import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Menu, type MenuItem } from "@/components/ui/menu";
+import { ContextMenu, Menu } from "@/components/ui/menu";
 import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { type ExcludeReason, REASONS } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
@@ -15,12 +15,20 @@ import { useSearching } from "../hooks/use-searching";
 import type { SourceActions } from "../hooks/use-source-actions";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { errorDialog, excludedBadge, searchItem } from "../utils/row-content";
+import { excludedBadge } from "../utils/row-content";
+import { excludedRowMenu } from "../utils/row-menu";
 
 export interface ExcludedItemProps {
   source: Source;
   reason: ExcludeReason;
   pinned: boolean;
+  /**
+   * Its place in its section, for the group's rounded ends.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
   mangaKey: string;
   actions: SourceActions;
   /** iOS: See error shows the message in the sheet's dialog. */
@@ -42,61 +50,41 @@ export const ExcludedItem = memo(function ExcludedItem({
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : lastError;
   const searching = useSearching(mangaKey, source.id);
-  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
-  const items: MenuItem[] = [
-    { ...searchItem(source, searching, actions), icon: searchIcon },
-    ...(url || source.homeUrl
-      ? [
-          {
-            label: "Open website",
-            icon: Icons.website,
-            onPress: () => actions.openWebsite(source, url),
-          },
-        ]
-      : []),
-    ...(error
-      ? [
-          {
-            label: "See error",
-            icon: Icons.error,
-            onPressMode: "dialog" as const,
-            dialogConfig: errorDialog(source.name, error, true),
-            onPress: () => actions.include(source.id),
-          },
-        ]
-      : []),
-  ];
+  // Stop and Include are buttons on the row here.
+  const items = excludedRowMenu({
+    source,
+    url,
+    searching,
+    scanning,
+    error,
+    actions,
+    withStop: false,
+    withInclude: false,
+  });
   return (
     <View>
-      <Frame.Row>
-        <Frame.Media>
-          <Tile source={source} />
-        </Frame.Media>
-        <Frame.Content>
-          <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
-          <Frame.Description>
-            {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
+      <ContextMenu items={items}>
+        <Frame.Row>
+          <Frame.Media>
+            <Tile source={source} loading={scanning} />
+          </Frame.Media>
+          <Frame.Content>
+            <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
+            <Frame.Description>
+              {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
+              {scanning ? (
+                <Badge>scanning…</Badge>
+              ) : (
+                <Badge color={REASONS[reason].color}>
+                  {excludedBadge(reason, pinned)}
+                </Badge>
+              )}
+            </Frame.Description>
+          </Frame.Content>
+          <Frame.Actions>
+            {/* While it scans, the tile shows it and this stops it. */}
             {scanning ? (
-              <Badge>scanning…</Badge>
-            ) : (
-              <Badge color={REASONS[reason].color}>
-                {excludedBadge(reason, pinned)}
-              </Badge>
-            )}
-          </Frame.Description>
-        </Frame.Content>
-        <Frame.Actions>
-          {scanning ? (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                loading
-                aria-label={`Scanning ${source.name}`}
-              >
-                <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
-              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -105,29 +93,29 @@ export const ExcludedItem = memo(function ExcludedItem({
               >
                 <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
               </Button>
-            </>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => actions.include(source.id)}
-              aria-label={`Include ${source.name}`}
-            >
-              Include
-            </Button>
-          )}
-          {/* Last, as on Available rows. */}
-          <Menu items={items}>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={`More actions for ${source.name}`}
-            >
-              <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
-            </Button>
-          </Menu>
-        </Frame.Actions>
-      </Frame.Row>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => actions.include(source.id)}
+                aria-label={`Include ${source.name}`}
+              >
+                Include
+              </Button>
+            )}
+            {/* Last, as on Available rows. */}
+            <Menu items={items}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={`More actions for ${source.name}`}
+              >
+                <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
+              </Button>
+            </Menu>
+          </Frame.Actions>
+        </Frame.Row>
+      </ContextMenu>
       <Rail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}

@@ -3,6 +3,8 @@ import {
   Column,
   LazyRow,
   Row,
+  Shape,
+  Surface,
   TextButton,
   VerticalDivider,
 } from "@expo/ui/jetpack-compose";
@@ -11,6 +13,7 @@ import {
   background,
   clickable,
   clip,
+  fillMaxWidth,
   height,
   onVisibilityChanged,
   padding,
@@ -19,8 +22,13 @@ import {
   size,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Skeleton } from "panelui-native/components/skeleton";
+import type { ReactNode } from "react";
 import { View } from "react-native";
 import { GUTTER } from "@/components/native/constants";
+import {
+  SEGMENTED_CORNER,
+  SEGMENTED_GAP,
+} from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { RNHostView } from "@/components/ui/host";
 import { Loader } from "@/components/ui/loader";
@@ -56,9 +64,47 @@ function Placeholders() {
   );
 }
 
-/** A skeleton while the first page loads, then the cards and a More card. */
-export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
+/** The rail as the next piece of its row's group, in the row's fill. */
+function Piece({
+  selected = false,
+  last = false,
+  children,
+}: Pick<RailProps, "selected" | "last"> & { children: ReactNode }) {
   const m3 = useThemeM3Colors();
+  const bottom = last ? SEGMENTED_CORNER.outer : SEGMENTED_CORNER.inner;
+  return (
+    <Surface
+      color={selected ? m3.secondaryContainer : m3.surface}
+      shape={Shape.RoundedCorner({
+        cornerRadii: {
+          topStart: SEGMENTED_CORNER.inner,
+          topEnd: SEGMENTED_CORNER.inner,
+          bottomStart: bottom,
+          bottomEnd: bottom,
+        },
+      })}
+      modifiers={[padding(0, SEGMENTED_GAP, 0, 0), fillMaxWidth()]}
+    >
+      <Column modifiers={[padding(0, 12, 0, 0)]}>{children}</Column>
+    </Surface>
+  );
+}
+
+/** A skeleton while the first page loads, then the cards and a More card. */
+export function RailContent({
+  mangaKey,
+  mangaId,
+  source,
+  actions,
+  selected,
+  last,
+}: RailProps) {
+  const m3 = useThemeM3Colors();
+  const piece = (children: ReactNode) => (
+    <Piece selected={selected} last={last}>
+      {children}
+    </Piece>
+  );
   const { rail, items, notice, menu, loadMore, retry } = useRail(
     mangaKey,
     mangaId,
@@ -68,7 +114,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
   if (!rail) return null;
   const inset = padding(GUTTER, 0, GUTTER, 12);
 
-  if (rail.status === "loading") return <Placeholders />;
+  if (rail.status === "loading") return piece(<Placeholders />);
   // A failed or empty first page, said beside the current card if there is one.
   const line =
     notice === "error" ? (
@@ -89,9 +135,9 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
         No results
       </Text>
     ) : null;
-  if (items.length === 0) return line;
+  if (items.length === 0) return line && piece(line);
 
-  return (
+  return piece(
     <Column>
       <LazyRow
         horizontalArrangement={{ spacedBy: 10 }}
@@ -130,6 +176,6 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
         )}
       </LazyRow>
       {line}
-    </Column>
+    </Column>,
   );
 }

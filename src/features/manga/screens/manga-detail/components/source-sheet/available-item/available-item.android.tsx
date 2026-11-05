@@ -1,39 +1,23 @@
+import { Column, Row } from "@expo/ui/jetpack-compose";
+import { padding } from "@expo/ui/jetpack-compose/modifiers";
+import { memo } from "react";
+import { GUTTER } from "@/components/native/constants";
 import {
-  Column,
-  // biome-ignore lint/style/noRestrictedImports: opened by long-press, held by the sheet
-  DropdownMenu,
-  // biome-ignore lint/style/noRestrictedImports: as above
-  DropdownMenuItem,
-  IconButton,
-  ListItem,
-  RadioButton,
-  Row,
-} from "@expo/ui/jetpack-compose";
-import {
-  clickable,
-  combinedClickable,
-  fillMaxWidth,
-  semantics,
-} from "@expo/ui/jetpack-compose/modifiers";
-import { memo, useState } from "react";
+  SEGMENTED_GAP,
+  SegmentedListItem,
+} from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { Dialog } from "@/components/ui/dialog";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
-import { Loader } from "@/components/ui/loader";
-import { FAR_BEHIND_GAP, REASONS } from "@/features/manga/utils/msu";
+import { ContextMenu } from "@/components/ui/menu";
+import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useMatchUrl } from "../hooks/use-match-url";
 import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import {
-  errorDialog,
-  excludeReasons,
-  searchItem,
-  statusDetail,
-} from "../utils/row-content";
+import { statusDetail } from "../utils/row-content";
+import { availableRowMenu } from "../utils/row-menu";
 import { sourceStatus } from "../utils/source-status";
 import type { AvailableItemProps } from "./available-item";
 
@@ -44,10 +28,10 @@ export const AvailableItem = memo(function AvailableItem({
   read,
   openedAt,
   selected,
-  menuOpen = false,
+  index = 0,
+  count = 1,
   actions,
   onSelect,
-  onMenu,
 }: AvailableItemProps) {
   const m3 = useThemeM3Colors();
   const { probe, scanning, suspicious } = useSourceScan(
@@ -63,206 +47,75 @@ export const AvailableItem = memo(function AvailableItem({
     openedAt,
   );
   const detail = statusDetail(status);
-  const select = () => onSelect(source.id);
-  const [showError, setShowError] = useState(false);
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
   const searching = useSearching(mangaKey, source.id);
-  const search = searchItem(source, searching, actions);
-  const searchIcon = searching ? Icons.searchTitlesOff : Icons.searchTitles;
   const url = useMatchUrl(mangaKey, source.id);
-
-  const item = (
-    <ListItem
-      colors={{ containerColor: "transparent" }}
-      modifiers={[
-        combinedClickable({
-          onClick: select,
-          onLongClick: () => onMenu?.(source.id),
-        }),
-      ]}
-    >
-      <ListItem.LeadingContent>
-        <Tile source={source} />
-      </ListItem.LeadingContent>
-      <ListItem.HeadlineContent>
-        <Text style={{ fontWeight: "500" }}>
-          {source.baseName ?? source.name}
-        </Text>
-      </ListItem.HeadlineContent>
-      <ListItem.SupportingContent>
-        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
-          {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
-          {scanning ? (
-            <Badge>scanning…</Badge>
-          ) : (
-            <Badge color={status.color}>{status.label}</Badge>
-          )}
-          {detail !== "" && (
-            // The badge's labelSmall: a second baseline makes M3's ListItem a
-            // top-aligned three-line row.
-            <Text
-              style={{ typography: "labelSmall", fontWeight: "400" }}
-              color={m3.onSurfaceVariant}
-              maxLines={1}
-              overflow="ellipsis"
-            >
-              {detail}
-            </Text>
-          )}
-        </Row>
-      </ListItem.SupportingContent>
-      <ListItem.TrailingContent>
-        <Row verticalAlignment="center">
-          {/* Its own click, consumed before the row's, so rescanning never
-              selects; off only while this source scans. */}
-          <IconButton
-            enabled={!scanning}
-            onClick={() => actions.rescan(source.id)}
-            modifiers={[
-              // A disabled button passes the tap to the row; this outer no-op
-              // takes it on the same node, so TalkBack still reads one
-              // disabled button.
-              ...(scanning ? [clickable(() => {}, { indication: false })] : []),
-              semantics({ contentDescription: `Rescan ${source.name}` }),
-            ]}
-          >
-            {scanning ? (
-              <Loader size="sm" />
-            ) : (
-              <Icon
-                name={Icons.refresh}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
-            )}
-          </IconButton>
-          {/* Beside the loader: a slow source can hold a scan for minutes. */}
-          {scanning && (
-            <IconButton
-              onClick={() => actions.stop(source.id)}
-              modifiers={[
-                semantics({
-                  contentDescription: `Stop scanning ${source.name}`,
-                }),
-              ]}
-            >
-              <Icon
-                name={Icons.close}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
-            </IconButton>
-          )}
-          {/* Its own click, so TalkBack still finds a radio next to the
-              row's long-press. */}
-          <RadioButton selected={selected} onClick={select} />
-          {/* A dialog window, not laid out in the row. */}
-          {error && (
-            <Dialog
-              {...errorDialog(source.name, error)}
-              open={showError}
-              onOpenChange={setShowError}
-              onConfirm={() => actions.rescan(source.id)}
-            />
-          )}
-        </Row>
-      </ListItem.TrailingContent>
-    </ListItem>
-  );
+  // M3 single-select rows hold no second action: rescan and stop are in the menu.
+  const menu = availableRowMenu({
+    source,
+    url,
+    searching,
+    scanning,
+    error,
+    actions,
+    selected,
+    suspicious,
+    withRescan: true,
+  });
 
   return (
-    <Column>
-      <DropdownMenu
-        expanded={menuOpen}
-        onDismissRequest={() => onMenu?.(null)}
-        modifiers={[fillMaxWidth()]}
-      >
-        <DropdownMenu.Trigger>{item}</DropdownMenu.Trigger>
-        <DropdownMenu.Items>
-          <DropdownMenuItem
-            onClick={() => {
-              onMenu?.(null);
-              search.onPress();
-            }}
-          >
-            <DropdownMenuItem.Text>
-              <Text style={{ typography: "labelLarge" }}>{search.label}</Text>
-            </DropdownMenuItem.Text>
-            <DropdownMenuItem.LeadingIcon>
-              <Icon name={searchIcon} size={BUTTON_ICON_SIZE} />
-            </DropdownMenuItem.LeadingIcon>
-          </DropdownMenuItem>
-          {(url || source.homeUrl) && (
-            <DropdownMenuItem
-              onClick={() => {
-                onMenu?.(null);
-                actions.openWebsite(source, url);
-              }}
+    <Column
+      modifiers={[padding(GUTTER, index > 0 ? SEGMENTED_GAP : 0, GUTTER, 0)]}
+    >
+      <ContextMenu items={menu}>
+        <SegmentedListItem
+          index={index}
+          // Its rail takes the group's closing corners when it shows.
+          count={searching ? count + 1 : count}
+          selected={selected}
+          onPress={() => onSelect(source.id)}
+        >
+          <SegmentedListItem.Leading>
+            <Tile source={source} loading={scanning} />
+          </SegmentedListItem.Leading>
+          <Text style={{ fontWeight: "500" }}>
+            {source.baseName ?? source.name}
+          </Text>
+          <SegmentedListItem.Supporting>
+            <Row
+              verticalAlignment="center"
+              horizontalArrangement={{ spacedBy: 6 }}
             >
-              <DropdownMenuItem.Text>
-                <Text style={{ typography: "labelLarge" }}>Open website</Text>
-              </DropdownMenuItem.Text>
-              <DropdownMenuItem.LeadingIcon>
-                <Icon name={Icons.website} size={BUTTON_ICON_SIZE} />
-              </DropdownMenuItem.LeadingIcon>
-            </DropdownMenuItem>
-          )}
-          {error && (
-            <DropdownMenuItem
-              onClick={() => {
-                onMenu?.(null);
-                setShowError(true);
-              }}
-            >
-              <DropdownMenuItem.Text>
-                <Text style={{ typography: "labelLarge" }}>See error</Text>
-              </DropdownMenuItem.Text>
-              <DropdownMenuItem.LeadingIcon>
-                <Icon name={Icons.error} size={BUTTON_ICON_SIZE} />
-              </DropdownMenuItem.LeadingIcon>
-            </DropdownMenuItem>
-          )}
-          {selected && (
-            <DropdownMenuItem
-              onClick={() => {
-                onMenu?.(null);
-                actions.deselect(source.id);
-              }}
-            >
-              <DropdownMenuItem.Text>
-                <Text style={{ typography: "labelLarge" }}>Deselect</Text>
-              </DropdownMenuItem.Text>
-              <DropdownMenuItem.LeadingIcon>
-                <Icon name={Icons.deselect} size={BUTTON_ICON_SIZE} />
-              </DropdownMenuItem.LeadingIcon>
-            </DropdownMenuItem>
-          )}
-          {excludeReasons(suspicious).map((reason) => (
-            <DropdownMenuItem
-              key={reason}
-              onClick={() => {
-                onMenu?.(null);
-                actions.exclude(source.id, reason);
-              }}
-            >
-              <DropdownMenuItem.Text>
-                <Text style={{ typography: "labelLarge" }}>
-                  {`Exclude: ${REASONS[reason].menu}`}
+              {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+              {scanning ? (
+                <Badge>scanning…</Badge>
+              ) : (
+                <Badge color={status.color}>{status.label}</Badge>
+              )}
+              {detail !== "" && (
+                // The badge's labelSmall: a second baseline makes M3's list
+                // item a top-aligned three-line row.
+                <Text
+                  style={{ typography: "labelSmall", fontWeight: "400" }}
+                  color={m3.onSurfaceVariant}
+                  maxLines={1}
+                  overflow="ellipsis"
+                >
+                  {detail}
                 </Text>
-              </DropdownMenuItem.Text>
-              <DropdownMenuItem.LeadingIcon>
-                <Icon name={Icons.exclude} size={BUTTON_ICON_SIZE} />
-              </DropdownMenuItem.LeadingIcon>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenu.Items>
-      </DropdownMenu>
+              )}
+            </Row>
+          </SegmentedListItem.Supporting>
+        </SegmentedListItem>
+      </ContextMenu>
       <Rail
         mangaKey={mangaKey}
         mangaId={Number(mangaKey)}
         source={source}
         actions={actions}
+        selected={selected}
+        last={index === count - 1}
       />
     </Column>
   );

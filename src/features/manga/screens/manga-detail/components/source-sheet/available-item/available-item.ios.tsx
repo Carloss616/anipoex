@@ -1,6 +1,5 @@
 import {
   Button,
-  ContextMenu,
   HStack,
   Label,
   Spacer,
@@ -21,8 +20,7 @@ import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { BUTTON_ICON_SIZE, Icon, Icons, sfSymbol } from "@/components/ui/icon";
-import { Loader } from "@/components/ui/loader";
-import { Menu } from "@/components/ui/menu";
+import { ContextMenu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useMatchUrl } from "../hooks/use-match-url";
@@ -30,7 +28,8 @@ import { useSearching } from "../hooks/use-searching";
 import { useSourceScan } from "../hooks/use-source-scan";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
-import { excludeMenu, searchItem, statusDetail } from "../utils/row-content";
+import { searchItem, statusDetail } from "../utils/row-content";
+import { availableRowMenu } from "../utils/row-menu";
 import { sourceStatus } from "../utils/source-status";
 import type { AvailableItemProps } from "./available-item";
 
@@ -86,104 +85,73 @@ export const AvailableItem = memo(function AvailableItem({
       />
     );
 
+  const menu = availableRowMenu({
+    source,
+    url,
+    searching,
+    scanning,
+    error,
+    actions,
+    selected,
+    suspicious,
+    withRescan: true,
+    onSeeError: error ? () => onError?.({ source, error }) : undefined,
+  });
+
   return (
     <SwipeActions>
       <VStack alignment="leading" spacing={10}>
-        <ContextMenu>
-          <ContextMenu.Items>
-            <Button
-              label={search.label}
-              systemImage={sfSymbol(searchIcon)}
-              onPress={search.onPress}
-            />
-            {rescan}
-            {website("Open website")}
-            {error && (
-              <Button
-                label="See error"
-                systemImage={sfSymbol(Icons.error)}
-                onPress={() => onError?.({ source, error })}
-              />
-            )}
-            {selected && (
-              <Button
-                label="Deselect"
-                systemImage={sfSymbol(Icons.deselect)}
-                onPress={() => actions.deselect(source.id)}
-              />
-            )}
-            {/* Inside a context menu, a menu is its submenu row. */}
-            <Menu
-              items={
-                excludeMenu(suspicious, (reason) =>
-                  actions.exclude(source.id, reason),
-                ).items
-              }
-            >
-              <Label title="Exclude" systemImage={sfSymbol(Icons.exclude)} />
-            </Menu>
-          </ContextMenu.Items>
-          <ContextMenu.Trigger>
-            <Button
-              onPress={() => onSelect(source.id)}
-              modifiers={[
-                buttonStyle("plain"),
-                accessibilityAddTraits(selected ? ["isSelected"] : []),
-              ]}
-            >
-              {/* A plain button only takes touches on its label, so the
-                  label fills the row. */}
-              <HStack modifiers={ROW_FILL}>
-                <Label icon={<Tile source={source} />}>
-                  <VStack alignment="leading" spacing={2}>
-                    <Text weight="medium" modifiers={[lineLimit(1)]}>
-                      {source.baseName ?? source.name}
-                    </Text>
-                    <HStack spacing={6}>
-                      {source.lang && (
-                        <Badge>{source.lang.toUpperCase()}</Badge>
-                      )}
-                      {scanning ? (
-                        <Badge>scanning…</Badge>
-                      ) : (
-                        <Badge color={status.color}>{status.label}</Badge>
-                      )}
-                      {detail !== "" && (
-                        <Text
-                          textStyle="subheadline"
-                          modifiers={[
-                            foregroundStyle("secondary"),
-                            lineLimit(1),
-                          ]}
-                        >
-                          {detail}
-                        </Text>
-                      )}
-                    </HStack>
-                  </VStack>
-                </Label>
-                <Spacer />
-                {/* A fixed slot, so the name and badge never shift; hidden,
-                    as the row already reads its trait and `scanning…`. */}
-                <HStack
-                  modifiers={[
-                    frame({ width: BUTTON_ICON_SIZE }),
-                    accessibilityHidden(true),
-                  ]}
-                >
-                  {scanning ? (
-                    <Loader size="sm" />
-                  ) : selected ? (
-                    <Icon
-                      name={Icons.check}
-                      size={BUTTON_ICON_SIZE}
-                      color={primary}
-                    />
-                  ) : null}
-                </HStack>
+        <ContextMenu items={menu}>
+          <Button
+            onPress={() => onSelect(source.id)}
+            modifiers={[
+              buttonStyle("plain"),
+              accessibilityAddTraits(selected ? ["isSelected"] : []),
+            ]}
+          >
+            {/* A plain button only takes touches on its label: the label fills the row. */}
+            <HStack modifiers={ROW_FILL}>
+              <Label icon={<Tile source={source} loading={scanning} />}>
+                <VStack alignment="leading" spacing={2}>
+                  <Text weight="medium" modifiers={[lineLimit(1)]}>
+                    {source.baseName ?? source.name}
+                  </Text>
+                  <HStack spacing={6}>
+                    {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+                    {scanning ? (
+                      <Badge>scanning…</Badge>
+                    ) : (
+                      <Badge color={status.color}>{status.label}</Badge>
+                    )}
+                    {detail !== "" && (
+                      <Text
+                        textStyle="subheadline"
+                        modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
+                      >
+                        {detail}
+                      </Text>
+                    )}
+                  </HStack>
+                </VStack>
+              </Label>
+              <Spacer />
+              {/* A fixed slot so the name never shifts; hidden, as the row reads its trait. */}
+              <HStack
+                modifiers={[
+                  frame({ width: BUTTON_ICON_SIZE }),
+                  accessibilityHidden(true),
+                ]}
+              >
+                {selected ? (
+                  <Icon
+                    name={Icons.check}
+                    size={BUTTON_ICON_SIZE}
+                    color={primary}
+                  />
+                ) : null}
               </HStack>
-            </Button>
-          </ContextMenu.Trigger>
+            </HStack>
+          </Button>
         </ContextMenu>
         <Rail
           mangaKey={mangaKey}

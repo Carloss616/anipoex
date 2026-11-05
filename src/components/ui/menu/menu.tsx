@@ -1,3 +1,4 @@
+import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
 import { cn } from "panelui-native/utils/cn";
 import { Menu as PanelMenu } from "panelui-web/menu";
 import {
@@ -89,6 +90,12 @@ export interface MenuProps {
   align?: "start" | "center" | "end";
   /** @default "radio" */
   selection?: MenuSelection;
+}
+
+export interface ContextMenuProps
+  extends Pick<MenuProps, "items" | "selection"> {
+  /** What it opens from, keeping its own press: SwiftUI content on iOS, a DOM element on web. */
+  children: MenuProps["children"];
 }
 
 type PressEvent = { currentTarget?: unknown; preventDefault?: () => void };
@@ -212,6 +219,29 @@ function RowItem({
   );
 }
 
+/** A confirming row's dialog, open once the row is pressed. */
+function PendingDialog({
+  pending,
+  close,
+}: Pick<ReturnType<typeof useMenuDialogState>, "pending" | "close">) {
+  if (pending?.onPressMode !== "dialog") return null;
+  return (
+    <Dialog
+      {...pending.dialogConfig}
+      open
+      onOpenChange={(next) => {
+        if (!next) close();
+      }}
+      role={pending.destructive ? "destructive" : undefined}
+      onConfirm={pending.onPress}
+    />
+  );
+}
+
+const popupClass = (items: MenuItem[]) =>
+  // `!`: bg-popover shares the layer, in an order we don't control.
+  cn("glass-sheet! max-w-72", items.some(isSubmenu) && "min-w-56");
+
 type TriggerChild = ReactElement<
   HTMLAttributes<Element> & { onPress?: unknown; onLongPress?: unknown }
 >;
@@ -246,29 +276,36 @@ export function Menu({
               : children
           }
         />
-        <PanelMenu.Content
-          align={align}
-          // `!`: bg-popover shares the layer, in an order we don't control.
-          className={cn(
-            "glass-sheet! max-w-72",
-            items.some(isSubmenu) && "min-w-56",
-          )}
-        >
+        <PanelMenu.Content align={align} className={popupClass(items)}>
           <Rows rows={rows} selection={selection} />
         </PanelMenu.Content>
       </PanelMenu>
 
-      {pending?.onPressMode === "dialog" && (
-        <Dialog
-          {...pending.dialogConfig}
-          open
-          onOpenChange={(next) => {
-            if (!next) close();
-          }}
-          role={pending.destructive ? "destructive" : undefined}
-          onConfirm={pending.onPress}
-        />
-      )}
+      <PendingDialog pending={pending} close={close} />
+    </>
+  );
+}
+
+/**
+ * Base UI's context menu (right-click, long touch) in panelui-web's menu parts, which it shares.
+ * @see https://base-ui.com/react/components/context-menu
+ */
+export function ContextMenu({
+  items,
+  children,
+  selection = "radio",
+}: ContextMenuProps) {
+  const { rows, pending, close } = useMenuDialogState(items);
+
+  return (
+    <>
+      <BaseContextMenu.Root>
+        <BaseContextMenu.Trigger render={children} />
+        <PanelMenu.Content className={popupClass(items)}>
+          <Rows rows={rows} selection={selection} />
+        </PanelMenu.Content>
+      </BaseContextMenu.Root>
+      <PendingDialog pending={pending} close={close} />
     </>
   );
 }

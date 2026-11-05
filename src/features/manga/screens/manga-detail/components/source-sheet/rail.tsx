@@ -9,6 +9,13 @@ export interface RailProps {
   mangaId: number;
   source: Source;
   actions: SourceActions;
+  /**
+   * The row's state, for the rail's fill and closing corners.
+   * @platform android
+   */
+  selected?: boolean;
+  /** @platform android */
+  last?: boolean;
 }
 
 /** A source's title results under its row, while it searches. */

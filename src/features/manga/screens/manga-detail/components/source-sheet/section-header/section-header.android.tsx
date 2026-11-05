@@ -34,7 +34,7 @@ export function SectionHeader({ title, count, menu }: SectionHeaderProps) {
       verticalAlignment="center"
       horizontalArrangement={{ spacedBy: 8 }}
       // The icon button brings its own padding to the end edge.
-      modifiers={[padding(GUTTER, 8, menu ? 4 : GUTTER, 0)]}
+      modifiers={[padding(GUTTER, 8, menu ? 4 : GUTTER, 8)]}
     >
       <Text style={{ typography: "titleSmall" }} color={m3.primary}>
         {title}
