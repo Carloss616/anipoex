@@ -15,8 +15,8 @@ the record of truth; the app keeps no data of its own beyond a session, a
 # The daily flow
 
 1. **Sign in once.** AniList's implicit grant returns a one-year token, kept in the
-   [session](stores/session.md). Every route but sign-in is behind it. The Home tab holds
-   Home (`/`) and Settings (`/settings`: the greeting, Sign out, theme and DNS).
+   [session](stores/session.md). Every route but sign-in is behind it. Settings is its own
+   tab (`/settings`: the account, Sign out, Home layout, theme and DNS).
 2. **Open the Manga tab.** It shows one [list status](concepts/list-status.md) at a
    time (Reading by default), loaded by [MangaList](operations/manga-list.md), with
    [per-status counts](metrics/list-counts.md) in the picker. Search and a genre filter

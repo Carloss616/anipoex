@@ -7,8 +7,6 @@ import { ScrollView, View } from "react-native";
 import type { SearchBarCommands } from "react-native-screens";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
-import { Toolbar } from "@/components/layout/toolbar";
-import { Icons } from "@/components/ui/icon";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { SECTIONS, type SectionId } from "../../constants";
@@ -21,7 +19,6 @@ import { useSizeClass } from "./hooks/use-size-class";
 
 /** Web: the sections as Frames, activity in a side column when expanded. */
 export function Home() {
-  const router = useRouter();
   const searchBarTheme = useStackSearchBarTheme();
   const headerScroll = useHeaderScroll();
   const searchBar = useRef<SearchBarCommands>(null);
@@ -37,15 +34,6 @@ export function Home() {
   return (
     <>
       <Stack.Title large>Home</Stack.Title>
-      <Toolbar>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            icon={Icons.person}
-            onPress={() => router.push("/settings")}
-            accessibilityLabel="Settings"
-          />
-        </Stack.Toolbar>
-      </Toolbar>
       <Stack.SearchBar
         ref={searchBar}
         placeholder="Search AniList"

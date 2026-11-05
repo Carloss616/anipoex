@@ -49,12 +49,13 @@ Legend State gotchas:
 
 # Navigation
 
-- A screen whose native header hides and shows must be a push, not a modal: on iOS, changing a modal's header visibility remounts the screen and loses its state (the reader is a push with `animation: "slide_from_bottom"`, `src/app/(tabs)/manga/_layout.tsx`).
+- A screen whose native header hides and shows must be a push, not a modal: on iOS, changing a modal's header visibility remounts the screen and loses its state (the reader is a push with `animation: "slide_from_bottom"`, `src/features/manga/utils/manga-stack-screens.tsx`).
 - A `Stack.Toolbar` in a header slot forces `headerShown: true` over `Stack.Header hidden`: unmount the toolbar while the header is hidden.
 - A sheet route is `formSheet` on native and `transparentModal` on web, where the stack draws `modal` and `formSheet` as plain pages: the web screen draws its own `BottomSheet`, and the screen below passes `visibleWhenBlurred` to its `LegendList`, which otherwise hides as blurred (`src/app/(tabs)/extensions/_layout.tsx`, `extension-list.tsx`).
 - A sheet route over a dynamic screen (`manga/[id]/sources`) opened by a link or a web reload has nothing under it, and `unstable_settings.anchor` only takes a stack's static first screen: the sheet replaces itself with the detail and pushes itself back (`use-source-list.ts`). Close it with the screen's `navigation.goBack()`, not `router.back()`, whose global `GO_BACK` pops the detail too on a double tap.
 - No react-native-keyboard-controller `KeyboardProvider`, so no `PanelUIProvider` (which mounts it): it replaces the decor-view insets listener react-native-screens reads the keyboard from, and an Android `formSheet` stops rising with the keyboard. The root is a `GestureHandlerRootView` around `ToastProvider`, PanelUI's `PortalProvider` on iOS only (`src/app/_layout.tsx`, `toast.ios.tsx`).
 - On Android, `Stack.SearchBar`'s `ref` goes to react-native-screens' own hidden search bar, not to the Compose header, so `cancelSearch()` does nothing there. A screen that handles `onSearchButtonPress` gets a field that empties itself after a submit instead (`clearOnSubmit`, `src/components/layout/header/header.android.tsx`).
+- The manga detail, reader and sources are shared routes, `src/app/(tabs)/(home,manga)/manga/[id]/`: a manga opened from Home stays in Home's stack, and both stacks declare their screens through `mangaStackScreens` (`src/features/manga/utils/manga-stack-screens.tsx`). A cold link takes the first group alphabetically, `(home)`.
 - `router.navigate` pushes like `push`: a web tab bar calling it put a second `manga/index` on the stack, and both screens' `ViewSheet`s opened on their shared module-level `open$`, each making the other inert. Switch tabs with `useTabTrigger().switchTab` (`src/components/layout/tabs/tabs.web.tsx`).
 
 # Styling

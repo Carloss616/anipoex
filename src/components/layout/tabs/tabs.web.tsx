@@ -50,6 +50,12 @@ const ROUTES = [
     label: "Extensions",
     icon: { default: "puzzle", selected: "puzzle" },
   },
+  {
+    name: "settings",
+    href: "/settings",
+    label: "Settings",
+    icon: { default: "settings", selected: "settings-2" },
+  },
 ] as const satisfies Route[];
 
 export function Tabs() {

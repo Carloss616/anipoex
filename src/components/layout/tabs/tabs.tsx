@@ -45,7 +45,7 @@ export function Tabs() {
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger
-        name="manga"
+        name="(manga)"
         listeners={{
           tabPress: () => {
             if (Platform.OS === "android" && pathname === "/manga") {
@@ -76,6 +76,15 @@ export function Tabs() {
             selected: "puzzlepiece.extension.fill",
           }}
           md={{ default: "extension", selected: "extension" }}
+          renderingMode="template"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "gearshape", selected: "gearshape.fill" }}
+          md={{ default: "settings", selected: "settings" }}
           renderingMode="template"
         />
       </NativeTabs.Trigger>

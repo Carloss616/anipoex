@@ -1,20 +1,21 @@
 import { Stack } from "expo-router";
 import { header } from "@/components/layout/header";
-import { useStackTheme } from "@/hooks/use-theme";
+import { mangaStackScreens } from "@/features/manga/utils/manga-stack-screens";
+import { useStackTheme, useThemeM3Colors } from "@/hooks/use-theme";
 
-// A link straight to /settings or /search still has Home under it.
+// A link straight to /search or a manga still has Home under it.
 export const unstable_settings = { anchor: "index" };
 
 export default function Layout() {
   const stackTheme = useStackTheme();
+  const m3 = useThemeM3Colors();
 
   // `header` isn't in useStackTheme: it imports Icon and Host, which import the theme.
   return (
     <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="search" />
-      <Stack.Screen name="settings/index" />
-      <Stack.Screen name="settings/layout" />
+      {mangaStackScreens(m3)}
     </Stack>
   );
 }

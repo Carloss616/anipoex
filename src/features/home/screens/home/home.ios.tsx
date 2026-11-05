@@ -5,11 +5,9 @@ import { Stack, useRouter } from "expo-router";
 import { useRef } from "react";
 import type { SearchBarCommands } from "react-native-screens";
 import { EmptyState } from "@/components/blocks/empty-state";
-import { Toolbar } from "@/components/layout/toolbar";
 import { GUTTER } from "@/components/native/constants";
 import { useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
-import { Icons } from "@/components/ui/icon";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { useHomeSections } from "../../hooks/use-home-sections";
 import { useVisibleSections } from "../../hooks/use-visible-sections";
@@ -18,7 +16,6 @@ import { SearchSuggestions } from "./components/search-suggestions";
 import { useHomeSearch } from "./hooks/use-home-search";
 
 export function Home() {
-  const router = useRouter();
   const searchBarTheme = useStackSearchBarTheme();
   const searchBar = useRef<SearchBarCommands>(null);
   const { draft$, submit } = useHomeSearch();
@@ -33,15 +30,6 @@ export function Home() {
   return (
     <>
       <Stack.Title large>Home</Stack.Title>
-      <Toolbar>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            icon={Icons.person}
-            onPress={() => router.push("/settings")}
-            accessibilityLabel="Settings"
-          />
-        </Stack.Toolbar>
-      </Toolbar>
       <Stack.SearchBar
         ref={searchBar}
         placeholder="Search AniList"
