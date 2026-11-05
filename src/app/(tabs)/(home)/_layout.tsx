@@ -14,6 +14,7 @@ export default function Layout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="search" />
       <Stack.Screen name="settings/index" />
+      <Stack.Screen name="settings/layout" />
     </Stack>
   );
 }

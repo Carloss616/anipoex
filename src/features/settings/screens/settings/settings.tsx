@@ -1,14 +1,19 @@
-import { Stack } from "expo-router";
+import { useValue } from "@legendapp/state/react";
+import { Stack, useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { Button } from "panelui-web/button";
+import { Frame } from "panelui-web/frame";
 import { ScrollView, View } from "react-native";
 import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { DnsPicker } from "@/features/extensions";
+import { homeLayout$, layoutSummary } from "@/features/home/state/home-layout";
 import { useSignOut } from "./hooks/use-sign-out";
 
 export function Settings() {
+  const router = useRouter();
   const { greeting, signOut } = useSignOut();
+  const layout = useValue(() => layoutSummary(homeLayout$.get()));
 
   return (
     <>
@@ -24,6 +29,22 @@ export function Settings() {
           <ThemeToggle />
           <ThemePicker />
           <DnsPicker />
+          <Frame className="w-full max-w-md">
+            <Frame.Header>
+              <Frame.Title>Home</Frame.Title>
+            </Frame.Header>
+            <Frame.Panel>
+              <Frame.Row
+                chevron
+                onClick={() => router.push("/settings/layout")}
+              >
+                <Frame.Content>
+                  <Frame.Title as="p">Home layout</Frame.Title>
+                  <Frame.Description>{layout}</Frame.Description>
+                </Frame.Content>
+              </Frame.Row>
+            </Frame.Panel>
+          </Frame>
         </View>
       </ScrollView>
     </>

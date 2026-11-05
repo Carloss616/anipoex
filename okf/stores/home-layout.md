@@ -30,3 +30,7 @@ in the list order above. Home shows `order` minus what is off, and asks
 
 A layout saved by another build is read leniently: unknown ids are dropped, missing ones
 come back hidden at the end, and anything unreadable reads as `balanced`.
+
+The user edits it in Settings → Home layout (`/settings/layout`), also reached from
+"Customize home" at the end of Home: a preset, a switch per section, and its place in the
+list (dragged on iOS and web, moved from a row's long-press menu on Android).

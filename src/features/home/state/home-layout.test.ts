@@ -18,6 +18,7 @@ mock.module("@/state/observable-persist", () => ({
 
 const {
   homeLayout$,
+  layoutSummary,
   moved,
   normalizeLayout,
   toggled,
@@ -66,6 +67,18 @@ describe("visibleSections", () => {
       "new",
       ...PRESETS.balanced.filter((id) => id !== "new"),
     ]);
+  });
+});
+
+describe("layoutSummary", () => {
+  it("names the preset and counts the visible sections", () => {
+    const balanced = withPreset("balanced");
+    expect(layoutSummary(balanced)).toBe(
+      `Balanced · ${PRESETS.balanced.length} sections`,
+    );
+    expect(layoutSummary({ ...balanced, preset: "custom", on: ["top"] })).toBe(
+      "Custom · 1 section",
+    );
   });
 });
 

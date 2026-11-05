@@ -2,6 +2,7 @@ import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import { ObservablePersist } from "@/state/observable-persist";
 import {
+  PRESET_LABELS,
   PRESETS,
   type Preset,
   SECTION_IDS,
@@ -44,6 +45,12 @@ export function moved(
 
 export const visibleSections = (layout: HomeLayout): SectionId[] =>
   layout.order.filter((id) => layout.on.includes(id));
+
+/** "Balanced · 7 sections", for the settings row that opens the editor. */
+export function layoutSummary(layout: HomeLayout): string {
+  const count = visibleSections(layout).length;
+  return `${PRESET_LABELS[layout.preset]} · ${count} section${count === 1 ? "" : "s"}`;
+}
 
 const isSectionId = (id: unknown): id is SectionId =>
   SECTION_IDS.includes(id as SectionId);
