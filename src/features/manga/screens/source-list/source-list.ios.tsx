@@ -30,12 +30,13 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Dialog } from "@/components/ui/dialog";
+import { Host } from "@/components/ui/host";
 import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
+import { SheetToastHost } from "@/components/ui/toast";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
 import { isTitleSearching } from "@/features/manga/state/title-search";
 import { REASONS } from "@/features/manga/utils/msu";
@@ -85,18 +86,11 @@ export function SourceList() {
         router.back();
         pick(id);
       }}
-      onDismiss={() => router.back()}
     />
   );
 }
 
-function ListBody({
-  manga,
-  read,
-  selectedId,
-  onSelect,
-  onDismiss,
-}: ListBodyProps & { onDismiss: () => void }) {
+function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
   const { key, all, query, setQuery, available, excluded, empty, openedAt } =
     useSources({ mangaId: manga.id });
   const actions = useSourceActions({ manga, read, selectedId });
@@ -124,274 +118,277 @@ function ListBody({
   const rowBackground = listRowBackground(muted);
 
   return (
-    <BottomSheet
-      isPresented
-      onDismiss={onDismiss}
-      expanded={title.searching}
-      contentKey={`${available.length}-${excluded.length}`}
-      snapPoints={["half", "full"]}
-      snapPointsDirection="bottom"
-    >
-      <VStack
-        alignment="leading"
-        spacing={16}
-        modifiers={[padding({ vertical: GUTTER })]}
-      >
+    <>
+      <Host className="flex-1">
         <VStack
           alignment="leading"
           spacing={16}
-          modifiers={[padding({ horizontal: GUTTER })]}
+          // 10: the grabber's room, as `BottomSheet` leaves it.
+          modifiers={[padding({ top: 10 + GUTTER, bottom: GUTTER })]}
         >
-          {/* The reason and error dialogs hang off the header: `.alert`
+          <VStack
+            alignment="leading"
+            spacing={16}
+            modifiers={[padding({ horizontal: GUTTER })]}
+          >
+            {/* The reason and error dialogs hang off the header: `.alert`
               needs a view that outlives the swiped row. */}
-          <Dialog
-            alert
-            title={failure?.title ?? `Exclude ${excluding?.source.name ?? ""}`}
-            description={failure?.description}
-            open={request !== null}
-            onOpenChange={(open) => !open && setRequest(null)}
-            actions={
-              failed && failure
-                ? [
-                    {
-                      label: failure.confirmLabel,
-                      onPress: () =>
-                        failed.excluded
-                          ? actions.include(failed.source.id)
-                          : actions.rescan(failed.source.id),
-                    },
-                  ]
-                : excluding
-                  ? excludeReasons(excluding.suspicious).map((reason) => ({
-                      label: REASONS[reason].menu,
-                      role: "destructive",
-                      onPress: () =>
-                        actions.exclude(excluding.source.id, reason),
-                    }))
-                  : []
-            }
-          >
-            <Dialog.Trigger>
-              <HStack>
-                <VStack alignment="leading" spacing={2}>
-                  <HStack spacing={8}>
-                    <Text textStyle="title3">Sources</Text>
-                    <Badge>{available.length + excluded.length}</Badge>
-                  </HStack>
-                  <HStack spacing={6}>
-                    <Text
-                      textStyle="subheadline"
-                      modifiers={[foregroundStyle("secondary")]}
-                    >
-                      {read > 0 ? "Read" : "Not started"}
-                    </Text>
-                    {read > 0 && <Badge>c.{read}</Badge>}
-                  </HStack>
-                </VStack>
-                <Spacer />
-                {/* One glass capsule for both, as a native toolbar groups
-                    its items. */}
-                <HStack
-                  spacing={0}
-                  modifiers={[
-                    padding({ horizontal: 2 }),
-                    glassEffect({
-                      glass: { variant: "regular", interactive: true },
-                      shape: "capsule",
-                    }),
-                  ]}
-                >
-                  <Button
-                    onPress={() =>
-                      // Excluded sources too: the right page may be on one
-                      // dropped for no match.
-                      actions.searchAll(
-                        [...available, ...excluded].map((row) => row.source.id),
-                      )
-                    }
-                    modifiers={[
-                      buttonStyle("plain"),
-                      // Tinted while title search is on, as a native toolbar
-                      // shows an active item.
-                      foregroundStyle(title.searching ? primary : "secondary"),
-                      accessibilityLabel("Search titles in all sources"),
-                    ]}
-                  >
-                    <Icon
-                      name={
-                        title.searching
-                          ? Icons.searchTitlesOff
-                          : Icons.searchTitles
-                      }
-                      size={BUTTON_ICON_SIZE}
-                      color="inherit"
-                      modifiers={GROUP_SLOT}
-                    />
-                  </Button>
-                  <Computed>
-                    {() => (
-                      <Button
-                        onPress={actions.scanAll}
-                        modifiers={[
-                          buttonStyle("plain"),
-                          foregroundStyle("secondary"),
-                          disabled(scanningAll$[key].get() === true),
-                          accessibilityLabel("Scan all sources"),
-                        ]}
-                      >
-                        {scanningAll$[key].get() ? (
-                          // The icon's slot, so the group never resizes;
-                          // the button already reads its label.
-                          <HStack
-                            modifiers={[
-                              ...GROUP_SLOT,
-                              accessibilityHidden(true),
-                            ]}
-                          >
-                            <Loader size="sm" />
-                          </HStack>
-                        ) : (
-                          <Icon
-                            name={Icons.refresh}
-                            size={BUTTON_ICON_SIZE}
-                            color="inherit"
-                            modifiers={GROUP_SLOT}
-                          />
-                        )}
-                      </Button>
-                    )}
-                  </Computed>
-                </HStack>
-              </HStack>
-            </Dialog.Trigger>
-          </Dialog>
-          {title.searching ? (
-            <SearchBar
-              key={title.fieldKey}
-              defaultValue={title.query}
-              onChangeText={title.type}
-              onSubmit={title.submit}
-              placeholder="Title to search"
-              accessory={
-                // The check follows the field: an edit unchecks the title.
-                <Computed>
-                  {() => (
-                    <Menu
-                      items={titleMenuItems(
-                        manga,
-                        title.fieldText(),
-                        title.pick,
-                      )}
-                    >
-                      <Icon
-                        name={Icons.swap}
-                        size={17}
-                        color="inherit"
-                        modifiers={[
-                          ...GROUP_SLOT_SM,
-                          foregroundStyle(primary),
-                          accessibilityLabel("AniList titles"),
-                        ]}
-                      />
-                    </Menu>
-                  )}
-                </Computed>
+            <Dialog
+              alert
+              title={
+                failure?.title ?? `Exclude ${excluding?.source.name ?? ""}`
               }
-            />
-          ) : (
-            <SearchBar
-              defaultValue={query}
-              debounce={150}
-              onDebouncedChange={setQuery}
-              placeholder="Search sources"
-              cancel="focus"
-            />
-          )}
-        </VStack>
-
-        {available.length === 0 && excluded.length === 0 ? (
-          <ScrollView
-            modifiers={[defaultScrollAnchorForRole("center", "alignment")]}
-          >
-            <EmptyState {...empty} />
-          </ScrollView>
-        ) : (
-          <List
-            modifiers={[
-              listStyle("insetGrouped"),
-              scrollContentBackground("hidden"),
-            ]}
-          >
-            <Section
-              modifiers={[rowBackground]}
-              header={
-                <SectionHeader title="Available" count={available.length} />
+              description={failure?.description}
+              open={request !== null}
+              onOpenChange={(open) => !open && setRequest(null)}
+              actions={
+                failed && failure
+                  ? [
+                      {
+                        label: failure.confirmLabel,
+                        onPress: () =>
+                          failed.excluded
+                            ? actions.include(failed.source.id)
+                            : actions.rescan(failed.source.id),
+                      },
+                    ]
+                  : excluding
+                    ? excludeReasons(excluding.suspicious).map((reason) => ({
+                        label: REASONS[reason].menu,
+                        role: "destructive",
+                        onPress: () =>
+                          actions.exclude(excluding.source.id, reason),
+                      }))
+                    : []
               }
             >
-              {available.length === 0 ? (
-                <Text modifiers={[foregroundStyle("secondary")]}>
-                  No sources
-                </Text>
-              ) : (
-                <List.ForEach
-                  data={available}
-                  keyExtractor={(row) => row.source.id}
-                  // Recycled rows are keyed by slot: a swipe or menu action
-                  // could land on another source.
-                  recycling={false}
-                >
-                  {({ item: row }) => (
-                    <AvailableItem
-                      source={row.source}
-                      mangaKey={key}
-                      sources={all}
-                      read={read}
-                      openedAt={openedAt}
-                      selected={row.source.id === selectedId}
-                      actions={actions}
-                      onSelect={onSelect}
-                      onExclude={setRequest}
-                      onError={setRequest}
-                    />
-                  )}
-                </List.ForEach>
-              )}
-            </Section>
+              <Dialog.Trigger>
+                <HStack>
+                  <VStack alignment="leading" spacing={2}>
+                    <HStack spacing={8}>
+                      <Text textStyle="title3">Sources</Text>
+                      <Badge>{available.length + excluded.length}</Badge>
+                    </HStack>
+                    <HStack spacing={6}>
+                      <Text
+                        textStyle="subheadline"
+                        modifiers={[foregroundStyle("secondary")]}
+                      >
+                        {read > 0 ? "Read" : "Not started"}
+                      </Text>
+                      {read > 0 && <Badge>c.{read}</Badge>}
+                    </HStack>
+                  </VStack>
+                  <Spacer />
+                  {/* One glass capsule for both, as a native toolbar groups
+                    its items. */}
+                  <HStack
+                    spacing={0}
+                    modifiers={[
+                      padding({ horizontal: 2 }),
+                      glassEffect({
+                        glass: { variant: "regular", interactive: true },
+                        shape: "capsule",
+                      }),
+                    ]}
+                  >
+                    <Button
+                      onPress={() =>
+                        // Excluded sources too: the right page may be on one
+                        // dropped for no match.
+                        actions.searchAll(
+                          [...available, ...excluded].map(
+                            (row) => row.source.id,
+                          ),
+                        )
+                      }
+                      modifiers={[
+                        buttonStyle("plain"),
+                        // Tinted while title search is on, as a native toolbar
+                        // shows an active item.
+                        foregroundStyle(
+                          title.searching ? primary : "secondary",
+                        ),
+                        accessibilityLabel("Search titles in all sources"),
+                      ]}
+                    >
+                      <Icon
+                        name={
+                          title.searching
+                            ? Icons.searchTitlesOff
+                            : Icons.searchTitles
+                        }
+                        size={BUTTON_ICON_SIZE}
+                        color="inherit"
+                        modifiers={GROUP_SLOT}
+                      />
+                    </Button>
+                    <Computed>
+                      {() => (
+                        <Button
+                          onPress={actions.scanAll}
+                          modifiers={[
+                            buttonStyle("plain"),
+                            foregroundStyle("secondary"),
+                            disabled(scanningAll$[key].get() === true),
+                            accessibilityLabel("Scan all sources"),
+                          ]}
+                        >
+                          {scanningAll$[key].get() ? (
+                            // The icon's slot, so the group never resizes;
+                            // the button already reads its label.
+                            <HStack
+                              modifiers={[
+                                ...GROUP_SLOT,
+                                accessibilityHidden(true),
+                              ]}
+                            >
+                              <Loader size="sm" />
+                            </HStack>
+                          ) : (
+                            <Icon
+                              name={Icons.refresh}
+                              size={BUTTON_ICON_SIZE}
+                              color="inherit"
+                              modifiers={GROUP_SLOT}
+                            />
+                          )}
+                        </Button>
+                      )}
+                    </Computed>
+                  </HStack>
+                </HStack>
+              </Dialog.Trigger>
+            </Dialog>
+            {title.searching ? (
+              <SearchBar
+                key={title.fieldKey}
+                defaultValue={title.query}
+                onChangeText={title.type}
+                onSubmit={title.submit}
+                placeholder="Title to search"
+                accessory={
+                  // The check follows the field: an edit unchecks the title.
+                  <Computed>
+                    {() => (
+                      <Menu
+                        items={titleMenuItems(
+                          manga,
+                          title.fieldText(),
+                          title.pick,
+                        )}
+                      >
+                        <Icon
+                          name={Icons.swap}
+                          size={17}
+                          color="inherit"
+                          modifiers={[
+                            ...GROUP_SLOT_SM,
+                            foregroundStyle(primary),
+                            accessibilityLabel("AniList titles"),
+                          ]}
+                        />
+                      </Menu>
+                    )}
+                  </Computed>
+                }
+              />
+            ) : (
+              <SearchBar
+                defaultValue={query}
+                debounce={150}
+                onDebouncedChange={setQuery}
+                placeholder="Search sources"
+                cancel="focus"
+              />
+            )}
+          </VStack>
 
-            {excluded.length > 0 && (
+          {available.length === 0 && excluded.length === 0 ? (
+            <ScrollView
+              modifiers={[defaultScrollAnchorForRole("center", "alignment")]}
+            >
+              <EmptyState {...empty} />
+            </ScrollView>
+          ) : (
+            <List
+              modifiers={[
+                listStyle("insetGrouped"),
+                scrollContentBackground("hidden"),
+              ]}
+            >
               <Section
                 modifiers={[rowBackground]}
                 header={
-                  <SectionHeader
-                    title="Excluded"
-                    count={excluded.length}
-                    menu={excludedMenu}
-                  />
+                  <SectionHeader title="Available" count={available.length} />
                 }
               >
-                <List.ForEach
-                  data={excluded}
-                  keyExtractor={(row) => row.source.id}
-                  // Recycled rows are keyed by slot: a swipe or menu action
-                  // could land on another source.
-                  recycling={false}
-                >
-                  {({ item: row }) => (
-                    <ExcludedItem
-                      source={row.source}
-                      reason={row.reason}
-                      pinned={row.pinned}
-                      mangaKey={key}
-                      actions={actions}
-                      onError={setRequest}
-                    />
-                  )}
-                </List.ForEach>
+                {available.length === 0 ? (
+                  <Text modifiers={[foregroundStyle("secondary")]}>
+                    No sources
+                  </Text>
+                ) : (
+                  <List.ForEach
+                    data={available}
+                    keyExtractor={(row) => row.source.id}
+                    // Recycled rows are keyed by slot: a swipe or menu action
+                    // could land on another source.
+                    recycling={false}
+                  >
+                    {({ item: row }) => (
+                      <AvailableItem
+                        source={row.source}
+                        mangaKey={key}
+                        sources={all}
+                        read={read}
+                        openedAt={openedAt}
+                        selected={row.source.id === selectedId}
+                        actions={actions}
+                        onSelect={onSelect}
+                        onExclude={setRequest}
+                        onError={setRequest}
+                      />
+                    )}
+                  </List.ForEach>
+                )}
               </Section>
-            )}
-          </List>
-        )}
-      </VStack>
-    </BottomSheet>
+
+              {excluded.length > 0 && (
+                <Section
+                  modifiers={[rowBackground]}
+                  header={
+                    <SectionHeader
+                      title="Excluded"
+                      count={excluded.length}
+                      menu={excludedMenu}
+                    />
+                  }
+                >
+                  <List.ForEach
+                    data={excluded}
+                    keyExtractor={(row) => row.source.id}
+                    // Recycled rows are keyed by slot: a swipe or menu action
+                    // could land on another source.
+                    recycling={false}
+                  >
+                    {({ item: row }) => (
+                      <ExcludedItem
+                        source={row.source}
+                        reason={row.reason}
+                        pinned={row.pinned}
+                        mangaKey={key}
+                        actions={actions}
+                        onError={setRequest}
+                      />
+                    )}
+                  </List.ForEach>
+                </Section>
+              )}
+            </List>
+          )}
+        </VStack>
+      </Host>
+      <SheetToastHost />
+    </>
   );
 }
