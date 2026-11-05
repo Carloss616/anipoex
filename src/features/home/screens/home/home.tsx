@@ -1,27 +1,24 @@
-import { Typography } from "panelui-native/components/typography";
-import { Button } from "panelui-web/button";
-import { ScrollView, View } from "react-native";
-import { ThemePicker } from "@/components/blocks/theme-picker";
-import { ThemeToggle } from "@/components/blocks/theme-toggle";
-import { DnsPicker } from "@/features/extensions";
-import { useSignOut } from "./hooks/use-sign-out";
+import { Stack, useRouter } from "expo-router";
+import { View } from "react-native";
+import { Toolbar } from "@/components/layout/toolbar";
+import { Icons } from "@/components/ui/icon";
 
 export function Home() {
-  const { greeting, signOut } = useSignOut();
+  const router = useRouter();
 
   return (
-    <ScrollView className="flex-1">
-      <View className="flex-1 items-center justify-center gap-4 px-8 py-24">
-        <Typography type="h5" align="center">
-          {greeting}
-        </Typography>
-        <Button variant="outline" onClick={signOut}>
-          Sign out
-        </Button>
-        <ThemeToggle />
-        <ThemePicker />
-        <DnsPicker />
-      </View>
-    </ScrollView>
+    <>
+      <Stack.Title large>Home</Stack.Title>
+      <Toolbar>
+        <Stack.Toolbar placement="right">
+          <Stack.Toolbar.Button
+            icon={Icons.person}
+            onPress={() => router.push("/settings")}
+            accessibilityLabel="Settings"
+          />
+        </Stack.Toolbar>
+      </Toolbar>
+      <View className="flex-1" />
+    </>
   );
 }

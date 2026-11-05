@@ -1,7 +1,7 @@
 ---
 type: Persisted Store
 title: Extension DNS
-description: The resolver extensions look hosts up with, picked on Home until a settings page exists.
+description: The resolver extensions look hosts up with, picked in Settings.
 resource: ../../modules/extension-runtime/android/src/main/java/eu/kanade/tachiyomi/network/NetworkHelper.kt
 tags: [extensions, network, preferences, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-21T00:00:00Z }

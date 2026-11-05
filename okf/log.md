@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-05
+
+* **Settings has its own page**: the greeting, Sign out, theme and DNS that Home showed move to `/settings`, opened from Home's account button; Home becomes a stack of its own. Updated [viewer](concepts/viewer.md), [extension DNS](stores/extension-dns.md) and the [overview](overview.md).
+
 ## 2026-11-04
 
 * **Each source is judged as it lands**: a scan no longer waits for all its sources before excluding any; each one's probe decides for it alone, on the state of that moment. Before, a source *Scan all* was rechecking and the user included meanwhile was excluded again when the scan ended (shown as `· you`).

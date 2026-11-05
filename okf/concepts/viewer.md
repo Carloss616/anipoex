@@ -11,7 +11,7 @@ The **viewer** is the signed-in user, normalized to the app's `User`:
 | Field | Meaning |
 |---|---|
 | `id` | AniList user id. Every list query is scoped to it (`userId`). |
-| `name` | Display name ("Hi, <name>" on Home). |
+| `name` | Display name ("Hi, <name>" in Settings). |
 | `avatarUrl` | `avatar.large`, or null. |
 | `scoreFormat` | The user's [score format](score-format.md). **Null until fetched.** |
 
