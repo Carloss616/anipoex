@@ -69,7 +69,7 @@ export function ExtensionList() {
     <>
       <Stack.Title large={large}>Extensions</Stack.Title>
       <Stack.SearchBar
-        placeholder="Search..."
+        placeholder="Search extensions"
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
         onChangeText={(e) => setQuery(e.nativeEvent.text)}

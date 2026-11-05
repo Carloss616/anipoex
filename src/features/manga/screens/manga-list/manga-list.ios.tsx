@@ -2,13 +2,12 @@ import { useObservable } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useWindowDimensions } from "react-native";
 import { Host } from "@/components/ui/host";
-import { MANGA_STATUSES, mangaCount } from "@/features/manga/constants";
+import { MANGA_STATUSES } from "@/features/manga/constants";
 import {
   ALL,
   emptyMangaList,
   useMangaList,
 } from "@/features/manga/hooks/use-manga-list";
-import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
 import { parseList } from "@/features/manga/utils/parse-list";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { useSearchQuery } from "@/hooks/use-search-query";
@@ -25,7 +24,6 @@ export function MangaList() {
   const { height } = useWindowDimensions();
   const { list } = useLocalSearchParams<{ list?: string }>();
   const status = parseList(list);
-  const counts = useMangaListCounts();
   const searchBarTheme = useStackSearchBarTheme();
   const { query$, setQuery } = useSearchQuery();
   const list$ = useObservable(emptyMangaList());
@@ -44,11 +42,7 @@ export function MangaList() {
     <>
       <Stack.Title large={large}>{MANGA_STATUSES[status]}</Stack.Title>
       <Stack.SearchBar
-        placeholder={
-          counts[status] == null
-            ? "Search..."
-            : `Search ${mangaCount(counts[status])}...`
-        }
+        placeholder="Search manga"
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
         onChangeText={(e) => setQuery(e.nativeEvent.text)}

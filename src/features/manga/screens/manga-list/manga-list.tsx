@@ -48,7 +48,7 @@ export function MangaList() {
     <>
       <Stack.Title large={large}>{MANGA_STATUSES[status]}</Stack.Title>
       <Stack.SearchBar
-        placeholder="Search..."
+        placeholder="Search manga"
         placement={large ? "stacked" : "integrated"}
         hideWhenScrolling={false}
         onChangeText={(e) => setQuery(e.nativeEvent.text)}

@@ -283,7 +283,7 @@ export function SheetContent({
               defaultValue={query}
               debounce={150}
               onDebouncedChange={setQuery}
-              placeholder="Search sources..."
+              placeholder="Search sources"
               cancel="focus"
             />
           )}
