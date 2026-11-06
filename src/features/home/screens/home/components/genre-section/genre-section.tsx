@@ -2,9 +2,11 @@ import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Frame } from "panelui-web/frame";
+import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { PRESS } from "@/components/ui/press";
 import { useSizeClass } from "../../hooks/use-size-class";
+import { SectionActions } from "../section-actions";
 
 export interface GenreSectionProps {
   title: string;
@@ -25,15 +27,27 @@ const hue = (genre: string) =>
 export function GenreSection({ title, genres }: GenreSectionProps) {
   const router = useRouter();
   const { count, width } = LAYOUT[useSizeClass()];
+  const [page, setPage] = useState(0);
+  const pages = Math.ceil(genres.length / count);
+  // A resize can leave fewer pages than the one shown.
+  const start = (page % pages) * count;
 
   return (
     <Frame>
       <Frame.Header>
         <Frame.Title>{title}</Frame.Title>
+        {pages > 1 && (
+          <SectionActions
+            title={title}
+            onScroll={(direction) =>
+              setPage((p) => (p + direction + pages) % pages)
+            }
+          />
+        )}
       </Frame.Header>
       <Frame.Panel>
         <View className="flex-row flex-wrap p-3">
-          {genres.slice(0, count).map((genre) => (
+          {genres.slice(start, start + count).map((genre) => (
             <View key={genre} className={cn("p-1", width)}>
               <Pressable
                 role="button"

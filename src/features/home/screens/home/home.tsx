@@ -99,7 +99,7 @@ function Sections() {
       {column}
       {/* Taller than the window, it would hide its foot: it scrolls itself. */}
       <View
-        className="sticky w-75 gap-4 overflow-y-auto"
+        className="sticky w-75 gap-4 overflow-y-auto *:shrink-0"
         style={{
           top: headerHeight + 8,
           maxHeight: windowHeight - headerHeight - 8 - TAB_BAR,

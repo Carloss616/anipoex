@@ -226,7 +226,7 @@ function ChaptersHeader({
         "stuck:glass-chrome! stuck:glass-muted stuck:rounded-full stuck:border stuck:shadow-lg",
       )}
     >
-      <Frame.Header className="py-0.75">
+      <Frame.Header>
         <Frame.Title>
           Chapters <Badge>{total}</Badge>
         </Frame.Title>

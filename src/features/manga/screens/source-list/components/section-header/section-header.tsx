@@ -1,5 +1,4 @@
 import { Computed } from "@legendapp/state/react";
-import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
@@ -20,12 +19,7 @@ export const SectionHeader = memo(function SectionHeader({
   menu,
 }: SectionHeaderProps) {
   return (
-    <Frame.Header
-      className={cn(
-        "stuck:glass-chrome stuck:inset-shadow-none stuck:border-b",
-        menu && "py-0.75",
-      )}
-    >
+    <Frame.Header className="stuck:glass-chrome stuck:inset-shadow-none stuck:border-b">
       <Frame.Title>
         {title} <Badge>{count}</Badge>
       </Frame.Title>

@@ -172,3 +172,13 @@
     }
   }
 }
+
+/* A button in a Frame header's action is taller than its title: the header
+   trims its padding so it stays as tall as a header without one. */
+@layer utilities {
+  [data-slot="frame-header"]:has(
+    [data-slot="frame-action"] :is(button, [role="button"])
+  ) {
+    padding-block: calc(var(--spacing) * 0.75);
+  }
+}
