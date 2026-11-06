@@ -3,6 +3,11 @@ package expo.modules.topappbar
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +23,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.material.icons.Icons
@@ -286,12 +292,17 @@ private fun FunctionalComposableScope.Bar(
   }
 
   val field = rememberTextFieldState(search.text)
+  // The field's own until the screen sets another, as a new search does.
+  LaunchedEffect(search.text) {
+    if (field.text.toString() != search.text) field.setTextAndPlaceCursorAtEnd(search.text)
+  }
   // No expanded search view: the field filters what's on screen in place.
   val searchState = rememberSearchBarState()
   val focus = LocalFocusManager.current
   val interaction = remember { MutableInteractionSource() }
   val focused by interaction.collectIsFocusedAsState()
-  val close = { field.clearText(); focus.clearFocus() }
+  // Back to the screen's text: empty on Home, the search on its results.
+  val close = { field.setTextAndPlaceCursorAtEnd(search.text); focus.clearFocus() }
   LaunchedEffect(field) {
     snapshotFlow { field.text.toString() }
       .drop(1)
@@ -300,9 +311,17 @@ private fun FunctionalComposableScope.Bar(
   // AppBarWithSearch's layout without it: its collapsed bar wraps the field in
   // DisableSoftKeyboard, leaving typing to an expanded search view we don't have.
   Row(verticalAlignment = Alignment.CenterVertically) {
+    // M3 Expressive: focused, the field's back stands alone, and the field
+    // widens into the room the bar's back leaves.
     if (hasSlot("navigationIcon")) {
-      Box(Modifier.padding(start = 4.dp)) {
-        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface, content = navigationIcon)
+      AnimatedVisibility(
+        visible = !focused,
+        enter = fadeIn() + expandHorizontally(),
+        exit = fadeOut() + shrinkHorizontally()
+      ) {
+        Box(Modifier.padding(start = 4.dp)) {
+          CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface, content = navigationIcon)
+        }
       }
     }
     Surface(

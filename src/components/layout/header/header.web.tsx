@@ -103,6 +103,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const reduced = useReducedMotion();
 
   const search = options.headerSearchBarOptions;
+  // A screen's own option: the field's text, open from the start.
+  const searchText = (options as { searchText?: string }).searchText;
   const tintColor = options.headerTintColor;
   const title = getHeaderTitle(options, "");
   const showBack = !!back && options.headerBackVisible !== false;
@@ -123,7 +125,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
 
   const closeSearch = () => {
     inputRef.current?.blur();
-    emit("");
+    // Cancel ends an edit; a screen's own text is still what it shows.
+    emit(searchText ?? "");
     setIsSearching(false);
     search?.onCancelButtonPress?.(textEvent(""));
     search?.onClose?.();
@@ -143,6 +146,12 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     toggleCancelButton: () => {},
     cancelSearch: closeSearch,
   }));
+
+  useEffect(() => {
+    if (searchText == null) return;
+    query$.set(searchText);
+    setIsSearching(true);
+  }, [searchText, query$]);
 
   useEffect(() => {
     if (isSearching) inputRef.current?.focus();

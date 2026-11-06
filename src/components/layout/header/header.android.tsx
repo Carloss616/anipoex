@@ -21,6 +21,8 @@ export const header: NativeStackNavigationOptions["header"] = (props) => (
  */
 function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const search = options.headerSearchBarOptions;
+  // A screen's own option: the field's text, as `ref.setText` sets on iOS.
+  const searchText = (options as { searchText?: string }).searchText;
   const background = StyleSheet.flatten(options.headerStyle)?.backgroundColor;
   // `Stack.Title asChild` on Android passes Compose, which the bar can hold.
   const title =
@@ -39,8 +41,9 @@ function Header({ options, back, navigation }: NativeStackHeaderProps) {
         search={
           search && {
             placeholder: search.placeholder,
+            text: searchText,
             // A screen that handles submit shows results elsewhere: start over.
-            clearOnSubmit: !!search.onSearchButtonPress,
+            clearOnSubmit: !!search.onSearchButtonPress && searchText == null,
             onChangeText: (text) =>
               search.onChangeText?.({ nativeEvent: { text } } as never),
             onSubmit: (text) =>

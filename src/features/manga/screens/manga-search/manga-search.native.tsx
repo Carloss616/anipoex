@@ -2,7 +2,6 @@ import { useHeaderHeight } from "expo-router/react-navigation";
 import { Platform } from "react-native";
 import { Host } from "@/components/ui/host";
 import { MangaGrid } from "@/features/manga/components/manga-grid";
-import { searchTitle } from "@/features/manga/utils/search-params";
 import { SearchEmpty } from "./components/search-empty";
 import { SearchFilters } from "./components/search-filters";
 import { SearchHeader } from "./components/search-header";
@@ -12,14 +11,14 @@ import { useSearchRoute } from "./hooks/use-search-route";
 export function MangaSearch() {
   const { params, search, update, submit } = useSearchRoute();
   const headerHeight = useHeaderHeight();
+  const filters = <SearchFilters params={params} onChange={update} />;
+  // iOS puts them in the toolbar, as the manga list does.
+  const ios = Platform.OS === "ios";
 
   return (
     <>
-      <SearchHeader
-        title={searchTitle(params)}
-        query={params.q}
-        onSubmit={submit}
-      />
+      <SearchHeader query={params.q} onSubmit={submit} />
+      {ios && filters}
       <Host
         className="flex-1"
         // Android's header draws over the screen; iOS insets content itself.
@@ -37,7 +36,7 @@ export function MangaSearch() {
               onRetry={() => void search.refetch().catch(() => {})}
             />
           }
-          header={<SearchFilters params={params} onChange={update} />}
+          header={ios ? undefined : filters}
           onEndReached={search.hasMore ? search.loadMore : undefined}
         />
       </Host>

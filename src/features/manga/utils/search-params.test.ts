@@ -3,7 +3,6 @@ import { MediaFormat, MediaSort, MediaStatus } from "@/graphql/types.generated";
 import {
   hasSearch,
   parseSearchParams,
-  searchTitle,
   sortOf,
   toRouteParams,
   toSearchVariables,
@@ -144,23 +143,5 @@ describe("toSetParams", () => {
       country: undefined,
       year: undefined,
     });
-  });
-});
-
-describe("searchTitle", () => {
-  test("is the query when there is one", () => {
-    expect(searchTitle({ q: "chain" })).toBe("chain");
-  });
-
-  test("names the section whose params match", () => {
-    expect(searchTitle({ sort: "trending" })).toBe("Trending now");
-  });
-
-  test("falls back to the genre", () => {
-    expect(searchTitle({ genre: "Action" })).toBe("Action");
-  });
-
-  test("is Search with nothing to name", () => {
-    expect(searchTitle({})).toBe("Search");
   });
 });

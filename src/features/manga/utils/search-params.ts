@@ -1,4 +1,3 @@
-import { SECTIONS } from "@/features/home/constants";
 import { MediaFormat, MediaSort, MediaStatus } from "@/graphql/types.generated";
 import type { MangaSearchQueryVariables } from "../graphql/manga-search.generated";
 
@@ -118,18 +117,3 @@ export const toSetParams = (
   year: undefined,
   ...toRouteParams(p),
 });
-
-/** The query, else the Home section these params show, else the genre. */
-export function searchTitle(p: SearchParams): string {
-  if (p.q) return p.q;
-  const keys = Object.keys(p);
-  const section = Object.values(SECTIONS).find(
-    ({ params }) =>
-      params &&
-      keys.length === Object.keys(params).length &&
-      Object.entries(params).every(
-        ([k, v]) => p[k as keyof SearchParams] === v,
-      ),
-  );
-  return section?.title ?? p.genre ?? "Search";
-}

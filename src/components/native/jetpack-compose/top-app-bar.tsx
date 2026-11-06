@@ -14,7 +14,7 @@ export interface TopAppBarProps {
   /** Turns the bar into a search app bar; the field filters in place. */
   search?: {
     placeholder?: string;
-    /** The field's starting text. */
+    /** The field's text: a new one rewrites it, and closing returns to it. */
     text?: string;
     onChangeText: (text: string) => void;
     /** Fires on the keyboard's search key, with the field's text. */

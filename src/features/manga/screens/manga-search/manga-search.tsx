@@ -1,6 +1,5 @@
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { MangaGrid } from "@/features/manga/components/manga-grid";
-import { searchTitle } from "@/features/manga/utils/search-params";
 import { SearchEmpty } from "./components/search-empty";
 import { SearchFilters } from "./components/search-filters";
 import { SearchHeader } from "./components/search-header";
@@ -12,11 +11,7 @@ export function MangaSearch() {
 
   return (
     <>
-      <SearchHeader
-        title={searchTitle(params)}
-        query={params.q}
-        onSubmit={submit}
-      />
+      <SearchHeader query={params.q} onSubmit={submit} />
       <MangaGrid
         className="gutters px-gx pb-gb"
         manga$={search.manga$}
