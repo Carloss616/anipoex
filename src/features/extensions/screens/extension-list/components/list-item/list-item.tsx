@@ -4,12 +4,7 @@ import { Frame } from "panelui-web/frame";
 import { type ComponentProps, memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import {
-  BUTTON_ICON_SIZE,
-  Icon,
-  type IconName,
-  Icons,
-} from "@/components/ui/icon";
+import { Icon, type IconName, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import {
   describeVersion,
@@ -52,7 +47,7 @@ function ActionButton({ id, icon, variant, ...props }: ActionButtonProps) {
 
   return (
     <Button size="icon" variant={variant} {...props} disabled={running}>
-      <Icon name={icon} size={BUTTON_ICON_SIZE} />
+      <Icon name={icon} />
     </Button>
   );
 }
@@ -102,7 +97,7 @@ export const ListItem = memo(function ListItem({
             onClick={() => openExternal(websiteUrl)}
             aria-label="Open website"
           >
-            <Icon name={Icons.website} size={BUTTON_ICON_SIZE} />
+            <Icon name={Icons.website} />
           </Button>
         )}
         {!e.installed ? (

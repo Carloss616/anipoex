@@ -4,7 +4,7 @@ import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { noop } from "@/utils/utils";
 import type { Continue$ } from "../../hooks/use-continue";
@@ -83,7 +83,7 @@ export function ChapterItem({
           onClick={noop}
           aria-label={`Download chapter ${chapter.title}`}
         >
-          <Icon name={Icons.download} size={BUTTON_ICON_SIZE} />
+          <Icon name={Icons.download} />
         </Button>
       </Frame.Actions>
     </View>

@@ -2,7 +2,7 @@ import { cloneElement, type ReactNode, useState } from "react";
 import { DropdownMenu } from "@/components/native/jetpack-compose/dropdown-menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Dialog } from "../dialog";
-import { BUTTON_ICON_SIZE, Icon } from "../icon";
+import { Icon } from "../icon";
 import { useMenuDialogState } from "./hooks/use-menu-dialog";
 import type { ContextMenuProps, MenuProps } from "./menu";
 import { toSegments } from "./utils";
@@ -98,7 +98,6 @@ function DropdownFor({
                   {item.icon && (
                     <Icon
                       name={item.icon}
-                      size={BUTTON_ICON_SIZE}
                       color={item.destructive ? m3.error : "inherit"}
                     />
                   )}

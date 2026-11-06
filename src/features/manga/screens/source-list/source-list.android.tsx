@@ -32,7 +32,7 @@ import { nestedScrollInteropConnection } from "@/components/native/jetpack-compo
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
@@ -64,7 +64,7 @@ function TitlesButton({ onPress }: { onPress?: () => void }) {
       onClick={onPress}
       modifiers={[semantics({ contentDescription: "AniList titles" })]}
     >
-      <Icon name={Icons.swap} size={BUTTON_ICON_SIZE} color="inherit" />
+      <Icon name={Icons.swap} color="inherit" />
     </IconButton>
   );
 }
@@ -167,7 +167,6 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                           ? Icons.searchTitlesOff
                           : Icons.searchTitles
                       }
-                      size={BUTTON_ICON_SIZE}
                       color="inherit"
                     />
                   </SearchTitlesButton>
@@ -188,11 +187,7 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                           {scanning ? (
                             <Loader size="sm" />
                           ) : (
-                            <Icon
-                              name={Icons.refresh}
-                              size={BUTTON_ICON_SIZE}
-                              color="inherit"
-                            />
+                            <Icon name={Icons.refresh} color="inherit" />
                           )}
                         </FilledTonalIconButton>
                       );

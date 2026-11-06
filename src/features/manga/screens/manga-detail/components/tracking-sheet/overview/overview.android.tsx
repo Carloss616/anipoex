@@ -17,12 +17,7 @@ import {
   SEGMENTED_GAP,
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
-import {
-  BUTTON_ICON_SIZE,
-  Icon,
-  type IconName,
-  Icons,
-} from "@/components/ui/icon";
+import { Icon, type IconName, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -107,7 +102,6 @@ function MoreButton({ onPress }: { onPress?: () => void }) {
     <IconButton onClick={onPress}>
       <Icon
         name={Icons.more}
-        size={BUTTON_ICON_SIZE}
         accessibilityLabel="More options"
         color="inherit"
       />

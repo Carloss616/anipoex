@@ -12,7 +12,7 @@ import {
   padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { Text } from "@/components/native/swift-ui/text";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 
 export interface HeaderProps {
   title: string;
@@ -46,7 +46,6 @@ export function Header({
       >
         <Icon
           name={Icons.close}
-          size={BUTTON_ICON_SIZE}
           color="inherit"
           modifiers={[frame({ width: 20, height: 20 })]}
         />
@@ -78,7 +77,6 @@ export function Header({
       >
         <Icon
           name={Icons.check}
-          size={BUTTON_ICON_SIZE}
           color="inherit"
           modifiers={[frame({ width: 20, height: 20 })]}
         />

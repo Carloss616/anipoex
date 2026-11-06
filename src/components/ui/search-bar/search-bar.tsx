@@ -3,7 +3,7 @@ import { Button } from "panelui-web/button";
 import { Input, type InputProps } from "panelui-web/input";
 import type { ReactNode } from "react";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
+import { Icon, Icons } from "../icon";
 
 // An empty field shows its placeholder: nothing to clear.
 const HIDDEN_WHEN_EMPTY = "group-has-[input:placeholder-shown]/input:hidden";
@@ -81,9 +81,7 @@ export function SearchBar({
 
   return (
     <Input.Group className={cn("rounded-full", className)}>
-      <Input.Addon>
-        {icon ?? <Icon name={Icons.search} size={BUTTON_ICON_SIZE} />}
-      </Input.Addon>
+      <Input.Addon>{icon ?? <Icon name={Icons.search} />}</Input.Addon>
       <Input
         ref={ref}
         type="search"
@@ -131,7 +129,7 @@ export function SearchBar({
                 onClear?.();
               }}
             >
-              <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
+              <Icon name={Icons.close} />
             </Button>
           )}
           {/* Last on web, so the ✕ coming and going doesn't move it. */}

@@ -31,7 +31,7 @@ import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -216,7 +216,6 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                             ? Icons.searchTitlesOff
                             : Icons.searchTitles
                         }
-                        size={BUTTON_ICON_SIZE}
                         color="inherit"
                         modifiers={GROUP_SLOT}
                       />
@@ -246,7 +245,6 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                           ) : (
                             <Icon
                               name={Icons.refresh}
-                              size={BUTTON_ICON_SIZE}
                               color="inherit"
                               modifiers={GROUP_SLOT}
                             />

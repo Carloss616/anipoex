@@ -3,7 +3,7 @@ import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu, Menu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
@@ -131,11 +131,7 @@ export const AvailableItem = memo(function AvailableItem({
               aria-hidden
               aria-label="Selected"
             >
-              <Icon
-                name={Icons.check}
-                size={BUTTON_ICON_SIZE}
-                className="text-primary"
-              />
+              <Icon name={Icons.check} className="text-primary" />
             </Button>
           )}
           {/* Rescan turns to Stop while it scans: a slow source can scan for minutes. */}
@@ -147,10 +143,7 @@ export const AvailableItem = memo(function AvailableItem({
             }
             aria-label={`${scanning ? "Stop scanning" : "Rescan"} ${source.name}`}
           >
-            <Icon
-              name={scanning ? Icons.close : Icons.refresh}
-              size={BUTTON_ICON_SIZE}
-            />
+            <Icon name={scanning ? Icons.close : Icons.refresh} />
           </Button>
           <Menu items={items}>
             <Button
@@ -158,7 +151,7 @@ export const AvailableItem = memo(function AvailableItem({
               size="icon"
               aria-label={`More actions for ${source.name}`}
             >
-              <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
+              <Icon name={Icons.more} />
             </Button>
           </Menu>
         </Frame.Actions>

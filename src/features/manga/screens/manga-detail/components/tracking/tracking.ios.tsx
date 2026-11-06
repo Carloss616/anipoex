@@ -6,7 +6,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useState } from "react";
 import { Code, Text } from "@/components/native/swift-ui/text";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { TrackingSheet } from "../tracking-sheet";
@@ -46,11 +46,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
                   {percent}%
                 </Text>
               )}
-              <Icon
-                name={Icons.chevronRight}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
+              <Icon name={Icons.chevronRight} color="inherit" />
             </HStack>
             {!!total && <Progress value={percent} />}
           </VStack>
@@ -58,7 +54,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
           <HStack spacing={8} modifiers={[padding({ all: 16 })]}>
             <Text modifiers={[fgPrimary]}>Add to list</Text>
             <Spacer />
-            <Icon name={Icons.add} size={BUTTON_ICON_SIZE} color="inherit" />
+            <Icon name={Icons.add} color="inherit" />
           </HStack>
         )}
       </Button>

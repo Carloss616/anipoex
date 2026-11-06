@@ -6,7 +6,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useState } from "react";
 import { Code, Text } from "@/components/native/jetpack-compose/text";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -55,11 +55,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
                   {percent}%
                 </Text>
               )}
-              <Icon
-                name={Icons.chevronRight}
-                size={BUTTON_ICON_SIZE}
-                color={m3.primary}
-              />
+              <Icon name={Icons.chevronRight} color={m3.primary} />
             </Row>
             {!!total && <Progress value={percent} />}
           </Column>
@@ -71,7 +67,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
           >
             <Text>Add to list</Text>
             <Spacer modifiers={[weight(1)]} />
-            <Icon name={Icons.add} size={BUTTON_ICON_SIZE} color={m3.primary} />
+            <Icon name={Icons.add} color={m3.primary} />
           </Row>
         )}
       </Surface>

@@ -1,6 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 import { theme$ } from "@/state/theme";
 
 /** Click flips light/dark in the family; right-click hands it to the system. */
@@ -22,7 +22,7 @@ export function ThemeToggle() {
         theme$.preference.set("system");
       }}
     >
-      <Icon name={icon} size={BUTTON_ICON_SIZE} />
+      <Icon name={icon} />
     </Button>
   );
 }

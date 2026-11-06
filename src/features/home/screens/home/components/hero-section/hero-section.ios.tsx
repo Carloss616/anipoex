@@ -40,7 +40,7 @@ import { useReducedMotion } from "react-native-reanimated";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import { toRouteParams } from "@/features/manga/utils/search-params";
@@ -224,7 +224,6 @@ const HeroCard = memo(function HeroCard({
         >
           <Icon
             name={listed ? Icons.check : Icons.add}
-            size={BUTTON_ICON_SIZE}
             color="inherit"
             modifiers={[frame({ width: 24, height: 24 })]}
           />

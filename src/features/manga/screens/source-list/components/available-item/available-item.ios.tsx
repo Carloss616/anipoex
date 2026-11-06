@@ -19,7 +19,7 @@ import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons, sfSymbol } from "@/components/ui/icon";
+import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -138,18 +138,9 @@ export const AvailableItem = memo(function AvailableItem({
               <Spacer />
               {/* A fixed slot so the name never shifts; hidden, as the row reads its trait. */}
               <HStack
-                modifiers={[
-                  frame({ width: BUTTON_ICON_SIZE }),
-                  accessibilityHidden(true),
-                ]}
+                modifiers={[frame({ width: 18 }), accessibilityHidden(true)]}
               >
-                {selected ? (
-                  <Icon
-                    name={Icons.check}
-                    size={BUTTON_ICON_SIZE}
-                    color={primary}
-                  />
-                ) : null}
+                {selected ? <Icon name={Icons.check} color={primary} /> : null}
               </HStack>
             </HStack>
           </Button>

@@ -18,7 +18,7 @@ import {
   SHEET_CLOSE_MS,
   SHEET_INSET,
 } from "@/components/ui/bottom-sheet";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
 import { TrustDialog } from "@/features/extensions/components/trust-dialog";
@@ -97,7 +97,7 @@ function RepoListBody() {
                       open && "rotate-45",
                     )}
                   >
-                    <Icon name={Icons.add} size={BUTTON_ICON_SIZE} />
+                    <Icon name={Icons.add} />
                   </Button>
                 );
               }}
@@ -152,7 +152,7 @@ function RepoListBody() {
                               input.current?.focus();
                             }}
                           >
-                            <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
+                            <Icon name={Icons.close} />
                           </Button>
                         )}
                         <Button
@@ -163,7 +163,7 @@ function RepoListBody() {
                           disabled={!canAdd$.get()}
                           aria-label="Add"
                         >
-                          <Icon name={Icons.add} size={BUTTON_ICON_SIZE} />
+                          <Icon name={Icons.add} />
                         </Button>
                       </Input.Addon>
                     </Input.Group>
@@ -222,7 +222,7 @@ const RepoRow = memo(function RepoRow({
             variant="ghost"
             aria-label={`More actions for ${repo.name}`}
           >
-            <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
+            <Icon name={Icons.more} />
           </Button>
         </Menu>
       </Frame.Actions>

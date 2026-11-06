@@ -35,7 +35,7 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
 import { TrustDialog } from "@/features/extensions/components/trust-dialog";
@@ -116,7 +116,6 @@ export function RepoList() {
                     >
                       <Icon
                         name={open ? Icons.close : Icons.add}
-                        size={BUTTON_ICON_SIZE}
                         color="inherit"
                       />
                     </FilledTonalIconButton>
@@ -160,11 +159,7 @@ export function RepoList() {
                                 semantics({ contentDescription: "Clear" }),
                               ]}
                             >
-                              <Icon
-                                name={Icons.close}
-                                size={BUTTON_ICON_SIZE}
-                                color="inherit"
-                              />
+                              <Icon name={Icons.close} color="inherit" />
                             </IconButton>
                           )}
                           <IconButton
@@ -174,11 +169,7 @@ export function RepoList() {
                               semantics({ contentDescription: "Add" }),
                             ]}
                           >
-                            <Icon
-                              name={Icons.add}
-                              size={BUTTON_ICON_SIZE}
-                              color="inherit"
-                            />
+                            <Icon name={Icons.add} color="inherit" />
                           </IconButton>
                         </Row>
                       </OutlinedTextField.TrailingIcon>

@@ -11,7 +11,7 @@ import { type KeyboardEvent, memo, type PointerEvent, useRef } from "react";
 import { ScrollView, View } from "react-native";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import {
   ACCOUNT_SECTIONS,
@@ -213,7 +213,7 @@ const SectionRow = memo(function SectionRow({
             onPointerCancel={onPointerEnd}
           >
             {/* Web only: the native editors reorder their own way. */}
-            <Icon name="grip-vertical" size={BUTTON_ICON_SIZE} muted />
+            <Icon name="grip-vertical" muted />
           </Button>
         </Frame.Media>
         <Frame.Content>

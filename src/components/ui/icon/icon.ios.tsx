@@ -7,6 +7,7 @@ function IconRoot({
   muted,
   color,
   modifiers,
+  size = 18,
   ...props
 }: IconProps & IconExtendProps) {
   const tint =
@@ -20,6 +21,7 @@ function IconRoot({
           ...(modifiers ?? []),
         ]}
         color={muted || color === "inherit" ? undefined : color}
+        size={size}
         {...props}
       />
     </EnsureHost>

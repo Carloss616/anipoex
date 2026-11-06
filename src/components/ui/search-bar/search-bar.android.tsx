@@ -14,7 +14,7 @@ import { useFontFamily } from "@/hooks/use-font";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
+import { Icon, Icons } from "../icon";
 import type { SearchBarProps } from "./search-bar";
 
 /** M3's field has no slot for Cancel, which stays iOS-only. */
@@ -91,9 +91,7 @@ export function SearchBar({
           </TextField.Placeholder>
         ) : null}
         <TextField.LeadingIcon>
-          {icon ?? (
-            <Icon name={Icons.search} size={BUTTON_ICON_SIZE} color="inherit" />
-          )}
+          {icon ?? <Icon name={Icons.search} color="inherit" />}
         </TextField.LeadingIcon>
         {accessory || (isClearable && (value ?? query)) ? (
           <TextField.TrailingIcon>
@@ -103,11 +101,7 @@ export function SearchBar({
                   onClick={clear}
                   modifiers={[semantics({ contentDescription: clearLabel })]}
                 >
-                  <Icon
-                    name={Icons.close}
-                    size={BUTTON_ICON_SIZE}
-                    color="inherit"
-                  />
+                  <Icon name={Icons.close} color="inherit" />
                 </IconButton>
               ) : null}
               {accessory}

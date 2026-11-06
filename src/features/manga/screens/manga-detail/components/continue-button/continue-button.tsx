@@ -2,7 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import {
   CONTINUE_LABEL,
   chapterBadge,
@@ -36,10 +36,7 @@ export function ContinueButton({
       onClick={onPress}
       className={cn("gap-2", className)}
     >
-      <Icon
-        name={action.kind === "pick" ? Icons.search : Icons.play}
-        size={BUTTON_ICON_SIZE}
-      />
+      <Icon name={action.kind === "pick" ? Icons.search : Icons.play} />
       {CONTINUE_LABEL[action.kind]}
       {badge && (
         <Badge className="bg-primary-foreground/15 text-primary-foreground">

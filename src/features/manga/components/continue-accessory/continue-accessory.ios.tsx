@@ -12,7 +12,7 @@ import { NativeTabs } from "expo-router/native-tabs";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { continueReading$ } from "@/features/manga/state/continue-reading";
 import {
   CONTINUE_LABEL,
@@ -50,7 +50,7 @@ export function ContinueAccessory() {
             frame({ maxWidth: Infinity, maxHeight: Infinity }),
           ]}
         >
-          <Icon name={Icons.play} size={BUTTON_ICON_SIZE} color="inherit" />
+          <Icon name={Icons.play} color="inherit" />
           {next.source && (
             <SourceTile
               initials={next.source.initials}

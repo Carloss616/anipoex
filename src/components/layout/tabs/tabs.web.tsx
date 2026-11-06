@@ -15,7 +15,7 @@ import { Tabs as PanelTabs } from "panelui-web/tabs";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 
 const TabSlot = withUniwind(TabSlotBase);
 
@@ -107,10 +107,7 @@ function PanelTabTrigger({
       className="gap-0 transition-[color,background-color] duration-300 ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary"
       disabled={disabled ?? false}
     >
-      <Icon
-        size={BUTTON_ICON_SIZE}
-        name={isFocused ? item.icon.selected : item.icon.default}
-      />
+      <Icon name={isFocused ? item.icon.selected : item.icon.default} />
       {/* Below sm only the active label shows; 0fr→1fr animates width. */}
       <View className="grid grid-cols-[0fr] in-data-active:grid-cols-[1fr] in-data-active:opacity-100 opacity-0 transition-[grid-template-columns,opacity] duration-300 ease-sheet motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
         <View className="overflow-hidden">

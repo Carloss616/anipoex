@@ -4,7 +4,7 @@ import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu, Menu } from "@/components/ui/menu";
 import { probes$, scanning$ } from "@/features/manga/state/probes";
 import { type ExcludeReason, REASONS } from "@/features/manga/utils/msu";
@@ -94,7 +94,7 @@ export const ExcludedItem = memo(function ExcludedItem({
                 onClick={() => actions.stop(source.id)}
                 aria-label={`Stop scanning ${source.name}`}
               >
-                <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
+                <Icon name={Icons.close} />
               </Button>
             ) : (
               <Button
@@ -113,7 +113,7 @@ export const ExcludedItem = memo(function ExcludedItem({
                 size="icon"
                 aria-label={`More actions for ${source.name}`}
               >
-                <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
+                <Icon name={Icons.more} />
               </Button>
             </Menu>
           </Frame.Actions>

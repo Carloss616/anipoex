@@ -14,7 +14,7 @@ import {
 } from "react";
 import { type StyleProp, type TextStyle, View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
 import { LARGE_TITLE_HEIGHT } from "./constants";
 
@@ -196,7 +196,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
               onClick={navigation.goBack}
               aria-label={backLabel ?? "Back"}
             >
-              <Icon name={Icons.back} size={BUTTON_ICON_SIZE} />
+              <Icon name={Icons.back} />
               {!isMinimalBack && backLabel}
             </Button>
           )}
@@ -258,7 +258,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 onClick={closeSearch}
                 aria-label={search.cancelButtonText ?? "Cancel"}
               >
-                <Icon name={Icons.close} size={BUTTON_ICON_SIZE} />
+                <Icon name={Icons.close} />
               </Button>
             ) : (
               <Button
@@ -269,7 +269,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                 onClick={openSearch}
                 aria-label={search.placeholder ?? "Search"}
               >
-                <Icon name={Icons.search} size={BUTTON_ICON_SIZE} />
+                <Icon name={Icons.search} />
               </Button>
             ))}
           {options.headerRight?.({ tintColor, canGoBack: !!back })}

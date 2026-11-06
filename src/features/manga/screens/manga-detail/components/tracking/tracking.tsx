@@ -2,7 +2,7 @@ import { Typography } from "panelui-native/components/typography";
 import { Button } from "panelui-web/button";
 import { useState } from "react";
 import { View } from "react-native";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { TrackingSheet } from "../tracking-sheet";
@@ -35,7 +35,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
                   {percent}%
                 </Typography>
               )}
-              <Icon name={Icons.chevronRight} size={BUTTON_ICON_SIZE} />
+              <Icon name={Icons.chevronRight} />
             </View>
             {!!total && <Progress value={percent} />}
           </>
@@ -43,7 +43,7 @@ export function Tracking({ manga }: { manga: MangaDetail }) {
           <View className="flex-row items-center gap-2">
             <Typography className="text-inherit">Add to list</Typography>
             <View className="flex-1" />
-            <Icon name={Icons.add} size={BUTTON_ICON_SIZE} />
+            <Icon name={Icons.add} />
           </View>
         )}
       </Button>

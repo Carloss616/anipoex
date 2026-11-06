@@ -7,7 +7,7 @@ import { getHeaderTitle } from "expo-router/react-navigation";
 import { StyleSheet } from "react-native";
 import { TopAppBar } from "@/components/native/jetpack-compose/top-app-bar";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 
 export const header: NativeStackNavigationOptions["header"] = (props) => (
   <Header {...props} />
@@ -54,7 +54,6 @@ function Header({ options, back, navigation }: NativeStackHeaderProps) {
             <IconButton onClick={navigation.goBack}>
               <Icon
                 name={Icons.back}
-                size={BUTTON_ICON_SIZE}
                 accessibilityLabel="Navigate up"
                 color="inherit"
               />

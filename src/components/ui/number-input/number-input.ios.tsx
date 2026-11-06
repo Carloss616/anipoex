@@ -27,7 +27,6 @@ import { useEffect, useRef } from "react";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { dismissFocus, registerField } from "@/utils/focus";
 import { EnsureHost } from "../host";
-import { BUTTON_ICON_SIZE } from "../icon";
 import { useStepRepeat } from "./hooks/use-step-repeat";
 import type { NumberInputProps } from "./number-input";
 
@@ -172,7 +171,7 @@ function StepButton({
           label, and a bare minus glyph is ~2pt tall. */}
       <Image
         systemName={systemImage}
-        size={BUTTON_ICON_SIZE}
+        size={18}
         modifiers={[
           frame({ width: HEIGHT, height: HEIGHT }),
           contentShape(shapes.circle()),

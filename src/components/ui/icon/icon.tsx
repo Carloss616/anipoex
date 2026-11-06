@@ -31,7 +31,8 @@ export interface IconProps
   name: IconName;
 }
 
-function IconRootBase({ name, muted, color, ...props }: IconProps) {
+/** 18 by default, as on iOS; Android keeps Material's 24dp. */
+function IconRootBase({ name, muted, color, size = 18, ...props }: IconProps) {
   const mutedForeground = useThemeColor("muted-foreground");
 
   return (
@@ -42,6 +43,7 @@ function IconRootBase({ name, muted, color, ...props }: IconProps) {
           : (name as LucideName)
       }
       color={muted ? mutedForeground : (color ?? "inherit")}
+      size={size}
       {...props}
     />
   );

@@ -8,7 +8,7 @@ import {
   labelStyle,
 } from "@expo/ui/swift-ui/modifiers";
 import { Text } from "@/components/native/swift-ui/text";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { useSourcePicker } from "../../hooks/use-source-picker";
 import type { SourcePickerProps } from "./source-picker";
 
@@ -42,7 +42,7 @@ export function SourcePicker({ manga }: SourcePickerProps) {
             accessibilityLabel(`Open on ${picker.label}`),
           ]}
         >
-          <Icon name={Icons.website} size={BUTTON_ICON_SIZE} color="inherit" />
+          <Icon name={Icons.website} color="inherit" />
         </Button>
       )}
     </>

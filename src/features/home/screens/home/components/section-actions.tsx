@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import {
   type SearchParams,
   toRouteParams,
@@ -42,7 +42,7 @@ export function SectionActions({
             aria-label={`Previous in ${title}`}
             onClick={() => onScroll(-1)}
           >
-            <Icon name={Icons.back} size={BUTTON_ICON_SIZE} />
+            <Icon name={Icons.back} />
           </Button>
           <Button
             variant="ghost"
@@ -50,7 +50,7 @@ export function SectionActions({
             aria-label={`Next in ${title}`}
             onClick={() => onScroll(1)}
           >
-            <Icon name={Icons.chevronRight} size={BUTTON_ICON_SIZE} />
+            <Icon name={Icons.chevronRight} />
           </Button>
         </>
       )}

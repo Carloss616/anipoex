@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { Button } from "panelui-web/button";
-import { BUTTON_ICON_SIZE, Icon, type IconName } from "@/components/ui/icon";
+import { Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
@@ -21,8 +21,7 @@ function ToolbarItemView({
     (item.kind === "menu" ? "ellipsis-vertical" : undefined)) as IconName;
   const isLoading = loading && item.kind === "button" && item.props.disabled;
 
-  const icon =
-    iconName == null ? label : <Icon name={iconName} size={BUTTON_ICON_SIZE} />;
+  const icon = iconName == null ? label : <Icon name={iconName} />;
 
   const trigger = (
     <Button

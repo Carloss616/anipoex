@@ -1,5 +1,5 @@
 import { Button } from "panelui-web/button";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useSourcePicker } from "../../hooks/use-source-picker";
 
@@ -31,7 +31,7 @@ export function SourcePicker({ manga }: SourcePickerProps) {
           onClick={picker.openWeb}
           aria-label={`Open on ${picker.label}`}
         >
-          <Icon name={Icons.website} size={BUTTON_ICON_SIZE} />
+          <Icon name={Icons.website} />
         </Button>
       )}
     </>

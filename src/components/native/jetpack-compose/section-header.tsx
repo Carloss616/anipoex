@@ -8,7 +8,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 
 /**
@@ -46,7 +46,7 @@ export function SectionHeader({
           colors={{ containerColor: m3.surfaceContainerHigh }}
           modifiers={[semantics({ contentDescription: `Show all ${title}` })]}
         >
-          <Icon name={ArrowForward} size={BUTTON_ICON_SIZE} color="inherit" />
+          <Icon name={ArrowForward} color="inherit" />
         </IconButton>
       )}
     </Row>

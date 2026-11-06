@@ -5,7 +5,7 @@ import { Sheet } from "panelui-web/sheet";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { SHEET_INSET } from "@/components/ui/bottom-sheet";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
@@ -78,7 +78,7 @@ export function Overview({
           >
             <Menu items={[removeItem(onRemove, !canRemove || removing)]}>
               <Button variant="ghost" size="icon" aria-label="More actions">
-                <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
+                <Icon name={Icons.more} />
               </Button>
             </Menu>
           </ButtonGroup>

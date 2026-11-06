@@ -20,7 +20,7 @@ import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Host } from "../host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "../icon";
+import { Icon, Icons } from "../icon";
 import type {
   ShowToast,
   ShowToastOptions,
@@ -121,16 +121,10 @@ function ToastContent({
   };
 
   const icons: Partial<Record<ToastVariant, React.ReactNode>> = {
-    info: <Icon name={Icons.info} size={BUTTON_ICON_SIZE} color={info} />,
-    success: (
-      <Icon name={Icons.checkCircle} size={BUTTON_ICON_SIZE} color={success} />
-    ),
-    warning: (
-      <Icon name={Icons.error} size={BUTTON_ICON_SIZE} color={warning} />
-    ),
-    error: (
-      <Icon name={Icons.error} size={BUTTON_ICON_SIZE} color={destructive} />
-    ),
+    info: <Icon name={Icons.info} color={info} />,
+    success: <Icon name={Icons.checkCircle} color={success} />,
+    warning: <Icon name={Icons.error} color={warning} />,
+    error: <Icon name={Icons.error} color={destructive} />,
   };
 
   return (

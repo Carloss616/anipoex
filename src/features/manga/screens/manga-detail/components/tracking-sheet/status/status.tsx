@@ -1,7 +1,7 @@
 import { Frame } from "panelui-web/frame";
 import { Sheet } from "panelui-web/sheet";
 import { SHEET_INSET } from "@/components/ui/bottom-sheet";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { ChangesPreview } from "../changes-preview";
@@ -38,11 +38,7 @@ export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
             </Frame.Content>
             {status === selected && (
               <Frame.Actions>
-                <Icon
-                  name={Icons.check}
-                  size={BUTTON_ICON_SIZE}
-                  className="text-primary"
-                />
+                <Icon name={Icons.check} className="text-primary" />
               </Frame.Actions>
             )}
           </Frame.Row>

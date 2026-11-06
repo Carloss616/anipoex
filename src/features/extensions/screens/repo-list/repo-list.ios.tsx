@@ -39,7 +39,7 @@ import { TextFieldGroup } from "@/components/native/swift-ui/text-field-group";
 import { Badge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, Icons, sfSymbol } from "@/components/ui/icon";
+import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { SheetToastHost } from "@/components/ui/toast";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
@@ -106,7 +106,6 @@ export function RepoList() {
               >
                 <Icon
                   name={fieldOpen ? Icons.close : Icons.add}
-                  size={BUTTON_ICON_SIZE}
                   color="inherit"
                   modifiers={[frame({ width: 20, height: 20 })]}
                 />
@@ -128,11 +127,7 @@ export function RepoList() {
                             disabled(!canAdd$.get()),
                           ]}
                         >
-                          <Icon
-                            name={Icons.add}
-                            size={BUTTON_ICON_SIZE}
-                            color="inherit"
-                          />
+                          <Icon name={Icons.add} color="inherit" />
                         </Button>
                       )}
                     </Computed>

@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { TopAppBar } from "@/components/native/jetpack-compose/top-app-bar";
 import { Host } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import {
   emptyMangaList,
@@ -67,7 +67,6 @@ export function MangaList() {
             <IconButton onClick={openViewSheet}>
               <Icon
                 name={Icons.grid}
-                size={BUTTON_ICON_SIZE}
                 accessibilityLabel="View options"
                 color="inherit"
               />

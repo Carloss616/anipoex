@@ -4,7 +4,7 @@ import { Computed } from "@legendapp/state/react";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { SectionHeaderProps } from "./section-header";
@@ -22,7 +22,7 @@ function MoreButton({
       onClick={onPress}
       modifiers={[semantics({ contentDescription: label })]}
     >
-      <Icon name={Icons.more} size={BUTTON_ICON_SIZE} color="inherit" />
+      <Icon name={Icons.more} color="inherit" />
     </IconButton>
   );
 }

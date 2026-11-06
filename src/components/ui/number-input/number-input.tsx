@@ -2,7 +2,7 @@ import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { Input } from "panelui-web/input";
 import type { KeyboardEvent, ReactNode } from "react";
-import { BUTTON_ICON_SIZE, Icon } from "../icon";
+import { Icon } from "../icon";
 import { useHoldRepeat } from "./hooks/use-hold-repeat";
 
 const STEPS: Record<string, number> = { ArrowUp: 1, ArrowDown: -1 };
@@ -67,7 +67,7 @@ export function NumberInput({
         {...stepButton(-step)}
         aria-label="Decrease"
       >
-        <Icon name="minus" size={BUTTON_ICON_SIZE} />
+        <Icon name="minus" />
       </Button>
       <Input.Group className="flex-1">
         {prefix != null && <Input.Addon>{prefix}</Input.Addon>}
@@ -96,7 +96,7 @@ export function NumberInput({
         {...stepButton(step)}
         aria-label="Increase"
       >
-        <Icon name="plus" size={BUTTON_ICON_SIZE} />
+        <Icon name="plus" />
       </Button>
     </ButtonGroup>
   );

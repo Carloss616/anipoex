@@ -10,7 +10,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { EnsureHost } from "@/components/ui/host";
-import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { theme$ } from "@/state/theme";
 
@@ -49,7 +49,6 @@ export function ThemeToggle() {
                 ? LightModeIcon
                 : DarkModeIcon
           }
-          size={BUTTON_ICON_SIZE}
           color={m3.onSecondaryContainer}
         />
       </Box>

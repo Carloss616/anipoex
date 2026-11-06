@@ -14,7 +14,7 @@ import {
   SHEET_CLOSE_MS,
   SHEET_INSET,
 } from "@/components/ui/bottom-sheet";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
@@ -164,7 +164,6 @@ function ListBody({
                   name={
                     title.searching ? Icons.searchTitlesOff : Icons.searchTitles
                   }
-                  size={BUTTON_ICON_SIZE}
                 />
               </Button>
               <Computed>
@@ -180,7 +179,7 @@ function ListBody({
                       onClick={actions.scanAll}
                       aria-label="Scan all sources"
                     >
-                      <Icon name={Icons.refresh} size={BUTTON_ICON_SIZE} />
+                      <Icon name={Icons.refresh} />
                     </Button>
                   );
                 }}
@@ -215,7 +214,7 @@ function ListBody({
                         shape="pill"
                         aria-label="AniList titles"
                       >
-                        <Icon name={Icons.swap} size={BUTTON_ICON_SIZE} />
+                        <Icon name={Icons.swap} />
                       </Button>
                     </Menu>
                   )}

@@ -3,7 +3,7 @@ import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Menu, type MenuItem } from "@/components/ui/menu";
 
 export interface SectionHeaderProps {
@@ -33,7 +33,7 @@ export const SectionHeader = memo(function SectionHeader({
                   size="icon"
                   aria-label={`${title} sources actions`}
                 >
-                  <Icon name={Icons.more} size={BUTTON_ICON_SIZE} />
+                  <Icon name={Icons.more} />
                 </Button>
               </Menu>
             )}

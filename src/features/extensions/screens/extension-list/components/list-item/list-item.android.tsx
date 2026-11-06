@@ -5,7 +5,7 @@ import { memo } from "react";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu, type MenuItem } from "@/components/ui/menu";
 import {
   describeVersion,
@@ -93,11 +93,7 @@ export const ListItem = memo(function ListItem({
             onClick={() => installExtension(e.id)}
             modifiers={[semantics({ contentDescription: `Install ${e.name}` })]}
           >
-            <Icon
-              name={Icons.download}
-              size={BUTTON_ICON_SIZE}
-              color="inherit"
-            />
+            <Icon name={Icons.download} color="inherit" />
           </FilledTonalIconButton>
         </SegmentedListItem.Trailing>
       ) : update ? (

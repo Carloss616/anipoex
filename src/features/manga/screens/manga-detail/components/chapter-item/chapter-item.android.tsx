@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { BUTTON_ICON_SIZE, Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { noop } from "@/utils/utils";
@@ -75,11 +75,7 @@ export function ChapterItem({
                 }),
               ]}
             >
-              <Icon
-                name={Icons.download}
-                size={BUTTON_ICON_SIZE}
-                color="inherit"
-              />
+              <Icon name={Icons.download} color="inherit" />
             </IconButton>
           </Row>
         </SegmentedListItem.Trailing>
