@@ -40,13 +40,11 @@ export function Home() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      <Host className="flex-1">
-        {drafting ? (
-          <SearchSuggestions draft$={draft$} onSubmit={search} />
-        ) : (
-          <Sections />
-        )}
+      {/* Under the suggestions, out of VoiceOver's reach. */}
+      <Host className="flex-1" aria-hidden={drafting}>
+        <Sections />
       </Host>
+      {drafting && <SearchSuggestions draft$={draft$} onSubmit={search} />}
     </>
   );
 }

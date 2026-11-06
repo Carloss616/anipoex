@@ -27,7 +27,7 @@ import { HomeSection } from "./components/home-section";
 import { SearchSuggestions } from "./components/search-suggestions";
 import { useHomeSearch } from "./hooks/use-home-search";
 
-/** The search app bar over one Compose list: suggestions while typing, else the sections. */
+/** The search app bar over the sections; while typing, suggestions cover them. */
 export function Home() {
   const { draft$, submit } = useHomeSearch();
   const typing = useValue(() => draft$.get().trim() !== "");
@@ -44,13 +44,15 @@ export function Home() {
         onSearchButtonPress={(e) => submit(e.nativeEvent.text)}
         {...searchBarTheme}
       />
-      <Host className="flex-1" style={{ marginTop: headerHeight }}>
-        {typing ? (
-          <SearchSuggestions draft$={draft$} onSubmit={submit} />
-        ) : (
-          <Sections />
-        )}
+      <Host
+        className="flex-1"
+        style={{ marginTop: headerHeight }}
+        // Under the suggestions, out of TalkBack's reach.
+        aria-hidden={typing}
+      >
+        <Sections />
       </Host>
+      {typing && <SearchSuggestions draft$={draft$} onSubmit={submit} />}
     </>
   );
 }

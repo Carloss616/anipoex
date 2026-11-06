@@ -48,15 +48,12 @@ export function Home() {
         {...searchBarTheme}
       />
       {/* The sections run under the header, which blurs them once scrolled. */}
-      <ScrollView className="flex-1" {...headerScroll}>
+      <ScrollView className="flex-1" aria-hidden={drafting} {...headerScroll}>
         <HeaderInsetView className="gutters px-gx pt-2 pb-gb">
-          {drafting ? (
-            <SearchSuggestions draft$={draft$} onSubmit={search} />
-          ) : (
-            <Sections />
-          )}
+          <Sections />
         </HeaderInsetView>
       </ScrollView>
+      {drafting && <SearchSuggestions draft$={draft$} onSubmit={search} />}
     </>
   );
 }

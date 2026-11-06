@@ -2,12 +2,15 @@ import type { Observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
+import { ScrollView } from "react-native";
+import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Icon, Icons } from "@/components/ui/icon";
 import {
   clearSearchHistory,
   matchingHistory,
   searchHistory$,
 } from "@/features/manga/state/search-history";
+import { SuggestionsOverlay } from "./suggestions-overlay";
 
 export interface SearchSuggestionsProps {
   /** What the Home field holds; the suggestions follow it. */
@@ -23,43 +26,53 @@ export function SearchSuggestions({
   const recent = matchingHistory(useValue(searchHistory$), draft);
 
   return (
-    <Frame>
-      <Frame.Header>
-        <Frame.Title>Search</Frame.Title>
-        {recent.length > 0 && (
-          <Frame.Action>
-            <Button variant="ghost" size="sm" onClick={clearSearchHistory}>
-              Clear history
-            </Button>
-          </Frame.Action>
-        )}
-      </Frame.Header>
-      <Frame.Panel>
-        <Frame.Row onClick={() => onSubmit(draft)}>
-          <Frame.Media>
-            <Icon name={Icons.search} size={18} muted />
-          </Frame.Media>
-          <Frame.Content>
-            <Frame.Title as="p">Search “{draft}” on AniList</Frame.Title>
-          </Frame.Content>
-        </Frame.Row>
-        {recent.map((q) => (
-          <Frame.Row
-            key={q}
-            aria-label={`Search ${q}`}
-            onClick={() => onSubmit(q)}
-          >
-            <Frame.Media>
-              <Icon name={Icons.history} size={18} muted />
-            </Frame.Media>
-            <Frame.Content>
-              <Frame.Title as="p" className="font-normal">
-                {q}
-              </Frame.Title>
-            </Frame.Content>
-          </Frame.Row>
-        ))}
-      </Frame.Panel>
-    </Frame>
+    <SuggestionsOverlay>
+      <ScrollView className="flex-1">
+        <HeaderInsetView className="gutters px-gx pt-2 pb-gb">
+          <Frame>
+            <Frame.Header>
+              <Frame.Title>Search</Frame.Title>
+              {recent.length > 0 && (
+                <Frame.Action>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearSearchHistory}
+                  >
+                    Clear history
+                  </Button>
+                </Frame.Action>
+              )}
+            </Frame.Header>
+            <Frame.Panel>
+              <Frame.Row onClick={() => onSubmit(draft)}>
+                <Frame.Media>
+                  <Icon name={Icons.search} size={18} muted />
+                </Frame.Media>
+                <Frame.Content>
+                  <Frame.Title as="p">Search “{draft}” on AniList</Frame.Title>
+                </Frame.Content>
+              </Frame.Row>
+              {recent.map((q) => (
+                <Frame.Row
+                  key={q}
+                  aria-label={`Search ${q}`}
+                  onClick={() => onSubmit(q)}
+                >
+                  <Frame.Media>
+                    <Icon name={Icons.history} size={18} muted />
+                  </Frame.Media>
+                  <Frame.Content>
+                    <Frame.Title as="p" className="font-normal">
+                      {q}
+                    </Frame.Title>
+                  </Frame.Content>
+                </Frame.Row>
+              ))}
+            </Frame.Panel>
+          </Frame>
+        </HeaderInsetView>
+      </ScrollView>
+    </SuggestionsOverlay>
   );
 }
