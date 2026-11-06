@@ -90,9 +90,9 @@ export const Icons = {
     web: "languages",
   }),
   deselect: Icon.select({
-    ios: "xmark.circle",
-    android: require("@expo/material-symbols/cancel.xml"),
-    web: "circle-x",
+    ios: "xmark.square",
+    android: require("@expo/material-symbols/deselect.xml"),
+    web: "mouse-pointer-2-off",
   }),
   exclude: Icon.select({
     ios: "eye.slash",
@@ -108,6 +108,11 @@ export const Icons = {
     ios: "xmark",
     android: require("@expo/material-symbols/close.xml"),
     web: "x",
+  }),
+  closeCircle: Icon.select({
+    ios: "xmark.circle",
+    android: require("@expo/material-symbols/cancel.xml"),
+    web: "circle-x",
   }),
 
   // Navigation

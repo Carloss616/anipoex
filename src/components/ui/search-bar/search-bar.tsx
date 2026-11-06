@@ -129,7 +129,7 @@ export function SearchBar({
                 onClear?.();
               }}
             >
-              <Icon name={Icons.close} />
+              <Icon name={Icons.closeCircle} />
             </Button>
           )}
           {/* Last on web, so the ✕ coming and going doesn't move it. */}
