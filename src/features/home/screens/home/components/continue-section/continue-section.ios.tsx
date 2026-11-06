@@ -138,8 +138,9 @@ const ContinueCard = memo(function ContinueCard({
               textStyle="caption"
               modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
             >
-              {`Ch. ${item.next.number}`}
+              Read
             </Text>
+            <Badge>{`c.${read}`}</Badge>
             <Badge color="primary">{`+${item.unread}`}</Badge>
           </HStack>
           <Progress value={(read / (read + item.unread)) * 100} size="sm" />

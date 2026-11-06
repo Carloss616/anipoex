@@ -137,8 +137,9 @@ function Card({
         </Text>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
           <Text style={{ typography: "bodySmall" }} color={m3.onSurfaceVariant}>
-            {`Chapter ${item.next.number}`}
+            Read
           </Text>
+          <Badge>{`c.${read}`}</Badge>
           <Badge color="primary">{`+${item.unread}`}</Badge>
         </Row>
         <Box modifiers={[padding(0, 8, 0, 0)]}>
