@@ -443,3 +443,7 @@ export function unreadCount(
     if (number >= 0 && !isRead(progress, number)) unread.add(number);
   return unread.size;
 }
+
+/** The last whole chapter a source lists; 0 when none is numbered. */
+export const lastChapterNumber = (chapters: Pick<Chapter, "number">[]) =>
+  Math.floor(Math.max(0, ...chapters.map((chapter) => chapter.number)));

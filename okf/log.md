@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-06
+
+* **Tracking total falls back to the source**: the manga detail's tracking summary takes the selected source's last chapter as the total when AniList has none. Updated [reading progress](metrics/reading-progress.md).
+
 ## 2026-11-05
 
 * **Split title position**: a third choice for the manga grid's titles puts the progress caption on the cover's foot and leaves the title under it; Home's rails follow it. Updated [manga list view](stores/manga-list-view.md).

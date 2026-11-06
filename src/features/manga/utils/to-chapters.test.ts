@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import type { SourceChapter } from "@/features/extensions";
 import {
   isRead,
+  lastChapterNumber,
   parseChapterNumber,
   parseChapterNumbers,
   toChapters,
@@ -699,5 +700,20 @@ describe("unreadCount", () => {
 
   it("counts every numbered chapter before reading starts", () => {
     expect(unreadCount(numbered(0, 1, 2), 0)).toBe(3);
+  });
+});
+
+describe("lastChapterNumber", () => {
+  const numbered = (...numbers: number[]) =>
+    numbers.map((number) => ({ number }));
+
+  it("is the highest whole chapter", () => {
+    expect(lastChapterNumber(numbered(533, 535, 534.5))).toBe(535);
+    expect(lastChapterNumber(numbered(12, 12.5))).toBe(12);
+  });
+
+  it("is 0 with no numbered chapter", () => {
+    expect(lastChapterNumber([])).toBe(0);
+    expect(lastChapterNumber(numbered(-1))).toBe(0);
   });
 });
