@@ -24,7 +24,7 @@ export const SectionHeader = memo(function SectionHeader({
         {title} <Badge>{count}</Badge>
       </Frame.Title>
       {menu && (
-        <Frame.Action className="row-span-1">
+        <Frame.Action>
           <Computed>
             {() => (
               <Menu items={menu()}>

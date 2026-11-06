@@ -14,10 +14,10 @@ export interface GenreSectionProps {
 }
 
 const LAYOUT = {
-  compact: { count: 8, width: "w-1/2" },
-  medium: { count: 12, width: "w-1/4" },
-  // In the side column.
-  expanded: { count: 8, width: "w-1/2" },
+  compact: { count: 8, width: "w-1/2", text: "" },
+  medium: { count: 12, width: "w-1/4", text: "" },
+  // In the side column, where "Psychological" needs the smaller text.
+  expanded: { count: 8, width: "w-1/2", text: "text-xs" },
 };
 
 /** A hue of its own for each genre, steady across renders. */
@@ -26,7 +26,7 @@ const hue = (genre: string) =>
 
 export function GenreSection({ title, genres }: GenreSectionProps) {
   const router = useRouter();
-  const { count, width } = LAYOUT[useSizeClass()];
+  const { count, width, text } = LAYOUT[useSizeClass()];
   const [page, setPage] = useState(0);
   const pages = Math.ceil(genres.length / count);
   // A resize can leave fewer pages than the one shown.
@@ -60,7 +60,7 @@ export function GenreSection({ title, genres }: GenreSectionProps) {
                 }}
                 className={cn(PRESS, "h-16 justify-end rounded-xl p-3")}
               >
-                <Typography type="small" className="text-white">
+                <Typography type="small" className={cn("text-white", text)}>
                   {genre}
                 </Typography>
               </Pressable>

@@ -230,9 +230,7 @@ function ChaptersHeader({
         <Frame.Title>
           Chapters <Badge>{total}</Badge>
         </Frame.Title>
-        <Frame.Action className="row-span-1 flex items-center">
-          {action}
-        </Frame.Action>
+        <Frame.Action className="flex items-center">{action}</Frame.Action>
       </Frame.Header>
     </Frame>
   );
