@@ -27,8 +27,8 @@ const genresOf = (manga: MangaEntry) =>
   manga.genres?.filter(Boolean).slice(0, 3).join(" · ");
 
 /**
- * Expanded: a banner that fades through #1–6, beside their list. Smaller: a snapping row of
- * cover cards, most of the width each (compact) or half of it (medium).
+ * From `lg`, a banner that fades through #1–6 beside their list; narrower, a
+ * snapping row of cover cards, most of the width each below `sm`, else half.
  */
 export function HeroSection({ title, media, params }: HeroSectionProps) {
   const { isAtLeast } = useBreakpoint();

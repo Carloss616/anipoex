@@ -29,11 +29,11 @@ import { ROTATE_MS } from "./constants";
 import type { HeroSectionProps } from "./hero-section";
 
 const HEIGHT = 224;
-// One large item and one small one peeking, as the mock shows.
+// What the small item shows beside the large one.
 const PEEK = 60;
 const SCRIM = ramp("#000000", { peak: 0.66 });
 
-/** M3's multi-browse carousel: the large item names the manga, and moves on by itself. */
+/** M3's multi-browse carousel; the large item names the manga and moves on. */
 export function HeroSection({ title, media, params }: HeroSectionProps) {
   const router = useRouter();
   // A card sliding away would pull it from under TalkBack's focus.

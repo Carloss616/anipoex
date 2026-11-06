@@ -10,7 +10,7 @@ export default function Layout() {
   const stackTheme = useStackTheme();
   const m3 = useThemeM3Colors();
 
-  // `header` isn't in useStackTheme: it imports Icon and Host, which import the theme.
+  // Not in useStackTheme: `header` imports Icon and Host, which import it.
   return (
     <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="index" />

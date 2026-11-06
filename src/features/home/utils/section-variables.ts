@@ -1,7 +1,7 @@
 import type { SectionId } from "../constants";
 import type { HomeSectionsQueryVariables } from "../graphql/home-sections.generated";
 
-/** `continue` has no flag: it comes from local reading state, not this query. */
+/** `continue` has no flag: it comes from local reading state, not AniList. */
 export function sectionVariables(
   visible: SectionId[],
   userId: number,

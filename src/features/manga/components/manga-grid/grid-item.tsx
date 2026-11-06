@@ -27,7 +27,6 @@ function useProgress({
   });
   const read = data.mediaListEntry?.progress ?? 0;
   const unread = useUnreadCount(id, read);
-  // A search result off the list has no progress to show.
   if (!data.mediaListEntry) {
     return { label: undefined, spoken: undefined, fraction: undefined, unread };
   }

@@ -20,7 +20,7 @@ export interface ContinueSectionProps {
   items: ContinueItem[];
 }
 
-/** Web: a card per manga, two to a row once there is room. */
+/** A card per manga, two to a row once there is room. */
 export function ContinueSection({ title, items }: ContinueSectionProps) {
   const wide = useBreakpoint().isAtLeast("sm");
 
@@ -81,7 +81,6 @@ const ContinueCard = memo(function ContinueCard({
   const title = data.title?.userPreferred ?? "";
 
   return (
-    // Right-click: continue, or the manga's page.
     <ContextMenu items={menu}>
       <Pressable
         role="button"

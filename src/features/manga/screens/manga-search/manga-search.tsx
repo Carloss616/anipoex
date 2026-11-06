@@ -28,7 +28,6 @@ export function MangaSearch() {
             onRetry={() => void search.refetch().catch(() => {})}
           />
         }
-        // The grid runs under the header, which blurs it once scrolled.
         header={
           <HeaderInsetView>
             <SearchFilters params={params} onChange={update} />

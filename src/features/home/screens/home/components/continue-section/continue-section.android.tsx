@@ -61,7 +61,6 @@ const ContinueCard = memo(function ContinueCard({
     item.next.id,
     item.next.number,
   );
-  // A long press opens the menu: continue, or the manga's page.
   return (
     <ContextMenu items={menu}>
       <Card item={item} onPress={read} />
@@ -80,7 +79,6 @@ function Card({
   onLongPress?: () => void;
 }) {
   const m3 = useThemeM3Colors();
-  // Title and cover come from the cache, which the Continue query filled.
   const { data } = useFragment({
     fragment: MangaMediaFragmentDoc,
     fragmentName: "MangaMedia",

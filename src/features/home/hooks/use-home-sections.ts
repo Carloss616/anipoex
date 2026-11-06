@@ -42,7 +42,7 @@ export function useHomeSections(visible: SectionId[]): {
     data,
     loading,
     error: error != null,
-    // Apollo reads an argument as new variables: a button's press event would be one.
+    // Apollo takes any argument as variables, and a button passes its event.
     refetch: () => void refetch().catch(() => {}),
   };
 }

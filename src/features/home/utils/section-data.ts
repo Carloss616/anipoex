@@ -23,7 +23,6 @@ export function sectionMedia(data: Data, id: SectionId): MangaEntry[] {
     case "planning":
       return present(data?.planning?.mediaList?.map((entry) => entry?.media));
     case "because":
-      // Nothing the viewer has already finished.
       return present(
         data?.because?.mediaList?.[0]?.media?.recommendations?.nodes?.map(
           (node) => node?.mediaRecommendation,
@@ -47,7 +46,7 @@ export const sectionActivities = (
       a.__typename === "ListActivity" && a.user?.id !== viewerId,
   );
 
-/** AniList lists its adult genre too; every section asks for `isAdult: false`. */
+/** Without AniList's adult genre: every section asks for `isAdult: false`. */
 export const sectionGenres = (data: Data) =>
   present(data?.genres).filter((genre) => genre !== "Hentai");
 

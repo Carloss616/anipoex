@@ -27,7 +27,7 @@ import { HomeSection } from "./components/home-section";
 import { SearchSuggestions } from "./components/search-suggestions";
 import { useHomeSearch } from "./hooks/use-home-search";
 
-/** The search app bar over the sections; while typing, suggestions cover them. */
+/** Search app bar over the sections; suggestions cover them while typing. */
 export function Home() {
   const { draft$, submit } = useHomeSearch();
   const typing = useValue(() => draft$.get().trim() !== "");
@@ -47,7 +47,6 @@ export function Home() {
       <Host
         className="flex-1"
         style={{ marginTop: headerHeight }}
-        // Under the suggestions, out of TalkBack's reach.
         aria-hidden={typing}
       >
         <Sections />

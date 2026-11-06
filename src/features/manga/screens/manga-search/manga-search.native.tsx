@@ -8,7 +8,7 @@ import { SearchFilters } from "./components/search-filters";
 import { SearchHeader } from "./components/search-header";
 import { useSearchRoute } from "./hooks/use-search-route";
 
-/** Native: the grid and its filters are SwiftUI / Compose, in one Host. */
+/** The grid and its filters are SwiftUI / Compose, in one Host. */
 export function MangaSearch() {
   const { params, search, update, submit } = useSearchRoute();
   const headerHeight = useHeaderHeight();
@@ -22,7 +22,7 @@ export function MangaSearch() {
       />
       <Host
         className="flex-1"
-        // Android's header draws over the screen; iOS insets the content itself.
+        // Android's header draws over the screen; iOS insets content itself.
         style={
           Platform.OS === "android" ? { marginTop: headerHeight } : undefined
         }

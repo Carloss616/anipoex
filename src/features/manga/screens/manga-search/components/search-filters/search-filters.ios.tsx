@@ -51,7 +51,6 @@ export function SearchFilters({ params, onChange }: SearchFiltersProps) {
                 textStyle="subheadline"
                 weight="medium"
                 modifiers={[
-                  // Tinted when chosen, as the source list's header buttons.
                   foregroundStyle(selected ? primary : "secondary"),
                   ...CAPSULE,
                 ]}

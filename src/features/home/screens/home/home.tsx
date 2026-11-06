@@ -20,7 +20,7 @@ import { useHomeSearch } from "./hooks/use-home-search";
 /** What the desktop side column holds, in its own order. */
 const SIDE: SectionId[] = ["genres", "following", "global"];
 
-/** Web: the sections as Frames; genres and activity go aside when expanded. */
+/** Sections as Frames; from `lg`, genres and activity move to a side column. */
 export function Home() {
   const searchBarTheme = useStackSearchBarTheme();
   const headerScroll = useHeaderScroll();
@@ -47,7 +47,6 @@ export function Home() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      {/* The sections run under the header, which blurs them once scrolled. */}
       <ScrollView className="flex-1" aria-hidden={drafting} {...headerScroll}>
         <HeaderInsetView className="gutters px-gx pt-2 pb-gb">
           <Sections />

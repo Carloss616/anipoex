@@ -30,7 +30,7 @@ export function ListGrid({
       loading={list.loading && !list.refetching}
       empty={<ListEmpty genre$={genre$} query$={query$} />}
       header={header}
-      // Android's lazy column keeps its scroll across a filter; the others animate it.
+      // Android's lazy column keeps its scroll across filters; others animate.
       scrollKey={Platform.OS === "android" ? genre : undefined}
       refreshing={list.refetching}
       onRefresh={() =>

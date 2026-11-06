@@ -12,7 +12,7 @@ export interface HorizontalMultiBrowseCarouselProps
     end?: number;
     bottom?: number;
   };
-  /** Milliseconds an item rests before the next slides in; a drag restarts the wait. */
+  /** How long (ms) an item rests before the next; a drag restarts the wait. */
   autoAdvanceInterval?: number;
 }
 

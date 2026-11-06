@@ -50,7 +50,7 @@ export function SearchSuggestions({
           <SegmentedListItem
             index={0}
             count={1}
-            // containerColor={m3.surfaceContainerLow}
+            containerColor={m3.surfaceContainerLow}
             onPress={() => onSubmit(draft)}
           >
             <SegmentedListItem.Leading>

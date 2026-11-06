@@ -13,7 +13,7 @@ import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { session$ } from "@/state/session";
 import { useSignOut } from "./hooks/use-sign-out";
 
-/** Web: the settings as Frames in a narrow column under the header. */
+/** The settings as Frames in a narrow column under the header. */
 export function Settings() {
   const router = useRouter();
   const headerScroll = useHeaderScroll();
@@ -82,7 +82,6 @@ export function Settings() {
                   <ThemeToggle />
                 </Frame.Actions>
               </Frame.Row>
-              {/* The picker drops under the title when both don't fit. */}
               <Frame.Row className="flex-wrap">
                 <Frame.Content className="basis-auto">
                   <Frame.Title as="p">Palette</Frame.Title>
@@ -93,7 +92,7 @@ export function Settings() {
               </Frame.Row>
             </Frame.Panel>
           </Frame>
-          {/* DnsPicker renders nothing in a plain browser, which runs no extensions. */}
+          {/* A plain browser runs no extensions: DnsPicker would be empty. */}
           {isRuntimeAvailable && (
             <Frame>
               <Frame.Header>

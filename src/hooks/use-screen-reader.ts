@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AccessibilityInfo } from "react-native";
 
-/** Whether VoiceOver or TalkBack is on; content that moves by itself stops for it. */
+/** Whether VoiceOver or TalkBack is on, for content that moves by itself. */
 export function useScreenReader() {
   const [enabled, setEnabled] = useState(false);
 

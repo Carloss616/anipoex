@@ -57,7 +57,7 @@ function shift(index: number) {
   return 0;
 }
 
-/** Web: presets in a button group, the sections as rows with a drag handle. */
+/** Presets in a button group, the sections as rows with a drag handle. */
 export function HomeLayout() {
   const headerScroll = useHeaderScroll();
   const preset = useValue(homeLayout$.preset);
@@ -212,7 +212,6 @@ const SectionRow = memo(function SectionRow({
             onPointerUp={onPointerEnd}
             onPointerCancel={onPointerEnd}
           >
-            {/* Web only: the native editors reorder their own way. */}
             <Icon name="grip-vertical" muted />
           </Button>
         </Frame.Media>

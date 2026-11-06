@@ -27,8 +27,8 @@ import { cellWidth, toRows } from "./utils";
 const GAP = 8;
 
 /**
- * Renders inside the screen's Host: one for the whole grid (a Host per card made
- * scrolling crawl). @expo/ui has no lazy grid, so rows go down a `LazyColumn`.
+ * Renders inside the screen's Host: one for the whole grid, as a Host per card
+ * made scrolling crawl. @expo/ui has no lazy grid: rows go down a `LazyColumn`.
  */
 export function MangaGrid({
   manga$,
@@ -60,7 +60,7 @@ export function MangaGrid({
   return (
     <PullToRefreshBox
       isRefreshing={refreshing}
-      // The error link toasts a failure; this just stops an unhandled rejection.
+      // The error link toasts a failure; this stops an unhandled rejection.
       onRefresh={() => void onRefresh?.().catch(() => {})}
       contentAlignment="topCenter"
       modifiers={[fillMaxSize()]}
@@ -70,7 +70,6 @@ export function MangaGrid({
         modifiers={[fillMaxSize()]}
         verticalArrangement={{ spacedBy: below ? 20 : 8 }}
         contentPadding={{
-          // The header's chips come first, right under the bar.
           top: 8,
           bottom: GUTTER,
         }}

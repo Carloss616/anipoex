@@ -40,7 +40,6 @@ export function Home() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      {/* Under the suggestions, out of VoiceOver's reach. */}
       <Host className="flex-1" aria-hidden={drafting}>
         <Sections />
       </Host>

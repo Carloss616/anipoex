@@ -45,7 +45,7 @@ export function useMangaSearch(params: SearchParams) {
         const more = fetchMoreResult.Page;
         if (!more) return prev;
         const seen = new Set(prev.Page?.media?.map((m) => m?.id));
-        // AniList's order can shift between pages; a repeat would break the keys.
+        // AniList's order shifts between pages; a repeat would break the keys.
         const fresh = more.media?.filter((m) => m && !seen.has(m.id)) ?? [];
         return {
           ...fetchMoreResult,

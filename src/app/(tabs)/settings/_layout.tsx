@@ -8,7 +8,7 @@ export const unstable_settings = { anchor: "index" };
 export default function Layout() {
   const stackTheme = useStackTheme();
 
-  // `header` isn't in useStackTheme: it imports Icon and Host, which import the theme.
+  // Not in useStackTheme: `header` imports Icon and Host, which import it.
   return (
     <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="index" />
