@@ -14,7 +14,8 @@ export interface GenreSectionProps {
 const LAYOUT = {
   compact: { count: 8, width: "w-1/2" },
   medium: { count: 12, width: "w-1/4" },
-  expanded: { count: 12, width: "w-1/6" },
+  // In the side column.
+  expanded: { count: 8, width: "w-1/2" },
 };
 
 /** A hue of its own for each genre, steady across renders. */
