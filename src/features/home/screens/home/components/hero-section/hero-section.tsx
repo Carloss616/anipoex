@@ -3,8 +3,9 @@ import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Frame } from "panelui-web/frame";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
 import { PRESS } from "@/components/ui/press";
 import type { SearchParams } from "@/features/manga/utils/search-params";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
@@ -20,12 +21,14 @@ export interface HeroSectionProps {
 }
 
 const GAP = 14;
+/** How long each manga holds the banner before the next fades in. */
+const ROTATE_MS = 6000;
 
 const genresOf = (manga: MangaEntry) =>
   manga.genres?.filter(Boolean).slice(0, 3).join(" · ");
 
 /**
- * Expanded: the top manga as a banner beside #2–6. Smaller: a snapping row of
+ * Expanded: a banner that fades through #1–6, beside their list. Smaller: a snapping row of
  * cover cards, most of the width each (compact) or half of it (medium).
  */
 export function HeroSection({ title, media, params }: HeroSectionProps) {
@@ -59,66 +62,118 @@ function useOpen() {
   return (manga: MangaEntry) => router.push(`/manga/${manga.id}`);
 }
 
+/** Moves on by itself; a hover or keyboard focus picks one and holds it. */
+function useRotation(count: number) {
+  const reduced = useReducedMotion();
+  const [focus, setFocus] = useState(0);
+  const [held, setHeld] = useState(false);
+
+  useEffect(() => {
+    if (held || reduced || count < 2) return;
+    const id = setInterval(() => setFocus((f) => (f + 1) % count), ROTATE_MS);
+    return () => clearInterval(id);
+  }, [held, reduced, count]);
+
+  const hold = (index?: number) => {
+    if (index != null) setFocus(index);
+    setHeld(true);
+  };
+  return {
+    focus: focus % Math.max(count, 1),
+    hold,
+    release: () => setHeld(false),
+  };
+}
+
 function Banner({ media }: { media: MangaEntry[] }) {
   const open = useOpen();
-  const [top, ...rest] = media;
-  if (!top) return null;
-  const title = top.title?.userPreferred ?? "";
+  const top = media.slice(0, 6);
+  const { focus, hold, release } = useRotation(top.length);
+  if (!top.length) return null;
 
   return (
     <View className="flex-row gap-4 p-2">
-      <Pressable
-        role="button"
-        aria-label={`#1 trending: ${title}`}
-        onPress={() => open(top)}
-        className={cn(
-          PRESS,
-          "min-w-0 flex-1 flex-row gap-5 overflow-hidden rounded-xl p-5",
-        )}
-        style={{ backgroundColor: top.coverImage?.color ?? undefined }}
-      >
-        <Image
-          source={top.coverImage?.extraLarge ?? top.coverImage?.large}
-          blurRadius={40}
-          contentFit="cover"
-          style={{ position: "absolute", inset: 0, opacity: 0.6 }}
-        />
-        <View className="absolute inset-0 bg-black/45" />
-        <Image
-          source={top.coverImage?.large}
-          contentFit="cover"
-          style={{ width: 120, aspectRatio: 2 / 3, borderRadius: 10 }}
-        />
-        <View className="min-w-0 flex-1 justify-end gap-1">
-          <Typography type="body-xs" className="text-white/80 uppercase">
-            #1 trending
-          </Typography>
-          <Typography type="h3" numberOfLines={2} className="text-white">
-            {title}
-          </Typography>
-          <Typography
-            type="body-sm"
-            numberOfLines={1}
-            className="text-white/80"
-          >
-            {genresOf(top)}
-          </Typography>
-        </View>
-      </Pressable>
+      {/* Stacked, so the change is a crossfade with every cover loaded. */}
+      <View className="min-h-56 min-w-0 flex-1">
+        {top.map((manga, i) => {
+          const shown = i === focus;
+          const title = manga.title?.userPreferred ?? "";
+          return (
+            <Pressable
+              key={manga.id}
+              role="button"
+              aria-label={`#${i + 1} trending: ${title}`}
+              aria-hidden={!shown}
+              focusable={shown}
+              onPress={() => open(manga)}
+              onHoverIn={() => hold()}
+              onHoverOut={release}
+              onFocus={() => hold()}
+              onBlur={release}
+              className={cn(
+                PRESS,
+                "absolute inset-0 flex-row gap-5 overflow-hidden rounded-xl p-5",
+                "transition-opacity duration-700",
+                shown ? "opacity-100" : "pointer-events-none opacity-0",
+              )}
+              style={{ backgroundColor: manga.coverImage?.color ?? undefined }}
+            >
+              <Image
+                source={manga.coverImage?.extraLarge ?? manga.coverImage?.large}
+                blurRadius={40}
+                contentFit="cover"
+                style={{ position: "absolute", inset: 0, opacity: 0.6 }}
+              />
+              <View className="absolute inset-0 bg-black/45" />
+              <Image
+                source={manga.coverImage?.large}
+                contentFit="cover"
+                style={{
+                  width: 120,
+                  aspectRatio: 2 / 3,
+                  borderRadius: 10,
+                  alignSelf: "center",
+                }}
+              />
+              <View className="min-w-0 flex-1 justify-end gap-1">
+                <Typography type="body-xs" className="text-white/80 uppercase">
+                  #{i + 1} trending
+                </Typography>
+                <Typography type="h3" numberOfLines={2} className="text-white">
+                  {title}
+                </Typography>
+                <Typography
+                  type="body-sm"
+                  numberOfLines={1}
+                  className="text-white/80"
+                >
+                  {genresOf(manga)}
+                </Typography>
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
       <View className="w-72 gap-1">
-        {rest.slice(0, 5).map((manga, i) => (
+        {top.map((manga, i) => (
           <Pressable
             key={manga.id}
             role="button"
-            aria-label={`#${i + 2} trending: ${manga.title?.userPreferred}`}
+            aria-label={`#${i + 1} trending: ${manga.title?.userPreferred}`}
+            aria-current={i === focus || undefined}
             onPress={() => open(manga)}
+            onHoverIn={() => hold(i)}
+            onHoverOut={release}
+            onFocus={() => hold(i)}
+            onBlur={release}
             className={cn(
               PRESS,
-              "flex-row items-center gap-3 rounded-lg p-1.5 hover:bg-accent",
+              "flex-row items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-accent",
+              i === focus && "bg-accent",
             )}
           >
             <Typography type="small" muted className="w-4 text-center">
-              {i + 2}
+              {i + 1}
             </Typography>
             <Image
               source={manga.coverImage?.medium}
