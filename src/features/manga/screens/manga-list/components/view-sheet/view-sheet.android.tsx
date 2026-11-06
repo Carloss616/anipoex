@@ -7,11 +7,7 @@ import { ButtonGroup } from "@/components/native/jetpack-compose/button-group";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { listView$ } from "@/features/manga/state/list-view";
-import {
-  columnOptions,
-  columnsFor,
-  toTitlePosition,
-} from "@/features/manga/utils/list-view";
+import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 
 const TITLES = [
@@ -43,7 +39,7 @@ export function ViewSheet() {
     </Text>
   );
   const columns = columnsFor(current, useValue(listView$.density));
-  const title = toTitlePosition(useValue(listView$.title));
+  const title = useValue(listView$.title);
   const options = columnOptions(current);
 
   return (

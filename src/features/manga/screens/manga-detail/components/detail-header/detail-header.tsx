@@ -72,6 +72,7 @@ export function DetailHeader({ manga, titleOut$ }: DetailHeaderProps) {
           coverColor={manga.coverImage?.color}
           accessibilityLabel={title ?? undefined}
           testID="manga-detail-cover"
+          titlePosition="over"
           style={{ width: 144 }}
           tilt
         />

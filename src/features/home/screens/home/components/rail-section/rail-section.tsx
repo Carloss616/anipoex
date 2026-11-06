@@ -6,7 +6,6 @@ import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useRailScroll } from "../../hooks/use-rail-scroll";
 import { useSizeClass } from "../../hooks/use-size-class";
 import { SectionActions } from "../section-actions";
-import { useRailTitle } from "./hooks/use-rail-title";
 
 export interface RailSectionProps {
   title: string;
@@ -19,7 +18,6 @@ const CARD_WIDTH = { compact: 112, medium: 124, expanded: 136 };
 
 export function RailSection({ title, media, params }: RailSectionProps) {
   const size = useSizeClass();
-  const titlePosition = useRailTitle();
   const { ref, scroll } = useRailScroll();
 
   return (
@@ -40,12 +38,7 @@ export function RailSection({ title, media, params }: RailSectionProps) {
           contentContainerClassName="gap-3 p-4"
         >
           {media.map((item) => (
-            <GridItem
-              key={item.id}
-              item={item}
-              width={CARD_WIDTH[size]}
-              titlePosition={titlePosition}
-            />
+            <GridItem key={item.id} item={item} width={CARD_WIDTH[size]} />
           ))}
         </ScrollView>
       </Frame.Panel>

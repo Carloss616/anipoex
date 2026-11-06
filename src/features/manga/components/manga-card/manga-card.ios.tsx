@@ -49,7 +49,7 @@ export function MangaCard({
   mark,
   title,
   label,
-  titlePosition = "over",
+  titlePosition = "split",
   progress,
   unread,
   style,

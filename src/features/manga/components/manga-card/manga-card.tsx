@@ -15,13 +15,15 @@ import { Icon } from "@/components/ui/icon";
 import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
-import type { TitlePosition } from "@/features/manga/utils/list-view";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { CoverImage } from "./cover-image";
 import { type CornerMark, cornerBadge } from "./utils";
 
 /** The cover's corner radius, for placeholders that stand in for a card. */
 export const COVER_RADIUS = 10;
+
+/** `split` is `below` with the progress caption over the cover's foot. */
+export type TitlePosition = "below" | "split" | "over";
 
 export interface MangaCardProps {
   cover?: string | ImageSource | null;
@@ -36,6 +38,7 @@ export interface MangaCardProps {
   /**
    * `over` keeps `title` and `label` on a scrim over the cover; `split` puts
    * only `label` on it, at its foot.
+   * @default "split"
    */
   titlePosition?: TitlePosition;
   /** Share read (0–1), a bar under the label; omit if the total is unknown. */
@@ -146,7 +149,7 @@ export function MangaCard({
   mark,
   title,
   label,
-  titlePosition = "over",
+  titlePosition = "split",
   progress,
   unread,
   style,

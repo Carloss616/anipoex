@@ -44,6 +44,7 @@ export function DetailHeader({
           coverColor={manga.coverImage?.color}
           accessibilityLabel={manga.title?.userPreferred ?? undefined}
           testID="manga-detail-cover"
+          titlePosition="over"
           style={{ width: 144 }}
         />
         <Meta manga={manga} />

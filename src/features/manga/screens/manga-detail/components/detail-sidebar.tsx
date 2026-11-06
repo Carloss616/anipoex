@@ -31,6 +31,7 @@ export function DetailSidebar({
         coverColor={manga.coverImage?.color}
         accessibilityLabel={manga.title?.userPreferred ?? undefined}
         testID="manga-detail-cover"
+        titlePosition="over"
         style={{ width: "100%" }}
         tilt
       />

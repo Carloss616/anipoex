@@ -7,7 +7,7 @@ import { LinearTransition } from "react-native-reanimated";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { listView$ } from "@/features/manga/state/list-view";
-import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
+import { columnsFor } from "@/features/manga/utils/list-view";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { GridItem } from "./grid-item";
@@ -51,7 +51,7 @@ export function MangaGrid({
   const manga = useValue(manga$);
 
   const numColumns = columnsFor(current, useValue(listView$.density));
-  const titlePosition = toTitlePosition(useValue(listView$.title));
+  const titlePosition = useValue(listView$.title);
 
   if (loading) {
     return <LoadingState />;

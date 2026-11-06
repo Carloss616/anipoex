@@ -1,11 +1,13 @@
 import { useFragment } from "@apollo/client/react";
 import { useRouter } from "expo-router";
 import { memo } from "react";
-import { MangaCard } from "@/features/manga/components/manga-card";
+import {
+  MangaCard,
+  type TitlePosition,
+} from "@/features/manga/components/manga-card";
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { useUnreadCount } from "@/features/manga/hooks/use-unread-count";
-import type { TitlePosition } from "@/features/manga/utils/list-view";
 import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaStatus } from "@/graphql/types.generated";
@@ -38,11 +40,11 @@ function useProgress({
  */
 export const GridItem = memo(function GridItem({
   item,
-  width,
   titlePosition,
+  width,
 }: {
   item: MangaEntry;
-  titlePosition: TitlePosition;
+  titlePosition?: TitlePosition;
   /** Required in the native grids: the card's height comes from it. */
   width?: number;
 }) {

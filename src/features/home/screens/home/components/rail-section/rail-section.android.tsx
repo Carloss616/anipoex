@@ -4,7 +4,6 @@ import { GUTTER } from "@/components/native/constants";
 import { SectionHeader } from "@/components/native/jetpack-compose/section-header";
 import { GridItem } from "@/features/manga/components/manga-grid/grid-item";
 import { toRouteParams } from "@/features/manga/utils/search-params";
-import { useRailTitle } from "./hooks/use-rail-title";
 import type { RailSectionProps } from "./rail-section";
 
 const CARD_WIDTH = 112;
@@ -12,7 +11,6 @@ const CARD_WIDTH = 112;
 /** An uncontained row of covers, titles below. */
 export function RailSection({ title, media, params }: RailSectionProps) {
   const router = useRouter();
-  const titlePosition = useRailTitle();
 
   return (
     <Column>
@@ -33,13 +31,7 @@ export function RailSection({ title, media, params }: RailSectionProps) {
           keyExtractor={(item) => String(item.id)}
           estimatedItemSize={CARD_WIDTH}
         >
-          {({ item }) => (
-            <GridItem
-              item={item}
-              width={CARD_WIDTH}
-              titlePosition={titlePosition}
-            />
-          )}
+          {({ item }) => <GridItem item={item} width={CARD_WIDTH} />}
         </LazyRow.Items>
       </LazyRow>
     </Column>

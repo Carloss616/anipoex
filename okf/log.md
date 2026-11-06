@@ -3,6 +3,7 @@
 ## 2026-11-05
 
 * **Split title position**: a third choice for the manga grid's titles puts the progress caption on the cover's foot and leaves the title under it; Home's rails follow it. Updated [manga list view](stores/manga-list-view.md).
+* **Rails keep the split title**: Home's rails always show the title under the cover and the progress on its foot, whatever the grid's setting; the grid's default is now `split`. Updated [manga list view](stores/manga-list-view.md).
 * **Because you read skips what you finished**: the rail leaves out recommendations the viewer has on the list as Completed, so it can show fewer than 10. Updated [HomeSections](operations/home-sections.md).
 * **Because you read follows your reading**: the rail's reference is the Reading or Completed entry updated most recently, not only the last Completed one, so advancing a chapter moves it. Updated [HomeSections](operations/home-sections.md).
 * **Settings is a tab**: the account, Sign out, Home layout, theme and DNS move from a page pushed over Home to a tab of their own. Updated the [overview](overview.md).

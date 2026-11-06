@@ -33,14 +33,3 @@ export function columnOptions(breakpoint: Breakpoint) {
     columns: COLUMNS[breakpoint] + density,
   }));
 }
-
-/** `split` is `below` with the progress caption over the cover's foot. */
-export type TitlePosition = "below" | "split" | "over";
-
-export function toTitlePosition(value: unknown): TitlePosition {
-  return value === "over" || value === "split" ? value : "below";
-}
-
-/** A rail's cards are too small for a title over the cover. */
-export const railTitlePosition = (value: unknown): TitlePosition =>
-  value === "split" ? "split" : "below";

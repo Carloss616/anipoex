@@ -12,11 +12,7 @@ import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/swift-ui/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { listView$ } from "@/features/manga/state/list-view";
-import {
-  columnOptions,
-  columnsFor,
-  toTitlePosition,
-} from "@/features/manga/utils/list-view";
+import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
 
 const TITLES = [
   ["below", "Below"],
@@ -40,7 +36,7 @@ export function ViewSheet() {
   const { current } = useBreakpoint();
   const options = columnOptions(current);
   const columns = columnsFor(current, useValue(listView$.density));
-  const title = toTitlePosition(useValue(listView$.title));
+  const title = useValue(listView$.title);
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>

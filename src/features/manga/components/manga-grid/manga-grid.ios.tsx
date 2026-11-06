@@ -13,7 +13,7 @@ import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
 import { Loader } from "@/components/ui/loader";
 import { listView$ } from "@/features/manga/state/list-view";
-import { columnsFor, toTitlePosition } from "@/features/manga/utils/list-view";
+import { columnsFor } from "@/features/manga/utils/list-view";
 import { GridItem } from "./grid-item";
 import type { MangaGridProps } from "./manga-grid";
 import { cellWidth, toRows } from "./utils";
@@ -37,7 +37,7 @@ export function MangaGrid({
   const manga = useValue(manga$);
 
   const columns = columnsFor(current, useValue(listView$.density));
-  const titlePosition = toTitlePosition(useValue(listView$.title));
+  const titlePosition = useValue(listView$.title);
   // The Host already insets the safe area.
   const cell = cellWidth(
     width - insets.left - insets.right - 2 * GUTTER,
@@ -88,8 +88,8 @@ export function MangaGrid({
                   <GridItem
                     key={item.id}
                     item={item}
-                    width={cell}
                     titlePosition={titlePosition}
+                    width={cell}
                   />
                 ))}
               </HStack>

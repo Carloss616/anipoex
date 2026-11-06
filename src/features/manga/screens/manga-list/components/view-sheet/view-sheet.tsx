@@ -8,11 +8,7 @@ import { ButtonGroup } from "panelui-web/button-group";
 import { Sheet } from "panelui-web/sheet";
 import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { listView$ } from "@/features/manga/state/list-view";
-import {
-  columnOptions,
-  columnsFor,
-  toTitlePosition,
-} from "@/features/manga/utils/list-view";
+import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
 
 const TITLES = [
   ["below", "Below"],
@@ -30,7 +26,7 @@ export function ViewSheet() {
   const isPresented = useValue(open$);
   const { current } = useBreakpoint();
   const columns = columnsFor(current, useValue(listView$.density));
-  const title = toTitlePosition(useValue(listView$.title));
+  const title = useValue(listView$.title);
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
