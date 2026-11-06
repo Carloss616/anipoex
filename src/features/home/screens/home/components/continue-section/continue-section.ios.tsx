@@ -140,8 +140,8 @@ const ContinueCard = memo(function ContinueCard({
             >
               Read
             </Text>
-            <Badge>{`c.${read}`}</Badge>
-            <Badge color="primary">{`+${item.unread}`}</Badge>
+            <Badge>c.{read}</Badge>
+            <Badge color="primary">+{item.unread}</Badge>
           </HStack>
           <Progress value={(read / (read + item.unread)) * 100} size="sm" />
         </VStack>

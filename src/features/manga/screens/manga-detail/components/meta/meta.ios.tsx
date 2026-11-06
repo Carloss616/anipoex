@@ -43,7 +43,7 @@ export function Meta({ manga }: { manga: MangaDetail }) {
         <HStack spacing={8}>
           <Icon name={Icons.star} size={12} muted />
           <Text textStyle="subheadline" modifiers={[SECONDARY]}>
-            {`${manga.averageScore}% community`}
+            {manga.averageScore}% community
           </Text>
         </HStack>
       )}

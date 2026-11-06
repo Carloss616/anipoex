@@ -190,7 +190,7 @@ const HeroCard = memo(function HeroCard({
             weight="semibold"
             modifiers={[foregroundStyle("#ffffffd9"), textCase("uppercase")]}
           >
-            {`#${rank} trending`}
+            #{rank} trending
           </Text>
           <Text
             textStyle="title3"

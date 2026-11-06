@@ -43,7 +43,7 @@ export function Meta({ manga }: { manga: MangaDetail }) {
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 8 }}>
           <Icon name={Icons.star} size={12} muted />
           <Text style={BODY} color={m3.onSurfaceVariant}>
-            {`${manga.averageScore}% community`}
+            {manga.averageScore}% community
           </Text>
         </Row>
       )}

@@ -56,7 +56,9 @@ export function SearchSuggestions({
             <SegmentedListItem.Leading>
               <Icon name={Icons.search} muted />
             </SegmentedListItem.Leading>
-            <Text maxLines={1} overflow="ellipsis">{`Search “${draft}”`}</Text>
+            <Text maxLines={1} overflow="ellipsis">
+              Search “{draft}”
+            </Text>
             <SegmentedListItem.Supporting>
               <Text style={{ typography: "bodyMedium" }}>On AniList</Text>
             </SegmentedListItem.Supporting>

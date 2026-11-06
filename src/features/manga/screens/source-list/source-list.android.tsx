@@ -208,7 +208,7 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                         style={{ typography: "bodyMedium" }}
                         color={m3.onSurfaceVariant}
                       >
-                        {`Scanning ${progress.done} of ${progress.total}`}
+                        Scanning {progress.done} of {progress.total}
                       </Text>
                       <Progress
                         value={progress.done}

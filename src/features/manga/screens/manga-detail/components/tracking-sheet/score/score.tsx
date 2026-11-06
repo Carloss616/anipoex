@@ -23,7 +23,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
         <View className="flex-row items-center justify-between gap-2">
           <Sheet.Title>Score</Sheet.Title>
           <Typography.Code className="ms-auto">
-            {`${score || "_"}/${scale.max}`}
+            {score || "_"}/{scale.max}
           </Typography.Code>
         </View>
       </Sheet.Header>

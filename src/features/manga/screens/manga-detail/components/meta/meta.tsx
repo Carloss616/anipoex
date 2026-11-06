@@ -46,7 +46,7 @@ export function Meta({
         <View className="flex-row items-center gap-2">
           <Icon name={Icons.star} size={12} muted />
           <Typography type="body-sm" muted>
-            {`${manga.averageScore}% community`}
+            {manga.averageScore}% community
           </Typography>
         </View>
       )}

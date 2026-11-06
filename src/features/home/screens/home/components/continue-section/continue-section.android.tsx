@@ -137,8 +137,8 @@ function Card({
           <Text style={{ typography: "bodySmall" }} color={m3.onSurfaceVariant}>
             Read
           </Text>
-          <Badge>{`c.${read}`}</Badge>
-          <Badge color="primary">{`+${item.unread}`}</Badge>
+          <Badge>c.{read}</Badge>
+          <Badge color="primary">+{item.unread}</Badge>
         </Row>
         <Box modifiers={[padding(0, 8, 0, 0)]}>
           <Progress value={(read / (read + item.unread)) * 100} size="sm" />

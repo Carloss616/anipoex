@@ -44,7 +44,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
       >
         <Text style={{ typography: "displayLarge" }}>{score || "–"}</Text>
         <Text style={{ typography: "bodyMedium" }} color={m3.onSurfaceVariant}>
-          {`out of ${scale.max}`}
+          out of {scale.max}
         </Text>
         <BottomSheet.LockDrag>
           <RatingOrSlider

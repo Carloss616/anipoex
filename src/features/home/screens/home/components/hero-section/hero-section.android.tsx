@@ -88,7 +88,7 @@ export function HeroSection({ title, media, params }: HeroSectionProps) {
                 modifiers={[align("bottomStart"), padding(18, 0, 18, 16)]}
               >
                 <Text style={{ typography: "labelMedium" }} color="#ffffffe6">
-                  {`#${i + 1} trending`}
+                  #{i + 1} trending
                 </Text>
                 <Text
                   style={{ typography: "titleLarge" }}
