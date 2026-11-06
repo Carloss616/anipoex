@@ -1,11 +1,12 @@
 import { useMutation } from "@apollo/client/react";
+import { session$ } from "@/state/session";
 import { failed, succeeded } from "@/utils/haptics";
 import {
   DeleteMangaTrackingDocument,
   SaveMangaTrackingDocument,
 } from "../graphql/manga-tracking.generated";
+import { fileEntry } from "../utils/file-entry";
 import type { SaveVariables } from "../utils/tracking-form";
-import { REFRESH_QUERIES } from "./use-manga-list";
 
 /** Never the only feedback: the entry redraws, and the error link toasts. */
 async function felt<T>(work: Promise<T>) {
@@ -20,26 +21,25 @@ async function felt<T>(work: Promise<T>) {
 }
 
 /**
- * Apollo merges the returned entry by id on its own; what it can't infer is the
- * first save, where `Media.mediaListEntry` was null and needs the link written.
+ * Apollo merges the returned entry and its media by id on its own; what it
+ * can't infer is which lists hold the entry, nor the media's link to it, which
+ * AniList returns as null even on an edit.
  */
 export function useSaveTracking(mediaId: number) {
   const [saveEntry, { loading: saving }] = useMutation(
     SaveMangaTrackingDocument,
     {
       context: { errorMessage: "Couldn't save your changes" },
-      // A status change moves the entry between lists and their counts.
-      refetchQueries: REFRESH_QUERIES,
       update(cache, { data }) {
         const entry = data?.SaveMediaListEntry;
-        if (!entry) return;
+        const userId = session$.user.peek()?.id;
+        if (!entry || userId == null) return;
 
+        fileEntry(cache, userId, entry, entry.status);
+        // Last: filing it writes the returned media, whose link is null.
         cache.modify({
           id: cache.identify({ __typename: "Media", id: mediaId }),
-          fields: {
-            mediaListEntry: () =>
-              cache.identify(entry) ? { __ref: cache.identify(entry) } : null,
-          },
+          fields: { mediaListEntry: () => ({ __ref: cache.identify(entry) }) },
         });
       },
     },
@@ -49,16 +49,21 @@ export function useSaveTracking(mediaId: number) {
     DeleteMangaTrackingDocument,
     {
       context: { errorMessage: "Couldn't remove this from your list" },
-      refetchQueries: REFRESH_QUERIES,
       update(cache, { data }, { variables }) {
-        if (!data?.DeleteMediaListEntry?.deleted) return;
+        if (!data?.DeleteMediaListEntry?.deleted || variables == null) return;
+
+        const userId = session$.user.peek()?.id;
+        if (userId != null) {
+          const entry = { __typename: "MediaList" as const, id: variables.id };
+          fileEntry(cache, userId, { ...entry, media: null }, null);
+        }
 
         cache.modify({
           id: cache.identify({ __typename: "Media", id: mediaId }),
           fields: { mediaListEntry: () => null },
         });
         cache.evict({
-          id: cache.identify({ __typename: "MediaList", id: variables?.id }),
+          id: cache.identify({ __typename: "MediaList", id: variables.id }),
         });
         cache.gc();
       },

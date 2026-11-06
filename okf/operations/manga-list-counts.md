@@ -17,4 +17,4 @@ query MangaListCounts($userId: Int!) {
 
 - Fetches ids only, so it stays cheap; the counting itself is the
   [list counts](../metrics/list-counts.md) metric.
-- Refetched with [MangaList](manga-list.md) after every save or delete.
+- A save or delete edits the cached result, like [MangaList](manga-list.md)'s.

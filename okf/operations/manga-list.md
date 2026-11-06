@@ -21,6 +21,6 @@ query MangaList($userId: Int!, $status: MediaListStatus!) {
   titles, synonyms, cover, genres, publication status, `chapters`, and the entry's
   `id` and `progress`.
 - Flattened to one array of media; genre filter and search run on the device over it.
-- Refetched after every save or delete, together with
-  [MangaListCounts](manga-list-counts.md).
+- A save or delete edits the cached results instead of refetching them; a pull to
+  refresh refetches it together with [MangaListCounts](manga-list-counts.md).
 - Error toast: "Couldn't load this list".

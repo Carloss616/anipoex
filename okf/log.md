@@ -2,6 +2,8 @@
 
 ## 2026-11-06
 
+* **Saves update the cached lists**: a save or delete files the entry under its status in the cached lists and counts instead of refetching them, so a manga added from search shows in a list that wasn't open; the save returns the entry's media. Updated [SaveMangaTracking](operations/save-manga-tracking.md), [DeleteMangaTracking](operations/delete-manga-tracking.md), [MangaList](operations/manga-list.md), [MangaListCounts](operations/manga-list-counts.md), [list entry](concepts/list-entry.md).
+
 * **Tracking total falls back to the source**: the manga detail's tracking summary takes the selected source's last chapter as the total when AniList has none. Updated [reading progress](metrics/reading-progress.md).
 
 ## 2026-11-05

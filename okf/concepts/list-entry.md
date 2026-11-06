@@ -24,12 +24,12 @@ when the manga is not on the list.
 
 - **Created** by the first [SaveMangaTracking](../operations/save-manga-tracking.md)
   without an `id` (only `mediaId`). The app then links the new entry to its media in
-  the cache, which Apollo cannot infer on its own.
+  the cache: the mutation returns the media with a null `mediaListEntry`.
 - **Edited** by the same mutation with the `id`. The sheet always sends every field it
   owns (status, progress, score, both dates), so a save overwrites all of them; see
   [tracking rules](tracking-rules.md) for what the form fills in.
 - **Removed** by [DeleteMangaTracking](../operations/delete-manga-tracking.md): the
   entry is gone on AniList, unlinked from the media and evicted from the cache.
 
-Any save or delete refetches the list and its [counts](../metrics/list-counts.md),
-since a status change moves the entry between lists.
+A save or delete updates the cached lists and their [counts](../metrics/list-counts.md)
+in place, with no refetch: a status change moves the entry from one list to the other.

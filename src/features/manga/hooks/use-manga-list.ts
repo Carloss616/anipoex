@@ -12,7 +12,7 @@ import { type MangaEntry, toEntries } from "../utils/to-entries";
 /** No genre filter; also its label, first in every genre menu. */
 export const ALL = "All genres";
 
-/** Every list query a manual refresh or a tracking change should redo. */
+/** Every list query a manual refresh should redo. */
 export const REFRESH_QUERIES = ["MangaList", "MangaListCounts"];
 
 /** One list's state, owned by the screen: the genre picked, what's loaded. */

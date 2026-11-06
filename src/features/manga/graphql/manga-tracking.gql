@@ -18,6 +18,10 @@ mutation SaveMangaTracking(
   ) {
     id
     ...MangaTracking
+    media {
+      id
+      ...MangaMedia
+    }
   }
 }
 
