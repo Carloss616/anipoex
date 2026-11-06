@@ -95,9 +95,8 @@ const cardStyles = tv({
         card: "relative aspect-2/3 overflow-hidden bg-card shadow-md shadow-(color:--glare)",
         image: "absolute",
         badges: "inset-0",
-        text: "absolute pt-12",
+        text: "absolute items-center gap-1 pt-12",
         title: "text-center text-white text-shadow-md/70",
-        label: "line-clamp-1 text-center text-gray-50 text-shadow-md/70",
       },
     },
     tilt: { true: {}, false: {} },
@@ -233,11 +232,17 @@ export function MangaCard({
               style={StyleSheet.absoluteFill}
             />
           )}
-          {label && !split && (
-            <TiltCard.Description className={css.label()}>
-              {label}
-            </TiltCard.Description>
-          )}
+          {label &&
+            !split &&
+            (below ? (
+              <TiltCard.Description className={css.label()}>
+                {label}
+              </TiltCard.Description>
+            ) : (
+              <Badge color="secondary" solid className="bg-surface-secondary">
+                {label}
+              </Badge>
+            ))}
           {/* Not a heading: a button's content can't hold one. */}
           <TiltCard.Title as="p" className={css.title()}>
             {title}

@@ -121,21 +121,10 @@ export function MangaCard({
             <Column modifiers={[matchParentSize(), linearGradient(SCRIM)]} />
             <Column
               horizontalAlignment="center"
+              verticalArrangement={{ spacedBy: 4 }}
               modifiers={[fillMaxWidth(), padding(8, 48, 8, 8)]}
             >
-              <Text
-                style={{
-                  typography: "bodySmall",
-                  textAlign: "center",
-                  shadow: SHADOW,
-                }}
-                color="#f9fafb"
-                maxLines={1}
-                overflow="ellipsis"
-                modifiers={[fillMaxWidth()]}
-              >
-                {label}
-              </Text>
+              {label && <Badge>{label}</Badge>}
               <Text
                 style={{
                   typography: "bodyMedium",

@@ -196,22 +196,17 @@ export function MangaCard({
               ]}
             />
             <VStack
-              spacing={0}
+              spacing={4}
               modifiers={[
                 padding({ top: 48, leading: 8, trailing: 8, bottom: 8 }),
                 frame({ maxWidth: Infinity }),
               ]}
             >
-              <Text
-                textStyle="caption"
-                modifiers={[
-                  foregroundStyle("#f9fafb"),
-                  lineLimit(1),
-                  ...OVER_COVER,
-                ]}
-              >
-                {label}
-              </Text>
+              {label && (
+                <HStack modifiers={[background(solid, shapes.capsule())]}>
+                  <Badge>{label}</Badge>
+                </HStack>
+              )}
               <Text
                 textStyle="subheadline"
                 modifiers={[
