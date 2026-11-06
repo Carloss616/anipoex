@@ -27,7 +27,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.core.view.size
 import expo.modules.kotlin.records.Field
 import expo.modules.kotlin.records.Record
@@ -39,6 +41,9 @@ import expo.modules.ui.UIComposableScope
 import expo.modules.ui.isSlotView
 import expo.modules.ui.isSlotWithName
 import expo.modules.ui.resolveFontFamily
+
+// The popup window's own shadow inset (its maxSupportedElevation).
+private val SHADOW_ROOM = 8.dp
 
 data class DropdownMenuEvent(@Field val index: Int = 0) : Record
 
@@ -77,8 +82,17 @@ fun FunctionalComposableScope.DropdownMenuContent(props: DropdownMenuProps, onDi
     Children(UIComposableScope(), filter = { isSlotWithName(it, "trigger") })
     DropdownMenuPopup(expanded = props.expanded, onDismissRequest = { onDismissRequest(DropdownMenuEvent()) }) {
       // Unlike DropdownMenu, the Expressive popup's column doesn't scroll itself.
+      // The scroll clips along its axis, which cut the groups' shadows: its
+      // viewport reaches SHADOW_ROOM past its slot and pads the content back.
       Column(
-        Modifier.verticalScroll(rememberScrollState()),
+        Modifier
+          .layout { measurable, constraints ->
+            val room = SHADOW_ROOM.roundToPx()
+            val placeable = measurable.measure(constraints.offset(vertical = 2 * room))
+            layout(placeable.width, placeable.height - 2 * room) { placeable.place(0, -room) }
+          }
+          .verticalScroll(rememberScrollState())
+          .padding(vertical = SHADOW_ROOM),
         verticalArrangement = Arrangement.spacedBy(MenuDefaults.GroupSpacing)
       ) {
         Children(UIComposableScope(), filter = { !isSlotView(it) })
