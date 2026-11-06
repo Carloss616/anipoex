@@ -1,11 +1,14 @@
 import { useFragment } from "@apollo/client/react";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
+import { View } from "react-native";
+import { Icon, Icons } from "@/components/ui/icon";
+import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
 import type { ContinueItem } from "@/features/home/utils/continue-items";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
+import { useContinueActions } from "./hooks/use-continue-actions";
 
 export interface ContinueSectionProps {
   title: string;
@@ -46,7 +49,11 @@ const ContinueRow = memo(function ContinueRow({
   chapterId: string;
   chapterNumber: number;
 }) {
-  const router = useRouter();
+  const { read: open, menu } = useContinueActions(
+    mangaId,
+    chapterId,
+    chapterNumber,
+  );
   const { data } = useFragment({
     fragment: MangaMediaFragmentDoc,
     fragmentName: "MangaMedia",
@@ -56,42 +63,45 @@ const ContinueRow = memo(function ContinueRow({
   const title = data.title?.userPreferred ?? "";
 
   return (
-    <Frame.Row
-      aria-label={`${title}: read chapter ${chapterNumber}, ${unread} new`}
-      onClick={() =>
-        router.push({
-          pathname: "/manga/[id]/reader",
-          params: { id: mangaId, chapter: chapterId },
-        })
-      }
-    >
-      <Frame.Media>
-        <Image
-          source={data.coverImage?.medium}
-          contentFit="cover"
-          style={{
-            width: 40,
-            height: 58,
-            borderRadius: 8,
-            backgroundColor: data.coverImage?.color ?? undefined,
-          }}
-        />
-      </Frame.Media>
-      <Frame.Content>
-        <Frame.Title as="p">{title}</Frame.Title>
-        <Frame.Description>
-          c.{read} · {unread} new
-        </Frame.Description>
-        <Progress
-          value={read}
-          maxValue={read + unread}
-          size="sm"
-          className="mt-1.5"
-        />
-      </Frame.Content>
-      <Frame.Actions className="text-muted-foreground text-sm">
-        Read c.{chapterNumber}
-      </Frame.Actions>
-    </Frame.Row>
+    // Right-click: continue, or the manga's page.
+    <ContextMenu items={menu}>
+      <Frame.Row
+        aria-label={`${title}: read chapter ${chapterNumber}, ${unread} new`}
+        onClick={open}
+      >
+        <Frame.Media className="relative">
+          <Image
+            source={data.coverImage?.medium}
+            contentFit="cover"
+            style={{
+              width: 40,
+              height: 58,
+              borderRadius: 8,
+              backgroundColor: data.coverImage?.color ?? undefined,
+            }}
+          />
+          <View className="absolute inset-0 items-center justify-center">
+            <View className="size-6 items-center justify-center rounded-full bg-black/55">
+              <Icon name={Icons.play} size={12} className="text-white" />
+            </View>
+          </View>
+        </Frame.Media>
+        <Frame.Content>
+          <Frame.Title as="p">{title}</Frame.Title>
+          <Frame.Description>
+            c.{read} · {unread} new
+          </Frame.Description>
+          <Progress
+            value={read}
+            maxValue={read + unread}
+            size="sm"
+            className="mt-1.5"
+          />
+        </Frame.Content>
+        <Frame.Actions className="text-muted-foreground text-sm">
+          Read c.{chapterNumber}
+        </Frame.Actions>
+      </Frame.Row>
+    </ContextMenu>
   );
 });

@@ -1,9 +1,10 @@
 import { useFragment } from "@apollo/client/react";
 import { Box, Column, LazyRow, Row } from "@expo/ui/jetpack-compose";
 import {
+  align,
   background,
-  clickable,
   clip,
+  combinedClickable,
   matchParentSize,
   padding,
   Shapes,
@@ -12,17 +13,19 @@ import {
   weight,
   width,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useRouter } from "expo-router";
 import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/jetpack-compose/image";
 import { SectionHeader } from "@/components/native/jetpack-compose/section-header";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { Icon, Icons } from "@/components/ui/icon";
+import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
 import type { ContinueItem } from "@/features/home/utils/continue-items";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ContinueSectionProps } from "./continue-section";
+import { useContinueActions } from "./hooks/use-continue-actions";
 
 const CARD_WIDTH = 250;
 
@@ -52,7 +55,29 @@ const ContinueCard = memo(function ContinueCard({
 }: {
   item: ContinueItem;
 }) {
-  const router = useRouter();
+  const { read, menu } = useContinueActions(
+    item.mangaId,
+    item.next.id,
+    item.next.number,
+  );
+  // A long press opens the menu: continue, or the manga's page.
+  return (
+    <ContextMenu items={menu}>
+      <Card item={item} onPress={read} />
+    </ContextMenu>
+  );
+});
+
+/** The tonal card; `ContextMenu` hands it the long press. */
+function Card({
+  item,
+  onPress,
+  onLongPress,
+}: {
+  item: ContinueItem;
+  onPress: () => void;
+  onLongPress?: () => void;
+}) {
   const m3 = useThemeM3Colors();
   // Title and cover come from the cache, which the Continue query filled.
   const { data } = useFragment({
@@ -73,12 +98,7 @@ const ContinueCard = memo(function ContinueCard({
         width(CARD_WIDTH),
         clip(Shapes.RoundedCorner(24)),
         background(m3.surfaceContainer),
-        clickable(() =>
-          router.push({
-            pathname: "/manga/[id]/reader",
-            params: { id: item.mangaId, chapter: item.next.id },
-          }),
-        ),
+        combinedClickable({ onClick: onPress, onLongClick: onLongPress }),
         semantics({ contentDescription: `Continue ${name}, ${caption}` }),
         padding(12, 12, 12, 12),
       ]}
@@ -93,6 +113,18 @@ const ContinueCard = memo(function ContinueCard({
         {cover && (
           <Image source={{ uri: cover }} modifiers={[matchParentSize()]} />
         )}
+        {/* M3 Expressive: a shaped container marks the one action, resume. */}
+        <Box
+          contentAlignment="center"
+          modifiers={[
+            align("center"),
+            size(30, 30),
+            clip(Shapes.Material.Cookie9Sided),
+            background(m3.primaryContainer),
+          ]}
+        >
+          <Icon name={Icons.play} size={18} color={m3.onPrimaryContainer} />
+        </Box>
       </Box>
       <Column verticalArrangement={{ spacedBy: 2 }} modifiers={[weight(1)]}>
         <Text
@@ -111,4 +143,4 @@ const ContinueCard = memo(function ContinueCard({
       </Column>
     </Row>
   );
-});
+}
