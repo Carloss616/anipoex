@@ -6,10 +6,13 @@ import {
   Rectangle,
   ScrollView,
   Spacer,
+  useNativeState,
   VStack,
+  withAnimation,
   ZStack,
 } from "@expo/ui/swift-ui";
 import {
+  Animation,
   accessibilityAddTraits,
   accessibilityLabel,
   buttonBorderShape,
@@ -18,18 +21,22 @@ import {
   disabled,
   foregroundStyle,
   frame,
+  id,
   labelStyle,
   lineLimit,
+  onScrollPhaseChange,
   onTapGesture,
   padding,
   scrollClipDisabled,
   scrollIndicators,
+  scrollPosition,
   scrollTargetBehavior,
   scrollTargetLayout,
   textCase,
 } from "@expo/ui/swift-ui/modifiers";
 import { useRouter } from "expo-router";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
+import { useReducedMotion } from "react-native-reanimated";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
@@ -39,6 +46,8 @@ import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import { toRouteParams } from "@/features/manga/utils/search-params";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaListStatus } from "@/graphql/types.generated";
+import { useScreenReader } from "@/hooks/use-screen-reader";
+import { ROTATE_MS } from "./constants";
 import type { HeroSectionProps } from "./hero-section";
 
 const WIDTH = 300;
@@ -46,10 +55,15 @@ const HEIGHT = 210;
 const RADIUS = 22;
 const SCRIM = ["#000000b8", "#00000000"];
 
-/** Paging cards: each scroll stops with a card at the gutter, the next peeking. */
+/**
+ * Paging cards: each scroll stops with a card at the gutter, the next peeking.
+ * They slide on by themselves; a drag restarts the wait.
+ */
 export function HeroSection({ title, media, params }: HeroSectionProps) {
   const router = useRouter();
   const seeAllFont = useFont("body");
+  const cards = media.slice(0, 10);
+  const shown = useRotation(cards.map((item) => String(item.id)));
 
   return (
     <VStack alignment="leading" spacing={8}>
@@ -80,16 +94,46 @@ export function HeroSection({ title, media, params }: HeroSectionProps) {
           scrollTargetBehavior("viewAligned"),
           scrollClipDisabled(),
           padding({ horizontal: GUTTER }),
+          scrollPosition(shown.position, { anchor: "leading" }),
+          onScrollPhaseChange((phase) => shown.setIdle(phase === "idle")),
         ]}
       >
         <LazyHStack spacing={10} modifiers={[scrollTargetLayout()]}>
-          {media.slice(0, 10).map((item, i) => (
+          {cards.map((item, i) => (
             <HeroCard key={item.id} item={item} rank={i + 1} />
           ))}
         </LazyHStack>
       </ScrollView>
     </VStack>
   );
+}
+
+/** The card at the gutter, moved on every `ROTATE_MS` while the row rests. */
+function useRotation(ids: string[]) {
+  const position = useNativeState<string | null>(ids[0] ?? null);
+  // A card sliding away would pull it from under VoiceOver's focus.
+  const reduced = useReducedMotion();
+  const screenReader = useScreenReader();
+  const still = reduced || screenReader;
+  const [idle, setIdle] = useState(true);
+  // A string, so a new array of the same ids doesn't restart the timer.
+  const key = ids.join();
+
+  useEffect(() => {
+    const order = key.split(",");
+    if (!idle || still || order.length < 2) return;
+    const timer = setInterval(() => {
+      const next =
+        order[(order.indexOf(position.get() ?? "") + 1) % order.length];
+      withAnimation(Animation.smooth(), () => {
+        "worklet";
+        position.value = next;
+      });
+    }, ROTATE_MS);
+    return () => clearInterval(timer);
+  }, [idle, still, key, position]);
+
+  return { position, setIdle };
 }
 
 const HeroCard = memo(function HeroCard({
@@ -114,6 +158,7 @@ const HeroCard = memo(function HeroCard({
     <ZStack
       alignment="bottomLeading"
       modifiers={[
+        id(String(item.id)),
         frame({ width: WIDTH, height: HEIGHT }),
         clipShape("roundedRectangle", RADIUS),
         onTapGesture(() => router.push(`/manga/${item.id}`)),

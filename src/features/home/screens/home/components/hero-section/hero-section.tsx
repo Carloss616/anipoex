@@ -12,6 +12,7 @@ import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useRailScroll } from "../../hooks/use-rail-scroll";
 import { useSizeClass } from "../../hooks/use-size-class";
 import { SectionActions } from "../section-actions";
+import { ROTATE_MS } from "./constants";
 
 export interface HeroSectionProps {
   title: string;
@@ -21,8 +22,6 @@ export interface HeroSectionProps {
 }
 
 const GAP = 14;
-/** How long each manga holds the banner before the next fades in. */
-const ROTATE_MS = 6000;
 
 const genresOf = (manga: MangaEntry) =>
   manga.genres?.filter(Boolean).slice(0, 3).join(" · ");
