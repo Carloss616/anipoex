@@ -47,6 +47,7 @@ Legend State gotchas:
 
 - Reanimated shared values go through `get()`/`set()`, never `.value`: the Compiler takes a `.value` inside a worklet for a render dependency and reads it while rendering, which Reanimated warns about on every render (`chapter-reader/components/zoom-view/zoom-view.tsx`).
 - A gesture-handler gesture over a React Native `ScrollView` loses on Android: the scroll claims moving fingers first and the system cancels the gesture. Render the scroller as the gesture handler's `ScrollView` with `disallowInterruption={false}`, so the gesture takes the touch over (`zoom-view.tsx`'s `renderScrollComponent`).
+- On web, a Reanimated `exiting` leaves as an absolute copy in the nearest positioned ancestor, so its space frees at once: use it when an element should leave the flow (an unmounted title gives back its `gap`), and a CSS transition when the space itself must animate (`max-height`, `flex-grow`). The copy is placed against that ancestor after taking the element's children, so in a padded or centering parent (a button) wrap it in a `View` of the element's fixed size, or it lands off by the padding or by half its size. Web keyframes only ease in or run linear (`header/header.web.tsx`'s icon swap). An `entering` view is `visibility: hidden` until its animation starts, so an input mounted with one can't take `focus()` from the same effect: give the input `visible`, which it inherits otherwise (the header's search field).
 
 # Navigation
 

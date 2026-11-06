@@ -13,7 +13,13 @@ import {
   useState,
 } from "react";
 import { type StyleProp, type TextStyle, View } from "react-native";
-import { useReducedMotion } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  Keyframe,
+  LayoutAnimationConfig,
+  useReducedMotion,
+} from "react-native-reanimated";
 import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
 import { LARGE_TITLE_HEIGHT } from "./constants";
@@ -32,17 +38,40 @@ const INPUT_MODE: Record<
   email: "email",
 } as const;
 
-const TRANSITION = "duration-200 ease-out";
-/** Must match `TRANSITION`: Tailwind reads literals, the timer a number. */
 const DURATION_MS = 200;
 
-/** Large title row and its crossfade: drawer travel and timing. */
+/** A drawer's travel and timing: the large title row closes like a sheet. */
 const COLLAPSE = "duration-500 ease-sheet";
 
 /** The titles overlap as they cross; the blur hides the doubled words. */
 const HANDOVER = "duration-300 ease-out";
+/** Must match `HANDOVER`: Tailwind reads literals, the timer a number. */
+const HANDOVER_MS = 300;
 const LEAVING = "opacity-0 blur-[2px] delay-0";
 const ARRIVING = "opacity-100 blur-[0px] delay-100";
+/** `ARRIVING`'s delay, for the small title the large one hands over to. */
+const TITLE_IN = FadeIn.delay(100);
+
+const FIELD_IN = FadeIn.duration(DURATION_MS);
+const FIELD_OUT = FadeOut.duration(DURATION_MS);
+
+/** Shrunk and blurred, the crossing icons morph instead of stacking. */
+const ICON_HIDDEN = {
+  opacity: 0,
+  transform: [{ scale: 0.25 }],
+  filter: "blur(4px)",
+};
+const ICON_SHOWN = {
+  opacity: 1,
+  transform: [{ scale: 1 }],
+  filter: "blur(0px)",
+};
+const ICON_IN = new Keyframe({ 0: ICON_HIDDEN, 100: ICON_SHOWN }).duration(
+  DURATION_MS,
+);
+const ICON_OUT = new Keyframe({ 0: ICON_SHOWN, 100: ICON_HIDDEN }).duration(
+  DURATION_MS,
+);
 
 /**
  * A glass capsule per group. `!` beats the track's bg-muted and its muted
@@ -68,7 +97,8 @@ export const header = (props: NativeStackHeaderProps) => <Header {...props} />;
 export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const query$ = useObservable("");
   const [isSearching, setIsSearching] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  // `isSearching` once the search group has finished resizing.
+  const [settled, setSettled] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const reduced = useReducedMotion();
 
@@ -115,11 +145,10 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   }));
 
   useEffect(() => {
-    if (!isSearching) return setIsExpanded(false);
-    inputRef.current?.focus();
+    if (isSearching) inputRef.current?.focus();
     const timer = setTimeout(
-      () => setIsExpanded(true),
-      reduced ? 0 : DURATION_MS,
+      () => setSettled(isSearching),
+      reduced ? 0 : HANDOVER_MS,
     );
 
     return () => clearTimeout(timer);
@@ -130,10 +159,11 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
       {() => (
         <SearchBar
           ref={inputRef}
-          // Stacked, it floats on its own; inline, its capsule is the glass.
+          // Stacked, it is its own glass. Inline, `visible` lets it take focus
+          // while Reanimated still hides the parent it enters in.
           className={cn(
             "min-w-0 flex-1",
-            isStacked && "glass-chrome! glass-muted shadow-md",
+            isStacked ? "glass-chrome! glass-muted shadow-md" : "visible",
           )}
           value={query$.get()}
           onChangeText={emit}
@@ -186,95 +216,91 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
           options.headerShadowVisible && blur !== "none" && "glass-edge",
         )}
       />
-      <View className="h-14 flex-row items-center gap-4">
-        <ButtonGroup className={cn(GLASS_GROUP, "empty:hidden")}>
-          {showBack && (
-            <Button
-              variant="ghost"
-              shape="pill"
-              size={isMinimalBack || !backLabel ? "icon" : "md"}
-              onClick={navigation.goBack}
-              aria-label={backLabel ?? "Back"}
-            >
-              <Icon name={Icons.back} />
-              {!isMinimalBack && backLabel}
-            </Button>
-          )}
-          {options.headerLeft?.({ tintColor, canGoBack: !!back })}
-        </ButtonGroup>
+      <LayoutAnimationConfig skipEntering>
+        <View className="h-14 flex-row items-center gap-4">
+          <ButtonGroup className={cn(GLASS_GROUP, "empty:hidden")}>
+            {showBack && (
+              <Button
+                variant="ghost"
+                shape="pill"
+                size={isMinimalBack || !backLabel ? "icon" : "md"}
+                onClick={navigation.goBack}
+                aria-label={backLabel ?? "Back"}
+              >
+                <Icon name={Icons.back} />
+                {!isMinimalBack && backLabel}
+              </Button>
+            )}
+            {options.headerLeft?.({ tintColor, canGoBack: !!back })}
+          </ButtonGroup>
 
-        {/* Searching, the title yields its width to the field's group. */}
-        <View
-          aria-hidden={isLarge || isSearching}
-          className={cn(
-            "min-w-0 flex-1 flex-row items-center",
-            reduced
-              ? "transition-[opacity,filter]"
-              : "transition-[flex-grow,opacity,filter]",
-            HANDOVER,
-            isSearching && "grow-0",
-            isLarge || isSearching ? LEAVING : ARRIVING,
-          )}
-        >
-          {titleNode}
-        </View>
-
-        <ButtonGroup
-          className={cn(
-            GLASS_GROUP,
-            "min-w-0 empty:hidden",
-            !reduced && "transition-[flex-grow]",
-            HANDOVER,
-            // The title's delay, or the group slides left into the free gap.
-            isLarge || isSearching ? "delay-0" : "delay-100",
-            isSearching && "grow",
-          )}
-        >
-          {isInline && (
-            // Shown at once so it can take focus; hidden only after the shrink.
-            <View
-              className={cn(
-                // w-0, or the hidden input's own width widens the group.
-                "w-0 min-w-0 flex-1 basis-0 flex-row items-center",
-                isSearching
-                  ? "transition-opacity"
-                  : "transition-[opacity,visibility]",
-                TRANSITION,
-                isSearching ? "visible opacity-100" : "invisible opacity-0",
-                isExpanded ? "overflow-visible" : "overflow-hidden",
-              )}
+          {/* Unmounted, not hidden, so its gap goes too. Back only once the
+              group has shrunk, or it takes half the row at once. */}
+          {!(isLarge || isSearching || settled) && (
+            <Animated.View
+              entering={TITLE_IN}
+              exiting={FadeOut}
+              className="min-w-0 flex-1 flex-row items-center"
             >
-              {searchField}
-            </View>
+              {titleNode}
+            </Animated.View>
           )}
-          {isInline &&
-            (isSearching ? (
+
+          <ButtonGroup
+            className={cn(
+              GLASS_GROUP,
+              // ms-auto keeps it at the end with no title to push it there.
+              "ms-auto min-w-0 empty:hidden",
+              !reduced && "transition-[flex-grow]",
+              HANDOVER,
+              isSearching && "grow",
+              // relative: the field's leaving copy lands in the group, clipped
+              // while it resizes. justify-end keeps the buttons at the end.
+              "relative justify-end",
+              isSearching !== settled && "overflow-hidden",
+            )}
+          >
+            {isInline && isSearching && (
+              <Animated.View
+                entering={FIELD_IN}
+                exiting={FIELD_OUT}
+                // w-0, or the input's own width widens the group as it mounts.
+                className="w-0 min-w-0 flex-1 basis-0 flex-row items-center"
+              >
+                {searchField}
+              </Animated.View>
+            )}
+            {isInline && (
               <Button
                 variant="ghost"
                 size="icon"
                 shape="pill"
                 // No group divider beside the field.
                 className="before:hidden"
-                onClick={closeSearch}
-                aria-label={search.cancelButtonText ?? "Cancel"}
+                onClick={isSearching ? closeSearch : openSearch}
+                aria-label={
+                  isSearching
+                    ? (search.cancelButtonText ?? "Cancel")
+                    : (search.placeholder ?? "Search")
+                }
               >
-                <Icon name={Icons.close} />
+                {/* Keyed, so the icons cross. The leaving copy lands in this
+                    sized View: in the padded button or an empty one, off. */}
+                <View className="size-4.5">
+                  <Animated.View
+                    key={String(isSearching)}
+                    entering={ICON_IN}
+                    exiting={ICON_OUT}
+                  >
+                    <Icon name={isSearching ? Icons.close : Icons.search} />
+                  </Animated.View>
+                </View>
               </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                shape="pill"
-                className="before:hidden"
-                onClick={openSearch}
-                aria-label={search.placeholder ?? "Search"}
-              >
-                <Icon name={Icons.search} />
-              </Button>
-            ))}
-          {options.headerRight?.({ tintColor, canGoBack: !!back })}
-        </ButtonGroup>
-      </View>
+            )}
+            {options.headerRight?.({ tintColor, canGoBack: !!back })}
+          </ButtonGroup>
+        </View>
+      </LayoutAnimationConfig>
 
       {/* Kept mounted and clipped: max-h animates, auto height can't. */}
       {canBeLarge && (
