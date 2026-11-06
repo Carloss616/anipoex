@@ -3,6 +3,7 @@ import { Image } from "expo-image";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { View } from "react-native";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
@@ -89,7 +90,7 @@ const ContinueRow = memo(function ContinueRow({
         <Frame.Content>
           <Frame.Title as="p">{title}</Frame.Title>
           <Frame.Description>
-            c.{read} · {unread} new
+            c.{read} <Badge color="primary">+{unread}</Badge>
           </Frame.Description>
           <Progress
             value={read}

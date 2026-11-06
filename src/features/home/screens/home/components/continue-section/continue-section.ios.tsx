@@ -15,6 +15,7 @@ import {
   clipShape,
   foregroundStyle,
   frame,
+  glassEffect,
   lineLimit,
   onTapGesture,
   padding,
@@ -25,6 +26,7 @@ import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
@@ -71,7 +73,7 @@ const ContinueCard = memo(function ContinueCard({
     item.next.id,
     item.next.number,
   );
-  const [cell, overlay] = useThemeColor(["muted", "overlay"]);
+  const overlay = useThemeColor("overlay");
   const { data } = useFragment({
     fragment: MangaMediaFragmentDoc,
     fragmentName: "MangaMedia",
@@ -89,8 +91,11 @@ const ContinueCard = memo(function ContinueCard({
         modifiers={[
           padding({ all: 10 }),
           frame({ width: CARD_WIDTH, alignment: "leading" }),
-          background(cell),
-          clipShape("roundedRectangle", 18),
+          glassEffect({
+            glass: { variant: "regular", interactive: true },
+            shape: "roundedRectangle",
+            cornerRadius: 18,
+          }),
           onTapGesture(open),
           accessibilityElement("ignore"),
           accessibilityLabel(`Continue ${title}, ${caption}`),
@@ -128,12 +133,15 @@ const ContinueCard = memo(function ContinueCard({
           >
             {title}
           </Text>
-          <Text
-            textStyle="caption"
-            modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
-          >
-            {caption}
-          </Text>
+          <HStack spacing={6}>
+            <Text
+              textStyle="caption"
+              modifiers={[foregroundStyle("secondary"), lineLimit(1)]}
+            >
+              {`Ch. ${item.next.number}`}
+            </Text>
+            <Badge color="primary">{`+${item.unread}`}</Badge>
+          </HStack>
           <Progress value={(read / (read + item.unread)) * 100} size="sm" />
         </VStack>
       </HStack>

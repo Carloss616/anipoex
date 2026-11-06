@@ -18,6 +18,7 @@ import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/jetpack-compose/image";
 import { SectionHeader } from "@/components/native/jetpack-compose/section-header";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
@@ -134,9 +135,12 @@ function Card({
         >
           {name}
         </Text>
-        <Text style={{ typography: "bodySmall" }} color={m3.onSurfaceVariant}>
-          {caption}
-        </Text>
+        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+          <Text style={{ typography: "bodySmall" }} color={m3.onSurfaceVariant}>
+            {`Chapter ${item.next.number}`}
+          </Text>
+          <Badge color="primary">{`+${item.unread}`}</Badge>
+        </Row>
         <Box modifiers={[padding(0, 8, 0, 0)]}>
           <Progress value={(read / (read + item.unread)) * 100} size="sm" />
         </Box>
