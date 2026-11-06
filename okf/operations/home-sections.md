@@ -34,7 +34,7 @@ query HomeSections($userId: Int!, $year: FuzzyDateInt!, $trending: Boolean!, …
 | `top` | Same, `sort: SCORE_DESC` |
 | `manhwa` | Same, `countryOfOrigin: "KR", sort: POPULARITY_DESC` |
 | `planning` | `Page(perPage: 10) { mediaList(userId, type: MANGA, status: PLANNING, sort: UPDATED_TIME_DESC) }` |
-| `because` | `Page(perPage: 1) { mediaList(userId, type: MANGA, status_in: [CURRENT, COMPLETED], sort: UPDATED_TIME_DESC) }`: the manga last read or completed (the list entry updated most recently), its title and its 10 best-rated recommendations |
+| `because` | `Page(perPage: 1) { mediaList(userId, type: MANGA, status_in: [CURRENT, COMPLETED], sort: UPDATED_TIME_DESC) }`: the manga last read or completed (the list entry updated most recently), its title and its 10 best-rated recommendations, less those the viewer has completed |
 | `following` | `Page(perPage: 8) { activities(isFollowing: true, type: MANGA_LIST, sort: ID_DESC) }`: list updates (status, progress, when, who, which manga) |
 | `global` | Same as `following`, from everyone |
 | `genres` | `GenreCollection` |

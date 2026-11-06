@@ -107,6 +107,10 @@ query HomeSections(
             id
             mediaRecommendation {
               id
+              mediaListEntry {
+                id
+                status
+              }
               ...MangaMedia @nonreactive
             }
           }

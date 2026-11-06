@@ -9,6 +9,21 @@ export type Incremental<T> =
 
 import type { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
 import type * as Types from "@/graphql/types.generated";
+/** Media list watching/reading status enum. */
+export type MediaListStatus =
+  /** Finished watching/reading */
+  | "COMPLETED"
+  /** Currently watching/reading */
+  | "CURRENT"
+  /** Stopped watching/reading before completing */
+  | "DROPPED"
+  /** Paused watching/reading */
+  | "PAUSED"
+  /** Planning to watch/read */
+  | "PLANNING"
+  /** Re-watching/reading */
+  | "REPEATING";
+
 /** The current releasing status of the media */
 export type MediaStatus =
   /** Ended before the work could be finished */
@@ -291,6 +306,7 @@ export type HomeSectionsQuery = {
               mediaListEntry: {
                 __typename: "MediaList";
                 id: number;
+                status: Types.MediaListStatus | null;
                 progress: number | null;
               } | null;
               title: {
@@ -1317,6 +1333,32 @@ export const HomeSectionsDocument = {
                                                 name: {
                                                   kind: "Name",
                                                   value: "id",
+                                                },
+                                              },
+                                              {
+                                                kind: "Field",
+                                                name: {
+                                                  kind: "Name",
+                                                  value: "mediaListEntry",
+                                                },
+                                                selectionSet: {
+                                                  kind: "SelectionSet",
+                                                  selections: [
+                                                    {
+                                                      kind: "Field",
+                                                      name: {
+                                                        kind: "Name",
+                                                        value: "id",
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: "Field",
+                                                      name: {
+                                                        kind: "Name",
+                                                        value: "status",
+                                                      },
+                                                    },
+                                                  ],
                                                 },
                                               },
                                               {

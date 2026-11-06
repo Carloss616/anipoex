@@ -30,6 +30,22 @@ const data = {
             nodes: [
               { id: 1, mediaRecommendation: media(5) },
               { id: 2, mediaRecommendation: null },
+              {
+                id: 3,
+                mediaRecommendation: {
+                  __typename: "Media",
+                  id: 6,
+                  mediaListEntry: { id: 12, status: "COMPLETED" },
+                },
+              },
+              {
+                id: 4,
+                mediaRecommendation: {
+                  __typename: "Media",
+                  id: 7,
+                  mediaListEntry: { id: 13, status: "CURRENT" },
+                },
+              },
             ],
           },
         },
@@ -59,8 +75,8 @@ describe("sectionMedia", () => {
     expect(ids(sectionMedia(data, "planning"))).toEqual([3]);
   });
 
-  test("Because takes the recommendations", () => {
-    expect(ids(sectionMedia(data, "because"))).toEqual([5]);
+  test("Because takes the recommendations not completed yet", () => {
+    expect(ids(sectionMedia(data, "because"))).toEqual([5, 7]);
   });
 
   test("a section not loaded is empty", () => {

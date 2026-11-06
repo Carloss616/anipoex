@@ -1,4 +1,5 @@
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
+import { MediaListStatus } from "@/graphql/types.generated";
 import { SECTIONS, type SectionId } from "../constants";
 import type {
   HomeActivityFragment,
@@ -22,10 +23,13 @@ export function sectionMedia(data: Data, id: SectionId): MangaEntry[] {
     case "planning":
       return present(data?.planning?.mediaList?.map((entry) => entry?.media));
     case "because":
+      // Nothing the viewer has already finished.
       return present(
         data?.because?.mediaList?.[0]?.media?.recommendations?.nodes?.map(
           (node) => node?.mediaRecommendation,
         ),
+      ).filter(
+        (media) => media.mediaListEntry?.status !== MediaListStatus.Completed,
       );
     default:
       return [];
