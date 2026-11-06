@@ -93,7 +93,7 @@ query HomeSections(
     mediaList(
       userId: $userId
       type: MANGA
-      status: COMPLETED
+      status_in: [CURRENT, COMPLETED]
       sort: UPDATED_TIME_DESC
     ) {
       id

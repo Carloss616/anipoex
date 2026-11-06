@@ -1227,8 +1227,14 @@ export const HomeSectionsDocument = {
                     },
                     {
                       kind: "Argument",
-                      name: { kind: "Name", value: "status" },
-                      value: { kind: "EnumValue", value: "COMPLETED" },
+                      name: { kind: "Name", value: "status_in" },
+                      value: {
+                        kind: "ListValue",
+                        values: [
+                          { kind: "EnumValue", value: "CURRENT" },
+                          { kind: "EnumValue", value: "COMPLETED" },
+                        ],
+                      },
                     },
                     {
                       kind: "Argument",

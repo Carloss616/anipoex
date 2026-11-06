@@ -2,6 +2,7 @@
 
 ## 2026-11-05
 
+* **Because you read follows your reading**: the rail's reference is the Reading or Completed entry updated most recently, not only the last Completed one, so advancing a chapter moves it. Updated [HomeSections](operations/home-sections.md).
 * **Settings is a tab**: the account, Sign out, Home layout, theme and DNS move from a page pushed over Home to a tab of their own. Updated the [overview](overview.md).
 * **Home shows its sections**: Home draws the layout's sections from AniList (trending, rails, genres, activity) and Continue reading, and Settings → Home layout edits which ones show and in what order. Typing in Home's search suggests recent searches; submitting opens the AniList search. Updated [Home layout](stores/home-layout.md).
 * **Continue reading on Home**: mangas with a chosen source whose stored chapter list for the matched page has chapters past a progress above 0, newest release first. A tap opens the reader at the first unread chapter. Lists are only as fresh as the last detail visit or scan. New [continue reading](concepts/continue-reading.md), linked from [unread chapters](metrics/unread-chapters.md).
