@@ -25,6 +25,7 @@ export function ListGrid({
 
   return (
     <MangaGrid
+      className="gutters px-gx pb-gb md:pl-4"
       manga$={list.manga$}
       loading={list.loading && !list.refetching}
       empty={<ListEmpty genre$={genre$} query$={query$} />}

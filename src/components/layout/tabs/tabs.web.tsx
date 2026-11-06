@@ -15,7 +15,6 @@ import { Tabs as PanelTabs } from "panelui-web/tabs";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
-import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { BUTTON_ICON_SIZE, Icon } from "@/components/ui/icon";
 
 const TabSlot = withUniwind(TabSlotBase);
@@ -67,7 +66,7 @@ export function Tabs() {
       <TabList asChild>
         <PanelTabList
           className={cn(
-            pathname !== "/manga" && "glass-muted",
+            !["/", "/manga", "/search"].includes(pathname) && "glass-muted",
             pathname.endsWith("/reader") && "hidden",
           )}
         >
@@ -119,6 +118,7 @@ function PanelTabTrigger({
             type="body-sm"
             weight="medium"
             className="ps-2 text-inherit"
+            numberOfLines={1}
           >
             {item.label}
           </Typography>
@@ -149,7 +149,6 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
           {children}
         </PanelTabs.List>
       </PanelTabs>
-      <ThemeToggle />
     </View>
   );
 }

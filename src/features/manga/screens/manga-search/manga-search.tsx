@@ -18,6 +18,7 @@ export function MangaSearch() {
         onSubmit={submit}
       />
       <MangaGrid
+        className="gutters px-gx pb-gb"
         manga$={search.manga$}
         loading={search.loading}
         empty={

@@ -35,6 +35,8 @@ export interface MangaGridProps {
   refreshing?: boolean;
   /** Near the end: load the next page. */
   onEndReached?: () => void;
+  /** @platform web */
+  className?: string;
 }
 
 /** A grid of manga cards, in the list's density and title position. */
@@ -45,6 +47,7 @@ export function MangaGrid({
   header,
   scrollKey,
   onEndReached,
+  className,
 }: MangaGridProps) {
   const { current } = useBreakpoint();
   const headerScroll = useHeaderScroll();
@@ -72,8 +75,8 @@ export function MangaGrid({
       // A hovered cell drops its paint containment and rises, so the card's
       // glow and lean aren't clipped.
       contentContainerClassName={cn(
-        "gutters px-gx pb-gb md:pr-gx md:pl-4",
         "[&_[style*=contain]:hover]:z-1 [&_[style*=contain]:hover]:contain-[layout_style]!",
+        className,
       )}
       ListHeaderComponent={header}
       renderItem={({ item }) => (

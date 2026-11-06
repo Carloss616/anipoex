@@ -21,7 +21,8 @@ export function SearchFilters({ params, onChange }: SearchFiltersProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="items-center gap-2 px-gx"
+      className="gutters -mx-gx"
+      contentContainerClassName="items-center px-gx gap-2 py-4"
     >
       <Chip.Group
         aria-label="Format"
@@ -48,8 +49,13 @@ export function SearchFilters({ params, onChange }: SearchFiltersProps) {
         value={sortOf(params)}
         onValueChange={(sort) => sort && onChange({ ...params, sort })}
       >
-        <Select.Trigger variant="pill" size="sm" aria-label="Sort">
-          <Select.Value />
+        <Select.Trigger
+          variant="pill"
+          size="sm"
+          aria-label="Sort"
+          className="h-6 gap-1 px-2"
+        >
+          <Select.Value className="text-xs" />
         </Select.Trigger>
         <Select.Content>
           {SORT_OPTIONS.map(({ value, label }) => (
