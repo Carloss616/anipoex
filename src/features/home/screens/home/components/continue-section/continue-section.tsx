@@ -1,5 +1,6 @@
 import { useFragment } from "@apollo/client/react";
 import { Image } from "expo-image";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { Frame } from "panelui-web/frame";
 import { RangeMeter } from "panelui-web/range-meter";
@@ -12,7 +13,6 @@ import { ContextMenu } from "@/components/ui/menu";
 import { PRESS } from "@/components/ui/press";
 import type { ContinueItem } from "@/features/home/utils/continue-items";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
-import { useSizeClass } from "../../hooks/use-size-class";
 import { useContinueActions } from "./hooks/use-continue-actions";
 
 export interface ContinueSectionProps {
@@ -22,7 +22,7 @@ export interface ContinueSectionProps {
 
 /** Web: a card per manga, two to a row once there is room. */
 export function ContinueSection({ title, items }: ContinueSectionProps) {
-  const wide = useSizeClass() !== "compact";
+  const wide = useBreakpoint().isAtLeast("sm");
 
   return (
     <Frame>

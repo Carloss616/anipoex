@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { Frame } from "panelui-web/frame";
 import { useEffect, useState } from "react";
@@ -10,7 +11,6 @@ import { PRESS } from "@/components/ui/press";
 import type { SearchParams } from "@/features/manga/utils/search-params";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useRailScroll } from "../../hooks/use-rail-scroll";
-import { useSizeClass } from "../../hooks/use-size-class";
 import { SectionActions } from "../section-actions";
 import { ROTATE_MS } from "./constants";
 
@@ -31,9 +31,10 @@ const genresOf = (manga: MangaEntry) =>
  * cover cards, most of the width each (compact) or half of it (medium).
  */
 export function HeroSection({ title, media, params }: HeroSectionProps) {
-  const size = useSizeClass();
+  const { isAtLeast } = useBreakpoint();
   const { ref, scroll } = useRailScroll();
-  const expanded = size === "expanded";
+  const expanded = isAtLeast("lg");
+  const compact = !isAtLeast("sm");
 
   return (
     <Frame variant="band">
@@ -42,14 +43,14 @@ export function HeroSection({ title, media, params }: HeroSectionProps) {
         <SectionActions
           title={title}
           params={params}
-          onScroll={size === "medium" ? scroll : undefined}
+          onScroll={expanded || compact ? undefined : scroll}
         />
       </Frame.Header>
       <Frame.Panel>
         {expanded ? (
           <Banner media={media} />
         ) : (
-          <HeroRow media={media} compact={size === "compact"} rowRef={ref} />
+          <HeroRow media={media} compact={compact} rowRef={ref} />
         )}
       </Frame.Panel>
     </Frame>

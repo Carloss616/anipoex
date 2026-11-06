@@ -1,10 +1,10 @@
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Frame } from "panelui-web/frame";
 import { ScrollView } from "react-native";
 import { GridItem } from "@/features/manga/components/manga-grid/grid-item";
 import type { SearchParams } from "@/features/manga/utils/search-params";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useRailScroll } from "../../hooks/use-rail-scroll";
-import { useSizeClass } from "../../hooks/use-size-class";
 import { SectionActions } from "../section-actions";
 
 export interface RailSectionProps {
@@ -14,10 +14,9 @@ export interface RailSectionProps {
   params?: SearchParams;
 }
 
-const CARD_WIDTH = { compact: 112, medium: 124, expanded: 136 };
-
 export function RailSection({ title, media, params }: RailSectionProps) {
-  const size = useSizeClass();
+  const { isAtLeast } = useBreakpoint();
+  const cardWidth = isAtLeast("lg") ? 136 : isAtLeast("sm") ? 124 : 112;
   const { ref, scroll } = useRailScroll();
 
   return (
@@ -27,7 +26,7 @@ export function RailSection({ title, media, params }: RailSectionProps) {
         <SectionActions
           title={title}
           params={params}
-          onScroll={size === "compact" ? undefined : scroll}
+          onScroll={isAtLeast("sm") ? scroll : undefined}
         />
       </Frame.Header>
       <Frame.Panel>
@@ -38,7 +37,7 @@ export function RailSection({ title, media, params }: RailSectionProps) {
           contentContainerClassName="gap-3 p-4"
         >
           {media.map((item) => (
-            <GridItem key={item.id} item={item} width={CARD_WIDTH[size]} />
+            <GridItem key={item.id} item={item} width={cardWidth} />
           ))}
         </ScrollView>
       </Frame.Panel>

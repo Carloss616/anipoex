@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import { Frame } from "panelui-web/frame";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { PRESS } from "@/components/ui/press";
-import { useSizeClass } from "../../hooks/use-size-class";
 import { SectionActions } from "../section-actions";
 
 export interface GenreSectionProps {
@@ -14,10 +14,10 @@ export interface GenreSectionProps {
 }
 
 const LAYOUT = {
-  compact: { count: 8, width: "w-1/2", text: "" },
-  medium: { count: 12, width: "w-1/4", text: "" },
+  base: { count: 8, width: "w-1/2", text: "" },
+  sm: { count: 12, width: "w-1/4", text: "" },
   // In the side column, where "Psychological" needs the smaller text.
-  expanded: { count: 8, width: "w-1/2", text: "text-xs" },
+  lg: { count: 8, width: "w-1/2", text: "text-xs" },
 };
 
 /** A hue of its own for each genre, steady across renders. */
@@ -26,7 +26,9 @@ const hue = (genre: string) =>
 
 export function GenreSection({ title, genres }: GenreSectionProps) {
   const router = useRouter();
-  const { count, width, text } = LAYOUT[useSizeClass()];
+  const { isAtLeast } = useBreakpoint();
+  const { count, width, text } =
+    LAYOUT[isAtLeast("lg") ? "lg" : isAtLeast("sm") ? "sm" : "base"];
   const [page, setPage] = useState(0);
   const pages = Math.ceil(genres.length / count);
   // A resize can leave fewer pages than the one shown.
