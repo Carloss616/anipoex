@@ -108,6 +108,11 @@ export function MangaCard({
           </Badge>
         </Box>
       )}
+      {titlePosition === "split" && label && (
+        <Box modifiers={[align("bottomCenter"), padding(8, 8, 8, 8)]}>
+          <Badge>{label}</Badge>
+        </Box>
+      )}
       {titlePosition === "over" && (title || label) && (
         <Box modifiers={[matchParentSize()]} contentAlignment="bottomCenter">
           <Box modifiers={[fillMaxWidth()]}>
@@ -167,7 +172,7 @@ export function MangaCard({
 
   // Needs a width in `style`: Compose has no `aspectRatio` to size the cover.
   const body =
-    titlePosition === "below" ? (
+    titlePosition !== "over" ? (
       // A Box so the press overlay can cover the cover and the texts alike.
       <Box>
         <Column
@@ -184,7 +189,7 @@ export function MangaCard({
           >
             {title}
           </Text>
-          {label && <Badge>{label}</Badge>}
+          {label && titlePosition === "below" && <Badge>{label}</Badge>}
           {progress != null && <Progress value={progress * 100} size="sm" />}
         </Column>
         {overlay}

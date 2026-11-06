@@ -68,7 +68,7 @@ export function MangaGrid({
       // `renderItem`.
       extraData={titlePosition}
       keyExtractor={(item) => String(item.id)}
-      columnWrapperStyle={{ gap: titlePosition === "below" ? 16 : 8 }}
+      columnWrapperStyle={{ gap: titlePosition !== "over" ? 16 : 8 }}
       // A hovered cell drops its paint containment and rises, so the card's
       // glow and lean aren't clipped.
       contentContainerClassName={cn(

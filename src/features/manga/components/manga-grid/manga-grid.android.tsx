@@ -50,7 +50,7 @@ export function MangaGrid({
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
   const cell = cellWidth(width - start - end, columns, GAP);
-  const below = titlePosition === "below";
+  const below = titlePosition !== "over";
   const rows = toRows(manga, columns);
 
   if (loading) {

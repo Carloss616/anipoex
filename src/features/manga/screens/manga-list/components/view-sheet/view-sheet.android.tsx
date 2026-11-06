@@ -15,8 +15,9 @@ import {
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 
 const TITLES = [
-  ["below", "Below cover"],
-  ["over", "On cover"],
+  ["below", "Below"],
+  ["split", "Split"],
+  ["over", "Over"],
 ] as const;
 
 const open$ = observable(false);

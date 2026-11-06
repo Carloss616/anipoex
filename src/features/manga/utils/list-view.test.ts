@@ -3,6 +3,7 @@ import {
   columnOptions,
   columnsFor,
   DEFAULT_DENSITY,
+  railTitlePosition,
   toTitlePosition,
 } from "./list-view";
 
@@ -42,11 +43,21 @@ describe("columnOptions", () => {
 });
 
 describe("toTitlePosition", () => {
-  it("only `over` puts the title on the cover", () => {
+  it("keeps a known position, else below", () => {
     expect(toTitlePosition("over")).toBe("over");
     expect(toTitlePosition("below")).toBe("below");
+    expect(toTitlePosition("split")).toBe("split");
     for (const junk of ["left", "", null, undefined, 1]) {
       expect(toTitlePosition(junk)).toBe("below");
     }
+  });
+});
+
+describe("railTitlePosition", () => {
+  it("keeps the title below the cover, the progress where the grid puts it", () => {
+    expect(railTitlePosition("split")).toBe("split");
+    expect(railTitlePosition("below")).toBe("below");
+    expect(railTitlePosition("over")).toBe("below");
+    expect(railTitlePosition(undefined)).toBe("below");
   });
 });

@@ -34,8 +34,13 @@ export function columnOptions(breakpoint: Breakpoint) {
   }));
 }
 
-export type TitlePosition = "below" | "over";
+/** `split` is `below` with the progress caption over the cover's foot. */
+export type TitlePosition = "below" | "split" | "over";
 
 export function toTitlePosition(value: unknown): TitlePosition {
-  return value === "over" ? "over" : "below";
+  return value === "over" || value === "split" ? value : "below";
 }
+
+/** A rail's cards are too small for a title over the cover. */
+export const railTitlePosition = (value: unknown): TitlePosition =>
+  value === "split" ? "split" : "below";

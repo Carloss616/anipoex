@@ -3,6 +3,8 @@ import {
   background,
   foregroundStyle,
   frame,
+  lineLimit,
+  minimumScaleFactor,
   padding,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
@@ -60,7 +62,12 @@ export function Badge({
             foregroundStyle(content),
           ]}
         >
-          <Text textStyle="caption" weight="medium">
+          <Text
+            textStyle="caption"
+            weight="medium"
+            // A long caption over a narrow cover shrinks rather than wraps.
+            modifiers={[lineLimit(1), minimumScaleFactor(0.7)]}
+          >
             {children}
           </Text>
         </HStack>

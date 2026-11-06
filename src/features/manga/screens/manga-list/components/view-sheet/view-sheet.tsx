@@ -15,8 +15,9 @@ import {
 } from "@/features/manga/utils/list-view";
 
 const TITLES = [
-  ["below", "Below cover"],
-  ["over", "On cover"],
+  ["below", "Below"],
+  ["split", "Split"],
+  ["over", "Over"],
 ] as const;
 
 const open$ = observable(false);

@@ -2,6 +2,7 @@
 
 ## 2026-11-05
 
+* **Split title position**: a third choice for the manga grid's titles puts the progress caption on the cover's foot and leaves the title under it; Home's rails follow it. Updated [manga list view](stores/manga-list-view.md).
 * **Because you read follows your reading**: the rail's reference is the Reading or Completed entry updated most recently, not only the last Completed one, so advancing a chapter moves it. Updated [HomeSections](operations/home-sections.md).
 * **Settings is a tab**: the account, Sign out, Home layout, theme and DNS move from a page pushed over Home to a tab of their own. Updated the [overview](overview.md).
 * **Home shows its sections**: Home draws the layout's sections from AniList (trending, rails, genres, activity) and Continue reading, and Settings → Home layout edits which ones show and in what order. Typing in Home's search suggests recent searches; submitting opens the AniList search. Updated [Home layout](stores/home-layout.md).

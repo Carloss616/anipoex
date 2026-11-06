@@ -33,7 +33,10 @@ export interface MangaCardProps {
   mark?: CornerMark;
   title?: string | null;
   label?: string | null;
-  /** `over` keeps `title` and `label` on a scrim over the cover. */
+  /**
+   * `over` keeps `title` and `label` on a scrim over the cover; `split` puts
+   * only `label` on it, at its foot.
+   */
   titlePosition?: TitlePosition;
   /** Share read (0–1), a bar under the label; omit if the total is unknown. */
   progress?: number;
@@ -159,8 +162,9 @@ export function MangaCard({
   ...trigger
 }: MangaCardProps) {
   const flat = StyleSheet.flatten(style) ?? {};
-  const below = titlePosition === "below";
-  const css = cardStyles({ position: titlePosition, tilt });
+  const below = titlePosition !== "over";
+  const split = titlePosition === "split" && !!label;
+  const css = cardStyles({ position: below ? "below" : "over", tilt });
   const corner = cornerBadge(status, mark);
   const pressable = !!(onPress || onLongPress);
   const flatStyle = {
@@ -213,6 +217,13 @@ export function MangaCard({
             {String(unread)}
           </Badge>
         )}
+        {split && (
+          <View className="absolute inset-x-0 bottom-2 items-center">
+            <Badge color="secondary" solid className="bg-surface-secondary">
+              {label}
+            </Badge>
+          </View>
+        )}
       </Layer>
       {(below || title || label) && (
         <Layer tilt={tilt} depth={6} className={css.text()}>
@@ -222,7 +233,7 @@ export function MangaCard({
               style={StyleSheet.absoluteFill}
             />
           )}
-          {label && (
+          {label && !split && (
             <TiltCard.Description className={css.label()}>
               {label}
             </TiltCard.Description>

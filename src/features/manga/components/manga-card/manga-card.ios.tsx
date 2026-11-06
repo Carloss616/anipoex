@@ -154,6 +154,22 @@ export function MangaCard({
           </HStack>
         </HStack>
       )}
+      {titlePosition === "split" && label && (
+        <HStack
+          modifiers={[
+            padding({ all: 8 }),
+            frame({
+              maxWidth: Infinity,
+              maxHeight: Infinity,
+              alignment: "bottom",
+            }),
+          ]}
+        >
+          <HStack modifiers={[background(solid, shapes.capsule())]}>
+            <Badge>{label}</Badge>
+          </HStack>
+        </HStack>
+      )}
       <VStack
         spacing={0}
         modifiers={[frame({ maxWidth: Infinity, maxHeight: Infinity })]}
@@ -227,7 +243,7 @@ export function MangaCard({
 
   // Needs a width in `style`: the cover's height comes from it.
   const body =
-    titlePosition === "below" ? (
+    titlePosition !== "over" ? (
       <VStack
         alignment="leading"
         spacing={6}
@@ -257,7 +273,7 @@ export function MangaCard({
         >
           {title}
         </Text>
-        {label && <Badge>{label}</Badge>}
+        {label && titlePosition === "below" && <Badge>{label}</Badge>}
         {progress != null && <Progress value={progress * 100} size="sm" />}
       </VStack>
     ) : (

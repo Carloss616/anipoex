@@ -48,7 +48,9 @@ export function Badge({
           <Icon name={icon} size={12} color={content} />
         ) : children == null ? null : (
           // What the BadgeView itself sets: @expo/ui's Text never reads it.
-          <Text style={{ typography: "labelSmall" }}>{children}</Text>
+          <Text style={{ typography: "labelSmall" }} maxLines={1}>
+            {children}
+          </Text>
         )}
       </BadgeView>
     </EnsureHost>

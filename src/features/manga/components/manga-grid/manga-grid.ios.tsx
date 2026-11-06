@@ -68,7 +68,7 @@ export function MangaGrid({
       >
         <LazyVStack
           alignment="leading"
-          spacing={titlePosition === "below" ? 20 : 8}
+          spacing={titlePosition !== "over" ? 20 : 8}
           modifiers={[padding({ bottom: GUTTER })]}
         >
           {header}
@@ -76,9 +76,7 @@ export function MangaGrid({
             data={rows}
             keyExtractor={(row) => row.map((m) => m.id).join()}
             // `below` puts two title lines and the caption under the cover.
-            estimatedItemSize={
-              cell * 1.5 + (titlePosition === "below" ? 68 : 0)
-            }
+            estimatedItemSize={cell * 1.5 + (titlePosition !== "over" ? 68 : 0)}
           >
             {({ item: row }) => (
               <HStack

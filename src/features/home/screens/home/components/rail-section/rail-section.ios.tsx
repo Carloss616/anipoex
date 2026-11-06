@@ -16,12 +16,14 @@ import { GUTTER } from "@/components/native/constants";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { GridItem } from "@/features/manga/components/manga-grid/grid-item";
 import { toRouteParams } from "@/features/manga/utils/search-params";
+import { useRailTitle } from "./hooks/use-rail-title";
 import type { RailSectionProps } from "./rail-section";
 
 const CARD = 106;
 
 export function RailSection({ title, media, params }: RailSectionProps) {
   const router = useRouter();
+  const titlePosition = useRailTitle();
   const seeAllFont = useFont("body");
 
   return (
@@ -55,7 +57,7 @@ export function RailSection({ title, media, params }: RailSectionProps) {
               key={item.id}
               item={item}
               width={CARD}
-              titlePosition="below"
+              titlePosition={titlePosition}
             />
           ))}
         </LazyHStack>
