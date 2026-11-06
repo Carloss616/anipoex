@@ -49,6 +49,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -286,6 +291,7 @@ private fun FunctionalComposableScope.Bar(
   val focus = LocalFocusManager.current
   val interaction = remember { MutableInteractionSource() }
   val focused by interaction.collectIsFocusedAsState()
+  val close = { field.clearText(); focus.clearFocus() }
   LaunchedEffect(field) {
     snapshotFlow { field.text.toString() }
       .drop(1)
@@ -316,7 +322,7 @@ private fun FunctionalComposableScope.Bar(
         // Focused, back returns the bar to how it was: empty and unfocused.
         leadingIcon = {
           if (focused) {
-            IconButton(onClick = { field.clearText(); focus.clearFocus() }) {
+            IconButton(onClick = close) {
               Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
             }
           } else {
@@ -324,6 +330,13 @@ private fun FunctionalComposableScope.Bar(
           }
         },
         interactionSource = interaction,
+        // The system back reaches the focused field first: it closes it here
+        // rather than leave the screen.
+        modifier = Modifier.onPreviewKeyEvent {
+          if (it.key != Key.Back || !focused) return@onPreviewKeyEvent false
+          if (it.type == KeyEventType.KeyUp) close()
+          true
+        },
         trailingIcon = if (field.text.isEmpty()) null else {
           {
             IconButton(onClick = { field.clearText() }) {
