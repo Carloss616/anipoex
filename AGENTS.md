@@ -84,6 +84,11 @@ Legend State gotchas:
 - A pressable `Frame.Row` with buttons of its own keeps `Frame.Actions` as its sibling, `absolute inset-e-4 inset-y-0` over it, and leaves their width with a spacing-scale `pe-*` on the row (`pe-17` in `chapter-item.tsx`; `available-item.tsx` switches it when a button appears). Never buttons inside a button: react-native-web makes any `role="button"` a `<button>`, and even a `div[role=button]` hides the inner ones from screen readers.
 - The web `BottomSheet` is panelui-web's `Sheet` (Base UI's drawer), so a Base UI menu, dialog or `Sheet.Next` opened in it shares its overlay tree: focus moves in and Escape closes only the top layer. A PanelUI native portal used in a sheet needs its own `PortalProvider` with the host on `<body>`: the app's host sits in the page Base UI hides, and the popup's transform would capture its `fixed` (`src/components/ui/calendar/calendar.tsx`). It has no snap points: `snapPoints` maps to `size` half or full.
 
+# Apollo
+
+- A query that spreads a fragment `@nonreactive` doesn't re-render on that fragment's fields, and its `data` keeps the first values: read them through `useFragment` once the cache is complete, or a save never shows (`manga/hooks/use-manga-entry.ts`).
+- `refetchQueries` by name reaches only watched queries: a cached result no screen shows (another list status) stays stale and `cache-first` serves it. A mutation updates the cached results in its `update` instead (`manga/utils/file-entry.ts`).
+
 # Persistence
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).

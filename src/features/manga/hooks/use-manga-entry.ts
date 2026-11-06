@@ -51,8 +51,9 @@ export function useMangaEntry(id: string) {
   }, [client, mediaId, valid]);
 
   // `cached.data` is partial when incomplete, so the list's half paints now and
-  // the fetch fills the rest in.
-  const media = data?.Media ?? cached.data;
+  // the fetch fills the rest in. Once complete it wins: the query spreads its
+  // fragment `@nonreactive`, so its data never sees a later save.
+  const media = cached.complete ? cached.data : (data?.Media ?? cached.data);
 
   return { manga: toDetail(mediaId, media), loading, refreshing, refresh };
 }
