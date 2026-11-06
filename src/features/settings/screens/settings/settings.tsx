@@ -25,8 +25,8 @@ export function Settings() {
     <>
       <Stack.Title large>Settings</Stack.Title>
       <ScrollView className="flex-1" {...headerScroll}>
-        <HeaderInsetView className="gutters w-full max-w-2xl gap-4 self-center px-gx pt-2 pb-gb">
-          <Frame>
+        <HeaderInsetView className="gutters w-full max-w-2xl gap-4 self-center px-gx pb-gb">
+          <Frame className="mt-4">
             <Frame.Header>
               <Frame.Title>Account</Frame.Title>
             </Frame.Header>

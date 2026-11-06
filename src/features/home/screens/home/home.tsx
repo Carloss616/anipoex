@@ -36,7 +36,7 @@ export function Home() {
 
   return (
     <>
-      <Stack.Title large>Home</Stack.Title>
+      <Stack.Title large={!drafting}>Home</Stack.Title>
       <Stack.SearchBar
         ref={searchBar}
         placeholder="Search AniList"
@@ -70,7 +70,7 @@ function Sections() {
   );
 
   return (
-    <View className="flex-row items-start gap-4">
+    <View className="flex-row items-start gap-4 pt-4">
       <View className="min-w-0 flex-1 gap-4">
         {main.map(section)}
         {error && !data && (
