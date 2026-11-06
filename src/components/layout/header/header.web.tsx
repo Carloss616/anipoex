@@ -14,12 +14,16 @@ import {
 } from "react";
 import { type StyleProp, type TextStyle, View } from "react-native";
 import Animated, {
+  Easing,
   FadeIn,
   FadeOut,
-  Keyframe,
   LayoutAnimationConfig,
+  useAnimatedStyle,
   useReducedMotion,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import { Icon, Icons } from "@/components/ui/icon";
 import { SearchBar } from "@/components/ui/search-bar";
 import { LARGE_TITLE_HEIGHT } from "./constants";
@@ -38,40 +42,18 @@ const INPUT_MODE: Record<
   email: "email",
 } as const;
 
-const DURATION_MS = 200;
-
 /** A drawer's travel and timing: the large title row closes like a sheet. */
 const COLLAPSE = "duration-500 ease-sheet";
 
 /** The titles overlap as they cross; the blur hides the doubled words. */
 const HANDOVER = "duration-300 ease-out";
-/** Must match `HANDOVER`: Tailwind reads literals, the timer a number. */
-const HANDOVER_MS = 300;
 const LEAVING = "opacity-0 blur-[2px] delay-0";
 const ARRIVING = "opacity-100 blur-[0px] delay-100";
 /** `ARRIVING`'s delay, for the small title the large one hands over to. */
 const TITLE_IN = FadeIn.delay(100);
 
-const FIELD_IN = FadeIn.duration(DURATION_MS);
-const FIELD_OUT = FadeOut.duration(DURATION_MS);
-
-/** Shrunk and blurred, the crossing icons morph instead of stacking. */
-const ICON_HIDDEN = {
-  opacity: 0,
-  transform: [{ scale: 0.25 }],
-  filter: "blur(4px)",
-};
-const ICON_SHOWN = {
-  opacity: 1,
-  transform: [{ scale: 1 }],
-  filter: "blur(0px)",
-};
-const ICON_IN = new Keyframe({ 0: ICON_HIDDEN, 100: ICON_SHOWN }).duration(
-  DURATION_MS,
-);
-const ICON_OUT = new Keyframe({ 0: ICON_SHOWN, 100: ICON_HIDDEN }).duration(
-  DURATION_MS,
-);
+/** `HANDOVER`'s timing, for the field's growth. */
+const GROW = { duration: 300, easing: Easing.out(Easing.cubic) };
 
 /**
  * A glass capsule per group. `!` beats the track's bg-muted and its muted
@@ -97,8 +79,9 @@ export const header = (props: NativeStackHeaderProps) => <Header {...props} />;
 export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   const query$ = useObservable("");
   const [isSearching, setIsSearching] = useState(false);
-  // `isSearching` once the search group has finished resizing.
-  const [settled, setSettled] = useState(false);
+  // Still mounted while the field shrinks after a close.
+  const [shown, setShown] = useState(false);
+  const grow = useSharedValue(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const reduced = useReducedMotion();
 
@@ -154,26 +137,30 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
   }, [searchText, query$]);
 
   useEffect(() => {
-    if (isSearching) inputRef.current?.focus();
-    const timer = setTimeout(
-      () => setSettled(isSearching),
-      reduced ? 0 : HANDOVER_MS,
+    if (isSearching) {
+      setShown(true);
+      inputRef.current?.focus();
+    }
+    grow.set(
+      withTiming(isSearching ? 1 : 0, GROW, (done) => {
+        if (done && !isSearching) scheduleOnRN(setShown, false);
+      }),
     );
+  }, [isSearching, grow]);
 
-    return () => clearTimeout(timer);
-  }, [isSearching, reduced]);
+  // Clipped while it grows, or the bar draws past its own width.
+  const fieldStyle = useAnimatedStyle(() => ({
+    flexGrow: grow.get(),
+    opacity: grow.get(),
+    overflow: grow.get() < 1 ? "hidden" : "visible",
+  }));
 
   const searchField = search && (
     <Memo>
       {() => (
         <SearchBar
           ref={inputRef}
-          // Stacked, it is its own glass. Inline, `visible` lets it take focus
-          // while Reanimated still hides the parent it enters in.
-          className={cn(
-            "min-w-0 flex-1",
-            isStacked ? "glass-chrome! glass-muted shadow-md" : "visible",
-          )}
+          className="glass-chrome! glass-muted min-w-0 flex-1 shadow-md"
           value={query$.get()}
           onChangeText={emit}
           onSubmit={(text) => search.onSearchButtonPress?.(textEvent(text))}
@@ -192,6 +179,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
     </Memo>
   );
   const isInline = !!search && !isStacked;
+  const hasField = isInline && (isSearching || shown);
 
   const titleNode =
     typeof options.headerTitle === "function" ? (
@@ -243,9 +231,8 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             {options.headerLeft?.({ tintColor, canGoBack: !!back })}
           </ButtonGroup>
 
-          {/* Unmounted, not hidden, so its gap goes too. Back only once the
-              group has shrunk, or it takes half the row at once. */}
-          {!(isLarge || isSearching || settled) && (
+          {/* Back once the field is gone, or it takes half the row at once. */}
+          {!(isLarge || isSearching || shown) && (
             <Animated.View
               entering={TITLE_IN}
               exiting={FadeOut}
@@ -255,37 +242,28 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             </Animated.View>
           )}
 
+          {hasField && (
+            <Animated.View
+              style={fieldStyle}
+              // Below a grow of 1, ms-auto takes the rest: it grows leftward.
+              className="ms-auto min-w-0 max-w-xl basis-0 flex-row items-center"
+            >
+              {searchField}
+            </Animated.View>
+          )}
+
           <ButtonGroup
             className={cn(
               GLASS_GROUP,
-              // ms-auto keeps it at the end with no title to push it there.
-              "ms-auto min-w-0 empty:hidden",
-              !reduced && "transition-[flex-grow]",
-              HANDOVER,
-              isSearching && "grow",
-              // relative: the field's leaving copy lands in the group, clipped
-              // while it resizes. justify-end keeps the buttons at the end.
-              "relative justify-end",
-              isSearching !== settled && "overflow-hidden",
+              "min-w-0 empty:hidden",
+              !hasField && "ms-auto",
             )}
           >
-            {isInline && isSearching && (
-              <Animated.View
-                entering={FIELD_IN}
-                exiting={FIELD_OUT}
-                // w-0, or the input's own width widens the group as it mounts.
-                className="w-0 min-w-0 flex-1 basis-0 flex-row items-center"
-              >
-                {searchField}
-              </Animated.View>
-            )}
             {isInline && (
               <Button
                 variant="ghost"
                 size="icon"
                 shape="pill"
-                // No group divider beside the field.
-                className="before:hidden"
                 onClick={isSearching ? closeSearch : openSearch}
                 aria-label={
                   isSearching
@@ -293,17 +271,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
                     : (search.placeholder ?? "Search")
                 }
               >
-                {/* Keyed, so the icons cross. The leaving copy lands in this
-                    sized View: in the padded button or an empty one, off. */}
-                <View className="size-4.5">
-                  <Animated.View
-                    key={String(isSearching)}
-                    entering={ICON_IN}
-                    exiting={ICON_OUT}
-                  >
-                    <Icon name={isSearching ? Icons.close : Icons.search} />
-                  </Animated.View>
-                </View>
+                <Icon name={isSearching ? Icons.close : Icons.search} />
               </Button>
             )}
             {options.headerRight?.({ tintColor, canGoBack: !!back })}
