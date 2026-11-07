@@ -64,12 +64,12 @@ export interface MangaCardProps {
 const cardStyles = tv({
   slots: {
     // The light under the pointer takes the cover's color.
-    card: "[--pu-color:var(--glare)] w-full rounded-[inherit] border-0 p-0 transition-shadow",
+    card: "w-full rounded-[inherit] border-0 p-0 transition-shadow [--pu-color:var(--glare)]",
     image: "",
     badges: "pointer-events-none absolute",
     text: "flex flex-col",
     // Long words break: line-clamp clips an overflow with no ellipsis.
-    title: "relative line-clamp-2 text-sm hyphens-auto wrap-break-word",
+    title: "relative line-clamp-2 text-sm wrap-break-word hyphens-auto",
     label: "relative text-xs",
   },
   variants: {
@@ -77,13 +77,13 @@ const cardStyles = tv({
       below: {
         card: cn(
           "flex flex-col gap-2 overflow-visible bg-transparent",
-          "shadow-none shadow-(color:--glare)",
+          "shadow-(color:--glare) shadow-none",
           // Flat like `over`: in 3D the layers' depth paints over the light.
           "transform-flat",
         ),
         image: cn(
-          "relative aspect-2/3 w-full overflow-hidden rounded-[inherit] bg-card",
-          "shadow-md shadow-(color:--glare) group-hover:shadow-sm transition-shadow",
+          "bg-card relative aspect-2/3 w-full overflow-hidden rounded-[inherit]",
+          "shadow-(color:--glare) shadow-md transition-shadow group-hover:shadow-sm",
         ),
         // Over the cover; the column doesn't clip, so they can move freely.
         badges: "inset-x-0 top-0 aspect-2/3",
@@ -92,10 +92,10 @@ const cardStyles = tv({
         // Always two lines tall, so captions and bars line up across a row.
         title: "order-first min-h-10 leading-5",
         label:
-          "self-start rounded-full bg-secondary px-1.5 py-0.5 font-medium text-secondary-foreground",
+          "bg-secondary text-secondary-foreground self-start rounded-full px-1.5 py-0.5 font-medium",
       },
       over: {
-        card: "relative aspect-2/3 overflow-hidden bg-card shadow-md shadow-(color:--glare)",
+        card: "bg-card relative aspect-2/3 overflow-hidden shadow-(color:--glare) shadow-md",
         image: "absolute",
         badges: "inset-0",
         text: "absolute items-center gap-1 pt-12",

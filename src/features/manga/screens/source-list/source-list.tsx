@@ -263,7 +263,7 @@ function ListBody({
             ) : (
               <>
                 {item.index > 0 && (
-                  <View role="separator" className="mx-4 h-px bg-border" />
+                  <View role="separator" className="bg-border mx-4 h-px" />
                 )}
                 {item.kind === "available" ? (
                   <AvailableItem

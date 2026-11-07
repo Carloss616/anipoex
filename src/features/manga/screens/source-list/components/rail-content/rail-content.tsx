@@ -66,7 +66,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 <View
                   role="separator"
                   aria-orientation="vertical"
-                  className="w-px bg-border"
+                  className="bg-border w-px"
                   style={{ height: COVER.height }}
                 />
               )}
@@ -89,7 +89,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
       )}
       {notice === "error" ? (
         <View className="flex-row items-center gap-2 px-4">
-          <Typography type="body-sm" className="flex-1 text-destructive">
+          <Typography type="body-sm" className="text-destructive flex-1">
             Couldn't search
           </Typography>
           <Button variant="ghost" size="sm" onClick={retry}>

@@ -60,7 +60,7 @@ const GROW = { duration: 300, easing: Easing.out(Easing.cubic) };
  * ghost icons, both set by a stronger selector: over glass they need full ink.
  */
 const GLASS_GROUP = cn(
-  "glass-chrome glass-muted rounded-full! shadow-md border **:rounded-full!",
+  "glass-chrome glass-muted rounded-full! border shadow-md **:rounded-full!",
   "[&>:is([data-variant=ghost],[data-variant=outline])]:text-foreground!",
 );
 
@@ -207,7 +207,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
         className={cn(
           // Like iOS 26: content fades under; the buttons are glass. The mask
           // stays on, or the edge turns hard while the veil fades out.
-          "mask-[linear-gradient(to_top,transparent,black_1.5rem)] pointer-events-none absolute inset-0",
+          "pointer-events-none absolute inset-0 mask-[linear-gradient(to_top,transparent,black_1.5rem)]",
           "transition-[backdrop-filter,background-color]",
           COLLAPSE,
           options.headerShadowVisible && blur !== "none" && "glass-edge",
@@ -246,7 +246,7 @@ export function Header({ options, back, navigation }: NativeStackHeaderProps) {
             <Animated.View
               style={fieldStyle}
               // Below a grow of 1, ms-auto takes the rest: it grows leftward.
-              className="ms-auto min-w-0 max-w-xl basis-0 flex-row items-center"
+              className="ms-auto max-w-xl min-w-0 basis-0 flex-row items-center"
             >
               {searchField}
             </Animated.View>

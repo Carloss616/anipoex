@@ -50,7 +50,7 @@ export function DetailHeader({ manga, titleOut$ }: DetailHeaderProps) {
   if (wide)
     return (
       // Beside the side column: 16px from it, the screen's gutter on the right.
-      <View className="gutters gap-6 pt-gt pr-gx pb-6 pl-4">
+      <View className="gutters pt-gt pr-gx gap-6 pb-6 pl-4">
         <View className="gap-2">
           {heading}
           {!!synonyms && (
@@ -65,7 +65,7 @@ export function DetailHeader({ manga, titleOut$ }: DetailHeaderProps) {
 
   return (
     <View className="gutters pt-gt">
-      <View className="gutters flex-row items-end gap-4 px-gx">
+      <View className="gutters px-gx flex-row items-end gap-4">
         <MangaCard
           cover={manga.coverImage?.large}
           coverThumb={manga.coverImage?.medium}
@@ -84,7 +84,7 @@ export function DetailHeader({ manga, titleOut$ }: DetailHeaderProps) {
 
       {!!manga.genres?.length && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View className="gutters flex-row gap-2 px-gx py-6">
+          <View className="gutters px-gx flex-row gap-2 py-6">
             {manga.genres.map((g) => (
               <Chip key={g} size="sm">
                 <Chip.Label>{g}</Chip.Label>
@@ -96,7 +96,7 @@ export function DetailHeader({ manga, titleOut$ }: DetailHeaderProps) {
 
       <View
         className={cn(
-          "gutters gap-6 px-gx pb-6",
+          "gutters px-gx gap-6 pb-6",
           !manga.genres?.length && "pt-6",
         )}
       >

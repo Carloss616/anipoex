@@ -33,7 +33,7 @@ export function ScanFloat() {
       pointerEvents="box-none"
       // Clears the tab bar, and below lg the detail's floating Continue.
       className={cn(
-        "gutters absolute inset-0 items-center justify-end gap-2 px-gx pb-gb",
+        "gutters px-gx pb-gb absolute inset-0 items-center justify-end gap-2",
         DETAIL.test(pathname) && "max-lg:pb-[calc(var(--spacing-gb)+3.5rem)]",
       )}
     >

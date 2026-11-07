@@ -5,7 +5,7 @@ import { cn } from "panelui-native/utils/cn";
  * while its menu is open (Base UI opens it on mousedown, which ends `:active`).
  */
 export const PRESS = cn(
-  "outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+  "focus-visible:ring-ring/40 outline-none focus-visible:ring-3",
   "transition-[scale] duration-150 active:not-disabled:scale-[0.97] data-popup-open:scale-[0.97]",
-  "motion-reduce:data-popup-open:scale-100 motion-reduce:active:scale-100",
+  "motion-reduce:active:scale-100 motion-reduce:data-popup-open:scale-100",
 );

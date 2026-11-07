@@ -56,7 +56,7 @@ export const PageImage = memo(function PageImage({
   if (failed === page) {
     return (
       <View
-        className="w-full items-center justify-center gap-3 bg-muted"
+        className="bg-muted w-full items-center justify-center gap-3"
         style={{ aspectRatio: ratio, backgroundColor: m3?.onSurfaceVariant }}
       >
         <Typography type="small" muted>
@@ -79,7 +79,7 @@ export const PageImage = memo(function PageImage({
     <Pressable
       onPress={onPress}
       accessibilityLabel={label}
-      className="w-full bg-muted"
+      className="bg-muted w-full"
       style={{ aspectRatio: ratio, backgroundColor: m3?.onSurfaceVariant }}
     >
       {uri ? (

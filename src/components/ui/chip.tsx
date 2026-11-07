@@ -25,7 +25,7 @@ function ChipRoot({ className, ...props }: ChipProps) {
       {...props}
       className={cn(
         "transition-colors",
-        "outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+        "focus-visible:ring-ring/40 outline-none focus-visible:ring-3",
         props.onPress && HOVER_VARIANTS[variant],
         className,
       )}

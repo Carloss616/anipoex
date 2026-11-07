@@ -60,7 +60,7 @@ export function MangaList() {
       {/* The grid runs under the header, which blurs it once scrolled. */}
       <View className="flex-1 flex-row">
         {wide && (
-          <HeaderInsetView className="gutters box-content w-48 pr-4 pb-gb pl-gx">
+          <HeaderInsetView className="gutters pb-gb pl-gx box-content w-48 pr-4">
             <ListSidebar
               status={status}
               counts={counts}

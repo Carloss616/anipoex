@@ -36,7 +36,7 @@ export function ChapterEnd({
 
   return (
     <View
-      className="gutters gap-6 px-gx pt-8"
+      className="gutters px-gx gap-6 pt-8"
       // Clear of the page count floating at the bottom.
       style={{ paddingBottom: insets.bottom + 80 }}
     >

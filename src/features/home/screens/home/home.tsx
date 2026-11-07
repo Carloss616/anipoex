@@ -48,7 +48,7 @@ export function Home() {
         {...searchBarTheme}
       />
       <ScrollView className="flex-1" aria-hidden={drafting} {...headerScroll}>
-        <HeaderInsetView className="gutters px-gx pt-2 pb-gb">
+        <HeaderInsetView className="gutters px-gx pb-gb pt-2">
           <Sections />
         </HeaderInsetView>
       </ScrollView>

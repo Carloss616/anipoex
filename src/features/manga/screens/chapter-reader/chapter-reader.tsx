@@ -210,7 +210,7 @@ export function ChapterReader() {
       </Computed>
       <Stack.Screen options={{ title: name }} />
       <ReaderTitle title={manga?.title?.userPreferred} chapter={name} />
-      <View className="flex-1 bg-background">
+      <View className="bg-background flex-1">
         {body}
         <Computed>
           {() =>

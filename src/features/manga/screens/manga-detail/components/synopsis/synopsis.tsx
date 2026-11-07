@@ -22,7 +22,7 @@ export function Synopsis({ text }: { text: string | undefined }) {
     <Pressable className={PRESS} onPress={() => setExpanded((e) => !e)}>
       <View>
         <View
-          className="overflow-hidden transition-[height] duration-300 ease-sheet motion-reduce:transition-none"
+          className="ease-sheet overflow-hidden transition-[height] duration-300 motion-reduce:transition-none"
           style={{
             height:
               collapsedHeight && (expanded ? fullHeight : collapsedHeight),
@@ -50,7 +50,7 @@ export function Synopsis({ text }: { text: string | undefined }) {
         <Typography
           aria-hidden
           weight="medium"
-          className="absolute right-0 bottom-0 bg-background pl-6 text-primary transition-opacity duration-300"
+          className="bg-background text-primary absolute right-0 bottom-0 pl-6 transition-opacity duration-300"
           style={{ opacity: expanded ? 0 : 1 }}
         >
           more

@@ -44,7 +44,7 @@ export function AnimatedVisibility({
       className={cn(
         "self-stretch",
         (animateResize || !settled) &&
-          "transition-[height,opacity] duration-300 ease-sheet",
+          "ease-sheet transition-[height,opacity] duration-300",
         // Closing clips at once; `settled` only catches up after this render.
         (!visible || !settled) && "overflow-hidden",
       )}

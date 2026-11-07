@@ -23,7 +23,7 @@ export function Calendar<Mode extends CalendarMode = "single">({
       <PanelCalendar
         {...props}
         className={cn(
-          "motion-reduce:data-popup-open:scale-100 motion-reduce:active:scale-100",
+          "motion-reduce:active:scale-100 motion-reduce:data-popup-open:scale-100",
           // all buttons
           "**:[[role=button]]:outline-none",
           "**:[[role=button]]:transition-[scale]",

@@ -110,7 +110,7 @@ export function DetailList({
               sidebarSync.setActive();
             }}
           >
-            <HeaderInsetView className="gutters box-content w-66 pr-4 pb-gb pl-gx">
+            <HeaderInsetView className="gutters pb-gb pl-gx box-content w-66 pr-4">
               <DetailSidebar
                 manga={manga}
                 continue$={continue$}
@@ -193,7 +193,7 @@ export function DetailList({
             // Above the floating tab bar; desktop shows it in the side column.
             <View
               pointerEvents="box-none"
-              className="gutters absolute inset-x-0 bottom-0 items-center px-gx pb-gb"
+              className="gutters px-gx pb-gb absolute inset-x-0 bottom-0 items-center"
             >
               <ContinueButton
                 continue$={continue$}

@@ -82,7 +82,7 @@ export function ListContent({
   return (
     <View className="flex-1 flex-row">
       {wide && (
-        <HeaderInsetView className="gutters box-content w-48 pr-4 pb-gb pl-gx">
+        <HeaderInsetView className="gutters pb-gb pl-gx box-content w-48 pr-4">
           <ListSidebar
             filter={filter}
             counts={counts}
@@ -105,7 +105,7 @@ export function ListContent({
           contentContainerClassName="gutters pb-gb"
           ListHeaderComponent={
             <HeaderInsetView>
-              <View className="flex-row flex-wrap items-center gap-3 px-gx py-4 md:pl-4">
+              <View className="px-gx flex-row flex-wrap items-center gap-3 py-4 md:pl-4">
                 {wide ? (
                   <>
                     <LanguageMenu

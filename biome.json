@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.5/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.6/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -19,7 +19,8 @@
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "space"
+    "indentStyle": "space",
+    "lineEnding": "auto"
   },
   "linter": {
     "enabled": true,
@@ -34,8 +35,35 @@
           }
         }
       },
+      "correctness": {
+        "noReactNativeRawText": {
+          "level": "error",
+          "options": {
+            "skip": [
+              "Alert.Title",
+              "Badge",
+              "Button",
+              "Frame.Action",
+              "Frame.Description",
+              "Frame.Title",
+              "Label",
+              "Muted",
+              "NativeButton",
+              "NativeTabs.Trigger.Label",
+              "Sheet.Close",
+              "Sheet.Description",
+              "Sheet.Title",
+              "Stack.Title",
+              "Stat.Unit",
+              "Typography",
+              "Typography.Code",
+              "WebButton"
+            ]
+          }
+        }
+      },
       "nursery": {
-        "useSortedClasses": "warn"
+        "useTailwindSortedClasses": "warn"
       },
       "style": {
         "noRestrictedImports": {
@@ -217,6 +245,11 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "double"
+    }
+  },
+  "markdown": {
+    "formatter": {
+      "enabled": false
     }
   },
   "css": {

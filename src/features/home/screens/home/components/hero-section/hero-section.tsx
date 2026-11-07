@@ -168,7 +168,7 @@ function Banner({ media }: { media: MangaEntry[] }) {
             onBlur={release}
             className={cn(
               PRESS,
-              "flex-row items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-accent",
+              "hover:bg-accent flex-row items-center gap-3 rounded-lg p-1.5 transition-colors",
               i === focus && "bg-accent",
             )}
           >

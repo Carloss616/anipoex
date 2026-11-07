@@ -123,7 +123,7 @@ export function LegendList<T>({
        */}
       <View
         // Cells clip their paint; the one holding focus lets the ring out.
-        className="[&_div:has(>[data-index]_:focus-visible)]:contain-[layout_style]! [&_div:has(>[data-index]_:focus-visible)]:z-1"
+        className="[&_div:has(>[data-index]_:focus-visible)]:z-1 [&_div:has(>[data-index]_:focus-visible)]:contain-[layout_style]!"
         // A rail overhangs by half the gap: both ends keep content padding.
         style={
           horizontal

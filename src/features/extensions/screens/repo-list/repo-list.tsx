@@ -93,7 +93,7 @@ function RepoListBody() {
                         );
                     }}
                     className={cn(
-                      "transition-transform duration-300 ease-sheet",
+                      "ease-sheet transition-transform duration-300",
                       open && "rotate-45",
                     )}
                   >

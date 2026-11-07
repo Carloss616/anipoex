@@ -89,7 +89,7 @@ const ContinueCard = memo(function ContinueCard({
         className={cn(
           PRESS,
           // A <button> centers its text by default.
-          "gap-3 rounded-xl bg-muted/40 p-3 text-start transition-colors hover:bg-muted/70",
+          "bg-muted/40 hover:bg-muted/70 gap-3 rounded-xl p-3 text-start transition-colors",
         )}
       >
         <View className="flex-row gap-3">
@@ -112,7 +112,7 @@ const ContinueCard = memo(function ContinueCard({
           </View>
           <Stat className="min-w-0 flex-1">
             <Stat.Content className="min-w-0">
-              <Stat.Label weight="medium" className="truncate text-foreground">
+              <Stat.Label weight="medium" className="text-foreground truncate">
                 {title}
               </Stat.Label>
               <Stat.Value size="sm">

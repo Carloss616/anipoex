@@ -69,7 +69,7 @@ export function HomeLayout() {
     <>
       <Stack.Title>Home layout</Stack.Title>
       <ScrollView className="flex-1" {...headerScroll}>
-        <HeaderInsetView className="gutters w-full max-w-2xl gap-4 self-center px-gx pb-gb">
+        <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-4 self-center">
           <Frame className="mt-4">
             <Frame.Header>
               <Frame.Title>Preset</Frame.Title>

@@ -118,7 +118,7 @@ export const AvailableItem = memo(function AvailableItem({
           </Frame.Row>
         </ContextMenu>
         {/* Over the row, not in it: a <button> can't hold buttons. */}
-        <Frame.Actions className="absolute inset-e-4 inset-y-0">
+        <Frame.Actions className="absolute inset-y-0 inset-e-4">
           {/* A mark, not an action: a disabled button only for the same box
               as ↻ and ⋯, undimmed, and hidden since the row says
               aria-selected. */}

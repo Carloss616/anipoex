@@ -47,7 +47,7 @@ const ActivityRow = memo(function ActivityRow({
         <Avatar src={user?.avatar?.medium ?? undefined} name={name} size="sm" />
       </Frame.Media>
       <Frame.Content>
-        <Frame.Title as="p" className="whitespace-normal! font-normal">
+        <Frame.Title as="p" className="font-normal whitespace-normal!">
           <b className="font-semibold">{name}</b> {action}{" "}
           <b className="font-semibold">{title}</b>
         </Frame.Title>

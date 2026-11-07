@@ -62,13 +62,27 @@ export const SEGMENTED_GAP = 2;
 /** `ListItemDefaults.segmentedShapes`: the group's ends, the rest in between. */
 export const SEGMENTED_CORNER = { outer: 16, inner: 4 };
 
-const slot = (name: string) =>
-  Object.assign(
-    function Slot({ children }: { children: ReactNode }) {
-      return <SlotView slotName={name}>{children}</SlotView>;
-    },
-    { slotName: name },
-  );
+type SlotProps = { children: ReactNode };
+
+function Leading({ children }: SlotProps) {
+  return <SlotView slotName={Leading.slotName}>{children}</SlotView>;
+}
+Leading.slotName = "leading";
+
+function Trailing({ children }: SlotProps) {
+  return <SlotView slotName={Trailing.slotName}>{children}</SlotView>;
+}
+Trailing.slotName = "trailing";
+
+function Overline({ children }: SlotProps) {
+  return <SlotView slotName={Overline.slotName}>{children}</SlotView>;
+}
+Overline.slotName = "overline";
+
+function Supporting({ children }: SlotProps) {
+  return <SlotView slotName={Supporting.slotName}>{children}</SlotView>;
+}
+Supporting.slotName = "supporting";
 
 const slotNames = (children: ReactNode) =>
   Children.toArray(children)
@@ -81,7 +95,7 @@ const slotNames = (children: ReactNode) =>
     )
     .join();
 
-SegmentedListItem.Leading = slot("leading");
-SegmentedListItem.Trailing = slot("trailing");
-SegmentedListItem.Overline = slot("overline");
-SegmentedListItem.Supporting = slot("supporting");
+SegmentedListItem.Leading = Leading;
+SegmentedListItem.Trailing = Trailing;
+SegmentedListItem.Overline = Overline;
+SegmentedListItem.Supporting = Supporting;

@@ -75,7 +75,7 @@ export function ChapterItem({
         </Frame.Content>
       </Frame.Row>
       {/* Over the row, not in it: a <button> can't hold buttons. */}
-      <Frame.Actions className="absolute inset-e-4 inset-y-0">
+      <Frame.Actions className="absolute inset-y-0 inset-e-4">
         {next && <Badge color="primary">Next</Badge>}
         <Button
           size="icon"

@@ -104,12 +104,12 @@ function PanelTabTrigger({
     <PanelTabs.Trigger
       value={item.name}
       onClick={popToRoot}
-      className="gap-0 transition-[color,background-color] duration-300 ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary"
+      className="ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary gap-0 transition-[color,background-color] duration-300"
       disabled={disabled ?? false}
     >
       <Icon name={isFocused ? item.icon.selected : item.icon.default} />
       {/* Below sm only the active label shows; 0fr→1fr animates width. */}
-      <View className="grid grid-cols-[0fr] in-data-active:grid-cols-[1fr] in-data-active:opacity-100 opacity-0 transition-[grid-template-columns,opacity] duration-300 ease-sheet motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
+      <View className="ease-sheet grid grid-cols-[0fr] opacity-0 transition-[grid-template-columns,opacity] duration-300 in-data-active:grid-cols-[1fr] in-data-active:opacity-100 motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
         <View className="overflow-hidden">
           <Typography
             type="body-sm"

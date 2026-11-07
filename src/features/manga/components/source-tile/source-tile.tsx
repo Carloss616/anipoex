@@ -31,7 +31,7 @@ export function SourceTile({
       // Color and outline only frame initials; a loaded logo fills the tile.
       className={cn(
         "size-10 items-center justify-center overflow-hidden rounded-lg",
-        !loaded && "border border-border",
+        !loaded && "border-border border",
       )}
       style={loaded ? undefined : { backgroundColor: color }}
     >
@@ -49,7 +49,7 @@ export function SourceTile({
         />
       )}
       {loading && (
-        <View className="absolute size-7 items-center justify-center rounded-full bg-popover">
+        <View className="bg-popover absolute size-7 items-center justify-center rounded-full">
           <Loader size="sm" />
         </View>
       )}
