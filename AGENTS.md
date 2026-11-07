@@ -41,6 +41,7 @@ Legend State gotchas:
 - Inside a `Host`, a parent re-render re-runs every row callback and a new `data` array bumps the list's revision: keep state out of the list's parent.
 - Item animations are `itemLayoutAnimation` on the house `LegendList`. On web the package's `AnimatedLegendList` swaps the scroller for react-native-web's `ScrollView` and leaves rows blank on a fast scroll, so `src/components/layout/animated-legend-list/animated-legend-list.web.tsx` animates the browser build's cells through its untyped `internal` signals: re-check it when `@legendapp/list` is upgraded.
 - LegendList pins a sticky header only at the scroller's edge and then jumps it to `stickyHeaderConfig.offset`, so under a floating web header it ran to the screen edge first. The same file's sticky cell lets the browser pin it, in a track that ends at the next header. Only lists with `itemLayoutAnimation` get that cell.
+- A dev-only "[legend-list] No unused container available" on a short list with `stickyHeaderIndices` (the source sheet) is not `estimatedItemSize`: the pool is capped at the item count and sticky headers can't take normal containers, so each first gets a new one. Leave it (still so in 3.7.1).
 - LegendList's web cells carry an inline `contain: paint`, which clips a card's shadow and lean past the cell: the grid drops it on hover from `contentContainerClassName` (`manga/components/manga-grid/manga-grid.tsx`).
 
 # Gestures and animation

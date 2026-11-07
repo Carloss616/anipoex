@@ -29,32 +29,40 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     );
   }
 
-  try {
-    return (resolveRequest ?? context.resolveRequest)(
-      context,
-      moduleName,
-      platform,
-    );
-  } catch (error) {
-    // Metro drops a whole "imports" map if a target is a package (@base-ui).
-    // shortcut: browser/import/default only, drop once Metro allows that.
-    const pkg = moduleName.startsWith("#")
-      ? context.getPackageForModule(context.originModulePath)
-      : null;
-    let target = pkg?.packageJson.imports?.[moduleName];
-    if (target == null) throw error;
+  // Metro rejects a whole "imports" map, with an "invalid package.json"
+  // warning on every lookup, if one target is a package (@base-ui's
+  // `#formatErrorMessage`), so such maps are resolved here before it reads them.
+  // shortcut: exact keys and browser/import/default only, drop once Metro
+  // allows package targets.
+  const pkg = moduleName.startsWith("#")
+    ? context.getPackageForModule(context.originModulePath)
+    : null;
+  const imports = pkg?.packageJson.imports;
+  let target = imports?.[moduleName];
+  if (
+    target != null &&
+    Object.values(imports).some(
+      (t) => typeof t === "string" && !t.startsWith("./"),
+    )
+  ) {
     while (typeof target === "object")
       target =
         (platform === "web" && target.browser) ||
         target.import ||
         target.default;
-    if (typeof target !== "string") throw error;
-    return context.resolveRequest(
-      context,
-      target.startsWith("./") ? path.join(pkg.rootPath, target) : target,
-      platform,
-    );
+    if (typeof target === "string")
+      return context.resolveRequest(
+        context,
+        target.startsWith("./") ? path.join(pkg.rootPath, target) : target,
+        platform,
+      );
   }
+
+  return (resolveRequest ?? context.resolveRequest)(
+    context,
+    moduleName,
+    platform,
+  );
 };
 
 module.exports = config;
