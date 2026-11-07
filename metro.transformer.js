@@ -2,6 +2,7 @@ const path = require("node:path");
 
 const ENTRY = path.join("src", "global.css");
 const NATIVE_ENTRY = path.join("src", "global.base.css");
+const INJECTED = path.join("components", "web", "metro-injected.js");
 
 /**
  * Uniwind's transformer, with iOS and Android compiling `global.base.css`:
@@ -11,6 +12,11 @@ const NATIVE_ENTRY = path.join("src", "global.base.css");
  */
 module.exports.transform = (config, projectRoot, filePath, data, options) => {
   const { transform } = require(config.uniwindTransformerPath);
+  // Uniwind finds this file only by a "/" path, or Windows web has no extra
+  // themes. shortcut: drop once Uniwind handles "\" paths.
+  if (filePath.endsWith(INJECTED)) {
+    filePath = filePath.split(path.sep).join("/");
+  }
   if (options.platform === "web" || path.normalize(filePath) !== ENTRY) {
     return transform(config, projectRoot, filePath, data, options);
   }

@@ -29,32 +29,6 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     );
   }
 
-  // Uniwind swaps "react-native" for its component shim, which lacks
-  // AssetRegistry; expo-asset reads it, so useFonts never resolves.
-  // shortcut: drop once a uniwind release ships uni-stack/uniwind#740.
-  if (
-    moduleName === "react-native" &&
-    context.originModulePath.includes(`${path.sep}expo-asset${path.sep}`)
-  ) {
-    return context.resolveRequest(context, moduleName, platform);
-  }
-
-  // Uniwind's web InputAccessoryView wrapper reads the react-native namespace
-  // at load, while RNW's index (which imports it) is still evaluating, so the
-  // static web render sees it undefined. RNW renders it as a plain view, so
-  // this one export skips the wrapper.
-  // shortcut: no className on InputAccessoryView on web, drop once Uniwind's
-  // wrapper stops reading the react-native namespace at load.
-  if (
-    platform === "web" &&
-    moduleName === "./exports/InputAccessoryView" &&
-    context.originModulePath.endsWith(
-      `${path.sep}react-native-web${path.sep}dist${path.sep}index.js`,
-    )
-  ) {
-    return context.resolveRequest(context, moduleName, platform);
-  }
-
   try {
     return (resolveRequest ?? context.resolveRequest)(
       context,
