@@ -93,6 +93,10 @@ Legend State gotchas:
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).
 
+# Tests
+
+- Bun's `mock.module` lasts the whole run, not one file, and file order differs by OS (Windows alphabetical, macOS not): never mock a module that has its own test file. Mock what it depends on and set its real state, resetting it in `afterAll` (`extensions/state/extensions.test.ts` with `repos$`).
+
 # Desktop
 
 - A hidden Electron window (`show: false`) paints no frames: `requestAnimationFrame` never fires and `IntersectionObserver` never reports, even with `backgroundThrottling: false`, so a Cloudflare check stalls there. To keep a page running unseen, show it with `showInactive()` at opacity 0 and `setIgnoreMouseEvents(true)` (`desktop/host/challenge.js`).

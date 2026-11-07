@@ -1,5 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
-import { observable } from "@legendapp/state";
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+} from "bun:test";
 import type { Extension } from "../utils/extension";
 import type { Repo } from "../utils/repo";
 
@@ -43,13 +50,27 @@ const installed = mock(async () => [
   },
 ]);
 const toastError = mock((_label: string) => {});
-const repos$ = observable<Repo[]>([BAD, GOOD]);
 
 mock.module("../runtime", () => ({
   runtime: { install, installed, uninstall: mock(async () => {}) },
 }));
 mock.module("@/components/ui/toast", () => ({ toast: { error: toastError } }));
-mock.module("./repos", () => ({ repos$ }));
+// Not a mock of "./repos": Bun keeps a module mock for the whole run, so
+// repos.test.ts would get it whenever it runs after this file.
+mock.module("@/state/observable-persist", () => ({
+  ObservablePersist: class {
+    getTable = () => undefined;
+    getMetadata = () => undefined;
+    set = () => {};
+    setMetadata = () => {};
+    deleteTable = () => {};
+    deleteMetadata = () => {};
+  },
+}));
+
+const { repos$ } = await import("./repos");
+repos$.set([BAD, GOOD]);
+afterAll(() => repos$.set([]));
 
 const {
   extensions$,
