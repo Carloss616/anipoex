@@ -5,7 +5,7 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "bun ensure-runtime.js && electron .",
     "build:web": "cd .. && bunx expo export -p web",
     "build:runtime": "../android/gradlew -p ../modules/extension-runtime/jvm installDist jlinkRuntime",
     "dist": "bun run build:web && bun run build:runtime && electron-builder --mac"

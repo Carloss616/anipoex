@@ -50,7 +50,10 @@ const PATHS = app.isPackaged
 const APP_URL = app.isPackaged
   ? "app://anipoex/"
   : (process.env.ANIPOEX_URL ?? "http://localhost:8081");
-const BUNDLED_JAVA = path.join(PATHS.jre, "bin/java");
+const BUNDLED_JAVA = path.join(
+  PATHS.jre,
+  process.platform === "win32" ? "bin/java.exe" : "bin/java",
+);
 const JAVA = existsSync(BUNDLED_JAVA) ? BUNDLED_JAVA : "java";
 // The only site the sign-in window opens.
 const AUTH_ORIGIN = "https://anilist.co";
