@@ -3,6 +3,10 @@ const { getDefaultConfig } = require("expo/metro-config");
 const { withUniwindConfig } = require("uniwind/metro");
 const { EXTRA_THEMES } = require("./src/state/theme/constants.ts");
 
+// Windows caps a process at 8192 open files, and a reload read ~8000 cache
+// entries at once: Metro hit EMFILE and died.
+const MAX_OPEN_CACHE_FILES = 256;
+
 const config = withUniwindConfig(getDefaultConfig(__dirname), {
   cssEntryFile: "./src/global.css",
   dtsFile: "./src/uniwind-types.d.ts",
@@ -11,6 +15,28 @@ const config = withUniwindConfig(getDefaultConfig(__dirname), {
 
 config.transformer.uniwindTransformerPath = config.transformerPath;
 config.transformerPath = require.resolve("./metro.transformer.js");
+
+let openCacheFiles = 0;
+const waiting = [];
+const limitOpen =
+  (fn) =>
+  async (...args) => {
+    if (openCacheFiles < MAX_OPEN_CACHE_FILES) openCacheFiles++;
+    // A finished call hands its slot straight to the next one.
+    else await new Promise((resolve) => waiting.push(resolve));
+    try {
+      return await fn(...args);
+    } finally {
+      const next = waiting.shift();
+      if (next) next();
+      else openCacheFiles--;
+    }
+  };
+config.cacheStores = config.cacheStores.map((store) => ({
+  get: limitOpen((key) => store.get(key)),
+  set: limitOpen((key, value) => store.set(key, value)),
+  clear: () => store.clear(),
+}));
 
 const resolveRequest = config.resolver.resolveRequest;
 
