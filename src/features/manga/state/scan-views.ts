@@ -5,12 +5,9 @@ export interface ScanView {
   mangaId: number;
   name: string;
   status: string;
-  /** 0 to 1; null loops, for a rescan. */
+  /** 0 to 1, a Scan all's; null loops, for rescans. */
   progress: number | null;
 }
 
-/**
- * Per running scan (a manga's Scan all, or one source's rescan), its view;
- * not persisted.
- */
+/** Per manga with scans running, the view of all of them; not persisted. */
 export const scanViews$ = observable<Record<string, ScanView>>({});

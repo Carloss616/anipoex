@@ -16,7 +16,14 @@ import {
 import { PermissionsAndroid } from "react-native";
 import { TRACK_HEIGHT } from "@/components/ui/progress/constants";
 import type { ScanActivity, ScanActivityArgs } from "./scan-activity";
-import { scanStatus } from "./utils";
+import {
+  counted,
+  groupStatus,
+  isRunning,
+  joinGroup,
+  type Scan,
+  trackScan,
+} from "./utils";
 
 interface Props {
   name: string;
@@ -82,49 +89,69 @@ const ScanNotification = createCustomNotification<Props>(
 // Left behind by a run that was killed mid-scan.
 void ScanNotification.cancelAll().catch(() => {});
 
-/** An ongoing notification of the scan's progress; a tap opens the manga. */
+interface Group {
+  name: string;
+  scans: Scan[];
+  shown: Promise<CustomNotification<Props> | undefined>;
+}
+
+const groups = new Map<number, Group>();
+
+const propsOf = ({ name, scans }: Group): Props => {
+  const all = counted(scans);
+  return {
+    name,
+    status: groupStatus(scans),
+    progress: all ? all.done / all.total : null,
+    ended: !isRunning(scans),
+    trackHeight: TRACK_HEIGHT.md,
+  };
+};
+
+// In order: an update that lands before the post would be lost.
+const render = (group: Group) => {
+  group.shown = group.shown.then((notification) => {
+    const next = propsOf(group);
+    return notification
+      ?.update(next, next.ended ? { ongoing: false, autoCancel: true } : {})
+      .then(
+        () => notification,
+        () => notification,
+      );
+  });
+};
+
+/**
+ * An ongoing notification of the manga's scans, one for all that run
+ * together; a tap opens the manga.
+ */
 export function startScanActivity({
   mangaId,
   name,
   total,
   source,
 }: ScanActivityArgs): ScanActivity {
-  const at = (done: number, found: number | null): Props => ({
+  const scan: Scan = { done: 0, total, found: null, source: source?.name };
+  const { group, joined } = joinGroup(groups, mangaId, scan, () => ({
     name,
-    status: scanStatus({ done, total, found, source: source?.name }),
-    progress: source ? null : done / total,
-    ended: found !== null,
-    trackHeight: TRACK_HEIGHT.md,
-  });
+    scans: [],
+    shown: Promise.resolve(undefined),
+  }));
+  if (joined) render(group);
   // Denied or dismissed, the post rejects and the sheet still shows the scan.
-  let shown: Promise<CustomNotification<Props> | undefined> =
-    PermissionsAndroid.request(
+  else
+    group.shown = PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
     )
       .catch(() => {})
       .then(() =>
-        ScanNotification.post(at(0, null), {
-          // Rescans of different sources run together, each in its own.
-          id: source ? `scan-${mangaId}-${source.id}` : `scan-${mangaId}`,
+        ScanNotification.post(propsOf(group), {
+          id: `scan-${mangaId}`,
           ongoing: true,
           url: `anipoex://manga/${mangaId}`,
         }),
       )
       .catch(() => undefined);
-  // In order: an update that lands before the post would be lost.
-  const update = (next: Props) => {
-    shown = shown.then((notification) =>
-      notification
-        ?.update(next, next.ended ? { ongoing: false, autoCancel: true } : {})
-        .then(
-          () => notification,
-          () => notification,
-        ),
-    );
-  };
 
-  return {
-    progress: (done) => update(at(done, null)),
-    end: (found) => update(at(total, found)),
-  };
+  return trackScan(scan, () => render(group));
 }

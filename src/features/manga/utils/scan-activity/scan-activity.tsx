@@ -1,7 +1,14 @@
 import { toast } from "@/components/ui/toast";
 import { desktop } from "@/utils/desktop";
 import { scanViews$ } from "../../state/scan-views";
-import { scanStatus } from "./utils";
+import {
+  counted,
+  groupStatus,
+  isRunning,
+  joinGroup,
+  type Scan,
+  trackScan,
+} from "./utils";
 
 export interface ScanActivityArgs {
   mangaId: number;
@@ -20,9 +27,12 @@ export interface ScanActivity {
 
 const canNotify = () => typeof Notification !== "undefined";
 
+const groups = new Map<number, { scans: Scan[] }>();
+
 /**
- * A floating view over every screen; desktop also shows a Scan all on the
- * Dock icon, and its result as a notification when the app is out of sight.
+ * A floating view over every screen, one per manga for all its scans that run
+ * together; desktop also shows a Scan all on the Dock icon, and the result of
+ * one as a notification when the app is out of sight.
  */
 export function startScanActivity({
   mangaId,
@@ -30,38 +40,38 @@ export function startScanActivity({
   total,
   source,
 }: ScanActivityArgs): ScanActivity {
-  const view$ = scanViews$[source ? `${mangaId}-${source.id}` : mangaId];
-  const show = (done: number) =>
-    view$.set({
-      mangaId,
-      name,
-      status: scanStatus({ done, total, found: null, source: source?.name }),
-      progress: source ? null : done / total,
-    });
-  show(0);
-  // A rescan is short: the view is enough.
-  if (source) return { progress: show, end: () => view$.delete() };
-  // Asked on the scan's starting click: browsers drop a prompt without one.
-  if (canNotify() && Notification.permission === "default")
-    void Notification.requestPermission();
-  desktop?.scanProgress(0);
-
-  return {
-    progress: (done) => {
-      show(done);
-      desktop?.scanProgress(done / total);
-    },
-    end: (found) => {
-      view$.delete();
-      desktop?.scanProgress(-1);
-      const body = scanStatus({ done: total, total, found });
-      if (document.hasFocus() || !canNotify()) {
-        toast.success(`${name}: ${body}`);
-        return;
-      }
-      if (Notification.permission !== "granted") return;
-      const notification = new Notification(`Scanned ${name}`, { body });
-      notification.onclick = () => window.focus();
-    },
+  const scan: Scan = { done: 0, total, found: null, source: source?.name };
+  const { group } = joinGroup(groups, mangaId, scan, () => ({ scans: [] }));
+  const view$ = scanViews$[mangaId];
+  const show = () => {
+    const { scans } = group;
+    const all = counted(scans);
+    // Only a Scan all owns the Dock bar: another manga's may be on it.
+    if (scans.some((s) => !s.source))
+      desktop?.scanProgress(all ? all.done / all.total : -1);
+    if (isRunning(scans))
+      return view$.set({
+        mangaId,
+        name,
+        status: groupStatus(scans),
+        progress: all ? all.done / all.total : null,
+      });
+    view$.delete();
+    // A rescan is short: the view is enough.
+    if (scans.every((s) => s.source)) return;
+    const body = groupStatus(scans);
+    if (document.hasFocus() || !canNotify()) {
+      toast.success(`${name}: ${body}`);
+      return;
+    }
+    if (Notification.permission !== "granted") return;
+    const notification = new Notification(`Scanned ${name}`, { body });
+    notification.onclick = () => window.focus();
   };
+  // Asked on the scan's starting click: browsers drop a prompt without one.
+  if (!source && canNotify() && Notification.permission === "default")
+    void Notification.requestPermission();
+  show();
+
+  return trackScan(scan, show);
 }

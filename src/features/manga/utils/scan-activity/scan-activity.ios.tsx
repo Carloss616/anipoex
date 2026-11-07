@@ -12,7 +12,14 @@ import { createLiveActivity, type LiveActivity } from "expo-widgets";
 import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
 import type { ScanActivity, ScanActivityArgs } from "./scan-activity";
-import { scanStatus } from "./utils";
+import {
+  counted,
+  groupStatus,
+  isRunning,
+  joinGroup,
+  type Scan,
+  trackScan,
+} from "./utils";
 
 // shortcut: iOS grants about 30s once the app leaves the screen; a longer
 // scan needs BGContinuedProcessingTask (iOS 26).
@@ -85,39 +92,68 @@ const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
 for (const stale of ScanLiveActivity.getInstances())
   void stale.end("immediate").catch(() => {});
 
-/** A Live Activity (Lock Screen, Dynamic Island); a tap opens the manga. */
+interface Group {
+  name: string;
+  scans: Scan[];
+  activity?: LiveActivity<Props>;
+}
+
+const groups = new Map<number, Group>();
+
+const propsOf = ({ name, scans }: Group): Props => {
+  const all = counted(scans);
+  return {
+    name,
+    status: groupStatus(scans),
+    // Ended, the bar fills instead of looping.
+    progress: all ? all.done / all.total : isRunning(scans) ? null : 1,
+    count: all ? `${all.done}/${all.total}` : "",
+    icon: sfSymbol(Icons.refresh) ?? "arrow.clockwise",
+  };
+};
+
+const render = (group: Group) => {
+  const next = propsOf(group);
+  void (
+    isRunning(group.scans)
+      ? group.activity?.update(next)
+      : group.activity?.end("default", next, new Date())
+  )?.catch(() => {});
+};
+
+/**
+ * A Live Activity (Lock Screen, Dynamic Island) of the manga's scans, one for
+ * all that run together; a tap opens the manga.
+ */
 export function startScanActivity({
   mangaId,
   name,
   total,
   source,
 }: ScanActivityArgs): ScanActivity {
-  const icon = sfSymbol(Icons.refresh) ?? "arrow.clockwise";
-  const at = (done: number, found: number | null): Props => ({
-    name,
-    status: scanStatus({ done, total, found, source: source?.name }),
-    progress: source ? null : done / total,
-    count: source ? "" : `${done}/${total}`,
-    icon,
-  });
+  const scan: Scan = { done: 0, total, found: null, source: source?.name };
   // Else iOS suspends the app off screen and every probe in flight fails.
   const task = backgroundTime.begin("Scan sources");
-  let activity: LiveActivity<Props> | undefined;
-  try {
-    activity = ScanLiveActivity.start(
-      at(0, null),
-      `anipoex://manga/${mangaId}`,
-    );
-  } catch {
-    // Live Activities turned off in Settings: the sheet still shows the scan.
-  }
+  const { group, joined } = joinGroup(groups, mangaId, scan, () => ({
+    name,
+    scans: [],
+  }));
+  if (joined) render(group);
+  else
+    try {
+      group.activity = ScanLiveActivity.start(
+        propsOf(group),
+        `anipoex://manga/${mangaId}`,
+      );
+    } catch {
+      // Live Activities turned off in Settings: the sheet still shows the scan.
+    }
+  const activity = trackScan(scan, () => render(group));
 
   return {
-    progress: (done) => void activity?.update(at(done, null)).catch(() => {}),
+    progress: activity.progress,
     end: (found) => {
-      void activity
-        ?.end("default", at(total, found), new Date())
-        .catch(() => {});
+      activity.end(found);
       backgroundTime.end(task);
     },
   };
