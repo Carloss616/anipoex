@@ -96,14 +96,6 @@ export function HomeLayout() {
             Drag a row by its handle, or focus the handle and press ↑ or ↓.
             Changes reach Home right away.
           </Typography>
-          <View className="items-start">
-            <Button
-              variant="ghost"
-              onClick={() => settings$.home.set(withPreset("balanced"))}
-            >
-              Reset to Balanced
-            </Button>
-          </View>
         </HeaderInsetView>
       </ScrollView>
     </>

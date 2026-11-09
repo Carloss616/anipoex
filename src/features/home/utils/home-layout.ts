@@ -23,24 +23,31 @@ export function withPreset(preset: Preset): HomeLayout {
   };
 }
 
-export const toggled = (layout: HomeLayout, id: SectionId): HomeLayout => ({
-  ...layout,
-  preset: "custom",
-  on: layout.on.includes(id)
-    ? layout.on.filter((on) => on !== id)
-    : [...layout.on, id],
-});
+export const visibleSections = (layout: HomeLayout): SectionId[] =>
+  layout.order.filter((id) => layout.on.includes(id));
 
-export function moved(
+/** The preset whose sections Home now shows, in its order; else custom. */
+function matched(layout: HomeLayout): HomeLayout {
+  const shown = visibleSections(layout).join();
+  const preset = (Object.keys(PRESETS) as Preset[]).find(
+    (key) => PRESETS[key].join() === shown,
+  );
+  return { ...layout, preset: preset ?? "custom" };
+}
+
+export const toggled = (layout: HomeLayout, id: SectionId): HomeLayout =>
+  matched({
+    ...layout,
+    on: layout.on.includes(id)
+      ? layout.on.filter((on) => on !== id)
+      : [...layout.on, id],
+  });
+
+export const moved = (
   layout: HomeLayout,
   id: SectionId,
   to: number,
-): HomeLayout {
-  return { ...layout, preset: "custom", order: moveTo(layout.order, id, to) };
-}
-
-export const visibleSections = (layout: HomeLayout): SectionId[] =>
-  layout.order.filter((id) => layout.on.includes(id));
+): HomeLayout => matched({ ...layout, order: moveTo(layout.order, id, to) });
 
 /** "Balanced · 7 sections", for the settings row that opens the editor. */
 export function layoutSummary(layout: HomeLayout): string {

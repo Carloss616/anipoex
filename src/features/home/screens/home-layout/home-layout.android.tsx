@@ -1,4 +1,4 @@
-import { Column, Switch, TextButton } from "@expo/ui/jetpack-compose";
+import { Column, Switch } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
   padding,
@@ -143,12 +143,6 @@ export function HomeLayout() {
           >
             Long-press a section to move it.
           </Text>
-          <TextButton
-            onClick={() => settings$.home.set(withPreset("balanced"))}
-            modifiers={[padding(0, 8, 0, 0)]}
-          >
-            <Text style={{ typography: "labelLarge" }}>Reset to Balanced</Text>
-          </TextButton>
         </Column>
       </Host>
     </>

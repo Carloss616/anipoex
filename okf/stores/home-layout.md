@@ -11,7 +11,7 @@ Section `home` of [settings](settings.md).
 
 | Field | Values | Default | Meaning |
 |---|---|---|---|
-| `preset` | `balanced`, `discover`, `personal`, `custom` | `balanced` | The preset the layout came from; `custom` once the user toggles or moves a section. |
+| `preset` | `balanced`, `discover`, `personal`, `custom` | `balanced` | The preset whose sections Home shows, in its order; `custom` when a toggle or move leaves none matching, and a preset again once one does. |
 | `order` | every section id, once | balanced's sections, then the rest | The order sections appear in, shown or not. |
 | `on` | section ids | balanced's sections | The sections Home shows. |
 

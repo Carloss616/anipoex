@@ -1,4 +1,4 @@
-import { Button, List, Picker, Section, Toggle } from "@expo/ui/swift-ui";
+import { List, Picker, Section, Toggle } from "@expo/ui/swift-ui";
 import {
   environment,
   foregroundStyle,
@@ -11,7 +11,7 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { memo } from "react";
-import { Text, useFont } from "@/components/native/swift-ui/text";
+import { Text } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { settings$ } from "@/state/settings";
@@ -34,7 +34,6 @@ export function HomeLayout() {
   const { preset, order, on } = useValue(settings$.home);
   // The theme's surfaces, not the system's grouped grays.
   const rowBackground = listRowBackground(useThemeColor("muted"));
-  const linkFont = useFont("body");
 
   const move = (sources: number[], destination: number) => {
     const from = sources[0];
@@ -84,13 +83,6 @@ export function HomeLayout() {
             >
               {({ item: id }) => <SectionRow id={id} on={on.includes(id)} />}
             </List.ForEach>
-          </Section>
-          <Section modifiers={[rowBackground]}>
-            <Button
-              label="Reset to Balanced"
-              onPress={() => settings$.home.set(withPreset("balanced"))}
-              modifiers={[linkFont]}
-            />
           </Section>
         </List>
       </Host>

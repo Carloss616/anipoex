@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { PRESETS, SECTION_IDS } from "../constants";
 
 import {
+  type HomeLayout,
   layoutSummary,
   moved,
   normalizeLayout,
@@ -32,6 +33,27 @@ describe("toggled", () => {
     expect(removed.on).not.toContain("trending");
     expect(removed.preset).toBe("custom");
   });
+
+  it("matches the preset again once its sections are back", () => {
+    const layout = withPreset("balanced");
+    expect(toggled(toggled(layout, "top"), "top").preset).toBe("balanced");
+    expect(toggled(toggled(layout, "new"), "new").preset).toBe("balanced");
+    expect(moved(moved(layout, "new", 0), "new", 6).preset).toBe("balanced");
+  });
+
+  it("matches another preset reached by hand", () => {
+    const personal = withPreset("personal");
+    const layout: HomeLayout = {
+      ...withPreset("balanced"),
+      on: [],
+      preset: "custom",
+    };
+    const built = personal.on.reduce(
+      (acc, id, i) => moved(toggled(acc, id), id, i),
+      layout,
+    );
+    expect(built.preset).toBe("personal");
+  });
 });
 
 describe("moved", () => {
@@ -39,7 +61,8 @@ describe("moved", () => {
     const layout = withPreset("balanced");
     expect(moved(layout, "top", 0).order[0]).toBe("top");
     expect(moved(layout, "top", 99).order.at(-1)).toBe("top");
-    expect(moved(layout, "top", 0).preset).toBe("custom");
+    expect(moved(layout, "top", 0).preset).toBe("balanced");
+    expect(moved(layout, "new", 0).preset).toBe("custom");
     expect(moved(layout, "top", 0).order).toHaveLength(SECTION_IDS.length);
   });
 });
