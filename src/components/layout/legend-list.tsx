@@ -10,9 +10,6 @@ import { useIsFocused } from "expo-router";
 import {
   createElement,
   isValidElement,
-  type ReactNode,
-  Suspense,
-  use,
   useImperativeHandle,
   useRef,
 } from "react";
@@ -22,10 +19,9 @@ import {
   AnimatedLegendList,
   type AnimatedLegendListProps,
 } from "./animated-legend-list";
+import { Frozen } from "./frozen";
 
 export type { LegendListRef };
-
-const NEVER = new Promise<never>(() => {});
 
 const SLOT_CLASS_NAMES = {
   ListHeaderComponentStyle: {
@@ -209,35 +205,4 @@ export function LegendList<T>({
       </View>
     </Frozen>
   );
-}
-
-/**
- * Hides its children without unmounting them, as react-freeze does. Not
- * `<Activity hidden>`: that unsubscribes every `useValue` inside, and a
- * `memo` row kept the value from before when shown again (the list's `+N`).
- * Suspense only disconnects layout effects, so nothing measures meanwhile.
- */
-function Frozen({
-  frozen,
-  children,
-}: {
-  frozen: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <Suspense fallback={null}>
-      <Suspender frozen={frozen}>{children}</Suspender>
-    </Suspense>
-  );
-}
-
-function Suspender({
-  frozen,
-  children,
-}: {
-  frozen: boolean;
-  children: ReactNode;
-}) {
-  if (frozen) use(NEVER);
-  return children;
 }
