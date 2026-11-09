@@ -29,4 +29,14 @@ describe("titleMenuItems", () => {
     items[2]?.onPress();
     expect(picked).toEqual(["鬼滅の刃"]);
   });
+
+  it("offers the manual matches' titles", () => {
+    const items = titleMenuItems(
+      { title: { romaji: "Romaji" }, synonyms: [] },
+      "Romaji",
+      () => {},
+      ["Alias"],
+    );
+    expect(items.map((item) => item.label)).toEqual(["Romaji", "Alias"]);
+  });
 });

@@ -4,6 +4,10 @@ import type { SourceManga } from "@/features/extensions";
 export interface RailItem {
   manga: SourceManga;
   current: boolean;
+  /** The current match was taken because its title equals a known one. */
+  byTitle?: boolean;
+  /** The result closest to the manga's titles, suggested, not taken. */
+  similar?: boolean;
 }
 
 /**
@@ -20,9 +24,14 @@ export function railItems(
       }
     | undefined,
   mangas: SourceManga[],
+  marks: { byTitle?: boolean; similar?: string } = {},
 ): RailItem[] {
+  const card = (manga: SourceManga): RailItem =>
+    marks.similar === manga.url
+      ? { manga, current: false, similar: true }
+      : { manga, current: false };
   const rest = mangas.filter((manga) => manga.url !== current?.url);
-  if (!current) return rest.map((manga) => ({ manga, current: false }));
+  if (!current) return rest.map(card);
   const thumbnailUrl =
     current.thumbnailUrl ??
     mangas.find((manga) => manga.url === current.url)?.thumbnailUrl ??
@@ -36,8 +45,9 @@ export function railItems(
         memo: current.memo,
       },
       current: true,
+      ...(marks.byTitle && { byTitle: true }),
     },
-    ...rest.map((manga) => ({ manga, current: false })),
+    ...rest.map(card),
   ];
 }
 

@@ -36,6 +36,7 @@ const { readChapters } = await import("./chapters");
 
 const {
   loadMoreTitles,
+  onTitlePage,
   startTitleSearch,
   stopTitleSearch,
   submitTitleQuery,
@@ -188,5 +189,27 @@ describe("stopTitleSearch", () => {
     stopTitleSearch(2007);
     expect(titleSearch$["2007"].peek()).toBeUndefined();
     expect(titleQuery$["2007"].peek()).toBeUndefined();
+  });
+});
+
+describe("onTitlePage", () => {
+  it("calls back when a page lands, not for a stale one", async () => {
+    const landed: string[] = [];
+    const off = onTitlePage(2101, (sourceId) => landed.push(sourceId));
+    void startTitleSearch(2101, ["x"], "old");
+    const current = startTitleSearch(2101, ["x"], "new");
+    await flush();
+    pending["x:new:1"].resolve({ mangas: [hit("/1")], hasNextPage: true });
+    await current;
+    pending["x:old:1"].resolve({ mangas: [hit("/0")], hasNextPage: false });
+    await flush();
+    expect(landed).toEqual(["x"]);
+    const more = loadMoreTitles(2101, "x");
+    await flush();
+    pending["x:new:2"].resolve({ mangas: [hit("/2")], hasNextPage: false });
+    await more;
+    expect(landed).toEqual(["x", "x"]);
+    off();
+    stopTitleSearch(2101);
   });
 });

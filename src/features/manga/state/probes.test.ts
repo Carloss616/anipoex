@@ -69,7 +69,9 @@ const {
 } = await import("./probes");
 const { fetchChapters } = await import("../utils/fetch-chapters");
 const { PARALLEL_BATCH } = await import("../utils/msu");
-const { setManual } = await import("./manual-matches");
+const { clearManual, readManual, setManual } = await import("./manual-matches");
+const { titleSearch$ } = await import("./title-search");
+const { forgetByTitle, takeByTitle } = await import("./title-takes");
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 const sources = (...ids: string[]) =>
@@ -386,15 +388,16 @@ describe("scanSources", () => {
     expect(ex.b.updatedAt).toBe(probes$["201"].b.get().updatedAt);
   });
 
-  it("the picked source with no match is auto-excluded and deselected", async () => {
+  it("the picked source with no match is auto-excluded, and the best source takes its place", async () => {
     source$[201].set({ sourceId: "a", manga: null });
     const done = scan({ sources: sources("a", "b"), keep: "a" });
     await flush();
     searchPending.a([]);
     await answer("b", [5]);
     await done;
+    await flush();
     expect(exclusions$["201"].get().a.reason).toBe("not-matched");
-    expect(source$[201].get()).toBeUndefined();
+    expect(source$[201].get()).toMatchObject({ sourceId: "b" });
   });
 
   it("a source picked during the scan is never auto-excluded", async () => {
@@ -527,5 +530,129 @@ describe("scanSources", () => {
     await done;
     expect(exclusions$["201"].a.get().deletedAt).toBeDefined();
     expect(pins$["201"].a.get().deletedAt).toBeUndefined();
+  });
+});
+
+describe("a manual page removed while it is read", () => {
+  it("stores none of its chapters", async () => {
+    setManual(1301, "m", { url: "/gone", title: "Gone", thumbnailUrl: null });
+    const done = probeSource(1301, { id: "m", name: "M" }, titles);
+    await flush();
+    clearManual(1301, "m");
+    chaptersPending.m.resolve({ chapters: [ch("Ch.3", 3)] });
+    expect(await done).toMatchObject({ matched: false });
+    await flush();
+    expect(memoryStorage.entries["1301/m"]).toBeUndefined();
+  });
+});
+
+describe("title takes", () => {
+  const rail = (title: string) => ({
+    status: "done" as const,
+    mangas: [{ url: `/${title}`, title, thumbnailUrl: null }],
+    page: 1,
+    hasNextPage: false,
+    loadingMore: false,
+  });
+  const named = (id: string) => ({ id, name: id.toUpperCase() });
+  const known = { search: [], all: ["Dark Lady"] };
+
+  it("takes a known title in the loaded results of sources free to take it", () => {
+    titleSearch$["1401"].set({
+      a: rail("Dark Lady"),
+      b: rail("Dark Lady"),
+      c: rail("Dark Lady"),
+      d: rail("Dark Lady"),
+      e: rail("Dark Lady"),
+      g: rail("Dark Lady"),
+      f: rail("Other"),
+    });
+    scanning$["1401"].b.set(true);
+    setManual(1401, "c", { url: "/mine", title: "Mine", thumbnailUrl: null });
+    probes$["1401"].d.set({
+      provider: "d",
+      providerName: "D",
+      latest: 9,
+      count: 9,
+      matched: true,
+      errored: false,
+      updatedAt: 1,
+    });
+    exclusions$["1401"].set({
+      e: { reason: "other", updatedAt: 1 },
+      g: { reason: "not-matched", updatedAt: 1 },
+    });
+    pins$["1401"].set({ e: { updatedAt: 1 } });
+    expect(takeByTitle(1401, known, named)).toEqual(["a", "g"]);
+    expect(readManual(1401, "a")).toMatchObject({
+      url: "/Dark Lady",
+      by: "title",
+    });
+    expect(readManual(1401, "e")).toBeUndefined();
+  });
+
+  it("forgets a take for good and leaves a match picked by hand alone", () => {
+    titleSearch$["1402"].set({ a: rail("Dark Lady") });
+    expect(takeByTitle(1402, known, named)).toEqual(["a"]);
+    forgetByTitle(1402, "a", named);
+    expect(readManual(1402, "a")).toBeUndefined();
+    expect(probes$["1402"].a.peek()).toMatchObject({ matched: false });
+    expect(takeByTitle(1402, known, named)).toEqual([]);
+    setManual(1402, "c", { url: "/mine", title: "Mine", thumbnailUrl: null });
+    forgetByTitle(1402, "c", named);
+    expect(readManual(1402, "c")?.url).toBe("/mine");
+  });
+});
+
+describe("auto pick", () => {
+  it("picks the best source when a scan ends and none is chosen", async () => {
+    const done = scan({ mangaId: 1501, sources: sources("a", "b") });
+    await answer("a", [1, 2]);
+    await answer("b", [1, 2, 3]);
+    await done;
+    await flush();
+    expect(source$[1501].peek()).toMatchObject({
+      sourceId: "b",
+      manga: { url: "/b" },
+    });
+  });
+
+  it("keeps a source the user chose", async () => {
+    source$[1502].set({ sourceId: "a", manga: { url: "/a", title: "T" } });
+    const done = scan({ mangaId: 1502, sources: sources("a", "b") });
+    await answer("a", [1]);
+    await answer("b", [1, 2, 3]);
+    await done;
+    await flush();
+    expect(source$[1502].peek()).toMatchObject({ sourceId: "a" });
+  });
+});
+
+describe("title takes and the search", () => {
+  const rail = (title: string) => ({
+    status: "done" as const,
+    mangas: [{ url: `/${title}`, title, thumbnailUrl: null }],
+    page: 1,
+    hasNextPage: false,
+    loadingMore: false,
+  });
+  const named = (id: string) => ({ id, name: id.toUpperCase() });
+
+  it("ends the title search of the sources it takes", () => {
+    titleSearch$["1601"].set({ a: rail("Dark Lady"), b: rail("Other") });
+    takeByTitle(1601, { search: [], all: ["Dark Lady"] }, named);
+    expect(titleSearch$["1601"].a.peek()).toBeUndefined();
+    expect(titleSearch$["1601"].b.peek()).toBeDefined();
+  });
+
+  it("leaves the chosen source picked, with no match, when its take is undone", () => {
+    titleSearch$["1602"].set({ a: rail("Dark Lady") });
+    takeByTitle(1602, { search: [], all: ["Dark Lady"] }, named);
+    source$[1602].set({
+      sourceId: "a",
+      manga: { url: "/Dark Lady", title: "Dark Lady" },
+    });
+    forgetByTitle(1602, "a", named);
+    expect(source$[1602].peek()).toEqual({ sourceId: "a", manga: null });
   });
 });

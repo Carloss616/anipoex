@@ -37,12 +37,17 @@ import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
 import { SearchBar } from "@/components/ui/search-bar";
+import { manualTitles } from "@/features/manga/state/manual-matches";
 import {
   isScanBusy,
+  probes$,
   scanningAll$,
   scanProgress$,
 } from "@/features/manga/state/probes";
-import { isTitleSearching } from "@/features/manga/state/title-search";
+import {
+  areTitleSearching,
+  titleSearch$,
+} from "@/features/manga/state/title-search";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { AvailableItem } from "./components/available-item";
 import { ExcludedItem } from "./components/excluded-item";
@@ -53,10 +58,36 @@ import { useSources } from "./hooks/use-sources";
 import { useTitleMode } from "./hooks/use-title-mode";
 import type { ListBodyProps } from "./source-list";
 import { excludedMenuItems } from "./utils/row-content";
+import { titleSearchItems } from "./utils/search-presets";
 import { sheetItemKey, sheetItems } from "./utils/sheet-items";
 import { titleMenuItems } from "./utils/title-menu";
 
 const EMPTY_HEIGHT = 320;
+
+/** Opens the title search menu; filled while title search is on. */
+function SearchTitlesButton({
+  onPress,
+  searching,
+}: {
+  onPress?: () => void;
+  searching: boolean;
+}) {
+  const Button = searching ? FilledIconButton : FilledTonalIconButton;
+  return (
+    <Button
+      onClick={onPress}
+      modifiers={[
+        semantics({
+          contentDescription: searching
+            ? "Search titles, searching"
+            : "Search titles",
+        }),
+      ]}
+    >
+      <Icon name={Icons.searchTitles} color="inherit" />
+    </Button>
+  );
+}
 
 function TitlesButton({ onPress }: { onPress?: () => void }) {
   return (
@@ -95,17 +126,13 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
     excludedMenuItems(
       excluded,
       isScanBusy(key),
-      isTitleSearching(
+      areTitleSearching(
         key,
         excluded.map((row) => row.source.id),
       ),
       actions,
     );
   const title = useTitleMode(manga.id, key);
-  // A toggle: filled while title search is on.
-  const SearchTitlesButton = title.searching
-    ? FilledIconButton
-    : FilledTonalIconButton;
   const reading = all.find((source) => source.id === selectedId);
   const m3 = useThemeM3Colors();
   const insets = useSafeAreaInsets();
@@ -147,29 +174,23 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                 </Box>
                 <Spacer modifiers={[weight(1)]} />
                 <Row horizontalArrangement={{ spacedBy: 8 }}>
-                  <SearchTitlesButton
-                    onClick={() =>
-                      // Excluded too: the right page may be on one dropped for
-                      // no match.
-                      actions.searchAll(
-                        [...available, ...excluded].map((row) => row.source.id),
-                      )
-                    }
-                    modifiers={[
-                      semantics({
-                        contentDescription: "Search titles in all sources",
-                      }),
-                    ]}
-                  >
-                    <Icon
-                      name={
-                        title.searching
-                          ? Icons.searchTitlesOff
-                          : Icons.searchTitles
-                      }
-                      color="inherit"
-                    />
-                  </SearchTitlesButton>
+                  <Computed>
+                    {() => (
+                      <Menu
+                        items={titleSearchItems(
+                          available,
+                          excluded,
+                          (id) => probes$[key][id].get(),
+                          (id) =>
+                            titleSearch$[key][id].status.get() !== undefined,
+                          actions.searchSources,
+                          () => actions.stopSearch(),
+                        )}
+                      >
+                        <SearchTitlesButton searching={title.searching} />
+                      </Menu>
+                    )}
+                  </Computed>
                   <Computed>
                     {() => {
                       const scanning = scanningAll$[key].get() === true;
@@ -254,6 +275,7 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                           manga,
                           title.fieldText(),
                           title.pick,
+                          manualTitles(manga.id),
                         )}
                       >
                         <TitlesButton />

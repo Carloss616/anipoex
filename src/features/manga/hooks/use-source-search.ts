@@ -1,4 +1,5 @@
 import { useInstalledSources } from "@/features/extensions";
+import { manualTitles } from "../state/manual-matches";
 import { recordProbe } from "../state/probes";
 import { resumeSource, selectSource } from "../state/source";
 import { searchTitles } from "../utils/source-match";
@@ -18,7 +19,11 @@ export function useSourceSearch(
     async (sourceId: string) => {
       const source = sources.find((entry) => entry.id === sourceId);
       if (!manga || !source) return;
-      const found = await action(manga.id, source, searchTitles(manga));
+      const found = await action(
+        manga.id,
+        source,
+        searchTitles(manga, manualTitles(manga.id)),
+      );
       // No match or a failure loads no chapters: its probe is recorded here.
       if (found === null) recordProbe(manga.id, source, "no-match");
       else if (found && "error" in found) recordProbe(manga.id, source, found);

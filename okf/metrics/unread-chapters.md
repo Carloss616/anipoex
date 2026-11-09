@@ -20,8 +20,10 @@ The `+N` a [source](../concepts/source.md) shows is `max(0, floor(latest − rea
 It floors because a `.5` release isn't a whole unread chapter. This is the plugin's
 rule, so both apps show the same number.
 
-Home's [continue reading](../concepts/continue-reading.md) counts the chosen source's stored
-chapters past the progress instead.
+The manga list's badge is the chosen source's `+N`, the same number its row shows, so it
+changes at once when another source is chosen; with no matched probe for it, `latest` is the
+last chapter of its stored list. Home's [continue reading](../concepts/continue-reading.md)
+counts the same way from the stored list.
 
 ## What a source row shows
 

@@ -1,25 +1,31 @@
 import { useValue } from "@legendapp/state/react";
 import { chapters$, chaptersKey } from "@/features/manga/state/chapters";
+import { probes$ } from "@/features/manga/state/probes";
 import { source$ } from "@/features/manga/state/source";
+import { mediaKey } from "@/features/manga/utils/msu";
+import { unreadChapters } from "@/features/manga/utils/source-classify";
 import { readMatch } from "@/features/manga/utils/source-match";
-import { toChapters, unreadCount } from "@/features/manga/utils/to-chapters";
+import { lastChapterNumber } from "@/features/manga/utils/to-chapters";
 
 /**
- * Chapters past `progress` in the chosen source's stored list; undefined with
- * no source, no match, or no list for the matched page.
+ * The chosen source's +N past `progress`, the number its row shows in the
+ * source sheet; undefined with no source, no match, or nothing read from it.
  */
 export function useUnreadCount(
   mangaId: number,
   progress: number,
 ): number | undefined {
-  // The entry itself: the card re-renders only when the list or match changes.
-  const stored = useValue(() => {
+  // Its probe first: in memory, it follows a source change at once; the
+  // stored list only when no probe matched.
+  const latest = useValue(() => {
     const match = readMatch(source$[mangaId].get());
     if (!match?.manga) return undefined;
+    const probe = probes$[mediaKey(mangaId)][match.sourceId].get();
+    if (probe?.matched) return probe.latest;
     const entry = chapters$[chaptersKey(mangaId, match.sourceId)].get();
-    return entry?.manga.url === match.manga.url ? entry : undefined;
+    return entry?.manga.url === match.manga.url
+      ? lastChapterNumber(entry.chapters)
+      : undefined;
   });
-  return stored
-    ? unreadCount(toChapters(stored.chapters, stored.manga.title), progress)
-    : undefined;
+  return latest === undefined ? undefined : unreadChapters(progress, latest);
 }

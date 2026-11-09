@@ -1,9 +1,7 @@
-import type { ProviderProbe } from "@/features/manga/utils/msu";
-import {
-  type ExcludeReason,
-  FAR_BEHIND_GAP,
-  type ProbeMap,
-  SUSPICIOUS_FACTOR,
+import type {
+  ExcludeReason,
+  ProbeMap,
+  ProviderProbe,
 } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import {
@@ -11,6 +9,7 @@ import {
   isLive,
   type Pinned,
 } from "@/features/manga/utils/source-exclusions";
+import { isSuspicious } from "@/features/manga/utils/suspicious";
 
 export type SourceRow = {
   source: Source;
@@ -23,31 +22,15 @@ export type ExcludedRow = {
   pinned: boolean;
 };
 
-const median = (values: number[]) => {
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = sorted.length >> 1;
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+// Excluded rows by reason: behind ones still have a match, unmatched ones are
+// what a title search fixes, failures are the source's own trouble.
+const REASON_ORDER: Record<ExcludeReason, number> = {
+  outdated: 0,
+  "not-matched": 1,
+  "error-found": 2,
+  "bad-numbering": 3,
+  other: 3,
 };
-
-/** Whether a match's latest chapter runs far ahead of the other live ones. */
-export function isSuspicious(
-  id: string,
-  sources: Source[],
-  excluded: Excluded,
-  probes: ProbeMap,
-): boolean {
-  const p = probes[id];
-  if (!p?.matched) return false;
-  const others = sources
-    .filter(
-      (s) => s.id !== id && !isLive(excluded[s.id]) && probes[s.id]?.matched,
-    )
-    .map((s) => probes[s.id].latest);
-  return (
-    others.length >= 2 &&
-    p.latest - median(others) > SUSPICIOUS_FACTOR * FAR_BEHIND_GAP
-  );
-}
 
 /**
  * Installed sources split into available (best first) and excluded (by name),
@@ -86,7 +69,11 @@ export function splitSources(
       reason: excluded[source.id].reason,
       pinned: isLive(pinned[source.id]),
     }))
-    .sort((a, b) => a.source.name.localeCompare(b.source.name));
+    .sort(
+      (a, b) =>
+        REASON_ORDER[a.reason] - REASON_ORDER[b.reason] ||
+        a.source.name.localeCompare(b.source.name),
+    );
 
   return { available, excluded: out };
 }
@@ -107,3 +94,22 @@ export function applyOrder<T extends { source: Source }>(
     );
   return [...known, ...rows.filter((r) => !rank.has(r.source.id))];
 }
+
+/**
+ * A source's place while searching by title: with results, searching, empty
+ * or failed, not searched.
+ */
+export const titleGroup = (
+  rail: { status: "loading" | "done" | "error"; mangas: unknown[] } | undefined,
+) =>
+  !rail ? 3 : rail.status === "loading" ? 1 : rail.mangas.length > 0 ? 0 : 2;
+
+/** Rows by title search group, each group in the order given. */
+export const byTitleResults = <T extends { source: Source }>(
+  rows: T[],
+  groupOf: (sourceId: string) => number,
+): T[] =>
+  rows
+    .map((row, i) => ({ row, i, group: groupOf(row.source.id) }))
+    .sort((a, b) => a.group - b.group || a.i - b.i)
+    .map(({ row }) => row);

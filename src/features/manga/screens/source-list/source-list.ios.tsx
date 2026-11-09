@@ -36,8 +36,16 @@ import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
 import { SheetToastHost } from "@/components/ui/toast";
-import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
-import { isTitleSearching } from "@/features/manga/state/title-search";
+import { manualTitles } from "@/features/manga/state/manual-matches";
+import {
+  isScanBusy,
+  probes$,
+  scanningAll$,
+} from "@/features/manga/state/probes";
+import {
+  areTitleSearching,
+  titleSearch$,
+} from "@/features/manga/state/title-search";
 import { REASONS } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
@@ -57,6 +65,7 @@ import {
   excludedMenuItems,
   excludeReasons,
 } from "./utils/row-content";
+import { titleSearchItems } from "./utils/search-presets";
 import { titleMenuItems } from "./utils/title-menu";
 
 /** A glass circle's icon slot, as on the tracking overview's menu button. */
@@ -96,7 +105,7 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
     excludedMenuItems(
       excluded,
       isScanBusy(key),
-      isTitleSearching(
+      areTitleSearching(
         key,
         excluded.map((row) => row.source.id),
       ),
@@ -190,36 +199,36 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                       }),
                     ]}
                   >
-                    <Button
-                      onPress={() =>
-                        // Excluded sources too: the right page may be on one
-                        // dropped for no match.
-                        actions.searchAll(
-                          [...available, ...excluded].map(
-                            (row) => row.source.id,
-                          ),
-                        )
-                      }
-                      modifiers={[
-                        buttonStyle("plain"),
-                        // Tinted while title search is on, as a native toolbar
-                        // shows an active item.
-                        foregroundStyle(
-                          title.searching ? primary : "secondary",
-                        ),
-                        accessibilityLabel("Search titles in all sources"),
-                      ]}
-                    >
-                      <Icon
-                        name={
-                          title.searching
-                            ? Icons.searchTitlesOff
-                            : Icons.searchTitles
-                        }
-                        color="inherit"
-                        modifiers={GROUP_SLOT}
-                      />
-                    </Button>
+                    <Computed>
+                      {() => (
+                        <Menu
+                          items={titleSearchItems(
+                            available,
+                            excluded,
+                            (id) => probes$[key][id].get(),
+                            (id) =>
+                              titleSearch$[key][id].status.get() !== undefined,
+                            actions.searchSources,
+                            () => actions.stopSearch(),
+                          )}
+                        >
+                          {/* The menu's label is SwiftUI content: the icon,
+                            tinted while title search is on, as a native
+                            toolbar shows an active item. */}
+                          <Icon
+                            name={Icons.searchTitles}
+                            color="inherit"
+                            modifiers={[
+                              ...GROUP_SLOT,
+                              foregroundStyle(
+                                title.searching ? primary : "secondary",
+                              ),
+                              accessibilityLabel("Search titles"),
+                            ]}
+                          />
+                        </Menu>
+                      )}
+                    </Computed>
                     <Computed>
                       {() => (
                         <Button
@@ -272,6 +281,7 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                           manga,
                           title.fieldText(),
                           title.pick,
+                          manualTitles(manga.id),
                         )}
                       >
                         <Icon

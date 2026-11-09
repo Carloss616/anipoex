@@ -1,5 +1,5 @@
 import { MangaCard } from "@/features/manga/components/manga-card";
-import { COVER, CURRENT_MARK } from "../constants";
+import { BY_TITLE_MARK, COVER, CURRENT_MARK, SIMILAR_MARK } from "../constants";
 import type { RailItem } from "../utils/rail-items";
 
 export interface RailCardProps {
@@ -18,10 +18,22 @@ export function RailCard({ item, headers, ...props }: RailCardProps) {
       {...props}
       cover={uri ? { uri, headers } : null}
       title={item.manga.title}
-      mark={item.current ? CURRENT_MARK : undefined}
+      mark={
+        item.current
+          ? item.byTitle
+            ? BY_TITLE_MARK
+            : CURRENT_MARK
+          : item.similar
+            ? SIMILAR_MARK
+            : undefined
+      }
       titlePosition="below"
       accessibilityLabel={
-        item.current ? `${item.manga.title}, current match` : item.manga.title
+        item.current
+          ? `${item.manga.title}, current match${item.byTitle ? ", same title as another source" : ""}`
+          : item.similar
+            ? `${item.manga.title}, similar title`
+            : item.manga.title
       }
       style={{ width: COVER.width }}
     />

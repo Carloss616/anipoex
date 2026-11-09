@@ -17,8 +17,16 @@ import {
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { SearchBar } from "@/components/ui/search-bar";
-import { isScanBusy, scanningAll$ } from "@/features/manga/state/probes";
-import { isTitleSearching } from "@/features/manga/state/title-search";
+import { manualTitles } from "@/features/manga/state/manual-matches";
+import {
+  isScanBusy,
+  probes$,
+  scanningAll$,
+} from "@/features/manga/state/probes";
+import {
+  areTitleSearching,
+  titleSearch$,
+} from "@/features/manga/state/title-search";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { AvailableItem } from "./components/available-item";
 import { ExcludedItem } from "./components/excluded-item";
@@ -28,6 +36,7 @@ import { useSourceList } from "./hooks/use-source-list";
 import { useSources } from "./hooks/use-sources";
 import { useTitleMode } from "./hooks/use-title-mode";
 import { excludedMenuItems } from "./utils/row-content";
+import { titleSearchItems } from "./utils/search-presets";
 import { type SheetItem, sheetItemKey, sheetItems } from "./utils/sheet-items";
 import { titleMenuItems } from "./utils/title-menu";
 
@@ -100,7 +109,7 @@ function ListBody({
     excludedMenuItems(
       excluded,
       isScanBusy(key),
-      isTitleSearching(
+      areTitleSearching(
         key,
         excluded.map((row) => row.source.id),
       ),
@@ -148,24 +157,29 @@ function ListBody({
               aria-label="Sources actions"
               className="glass-chrome ms-auto rounded-full! border **:rounded-full!"
             >
-              <Button
-                variant={title.searching ? "default" : "ghost"}
-                size="icon"
-                disabled={!installed}
-                aria-pressed={title.searching}
-                onClick={() =>
-                  actions.searchAll(
-                    [...available, ...excluded].map((row) => row.source.id),
-                  )
-                }
-                aria-label="Search titles in all sources"
-              >
-                <Icon
-                  name={
-                    title.searching ? Icons.searchTitlesOff : Icons.searchTitles
-                  }
-                />
-              </Button>
+              <Computed>
+                {() => (
+                  <Menu
+                    items={titleSearchItems(
+                      available,
+                      excluded,
+                      (id) => probes$[key][id].get(),
+                      (id) => titleSearch$[key][id].status.get() !== undefined,
+                      actions.searchSources,
+                      () => actions.stopSearch(),
+                    )}
+                  >
+                    <Button
+                      variant={title.searching ? "default" : "ghost"}
+                      size="icon"
+                      disabled={!installed}
+                      aria-label="Search titles"
+                    >
+                      <Icon name={Icons.searchTitles} />
+                    </Button>
+                  </Menu>
+                )}
+              </Computed>
               <Computed>
                 {() => {
                   const scanning = scanningAll$[key].get() === true;
@@ -206,6 +220,7 @@ function ListBody({
                         manga,
                         title.fieldText(),
                         title.pick,
+                        manualTitles(manga.id),
                       )}
                     >
                       <Button

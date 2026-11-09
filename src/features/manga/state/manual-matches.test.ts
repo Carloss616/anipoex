@@ -15,7 +15,9 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { clearManual, readManual, setManual } = await import("./manual-matches");
+const { clearManual, manualTitles, readManual, setManual } = await import(
+  "./manual-matches"
+);
 
 const mine = { url: "/m", title: "Mine", thumbnailUrl: null };
 
@@ -31,5 +33,29 @@ describe("manual matches", () => {
     clearManual(1002, "a");
     expect(readManual(1002, "a")).toBeUndefined();
     expect(readManual(1002, "b")?.url).toBe("/b");
+  });
+});
+
+describe("manualTitles", () => {
+  it("lists the titles of the manga's manual matches", () => {
+    setManual(1003, "a", { ...mine, title: "Title A" });
+    setManual(1003, "b", { ...mine, title: "Title B" });
+    setManual(1004, "a", { ...mine, title: "Other manga" });
+    expect(manualTitles(1003)).toEqual(["Title A", "Title B"]);
+    expect(manualTitles(1003, "a")).toEqual(["Title B"]);
+  });
+
+  it("drops a removed manual match", () => {
+    setManual(1005, "a", { ...mine, title: "Title A" });
+    clearManual(1005, "a");
+    expect(manualTitles(1005)).toEqual([]);
+  });
+});
+
+describe("manualTitles and taken pages", () => {
+  it("leaves out pages taken by title, which teach nothing new", () => {
+    setManual(1006, "a", { ...mine, title: "Taught", by: "title" });
+    setManual(1006, "b", { ...mine, title: "Picked" });
+    expect(manualTitles(1006)).toEqual(["Picked"]);
   });
 });

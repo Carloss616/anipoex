@@ -6,6 +6,7 @@ import {
   loadMoreTitles,
   titleSearch$,
 } from "@/features/manga/state/title-search";
+import { bestSimilar } from "@/features/manga/utils/source-match";
 import type { SourceActions } from "../../../hooks/use-source-actions";
 import {
   type RailItem,
@@ -30,7 +31,19 @@ export function useRail(
   // A probe in flight would land over a match change: match actions wait.
   const scanning = useValue(() => scanning$[mangaKey][sourceId].get() === true);
   const current = manual ?? stored;
-  const items = rail ? railItems(current, rail.mangas) : [];
+  // Suggested only while nothing matches: a url, so the card re-renders only
+  // when the suggestion changes.
+  const similar = useValue(() => {
+    const loaded = titleSearch$[mangaKey][sourceId].get();
+    if (current || loaded?.status !== "done") return undefined;
+    return bestSimilar(loaded.mangas, actions.titles().all)?.url;
+  });
+  const items = rail
+    ? railItems(current, rail.mangas, {
+        byTitle: manual?.by === "title",
+        similar,
+      })
+    : [];
 
   return {
     rail,

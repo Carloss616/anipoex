@@ -2,7 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { exclusions$ } from "@/features/manga/state/exclusions";
 import { probes$, scanning$ } from "@/features/manga/state/probes";
 import type { Source } from "@/features/manga/utils/source";
-import { isSuspicious } from "../utils/split-sources";
+import { isSuspicious } from "@/features/manga/utils/suspicious";
 
 /** One source's probe, read in its row: a landing re-renders only that row. */
 export function useSourceScan(key: string, id: string, sources: Source[]) {

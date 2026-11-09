@@ -27,6 +27,24 @@ export const titleQuery$ = observable<Record<string, string>>({});
 
 // Per manga and source: a newer request makes an older answer stale.
 const tickets: Record<string, number> = {};
+
+// Per manga, what the open source sheet does with each page that lands.
+const pageListeners: Record<string, (sourceId: string) => void> = {};
+
+/**
+ * Calls `listener` with the source each time one of its pages lands for the
+ * manga, a stale answer aside; returns what removes it.
+ */
+export function onTitlePage(
+  mangaId: number,
+  listener: (sourceId: string) => void,
+) {
+  const key = mediaKey(mangaId);
+  pageListeners[key] = listener;
+  return () => {
+    if (pageListeners[key] === listener) delete pageListeners[key];
+  };
+}
 const bump = (id: string) => {
   tickets[id] = (tickets[id] ?? 0) + 1;
   return tickets[id];
@@ -73,6 +91,7 @@ async function loadFirst(
       hasNextPage,
       loadingMore: false,
     });
+    pageListeners[key]?.(sourceId);
   } catch (error) {
     if (tickets[id] !== mine) return;
     titleSearch$[key][sourceId].set({
@@ -143,6 +162,7 @@ export async function loadMoreTitles(mangaId: number, sourceId: string) {
       hasNextPage,
       loadingMore: false,
     });
+    pageListeners[key]?.(sourceId);
   } catch (error) {
     if (tickets[id] !== mine) return;
     rail$.assign({ loadingMore: false, error: message(error) });
@@ -165,11 +185,11 @@ export function stopTitleSearch(mangaId: number, sourceId?: string) {
   }
 }
 
-/**
- * Whether any source of the manga (or of `ids`) searches by title; tracked,
- * for a `Computed` or `useValue`.
- */
-export const isTitleSearching = (key: string, ids?: string[]) =>
-  ids
-    ? ids.some((id) => titleSearch$[key][id].get() !== undefined)
-    : Object.keys(titleSearch$[key].get() ?? {}).length > 0;
+/** Whether every one of `ids` searches by title; tracked. */
+export const areTitleSearching = (key: string, ids: string[]) =>
+  ids.length > 0 &&
+  ids.every((id) => titleSearch$[key][id].status.get() !== undefined);
+
+/** Whether any source of the manga searches by title; tracked. */
+export const isTitleSearching = (key: string) =>
+  Object.keys(titleSearch$[key].get() ?? {}).length > 0;

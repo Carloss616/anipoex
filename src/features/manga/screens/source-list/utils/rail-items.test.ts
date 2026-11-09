@@ -45,3 +45,21 @@ describe("railNotice", () => {
     expect(railNotice({ status: "error", mangas: [hit("/1")] })).toBeNull();
   });
 });
+
+describe("railItems marks", () => {
+  it("marks a match taken by title", () => {
+    expect(
+      railItems(hit("/2"), [hit("/1"), hit("/2")], { byTitle: true })[0],
+    ).toMatchObject({
+      current: true,
+      byTitle: true,
+    });
+  });
+
+  it("marks the similar result", () => {
+    const items = railItems(undefined, [hit("/1"), hit("/2")], {
+      similar: "/2",
+    });
+    expect(items.map((item) => item.similar ?? false)).toEqual([false, true]);
+  });
+});

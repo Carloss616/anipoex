@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import {
+  bestSimilar,
   normalizeTitle,
   pickMatch,
   readMatch,
@@ -126,8 +127,30 @@ describe("pickMatch", () => {
   });
 });
 
+describe("pickMatch edition tags", () => {
+  it("drops an edition tag", () => {
+    for (const title of [
+      "Overgeared [Official]",
+      "Overgeared (Official)",
+      "Overgeared (Official Colored)",
+    ]) {
+      const hit = result(title);
+      expect(pickMatch([hit], ["Overgeared"])).toBe(hit);
+    }
+  });
+
+  it("keeps a tag that names something else", () => {
+    expect(
+      pickMatch([result("One-punch Man (ONE)")], ["One Punch-Man"]),
+    ).toBeNull();
+    expect(
+      pickMatch([result("Overgeared (Official Spanish)")], ["Overgeared"]),
+    ).toBeNull();
+  });
+});
+
 describe("searchTitles", () => {
-  it("searches romaji, English, then Latin synonyms, once each and at most four", () => {
+  it("searches romaji, English, then Latin synonyms, once each and at most five", () => {
     const { search } = searchTitles({
       title: {
         romaji: "Kimetsu no Yaiba",
@@ -147,6 +170,89 @@ describe("searchTitles", () => {
       "Demon Slayer: Kimetsu no Yaiba",
       "Guardianes de la Noche",
       "Demon Slayer",
+      "Lâmina",
     ]);
+  });
+
+  it("searches a Latin alias after the English title and before synonyms", () => {
+    const { search } = searchTitles(
+      {
+        title: { romaji: "Romaji", english: "English" },
+        synonyms: ["Synonym"],
+      },
+      ["Alias", "Псевдоним"],
+    );
+    expect(search).toEqual(["Romaji", "English", "Alias", "Synonym"]);
+  });
+
+  it("keeps at most five queries", () => {
+    const { search } = searchTitles(
+      { title: { romaji: "T1", english: "T2" }, synonyms: ["T3", "T4", "T5"] },
+      ["T6"],
+    );
+    expect(search).toHaveLength(5);
+  });
+
+  it("matches a title another source's manual match taught", () => {
+    const hit = result("Soldado Esqueleto");
+    const { all } = searchTitles(
+      {
+        title: { romaji: "Haegolbyeongsaneun Dungeon-eul Jikiji Motaetda" },
+        synonyms: [],
+      },
+      ["Soldado Esqueleto"],
+    );
+    expect(pickMatch([result("Otro"), hit], all)).toBe(hit);
+  });
+
+  it("matches the part after the colon of a title", () => {
+    const hit = result("Dark Lady");
+    const { all } = searchTitles({
+      title: { romaji: "Muk-Hyang Dark Lady" },
+      synonyms: ["Mookhyang: Dark Lady"],
+    });
+    expect(pickMatch([hit], all)).toBe(hit);
+  });
+
+  it("never takes a one-word subtitle", () => {
+    const { all, search } = searchTitles({
+      title: { romaji: "Na Honjaman Level Up: Ragnarok" },
+      synonyms: ["Solo Leveling: Ragnarok"],
+    });
+    expect(pickMatch([result("Ragnarok")], all)).toBeNull();
+    expect(search).not.toContain("Ragnarok");
+  });
+
+  it("searches the subtitle after the English title", () => {
+    const { search } = searchTitles({
+      title: { romaji: "Muk-Hyang Dark Lady", english: "Mookhyang: Dark Lady" },
+      synonyms: ["Mookhyang Dark Lady"],
+    });
+    expect(search).toEqual([
+      "Muk-Hyang Dark Lady",
+      "Mookhyang: Dark Lady",
+      "Dark Lady",
+    ]);
+  });
+});
+
+describe("bestSimilar", () => {
+  it("finds the closest title when none is equal", () => {
+    const close = result("Chronicles of the Demon-Slaying Cultivator");
+    expect(
+      bestSimilar(
+        [result("Something else"), close],
+        ["Chronicles of the Demon-Slaying Ascetic"],
+      ),
+    ).toBe(close);
+  });
+
+  it("suggests nothing below the threshold or when one is equal", () => {
+    expect(
+      bestSimilar([result("Something else")], ["Dark Lady"]),
+    ).toBeUndefined();
+    expect(
+      bestSimilar([result("Dark Lady"), result("Dark Ladies")], ["Dark Lady"]),
+    ).toBeUndefined();
   });
 });

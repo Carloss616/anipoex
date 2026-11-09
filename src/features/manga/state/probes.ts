@@ -1,6 +1,7 @@
 import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import { ObservablePersist } from "@/state/observable-persist";
+import { bestSource } from "../utils/best-source";
 import { fetchChapters } from "../utils/fetch-chapters";
 import {
   AUTO_RECHECK_DAYS,
@@ -25,7 +26,7 @@ import { CHAPTERS_TIMEOUT_MS, SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
 import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
 import { readManual } from "./manual-matches";
-import { deselectSource, findManga, source$ } from "./source";
+import { deselectSource, findManga, selectSource, source$ } from "./source";
 
 /**
  * Per manga, each source's last scan: MSU's `probes` map (gist file
@@ -77,15 +78,18 @@ export async function probeSource(
   chaptersTimeoutMs = CHAPTERS_TIMEOUT_MS,
 ): Promise<ProviderProbe> {
   try {
-    const manga =
-      readManual(mangaId, source.id) ??
-      (await findManga(source.id, titles, timeoutMs));
+    const manual = readManual(mangaId, source.id);
+    const manga = manual ?? (await findManga(source.id, titles, timeoutMs));
     if (!manga) return toProbe(source, "no-match", Date.now());
     const { chapters } = await fetchChapters(
       source.id,
       manga,
       chaptersTimeoutMs,
     );
+    // A manual page undone while its chapters loaded keeps none: stored, they
+    // would make it the source's match again.
+    if (manual && readManual(mangaId, source.id)?.url !== manual.url)
+      return toProbe(source, "no-match", Date.now());
     chapters$[chaptersKey(mangaId, source.id)].set({
       manga: {
         url: manga.url,
@@ -259,5 +263,15 @@ export async function scanSources(args: {
       scanProgress$[key].delete();
     }
     activity.end(Object.values(landed).filter((p) => p.matched).length);
+    // A manga read from no source gets the best one, so its +N shows.
+    if (!readMatch(source$[mangaId].peek())) {
+      const best = bestSource(
+        sources,
+        exclusions$[key].peek() ?? {},
+        probes$[key].peek() ?? {},
+      );
+      const picked = sources.find((s) => s.id === best);
+      if (picked) void selectSource(mangaId, picked, titles);
+    }
   }
 }

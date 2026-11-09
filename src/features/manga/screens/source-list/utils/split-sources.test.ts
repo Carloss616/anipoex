@@ -1,7 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import type { ProbeMap } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
-import { applyOrder, splitSources } from "./split-sources";
+import {
+  applyOrder,
+  byTitleResults,
+  splitSources,
+  titleGroup,
+} from "./split-sources";
 
 const src = (id: string, name = id): Source => ({ id, name, initials: "XX" });
 const probe = (id: string, latest: number, matched = true) => ({
@@ -112,5 +117,78 @@ describe("applyOrder", () => {
   it("puts ordered ids first and ignores missing ones", () => {
     const rows = ["a", "b", "c"].map((id) => ({ source: src(id) }));
     expect(ids(applyOrder(rows, ["b", "zz", "a"]))).toEqual(["b", "a", "c"]);
+  });
+});
+
+describe("excluded order", () => {
+  it("groups excluded sources by reason, behind first, then by name", () => {
+    const why = (reason: string) => ({ reason, updatedAt: 1 }) as never;
+    const { excluded } = splitSources(
+      [src("e"), src("d"), src("c"), src("b"), src("a")],
+      {
+        a: why("other"),
+        b: why("error-found"),
+        c: why("not-matched"),
+        d: why("outdated"),
+        e: why("not-matched"),
+      },
+      {},
+      {},
+      "",
+    );
+    expect(ids(excluded)).toEqual(["d", "c", "e", "b", "a"]);
+  });
+
+  it("lists sources by name before any scan", () => {
+    const { available } = splitSources(
+      [src("b"), src("c"), src("a")],
+      {},
+      {},
+      {},
+      "",
+    );
+    expect(ids(available)).toEqual(["a", "b", "c"]);
+  });
+});
+
+describe("title search order", () => {
+  const rail = (status: "loading" | "done" | "error", results = 0) => ({
+    status,
+    mangas: Array.from({ length: results }, (_, i) => ({
+      url: `/${i}`,
+      title: `${i}`,
+      thumbnailUrl: null,
+    })),
+    page: 1,
+    hasNextPage: false,
+    loadingMore: false,
+  });
+
+  it("ranks results, then searching, then empty or failed, then not searched", () => {
+    expect(
+      [
+        rail("done", 2),
+        rail("loading"),
+        rail("done"),
+        rail("error"),
+        undefined,
+      ].map(titleGroup),
+    ).toEqual([0, 1, 2, 2, 3]);
+  });
+
+  it("lists sources with title results first, keeping the order within each group", () => {
+    const rows = ["a", "b", "c", "d"].map((id) => ({ source: src(id) }));
+    const groups: Record<string, number> = { a: 2, b: 0, c: 3, d: 0 };
+    expect(ids(byTitleResults(rows, (id) => groups[id]))).toEqual([
+      "b",
+      "d",
+      "a",
+      "c",
+    ]);
+  });
+
+  it("keeps the order when nothing searches", () => {
+    const rows = ["c", "a", "b"].map((id) => ({ source: src(id) }));
+    expect(ids(byTitleResults(rows, () => 3))).toEqual(["c", "a", "b"]);
   });
 });

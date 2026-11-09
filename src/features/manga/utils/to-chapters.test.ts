@@ -698,8 +698,9 @@ describe("unreadCount", () => {
     expect(unreadCount(numbered(-1, 12), 11)).toBe(1);
   });
 
-  it("counts every numbered chapter before reading starts", () => {
-    expect(unreadCount(numbered(0, 1, 2), 0)).toBe(3);
+  it("counts whole chapters to the last one, as a source's +N does", () => {
+    expect(unreadCount(numbered(190, 191, 192, 192.1), 189)).toBe(3);
+    expect(unreadCount(numbered(0, 1, 2), 0)).toBe(2);
   });
 });
 

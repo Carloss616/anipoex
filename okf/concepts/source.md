@@ -20,10 +20,13 @@ is stable across launches.
 - **Available or excluded**: per manga, a source is **available** or **excluded** (see
   [source exclusion](source-exclusion.md)). Available sources are listed furthest-ahead
   first (latest chapter descending, ties by name); sources with suspicious numbering come
-  after them, and unscanned / unmatched last. Excluded ones are listed by name, with their
-  reason and `auto` / `you`. The order is set when the sheet opens and never changes while it
-  stays open, even through a scan: a rescan updates the row in place, and a source that
-  joins the list mid-session is added at the end. So a first scan sorts on the next open.
+  after them, and unscanned / unmatched last (so before any scan, by name). Excluded ones are
+  listed by reason, behind first, then not matched, then failing, then excluded by hand, and by
+  name within each, with their reason and `auto` / `you`. The order is live: a source moves when
+  its probe lands or its exclusion changes, so a scan sorts the list as it goes. While a search by
+  title runs, each section puts the sources with results first, then those still searching, then
+  those with none or a failed search, then those not searched, each group in that order; a source
+  moves only when its search ends.
 - **Status**: each available source shows the status from
   [unread chapters](../metrics/unread-chapters.md), from its [probe](source-probe.md)
   ([stored](../stores/source-probes.md); [exclusions](../stores/source-exclusions.md) and
@@ -45,17 +48,34 @@ is stable across launches.
 - **Search by hand**: when matching by title finds nothing or the wrong manga, a source can
   be searched with the user's own title. "Search on <source>" (in any row's menu, on iOS also
   among the row's right-edge swipe actions, and in the detail's *No match* state, beside
-  "Choose another source") opens the list with that source searching; the header's
-  search-titles toggle searches every source,
-  excluded ones too. While any source searches, the list's search field holds the title (the
+  "Choose another source") opens the list with that source searching. The header's
+  search-titles menu searches a preset: the **unmatched** sources (available ones whose last
+  probe found no match, and those excluded for no match; failing ones keep their Retry), the
+  **excluded** ones, or **all**, each with how many sources it adds. Every search joins one set
+  that only grows: a preset adds the sources not searching yet and leaves the others' results,
+  and once any source searches the menu offers the presets that still add some, and *Stop
+  searching*. The Excluded section's own action adds its sources the same way, and stops them
+  once all of them search. While any source searches, the list's search field holds the title (the
   romaji title at first; a new title is searched on submit) and each searching source shows its
   results under its row as cover cards, first page first, the next page loading as the end comes
-  into view. The source's current match comes first, marked in the cover's corner. Tapping a card
+  into view. The source's current match comes first, marked in the cover's corner (a different
+  mark when it was taken by title, below). With no match, the result whose title is closest to
+  the manga's is marked as a suggestion; it is never taken. Tapping a card
   opens its menu: its full title, *Use as match* (or *Remove match* on a match set by hand), and
-  *Open website*; a match changes only from that menu. A match is kept as a
-  [manual match](../stores/manual-matches.md) and the list stays open; a failed or empty search
-  says so beside the current match. Closing the list or the search-titles toggle ends the
-  search; nothing searched is stored.
+  *Open website*. A match is kept as a
+  [manual match](../stores/manual-matches.md); the list stays open and that source's search
+  ends. A failed or empty search
+  says so beside the current match.
+- **Taken by title**: results are read the way a scan reads them, with the titles the manga's
+  manual matches taught (see [source matches](../stores/source-matches.md)). When a page lands, a
+  source with no match of its own takes a result equal to a known title. When the user picks a
+  match, every other source whose loaded results hold one equal to the new title takes it at
+  once, without searching again, and reads its chapters, and its search ends (the other rows keep
+  theirs); a toast says how many, with *Undo*.
+  Undo, or *Remove match* on one of those, drops it and leaves the source unmatched without
+  searching again, since a search would take the same page back, and that page isn't taken again
+  until the app restarts. A chosen source stays chosen, with no match. Closing the list or *Stop
+  searching* ends the search; nothing searched is stored.
 - **Website**: an installed source reports its own site (none when it can't). On Android, the
   detail shows an "Open on <source>" button next to the source picker once the manga has a
   match; it opens the manga's page on that source's site, or says it couldn't.

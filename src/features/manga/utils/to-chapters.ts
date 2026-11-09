@@ -1,5 +1,6 @@
 import type { SourceChapter } from "@/features/extensions";
 import { formatDate } from "@/utils/utils";
+import { unreadChapters } from "./source-classify";
 
 // e.g. 12, 12.5, 12a, 12.extra
 const NUMBER_PATTERN = String.raw`([0-9]+)(\.[0-9]+)?(\.?[a-z]+)?`;
@@ -431,18 +432,13 @@ export function isRead(progress: number, number: number): boolean {
 }
 
 /**
- * Chapter numbers past the progress, each once (two scanlators can share
- * one); unnumbered rows can't be told apart, so they don't count.
+ * Whole chapters unread to the last one listed, the same +N a source shows
+ * (a .1 release isn't one more); unnumbered rows don't count.
  */
-export function unreadCount(
+export const unreadCount = (
   chapters: Pick<Chapter, "number">[],
   progress: number,
-): number {
-  const unread = new Set<number>();
-  for (const { number } of chapters)
-    if (number >= 0 && !isRead(progress, number)) unread.add(number);
-  return unread.size;
-}
+) => unreadChapters(progress, lastChapterNumber(chapters));
 
 /** The last whole chapter a source lists; 0 when none is numbered. */
 export const lastChapterNumber = (chapters: Pick<Chapter, "number">[]) =>

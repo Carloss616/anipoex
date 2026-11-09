@@ -1,11 +1,16 @@
 import { useEffect, useRef } from "react";
+import { toast } from "@/components/ui/toast";
 import { useInstalledSources } from "@/features/extensions";
 import {
   decideByHand,
   exclusions$,
   pins$,
 } from "@/features/manga/state/exclusions";
-import type { ManualMatch } from "@/features/manga/state/manual-matches";
+import {
+  type ManualMatch,
+  manualTitles,
+  readManual,
+} from "@/features/manga/state/manual-matches";
 import {
   removeMatchByHand,
   setMatchByHand,
@@ -18,11 +23,13 @@ import {
 } from "@/features/manga/state/probes";
 import { deselectSource } from "@/features/manga/state/source";
 import {
-  isTitleSearching,
+  onTitlePage,
   startTitleSearch,
   stopTitleSearch,
   titleQuery$,
+  titleSearch$,
 } from "@/features/manga/state/title-search";
+import { forgetByTitle, takeByTitle } from "@/features/manga/state/title-takes";
 import { type ExcludeReason, mediaKey } from "@/features/manga/utils/msu";
 import { openSourcePage } from "@/features/manga/utils/open-source-page";
 import type { Source } from "@/features/manga/utils/source";
@@ -58,7 +65,7 @@ export function useSourceActions({
     scanSources({
       mangaId: manga.id,
       sources,
-      titles: searchTitles(manga),
+      titles: searchTitles(manga, manualTitles(manga.id)),
       read: () => readRef.current,
       keep: selectedId,
       only,
@@ -76,37 +83,69 @@ export function useSourceActions({
   // The title being searched, else the first one a pick searches by.
   const query = () =>
     titleQuery$[key].peek() ?? searchTitles(manga).search[0] ?? "";
+  const titles = () => searchTitles(manga, manualTitles(manga.id));
+  const take = (ids?: string[]) => takeByTitle(manga.id, titles(), source, ids);
+  const forget = (id: string) => forgetByTitle(manga.id, id, source);
+
+  // Each page of title results that lands is checked for a known title.
+  // Registered on every render, so it reads the latest sources and pick.
+  useEffect(() =>
+    onTitlePage(manga.id, (sourceId) => {
+      const taken = take([sourceId]);
+      if (taken.length) void scan(taken);
+    }),
+  );
 
   return {
+    titles,
     scanAll,
     rescan,
     stop,
     searchOn: (id: string) => void startTitleSearch(manga.id, [id], query()),
     stopSearch: (id?: string) => stopTitleSearch(manga.id, id),
-    // On while any source searches: then it stops them all.
-    searchAll: (ids: string[]) =>
-      isTitleSearching(key)
-        ? stopTitleSearch(manga.id)
-        : void startTitleSearch(manga.id, ids, query()),
-    // The same for a few sources (the Excluded section): stops only those.
-    searchIn: (ids: string[]) =>
-      isTitleSearching(key, ids)
-        ? ids.forEach((id) => {
-            stopTitleSearch(manga.id, id);
-          })
-        : void startTitleSearch(manga.id, ids, query()),
-    // The sheet stays open; the row's status follows the new page.
+    // Adds sources to the title search; the ones searching keep their results.
+    searchSources: (ids: string[]) =>
+      void startTitleSearch(manga.id, ids, query()),
+    // A few sources (the Excluded section): adds the ones not searching, and
+    // stops them once all are.
+    searchIn: (ids: string[]) => {
+      const idle = ids.filter(
+        (id) => titleSearch$[key][id].peek() === undefined,
+      );
+      if (idle.length) void startTitleSearch(manga.id, idle, query());
+      else for (const id of ids) stopTitleSearch(manga.id, id);
+    },
+    // The sheet stays open and the source's search ends; the row's status
+    // follows the new page. Sources whose title results hold the same title
+    // follow it, undoable together.
     setMatch: (id: string, match: ManualMatch) => {
       // A probe of this source in flight would land over the change.
       if (scanning$[key][id].peek()) return;
       setMatchByHand(manga.id, source(id), match);
-      rescan(id);
+      stopTitleSearch(manga.id, id);
+      const taken = take();
+      void scan([id, ...taken]);
+      if (taken.length)
+        toast(
+          `Matched ${taken.length} more source${taken.length > 1 ? "s" : ""} by title`,
+          {
+            action: {
+              label: "Undo",
+              onAction: () => taken.forEach(forget),
+            },
+          },
+        );
     },
     removeMatch: (id: string) =>
-      !scanning$[key][id].peek() &&
-      void removeMatchByHand(manga.id, source(id), searchTitles(manga)).then(
-        () => rescan(id),
-      ),
+      readManual(manga.id, id)?.by === "title"
+        ? forget(id)
+        : !scanning$[key][id].peek() &&
+          void removeMatchByHand(
+            manga.id,
+            source(id),
+            // Without the page being removed, or the search would take it again.
+            searchTitles(manga, manualTitles(manga.id, id)),
+          ).then(() => rescan(id)),
     openPage: (id: string, url: string) => void openSourcePage(id, url),
     // Without a match, the source's homepage, to look for the manga by hand.
     openWebsite: (source: Source, page: string | undefined) =>
