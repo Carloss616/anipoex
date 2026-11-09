@@ -1,3 +1,4 @@
+import { moveTo } from "@/utils/move-to";
 import {
   PRESET_LABELS,
   PRESETS,
@@ -35,9 +36,7 @@ export function moved(
   id: SectionId,
   to: number,
 ): HomeLayout {
-  const order = layout.order.filter((section) => section !== id);
-  order.splice(Math.max(0, Math.min(to, order.length)), 0, id);
-  return { ...layout, preset: "custom", order };
+  return { ...layout, preset: "custom", order: moveTo(layout.order, id, to) };
 }
 
 export const visibleSections = (layout: HomeLayout): SectionId[] =>

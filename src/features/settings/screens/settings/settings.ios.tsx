@@ -4,6 +4,7 @@ import {
   List,
   Section,
   Spacer,
+  Toggle,
   VStack,
   ZStack,
 } from "@expo/ui/swift-ui";
@@ -25,7 +26,7 @@ import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
-import { DnsPicker } from "@/features/extensions";
+import { DnsPicker, languageName, languageOrder$ } from "@/features/extensions";
 import { PRESET_LABELS } from "@/features/home/constants";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
@@ -40,6 +41,10 @@ export function Settings() {
   const buttonFont = useFont("body");
   // The preset alone: the count doesn't fit beside the label in this font.
   const layout = useValue(() => PRESET_LABELS[settings$.home.preset.get()]);
+  const autoPick = useValue(settings$.sources.autoPick);
+  const languages = useValue(() =>
+    languageOrder$.get().map(languageName).join(", "),
+  );
   const avatarUrl = useValue(session$.user.avatarUrl);
   const initial = useValue(() => session$.user.name.get()?.[0] ?? "?");
   const overlay = useThemeColor("overlay");
@@ -112,6 +117,27 @@ export function Settings() {
               <Text>Palette</Text>
               <ThemePicker />
             </VStack>
+          </Section>
+          <Section modifiers={[rowBackground]} title="Sources">
+            <Toggle
+              isOn={autoPick}
+              onIsOnChange={(on) => settings$.sources.autoPick.set(on)}
+            >
+              <Text>Pick a source after a scan</Text>
+              <Text modifiers={[foregroundStyle("secondary")]}>
+                The one with the most new chapters
+              </Text>
+            </Toggle>
+            <Button onPress={() => router.push("/settings/languages")}>
+              <HStack spacing={8} modifiers={ROW_FILL}>
+                <Text modifiers={[foregroundStyle("primary")]}>Languages</Text>
+                <Spacer />
+                <Text modifiers={[foregroundStyle("secondary")]}>
+                  {languages}
+                </Text>
+                <Icon name={Icons.chevronRight} size={13} muted />
+              </HStack>
+            </Button>
           </Section>
           <Section modifiers={[rowBackground]} title="Network">
             <HStack modifiers={ROW_FILL}>

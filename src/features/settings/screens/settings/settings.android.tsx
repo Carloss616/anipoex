@@ -1,8 +1,15 @@
 import ContrastIcon from "@expo/material-symbols/contrast.xml";
 import DnsIcon from "@expo/material-symbols/dns.xml";
+import ManageSearchIcon from "@expo/material-symbols/manage_search.xml";
 import PaletteIcon from "@expo/material-symbols/palette.xml";
+import TranslateIcon from "@expo/material-symbols/translate.xml";
 import TuneIcon from "@expo/material-symbols/tune.xml";
-import { Box, Column, FilledTonalButton } from "@expo/ui/jetpack-compose";
+import {
+  Box,
+  Column,
+  FilledTonalButton,
+  Switch,
+} from "@expo/ui/jetpack-compose";
 import {
   background,
   clip,
@@ -27,7 +34,7 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { Icon, type IconName, Icons } from "@/components/ui/icon";
-import { DnsPicker } from "@/features/extensions";
+import { DnsPicker, languageName, languageOrder$ } from "@/features/extensions";
 import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
@@ -46,6 +53,11 @@ export function Settings() {
   const avatarUrl = useValue(session$.user.avatarUrl);
   const name = useValue(session$.user.name);
   const preference = useValue(settings$.theme.preference);
+  const autoPick = useValue(settings$.sources.autoPick);
+  const languages = useValue(() =>
+    languageOrder$.get().map(languageName).join(", "),
+  );
+  const toggleAutoPick = () => settings$.sources.autoPick.set((on) => !on);
   const row = { containerColor: m3.surfaceContainerLow };
 
   return (
@@ -137,6 +149,46 @@ export function Settings() {
                   <ThemePicker />
                 </Box>
               </SegmentedListItem.Supporting>
+            </SegmentedListItem>
+          </Column>
+
+          <Label>Sources</Label>
+          <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
+            <SegmentedListItem
+              index={0}
+              count={2}
+              {...row}
+              onPress={toggleAutoPick}
+            >
+              <SegmentedListItem.Leading>
+                <LeadingIcon name={ManageSearchIcon} />
+              </SegmentedListItem.Leading>
+              <Text>Pick a source after a scan</Text>
+              <SegmentedListItem.Supporting>
+                <Text style={{ typography: "bodyMedium" }}>
+                  The one with the most new chapters
+                </Text>
+              </SegmentedListItem.Supporting>
+              <SegmentedListItem.Trailing>
+                <Switch value={autoPick} onCheckedChange={toggleAutoPick} />
+              </SegmentedListItem.Trailing>
+            </SegmentedListItem>
+            <SegmentedListItem
+              index={1}
+              count={2}
+              {...row}
+              onPress={() => router.push("/settings/languages")}
+            >
+              <SegmentedListItem.Leading>
+                <LeadingIcon name={TranslateIcon} />
+              </SegmentedListItem.Leading>
+              <Text>Languages</Text>
+              <SegmentedListItem.Supporting>
+                <Text style={{ typography: "bodyMedium" }}>{languages}</Text>
+              </SegmentedListItem.Supporting>
+              <SegmentedListItem.Trailing>
+                <Icon name={Icons.chevronRight} muted />
+              </SegmentedListItem.Trailing>
             </SegmentedListItem>
           </Column>
 

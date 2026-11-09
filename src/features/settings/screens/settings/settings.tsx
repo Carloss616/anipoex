@@ -3,11 +3,17 @@ import { Stack, useRouter } from "expo-router";
 import { Avatar } from "panelui-web/avatar";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
+import { Switch } from "panelui-web/switch";
 import { ScrollView } from "react-native";
 import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
-import { DnsPicker, isRuntimeAvailable } from "@/features/extensions";
+import {
+  DnsPicker,
+  isRuntimeAvailable,
+  languageName,
+  languageOrder$,
+} from "@/features/extensions";
 import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { session$ } from "@/state/session";
@@ -21,6 +27,10 @@ export function Settings() {
   const { greeting, signOut } = useSignOut();
   const user = useValue(session$.user);
   const layout = useValue(() => layoutSummary(settings$.home.get()));
+  const autoPick = useValue(settings$.sources.autoPick);
+  const languages = useValue(() =>
+    languageOrder$.get().map(languageName).join(", "),
+  );
 
   return (
     <>
@@ -93,7 +103,42 @@ export function Settings() {
               </Frame.Row>
             </Frame.Panel>
           </Frame>
-          {/* A plain browser runs no extensions: DnsPicker would be empty. */}
+          {/* A plain browser runs no extensions: nothing to pick or resolve. */}
+          {isRuntimeAvailable && (
+            <Frame>
+              <Frame.Header>
+                <Frame.Title>Sources</Frame.Title>
+              </Frame.Header>
+              <Frame.Panel>
+                <Frame.Row>
+                  <Frame.Content>
+                    <Frame.Title as="p">Pick a source after a scan</Frame.Title>
+                    <Frame.Description>
+                      The one with the most new chapters
+                    </Frame.Description>
+                  </Frame.Content>
+                  <Frame.Actions>
+                    <Switch
+                      label="Pick a source after a scan"
+                      checked={autoPick}
+                      onCheckedChange={(on) =>
+                        settings$.sources.autoPick.set(on)
+                      }
+                    />
+                  </Frame.Actions>
+                </Frame.Row>
+                <Frame.Row
+                  chevron
+                  onClick={() => router.push("/settings/languages")}
+                >
+                  <Frame.Content>
+                    <Frame.Title as="p">Languages</Frame.Title>
+                    <Frame.Description>{languages}</Frame.Description>
+                  </Frame.Content>
+                </Frame.Row>
+              </Frame.Panel>
+            </Frame>
+          )}
           {isRuntimeAvailable && (
             <Frame>
               <Frame.Header>
