@@ -23,7 +23,11 @@ export function scanStatus({
     : `Found on ${found} of ${total} sources`;
 }
 
-export type Scan = Parameters<typeof scanStatus>[0];
+export type Scan = Parameters<typeof scanStatus>[0] & { endedAt?: number };
+
+/** How long an ended group still takes new scans, so rescans run one after
+ * another sum up in one place. */
+const JOIN_WINDOW = 2 * 60_000;
 
 export const isRunning = (scans: Scan[]) => scans.some((s) => s.found === null);
 
@@ -33,7 +37,8 @@ export const counted = (scans: Scan[]) =>
 
 /**
  * A manga's scans show as one: a scan joins its manga's group while that one
- * runs, else starts a new one.
+ * runs or for a while after it ends, else starts a new one. `running`: the
+ * group was already running, so it only needs an update.
  */
 export function joinGroup<G extends { scans: Scan[] }>(
   groups: Map<number, G>,
@@ -42,11 +47,18 @@ export function joinGroup<G extends { scans: Scan[] }>(
   start: () => G,
 ) {
   const current = groups.get(mangaId);
-  const joined = current !== undefined && isRunning(current.scans);
-  const group = joined ? current : start();
+  const running = current !== undefined && isRunning(current.scans);
+  const lastEnd = Math.max(
+    0,
+    ...(current?.scans.map((s) => s.endedAt ?? 0) ?? []),
+  );
+  const group =
+    current && (running || Date.now() - lastEnd < JOIN_WINDOW)
+      ? current
+      : start();
   groups.set(mangaId, group);
   group.scans.push(scan);
-  return { group, joined };
+  return { group, running };
 }
 
 /** Records the scan's progress, then shows its group anew. */
@@ -58,6 +70,7 @@ export const trackScan = (scan: Scan, show: () => void): ScanActivity => ({
   end: (found) => {
     scan.done = scan.total;
     scan.found = found;
+    scan.endedAt = Date.now();
     show();
   },
 });

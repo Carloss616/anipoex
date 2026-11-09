@@ -132,13 +132,14 @@ export function startScanActivity({
   source,
 }: ScanActivityArgs): ScanActivity {
   const scan: Scan = { done: 0, total, found: null, source: source?.name };
-  const { group, joined } = joinGroup(groups, mangaId, scan, () => ({
+  const { group, running } = joinGroup(groups, mangaId, scan, () => ({
     name,
     scans: [],
     shown: Promise.resolve(undefined),
   }));
-  if (joined) render(group);
-  // Denied or dismissed, the post rejects and the sheet still shows the scan.
+  if (running) render(group);
+  // Also over an ended one, which the user may have dismissed. Denied or
+  // dismissed, the post rejects and the sheet still shows the scan.
   else
     group.shown = PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,

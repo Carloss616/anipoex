@@ -134,12 +134,15 @@ export function startScanActivity({
   const scan: Scan = { done: 0, total, found: null, source: source?.name };
   // Else iOS suspends the app off screen and every probe in flight fails.
   const task = backgroundTime.begin("Scan sources");
-  const { group, joined } = joinGroup(groups, mangaId, scan, () => ({
+  const { group, running } = joinGroup(groups, mangaId, scan, () => ({
     name,
     scans: [],
   }));
-  if (joined) render(group);
-  else
+  if (running) render(group);
+  else {
+    // An ended Live Activity can't take updates: a new one replaces it.
+    void group.activity?.end("immediate").catch(() => {});
+    group.activity = undefined;
     try {
       group.activity = ScanLiveActivity.start(
         propsOf(group),
@@ -148,6 +151,7 @@ export function startScanActivity({
     } catch {
       // Live Activities turned off in Settings: the sheet still shows the scan.
     }
+  }
   const activity = trackScan(scan, () => render(group));
 
   return {

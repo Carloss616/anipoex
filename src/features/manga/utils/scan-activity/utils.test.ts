@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { afterEach, describe, expect, it, setSystemTime } from "bun:test";
 import {
   groupStatus,
   joinGroup,
@@ -63,26 +63,45 @@ describe("groupStatus", () => {
 });
 
 describe("joinGroup", () => {
+  const start = () => ({ scans: [] });
+  const scan = (): Scan => ({
+    done: 0,
+    total: 1,
+    found: null,
+    source: "Source A",
+  });
+
+  afterEach(() => setSystemTime());
+
   it("joins the manga's running group, else starts a new one", () => {
     const groups = new Map<number, { scans: Scan[] }>();
-    const start = () => ({ scans: [] });
-    const scan = (): Scan => ({
-      done: 0,
-      total: 1,
-      found: null,
-      source: "Source A",
-    });
     const a = scan();
     const first = joinGroup(groups, 1, a, start);
-    const second = joinGroup(groups, 1, scan(), start);
-    expect(first.joined).toBe(false);
-    expect(second).toEqual({ group: first.group, joined: true });
-    expect(joinGroup(groups, 2, scan(), start).joined).toBe(false);
+    expect(first.running).toBe(false);
+    expect(joinGroup(groups, 1, scan(), start)).toEqual({
+      group: first.group,
+      running: true,
+    });
+    expect(joinGroup(groups, 2, scan(), start).group).not.toBe(first.group);
 
-    for (const s of first.group.scans) trackScan(s, () => {}).end(1);
-    expect(a).toEqual({ done: 1, total: 1, found: 1, source: "Source A" });
+    trackScan(a, () => {}).end(1);
+    expect(a).toMatchObject({ done: 1, found: 1 });
+  });
+
+  it("takes scans for a while after it ends", () => {
+    const groups = new Map<number, { scans: Scan[] }>();
+    setSystemTime(new Date(0));
+    const first = joinGroup(groups, 1, scan(), start);
+    trackScan(first.group.scans[0], () => {}).end(1);
+
+    setSystemTime(new Date(60_000));
+    const second = joinGroup(groups, 1, scan(), start);
+    expect(second).toEqual({ group: first.group, running: false });
+    for (const s of first.group.scans) trackScan(s, () => {}).end(0);
+
+    setSystemTime(new Date(60_000 + 2 * 60_000));
     const third = joinGroup(groups, 1, scan(), start);
-    expect(third.joined).toBe(false);
+    expect(third.group).not.toBe(first.group);
     expect(third.group.scans).toHaveLength(1);
   });
 });
