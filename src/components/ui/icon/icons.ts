@@ -229,4 +229,19 @@ export const Icons = {
     android: require("@expo/material-symbols/grid_view.xml"),
     web: "layout-grid",
   }),
+  themeSystem: Icon.select({
+    ios: "circle.lefthalf.filled",
+    android: require("@expo/material-symbols/brightness_4.xml"),
+    web: "sun-moon",
+  }),
+  themeLight: Icon.select({
+    ios: "sun.max",
+    android: require("@expo/material-symbols/light_mode.xml"),
+    web: "sun",
+  }),
+  themeDark: Icon.select({
+    ios: "moon",
+    android: require("@expo/material-symbols/dark_mode.xml"),
+    web: "moon",
+  }),
 };

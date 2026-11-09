@@ -1,4 +1,3 @@
-import ContrastIcon from "@expo/material-symbols/contrast.xml";
 import DnsIcon from "@expo/material-symbols/dns.xml";
 import ManageSearchIcon from "@expo/material-symbols/manage_search.xml";
 import PaletteIcon from "@expo/material-symbols/palette.xml";
@@ -25,7 +24,6 @@ import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { ThemePicker } from "@/components/blocks/theme-picker";
-import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/jetpack-compose/image";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
@@ -48,9 +46,8 @@ import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
+import { THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
-
-const PREFERENCE_LABELS = { system: "System", light: "Light", dark: "Dark" };
 
 /** M3 Expressive settings: labelled groups of segmented rows. */
 export function Settings() {
@@ -64,6 +61,9 @@ export function Settings() {
   const avatarUrl = useValue(session$.user.avatarUrl);
   const name = useValue(session$.user.name);
   const preference = useValue(settings$.theme.preference);
+  const theme =
+    THEME_OPTIONS.find((option) => option.id === preference) ??
+    THEME_OPTIONS[0];
   const autoPick = useValue(settings$.sources.autoPick);
   const dns = useDns();
   const languages = useValue(() =>
@@ -140,20 +140,26 @@ export function Settings() {
 
             <Label>Appearance</Label>
             <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
-              <SegmentedListItem index={0} count={2} {...row}>
-                <SegmentedListItem.Leading>
-                  <LeadingIcon name={ContrastIcon} />
-                </SegmentedListItem.Leading>
-                <Text>Theme</Text>
-                <SegmentedListItem.Supporting>
-                  <Text style={{ typography: "bodyMedium" }}>
-                    {PREFERENCE_LABELS[preference]}
-                  </Text>
-                </SegmentedListItem.Supporting>
-                <SegmentedListItem.Trailing>
-                  <ThemeToggle />
-                </SegmentedListItem.Trailing>
-              </SegmentedListItem>
+              <Menu
+                items={THEME_OPTIONS.map((option) => ({
+                  label: option.label,
+                  icon: option.icon,
+                  checked: option.id === preference,
+                  onPress: () => settings$.theme.preference.set(option.id),
+                }))}
+              >
+                <SegmentedListItem index={0} count={2} {...row}>
+                  <SegmentedListItem.Leading>
+                    <LeadingIcon name={theme.icon} />
+                  </SegmentedListItem.Leading>
+                  <Text>Theme</Text>
+                  <SegmentedListItem.Supporting>
+                    <Text style={{ typography: "bodyMedium" }}>
+                      {theme.label}
+                    </Text>
+                  </SegmentedListItem.Supporting>
+                </SegmentedListItem>
+              </Menu>
               <SegmentedListItem index={1} count={2} {...row}>
                 <SegmentedListItem.Leading>
                   <LeadingIcon name={PaletteIcon} />

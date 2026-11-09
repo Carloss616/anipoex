@@ -2,13 +2,14 @@ import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
 import { Avatar } from "panelui-web/avatar";
 import { Button } from "panelui-web/button";
+import { ButtonGroup } from "panelui-web/button-group";
 import { Frame } from "panelui-web/frame";
 import { Select } from "panelui-web/select";
 import { Switch } from "panelui-web/switch";
 import { ScrollView } from "react-native";
 import { ThemePicker } from "@/components/blocks/theme-picker";
-import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
+import { Icon } from "@/components/ui/icon";
 import {
   DNS_OPTIONS,
   isRuntimeAvailable,
@@ -22,6 +23,7 @@ import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
+import { THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const DNS_ITEMS = DNS_OPTIONS.map(({ id, name }) => ({
@@ -38,6 +40,7 @@ export function Settings() {
   const user = useValue(session$.user);
   const layout = useValue(() => layoutSummary(settings$.home.get()));
   const autoPick = useValue(settings$.sources.autoPick);
+  const preference = useValue(settings$.theme.preference);
   const { dns } = useDns();
   const languages = useValue(() =>
     languageOrder$.get().map(languageName).join(", "),
@@ -93,15 +96,29 @@ export function Settings() {
               <Frame.Title>Appearance</Frame.Title>
             </Frame.Header>
             <Frame.Panel data-attached="column">
-              <Frame.Row>
-                <Frame.Content>
+              <Frame.Row className="flex-wrap">
+                <Frame.Content className="basis-auto">
                   <Frame.Title as="p">Theme</Frame.Title>
-                  <Frame.Description>
-                    Right-click to follow the system
-                  </Frame.Description>
                 </Frame.Content>
                 <Frame.Actions>
-                  <ThemeToggle />
+                  <ButtonGroup aria-label="Theme">
+                    {THEME_OPTIONS.map((option) => (
+                      <Button
+                        key={option.id}
+                        size="sm"
+                        variant={
+                          preference === option.id ? "secondary" : "outline"
+                        }
+                        aria-pressed={preference === option.id}
+                        onClick={() =>
+                          settings$.theme.preference.set(option.id)
+                        }
+                      >
+                        <Icon name={option.icon} />
+                        {option.label}
+                      </Button>
+                    ))}
+                  </ButtonGroup>
                 </Frame.Actions>
               </Frame.Row>
               <Frame.Row className="flex-wrap">

@@ -1,6 +1,7 @@
 import {
   Button,
   HStack,
+  Label,
   List,
   Picker,
   Section,
@@ -23,12 +24,11 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
 import { ThemePicker } from "@/components/blocks/theme-picker";
-import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
-import { Icon, Icons } from "@/components/ui/icon";
+import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import {
   DNS_OPTIONS,
   type DnsId,
@@ -42,6 +42,8 @@ import { PRESET_LABELS } from "@/features/home/constants";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
+import type { ThemePreference } from "@/state/theme/constants";
+import { THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const AVATAR = 40;
@@ -54,6 +56,7 @@ export function Settings() {
   // The preset alone: the count doesn't fit beside the label in this font.
   const layout = useValue(() => PRESET_LABELS[settings$.home.preset.get()]);
   const autoPick = useValue(settings$.sources.autoPick);
+  const preference = useValue(settings$.theme.preference);
   const { dns } = useDns();
   const languages = useValue(() =>
     languageOrder$.get().map(languageName).join(", "),
@@ -121,11 +124,23 @@ export function Settings() {
             </Button>
           </Section>
           <Section modifiers={[rowBackground]} title="Appearance">
-            <HStack modifiers={ROW_FILL}>
-              <Text>Theme</Text>
-              <Spacer />
-              <ThemeToggle />
-            </HStack>
+            <Picker
+              label={<Text>Theme</Text>}
+              selection={preference}
+              onSelectionChange={(id: ThemePreference) =>
+                settings$.theme.preference.set(id)
+              }
+            >
+              {THEME_OPTIONS.map((option) => (
+                <Label
+                  key={option.id}
+                  systemImage={sfSymbol(option.icon)}
+                  modifiers={[tag(option.id)]}
+                >
+                  <Text>{option.label}</Text>
+                </Label>
+              ))}
+            </Picker>
             <VStack alignment="leading" spacing={10} modifiers={ROW_FILL}>
               <Text>Palette</Text>
               <ThemePicker />
