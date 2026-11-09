@@ -32,7 +32,8 @@ is stable across launches.
   ([stored](../stores/source-probes.md); [exclusions](../stores/source-exclusions.md) and
   [pins](../stores/source-pins.md) too). The header reads `Read c.{n}` / `Not started`, from
   the live progress, so finishing a chapter in the reader shows there (and in every `+N`)
-  without a rescan.
+  without a rescan; while Scan all runs it reads `Scanning {done} of {total}` over a progress
+  bar instead, on every platform.
 - **Which show**: every source of every installed extension, in any language; installing
   an extension is the choice. There is no language filter or setting.
 - **Names**: when an extension has more than one source, each name carries its language

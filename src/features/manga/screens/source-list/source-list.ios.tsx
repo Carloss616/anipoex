@@ -34,6 +34,7 @@ import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
+import { Progress } from "@/components/ui/progress";
 import { SearchBar } from "@/components/ui/search-bar";
 import { SheetToastHost } from "@/components/ui/toast";
 import { manualTitles } from "@/features/manga/state/manual-matches";
@@ -41,6 +42,7 @@ import {
   isScanBusy,
   probes$,
   scanningAll$,
+  scanProgress$,
 } from "@/features/manga/state/probes";
 import {
   areTitleSearching,
@@ -176,19 +178,34 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                       <Text textStyle="title3">Sources</Text>
                       <Badge>{available.length + excluded.length}</Badge>
                     </HStack>
-                    <HStack spacing={6}>
-                      <Text
-                        textStyle="subheadline"
-                        modifiers={[foregroundStyle("secondary")]}
-                      >
-                        {read > 0 ? "Read" : "Not started"}
-                      </Text>
-                      {read > 0 && <Badge>c.{read}</Badge>}
-                    </HStack>
+                    <Computed>
+                      {() => {
+                        const progress = scanProgress$[key].get();
+
+                        return progress ? (
+                          <Text
+                            textStyle="subheadline"
+                            modifiers={[foregroundStyle("secondary")]}
+                          >
+                            {`Scanning ${progress.done} of ${progress.total}`}
+                          </Text>
+                        ) : (
+                          <HStack spacing={6}>
+                            <Text
+                              textStyle="subheadline"
+                              modifiers={[foregroundStyle("secondary")]}
+                            >
+                              {read > 0 ? "Read" : "Not started"}
+                            </Text>
+                            {read > 0 && <Badge>c.{read}</Badge>}
+                          </HStack>
+                        );
+                      }}
+                    </Computed>
                   </VStack>
                   <Spacer />
                   {/* One glass capsule for both, as a native toolbar groups
-                    its items. */}
+                  its items. */}
                   <HStack
                     spacing={0}
                     modifiers={[
@@ -213,8 +230,8 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                           )}
                         >
                           {/* The menu's label is SwiftUI content: the icon,
-                            tinted while title search is on, as a native
-                            toolbar shows an active item. */}
+                          tinted while title search is on, as a native
+                          toolbar shows an active item. */}
                           <Icon
                             name={Icons.searchTitles}
                             color="inherit"
@@ -265,6 +282,17 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
                 </HStack>
               </Dialog.Trigger>
             </Dialog>
+
+            <Computed>
+              {() => {
+                const progress = scanProgress$[key].get();
+
+                return progress ? (
+                  <Progress value={progress.done} maxValue={progress.total} />
+                ) : null;
+              }}
+            </Computed>
+
             {title.searching ? (
               <SearchBar
                 key={title.fieldKey}

@@ -16,12 +16,14 @@ import {
 } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
+import { Progress } from "@/components/ui/progress";
 import { SearchBar } from "@/components/ui/search-bar";
 import { manualTitles } from "@/features/manga/state/manual-matches";
 import {
   isScanBusy,
   probes$,
   scanningAll$,
+  scanProgress$,
 } from "@/features/manga/state/probes";
 import {
   areTitleSearching,
@@ -144,13 +146,21 @@ function ListBody({
                 Sources <Badge>{available.length + excluded.length}</Badge>
               </Sheet.Title>
               <Sheet.Description>
-                {read > 0 ? (
-                  <>
-                    Read <Badge>c.{read}</Badge>
-                  </>
-                ) : (
-                  "Not started"
-                )}
+                <Computed>
+                  {() => {
+                    const progress = scanProgress$[key].get();
+
+                    return progress ? (
+                      `Scanning ${progress.done} of ${progress.total}`
+                    ) : read > 0 ? (
+                      <>
+                        Read <Badge>c.{read}</Badge>
+                      </>
+                    ) : (
+                      "Not started"
+                    );
+                  }}
+                </Computed>
               </Sheet.Description>
             </View>
             <ButtonGroup
@@ -201,6 +211,18 @@ function ListBody({
             </ButtonGroup>
           </View>
         </Sheet.Header>
+
+        <Computed>
+          {() => {
+            const progress = scanProgress$[key].get();
+
+            return progress ? (
+              <View className="px-4">
+                <Progress value={progress.done} maxValue={progress.total} />
+              </View>
+            ) : null;
+          }}
+        </Computed>
 
         <View className="px-4">
           {title.searching ? (
@@ -269,6 +291,7 @@ function ListBody({
                   title="Excluded"
                   count={excluded.length}
                   menu={excludedMenu}
+                  stuckVariant="destructive"
                 />
               )
             ) : item.kind === "no-sources" ? (
