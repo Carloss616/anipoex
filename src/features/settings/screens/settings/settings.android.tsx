@@ -34,7 +34,12 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { Icon, type IconName, Icons } from "@/components/ui/icon";
-import { DnsPicker, languageName, languageOrder$ } from "@/features/extensions";
+import {
+  DnsPicker,
+  languageName,
+  languageOrder$,
+  useLoadInstalled,
+} from "@/features/extensions";
 import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
@@ -45,6 +50,7 @@ const PREFERENCE_LABELS = { system: "System", light: "Light", dark: "Dark" };
 
 /** M3 Expressive settings: labelled groups of segmented rows. */
 export function Settings() {
+  useLoadInstalled();
   const { greeting, signOut } = useSignOut();
   const router = useRouter();
   const headerHeight = useHeaderHeight();

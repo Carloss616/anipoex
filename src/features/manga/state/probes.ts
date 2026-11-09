@@ -295,7 +295,13 @@ export async function scanSources(args: {
         {
           action: {
             label: "Undo",
-            onAction: () => restoreMatch(mangaId, previous),
+            // Only while the pick is still this scan's: the user may have
+            // picked by hand since.
+            onAction: () => {
+              const now = readMatch(source$[mangaId].peek());
+              if (now?.auto && now.sourceId === picked.id)
+                restoreMatch(mangaId, previous);
+            },
           },
         },
       );

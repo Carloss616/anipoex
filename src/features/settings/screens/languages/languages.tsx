@@ -7,7 +7,11 @@ import { memo } from "react";
 import { ScrollView, View } from "react-native";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Icon } from "@/components/ui/icon";
-import { languageName, languageOrder$ } from "@/features/extensions";
+import {
+  languageName,
+  languageOrder$,
+  useLoadInstalled,
+} from "@/features/extensions";
 import { useDragReorder } from "@/hooks/use-drag-reorder";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { settings$ } from "@/state/settings";
@@ -16,6 +20,7 @@ import { EMPTY, FOOTNOTE } from "./constants";
 
 /** The installed languages as rows with a drag handle. */
 export function Languages() {
+  useLoadInstalled();
   const headerScroll = useHeaderScroll();
   const order = useValue(() => languageOrder$.get().join()).split(",");
   const codes = order.filter(Boolean);

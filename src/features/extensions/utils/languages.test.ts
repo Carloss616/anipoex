@@ -42,6 +42,10 @@ describe("isMulti", () => {
   it("is false for one language, region included", () => {
     expect(isMulti(ext("d", ["es-419"]))).toBe(false);
   });
+
+  it("is false for regions of one language", () => {
+    expect(isMulti(ext("e", ["es", "es-419"]))).toBe(false);
+  });
 });
 
 describe("singleLanguages", () => {

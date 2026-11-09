@@ -26,7 +26,12 @@ import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
-import { DnsPicker, languageName, languageOrder$ } from "@/features/extensions";
+import {
+  DnsPicker,
+  languageName,
+  languageOrder$,
+  useLoadInstalled,
+} from "@/features/extensions";
 import { PRESET_LABELS } from "@/features/home/constants";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
@@ -36,6 +41,7 @@ import { useSignOut } from "./hooks/use-sign-out";
 const AVATAR = 40;
 
 export function Settings() {
+  useLoadInstalled();
   const router = useRouter();
   const { greeting, signOut } = useSignOut();
   const buttonFont = useFont("body");

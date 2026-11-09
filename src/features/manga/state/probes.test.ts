@@ -425,6 +425,16 @@ describe("scanSources", () => {
     expect(source$[201].get()).toEqual(before);
   });
 
+  it("a late Undo leaves a pick the user made after the scan", async () => {
+    const done = scan({ sources: sources("a") });
+    await answer("a", [3]);
+    await done;
+    source$[201].set({ sourceId: "c" });
+
+    shown.mock.calls.at(-1)?.[1]?.action?.onAction();
+    expect(source$[201].get()).toEqual({ sourceId: "c" });
+  });
+
   it("a scan never replaces a pick made by hand", async () => {
     source$[201].set({ sourceId: "a", manga: { url: "/a", title: "T" } });
     const done = scan({ sources: sources("a", "b"), keep: "a" });

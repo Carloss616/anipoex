@@ -4,14 +4,16 @@ import type { Source } from "@/features/manga/utils/source";
 import { installed$, refreshInstalled } from "../state/extensions";
 import { toSources, withChosen } from "../utils/sources";
 
-function useInstalled() {
-  const installed = useValue(installed$);
-
+/** Reads what the runtime has installed when the screen opens. */
+export function useLoadInstalled() {
   useEffect(() => {
     refreshInstalled();
   }, []);
+}
 
-  return installed;
+function useInstalled() {
+  useLoadInstalled();
+  return useValue(installed$);
 }
 
 /**

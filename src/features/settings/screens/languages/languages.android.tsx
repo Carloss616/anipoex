@@ -15,7 +15,11 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { ContextMenu } from "@/components/ui/menu";
-import { languageName, languageOrder$ } from "@/features/extensions";
+import {
+  languageName,
+  languageOrder$,
+  useLoadInstalled,
+} from "@/features/extensions";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { settings$ } from "@/state/settings";
 import { moveTo } from "@/utils/move-to";
@@ -23,6 +27,7 @@ import { EMPTY, FOOTNOTE } from "./constants";
 
 /** M3 has no drag to reorder a list: a row's long-press menu moves it. */
 export function Languages() {
+  useLoadInstalled();
   const codes = useValue(() => languageOrder$.get().join())
     .split(",")
     .filter(Boolean);

@@ -13,6 +13,7 @@ import {
   isRuntimeAvailable,
   languageName,
   languageOrder$,
+  useLoadInstalled,
 } from "@/features/extensions";
 import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
@@ -22,6 +23,7 @@ import { useSignOut } from "./hooks/use-sign-out";
 
 /** The settings as Frames in a narrow column under the header. */
 export function Settings() {
+  useLoadInstalled();
   const router = useRouter();
   const headerScroll = useHeaderScroll();
   const { greeting, signOut } = useSignOut();

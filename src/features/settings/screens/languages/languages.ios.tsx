@@ -9,7 +9,11 @@ import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { Text } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
-import { languageName, languageOrder$ } from "@/features/extensions";
+import {
+  languageName,
+  languageOrder$,
+  useLoadInstalled,
+} from "@/features/extensions";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { settings$ } from "@/state/settings";
 import { moveTo } from "@/utils/move-to";
@@ -17,6 +21,7 @@ import { EMPTY, FOOTNOTE } from "./constants";
 
 /** The List stays in edit mode, so every language shows its reorder handle. */
 export function Languages() {
+  useLoadInstalled();
   const codes = useValue(() => languageOrder$.get().join())
     .split(",")
     .filter(Boolean);

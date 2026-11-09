@@ -6,10 +6,13 @@ export const baseLang = (code: string) =>
 
 const isAll = (code: string) => code === "all" || code === "mul";
 
-/** An extension whose sources span several languages, or all of them. */
+/**
+ * An extension whose sources span several languages, or all of them; regions
+ * of one language (`es`, `es-419`) are one.
+ */
 export function isMulti(ext: { sources: { lang: string }[] }): boolean {
-  const codes = new Set(ext.sources.map(({ lang }) => lang));
-  return codes.size > 1 || [...codes].some(isAll);
+  const codes = ext.sources.map(({ lang }) => lang);
+  return new Set(codes.map(baseLang)).size > 1 || codes.some(isAll);
 }
 
 /** The base languages of the installed single-language extensions. */
