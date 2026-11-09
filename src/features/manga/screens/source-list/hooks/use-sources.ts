@@ -3,9 +3,7 @@ import { useState } from "react";
 import {
   isRuntimeAvailable,
   languages$,
-  useAllInstalledSources,
   useInstalledSources,
-  withChosen,
 } from "@/features/extensions";
 import { challenged$ } from "@/features/manga/state/challenged";
 import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
@@ -27,11 +25,7 @@ const NO_PREFS = { challenged: {}, languages: [] };
 export function useSources({ mangaId }: { mangaId: number }) {
   const [query, setQuery] = useState("");
   const chosenId = useValue(() => readMatch(source$[mangaId].get())?.sourceId);
-  const all = withChosen(
-    useInstalledSources(),
-    useAllInstalledSources(),
-    chosenId,
-  );
+  const all = useInstalledSources(chosenId);
   const key = mediaKey(mangaId);
   const excluded = useValue(exclusions$[key]) ?? {};
   const pinned = useValue(pins$[key]) ?? {};
