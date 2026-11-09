@@ -58,6 +58,7 @@ object Bridge {
             "mangaWebUrl" -> host.mangaWebUrl(string("sourceId"), string("mangaUrl"))
             "getDns" -> host.getDns()
             "setDns" -> host.setDns(string("dns"))
+            "challengedHosts" -> host.challengedHosts()
             "pages" -> host.pages(string("sourceId"), string("chapterUrl"), args["memo"]?.jsonPrimitive?.contentOrNull)
             "image" -> host.image(string("sourceId"), string("imageUrl"), int("index"))
             else -> error("Unknown method $method")

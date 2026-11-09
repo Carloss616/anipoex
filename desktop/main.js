@@ -67,6 +67,7 @@ const METHODS = new Set([
   "mangaWebUrl",
   "getDns",
   "setDns",
+  "challengedHosts",
   "pages",
 ]);
 

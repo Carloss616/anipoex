@@ -19,6 +19,7 @@ import dalvik.system.DelegateLastClassLoader
 import dalvik.system.PathClassLoader
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
+import eu.kanade.tachiyomi.network.interceptor.ChallengedHosts
 import eu.kanade.tachiyomi.network.awaitSuccess
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.Source
@@ -122,6 +123,8 @@ class ExtensionRuntimeModule : Module() {
     AsyncFunction("getDns") { Injekt.get<NetworkHelper>().dns }
 
     AsyncFunction("setDns") { dns: String -> Injekt.get<NetworkHelper>().dns = dns }
+
+    AsyncFunction("challengedHosts") { ChallengedHosts.hosts.toList() }
 
     AsyncFunction("mangaWebUrl") Coroutine { sourceId: String, mangaUrl: String ->
       withContext(Dispatchers.IO) {

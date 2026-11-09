@@ -37,4 +37,5 @@ export const runtime: RuntimeApi = {
     (await clean(native.image(sourceId, page.imageUrl, page.index))).uri,
   getDns: () => clean(native.getDns()),
   setDns: (dns) => clean(native.setDns(dns)),
+  challengedHosts: () => clean(native.challengedHosts()),
 };

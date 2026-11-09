@@ -18,4 +18,5 @@ export const unavailableRuntime: RuntimeApi = {
   pageImage: unavailable,
   getDns: unavailable,
   setDns: unavailable,
+  challengedHosts: async () => [],
 };

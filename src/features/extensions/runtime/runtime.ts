@@ -96,6 +96,8 @@ export interface RuntimeApi {
   getDns(): Promise<DnsId>;
   /** Applies to the next lookup of every source; the runtime stores it. */
   setDns(dns: DnsId): Promise<void>;
+  /** Hosts that served a Cloudflare challenge since the runtime started. */
+  challengedHosts(): Promise<string[]>;
 }
 
 /** Desktop runs extensions in its JVM sidecar; a plain browser has none. */

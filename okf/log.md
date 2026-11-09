@@ -5,6 +5,7 @@
 * **One settings table**: the theme, Home layout, manga list view and extension repos move into one `settings` object, with a `device` section for values that never leave the device. The first launch moves the old tables in once and deletes them. Added [settings](stores/settings.md); updated [theme](stores/theme.md), [Home layout](stores/home-layout.md), [manga list view](stores/manga-list-view.md), [extension repos](stores/extension-repos.md).
 * **DNS in settings**: the extension DNS is kept in settings' device section, and the runtime is handed it at launch; a device with none yet keeps the runtime's. Updated [extension DNS](stores/extension-dns.md).
 * **Multi-language extensions follow your languages**: a multi-language extension offers only the languages of the installed single-language ones (by base language), plus its all-languages source; a chosen source stays listed. Languages have an order, the device's first. Updated [source](concepts/source.md), [settings](stores/settings.md).
+* **Sources behind Cloudflare are remembered**: the runtime notes the hosts that answer with a Cloudflare challenge, and a scan marks the sources on those sites for good. Added [challenged sources](stores/source-challenged.md).
 
 ## 2026-11-08
 

@@ -21,6 +21,7 @@ describe("bridgeRuntime", () => {
     await runtime.mangaWebUrl("1", "/m");
     await runtime.pages("1", "/c", '{"slug":"s"}');
     await runtime.setDns("quad9");
+    await runtime.challengedHosts();
     expect(calls).toEqual([
       ["installed", {}],
       ["install", { apkUrl: "https://example.com/a.apk", signingKey: "k" }],
@@ -30,6 +31,7 @@ describe("bridgeRuntime", () => {
       ["mangaWebUrl", { sourceId: "1", mangaUrl: "/m" }],
       ["pages", { sourceId: "1", chapterUrl: "/c", memo: '{"slug":"s"}' }],
       ["setDns", { dns: "quad9" }],
+      ["challengedHosts", {}],
     ]);
   });
 

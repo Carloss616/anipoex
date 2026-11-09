@@ -23,6 +23,7 @@ import { readMatch, type Titles } from "../utils/source-match";
 import { type ProbeRead, toProbe } from "../utils/source-probe";
 import { toChapters } from "../utils/to-chapters";
 import { CHAPTERS_TIMEOUT_MS, SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
+import { recordChallenges } from "./challenged";
 import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
 import { readManual } from "./manual-matches";
@@ -263,6 +264,7 @@ export async function scanSources(args: {
       scanProgress$[key].delete();
     }
     activity.end(Object.values(landed).filter((p) => p.matched).length);
+    await recordChallenges(sources);
     // A manga read from no source gets the best one, so its +N shows.
     if (!readMatch(source$[mangaId].peek())) {
       const best = bestSource(

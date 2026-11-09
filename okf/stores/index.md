@@ -30,6 +30,7 @@ IndexedDB), and nothing persists during web's server render.
 * [Source exclusions](source-exclusions.md) - Sources dropped from a manga's list, and why.
 * [Source pins](source-pins.md) - Exclusions and inclusions the user decided by hand.
 * [Source probes](source-probes.md) - What the last scan found for each source and manga.
+* [Challenged sources](source-challenged.md) - Sources whose site has served a Cloudflare challenge.
 * [Source chapters](source-chapters.md) - The last chapter list each manga's source answered with.
 * [Reader pages](reader-pages.md) - Page images as their source's client downloaded them; the newest 500.
 

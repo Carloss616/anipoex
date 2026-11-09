@@ -31,7 +31,9 @@ const chapters = mock((sourceId: string, url: string, _title: string) => {
   });
 });
 
-mock.module("@/features/extensions", () => ({ runtime: { search, chapters } }));
+mock.module("@/features/extensions", () => ({
+  runtime: { search, chapters, challengedHosts: async () => [] },
+}));
 mock.module("@/components/ui/toast", () => ({ toast: { error() {} } }));
 const activity = {
   progress: mock((_done: number) => {}),

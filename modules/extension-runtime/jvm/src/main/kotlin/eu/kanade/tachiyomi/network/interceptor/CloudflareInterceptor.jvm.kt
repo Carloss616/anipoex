@@ -45,13 +45,15 @@ class CloudflareInterceptor(
         val browserFetch = Host.fetch?.takeIf { request.url.host in browserHosts }
         // Through the browser too: a clearance that expired gets challenged again and is solved again.
         val response = browserFetch?.let { fetch(it, request) } ?: chain.proceed(request)
-        val solve = Host.solveChallenge
         // The cf-mitigated header is Cloudflare's own way to tell a challenge.
-        if (solve == null || response.header("cf-mitigated") != "challenge" || response.header("Server") !in SERVER_CHECK) {
+        if (response.header("cf-mitigated") != "challenge" || response.header("Server") !in SERVER_CHECK) {
             return response
         }
         // After a redirect, the challenge is the landing host's.
         val challenged = response.request.url
+        ChallengedHosts.hosts += request.url.host
+        ChallengedHosts.hosts += challenged.host
+        val solve = Host.solveChallenge ?: return response
         val solves = hostSolves[challenged.host]
         response.close()
         synchronized(hostLocks.computeIfAbsent(challenged.host) { Any() }) {

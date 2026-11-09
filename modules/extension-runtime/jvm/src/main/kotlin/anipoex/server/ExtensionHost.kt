@@ -4,6 +4,7 @@ import android.app.Application
 import anipoex.runtime.PageCache
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
+import eu.kanade.tachiyomi.network.interceptor.ChallengedHosts
 import eu.kanade.tachiyomi.network.awaitSuccess
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.Source
@@ -178,6 +179,8 @@ class ExtensionHost(dataDir: File) {
     fun setDns(dns: String) {
         Injekt.get<NetworkHelper>().dns = dns
     }
+
+    fun challengedHosts(): List<String> = ChallengedHosts.hosts.toList()
 
     // Null when the source isn't an HttpSource or can't build the url.
     fun mangaWebUrl(sourceId: String, mangaUrl: String): String? = try {

@@ -78,6 +78,8 @@ class CloudflareInterceptor(
         // The host that challenged, which a redirect can make another than the one requested (a source's domain
         // moved): its clearance lands there, and the retry's redirect sends it. Upstream reads request.url.
         val challenged = response.request.url
+        ChallengedHosts.hosts += request.url.host
+        ChallengedHosts.hosts += challenged.host
 
         // write releases the read hold of a request made from within another to the same host, like an extension
         // refreshing a token, which would otherwise wait on itself

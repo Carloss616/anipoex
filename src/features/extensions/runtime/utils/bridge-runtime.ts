@@ -40,5 +40,6 @@ export const bridgeRuntime = (send: Send): RuntimeApi => {
       ).uri,
     getDns: () => call("getDns"),
     setDns: (dns) => call("setDns", { dns }),
+    challengedHosts: () => call("challengedHosts"),
   };
 };
