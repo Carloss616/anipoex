@@ -2,13 +2,16 @@
 type: Persisted Store
 title: Extension DNS
 description: The resolver extensions look hosts up with, picked in Settings.
-resource: ../../modules/extension-runtime/android/src/main/java/eu/kanade/tachiyomi/network/NetworkHelper.kt
+resource: ../../src/features/extensions/state/dns.ts
 tags: [extensions, network, preferences, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-21T00:00:00Z }
 ---
 
-Key `dns` in the extension runtime's own `network` preferences (Android SharedPreferences;
-a JSON file under the runtime's data dir on desktop and iOS), not in MMKV.
+The choice is `device.dns` in [settings](settings.md): it belongs to this device and never
+syncs. The runtime keeps its own copy, key `dns` in its `network` preferences (Android
+SharedPreferences; a JSON file under the runtime's data dir on desktop and iOS), which the
+app sets at launch and on every change. A device whose settings have no choice yet takes the
+runtime's.
 
 | Value | Resolver |
 |---|---|

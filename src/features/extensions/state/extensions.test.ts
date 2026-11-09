@@ -52,6 +52,7 @@ const installed = mock(async () => [
 const toastError = mock((_label: string) => {});
 
 mock.module("../runtime", () => ({
+  isRuntimeAvailable: false,
   runtime: { install, installed, uninstall: mock(async () => {}) },
 }));
 mock.module("@/components/ui/toast", () => ({ toast: { error: toastError } }));

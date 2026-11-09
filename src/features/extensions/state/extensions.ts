@@ -5,6 +5,7 @@ import { type InstalledExtension, runtime } from "../runtime";
 import { type Extension, hasUpdate, keepUnchanged } from "../utils/extension";
 import { toExtensions } from "../utils/registry";
 import { fetchIndex } from "../utils/repo";
+import "./dns";
 
 /** Catalog of the added repos merged with what the runtime has installed. */
 export const extensions$ = observable<Extension[]>([]);

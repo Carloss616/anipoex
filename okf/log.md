@@ -3,6 +3,7 @@
 ## 2026-11-09
 
 * **One settings table**: the theme, Home layout, manga list view and extension repos move into one `settings` object, with a `device` section for values that never leave the device. The first launch moves the old tables in once and deletes them. Added [settings](stores/settings.md); updated [theme](stores/theme.md), [Home layout](stores/home-layout.md), [manga list view](stores/manga-list-view.md), [extension repos](stores/extension-repos.md).
+* **DNS in settings**: the extension DNS is kept in settings' device section, and the runtime is handed it at launch; a device with none yet keeps the runtime's. Updated [extension DNS](stores/extension-dns.md).
 
 ## 2026-11-08
 
