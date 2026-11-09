@@ -61,9 +61,11 @@
   :root {
     --glass-tint: var(--color-background);
     --glass-edge: rgb(255 255 255 / 0.92);
+    --glass-edge-far: rgb(255 255 255 / 0.4);
   }
   .dark {
     --glass-edge: rgb(255 255 255 / 0.14);
+    --glass-edge-far: rgb(255 255 255 / 0.06);
   }
 }
 
@@ -87,18 +89,33 @@
   @apply glass-veil-66 glass-blur-28 glass-saturate-180;
   /* Dark takes more veil: black shows more through. */
   @apply dark:glass-veil-72 dark:glass-blur-32 dark:glass-saturate-160;
-  background-color: color-mix(
-    in oklab,
-    var(--glass-tint) var(--glass-veil),
-    transparent
+  /* Denser at the top, as if lit from above. */
+  /* biome-ignore lint/complexity/noImportantStyles: a `bg-*` (ButtonGroup's `bg-muted`) would paint under the gradient */
+  background-color: transparent !important;
+  background-image: linear-gradient(
+    color-mix(
+      in oklab,
+      var(--glass-tint) calc(var(--glass-veil) + 4%),
+      transparent
+    ),
+    color-mix(
+      in oklab,
+      var(--glass-tint) calc(var(--glass-veil) - 4%),
+      transparent
+    )
   );
   /* Saturate restores the color the blur averages to grey. */
   -webkit-backdrop-filter: saturate(var(--glass-saturate))
     blur(var(--glass-blur));
   backdrop-filter: saturate(var(--glass-saturate)) blur(var(--glass-blur));
-  @apply inset-shadow-[0_1px_0_var(--glass-edge)];
+  /* Light from the top left, and its reflection on the far rim. */
+  @apply inset-shadow-[1px_1px_0_var(--glass-edge),-1px_-1px_0_var(--glass-edge-far)];
+  /* A grey drop shadow vanishes on a dark backdrop. */
+  @apply dark:shadow-black/40;
   @media (prefers-reduced-transparency: reduce) {
-    background-color: var(--glass-tint);
+    /* biome-ignore lint/complexity/noImportantStyles: beats the transparent one above */
+    background-color: var(--glass-tint) !important;
+    background-image: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
