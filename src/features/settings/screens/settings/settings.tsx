@@ -3,16 +3,19 @@ import { Stack, useRouter } from "expo-router";
 import { Avatar } from "panelui-web/avatar";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
+import { Select } from "panelui-web/select";
 import { Switch } from "panelui-web/switch";
 import { ScrollView } from "react-native";
 import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import {
-  DnsPicker,
+  DNS_OPTIONS,
   isRuntimeAvailable,
   languageName,
   languageOrder$,
+  selectDns,
+  useDns,
   useLoadInstalled,
 } from "@/features/extensions";
 import { layoutSummary } from "@/features/home/utils/home-layout";
@@ -20,6 +23,11 @@ import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
 import { useSignOut } from "./hooks/use-sign-out";
+
+const DNS_ITEMS = DNS_OPTIONS.map(({ id, name }) => ({
+  value: id,
+  label: name,
+}));
 
 /** The settings as Frames in a narrow column under the header. */
 export function Settings() {
@@ -30,6 +38,7 @@ export function Settings() {
   const user = useValue(session$.user);
   const layout = useValue(() => layoutSummary(settings$.home.get()));
   const autoPick = useValue(settings$.sources.autoPick);
+  const { dns } = useDns();
   const languages = useValue(() =>
     languageOrder$.get().map(languageName).join(", "),
   );
@@ -160,7 +169,22 @@ export function Settings() {
                     </Frame.Description>
                   </Frame.Content>
                   <Frame.Actions>
-                    <DnsPicker />
+                    <Select
+                      items={DNS_ITEMS}
+                      value={dns}
+                      onValueChange={(id) => id && selectDns(id)}
+                    >
+                      <Select.Trigger variant="ghost" aria-label="DNS">
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {DNS_ITEMS.map((item) => (
+                          <Select.Item key={item.value} value={item.value}>
+                            {item.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                   </Frame.Actions>
                 </Frame.Row>
               </Frame.Panel>

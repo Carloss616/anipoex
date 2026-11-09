@@ -13,6 +13,14 @@ if (isRuntimeAvailable) {
   else runtime.setDns(stored).catch(() => {});
 }
 
+export const DNS_OPTIONS: { id: DnsId; name: string }[] = [
+  { id: "system", name: "System" },
+  { id: "cloudflare", name: "Cloudflare" },
+  { id: "google", name: "Google" },
+  { id: "adguard", name: "AdGuard" },
+  { id: "quad9", name: "Quad9" },
+];
+
 export function selectDns(next: DnsId) {
   const previous = settings$.device.dns.peek();
   settings$.device.dns.set(next);

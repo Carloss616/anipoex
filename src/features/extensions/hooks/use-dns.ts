@@ -1,10 +1,9 @@
 import { useValue } from "@legendapp/state/react";
 import type { MenuAction } from "@/components/ui/menu";
 import { settings$ } from "@/state/settings";
-import { selectDns } from "../../../state/dns";
-import { DNS_OPTIONS } from "../constants";
+import { DNS_OPTIONS, selectDns } from "../state/dns";
 
-/** The DNS choice as a trigger label and one checked row per option. */
+/** The DNS choice, its name and one checked menu row per option. */
 export function useDns() {
   const dns = useValue(settings$.device.dns);
 
@@ -15,5 +14,5 @@ export function useDns() {
     onPress: () => selectDns(option.id),
   }));
 
-  return { label: name ? `DNS: ${name}` : "DNS", items };
+  return { dns: dns ?? null, name, items };
 }

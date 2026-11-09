@@ -36,10 +36,11 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { Icon, type IconName, Icons } from "@/components/ui/icon";
+import { Menu } from "@/components/ui/menu";
 import {
-  DnsPicker,
   languageName,
   languageOrder$,
+  useDns,
   useLoadInstalled,
 } from "@/features/extensions";
 import { layoutSummary } from "@/features/home/utils/home-layout";
@@ -64,6 +65,7 @@ export function Settings() {
   const name = useValue(session$.user.name);
   const preference = useValue(settings$.theme.preference);
   const autoPick = useValue(settings$.sources.autoPick);
+  const dns = useDns();
   const languages = useValue(() =>
     languageOrder$.get().map(languageName).join(", "),
   );
@@ -206,18 +208,20 @@ export function Settings() {
             </Column>
 
             <Label>Network</Label>
-            <SegmentedListItem index={0} count={1} {...row}>
-              <SegmentedListItem.Leading>
-                <LeadingIcon name={DnsIcon} />
-              </SegmentedListItem.Leading>
-              <Text>DNS</Text>
-              <SegmentedListItem.Supporting>
-                <Text style={{ typography: "bodyMedium" }}>For extensions</Text>
-              </SegmentedListItem.Supporting>
-              <SegmentedListItem.Trailing>
-                <DnsPicker />
-              </SegmentedListItem.Trailing>
-            </SegmentedListItem>
+            {/* The value as the supporting line, where M3 lists show it. */}
+            <Menu items={dns.items}>
+              <SegmentedListItem index={0} count={1} {...row}>
+                <SegmentedListItem.Leading>
+                  <LeadingIcon name={DnsIcon} />
+                </SegmentedListItem.Leading>
+                <Text>DNS</Text>
+                <SegmentedListItem.Supporting>
+                  <Text style={{ typography: "bodyMedium" }}>
+                    {dns.name ?? ""}
+                  </Text>
+                </SegmentedListItem.Supporting>
+              </SegmentedListItem>
+            </Menu>
 
             <Box
               contentAlignment="center"

@@ -2,6 +2,7 @@ import {
   Button,
   HStack,
   List,
+  Picker,
   Section,
   Spacer,
   Toggle,
@@ -17,6 +18,7 @@ import {
   listStyle,
   onTapGesture,
   scrollContentBackground,
+  tag,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
@@ -28,9 +30,12 @@ import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
 import {
-  DnsPicker,
+  DNS_OPTIONS,
+  type DnsId,
   languageName,
   languageOrder$,
+  selectDns,
+  useDns,
   useLoadInstalled,
 } from "@/features/extensions";
 import { PRESET_LABELS } from "@/features/home/constants";
@@ -49,6 +54,7 @@ export function Settings() {
   // The preset alone: the count doesn't fit beside the label in this font.
   const layout = useValue(() => PRESET_LABELS[settings$.home.preset.get()]);
   const autoPick = useValue(settings$.sources.autoPick);
+  const { dns } = useDns();
   const languages = useValue(() =>
     languageOrder$.get().map(languageName).join(", "),
   );
@@ -151,11 +157,17 @@ export function Settings() {
             </Button>
           </Section>
           <Section modifiers={[rowBackground]} title="Network">
-            <HStack modifiers={ROW_FILL}>
-              <Text>DNS</Text>
-              <Spacer />
-              <DnsPicker />
-            </HStack>
+            <Picker
+              label={<Text>DNS</Text>}
+              selection={dns}
+              onSelectionChange={(id: DnsId | null) => id && selectDns(id)}
+            >
+              {DNS_OPTIONS.map((option) => (
+                <Text key={option.id} modifiers={[tag(option.id)]}>
+                  {option.name}
+                </Text>
+              ))}
+            </Picker>
           </Section>
           <Section modifiers={[rowBackground]}>
             <Button

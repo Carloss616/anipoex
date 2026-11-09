@@ -1,7 +1,8 @@
-export * from "./components/dns-picker";
+export * from "./hooks/use-dns";
 export * from "./hooks/use-installed-sources";
 export * from "./runtime";
 export { RUNTIME_UNAVAILABLE } from "./runtime/utils/unavailable";
+export * from "./state/dns";
 export * from "./state/extensions";
 export * from "./state/languages";
 export * from "./state/repos";
