@@ -24,6 +24,7 @@ Legend State v3 docs for LLMs: [llms.txt](https://www.legendapp.com/open-source/
 
 Legend State gotchas:
 
+- Never hide a subtree that reads observables with `<Activity hidden>`: it unsubscribes every `useValue`/`Computed` inside, and Legend never checks what changed meanwhile, so a `memo` row came back with the old value (the list's `+N`). Hide it with Suspense, which keeps passive effects: the web `LegendList`'s `Frozen` (`src/components/layout/legend-list.tsx`).
 - `useObservable` with a computed at its root freezes under Fast Refresh: put computeds under a plain root, `useObservable({ canAdd: () => … })` (see `use-manga-list.ts`).
 - `@expo/ui` native `Text` takes only a string child: wrap the whole `Text` in `Computed`, never its content.
 - To reset state when an observable changes, use `useObserve(obs$, reaction)`, not a `useEffect` keyed on its value: `bun run check:fix` (Biome, unsafe) silently drops deps the effect body doesn't read (`use-title-mode.ts`).

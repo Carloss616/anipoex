@@ -8,9 +8,11 @@ import {
 } from "@legendapp/list/react-native";
 import { useIsFocused } from "expo-router";
 import {
-  Activity,
   createElement,
   isValidElement,
+  type ReactNode,
+  Suspense,
+  use,
   useImperativeHandle,
   useRef,
 } from "react";
@@ -22,6 +24,8 @@ import {
 } from "./animated-legend-list";
 
 export type { LegendListRef };
+
+const NEVER = new Promise<never>(() => {});
 
 const SLOT_CLASS_NAMES = {
   ListHeaderComponentStyle: {
@@ -110,13 +114,7 @@ export function LegendList<T>({
   return (
     // A blurred web screen is display: none, where the list measures its rows
     // as 0 and keeps adding more
-    <Activity
-      mode={
-        Platform.OS === "web" && !focused && !visibleWhenBlurred
-          ? "hidden"
-          : "visible"
-      }
-    >
+    <Frozen frozen={Platform.OS === "web" && !focused && !visibleWhenBlurred}>
       {/*
        * rn-web puts `style` on the RefreshControl and its ScrollView: a top
        * margin there lands twice
@@ -209,6 +207,37 @@ export function LegendList<T>({
           {...(props as LegendListBaseProps<unknown>)}
         />
       </View>
-    </Activity>
+    </Frozen>
   );
+}
+
+/**
+ * Hides its children without unmounting them, as react-freeze does. Not
+ * `<Activity hidden>`: that unsubscribes every `useValue` inside, and a
+ * `memo` row kept the value from before when shown again (the list's `+N`).
+ * Suspense only disconnects layout effects, so nothing measures meanwhile.
+ */
+function Frozen({
+  frozen,
+  children,
+}: {
+  frozen: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <Suspender frozen={frozen}>{children}</Suspender>
+    </Suspense>
+  );
+}
+
+function Suspender({
+  frozen,
+  children,
+}: {
+  frozen: boolean;
+  children: ReactNode;
+}) {
+  if (frozen) use(NEVER);
+  return children;
 }
