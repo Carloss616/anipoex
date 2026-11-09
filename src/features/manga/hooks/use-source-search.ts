@@ -1,4 +1,4 @@
-import { useInstalledSources } from "@/features/extensions";
+import { useAllInstalledSources } from "@/features/extensions";
 import { manualTitles } from "../state/manual-matches";
 import { recordProbe } from "../state/probes";
 import { resumeSource, selectSource } from "../state/source";
@@ -12,7 +12,7 @@ import type { MangaDetail } from "../utils/to-detail";
 export function useSourceSearch(
   manga: Pick<MangaDetail, "id" | "title" | "synonyms"> | undefined,
 ) {
-  const sources = useInstalledSources();
+  const sources = useAllInstalledSources();
 
   const run =
     (action: typeof selectSource | typeof resumeSource) =>

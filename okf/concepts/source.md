@@ -1,7 +1,7 @@
 ---
 type: Domain Concept
 title: Source
-description: A source of an installed extension, in any language; each manga remembers the one picked for it.
+description: A source of an installed extension, in your languages; each manga remembers the one picked for it.
 tags: [sources, reading]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
@@ -34,8 +34,16 @@ is stable across launches.
   the live progress, so finishing a chapter in the reader shows there (and in every `+N`)
   without a rescan; while Scan all runs it reads `Scanning {done} of {total}` over a progress
   bar instead, on every platform.
-- **Which show**: every source of every installed extension, in any language; installing
-  an extension is the choice. There is no language filter or setting.
+- **Which show**: every source of every single-language extension. A multi-language
+  extension (its sources span several languages, or one covers all of them) offers only
+  the languages of the installed single-language extensions, by base language (an `es-419`
+  extension brings in a multi's `es` and `es-419`), plus its all-languages source; installing
+  an extension in a new language adds it to every multi one. With only multi extensions
+  installed, nothing is hidden. A source already chosen for a manga stays listed for it, and
+  keeps its continue button and `+N`, even when its language is hidden.
+- **Language order**: Settings lists the installed single-language extensions' languages,
+  the device's language first and the rest alphabetically until the user reorders them; a
+  newly installed language goes last. Sources tied on new chapters rank by it.
 - **Names**: when an extension has more than one source, each name carries its language
   (`Source (ES-419)`); with one, just the name. Nothing installed, nothing listed.
   In the source sheet the name goes without it, and every row shows the language as its

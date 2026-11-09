@@ -13,7 +13,7 @@ import {
   isRuntimeAvailable,
   RUNTIME_UNAVAILABLE,
   refreshInstalled,
-  useInstalledSources,
+  useAllInstalledSources,
 } from "@/features/extensions";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
 import { useSourceChapters } from "@/features/manga/hooks/use-source-chapters";
@@ -55,7 +55,7 @@ export function MangaDetail() {
   const maxHeaderHeight = useMaxHeaderHeight();
   const mutedForeground = useThemeColor("muted-foreground");
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
-  const sources = useInstalledSources();
+  const sources = useAllInstalledSources();
   const { match, matching } = useSourceMatch(Number(id));
   // Web: the header shows the title once it scrolls away.
   const titleOut$ = useObservable(false);

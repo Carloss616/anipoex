@@ -1,6 +1,10 @@
 import { useEffect, useRef } from "react";
 import { toast } from "@/components/ui/toast";
-import { useInstalledSources } from "@/features/extensions";
+import {
+  useAllInstalledSources,
+  useInstalledSources,
+  withChosen,
+} from "@/features/extensions";
 import {
   decideByHand,
   exclusions$,
@@ -51,7 +55,11 @@ export function useSourceActions({
   read: number;
   selectedId: string | undefined;
 }) {
-  const sources = useInstalledSources();
+  const sources = withChosen(
+    useInstalledSources(),
+    useAllInstalledSources(),
+    selectedId,
+  );
   const key = mediaKey(manga.id);
   // A scan outlives the sheet; it reads the latest progress when it ends.
   // Synced in an effect: a ref written in render makes the Compiler skip

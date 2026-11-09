@@ -75,8 +75,9 @@ export function useSourceChapters(
       const source = {
         id: sourceId,
         name:
-          toSources(installed$.peek()).find(({ id }) => id === sourceId)
-            ?.name ?? sourceId,
+          toSources(installed$.peek(), { all: true }).find(
+            ({ id }) => id === sourceId,
+          )?.name ?? sourceId,
       };
       try {
         const { chapters } = await fetchChapters(sourceId, {

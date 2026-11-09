@@ -1,10 +1,17 @@
 import { useValue } from "@legendapp/state/react";
 import { useState } from "react";
-import { isRuntimeAvailable, useInstalledSources } from "@/features/extensions";
+import {
+  isRuntimeAvailable,
+  useAllInstalledSources,
+  useInstalledSources,
+  withChosen,
+} from "@/features/extensions";
 import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
 import { probes$ } from "@/features/manga/state/probes";
+import { source$ } from "@/features/manga/state/source";
 import { titleSearch$ } from "@/features/manga/state/title-search";
 import { mediaKey } from "@/features/manga/utils/msu";
+import { readMatch } from "@/features/manga/utils/source-match";
 import {
   applyOrder,
   byTitleResults,
@@ -15,7 +22,12 @@ import {
 /** The sources matching the query as available / excluded rows. */
 export function useSources({ mangaId }: { mangaId: number }) {
   const [query, setQuery] = useState("");
-  const all = useInstalledSources();
+  const chosenId = useValue(() => readMatch(source$[mangaId].get())?.sourceId);
+  const all = withChosen(
+    useInstalledSources(),
+    useAllInstalledSources(),
+    chosenId,
+  );
   const key = mediaKey(mangaId);
   const excluded = useValue(exclusions$[key]) ?? {};
   const pinned = useValue(pins$[key]) ?? {};

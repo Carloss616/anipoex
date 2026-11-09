@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { InstalledExtension } from "../runtime";
-import { hasSource, toSources } from "./sources";
+import { hasSource, toSources, withChosen } from "./sources";
 
 const ext = (
   name: string,
@@ -86,6 +86,71 @@ describe("toSources", () => {
     expect(toSources([withHome("about:blank")])[0]).not.toHaveProperty(
       "homeUrl",
     );
+  });
+});
+
+describe("toSources with a multi-language extension", () => {
+  const multi = ext("Multi", [
+    ["m-en", "en"],
+    ["m-es", "es"],
+    ["m-fr", "fr"],
+    ["m-all", "all"],
+  ]);
+  const spanish = ext("Spanish", [["s-es", "es-419"]]);
+  const english = ext("English", [["e-en", "en"]]);
+  const ids = (installed: InstalledExtension[], all?: boolean) =>
+    toSources(installed, { all }).map(({ id }) => id);
+
+  it("offers only the languages of the single-language extensions", () => {
+    expect(ids([multi, spanish, english])).toEqual([
+      "m-en",
+      "m-es",
+      "m-all",
+      "s-es",
+      "e-en",
+    ]);
+  });
+
+  it("names a multi source by its unfiltered count", () => {
+    const [first] = toSources([multi, english]);
+    expect(first.name).toBe("Multi (EN)");
+  });
+
+  it("offers everything when only multi extensions are installed", () => {
+    expect(ids([multi])).toEqual(["m-en", "m-es", "m-fr", "m-all"]);
+  });
+
+  it("offers everything when asked for all", () => {
+    expect(ids([multi, english], true)).toEqual([
+      "m-en",
+      "m-es",
+      "m-fr",
+      "m-all",
+      "e-en",
+    ]);
+  });
+});
+
+describe("withChosen", () => {
+  const installed = [
+    ext("Multi", [
+      ["m-en", "en"],
+      ["m-fr", "fr"],
+    ]),
+    ext("English", [["e-en", "en"]]),
+  ];
+  const all = toSources(installed, { all: true });
+  const shown = toSources(installed);
+
+  it("appends a chosen source the filter hides, once", () => {
+    const result = withChosen(shown, all, "m-fr");
+    expect(result.map(({ id }) => id)).toEqual(["m-en", "e-en", "m-fr"]);
+  });
+
+  it("returns the same list when nothing is hidden", () => {
+    expect(withChosen(shown, all, undefined)).toBe(shown);
+    expect(withChosen(shown, all, "e-en")).toBe(shown);
+    expect(withChosen(shown, all, "gone")).toBe(shown);
   });
 });
 
