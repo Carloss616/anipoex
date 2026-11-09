@@ -18,5 +18,5 @@ again.
 A source whose requests go to a host unrelated to its homepage is not marked.
 
 Marked sources rank after unmarked ones with the same new chapters (see
-[source](../concepts/source.md)), and their row in the source sheet shows a cloud
+[source](../concepts/source.md)), and their row in the source sheet shows Cloudflare's logo
 (read out as "Cloudflare").

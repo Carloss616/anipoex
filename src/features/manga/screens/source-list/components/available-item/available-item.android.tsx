@@ -9,7 +9,7 @@ import {
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
-import { Icons } from "@/components/ui/icon";
+import { RNHostView } from "@/components/ui/host";
 import { ContextMenu } from "@/components/ui/menu";
 import { challenged$ } from "@/features/manga/state/challenged";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
@@ -20,6 +20,7 @@ import { useSourceScan } from "../../hooks/use-source-scan";
 import { statusDetail } from "../../utils/row-content";
 import { availableRowMenu } from "../../utils/row-menu";
 import { sourceStatus } from "../../utils/source-status";
+import { CloudflareLogo } from "../cloudflare-logo";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
 import type { AvailableItemProps } from "./available-item";
@@ -93,7 +94,9 @@ export const AvailableItem = memo(function AvailableItem({
             >
               {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
               {challenged && (
-                <Badge icon={Icons.cloudflare} label="Cloudflare" />
+                <RNHostView matchContents>
+                  <CloudflareLogo />
+                </RNHostView>
               )}
               {scanning ? (
                 <Badge>scanning…</Badge>

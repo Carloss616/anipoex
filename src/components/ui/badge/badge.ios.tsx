@@ -1,6 +1,5 @@
 import { Circle, HStack } from "@expo/ui/swift-ui";
 import {
-  accessibilityLabel,
   background,
   foregroundStyle,
   frame,
@@ -29,7 +28,6 @@ export function Badge({
   children,
   color = "secondary",
   icon,
-  label,
   testID,
 }: BadgeProps) {
   // No native badge to inherit from: `destructive` is the red it would be.
@@ -43,7 +41,6 @@ export function Badge({
           modifiers={[
             frame({ width: 20, height: 20 }),
             background(container, shapes.circle()),
-            ...(label ? [accessibilityLabel(label)] : []),
           ]}
         >
           <Icon name={icon} size={11} color={content} />

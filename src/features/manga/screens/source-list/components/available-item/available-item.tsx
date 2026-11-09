@@ -16,6 +16,7 @@ import { useSourceScan } from "../../hooks/use-source-scan";
 import { statusDetail } from "../../utils/row-content";
 import { availableRowMenu } from "../../utils/row-menu";
 import { sourceStatus } from "../../utils/source-status";
+import { CloudflareLogo } from "../cloudflare-logo";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
 
@@ -112,7 +113,7 @@ export const AvailableItem = memo(function AvailableItem({
                 {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
                 {challenged && (
                   <>
-                    <Badge icon={Icons.cloudflare} label="Cloudflare" />{" "}
+                    <CloudflareLogo />{" "}
                   </>
                 )}
                 {scanning ? (

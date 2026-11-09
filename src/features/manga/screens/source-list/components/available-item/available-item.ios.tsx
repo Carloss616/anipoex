@@ -20,6 +20,7 @@ import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
+import { RNHostView } from "@/components/ui/host";
 import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { challenged$ } from "@/features/manga/state/challenged";
@@ -31,6 +32,7 @@ import { useSourceScan } from "../../hooks/use-source-scan";
 import { searchItem, statusDetail } from "../../utils/row-content";
 import { availableRowMenu } from "../../utils/row-menu";
 import { sourceStatus } from "../../utils/source-status";
+import { CloudflareLogo } from "../cloudflare-logo";
 import { Rail } from "../rail";
 import { Tile } from "../tile";
 import type { AvailableItemProps } from "./available-item";
@@ -122,7 +124,9 @@ export const AvailableItem = memo(function AvailableItem({
                   <HStack spacing={6}>
                     {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
                     {challenged && (
-                      <Badge icon={Icons.cloudflare} label="Cloudflare" />
+                      <RNHostView matchContents>
+                        <CloudflareLogo />
+                      </RNHostView>
                     )}
                     {scanning ? (
                       <Badge>scanning…</Badge>
