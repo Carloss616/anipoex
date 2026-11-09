@@ -43,7 +43,7 @@ export function Settings() {
             <Frame.Header>
               <Frame.Title>Account</Frame.Title>
             </Frame.Header>
-            <Frame.Panel>
+            <Frame.Panel data-attached="column">
               <Frame.Row>
                 <Frame.Media>
                   <Avatar
@@ -67,7 +67,7 @@ export function Settings() {
             <Frame.Header>
               <Frame.Title>Home</Frame.Title>
             </Frame.Header>
-            <Frame.Panel>
+            <Frame.Panel data-attached="column">
               <Frame.Row
                 chevron
                 onClick={() => router.push("/settings/layout")}
@@ -83,7 +83,7 @@ export function Settings() {
             <Frame.Header>
               <Frame.Title>Appearance</Frame.Title>
             </Frame.Header>
-            <Frame.Panel>
+            <Frame.Panel data-attached="column">
               <Frame.Row>
                 <Frame.Content>
                   <Frame.Title as="p">Theme</Frame.Title>
@@ -111,8 +111,12 @@ export function Settings() {
               <Frame.Header>
                 <Frame.Title>Sources</Frame.Title>
               </Frame.Header>
-              <Frame.Panel>
-                <Frame.Row>
+              <Frame.Panel data-attached="column">
+                {/* A label hands its click to the switch inside. */}
+                <Frame.Row
+                  // biome-ignore lint/a11y/noLabelWithoutControl: the Switch below is its control.
+                  render={<label />}
+                >
                   <Frame.Content>
                     <Frame.Title as="p">Auto-pick a source</Frame.Title>
                     <Frame.Description>
@@ -121,6 +125,7 @@ export function Settings() {
                   </Frame.Content>
                   <Frame.Actions>
                     <Switch
+                      name="auto-pick-source"
                       label="Auto-pick a source"
                       checked={autoPick}
                       onCheckedChange={(on) =>
@@ -146,7 +151,7 @@ export function Settings() {
               <Frame.Header>
                 <Frame.Title>Network</Frame.Title>
               </Frame.Header>
-              <Frame.Panel>
+              <Frame.Panel data-attached="column">
                 <Frame.Row>
                   <Frame.Content>
                     <Frame.Title as="p">DNS</Frame.Title>

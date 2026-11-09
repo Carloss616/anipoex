@@ -5,7 +5,7 @@ import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { Frame } from "panelui-web/frame";
 import { Switch } from "panelui-web/switch";
-import { memo } from "react";
+import { memo, useId } from "react";
 import { ScrollView, View } from "react-native";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +55,7 @@ export function HomeLayout() {
             <Frame.Header>
               <Frame.Title>Preset</Frame.Title>
             </Frame.Header>
-            <Frame.Panel>
+            <Frame.Panel data-attached="column">
               <View className="flex-row flex-wrap items-center gap-3 p-4">
                 <ButtonGroup aria-label="Preset">
                   {PRESETS.map((id) => (
@@ -80,7 +80,7 @@ export function HomeLayout() {
             <Frame.Header>
               <Frame.Title>Sections</Frame.Title>
             </Frame.Header>
-            <Frame.Panel>
+            <Frame.Panel data-attached="column">
               {order.map((id, index) => (
                 <SectionRow
                   key={id}
@@ -114,6 +114,7 @@ const SectionRow = memo(function SectionRow({
   count: number;
 }) {
   const on = useValue(() => settings$.home.on.get().includes(id));
+  const switchId = useId();
   const { title, kind } = SECTIONS[id];
   const { row, handle } = useDragReorder({
     drag$,
@@ -125,7 +126,10 @@ const SectionRow = memo(function SectionRow({
 
   return (
     <View {...row}>
-      <Frame.Row>
+      <Frame.Row
+        // biome-ignore lint/a11y/noLabelWithoutControl: Frame.Row gives it its text.
+        render={<label htmlFor={switchId} />}
+      >
         <Frame.Media>
           <Button variant="ghost" size="icon-sm" {...handle}>
             <Icon name="grip-vertical" muted />
@@ -140,6 +144,7 @@ const SectionRow = memo(function SectionRow({
         </Frame.Content>
         <Frame.Actions>
           <Switch
+            id={switchId}
             label={`Show ${title}`}
             checked={on}
             onCheckedChange={() =>

@@ -4,6 +4,7 @@ import {
   foregroundStyle,
   listRowBackground,
   listStyle,
+  onTapGesture,
   pickerStyle,
   scrollContentBackground,
   tag,
@@ -11,6 +12,7 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { memo } from "react";
+import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -97,12 +99,13 @@ const SectionRow = memo(function SectionRow({
   id: SectionId;
   on: boolean;
 }) {
+  const toggle = () => settings$.home.set(toggled(settings$.home.peek(), id));
+
   return (
     <Toggle
       isOn={on}
-      onIsOnChange={() =>
-        settings$.home.set(toggled(settings$.home.peek(), id))
-      }
+      onIsOnChange={toggle}
+      modifiers={[...ROW_FILL, onTapGesture(toggle)]}
     >
       <Text>{SECTIONS[id].title}</Text>
       {ACCOUNT_SECTIONS.includes(id) && (

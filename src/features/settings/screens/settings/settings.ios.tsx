@@ -15,6 +15,7 @@ import {
   frame,
   listRowBackground,
   listStyle,
+  onTapGesture,
   scrollContentBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -128,6 +129,10 @@ export function Settings() {
             <Toggle
               isOn={autoPick}
               onIsOnChange={(on) => settings$.sources.autoPick.set(on)}
+              modifiers={[
+                ...ROW_FILL,
+                onTapGesture(() => settings$.sources.autoPick.set((on) => !on)),
+              ]}
             >
               <Text>Auto-pick a source</Text>
               <Text modifiers={[foregroundStyle("secondary")]}>
