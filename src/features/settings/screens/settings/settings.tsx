@@ -114,14 +114,14 @@ export function Settings() {
               <Frame.Panel>
                 <Frame.Row>
                   <Frame.Content>
-                    <Frame.Title as="p">Pick a source after a scan</Frame.Title>
+                    <Frame.Title as="p">Auto-pick a source</Frame.Title>
                     <Frame.Description>
-                      The one with the most new chapters
+                      After a scan, the one with the most new chapters
                     </Frame.Description>
                   </Frame.Content>
                   <Frame.Actions>
                     <Switch
-                      label="Pick a source after a scan"
+                      label="Auto-pick a source"
                       checked={autoPick}
                       onCheckedChange={(on) =>
                         settings$.sources.autoPick.set(on)

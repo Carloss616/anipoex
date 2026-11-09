@@ -36,7 +36,7 @@ the list. Such a pick carries `auto: true`, kept while its search resumes; a pic
 has none, and a scan never replaces it. It says "Picked <source> · +N" (no `+N` when nothing is new) with an Undo that puts
 back what was there before (no source, or the previous scan's pick), as long as the scan's pick
 is still the one chosen. The user can turn it off
-in Settings ("Pick a source after a scan", [settings](settings.md) `sources.autoPick`, on by
+in Settings ("Auto-pick a source", [settings](settings.md) `sources.autoPick`, on by
 default). A missing key means no source chosen; so does a match whose source no installed extension provides any more
 (it was uninstalled), once the installed list has been read, so the detail asks to pick
 a source again instead of failing to load chapters. Deselecting the source, or

@@ -5,6 +5,7 @@ import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { ScrollView, View } from "react-native";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -12,7 +13,11 @@ import {
   languageOrder$,
   useLoadInstalled,
 } from "@/features/extensions";
-import { useDragReorder } from "@/hooks/use-drag-reorder";
+import {
+  type DragList$,
+  useDragList,
+  useDragReorder,
+} from "@/hooks/use-drag-reorder";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { settings$ } from "@/state/settings";
 import { moveTo } from "@/utils/move-to";
@@ -22,30 +27,38 @@ import { EMPTY, FOOTNOTE } from "./constants";
 export function Languages() {
   useLoadInstalled();
   const headerScroll = useHeaderScroll();
+  const drag$ = useDragList();
   const order = useValue(() => languageOrder$.get().join()).split(",");
   const codes = order.filter(Boolean);
+
+  if (!codes.length)
+    return (
+      <>
+        <Stack.Title>Languages</Stack.Title>
+        <EmptyState {...EMPTY} />
+      </>
+    );
 
   return (
     <>
       <Stack.Title>Languages</Stack.Title>
       <ScrollView className="flex-1" {...headerScroll}>
         <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-4 self-center">
-          {codes.length ? (
-            <Frame className="mt-4">
-              <Frame.Panel>
-                {codes.map((code, index) => (
-                  <LanguageRow
-                    key={code}
-                    code={code}
-                    index={index}
-                    count={codes.length}
-                  />
-                ))}
-              </Frame.Panel>
-            </Frame>
-          ) : null}
-          <Typography type="body-sm" muted className="mt-4">
-            {codes.length ? FOOTNOTE : EMPTY}
+          <Frame className="mt-4">
+            <Frame.Panel>
+              {codes.map((code, index) => (
+                <LanguageRow
+                  key={code}
+                  drag$={drag$}
+                  code={code}
+                  index={index}
+                  count={codes.length}
+                />
+              ))}
+            </Frame.Panel>
+          </Frame>
+          <Typography type="body-sm" muted>
+            {FOOTNOTE}
           </Typography>
         </HeaderInsetView>
       </ScrollView>
@@ -54,16 +67,19 @@ export function Languages() {
 }
 
 const LanguageRow = memo(function LanguageRow({
+  drag$,
   code,
   index,
   count,
 }: {
+  drag$: DragList$;
   code: string;
   index: number;
   count: number;
 }) {
   const name = languageName(code);
   const { row, handle } = useDragReorder({
+    drag$,
     index,
     count,
     label: `Reorder ${name}, position ${index + 1} of ${count}`,

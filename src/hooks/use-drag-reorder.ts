@@ -1,18 +1,18 @@
-import { observable } from "@legendapp/state";
-import { useValue } from "@legendapp/state/react";
+import type { Observable } from "@legendapp/state";
+import { useObservable, useValue } from "@legendapp/state/react";
 import { cn } from "panelui-native/utils/cn";
 import { type KeyboardEvent, type PointerEvent, useRef } from "react";
 
 /** The row being dragged: where it was, how far it moved, where it lands. */
-const drag$ = observable<{
-  from: number;
-  to: number;
-  dy: number;
-  height: number;
-} | null>(null);
+type Drag = { from: number; to: number; dy: number; height: number };
+
+export type DragList$ = Observable<Drag | null>;
+
+/** One list's drag, shared by its rows: create it in the list, pass it down. */
+export const useDragList = (): DragList$ => useObservable<Drag | null>(null);
 
 /** How far row `index` is drawn from its place while another one is dragged. */
-function shift(index: number) {
+function shift(drag$: DragList$, index: number) {
   const drag = drag$.get();
   if (!drag) return 0;
   const { from, to, dy, height } = drag;
@@ -24,22 +24,24 @@ function shift(index: number) {
 
 /**
  * A web list row that moves by dragging its handle, or by ↑ and ↓ on it.
- * Spread `row` on the row's view and `handle` on its handle button. One drag
- * runs at a time, so the lists share it.
+ * Spread `row` on the row's view and `handle` on its handle button.
  */
 export function useDragReorder({
+  drag$,
   index,
   count,
   label,
   onMove,
 }: {
+  /** The list's, from `useDragList`. */
+  drag$: DragList$;
   index: number;
   count: number;
   /** The handle's accessible name. */
   label: string;
   onMove: (to: number) => void;
 }) {
-  const offset = useValue(() => shift(index));
+  const offset = useValue(() => shift(drag$, index));
   const dragging = useValue(() => drag$.get()?.from === index);
   // Only while a drag runs: at the drop, the rows jump to their new places.
   const sliding = useValue(() => drag$.get() != null) && !dragging;

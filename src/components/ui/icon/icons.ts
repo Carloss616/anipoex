@@ -34,6 +34,21 @@ export const Icons = {
     android: require("@expo/material-symbols/open_in_new.xml"),
     web: "external-link",
   }),
+  moveUp: Icon.select({
+    ios: "arrow.up",
+    android: require("@expo/material-symbols/arrow_upward.xml"),
+    web: "arrow-up",
+  }),
+  moveDown: Icon.select({
+    ios: "arrow.down",
+    android: require("@expo/material-symbols/arrow_downward.xml"),
+    web: "arrow-down",
+  }),
+  moveToTop: Icon.select({
+    ios: "arrow.up.to.line",
+    android: require("@expo/material-symbols/vertical_align_top.xml"),
+    web: "arrow-up-to-line",
+  }),
   website: Icon.select({
     ios: "globe",
     android: require("@expo/material-symbols/language.xml"),

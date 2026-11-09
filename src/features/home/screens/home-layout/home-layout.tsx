@@ -10,7 +10,11 @@ import { ScrollView, View } from "react-native";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
-import { useDragReorder } from "@/hooks/use-drag-reorder";
+import {
+  type DragList$,
+  useDragList,
+  useDragReorder,
+} from "@/hooks/use-drag-reorder";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { settings$ } from "@/state/settings";
 import {
@@ -36,6 +40,7 @@ const KIND_LABELS = {
 /** Presets in a button group, the sections as rows with a drag handle. */
 export function HomeLayout() {
   const headerScroll = useHeaderScroll();
+  const drag$ = useDragList();
   const preset = useValue(settings$.home.preset);
   const order = useValue(() => settings$.home.order.get().join()).split(
     ",",
@@ -79,6 +84,7 @@ export function HomeLayout() {
               {order.map((id, index) => (
                 <SectionRow
                   key={id}
+                  drag$={drag$}
                   id={id}
                   index={index}
                   count={order.length}
@@ -105,10 +111,12 @@ export function HomeLayout() {
 }
 
 const SectionRow = memo(function SectionRow({
+  drag$,
   id,
   index,
   count,
 }: {
+  drag$: DragList$;
   id: SectionId;
   index: number;
   count: number;
@@ -116,6 +124,7 @@ const SectionRow = memo(function SectionRow({
   const on = useValue(() => settings$.home.on.get().includes(id));
   const { title, kind } = SECTIONS[id];
   const { row, handle } = useDragReorder({
+    drag$,
     index,
     count,
     label: `Reorder ${title}, position ${index + 1} of ${count}`,

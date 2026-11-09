@@ -16,6 +16,7 @@ import {
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
+import { Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { settings$ } from "@/state/settings";
@@ -87,16 +88,19 @@ export function HomeLayout() {
                   items={[
                     {
                       label: "Move up",
+                      icon: Icons.moveUp,
                       disabled: i === 0,
                       onPress: () => move(i - 1),
                     },
                     {
                       label: "Move down",
+                      icon: Icons.moveDown,
                       disabled: i === order.length - 1,
                       onPress: () => move(i + 1),
                     },
                     {
                       label: "Move to top",
+                      icon: Icons.moveToTop,
                       disabled: i === 0,
                       onPress: () => move(0),
                     },

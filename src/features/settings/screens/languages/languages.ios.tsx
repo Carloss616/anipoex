@@ -7,6 +7,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { Text } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import {
@@ -37,6 +38,14 @@ export function Languages() {
     settings$.sources.languages.set(moveTo(order, order[from], to));
   };
 
+  if (!codes.length)
+    return (
+      <>
+        <Stack.Title>Languages</Stack.Title>
+        <EmptyState {...EMPTY} />
+      </>
+    );
+
   return (
     <>
       <Stack.Title>Languages</Stack.Title>
@@ -48,10 +57,7 @@ export function Languages() {
             environment("editMode", "active"),
           ]}
         >
-          <Section
-            modifiers={[rowBackground]}
-            footer={<Text>{codes.length ? FOOTNOTE : EMPTY}</Text>}
-          >
+          <Section modifiers={[rowBackground]} footer={<Text>{FOOTNOTE}</Text>}>
             <List.ForEach
               data={codes}
               keyExtractor={(code) => code}

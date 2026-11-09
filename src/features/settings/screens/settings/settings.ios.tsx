@@ -129,9 +129,9 @@ export function Settings() {
               isOn={autoPick}
               onIsOnChange={(on) => settings$.sources.autoPick.set(on)}
             >
-              <Text>Pick a source after a scan</Text>
+              <Text>Auto-pick a source</Text>
               <Text modifiers={[foregroundStyle("secondary")]}>
-                The one with the most new chapters
+                After a scan, the one with the most new chapters
               </Text>
             </Toggle>
             <Button onPress={() => router.push("/settings/languages")}>

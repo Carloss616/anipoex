@@ -169,10 +169,10 @@ export function Settings() {
               <SegmentedListItem.Leading>
                 <LeadingIcon name={ManageSearchIcon} />
               </SegmentedListItem.Leading>
-              <Text>Pick a source after a scan</Text>
+              <Text>Auto-pick a source</Text>
               <SegmentedListItem.Supporting>
                 <Text style={{ typography: "bodyMedium" }}>
-                  The one with the most new chapters
+                  After a scan, the one with the most new chapters
                 </Text>
               </SegmentedListItem.Supporting>
               <SegmentedListItem.Trailing>
