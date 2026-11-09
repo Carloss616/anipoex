@@ -2,10 +2,12 @@ import { useValue } from "@legendapp/state/react";
 import { useState } from "react";
 import {
   isRuntimeAvailable,
+  languages$,
   useAllInstalledSources,
   useInstalledSources,
   withChosen,
 } from "@/features/extensions";
+import { challenged$ } from "@/features/manga/state/challenged";
 import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
 import { probes$ } from "@/features/manga/state/probes";
 import { source$ } from "@/features/manga/state/source";
@@ -18,6 +20,8 @@ import {
   splitSources,
   titleGroup,
 } from "../utils/split-sources";
+
+const NO_PREFS = { challenged: {}, languages: [] };
 
 /** The sources matching the query as available / excluded rows. */
 export function useSources({ mangaId }: { mangaId: number }) {
@@ -42,6 +46,7 @@ export function useSources({ mangaId }: { mangaId: number }) {
       pins$[key].get() ?? {},
       probes$[key].get() ?? {},
       "",
+      { challenged: challenged$.get(), languages: languages$.get() },
     );
     return [live.available, live.excluded]
       .map((rows) => rows.map((row) => row.source.id).join(" "))
@@ -65,7 +70,8 @@ export function useSources({ mangaId }: { mangaId: number }) {
     return found ? Number(found.slice(id.length + 1)) : 3;
   };
 
-  const split = splitSources(all, excluded, pinned, {}, query);
+  // Ordered by `ranked` below, so no prefs.
+  const split = splitSources(all, excluded, pinned, {}, query, NO_PREFS);
   const available = byTitleResults(
     applyOrder(split.available, availableOrder),
     groupOf,

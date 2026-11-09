@@ -1,15 +1,17 @@
+import { compareSources, type PickPrefs } from "./compare-sources";
 import type { ProbeMap } from "./msu";
 import { type Excluded, isLive } from "./source-exclusions";
 import { isSuspicious } from "./suspicious";
 
 /**
  * The source to read a manga from when none is chosen: matched, not excluded,
- * not failing, numbering not suspicious, furthest ahead; ties by name.
+ * not failing, numbering not suspicious, first by `compareSources`.
  */
 export function bestSource(
-  sources: { id: string; name: string }[],
+  sources: { id: string; name: string; lang?: string }[],
   excluded: Excluded,
   probes: ProbeMap,
+  prefs: PickPrefs,
 ): string | undefined {
   return sources
     .filter((s) => {
@@ -21,9 +23,5 @@ export function bestSource(
         !isSuspicious(s.id, sources, excluded, probes)
       );
     })
-    .sort(
-      (a, b) =>
-        probes[b.id].latest - probes[a.id].latest ||
-        a.name.localeCompare(b.name),
-    )[0]?.id;
+    .sort((a, b) => compareSources(a, b, probes, prefs))[0]?.id;
 }

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { bestSource } from "@/features/manga/utils/best-source";
 import type { ProbeMap } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import {
@@ -22,6 +23,7 @@ const probes = (latests: Record<string, number>): ProbeMap =>
   Object.fromEntries(
     Object.entries(latests).map(([id, l]) => [id, probe(id, l)]),
   );
+const NONE = { challenged: {}, languages: [] };
 const ids = (rows: { source: Source }[]) => rows.map((r) => r.source.id);
 
 describe("splitSources", () => {
@@ -32,6 +34,7 @@ describe("splitSources", () => {
       {},
       probes({ a: 10, b: 30, c: 30 }),
       "",
+      NONE,
     );
     expect(ids(available)).toEqual(["b", "c", "a", "d"]);
   });
@@ -43,6 +46,7 @@ describe("splitSources", () => {
       {},
       {},
       "",
+      NONE,
     );
     expect(ids(available)).toEqual(["a"]);
     expect(excluded).toEqual([]);
@@ -55,6 +59,7 @@ describe("splitSources", () => {
       {},
       {},
       " source ",
+      NONE,
     );
     expect(ids(available)).toEqual(["1"]);
     expect(ids(excluded)).toEqual(["2"]);
@@ -67,6 +72,7 @@ describe("splitSources", () => {
       {},
       probes({ gone: 5 }),
       "",
+      NONE,
     );
     expect(ids(available)).toEqual(["a"]);
     expect(excluded).toEqual([]);
@@ -76,7 +82,7 @@ describe("splitSources", () => {
   const six = ["ml", "a", "b", "c", "d", "e"].map((id) => src(id));
 
   it("flags the MangaLect case", () => {
-    const { available } = splitSources(six, {}, {}, mangaLect, "");
+    const { available } = splitSources(six, {}, {}, mangaLect, "", NONE);
     expect(
       available.filter((r) => r.suspicious).map((r) => r.source.id),
     ).toEqual(["ml"]);
@@ -90,12 +96,13 @@ describe("splitSources", () => {
       {},
       probes({ a: 252, b: 18 }),
       "",
+      NONE,
     );
     expect(available.some((r) => r.suspicious)).toBe(false);
   });
 
   it("the query doesn't change flags", () => {
-    const { available } = splitSources(six, {}, {}, mangaLect, "ml");
+    const { available } = splitSources(six, {}, {}, mangaLect, "ml", NONE);
     expect(ids(available)).toEqual(["ml"]);
     expect(available[0].suspicious).toBe(true);
   });
@@ -108,6 +115,7 @@ describe("splitSources", () => {
       { a: { updatedAt: 1 }, b: { updatedAt: 1, deletedAt: 2 } },
       {},
       "",
+      NONE,
     );
     expect(excluded.map((r) => r.pinned)).toEqual([true, false, false]);
   });
@@ -135,6 +143,7 @@ describe("excluded order", () => {
       {},
       {},
       "",
+      NONE,
     );
     expect(ids(excluded)).toEqual(["d", "c", "e", "b", "a"]);
   });
@@ -146,6 +155,7 @@ describe("excluded order", () => {
       {},
       {},
       "",
+      NONE,
     );
     expect(ids(available)).toEqual(["a", "b", "c"]);
   });
@@ -190,5 +200,16 @@ describe("title search order", () => {
   it("keeps the order when nothing searches", () => {
     const rows = ["c", "a", "b"].map((id) => ({ source: src(id) }));
     expect(ids(byTitleResults(rows, () => 3))).toEqual(["c", "a", "b"]);
+  });
+});
+
+describe("splitSources and bestSource", () => {
+  it("agree on the first matched row", () => {
+    const sources = [src("a", "Alpha"), src("b", "Beta"), src("c", "Gamma")];
+    const scanned = probes({ a: 42, b: 42.4, c: 41 });
+    const prefs = { challenged: { b: 1 }, languages: [] };
+    const { available } = splitSources(sources, {}, {}, scanned, "", prefs);
+    expect(bestSource(sources, {}, scanned, prefs)).toBe("a");
+    expect(available[0].source.id).toBe("a");
   });
 });

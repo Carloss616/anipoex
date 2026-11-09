@@ -18,8 +18,11 @@ is stable across launches.
 - **Per manga**: the detail's source picker stores the choice keyed by the manga's
   AniList id (see [chosen source](../stores/source-matches.md)). No choice shows "Source".
 - **Available or excluded**: per manga, a source is **available** or **excluded** (see
-  [source exclusion](source-exclusion.md)). Available sources are listed furthest-ahead
-  first (latest chapter descending, ties by name); sources with suspicious numbering come
+  [source exclusion](source-exclusion.md)). Available sources are listed with the most
+  new chapters first (whole chapters, so `42.5` ties `42`); a tie goes to a source never
+  [challenged by Cloudflare](../stores/source-challenged.md), then to the language higher in
+  the user's order (all-languages and unknown last), then by name. A scan's pick takes the
+  first of them, so the sheet's top row is what it would pick; sources with suspicious numbering come
   after them, and unscanned / unmatched last (so before any scan, by name). Excluded ones are
   listed by reason, behind first, then not matched, then failing, then excluded by hand, and by
   name within each, with their reason and `auto` / `you`. The order is live: a source moves when

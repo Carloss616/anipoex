@@ -1,3 +1,7 @@
+import {
+  compareSources,
+  type PickPrefs,
+} from "@/features/manga/utils/compare-sources";
 import type {
   ExcludeReason,
   ProbeMap,
@@ -33,7 +37,8 @@ const REASON_ORDER: Record<ExcludeReason, number> = {
 };
 
 /**
- * Installed sources split into available (best first) and excluded (by name),
+ * Installed sources split into available (best first, as the auto-pick ranks
+ * them) and excluded (by reason, then name),
  * both filtered by the query.
  */
 export function splitSources(
@@ -42,6 +47,7 @@ export function splitSources(
   pinned: Pinned,
   probes: ProbeMap,
   query: string,
+  prefs: PickPrefs,
 ): { available: SourceRow[]; excluded: ExcludedRow[] } {
   const needle = query.trim().toLowerCase();
   const shown = (s: Source) => s.name.toLowerCase().includes(needle);
@@ -57,9 +63,7 @@ export function splitSources(
     .filter((r) => shown(r.source))
     .sort(
       (a, b) =>
-        rank(a) - rank(b) ||
-        (b.probe?.latest ?? -1) - (a.probe?.latest ?? -1) ||
-        a.source.name.localeCompare(b.source.name),
+        rank(a) - rank(b) || compareSources(a.source, b.source, probes, prefs),
     );
 
   const out = sources

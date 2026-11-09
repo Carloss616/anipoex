@@ -1,5 +1,6 @@
 import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
+import { languages$ } from "@/features/extensions/state/languages";
 import { ObservablePersist } from "@/state/observable-persist";
 import { bestSource } from "../utils/best-source";
 import { fetchChapters } from "../utils/fetch-chapters";
@@ -23,7 +24,7 @@ import { readMatch, type Titles } from "../utils/source-match";
 import { type ProbeRead, toProbe } from "../utils/source-probe";
 import { toChapters } from "../utils/to-chapters";
 import { CHAPTERS_TIMEOUT_MS, SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
-import { recordChallenges } from "./challenged";
+import { challenged$, recordChallenges } from "./challenged";
 import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
 import { readManual } from "./manual-matches";
@@ -271,6 +272,7 @@ export async function scanSources(args: {
         sources,
         exclusions$[key].peek() ?? {},
         probes$[key].peek() ?? {},
+        { challenged: challenged$.peek(), languages: languages$.peek() },
       );
       const picked = sources.find((s) => s.id === best);
       if (picked) void selectSource(mangaId, picked, titles);
