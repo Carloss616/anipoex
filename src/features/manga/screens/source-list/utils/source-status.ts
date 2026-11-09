@@ -42,17 +42,21 @@ export function sourceStatus(
   const outdated =
     classify(read, probe.latest, probe.count, probe.errored, gap) ===
     "outdated";
+  // The read chapters it lacks: at 189.5 with 190 read, one.
+  const behind = outdated ? 0 : Math.ceil(read - probe.latest);
   return {
-    label: `+${unread}`,
-    // Behind is info, as on its excluded badge: apart from a no match or a
-    // suspicious list.
+    label: behind > 0 ? `-${behind}` : `+${unread}`,
+    // Past the gap it's info, as on its excluded badge: apart from a no
+    // match or a suspicious list.
     color: suspicious
       ? "warning"
       : outdated
         ? "info"
-        : unread > 0
-          ? "success"
-          : "secondary",
+        : behind > 0
+          ? "warning"
+          : unread > 0
+            ? "success"
+            : "secondary",
     chapter: probe.latest,
     suspicious,
     age,

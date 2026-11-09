@@ -53,6 +53,15 @@ describe("sourceStatus", () => {
     });
   });
 
+  it("behind within the gap", () => {
+    expect(at({ latest: 185 }, 190)).toMatchObject({
+      label: "-5",
+      color: "warning",
+    });
+    expect(at({ latest: 189.5 }, 190)).toMatchObject({ label: "-1" });
+    expect(at({ latest: 180 }, 190)).toMatchObject({ color: "info" });
+  });
+
   it("age", () => {
     const age = (ms: number) =>
       sourceStatus(probe({ updatedAt: NOW - ms }), 0, 10, false, NOW).age;

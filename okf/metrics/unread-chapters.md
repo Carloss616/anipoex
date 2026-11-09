@@ -15,7 +15,7 @@ The `+N` a [source](../concepts/source.md) shows is `max(0, floor(latest − rea
 |---|---|---|
 | 363 | 374.5 | +11 |
 | 18 | 18.5 | +0 |
-| 20 | 18 | +0 (behind is never negative) |
+| 20 | 18 | +0 (the count is never negative; the source sheet shows `-2`, below) |
 
 It floors because a `.5` release isn't a whole unread chapter. This is the plugin's
 rule, so both apps show the same number.
@@ -36,7 +36,8 @@ The status, then `· c.{latest}` (`c.{latest}?` when the numbering is suspicious
 | scanning | A scan is reading it now. |
 | error | The last probe failed. |
 | no match | The source has no title equal to the manga's. |
-| +N | The unread count; amber when suspicious or outdated, green when above 0, grey otherwise. |
+| +N | The unread count; amber when suspicious, blue when behind past the gap (outdated), green when above 0, grey otherwise. |
+| -N | Behind the progress but within the gap (10): the chapters read that it lacks, `ceil(read − latest)` (190 read on 189.5 is `-1`). Amber. Only in the source sheet; the manga list's badge stays at 0. |
 
 ## Suspicious numbering
 

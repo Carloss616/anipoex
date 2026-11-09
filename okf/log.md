@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* **Behind shows as -N**: in the source sheet, a source behind the progress but within the gap shows how many read chapters it lacks, `-N` in amber, instead of `+0`; the manga list's badge is unchanged. Updated [unread chapters](metrics/unread-chapters.md).
 * **Matching learns from manual matches**: a manual match's title is a known title of the manga on its other sources, searched and matched like an AniList one; so is what follows a title's colon when it has two words or more; up to five queries. An edition tag (`official`, `colored`, `remake`) is the only bracketed tag dropped. Measured on 95 pages known by hand: 19 right and 2 wrong before, 56 and 1 after. Updated [chosen source](stores/source-matches.md), [manual matches](stores/manual-matches.md).
 * **One unread count**: the manga list's badge and Home's continue reading count unread chapters the way a source's row does, `floor(latest − read)`, so a `.1` release is no longer one more (189 read of 192.1 is 3, not 4), and the badge follows a change of source at once. Updated [unread chapters](metrics/unread-chapters.md).
 * **A scan picks a source**: a scan that ends with no source chosen picks the best one, so a newly scanned manga shows its `+N` in the list. The sources sheet sorts live as probes land. A source that takes a page by title, or whose match the user picks from its results, ends its search; an undone take isn't taken again until restart, and a chosen source stays chosen. Updated [chosen source](stores/source-matches.md), [source](concepts/source.md).
