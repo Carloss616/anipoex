@@ -33,8 +33,9 @@ source's rescan) picks the best source when none is chosen, or when the one chos
 a scan: matched, not excluded, not failing, numbering not suspicious, then in the
 [source order](../concepts/source.md); so a manga scanned for the first time shows its `+N` in
 the list. Such a pick carries `auto: true`, kept while its search resumes; a pick the user makes
-has none, and a scan never replaces it. It says "Picked <source> · +N" with an Undo that puts
-back what was there before (no source, or the previous scan's pick). The user can turn it off
+has none, and a scan never replaces it. It says "Picked <source> · +N" (no `+N` when nothing is new) with an Undo that puts
+back what was there before (no source, or the previous scan's pick), as long as the scan's pick
+is still the one chosen. The user can turn it off
 in Settings ("Pick a source after a scan", [settings](settings.md) `sources.autoPick`, on by
 default). A missing key means no source chosen; so does a match whose source no installed extension provides any more
 (it was uninstalled), once the installed list has been read, so the detail asks to pick

@@ -1,3 +1,4 @@
+import type { Observable } from "@legendapp/state";
 import type { DnsId } from "@/features/extensions/runtime/runtime";
 import { type Repo, storedRepo } from "@/features/extensions/utils/repo";
 import {
@@ -96,4 +97,28 @@ export function migrateLegacy(
     }),
     ...(Array.isArray(repos) && { extensions: { repos } }),
   };
+}
+
+/**
+ * Once per device (`version` 0): copies what the old tables held into
+ * `settings$`, then deletes them. `open` reads a table and deletes it.
+ */
+export function moveLegacyIn(
+  settings$: Observable<Settings>,
+  open: (table: (typeof LEGACY_TABLES)[number]) => {
+    value: unknown;
+    delete: () => void;
+  },
+) {
+  if (settings$.version.peek() !== 0) return;
+  const tables = LEGACY_TABLES.map((name) => [name, open(name)] as const);
+  const legacy = Object.fromEntries(tables);
+  settings$.set(
+    normalizeSettings({
+      ...settings$.peek(),
+      ...migrateLegacy((name) => legacy[name].value),
+      version: SETTINGS_VERSION,
+    }),
+  );
+  for (const [, table] of tables) table.delete();
 }

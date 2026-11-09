@@ -290,8 +290,9 @@ export async function scanSources(args: {
     const picked = sources.find((s) => s.id === id);
     if (picked) {
       void selectSource(mangaId, picked, titles, undefined, true);
+      const unread = unreadChapters(read(), probes[picked.id].latest);
       toast(
-        `Picked ${picked.name} · +${unreadChapters(read(), probes[picked.id].latest)}`,
+        unread ? `Picked ${picked.name} · +${unread}` : `Picked ${picked.name}`,
         {
           action: {
             label: "Undo",

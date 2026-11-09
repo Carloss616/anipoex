@@ -4,6 +4,10 @@ import { runtime } from "@/features/extensions";
 import { ObservablePersist } from "@/state/observable-persist";
 import { sameSite } from "../utils/same-site";
 import type { Source } from "../utils/source";
+import { withTimeout } from "../utils/with-timeout";
+
+// A scan's pick waits on the answer: a stuck bridge mustn't hold it.
+const HOSTS_TIMEOUT_MS = 3000;
 
 /** By source id: when its site first served a Cloudflare challenge (ms). */
 export const challenged$ = observable<Record<string, number>>({});
@@ -18,7 +22,10 @@ syncObservable(challenged$, {
  * host per source from the runtime when that matters.
  */
 export async function recordChallenges(sources: Source[]): Promise<void> {
-  const hosts = await runtime.challengedHosts().catch(() => []);
+  const hosts = await withTimeout(
+    runtime.challengedHosts(),
+    HOSTS_TIMEOUT_MS,
+  ).catch(() => []);
   if (!hosts.length) return;
   const now = Date.now();
   for (const { id, homeUrl } of sources) {

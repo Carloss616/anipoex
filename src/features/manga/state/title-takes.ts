@@ -76,7 +76,12 @@ export function forgetByTitle(
   clearManual(mangaId, sourceId);
   dropChapters(mangaId, sourceId);
   // A chosen source stays chosen, as searched with nothing matched.
-  if (readMatch(source$[mangaId].peek())?.sourceId === sourceId)
-    source$[mangaId].set({ sourceId, manga: null });
+  const chosen = readMatch(source$[mangaId].peek());
+  if (chosen?.sourceId === sourceId)
+    source$[mangaId].set({
+      sourceId,
+      manga: null,
+      ...(chosen.auto && { auto: true as const }),
+    });
   recordProbe(mangaId, sourceOf(sourceId), "no-match");
 }

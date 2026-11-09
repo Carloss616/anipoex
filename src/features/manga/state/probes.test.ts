@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, jest, mock } from "bun:test";
 import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 const searchCalls: string[] = [];
@@ -31,8 +31,9 @@ const chapters = mock((sourceId: string, url: string, _title: string) => {
   });
 });
 
+let hostsReply = async (): Promise<string[]> => [];
 mock.module("@/features/extensions", () => ({
-  runtime: { search, chapters, challengedHosts: async () => [] },
+  runtime: { search, chapters, challengedHosts: () => hostsReply() },
 }));
 const shown = mock(
   (_label: string, _options?: { action?: { onAction: () => void } }) => {},
@@ -79,6 +80,7 @@ const { PARALLEL_BATCH } = await import("../utils/msu");
 const { clearManual, readManual, setManual } = await import("./manual-matches");
 const { titleSearch$ } = await import("./title-search");
 const { forgetByTitle, takeByTitle } = await import("./title-takes");
+const { settings$ } = await import("@/state/settings");
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 const sources = (...ids: string[]) =>
@@ -656,6 +658,22 @@ describe("title takes", () => {
     forgetByTitle(1402, "c", named);
     expect(readManual(1402, "c")?.url).toBe("/mine");
   });
+
+  it("keeps a scan's pick automatic when its take is forgotten", () => {
+    titleSearch$["1403"].set({ a: rail("Dark Lady") });
+    takeByTitle(1403, known, named);
+    source$[1403].set({
+      sourceId: "a",
+      manga: { url: "/Dark Lady", title: "Dark Lady" },
+      auto: true,
+    });
+    forgetByTitle(1403, "a", named);
+    expect(source$[1403].peek()).toEqual({
+      sourceId: "a",
+      manga: null,
+      auto: true,
+    });
+  });
 });
 
 describe("auto pick", () => {
@@ -669,6 +687,43 @@ describe("auto pick", () => {
       sourceId: "b",
       manga: { url: "/b" },
     });
+  });
+
+  it("leaves out +N when the pick has nothing new", async () => {
+    const done = scan({ mangaId: 1503, sources: sources("a"), read: () => 2 });
+    await answer("a", [1, 2]);
+    await done;
+    expect(shown.mock.calls.at(-1)?.[0]).toBe("Picked A");
+  });
+
+  it("picks nothing when auto-pick is off", async () => {
+    settings$.sources.autoPick.set(false);
+    try {
+      const done = scan({ mangaId: 1504, sources: sources("a") });
+      await answer("a", [1]);
+      await done;
+      expect(source$[1504].peek()).toBeUndefined();
+    } finally {
+      settings$.sources.autoPick.set(true);
+    }
+  });
+
+  it("picks even when the runtime never says which hosts challenged", async () => {
+    hostsReply = () => new Promise(() => {});
+    try {
+      const done = scan({ mangaId: 1505, sources: sources("a") });
+      await answer("a", [1]);
+      jest.useFakeTimers();
+      for (let i = 0; i < 20; i++) await Promise.resolve();
+      jest.advanceTimersByTime(10_000);
+      jest.useRealTimers();
+      // Bounded, so a scan stuck on the runtime fails here instead of hanging.
+      await Promise.race([done, new Promise((r) => setTimeout(r, 500))]);
+      expect(source$[1505].peek()).toMatchObject({ sourceId: "a" });
+    } finally {
+      jest.useRealTimers();
+      hostsReply = async () => [];
+    }
   });
 
   it("keeps a source the user chose", async () => {

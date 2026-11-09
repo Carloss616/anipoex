@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
+import { observable } from "@legendapp/state";
 import type { Repo } from "@/features/extensions/utils/repo";
 import { withPreset } from "@/features/home/utils/home-layout";
-import { migrateLegacy, normalizeSettings } from "./migrate";
+import { migrateLegacy, moveLegacyIn, normalizeSettings } from "./migrate";
 
 const REPO: Repo = {
   baseUrl: "https://repo",
@@ -49,4 +50,27 @@ test("normalizeSettings runs a stored layout through normalizeLayout", () => {
 
   expect(settings.home.order).not.toContain("gone" as never);
   expect(settings.home.order).toEqual(home.order);
+});
+
+test("moveLegacyIn moves the old tables in once and deletes them", () => {
+  const settings$ = observable(normalizeSettings(undefined));
+  const deleted: string[] = [];
+  const open = (name: string) => ({
+    value:
+      name === "theme" ? { family: "moon", preference: "dark" } : undefined,
+    delete: () => deleted.push(name),
+  });
+
+  moveLegacyIn(settings$, open);
+  expect(settings$.theme.peek()).toEqual({
+    family: "moon",
+    preference: "dark",
+  });
+  expect(settings$.version.peek()).toBe(1);
+  expect(deleted).toHaveLength(4);
+
+  settings$.theme.family.set("grass");
+  moveLegacyIn(settings$, open);
+  expect(settings$.theme.family.peek()).toBe("grass");
+  expect(deleted).toHaveLength(4);
 });
