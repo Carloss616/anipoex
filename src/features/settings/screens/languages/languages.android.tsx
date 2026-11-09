@@ -1,5 +1,6 @@
-import { Column } from "@expo/ui/jetpack-compose";
+import { Box, Column } from "@expo/ui/jetpack-compose";
 import {
+  fillMaxSize,
   fillMaxWidth,
   padding,
   verticalScroll,
@@ -9,6 +10,7 @@ import { Stack } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { GUTTER } from "@/components/native/constants";
+import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
 import {
   SEGMENTED_GAP,
   SegmentedListItem,
@@ -22,6 +24,7 @@ import {
   languageOrder$,
   useLoadInstalled,
 } from "@/features/extensions";
+import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { settings$ } from "@/state/settings";
 import { moveTo } from "@/utils/move-to";
@@ -34,6 +37,7 @@ export function Languages() {
     .split(",")
     .filter(Boolean);
   const headerHeight = useHeaderHeight();
+  const setHeaderScrolled = useSetHeaderScrolled();
   const m3 = useThemeM3Colors();
 
   if (!codes.length)
@@ -48,62 +52,66 @@ export function Languages() {
     <>
       <Stack.Title>Languages</Stack.Title>
       <Host className="flex-1" style={{ marginTop: headerHeight }}>
-        <Column
-          modifiers={[
-            verticalScroll(),
-            fillMaxWidth(),
-            padding(GUTTER, 8, GUTTER, GUTTER),
-          ]}
+        <Box
+          modifiers={[fillMaxSize(), pinnedScrollBehavior(setHeaderScrolled)]}
         >
-          <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
-            {codes.map((code, i) => {
-              const move = (to: number) =>
-                settings$.sources.languages.set(
-                  moveTo(languageOrder$.peek(), code, to),
-                );
-              return (
-                <ContextMenu
-                  key={code}
-                  items={[
-                    {
-                      label: "Move up",
-                      icon: Icons.moveUp,
-                      disabled: i === 0,
-                      onPress: () => move(i - 1),
-                    },
-                    {
-                      label: "Move down",
-                      icon: Icons.moveDown,
-                      disabled: i === codes.length - 1,
-                      onPress: () => move(i + 1),
-                    },
-                    {
-                      label: "Move to top",
-                      icon: Icons.moveToTop,
-                      disabled: i === 0,
-                      onPress: () => move(0),
-                    },
-                  ]}
-                >
-                  <SegmentedListItem
-                    index={i}
-                    count={codes.length}
-                    containerColor={m3.surfaceContainerLow}
-                  >
-                    <Text>{languageName(code)}</Text>
-                  </SegmentedListItem>
-                </ContextMenu>
-              );
-            })}
-          </Column>
-          <Text
-            style={{ typography: "bodySmall" }}
-            color={m3.onSurfaceVariant}
-            modifiers={[padding(4, 8, 4, 0)]}
+          <Column
+            modifiers={[
+              verticalScroll(),
+              fillMaxWidth(),
+              padding(GUTTER, 8, GUTTER, GUTTER),
+            ]}
           >
-            {`${FOOTNOTE} Long-press one to move it.`}
-          </Text>
-        </Column>
+            <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
+              {codes.map((code, i) => {
+                const move = (to: number) =>
+                  settings$.sources.languages.set(
+                    moveTo(languageOrder$.peek(), code, to),
+                  );
+                return (
+                  <ContextMenu
+                    key={code}
+                    items={[
+                      {
+                        label: "Move up",
+                        icon: Icons.moveUp,
+                        disabled: i === 0,
+                        onPress: () => move(i - 1),
+                      },
+                      {
+                        label: "Move down",
+                        icon: Icons.moveDown,
+                        disabled: i === codes.length - 1,
+                        onPress: () => move(i + 1),
+                      },
+                      {
+                        label: "Move to top",
+                        icon: Icons.moveToTop,
+                        disabled: i === 0,
+                        onPress: () => move(0),
+                      },
+                    ]}
+                  >
+                    <SegmentedListItem
+                      index={i}
+                      count={codes.length}
+                      containerColor={m3.surfaceContainerLow}
+                    >
+                      <Text>{languageName(code)}</Text>
+                    </SegmentedListItem>
+                  </ContextMenu>
+                );
+              })}
+            </Column>
+            <Text
+              style={{ typography: "bodySmall" }}
+              color={m3.onSurfaceVariant}
+              modifiers={[padding(4, 8, 4, 0)]}
+            >
+              {`${FOOTNOTE} Long-press one to move it.`}
+            </Text>
+          </Column>
+        </Box>
       </Host>
     </>
   );
