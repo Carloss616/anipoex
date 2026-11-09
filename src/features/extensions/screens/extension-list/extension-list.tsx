@@ -13,6 +13,7 @@ import {
   type ExtensionFilter,
   extensions$,
   FILTER_TITLES,
+  type Language,
   languagesOf,
   loadExtensions,
   parseFilter,
@@ -25,6 +26,8 @@ import { ListContent } from "./components/list-content";
 import { ListToolbar } from "./components/list-toolbar";
 
 const NO_MATCH = { title: "No extensions match this filter" };
+// No language param means your languages; this one shows them all.
+const ALL_LANGUAGES: Language = { code: "all", name: "All languages" };
 const NO_REPOS = {
   title: "No repositories",
   description: "Add an extension repository to browse extensions.",
@@ -45,7 +48,10 @@ export function ExtensionList() {
     void loadExtensions();
   }, []);
 
-  const languages = useMemo(() => languagesOf(extensions), [extensions]);
+  const languages = useMemo(
+    () => [ALL_LANGUAGES, ...languagesOf(extensions)],
+    [extensions],
+  );
   const filter = parseFilter(params.filter);
   const language = parseLanguage(params.language, languages);
   const counts = useMemo(() => countExtensions(extensions), [extensions]);

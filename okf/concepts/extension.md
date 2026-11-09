@@ -43,8 +43,11 @@ appears as installed, but can't be updated until a repo lists it again.
 # The Extensions tab
 
 - Filters: **All**, **Installed**, **Available** (not installed), **Updates**, from the
-  `?filter=` param; plus `?language=`. Unknown values fall back to All / every
-  language. Search matches the name.
+  `?filter=` param; plus `?language=`. With no language, extensions not installed show
+  only in the user's languages (the [languages](source.md) order, the device's language
+  included) and Multi; installed ones always show. `?language=all` shows every language, a
+  code just that one. Unknown values fall back to All / your languages. Search matches the
+  name.
 - Installed extensions with a pending update are listed first.
 - Each row with a `websiteUrl` has an "Open website" button that opens the source's site; without one, no button.
 - Install, Update, Update all, Uninstall; "Check for updates" and opening the tab reload

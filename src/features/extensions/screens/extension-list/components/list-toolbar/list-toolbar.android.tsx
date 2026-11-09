@@ -30,7 +30,7 @@ export function ListToolbar({
               isOn={l?.code === language}
               onPress={() => onLanguageChange(l?.code)}
             >
-              {l?.name ?? "All languages"}
+              {l?.name ?? "Your languages"}
             </Stack.Toolbar.MenuAction>
           ))}
         </Stack.Toolbar.Menu>

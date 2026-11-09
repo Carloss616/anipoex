@@ -1,5 +1,6 @@
 import { type Extension, hasUpdate } from "./extension";
 import type { ExtensionFilter } from "./filters";
+import { baseLang } from "./languages";
 
 export type ExtensionSection = {
   key: "installed" | "available" | "updates";
@@ -11,15 +12,23 @@ export function toSections(
   extensions: Extension[],
   query: {
     filter: ExtensionFilter;
+    /** A code; `all` for every language; none for `preferred`, plus multi. */
     language: string | undefined;
     search: string;
+    /** The user's base languages. */
+    preferred: readonly string[];
   },
 ): ExtensionSection[] {
   const needle = query.search.trim().toLowerCase();
+  const { language, preferred } = query;
+  // Yours limits only what can be installed: an installed one always shows.
+  const inLanguage = ({ installed, language: { code } }: Extension) =>
+    language === "all" ||
+    (language
+      ? code === language
+      : installed || code === "mul" || preferred.includes(baseLang(code)));
   const shown = extensions.filter(
-    (e) =>
-      (!query.language || e.language.code === query.language) &&
-      (!needle || e.name.toLowerCase().includes(needle)),
+    (e) => inLanguage(e) && (!needle || e.name.toLowerCase().includes(needle)),
   );
   // Stable sort: pending updates first, registry order otherwise.
   const installed = shown

@@ -9,6 +9,7 @@
 * **One order for the sheet and the pick**: sources rank by new chapters (whole chapters), then no Cloudflare check, then language order, then name; the sheet's first available row is what a scan picks. Updated [source](concepts/source.md).
 * **A scan updates its own pick**: a scan's pick is marked automatic, so a later scan may replace it with a better source, never a pick the user made; it toasts "Picked <source> · +N" with Undo, and Settings can turn it off. Updated [chosen source](stores/source-matches.md).
 * **Sources in Settings**: a Sources section holds "Pick a source after a scan" and Languages, where the installed languages are reordered (dragged on iOS and web, from a row's long-press menu on Android). Updated [settings](stores/settings.md).
+* **Extensions in your languages**: the Extensions tab lists extensions to install in the user's languages and Multi by default; "All languages" shows the rest. Updated [extension](concepts/extension.md).
 
 ## 2026-11-08
 

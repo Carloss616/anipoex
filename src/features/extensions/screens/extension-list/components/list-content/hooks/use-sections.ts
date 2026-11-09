@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   type Extension,
   type ExtensionFilter,
+  languages$,
   toSections,
 } from "@/features/extensions";
 
@@ -20,9 +21,17 @@ export function useSections({
   query$: ObservablePrimitive<string>;
 }) {
   const search = useValue(query$);
+  // A string, so a new array with the same languages changes nothing.
+  const preferred = useValue(() => languages$.get().join());
 
   return useMemo(
-    () => toSections(extensions, { filter, language, search }),
-    [extensions, filter, language, search],
+    () =>
+      toSections(extensions, {
+        filter,
+        language,
+        search,
+        preferred: preferred.split(","),
+      }),
+    [extensions, filter, language, search, preferred],
   );
 }

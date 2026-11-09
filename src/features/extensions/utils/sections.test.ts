@@ -2,7 +2,12 @@ import { describe, expect, it } from "bun:test";
 import { LIST } from "./fixtures";
 import { headerIndices, toRows, toSections } from "./sections";
 
-const all = { filter: "all", language: undefined, search: "" } as const;
+const all = {
+  filter: "all",
+  language: "all",
+  search: "",
+  preferred: [],
+} as const;
 
 const ids = (sections: ReturnType<typeof toSections>) =>
   sections.map((s) => [s.key, s.data.map((e) => e.id)]);
@@ -37,6 +42,23 @@ describe("toSections", () => {
     expect(ids(toSections(LIST, { ...all, language: "mul" }))).toEqual([
       ["installed", ["source-b", "source-c"]],
     ]);
+  });
+
+  it("shows your languages and multi by default, installed untouched", () => {
+    const yours = { ...all, language: undefined, preferred: ["en"] };
+    expect(ids(toSections(LIST, yours))).toEqual([
+      ["installed", ["source-a", "source-b", "source-c"]],
+      ["available", ["source-d"]],
+    ]);
+  });
+
+  it("shows every language for all, and one for its code", () => {
+    expect(ids(toSections(LIST, { ...all, filter: "available" }))).toEqual([
+      ["available", ["source-d", "source-e"]],
+    ]);
+    expect(
+      ids(toSections(LIST, { ...all, filter: "available", language: "ko" })),
+    ).toEqual([["available", ["source-e"]]]);
   });
 
   it("searches case-insensitively and ignores surrounding spaces", () => {

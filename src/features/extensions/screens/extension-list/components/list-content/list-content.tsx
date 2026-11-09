@@ -43,7 +43,7 @@ export interface ListContentProps {
   counts: ExtensionCounts;
   filter: ExtensionFilter;
   onFilterChange: (filter: ExtensionFilter) => void;
-  /** A language code; `undefined` = every language. */
+  /** A language code, `all`, or `undefined` for your languages. */
   language: string | undefined;
   languages: Language[];
   onLanguageChange: (language: string | undefined) => void;
@@ -174,13 +174,13 @@ function LanguageMenu({
     <Menu
       align="start"
       items={[undefined, ...languages].map((l) => ({
-        label: l?.name ?? "All languages",
+        label: l?.name ?? "Your languages",
         checked: l?.code === language,
         onPress: () => onSelect(l?.code),
       }))}
     >
       <Button variant="outline" size="sm">
-        {languages.find((l) => l.code === language)?.name ?? "All languages"}
+        {languages.find((l) => l.code === language)?.name ?? "Your languages"}
         <Icon name={Icons.chevronDown} size={16} />
       </Button>
     </Menu>
