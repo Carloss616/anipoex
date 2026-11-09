@@ -1,3 +1,4 @@
+import { useValue } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
@@ -5,6 +6,7 @@ import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu, Menu } from "@/components/ui/menu";
+import { challenged$ } from "@/features/manga/state/challenged";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import type { Source } from "@/features/manga/utils/source";
 import { useMatchUrl } from "../../hooks/use-match-url";
@@ -60,6 +62,7 @@ export const AvailableItem = memo(function AvailableItem({
   actions,
   onSelect,
 }: AvailableItemProps) {
+  const challenged = useValue(() => !!challenged$[source.id].get());
   const { probe, scanning, suspicious } = useSourceScan(
     mangaKey,
     source.id,
@@ -107,6 +110,11 @@ export const AvailableItem = memo(function AvailableItem({
               <Frame.Title as="p">{source.baseName ?? source.name}</Frame.Title>
               <Frame.Description>
                 {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
+                {challenged && (
+                  <>
+                    <Badge>Cloudflare</Badge>{" "}
+                  </>
+                )}
                 {scanning ? (
                   <Badge>scanning…</Badge>
                 ) : (

@@ -15,12 +15,14 @@ import {
   lineLimit,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
+import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
+import { challenged$ } from "@/features/manga/state/challenged";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useMatchUrl } from "../../hooks/use-match-url";
@@ -46,6 +48,7 @@ export const AvailableItem = memo(function AvailableItem({
   onError,
 }: AvailableItemProps) {
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
+  const challenged = useValue(() => !!challenged$[source.id].get());
   const { probe, scanning, suspicious } = useSourceScan(
     mangaKey,
     source.id,
@@ -118,6 +121,7 @@ export const AvailableItem = memo(function AvailableItem({
                   </Text>
                   <HStack spacing={6}>
                     {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+                    {challenged && <Badge>Cloudflare</Badge>}
                     {scanning ? (
                       <Badge>scanning…</Badge>
                     ) : (

@@ -1,5 +1,6 @@
 import { Column, Row } from "@expo/ui/jetpack-compose";
 import { padding } from "@expo/ui/jetpack-compose/modifiers";
+import { useValue } from "@legendapp/state/react";
 import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
 import {
@@ -9,6 +10,7 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { ContextMenu } from "@/components/ui/menu";
+import { challenged$ } from "@/features/manga/state/challenged";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useMatchUrl } from "../../hooks/use-match-url";
@@ -34,6 +36,7 @@ export const AvailableItem = memo(function AvailableItem({
   onSelect,
 }: AvailableItemProps) {
   const m3 = useThemeM3Colors();
+  const challenged = useValue(() => !!challenged$[source.id].get());
   const { probe, scanning, suspicious } = useSourceScan(
     mangaKey,
     source.id,
@@ -88,6 +91,7 @@ export const AvailableItem = memo(function AvailableItem({
               horizontalArrangement={{ spacedBy: 6 }}
             >
               {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
+              {challenged && <Badge>Cloudflare</Badge>}
               {scanning ? (
                 <Badge>scanning…</Badge>
               ) : (
