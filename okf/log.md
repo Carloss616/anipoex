@@ -7,6 +7,7 @@
 * **Multi-language extensions follow your languages**: a multi-language extension offers only the languages of the installed single-language ones (by base language), plus its all-languages source; a chosen source stays listed. Languages have an order, the device's first. Updated [source](concepts/source.md), [settings](stores/settings.md).
 * **Sources behind Cloudflare are remembered**: the runtime notes the hosts that answer with a Cloudflare challenge, and a scan marks the sources on those sites for good. Added [challenged sources](stores/source-challenged.md).
 * **One order for the sheet and the pick**: sources rank by new chapters (whole chapters), then no Cloudflare check, then language order, then name; the sheet's first available row is what a scan picks. Updated [source](concepts/source.md).
+* **A scan updates its own pick**: a scan's pick is marked automatic, so a later scan may replace it with a better source, never a pick the user made; it toasts "Picked <source> · +N" with Undo, and Settings can turn it off. Updated [chosen source](stores/source-matches.md).
 
 ## 2026-11-08
 

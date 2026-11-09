@@ -1,8 +1,10 @@
 import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
+import { toast } from "@/components/ui/toast";
 import { languages$ } from "@/features/extensions/state/languages";
 import { ObservablePersist } from "@/state/observable-persist";
-import { bestSource } from "../utils/best-source";
+import { settings$ } from "@/state/settings";
+import { bestSource, nextAutoPick } from "../utils/best-source";
 import { fetchChapters } from "../utils/fetch-chapters";
 import {
   AUTO_RECHECK_DAYS,
@@ -14,6 +16,7 @@ import {
 } from "../utils/msu";
 import { startScanActivity } from "../utils/scan-activity";
 import type { Source } from "../utils/source";
+import { unreadChapters } from "../utils/source-classify";
 import {
   autoExclude,
   expiredAutoExclusions,
@@ -28,7 +31,13 @@ import { challenged$, recordChallenges } from "./challenged";
 import { chapters$, chaptersKey } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
 import { readManual } from "./manual-matches";
-import { deselectSource, findManga, selectSource, source$ } from "./source";
+import {
+  deselectSource,
+  findManga,
+  restoreMatch,
+  selectSource,
+  source$,
+} from "./source";
 
 /**
  * Per manga, each source's last scan: MSU's `probes` map (gist file
@@ -266,16 +275,30 @@ export async function scanSources(args: {
     }
     activity.end(Object.values(landed).filter((p) => p.matched).length);
     await recordChallenges(sources);
-    // A manga read from no source gets the best one, so its +N shows.
-    if (!readMatch(source$[mangaId].peek())) {
-      const best = bestSource(
-        sources,
-        exclusions$[key].peek() ?? {},
-        probes$[key].peek() ?? {},
-        { challenged: challenged$.peek(), languages: languages$.peek() },
+    // A manga read from no source, or from one a scan picked, gets the best
+    // one, so its +N shows.
+    const previous = source$[mangaId].peek();
+    const probes = probes$[key].peek() ?? {};
+    const id = nextAutoPick(
+      readMatch(previous),
+      bestSource(sources, exclusions$[key].peek() ?? {}, probes, {
+        challenged: challenged$.peek(),
+        languages: languages$.peek(),
+      }),
+      settings$.sources.autoPick.peek(),
+    );
+    const picked = sources.find((s) => s.id === id);
+    if (picked) {
+      void selectSource(mangaId, picked, titles, undefined, true);
+      toast(
+        `Picked ${picked.name} · +${unreadChapters(read(), probes[picked.id].latest)}`,
+        {
+          action: {
+            label: "Undo",
+            onAction: () => restoreMatch(mangaId, previous),
+          },
+        },
       );
-      const picked = sources.find((s) => s.id === best);
-      if (picked) void selectSource(mangaId, picked, titles);
     }
   }
 }

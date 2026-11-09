@@ -1,6 +1,7 @@
 import { compareSources, type PickPrefs } from "./compare-sources";
 import type { ProbeMap } from "./msu";
 import { type Excluded, isLive } from "./source-exclusions";
+import type { SourceMatch } from "./source-match";
 import { isSuspicious } from "./suspicious";
 
 /**
@@ -24,4 +25,18 @@ export function bestSource(
       );
     })
     .sort((a, b) => compareSources(a, b, probes, prefs))[0]?.id;
+}
+
+/**
+ * What a scan should pick: `best` when nothing is chosen or a scan chose
+ * another; never over a pick made by hand.
+ */
+export function nextAutoPick(
+  match: SourceMatch | undefined,
+  best: string | undefined,
+  autoPick: boolean,
+): string | undefined {
+  if (!autoPick || !best) return undefined;
+  if (!match) return best;
+  return match.auto && match.sourceId !== best ? best : undefined;
 }

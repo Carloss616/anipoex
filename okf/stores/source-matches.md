@@ -7,7 +7,7 @@ tags: [sources, preferences, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-21T00:00:00Z }
 ---
 
-Key `source-matches`: `{ [anilistId]: { sourceId, manga? } }`. The pick is stored the moment
+Key `source-matches`: `{ [anilistId]: { sourceId, manga?, auto? } }`. The pick is stored the moment
 the user makes it, so the detail names the source at once; `manga` is added when the search
 ends. A `sourceId` without `manga` is a search still pending: it resumes when the detail
 opens and retries on refresh, and a failed search leaves it that way. `manga` is the title the
@@ -29,9 +29,14 @@ manual matches' titles in Latin script, then synonyms in Latin script, each once
 comes first and isn't searched; then a source whose
 [chapters are stored](source-chapters.md) for the manga isn't searched again, its stored page is the match. Values from before matching
 (a bare source id) are ignored, so the user picks the source again. A scan (*Scan all* or one
-source's rescan) that ends with no source chosen picks the best one: matched, not excluded, not
-failing, numbering not suspicious, furthest ahead, ties by name; so a manga scanned for the first
-time shows its `+N` in the list. A missing key means no source chosen; so does a match whose source no installed extension provides any more
+source's rescan) picks the best source when none is chosen, or when the one chosen was picked by
+a scan: matched, not excluded, not failing, numbering not suspicious, then in the
+[source order](../concepts/source.md); so a manga scanned for the first time shows its `+N` in
+the list. Such a pick carries `auto: true`, kept while its search resumes; a pick the user makes
+has none, and a scan never replaces it. It says "Picked <source> · +N" with an Undo that puts
+back what was there before (no source, or the previous scan's pick). The user can turn it off
+in Settings ("Pick a source after a scan", [settings](settings.md) `sources.autoPick`, on by
+default). A missing key means no source chosen; so does a match whose source no installed extension provides any more
 (it was uninstalled), once the installed list has been read, so the detail asks to pick
 a source again instead of failing to load chapters. Deselecting the source, or
 [excluding](../concepts/source-exclusion.md) it by hand or by a scan, removes the key. Survives sign-out (it is not cleared) and does not sync anywhere.

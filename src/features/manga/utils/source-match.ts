@@ -13,6 +13,8 @@ const MAX_QUERIES = 5;
 export interface SourceMatch {
   sourceId: string;
   manga?: { url: string; title: string; memo?: string | null } | null;
+  /** Picked by a scan, not by the user: a later scan may replace it. */
+  auto?: true;
 }
 
 function isSourceManga(

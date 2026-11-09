@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { bestSource } from "./best-source";
+import { bestSource, nextAutoPick } from "./best-source";
 import type { PickPrefs } from "./compare-sources";
 
 const NONE: PickPrefs = { challenged: {}, languages: [] };
@@ -64,5 +64,30 @@ describe("bestSource", () => {
         { challenged: { a: 1 }, languages: [] },
       ),
     ).toBe("b");
+  });
+});
+
+describe("nextAutoPick", () => {
+  it("picks when nothing is chosen", () => {
+    expect(nextAutoPick(undefined, "a", true)).toBe("a");
+  });
+
+  it("replaces an automatic pick with a better one", () => {
+    expect(nextAutoPick({ sourceId: "b", auto: true }, "a", true)).toBe("a");
+  });
+
+  it("never replaces a pick made by hand", () => {
+    expect(nextAutoPick({ sourceId: "b" }, "a", true)).toBeUndefined();
+  });
+
+  it("does nothing when the best is already picked", () => {
+    expect(
+      nextAutoPick({ sourceId: "a", auto: true }, "a", true),
+    ).toBeUndefined();
+  });
+
+  it("does nothing when auto-pick is off, or nothing qualifies", () => {
+    expect(nextAutoPick(undefined, "a", false)).toBeUndefined();
+    expect(nextAutoPick(undefined, undefined, true)).toBeUndefined();
   });
 });

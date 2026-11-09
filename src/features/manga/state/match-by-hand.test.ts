@@ -11,7 +11,9 @@ const search = mock(
 mock.module("@/features/extensions", () => ({
   runtime: { search, chapters: async () => ({ chapters: [] }) },
 }));
-mock.module("@/components/ui/toast", () => ({ toast: { error() {} } }));
+mock.module("@/components/ui/toast", () => ({
+  toast: Object.assign(() => {}, { error() {} }),
+}));
 mock.module("../utils/chapter-storage", () => memoryStorage);
 mock.module("@/state/observable-persist", () => ({
   ObservablePersist: class {

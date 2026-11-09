@@ -34,7 +34,12 @@ const chapters = mock((sourceId: string, url: string, _title: string) => {
 mock.module("@/features/extensions", () => ({
   runtime: { search, chapters, challengedHosts: async () => [] },
 }));
-mock.module("@/components/ui/toast", () => ({ toast: { error() {} } }));
+const shown = mock(
+  (_label: string, _options?: { action?: { onAction: () => void } }) => {},
+);
+mock.module("@/components/ui/toast", () => ({
+  toast: Object.assign(shown, { error() {} }),
+}));
 const activity = {
   progress: mock((_done: number) => {}),
   end: mock((_found: number) => {}),
@@ -400,6 +405,43 @@ describe("scanSources", () => {
     await flush();
     expect(exclusions$["201"].get().a.reason).toBe("not-matched");
     expect(source$[201].get()).toMatchObject({ sourceId: "b" });
+  });
+
+  it("a scan replaces its own pick with a better source, and Undo puts it back", async () => {
+    const before = {
+      sourceId: "a",
+      manga: { url: "/a", title: "T" },
+      auto: true,
+    };
+    source$[201].set(before);
+    const done = scan({ sources: sources("a", "b"), keep: "a" });
+    await answer("a", [5]);
+    await answer("b", [9]);
+    await done;
+    expect(source$[201].get()).toMatchObject({ sourceId: "b", auto: true });
+    expect(shown.mock.calls.at(-1)?.[0]).toBe("Picked B · +9");
+
+    shown.mock.calls.at(-1)?.[1]?.action?.onAction();
+    expect(source$[201].get()).toEqual(before);
+  });
+
+  it("a scan never replaces a pick made by hand", async () => {
+    source$[201].set({ sourceId: "a", manga: { url: "/a", title: "T" } });
+    const done = scan({ sources: sources("a", "b"), keep: "a" });
+    await answer("a", [5]);
+    await answer("b", [9]);
+    await done;
+    expect(source$[201].get()).toMatchObject({ sourceId: "a" });
+  });
+
+  it("Undo of a first pick leaves the manga with no source", async () => {
+    const done = scan({ sources: sources("a") });
+    await answer("a", [3]);
+    await done;
+    expect(source$[201].get()).toMatchObject({ sourceId: "a", auto: true });
+
+    shown.mock.calls.at(-1)?.[1]?.action?.onAction();
+    expect(source$[201].get()).toBeUndefined();
   });
 
   it("a source picked during the scan is never auto-excluded", async () => {

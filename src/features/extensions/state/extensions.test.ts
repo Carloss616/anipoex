@@ -55,7 +55,9 @@ mock.module("../runtime", () => ({
   isRuntimeAvailable: false,
   runtime: { install, installed, uninstall: mock(async () => {}) },
 }));
-mock.module("@/components/ui/toast", () => ({ toast: { error: toastError } }));
+mock.module("@/components/ui/toast", () => ({
+  toast: Object.assign(() => {}, { error: toastError }),
+}));
 // Not a mock of "./repos": Bun keeps a module mock for the whole run, so
 // repos.test.ts would get it whenever it runs after this file.
 mock.module("@/state/observable-persist", () => ({

@@ -45,17 +45,19 @@ export async function findManga(
  * page was set by hand or its chapters are stored. The last pick per manga
  * wins; a failed search leaves the pick unmatched. Resolves to the stored
  * match (null for none), `{ error }` when the search failed, or undefined
- * when a later pick took over.
+ * when a later pick took over. `auto` marks a pick a scan made.
  */
 export async function selectSource(
   mangaId: number,
   source: { id: string; name: string },
   titles: Titles,
   timeoutMs = SEARCH_TIMEOUT_MS,
+  auto = false,
 ) {
   const ticket = (tickets[mangaId] ?? 0) + 1;
   tickets[mangaId] = ticket;
-  source$[mangaId].set({ sourceId: source.id });
+  const mark = auto ? { auto: true as const } : {};
+  source$[mangaId].set({ sourceId: source.id, ...mark });
   matching$[mangaId].set(true);
 
   try {
@@ -71,7 +73,7 @@ export async function selectSource(
       title: manga.title,
       memo: manga.memo,
     };
-    source$[mangaId].set({ sourceId: source.id, manga: match });
+    source$[mangaId].set({ sourceId: source.id, manga: match, ...mark });
     return match;
   } catch (error) {
     if (ticket !== tickets[mangaId]) return;
@@ -90,6 +92,14 @@ export function storeMatch(
 ) {
   tickets[mangaId] = (tickets[mangaId] ?? 0) + 1;
   source$[mangaId].set({ sourceId, manga });
+  matching$[mangaId].set(false);
+}
+
+/** Puts back what `source$` held before, dropping a search still running. */
+export function restoreMatch(mangaId: number, previous: unknown) {
+  tickets[mangaId] = (tickets[mangaId] ?? 0) + 1;
+  if (previous === undefined) source$[mangaId].delete();
+  else source$[mangaId].set(previous as object);
   matching$[mangaId].set(false);
 }
 
@@ -114,5 +124,5 @@ export function resumeSource(
     matching$[mangaId].get()
   )
     return;
-  return selectSource(mangaId, source, titles);
+  return selectSource(mangaId, source, titles, undefined, stored.auto);
 }

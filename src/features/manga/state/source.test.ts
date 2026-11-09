@@ -15,7 +15,9 @@ const search = mock(
 const toastError = mock((_label: string) => {});
 
 mock.module("@/features/extensions", () => ({ runtime: { search } }));
-mock.module("@/components/ui/toast", () => ({ toast: { error: toastError } }));
+mock.module("@/components/ui/toast", () => ({
+  toast: Object.assign(() => {}, { error: toastError }),
+}));
 mock.module("@/state/observable-persist", () => ({
   ObservablePersist: class {
     getTable() {
@@ -197,6 +199,19 @@ describe("resumeSource", () => {
     expect(source$[6].get()).toEqual({
       sourceId: "a",
       manga: { url: "/1", title: "r" },
+    });
+  });
+
+  it("keeps a scan's pick marked as automatic", async () => {
+    source$[11].set({ sourceId: "a", auto: true });
+    const done = resumeSource(11, A, titles);
+    await flush();
+    pending["a:r"]([{ ...hit, title: "r" }]);
+    await done;
+    expect(source$[11].get()).toEqual({
+      sourceId: "a",
+      manga: { url: "/1", title: "r" },
+      auto: true,
     });
   });
 
