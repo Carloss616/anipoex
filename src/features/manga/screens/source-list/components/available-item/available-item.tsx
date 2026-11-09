@@ -112,7 +112,7 @@ export const AvailableItem = memo(function AvailableItem({
                 {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}{" "}
                 {challenged && (
                   <>
-                    <Badge>Cloudflare</Badge>{" "}
+                    <Badge icon={Icons.cloudflare} label="Cloudflare" />{" "}
                   </>
                 )}
                 {scanning ? (

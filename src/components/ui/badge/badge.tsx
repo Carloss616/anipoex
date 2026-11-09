@@ -16,6 +16,8 @@ export interface BadgeProps {
    * fit where a word wouldn't. Build it with `Icon.select`.
    */
   icon?: IconName;
+  /** What an `icon` badge says to a screen reader. */
+  label?: string;
   /**
    * A status badge with text is a tint of its color, read on a row. Keep the
    * solid fill where it sits on an image, like a count over a cover.
@@ -39,6 +41,7 @@ export function Badge({
   children,
   color = "secondary",
   icon,
+  label,
   solid,
   className,
 }: BadgeProps) {
@@ -51,6 +54,8 @@ export function Badge({
   // A span: it sits inline in <p> titles, which can't hold the div of a View.
   return (
     <span
+      role={icon && label ? "img" : undefined}
+      aria-label={icon ? label : undefined}
       className={cn(
         "inline-flex items-center justify-center rounded-full align-middle text-xs font-medium",
         tint ?? [semanticCss.fill, semanticCss.label],

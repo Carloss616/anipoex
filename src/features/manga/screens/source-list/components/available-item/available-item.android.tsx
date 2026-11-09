@@ -9,6 +9,7 @@ import {
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
+import { Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { challenged$ } from "@/features/manga/state/challenged";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
@@ -91,7 +92,9 @@ export const AvailableItem = memo(function AvailableItem({
               horizontalArrangement={{ spacedBy: 6 }}
             >
               {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
-              {challenged && <Badge>Cloudflare</Badge>}
+              {challenged && (
+                <Badge icon={Icons.cloudflare} label="Cloudflare" />
+              )}
               {scanning ? (
                 <Badge>scanning…</Badge>
               ) : (

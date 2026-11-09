@@ -121,7 +121,9 @@ export const AvailableItem = memo(function AvailableItem({
                   </Text>
                   <HStack spacing={6}>
                     {source.lang && <Badge>{source.lang.toUpperCase()}</Badge>}
-                    {challenged && <Badge>Cloudflare</Badge>}
+                    {challenged && (
+                      <Badge icon={Icons.cloudflare} label="Cloudflare" />
+                    )}
                     {scanning ? (
                       <Badge>scanning…</Badge>
                     ) : (

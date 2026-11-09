@@ -1,5 +1,8 @@
 import { Badge as BadgeView } from "@expo/ui/jetpack-compose";
-import { testID as testIDModifier } from "@expo/ui/jetpack-compose/modifiers";
+import {
+  semantics,
+  testID as testIDModifier,
+} from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
@@ -33,6 +36,7 @@ export function Badge({
   children,
   color = "secondary",
   icon,
+  label,
   testID,
 }: BadgeProps) {
   const { container, content } = useColors(color);
@@ -42,7 +46,10 @@ export function Badge({
       <BadgeView
         containerColor={container}
         contentColor={content}
-        modifiers={testID ? [testIDModifier(testID)] : []}
+        modifiers={[
+          ...(testID ? [testIDModifier(testID)] : []),
+          ...(icon && label ? [semantics({ contentDescription: label })] : []),
+        ]}
       >
         {icon ? (
           <Icon name={icon} size={12} color={content} />

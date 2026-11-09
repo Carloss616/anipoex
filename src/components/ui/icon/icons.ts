@@ -34,6 +34,12 @@ export const Icons = {
     android: require("@expo/material-symbols/open_in_new.xml"),
     web: "external-link",
   }),
+  // No brand glyph in any of the three sets: a cloud stands for Cloudflare.
+  cloudflare: Icon.select({
+    ios: "cloud.fill",
+    android: require("@expo/material-symbols/cloud.xml"),
+    web: "cloud",
+  }),
   website: Icon.select({
     ios: "globe",
     android: require("@expo/material-symbols/language.xml"),
