@@ -13,14 +13,15 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { THEME_FAMILIES, theme$ } from "@/state/theme";
+import { settings$ } from "@/state/settings";
+import { THEME_FAMILIES, themeMode$ } from "@/state/theme";
 
 const GAP = { spacedBy: 12 };
 
 /** One button per theme family, wrapping; the picked one is tonal. */
 export function ThemePicker() {
-  const family = useValue(theme$.family);
-  const dark = useValue(theme$.mode) === "dark";
+  const family = useValue(settings$.theme.family);
+  const dark = useValue(themeMode$) === "dark";
 
   return (
     <FlowRow horizontalArrangement={GAP} verticalArrangement={GAP}>
@@ -31,7 +32,7 @@ export function ThemePicker() {
         return (
           <FamilyButton
             key={entry.id}
-            onClick={() => theme$.family.set(entry.id)}
+            onClick={() => settings$.theme.family.set(entry.id)}
           >
             <Row
               verticalAlignment="center"

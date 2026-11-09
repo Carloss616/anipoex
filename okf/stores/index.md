@@ -14,6 +14,7 @@ IndexedDB), and nothing persists during web's server render.
 
 # Preferences
 
+* [Settings](settings.md) - Every setting in one table; the pages below are its sections.
 * [Manga list view](manga-list-view.md) - Grid density and title position.
 * [Theme](theme.md) - Theme family and light / dark / system preference.
 * [Home layout](home-layout.md) - Which Home sections show and in what order; a preset or the user's own.

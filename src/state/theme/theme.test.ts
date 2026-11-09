@@ -31,8 +31,8 @@ mock.module("../observable-persist", () => ({
 }));
 mock.module("uniwind", () => ({ Uniwind: { setTheme } }));
 mock.module("panelui-native", () => ({}));
-
-const { theme$ } = await import("./theme");
+const { settings$ } = await import("@/state/settings");
+await import("./theme");
 
 test("hands `system` to Uniwind for the family it can resolve itself", () => {
   expect(setTheme).toHaveBeenLastCalledWith("system");
@@ -41,7 +41,7 @@ test("hands `system` to Uniwind for the family it can resolve itself", () => {
 test("resolves `system` to the custom family's own dark theme", () => {
   osScheme = "dark";
   notifyOS();
-  theme$.family.set("moon");
+  settings$.theme.family.set("moon");
 
   expect(setTheme).toHaveBeenLastCalledWith("moon-dark");
 });
@@ -54,7 +54,7 @@ test("follows the OS while the custom family is on `system`", () => {
 });
 
 test("an explicit mode wins over the OS", () => {
-  theme$.preference.set("dark");
+  settings$.theme.preference.set("dark");
 
   expect(setTheme).toHaveBeenLastCalledWith("moon-dark");
   // Uniwind leaves a custom family unpinned, so the store pins it.
@@ -62,7 +62,7 @@ test("an explicit mode wins over the OS", () => {
 });
 
 test("keeps the mode when the family changes", () => {
-  theme$.family.set("default");
+  settings$.theme.family.set("default");
 
   expect(setTheme).toHaveBeenLastCalledWith("dark");
 });
@@ -77,11 +77,11 @@ test("on web, a custom family's dark half also gets `dark` for `dark:`", async (
   Platform.OS = "web";
 
   try {
-    theme$.family.set("moon");
+    settings$.theme.family.set("moon");
     expect(setTheme).toHaveBeenLastCalledWith("moon-dark");
     expect(toggle).toHaveBeenLastCalledWith("dark", true);
 
-    theme$.preference.set("light");
+    settings$.theme.preference.set("light");
     expect(toggle).toHaveBeenLastCalledWith("dark", false);
   } finally {
     Platform.OS = "ios";

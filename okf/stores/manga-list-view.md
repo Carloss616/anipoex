@@ -2,12 +2,12 @@
 type: Persisted Store
 title: Manga list view
 description: How the manga grid looks — a density step relative to the screen width, and where titles and progress sit around the cover.
-resource: ../../src/features/manga/state/list-view.ts
+resource: ../../src/state/settings/
 tags: [manga, preferences, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
 
-Key `manga-list-view`.
+Section `mangaList` of [settings](settings.md).
 
 | Field | Values | Default | Meaning |
 |---|---|---|---|

@@ -8,9 +8,10 @@ import { ThemePicker } from "@/components/blocks/theme-picker";
 import { ThemeToggle } from "@/components/blocks/theme-toggle";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { DnsPicker, isRuntimeAvailable } from "@/features/extensions";
-import { homeLayout$, layoutSummary } from "@/features/home/state/home-layout";
+import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { session$ } from "@/state/session";
+import { settings$ } from "@/state/settings";
 import { useSignOut } from "./hooks/use-sign-out";
 
 /** The settings as Frames in a narrow column under the header. */
@@ -19,7 +20,7 @@ export function Settings() {
   const headerScroll = useHeaderScroll();
   const { greeting, signOut } = useSignOut();
   const user = useValue(session$.user);
-  const layout = useValue(() => layoutSummary(homeLayout$.get()));
+  const layout = useValue(() => layoutSummary(settings$.home.get()));
 
   return (
     <>

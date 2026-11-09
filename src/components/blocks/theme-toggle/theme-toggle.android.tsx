@@ -12,7 +12,8 @@ import { useValue } from "@legendapp/state/react";
 import { EnsureHost } from "@/components/ui/host";
 import { Icon } from "@/components/ui/icon";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { theme$ } from "@/state/theme";
+import { settings$ } from "@/state/settings";
+import { themeMode$ } from "@/state/theme";
 
 /**
  * Tap flips light/dark within the family; long press hands it to the system.
@@ -22,8 +23,8 @@ import { theme$ } from "@/state/theme";
  * `combinedClickable`, styled like the `FilledTonalIconButton` it replaces.
  */
 export function ThemeToggle() {
-  const preference = useValue(theme$.preference);
-  const mode = useValue(theme$.mode);
+  const preference = useValue(settings$.theme.preference);
+  const mode = useValue(themeMode$);
   const m3 = useThemeM3Colors();
   const isLight = mode === "light";
 
@@ -36,8 +37,9 @@ export function ThemeToggle() {
           clip({ type: "circle" }),
           background(m3.secondaryContainer),
           combinedClickable({
-            onClick: () => theme$.preference.set(isLight ? "dark" : "light"),
-            onLongClick: () => theme$.preference.set("system"),
+            onClick: () =>
+              settings$.theme.preference.set(isLight ? "dark" : "light"),
+            onLongClick: () => settings$.theme.preference.set("system"),
           }),
         ]}
       >

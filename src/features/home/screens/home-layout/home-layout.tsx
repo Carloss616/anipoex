@@ -13,6 +13,7 @@ import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
+import { settings$ } from "@/state/settings";
 import {
   ACCOUNT_SECTIONS,
   PRESET_LABELS,
@@ -21,12 +22,7 @@ import {
   SECTIONS,
   type SectionId,
 } from "../../constants";
-import {
-  homeLayout$,
-  moved,
-  toggled,
-  withPreset,
-} from "../../state/home-layout";
+import { moved, toggled, withPreset } from "../../utils/home-layout";
 
 const PRESETS: Preset[] = ["balanced", "discover", "personal"];
 
@@ -60,8 +56,8 @@ function shift(index: number) {
 /** Presets in a button group, the sections as rows with a drag handle. */
 export function HomeLayout() {
   const headerScroll = useHeaderScroll();
-  const preset = useValue(homeLayout$.preset);
-  const order = useValue(() => homeLayout$.order.get().join()).split(
+  const preset = useValue(settings$.home.preset);
+  const order = useValue(() => settings$.home.order.get().join()).split(
     ",",
   ) as SectionId[];
 
@@ -83,7 +79,7 @@ export function HomeLayout() {
                       size="sm"
                       variant={preset === id ? "secondary" : "outline"}
                       aria-pressed={preset === id}
-                      onClick={() => homeLayout$.set(withPreset(id))}
+                      onClick={() => settings$.home.set(withPreset(id))}
                     >
                       {PRESET_LABELS[id]}
                     </Button>
@@ -117,7 +113,7 @@ export function HomeLayout() {
           <View className="items-start">
             <Button
               variant="ghost"
-              onClick={() => homeLayout$.set(withPreset("balanced"))}
+              onClick={() => settings$.home.set(withPreset("balanced"))}
             >
               Reset to Balanced
             </Button>
@@ -137,7 +133,7 @@ const SectionRow = memo(function SectionRow({
   index: number;
   count: number;
 }) {
-  const on = useValue(() => homeLayout$.on.get().includes(id));
+  const on = useValue(() => settings$.home.on.get().includes(id));
   const offset = useValue(() => shift(index));
   const dragging = useValue(() => drag$.get()?.from === index);
   // Only while a drag runs: at the drop, the rows jump to their new places.
@@ -147,7 +143,7 @@ const SectionRow = memo(function SectionRow({
   const { title, kind } = SECTIONS[id];
 
   const move = (to: number) => {
-    homeLayout$.set(moved(homeLayout$.peek(), id, to));
+    settings$.home.set(moved(settings$.home.peek(), id, to));
     // Keyed by id, the row keeps its node; moving it in the DOM drops focus.
     requestAnimationFrame(() => handle.current?.focus());
   };
@@ -227,7 +223,7 @@ const SectionRow = memo(function SectionRow({
             label={`Show ${title}`}
             checked={on}
             onCheckedChange={() =>
-              homeLayout$.set(toggled(homeLayout$.peek(), id))
+              settings$.home.set(toggled(settings$.home.peek(), id))
             }
           />
         </Frame.Actions>

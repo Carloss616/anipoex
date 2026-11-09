@@ -68,9 +68,9 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { repos$ } = await import("./repos");
-repos$.set([BAD, GOOD]);
-afterAll(() => repos$.set([]));
+const { settings$ } = await import("@/state/settings");
+settings$.extensions.repos.set([BAD, GOOD]);
+afterAll(() => settings$.extensions.repos.set([]));
 
 const {
   extensions$,

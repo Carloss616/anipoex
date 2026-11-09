@@ -6,7 +6,7 @@ import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
 import { Platform } from "react-native";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
-import { theme$ } from "@/state/theme";
+import { themeMode$ } from "@/state/theme";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useThemeM3Colors(_name?: ThemeColor) {
@@ -40,7 +40,7 @@ export function useNativeTabsTheme(): NativeTabsProps {
 }
 
 export function useNavigationTheme(): Theme {
-  const mode = useValue(theme$.mode);
+  const mode = useValue(themeMode$);
   const [primary, background, card, foreground, border, destructive] =
     useThemeColor([
       "primary",

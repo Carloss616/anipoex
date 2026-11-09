@@ -4,11 +4,11 @@ import type { NativeStackNavigationOptions, Stack, Theme } from "expo-router";
 import type { NativeTabsProps } from "expo-router/native-tabs";
 import type { ComponentProps } from "react";
 import { type ThemeColor, useThemeColor } from "@/hooks/use-theme-color";
-import { theme$ } from "@/state/theme";
+import { themeMode$ } from "@/state/theme";
 import { useFontFamily, useNavigationFonts } from "../use-font";
 
 export function useThemeM3Colors(name: ThemeColor = "primary") {
-  const mode = useValue(theme$.mode);
+  const mode = useValue(themeMode$);
   const primary = useThemeColor(name);
   return useMaterialColors({ seedColor: primary, colorScheme: mode });
 }
@@ -38,7 +38,7 @@ export function useNavigationTheme(): Theme {
   const fonts = useNavigationFonts();
 
   return {
-    dark: useValue(theme$.mode) === "dark",
+    dark: useValue(themeMode$) === "dark",
     colors: {
       primary: m3.primary,
       background: m3.background,

@@ -3,7 +3,7 @@ import { useValue } from "@legendapp/state/react";
 import { createContext, useContext } from "react";
 import { Platform } from "react-native";
 import { withUniwind } from "uniwind";
-import { theme$ } from "@/state/theme";
+import { themeMode$ } from "@/state/theme";
 import { HostContent } from "./host-content";
 
 export const HostRoot = withUniwind(HostBase);
@@ -25,7 +25,7 @@ export function Host({
   children,
   ...props
 }: React.ComponentProps<typeof HostRoot>) {
-  const mode = useValue(theme$.mode);
+  const mode = useValue(themeMode$);
 
   return (
     <HostContext.Provider value={true}>

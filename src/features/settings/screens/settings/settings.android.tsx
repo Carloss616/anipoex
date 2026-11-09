@@ -28,10 +28,10 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { Icon, type IconName, Icons } from "@/components/ui/icon";
 import { DnsPicker } from "@/features/extensions";
-import { homeLayout$, layoutSummary } from "@/features/home/state/home-layout";
+import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
-import { theme$ } from "@/state/theme";
+import { settings$ } from "@/state/settings";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const PREFERENCE_LABELS = { system: "System", light: "Light", dark: "Dark" };
@@ -42,10 +42,10 @@ export function Settings() {
   const router = useRouter();
   const headerHeight = useHeaderHeight();
   const m3 = useThemeM3Colors();
-  const layout = useValue(() => layoutSummary(homeLayout$.get()));
+  const layout = useValue(() => layoutSummary(settings$.home.get()));
   const avatarUrl = useValue(session$.user.avatarUrl);
   const name = useValue(session$.user.name);
-  const preference = useValue(theme$.preference);
+  const preference = useValue(settings$.theme.preference);
   const row = { containerColor: m3.surfaceContainerLow };
 
   return (

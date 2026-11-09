@@ -6,9 +6,9 @@ import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { ButtonGroup } from "@/components/native/jetpack-compose/button-group";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { listView$ } from "@/features/manga/state/list-view";
 import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { settings$ } from "@/state/settings";
 
 const TITLES = [
   ["below", "Below"],
@@ -38,8 +38,8 @@ export function ViewSheet() {
       {text}
     </Text>
   );
-  const columns = columnsFor(current, useValue(listView$.density));
-  const title = useValue(listView$.title);
+  const columns = columnsFor(current, useValue(settings$.mangaList.density));
+  const title = useValue(settings$.mangaList.title);
   const options = columnOptions(current);
 
   return (
@@ -53,14 +53,16 @@ export function ViewSheet() {
         <ButtonGroup
           options={options.map((option) => String(option.columns))}
           selected={[options.findIndex((option) => option.columns === columns)]}
-          onChange={(index) => listView$.density.set(options[index].density)}
+          onChange={(index) =>
+            settings$.mangaList.density.set(options[index].density)
+          }
           modifiers={[fillMaxWidth()]}
         />
         {caption("Title")}
         <ButtonGroup
           options={TITLES.map(([, label]) => label)}
           selected={[TITLES.findIndex(([value]) => value === title)]}
-          onChange={(index) => listView$.title.set(TITLES[index][0])}
+          onChange={(index) => settings$.mangaList.title.set(TITLES[index][0])}
           modifiers={[fillMaxWidth()]}
         />
       </Column>

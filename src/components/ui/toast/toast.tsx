@@ -4,7 +4,7 @@ import { Button } from "panelui-web/button";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Toaster as Sonner, toast as sonner, type ToasterProps } from "sonner";
-import { theme$ } from "@/state/theme";
+import { settings$ } from "@/state/settings";
 import { Icon, Icons } from "../icon";
 
 export type ToastVariant = "default" | "info" | "success" | "warning" | "error";
@@ -58,7 +58,7 @@ export function ToastHost({
   toastOptions,
   ...props
 }: ToasterProps) {
-  const theme = useValue(theme$.preference);
+  const theme = useValue(settings$.theme.preference);
   if (typeof document === "undefined") return null;
 
   const offset: ToasterProps["offset"] = {

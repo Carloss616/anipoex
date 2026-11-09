@@ -17,10 +17,10 @@ import {
   loadExtensions,
   parseFilter,
   parseLanguage,
-  repos$,
 } from "@/features/extensions";
 import { useSearchQuery } from "@/hooks/use-search-query";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
+import { settings$ } from "@/state/settings";
 import { ListContent } from "./components/list-content";
 import { ListToolbar } from "./components/list-toolbar";
 
@@ -34,7 +34,7 @@ export function ExtensionList() {
   const router = useRouter();
   const params = useLocalSearchParams<{ filter?: string; language?: string }>();
   const extensions = useValue(extensions$);
-  const repos = useValue(repos$);
+  const repos = useValue(settings$.extensions.repos);
   const { query$, setQuery } = useSearchQuery();
   const { height } = useWindowDimensions();
   const searchBarTheme = useStackSearchBarTheme();

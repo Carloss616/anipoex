@@ -3,16 +3,11 @@
 import "@/global.css";
 
 import { observable, observe } from "@legendapp/state";
-import { synced, syncObservable } from "@legendapp/state/sync";
+import { synced } from "@legendapp/state/sync";
 import { Appearance, Platform } from "react-native";
 import { Uniwind } from "uniwind";
-import { ObservablePersist } from "../observable-persist";
-import {
-  THEME_FAMILIES,
-  type ThemeFamilyId,
-  type ThemeMode,
-  type ThemePreference,
-} from "./constants";
+import { settings$ } from "../settings";
+import { THEME_FAMILIES, type ThemeMode } from "./constants";
 
 /** The device's scheme, re-read whenever the OS flips. */
 const scheme$ = observable(
@@ -20,7 +15,10 @@ const scheme$ = observable(
     get: (): ThemeMode => {
       // A `light`/`dark` theme pins Appearance, and `getColorScheme` then
       // reports the pin. `unspecified` restores the OS value.
-      if (Platform.OS !== "web" && theme$.preference.peek() === "system") {
+      if (
+        Platform.OS !== "web" &&
+        settings$.theme.preference.peek() === "system"
+      ) {
         Appearance.setColorScheme("unspecified");
       }
 
@@ -34,36 +32,30 @@ const scheme$ = observable(
   }),
 );
 
-export const theme$ = observable({
-  family: THEME_FAMILIES[0].id as ThemeFamilyId,
-  /** The user's pick, not what is painted: `system` resolves per family. */
-  preference: "system" as ThemePreference,
-  /** The mode actually being painted, with `system` resolved. */
-  mode: (): ThemeMode => {
-    const preference = theme$.preference.get();
-    return preference === "system" ? scheme$.get() : preference;
-  },
-});
-
-syncObservable(theme$, {
-  persist: { name: "theme", plugin: ObservablePersist },
+/** The mode actually being painted, with `system` resolved. */
+export const themeMode$ = observable((): ThemeMode => {
+  const preference = settings$.theme.preference.get();
+  return preference === "system" ? scheme$.get() : preference;
 });
 
 observe(() => {
-  const mode = theme$.mode.get();
+  const mode = themeMode$.get();
   const family =
-    THEME_FAMILIES.find((entry) => entry.id === theme$.family.get()) ??
+    THEME_FAMILIES.find((entry) => entry.id === settings$.theme.family.get()) ??
     THEME_FAMILIES[0];
 
   // `default` is Uniwind's own adaptive pair, so hand `system` straight to it.
-  if (theme$.preference.get() === "system" && family.id === "default") {
+  if (
+    settings$.theme.preference.get() === "system" &&
+    family.id === "default"
+  ) {
     Uniwind.setTheme("system");
   } else {
     Uniwind.setTheme(family[mode]);
   }
 
   // Uniwind pins Appearance only for `light`/`dark`; native sheets follow it.
-  if (Platform.OS !== "web" && theme$.preference.get() !== "system")
+  if (Platform.OS !== "web" && settings$.theme.preference.get() !== "system")
     Appearance.setColorScheme(mode);
 
   const hasWindow = typeof window !== "undefined";

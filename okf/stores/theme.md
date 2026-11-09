@@ -7,7 +7,7 @@ tags: [theme, preferences, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-10-18T00:00:00Z }
 ---
 
-Key `theme`.
+Section `theme` of [settings](settings.md).
 
 | Field | Values | Default |
 |---|---|---|

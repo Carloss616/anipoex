@@ -2,12 +2,12 @@
 type: Persisted Store
 title: Home layout
 description: Which sections Home shows and in what order — one of three presets, or the user's own.
-resource: ../../src/features/home/state/home-layout.ts
+resource: ../../src/state/settings/
 tags: [home, preferences, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-11-05T00:00:00Z }
 ---
 
-Key `home-layout`.
+Section `home` of [settings](settings.md).
 
 | Field | Values | Default | Meaning |
 |---|---|---|---|

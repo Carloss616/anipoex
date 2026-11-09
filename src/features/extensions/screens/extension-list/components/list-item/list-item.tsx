@@ -17,7 +17,7 @@ import {
 import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/utils/source";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { theme$ } from "@/state/theme";
+import { themeMode$ } from "@/state/theme";
 import { openExternal } from "@/utils/open-external";
 import { uninstallItem } from "./utils/uninstall-item";
 
@@ -55,7 +55,7 @@ function ActionButton({ id, icon, variant, ...props }: ActionButtonProps) {
 export const ListItem = memo(function ListItem({
   extension: e,
 }: ListItemProps) {
-  const mode = useValue(theme$.mode);
+  const mode = useValue(themeMode$);
   const running = useValue(() => !!extensionOperations$[e.id].get());
   const { websiteUrl } = e;
   const primary = useThemeColor("primary");

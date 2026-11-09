@@ -1,30 +1,14 @@
-import { describe, expect, it, mock } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { PRESETS, SECTION_IDS } from "../constants";
 
-mock.module("@/state/observable-persist", () => ({
-  ObservablePersist: class {
-    getTable() {
-      return {};
-    }
-    set() {}
-    deleteTable() {}
-    getMetadata() {
-      return {};
-    }
-    setMetadata() {}
-    deleteMetadata() {}
-  },
-}));
-
-const {
-  homeLayout$,
+import {
   layoutSummary,
   moved,
   normalizeLayout,
   toggled,
   visibleSections,
   withPreset,
-} = await import("./home-layout");
+} from "./home-layout";
 
 describe("withPreset", () => {
   it("turns on the preset's ids and orders them first", () => {
@@ -100,11 +84,5 @@ describe("normalizeLayout", () => {
     expect(normalizeLayout({ preset: "nope", order: 1 })).toEqual(
       withPreset("balanced"),
     );
-  });
-});
-
-describe("homeLayout$", () => {
-  it("defaults to balanced", () => {
-    expect(homeLayout$.get()).toEqual(withPreset("balanced"));
   });
 });

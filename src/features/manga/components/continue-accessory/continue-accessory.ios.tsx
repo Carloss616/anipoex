@@ -19,13 +19,13 @@ import {
   chapterBadge,
 } from "@/features/manga/utils/continue-label";
 import { sourceColor } from "@/features/manga/utils/source";
-import { theme$ } from "@/state/theme";
+import { themeMode$ } from "@/state/theme";
 import { SourceTile } from "../source-tile";
 
 /** The system renders it twice (regular and inline), so it keeps no state. */
 export function ContinueAccessory() {
   const next = useValue(continueReading$);
-  const mode = useValue(theme$.mode);
+  const mode = useValue(themeMode$);
   const inline = NativeTabs.BottomAccessory.usePlacement() === "inline";
   if (!next) return null;
   const label = CONTINUE_LABEL[next.started ? "continue" : "start"];

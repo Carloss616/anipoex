@@ -7,7 +7,7 @@ tags: [extensions, preferences, persistence]
 generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-18T00:00:00Z }
 ---
 
-Key `extension-repos`: the list of repos [extensions](../concepts/extension.md) come from.
+Section `extensions.repos` of [settings](settings.md): the list of repos [extensions](../concepts/extension.md) come from.
 
 | Field | Meaning |
 |---|---|

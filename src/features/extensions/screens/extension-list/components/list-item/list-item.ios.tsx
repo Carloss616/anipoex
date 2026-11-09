@@ -34,7 +34,7 @@ import {
 import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/utils/source";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { theme$ } from "@/state/theme";
+import { themeMode$ } from "@/state/theme";
 import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
 import { uninstallDialog } from "./utils/uninstall-item";
@@ -71,7 +71,7 @@ function RowAction({ extension: e }: ListItemProps) {
 export const ListItem = memo(function ListItem({
   extension: e,
 }: ListItemProps) {
-  const mode = useValue(theme$.mode);
+  const mode = useValue(themeMode$);
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
   const [uninstalling, setUninstalling] = useState(false);
   const { websiteUrl } = e;

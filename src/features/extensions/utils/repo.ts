@@ -283,3 +283,12 @@ export function repoSummary(
   if (count === 0) return undefined;
   return `${count.toLocaleString("en")} extension${count === 1 ? "" : "s"}`;
 }
+
+/** A repo saved before stores had index urls was a legacy repo.json one. */
+export const storedRepo = (
+  repo: Omit<Repo, "indexUrl" | "legacy"> & Partial<Repo>,
+): Repo => ({
+  indexUrl: `${repo.baseUrl}/repo.json`,
+  legacy: true,
+  ...repo,
+});

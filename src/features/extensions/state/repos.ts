@@ -1,33 +1,16 @@
-import { observable } from "@legendapp/state";
-import { syncObservable } from "@legendapp/state/sync";
-import { ObservablePersist } from "@/state/observable-persist";
+import { settings$ } from "@/state/settings";
 import type { Repo } from "../utils/repo";
 
-/** Repos the user installs extensions from; the app ships with none. */
-export const repos$ = observable<Repo[]>([]);
-
-/** A repo saved before stores had index urls was a legacy repo.json one. */
-export const storedRepo = (
-  repo: Omit<Repo, "indexUrl" | "legacy"> & Partial<Repo>,
-): Repo => ({
-  indexUrl: `${repo.baseUrl}/repo.json`,
-  legacy: true,
-  ...repo,
-});
-
-syncObservable(repos$, {
-  persist: {
-    name: "extension-repos",
-    plugin: ObservablePersist,
-    transform: { load: (list: Repo[]) => list.map(storedRepo) },
-  },
-});
-
 export const addRepo = (repo: Repo) => {
-  if (repos$.get().some((r) => r.indexUrl === repo.indexUrl)) return;
-  repos$.set((list) => [...list, repo]);
+  if (
+    settings$.extensions.repos.get().some((r) => r.indexUrl === repo.indexUrl)
+  )
+    return;
+  settings$.extensions.repos.set((list) => [...list, repo]);
 };
 
 export const removeRepo = (indexUrl: string) => {
-  repos$.set((list) => list.filter((r) => r.indexUrl !== indexUrl));
+  settings$.extensions.repos.set((list) =>
+    list.filter((r) => r.indexUrl !== indexUrl),
+  );
 };

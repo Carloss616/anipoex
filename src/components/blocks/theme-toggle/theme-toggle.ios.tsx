@@ -9,7 +9,8 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Icon } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { theme$ } from "@/state/theme";
+import { settings$ } from "@/state/settings";
+import { themeMode$ } from "@/state/theme";
 
 /**
  * Tap flips light/dark within the family; long press hands it to the system.
@@ -18,9 +19,9 @@ import { theme$ } from "@/state/theme";
  * a glass-styled `Icon` carrying both gestures instead of a `Button`.
  */
 export function ThemeToggle() {
-  const preference = useValue(theme$.preference);
+  const preference = useValue(settings$.theme.preference);
   const foreground = useThemeColor("foreground");
-  const isLight = useValue(theme$.mode) === "light";
+  const isLight = useValue(themeMode$) === "light";
 
   return (
     <Icon
@@ -39,8 +40,10 @@ export function ThemeToggle() {
           shape: "circle",
         }),
         contentShape(shapes.circle()),
-        onTapGesture(() => theme$.preference.set(isLight ? "dark" : "light")),
-        onLongPressGesture(() => theme$.preference.set("system")),
+        onTapGesture(() =>
+          settings$.theme.preference.set(isLight ? "dark" : "light"),
+        ),
+        onLongPressGesture(() => settings$.theme.preference.set("system")),
       ]}
     />
   );

@@ -18,6 +18,7 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { ContextMenu } from "@/components/ui/menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { settings$ } from "@/state/settings";
 import {
   ACCOUNT_SECTIONS,
   PRESET_LABELS,
@@ -26,12 +27,7 @@ import {
   type Preset,
   SECTIONS,
 } from "../../constants";
-import {
-  homeLayout$,
-  moved,
-  toggled,
-  withPreset,
-} from "../../state/home-layout";
+import { moved, toggled, withPreset } from "../../utils/home-layout";
 
 const PRESET_KEYS = Object.keys(PRESETS) as Preset[];
 
@@ -40,7 +36,7 @@ const PRESET_KEYS = Object.keys(PRESETS) as Preset[];
  * drag to reorder a lazy list: a row's long-press menu moves it.
  */
 export function HomeLayout() {
-  const layout = useValue(homeLayout$);
+  const layout = useValue(settings$.home);
   const headerHeight = useHeaderHeight();
   const m3 = useThemeM3Colors();
   const preset = PRESET_KEYS.indexOf(layout.preset as Preset);
@@ -61,7 +57,7 @@ export function HomeLayout() {
             options={PRESET_KEYS.map((key) => PRESET_LABELS[key])}
             selected={preset < 0 ? [] : [preset]}
             onChange={(index) =>
-              homeLayout$.set(withPreset(PRESET_KEYS[index]))
+              settings$.home.set(withPreset(PRESET_KEYS[index]))
             }
             modifiers={[fillMaxWidth()]}
           />
@@ -82,9 +78,9 @@ export function HomeLayout() {
           <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
             {order.map((id, i) => {
               const on = layout.on.includes(id);
-              const toggle = () => homeLayout$.set(toggled(layout, id));
+              const toggle = () => settings$.home.set(toggled(layout, id));
               const move = (to: number) =>
-                homeLayout$.set(moved(layout, id, to));
+                settings$.home.set(moved(layout, id, to));
               return (
                 <ContextMenu
                   key={id}
@@ -144,7 +140,7 @@ export function HomeLayout() {
             Long-press a section to move it.
           </Text>
           <TextButton
-            onClick={() => homeLayout$.set(withPreset("balanced"))}
+            onClick={() => settings$.home.set(withPreset("balanced"))}
             modifiers={[padding(0, 8, 0, 0)]}
           >
             <Text style={{ typography: "labelLarge" }}>Reset to Balanced</Text>

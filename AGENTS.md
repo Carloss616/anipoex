@@ -94,6 +94,7 @@ Legend State gotchas:
 # Persistence
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).
+- A setting goes in `settings$` (`src/state/settings/`), one table so a sync carries it as one object: read and write its section where it's used (`settings$.extensions.repos`), with no per-feature alias. Per-item data and the session keep their own tables, and a device-only value goes under `device`.
 
 # Tests
 

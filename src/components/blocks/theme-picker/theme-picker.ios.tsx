@@ -6,19 +6,20 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Text } from "@/components/native/swift-ui/text";
-import { THEME_FAMILIES, theme$ } from "@/state/theme";
+import { settings$ } from "@/state/settings";
+import { THEME_FAMILIES, themeMode$ } from "@/state/theme";
 
 /** One glass button per theme family; the picked one is prominent. */
 export function ThemePicker() {
-  const family = useValue(theme$.family);
-  const dark = useValue(theme$.mode) === "dark";
+  const family = useValue(settings$.theme.family);
+  const dark = useValue(themeMode$) === "dark";
 
   return (
     <HStack spacing={12}>
       {THEME_FAMILIES.map((entry) => (
         <Button
           key={entry.id}
-          onPress={() => theme$.family.set(entry.id)}
+          onPress={() => settings$.theme.family.set(entry.id)}
           modifiers={[
             buttonStyle(family === entry.id ? "glassProminent" : "glass"),
           ]}

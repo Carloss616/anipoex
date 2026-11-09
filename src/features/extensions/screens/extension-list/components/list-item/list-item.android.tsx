@@ -17,7 +17,7 @@ import {
 import { SourceTile } from "@/features/manga/components/source-tile";
 import { sourceColor } from "@/features/manga/utils/source";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { theme$ } from "@/state/theme";
+import { themeMode$ } from "@/state/theme";
 import { openExternal } from "@/utils/open-external";
 import type { ListItemProps } from "./list-item";
 import { uninstallItem } from "./utils/uninstall-item";
@@ -31,7 +31,7 @@ export const ListItem = memo(function ListItem({
   index = 0,
   count = 1,
 }: ListItemProps) {
-  const mode = useValue(theme$.mode);
+  const mode = useValue(themeMode$);
   const running = useValue(() => !!extensionOperations$[e.id].get());
   const m3 = useThemeM3Colors();
   const { websiteUrl } = e;

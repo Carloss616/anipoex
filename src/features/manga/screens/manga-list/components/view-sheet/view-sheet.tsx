@@ -7,8 +7,8 @@ import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { Sheet } from "panelui-web/sheet";
 import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
-import { listView$ } from "@/features/manga/state/list-view";
 import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
+import { settings$ } from "@/state/settings";
 
 const TITLES = [
   ["below", "Below"],
@@ -25,8 +25,8 @@ export const openViewSheet = () => open$.set(true);
 export function ViewSheet() {
   const isPresented = useValue(open$);
   const { current } = useBreakpoint();
-  const columns = columnsFor(current, useValue(listView$.density));
-  const title = useValue(listView$.title);
+  const columns = columnsFor(current, useValue(settings$.mangaList.density));
+  const title = useValue(settings$.mangaList.title);
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
@@ -44,7 +44,7 @@ export function ViewSheet() {
                 size="sm"
                 variant={selected ? "secondary" : "outline"}
                 aria-pressed={selected}
-                onClick={() => listView$.density.set(option.density)}
+                onClick={() => settings$.mangaList.density.set(option.density)}
                 className="flex-1"
               >
                 {option.columns}
@@ -64,7 +64,7 @@ export function ViewSheet() {
                 size="sm"
                 variant={selected ? "secondary" : "outline"}
                 aria-pressed={selected}
-                onClick={() => listView$.title.set(value)}
+                onClick={() => settings$.mangaList.title.set(value)}
                 className="flex-1"
               >
                 {label}

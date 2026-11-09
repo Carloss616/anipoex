@@ -27,9 +27,9 @@ import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
 import { DnsPicker } from "@/features/extensions";
 import { PRESET_LABELS } from "@/features/home/constants";
-import { homeLayout$ } from "@/features/home/state/home-layout";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
+import { settings$ } from "@/state/settings";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const AVATAR = 40;
@@ -39,7 +39,7 @@ export function Settings() {
   const { greeting, signOut } = useSignOut();
   const buttonFont = useFont("body");
   // The preset alone: the count doesn't fit beside the label in this font.
-  const layout = useValue(() => PRESET_LABELS[homeLayout$.preset.get()]);
+  const layout = useValue(() => PRESET_LABELS[settings$.home.preset.get()]);
   const avatarUrl = useValue(session$.user.avatarUrl);
   const initial = useValue(() => session$.user.name.get()?.[0] ?? "?");
   const overlay = useThemeColor("overlay");

@@ -11,8 +11,8 @@ import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/swift-ui/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { listView$ } from "@/features/manga/state/list-view";
 import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
+import { settings$ } from "@/state/settings";
 
 const TITLES = [
   ["below", "Below"],
@@ -35,8 +35,8 @@ export function ViewSheet() {
   const isPresented = useValue(open$);
   const { current } = useBreakpoint();
   const options = columnOptions(current);
-  const columns = columnsFor(current, useValue(listView$.density));
-  const title = useValue(listView$.title);
+  const columns = columnsFor(current, useValue(settings$.mangaList.density));
+  const title = useValue(settings$.mangaList.title);
 
   return (
     <BottomSheet isPresented={isPresented} onDismiss={() => open$.set(false)}>
@@ -56,7 +56,7 @@ export function ViewSheet() {
           selection={columns}
           onSelectionChange={(selected) => {
             const option = options.find((o) => o.columns === selected);
-            if (option) listView$.density.set(option.density);
+            if (option) settings$.mangaList.density.set(option.density);
           }}
           modifiers={[pickerStyle("segmented")]}
         >
@@ -71,7 +71,9 @@ export function ViewSheet() {
         </Text>
         <Picker
           selection={title}
-          onSelectionChange={(selected) => listView$.title.set(selected)}
+          onSelectionChange={(selected) =>
+            settings$.mangaList.title.set(selected)
+          }
           modifiers={[pickerStyle("segmented")]}
         >
           {TITLES.map(([value, label]) => (

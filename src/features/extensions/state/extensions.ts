@@ -1,10 +1,10 @@
 import { observable } from "@legendapp/state";
 import { toast } from "@/components/ui/toast";
+import { settings$ } from "@/state/settings";
 import { type InstalledExtension, runtime } from "../runtime";
 import { type Extension, hasUpdate, keepUnchanged } from "../utils/extension";
 import { toExtensions } from "../utils/registry";
 import { fetchIndex } from "../utils/repo";
-import { repos$ } from "./repos";
 
 /** Catalog of the added repos merged with what the runtime has installed. */
 export const extensions$ = observable<Extension[]>([]);
@@ -49,7 +49,7 @@ export async function loadExtensions(): Promise<void> {
     return undefined;
   });
   const repos = await Promise.all(
-    repos$.peek().map(async (repo) => {
+    settings$.extensions.repos.peek().map(async (repo) => {
       try {
         return { repo, entries: await fetchIndex(repo) };
       } catch {

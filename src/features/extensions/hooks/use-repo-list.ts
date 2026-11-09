@@ -7,15 +7,17 @@ import {
   loadExtensions,
   type Repo,
   removeRepo,
-  repos$,
 } from "@/features/extensions";
+import { settings$ } from "@/state/settings";
 
 export function useRepoList() {
-  const repos = useValue(repos$);
+  const repos = useValue(settings$.extensions.repos);
   const url$ = useObservable("");
   const adding$ = useObservable(false);
   const error$ = useObservable<string | undefined>(undefined);
-  const fieldOpen$ = useObservable(repos$.peek().length === 0);
+  const fieldOpen$ = useObservable(
+    settings$.extensions.repos.peek().length === 0,
+  );
   // Under a plain root: a root computed freezes under Fast Refresh.
   const derived$ = useObservable({
     canAdd: () => !adding$.get() && url$.get().trim() !== "",
@@ -30,7 +32,11 @@ export function useRepoList() {
     try {
       const repo = await fetchRepo(url);
       // Matched by what the URL resolves to: two URLs can name one repo.
-      if (repos$.peek().some((r) => r.indexUrl === repo.indexUrl))
+      if (
+        settings$.extensions.repos
+          .peek()
+          .some((r) => r.indexUrl === repo.indexUrl)
+      )
         toast.info(`${repo.name} is already added`);
       else setPending(repo);
     } catch (error) {
@@ -60,7 +66,7 @@ export function useRepoList() {
 
   const remove = (repo: Repo) => {
     removeRepo(repo.indexUrl);
-    if (repos$.peek().length === 0) showField(true);
+    if (settings$.extensions.repos.peek().length === 0) showField(true);
     void loadExtensions();
   };
 

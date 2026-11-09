@@ -14,6 +14,7 @@ import { memo } from "react";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { settings$ } from "@/state/settings";
 import {
   ACCOUNT_SECTIONS,
   PRESET_LABELS,
@@ -23,19 +24,14 @@ import {
   SECTIONS,
   type SectionId,
 } from "../../constants";
-import {
-  homeLayout$,
-  moved,
-  toggled,
-  withPreset,
-} from "../../state/home-layout";
+import { moved, toggled, withPreset } from "../../utils/home-layout";
 
 /**
  * The List stays in edit mode, so every section shows its reorder handle; a
  * custom layout leaves the picker with no segment selected.
  */
 export function HomeLayout() {
-  const { preset, order, on } = useValue(homeLayout$);
+  const { preset, order, on } = useValue(settings$.home);
   // The theme's surfaces, not the system's grouped grays.
   const rowBackground = listRowBackground(useThemeColor("muted"));
   const linkFont = useFont("body");
@@ -43,10 +39,10 @@ export function HomeLayout() {
   const move = (sources: number[], destination: number) => {
     const from = sources[0];
     if (from === undefined) return;
-    const layout = homeLayout$.peek();
+    const layout = settings$.home.peek();
     // SwiftUI's destination counts the moved row in place.
     const to = destination > from ? destination - 1 : destination;
-    homeLayout$.set(moved(layout, layout.order[from], to));
+    settings$.home.set(moved(layout, layout.order[from], to));
   };
 
   return (
@@ -68,7 +64,7 @@ export function HomeLayout() {
             <Picker
               selection={preset}
               onSelectionChange={(next) =>
-                next !== "custom" && homeLayout$.set(withPreset(next))
+                next !== "custom" && settings$.home.set(withPreset(next))
               }
               modifiers={[pickerStyle("segmented")]}
             >
@@ -92,7 +88,7 @@ export function HomeLayout() {
           <Section modifiers={[rowBackground]}>
             <Button
               label="Reset to Balanced"
-              onPress={() => homeLayout$.set(withPreset("balanced"))}
+              onPress={() => settings$.home.set(withPreset("balanced"))}
               modifiers={[linkFont]}
             />
           </Section>
@@ -112,7 +108,9 @@ const SectionRow = memo(function SectionRow({
   return (
     <Toggle
       isOn={on}
-      onIsOnChange={() => homeLayout$.set(toggled(homeLayout$.peek(), id))}
+      onIsOnChange={() =>
+        settings$.home.set(toggled(settings$.home.peek(), id))
+      }
     >
       <Text>{SECTIONS[id].title}</Text>
       {ACCOUNT_SECTIONS.includes(id) && (

@@ -17,8 +17,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
 import { Loader } from "@/components/ui/loader";
-import { listView$ } from "@/features/manga/state/list-view";
 import { columnsFor } from "@/features/manga/utils/list-view";
+import { settings$ } from "@/state/settings";
 import { GridItem } from "./grid-item";
 import type { MangaGridProps } from "./manga-grid";
 import { cellWidth, toRows } from "./utils";
@@ -45,8 +45,8 @@ export function MangaGrid({
   const insets = useSafeAreaInsets();
   const manga = useValue(manga$);
 
-  const columns = columnsFor(current, useValue(listView$.density));
-  const titlePosition = useValue(listView$.title);
+  const columns = columnsFor(current, useValue(settings$.mangaList.density));
+  const titlePosition = useValue(settings$.mangaList.title);
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
   const cell = cellWidth(width - start - end, columns, GAP);

@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-09
+
+* **One settings table**: the theme, Home layout, manga list view and extension repos move into one `settings` object, with a `device` section for values that never leave the device. The first launch moves the old tables in once and deletes them. Added [settings](stores/settings.md); updated [theme](stores/theme.md), [Home layout](stores/home-layout.md), [manga list view](stores/manga-list-view.md), [extension repos](stores/extension-repos.md).
+
 ## 2026-11-08
 
 * **Scan progress in the sheet's header on iOS and web**, as on Android: `Scanning {done} of {total}` and a bar while Scan all runs. Updated [source](concepts/source.md).

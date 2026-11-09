@@ -21,45 +21,47 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { addRepo, removeRepo, repos$, storedRepo } = await import("./repos");
+const { addRepo, removeRepo } = await import("./repos");
+const { settings$ } = await import("@/state/settings");
+const { storedRepo } = await import("../utils/repo");
 
 test("starts with no repository", () => {
-  expect(repos$.get()).toEqual([]);
+  expect(settings$.extensions.repos.get()).toEqual([]);
 });
 
 test("addRepo replaces the array so subscribers see the change", () => {
-  const before = repos$.get();
+  const before = settings$.extensions.repos.get();
   addRepo(NEW);
-  const after = repos$.get();
+  const after = settings$.extensions.repos.get();
 
   expect(after).not.toBe(before);
   expect(after.map((r) => r.indexUrl)).toContain(NEW.indexUrl);
 });
 
 test("addRepo ignores a repo already added", () => {
-  const before = repos$.get();
+  const before = settings$.extensions.repos.get();
   addRepo(NEW);
 
-  expect(repos$.get()).toBe(before);
+  expect(settings$.extensions.repos.get()).toBe(before);
 });
 
 test("removeRepo drops the repo by index address", () => {
   removeRepo(NEW.indexUrl);
 
-  expect(repos$.get()).toEqual([]);
+  expect(settings$.extensions.repos.get()).toEqual([]);
 });
 
 test("two stores in one folder are two repos and removing one keeps the other", () => {
   const second = { ...NEW, name: "Second", indexUrl: "https://new/other.pb" };
   addRepo(NEW);
   addRepo(second);
-  expect(repos$.get().map((r) => r.indexUrl)).toEqual([
+  expect(settings$.extensions.repos.get().map((r) => r.indexUrl)).toEqual([
     NEW.indexUrl,
     second.indexUrl,
   ]);
 
   removeRepo(NEW.indexUrl);
-  expect(repos$.get()).toEqual([second]);
+  expect(settings$.extensions.repos.get()).toEqual([second]);
   removeRepo(second.indexUrl);
 });
 

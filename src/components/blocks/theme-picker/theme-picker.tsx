@@ -2,7 +2,8 @@ import { Memo } from "@legendapp/state/react";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
 import { View } from "react-native";
-import { THEME_FAMILIES, theme$ } from "@/state/theme";
+import { settings$ } from "@/state/settings";
+import { THEME_FAMILIES, themeMode$ } from "@/state/theme";
 
 export function ThemePicker() {
   return (
@@ -12,17 +13,19 @@ export function ThemePicker() {
           {() => (
             <Button
               variant={
-                theme$.family.get() === entry.id ? "secondary" : "outline"
+                settings$.theme.family.get() === entry.id
+                  ? "secondary"
+                  : "outline"
               }
-              aria-pressed={theme$.family.get() === entry.id}
-              onClick={() => theme$.family.set(entry.id)}
+              aria-pressed={settings$.theme.family.get() === entry.id}
+              onClick={() => settings$.theme.family.set(entry.id)}
             >
               {entry.name}
               <View
                 className="size-3 rounded-full"
                 style={{
                   backgroundColor:
-                    entry.swatch[theme$.mode.get() === "dark" ? 1 : 0],
+                    entry.swatch[themeMode$.get() === "dark" ? 1 : 0],
                 }}
               />
             </Button>

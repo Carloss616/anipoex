@@ -1,6 +1,3 @@
-import { observable } from "@legendapp/state";
-import { syncObservable } from "@legendapp/state/sync";
-import { ObservablePersist } from "@/state/observable-persist";
 import {
   PRESET_LABELS,
   PRESETS,
@@ -78,13 +75,3 @@ export function normalizeLayout(raw: unknown): HomeLayout {
     on: sectionIds(on),
   };
 }
-
-export const homeLayout$ = observable<HomeLayout>(withPreset("balanced"));
-
-syncObservable(homeLayout$, {
-  persist: {
-    name: "home-layout",
-    plugin: ObservablePersist,
-    transform: { load: normalizeLayout },
-  },
-});
