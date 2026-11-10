@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { Toaster as Sonner, toast as sonner, type ToasterProps } from "sonner";
 import { settings$ } from "@/state/settings";
 import { Icon, Icons } from "../icon";
+import { ACTION_TOAST_MS } from "./constants";
 
 export type ToastVariant = "default" | "info" | "success" | "warning" | "error";
 
@@ -146,7 +147,7 @@ const show: ShowToast = (label, { variant = "default", action } = {}) => {
     label,
     action
       ? {
-          duration: Infinity,
+          duration: ACTION_TOAST_MS,
           action: (
             <Button
               variant="secondary"

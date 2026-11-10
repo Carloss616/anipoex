@@ -21,6 +21,7 @@ import { Text, useFont } from "@/components/native/swift-ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Host } from "../host";
 import { Icon, Icons } from "../icon";
+import { ACTION_TOAST_MS } from "./constants";
 import type {
   ShowToast,
   ShowToastOptions,
@@ -186,7 +187,7 @@ const show: ShowToast = (label, options) => {
     component: ({ hide }) => (
       <ToastContent {...options} label={label} hide={hide} />
     ),
-    ...(options?.action && { duration: 0 }),
+    ...(options?.action && { duration: ACTION_TOAST_MS }),
   });
 };
 
