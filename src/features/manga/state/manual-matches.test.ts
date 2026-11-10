@@ -46,9 +46,9 @@ describe("manualTitles", () => {
   });
 
   it("drops a removed manual match", () => {
-    setManual(1005, "a", { ...mine, title: "Title A" });
-    clearManual(1005, "a");
-    expect(manualTitles(1005)).toEqual([]);
+    setManual(9005, "a", { ...mine, title: "Title A" });
+    clearManual(9005, "a");
+    expect(manualTitles(9005)).toEqual([]);
   });
 });
 

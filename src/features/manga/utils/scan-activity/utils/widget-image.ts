@@ -57,10 +57,15 @@ async function save(url: string, name: string) {
     // Android streams into the destination: a cut-off file must not take its name.
     const part = new File(dir, `${name}.part`);
     try {
-      // Android's extension icons are the runtime's own files, not urls.
+      // Extension icons aren't urls: the runtime's own files on Android, base64
+      // data on iOS.
       // shortcut: a copy isn't refreshed when an extension update redraws its
       // icon; key the name on the file's mtime if that shows.
       if (url.startsWith("file:")) new File(url).copySync(part);
+      else if (url.startsWith("data:"))
+        await part.write(url.slice(url.indexOf(",") + 1), {
+          encoding: "base64",
+        });
       else await File.downloadFileAsync(url, part, { idempotent: true });
       part.moveSync(file, { overwrite: true });
     } catch {

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { mockExtensions } from "@/features/extensions/utils/extensions.mock";
 import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 const search = mock(
@@ -8,9 +9,11 @@ const search = mock(
   }),
 );
 
-mock.module("@/features/extensions", () => ({
-  runtime: { search, chapters: async () => ({ chapters: [] }) },
-}));
+mock.module("@/features/extensions", () =>
+  mockExtensions({
+    runtime: { search, chapters: async () => ({ chapters: [] }) },
+  }),
+);
 mock.module("@/components/ui/toast", () => ({
   toast: Object.assign(() => {}, { error() {} }),
 }));

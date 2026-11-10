@@ -76,6 +76,12 @@ export const isScanBusy = (key: string) =>
 /** Per `key/id`, what stops waiting on a source a scan holds; not persisted. */
 const stops: Record<string, () => void> = {};
 
+/**
+ * A timer firing this late ran out while iOS had the app suspended: every
+ * pending one fires at once when it comes back.
+ */
+const SUSPENDED_MS = 5_000;
+
 /** Per source, the Reading scan's reads waiting for their turn: a skip frees them. */
 const queued = new Map<string, Set<() => void>>();
 
@@ -393,14 +399,20 @@ export async function scanSources(args: {
           if (stopped.has(source.id)) return null;
           if (slow?.skipped.has(source.id)) return skip();
           // Timed from its turn, not from the wait behind other manga.
-          const timer =
-            slow &&
-            setTimeout(() => {
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          const arm = () => {
+            if (!slow) return;
+            const due = Date.now() + slow.after;
+            timer = setTimeout(() => {
+              // The read waited out a suspension: it wasn't slow.
+              if (Date.now() - due > SUSPENDED_MS) return arm();
               slow.skipped.set(source.id, source.name);
               skip();
               for (const next of queued.get(source.id) ?? []) next();
               queued.delete(source.id);
             }, slow.after);
+          };
+          arm();
           try {
             return await probeSource(mangaId, source, titles);
           } finally {

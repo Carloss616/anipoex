@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { mockExtensions } from "@/features/extensions/utils/extensions.mock";
 import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 type Page = { mangas: unknown[]; hasNextPage: boolean };
@@ -13,9 +14,11 @@ const search = mock(
     }),
 );
 
-mock.module("@/features/extensions", () => ({
-  runtime: { search, chapters: async () => ({ chapters: [] }) },
-}));
+mock.module("@/features/extensions", () =>
+  mockExtensions({
+    runtime: { search, chapters: async () => ({ chapters: [] }) },
+  }),
+);
 mock.module("../utils/chapter-storage", () => memoryStorage);
 mock.module("@/state/observable-persist", () => ({
   ObservablePersist: class {

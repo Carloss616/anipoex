@@ -6,4 +6,4 @@ paths:
 
 # Bun tests
 
-- A `mock.module` applies to the whole `bun test` run, not just its own file: two files that mock the same module differently break each other, depending on run order. Mock a shared module the same way everywhere, from one helper (`chapter-storage/chapter-storage.mock.ts`, used by the three `state/*.test.ts`), and keep ids that don't collide between files, since observables in memory are shared too.
+- A `mock.module` applies to the whole `bun test` run, not just its own file: two files that mock the same module differently break each other, depending on run order. Mock a shared module the same way everywhere, from one helper (`chapter-storage/chapter-storage.mock.ts`; `extensions/utils/extensions.mock.ts`, which takes each file's `runtime`), and keep ids that don't collide between files, since observables in memory are shared too. The first mock of a run fixes the names a module exports: a later one only changes their values, so a name missing from the first fails as "Export named … not found".

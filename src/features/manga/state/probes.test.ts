@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest, mock } from "bun:test";
+import { mockExtensions } from "@/features/extensions/utils/extensions.mock";
 import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 const searchCalls: string[] = [];
@@ -32,9 +33,11 @@ const chapters = mock((sourceId: string, url: string, _title: string) => {
 });
 
 let hostsReply = async (): Promise<string[]> => [];
-mock.module("@/features/extensions", () => ({
-  runtime: { search, chapters, challengedHosts: () => hostsReply() },
-}));
+mock.module("@/features/extensions", () =>
+  mockExtensions({
+    runtime: { search, chapters, challengedHosts: () => hostsReply() },
+  }),
+);
 const shown = mock(
   (_label: string, _options?: { action?: { onAction: () => void } }) => {},
 );
@@ -381,6 +384,26 @@ describe("scanSources", () => {
     searchPending.s([]);
     await rescan;
     expect(probes$["201"].s.get()?.matched).toBe(false);
+  });
+
+  it("a slow timer that fires after a suspension gives the read a new window", async () => {
+    const slow = { after: 20, skipped: new Map<string, string>() };
+    const now = Date.now;
+    let suspended = 0;
+    Date.now = () => now() + suspended;
+    try {
+      const first = scan({ sources: sources("w"), slow });
+      await flush();
+      suspended = 60_000;
+      await Bun.sleep(30);
+      expect(slow.skipped.size).toBe(0);
+      await Bun.sleep(30);
+      expect([...slow.skipped]).toEqual([["w", "W"]]);
+      await first;
+    } finally {
+      Date.now = now;
+      searchPending.w([]);
+    }
   });
 
   it("a source skipped as slow frees the manga waiting for it", async () => {

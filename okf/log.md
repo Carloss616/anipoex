@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* **A suspension doesn't make a source slow**: a read that iOS suspended in the background gets a fresh window once the app is back; before, every source read at that moment was left out of the run. Updated [source probes](stores/source-probes.md).
 * **Skip slow sources is a setting**: Settings → Sources sets how long a Reading scan waits on a source before skipping it for the rest of the run: Off, 30 s, 1 min (default) or 2 min. Updated [settings](stores/settings.md), [source probes](stores/source-probes.md).
 * **Reading scan skips slow sources and runs up to four manga**: a read past 60 seconds is stopped and its source left out of the rest of the run, named in the summary ("Skipped slow: …"); up to four manga run at once, and the view counts those behind ("Finishing 2 manga · 3 sources left"). Updated [source probes](stores/source-probes.md).
 

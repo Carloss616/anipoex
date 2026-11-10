@@ -1,4 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
+import { mockExtensions } from "@/features/extensions/utils/extensions.mock";
 
 const pending: ((value: { chapters: [] }) => void)[] = [];
 const chapters = mock(
@@ -6,7 +7,9 @@ const chapters = mock(
     new Promise<{ chapters: [] }>((resolve) => pending.push(resolve)),
 );
 
-mock.module("@/features/extensions", () => ({ runtime: { chapters } }));
+mock.module("@/features/extensions", () =>
+  mockExtensions({ runtime: { chapters } }),
+);
 
 const { fetchChapters } = await import("./fetch-chapters");
 

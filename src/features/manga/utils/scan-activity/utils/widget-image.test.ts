@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 const disk = new Set<string>();
 const DAY = 86_400_000;
 let downloads = 0;
+let written: [string, string] | undefined;
 let cut = false;
 class File {
   name: string;
@@ -29,6 +30,10 @@ class File {
   }
   copySync(to: File) {
     disk.add(to.name);
+  }
+  async write(content: string, options: { encoding: string }) {
+    written = [content, options.encoding];
+    disk.add(this.name);
   }
   static async downloadFileAsync(_url: string, to: File) {
     downloads++;
@@ -104,5 +109,12 @@ describe("widgetImage", () => {
     cut = true;
     expect(await widgetImage(local)).toBe(`file:///w/${widgetFileName(local)}`);
     expect([...disk]).toEqual([widgetFileName(local)]);
+  });
+
+  it("writes a data url's bytes instead of downloading it", async () => {
+    const icon = "data:image/png;base64,iVBORw0KGgo=";
+    expect(await widgetImage(icon)).toBe(`file:///w/${widgetFileName(icon)}`);
+    expect(written).toEqual(["iVBORw0KGgo=", "base64"]);
+    expect(downloads).toBe(0);
   });
 });

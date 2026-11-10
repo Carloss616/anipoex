@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { mockExtensions } from "@/features/extensions/utils/extensions.mock";
 import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 const pending: Record<string, (mangas: unknown[]) => void> = {};
@@ -14,7 +15,9 @@ const search = mock(
 );
 const toastError = mock((_label: string) => {});
 
-mock.module("@/features/extensions", () => ({ runtime: { search } }));
+mock.module("@/features/extensions", () =>
+  mockExtensions({ runtime: { search } }),
+);
 mock.module("@/components/ui/toast", () => ({
   toast: Object.assign(() => {}, { error: toastError }),
 }));

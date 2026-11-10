@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { observable } from "@legendapp/state";
-import { toSources, withChosen } from "@/features/extensions/utils/sources";
+import { mockExtensions } from "@/features/extensions/utils/extensions.mock";
 import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 // Titles whose search never answers, so the scan stays on them.
@@ -30,14 +30,12 @@ const installed$ = observable([
     sources: [{ id: "a", name: "Source A", lang: "en", homeUrl: null }],
   },
 ]);
-mock.module("@/features/extensions", () => ({
-  runtime: { search, chapters, challengedHosts: async () => [] },
-  installed$,
-  installedLoaded$: observable(true),
-  refreshInstalled: async () => {},
-  toSources,
-  withChosen,
-}));
+mock.module("@/features/extensions", () =>
+  mockExtensions({
+    runtime: { search, chapters, challengedHosts: async () => [] },
+    installed$,
+  }),
+);
 const shown = mock(
   (_label: string, _options?: { action?: { onAction: () => void } }) => {},
 );
