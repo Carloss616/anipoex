@@ -8,14 +8,31 @@ export function widgetFileName(url: string): string {
   return `img-${hash.toString(36)}.${ext?.toLowerCase().replace("jpeg", "jpg") ?? "png"}`;
 }
 
+/** Saved images older than this are deleted, once per launch. */
+const MAX_AGE_MS = 30 * 86_400_000;
+let pruned = false;
+// Two notifications asking for one icon at once share its download, and its
+// `.part` file.
+const loading = new Map<string, Promise<string | undefined>>();
+
 /**
  * Downloads a remote image (or copies a local one) into the widgets directory,
  * where a widget layout can read it, and returns its file uri. Never throws.
  */
-export async function widgetImage(
+export function widgetImage(
   url: string | undefined,
 ): Promise<string | undefined> {
-  if (!url) return undefined;
+  if (!url) return Promise.resolve(undefined);
+  const name = widgetFileName(url);
+  let load = loading.get(name);
+  if (!load) {
+    load = save(url, name).finally(() => loading.delete(name));
+    loading.set(name, load);
+  }
+  return load;
+}
+
+async function save(url: string, name: string) {
   try {
     // Loaded here so the pure helper above imports without native modules.
     const [{ widgetsDirectory }, { Directory, File }] = await Promise.all([
@@ -23,7 +40,18 @@ export async function widgetImage(
       import("expo-file-system"),
     ]);
     const dir = new Directory(widgetsDirectory);
-    const name = widgetFileName(url);
+    if (!pruned) {
+      pruned = true;
+      const old = Date.now() - MAX_AGE_MS;
+      // Only this file's images: the directory may hold the widgets' own.
+      for (const item of dir.list())
+        if (
+          item instanceof File &&
+          item.name.startsWith("img-") &&
+          (item.modificationTime ?? old) < old
+        )
+          item.delete();
+    }
     const file = new File(dir, name);
     if (file.exists) return file.uri;
     // Android streams into the destination: a cut-off file must not take its name.
