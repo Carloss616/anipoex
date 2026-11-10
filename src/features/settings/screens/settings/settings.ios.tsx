@@ -16,6 +16,7 @@ import {
   foregroundStyle,
   frame,
   listRowBackground,
+  listRowInsets,
   listStyle,
   onTapGesture,
   scrollContentBackground,
@@ -23,7 +24,7 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
-import { ThemePicker } from "@/components/blocks/theme-picker";
+import { PaletteRail } from "@/components/blocks/palette-rail";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
@@ -42,7 +43,7 @@ import { PRESET_LABELS } from "@/features/home/constants";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
-import type { ThemePreference } from "@/state/theme/constants";
+import { THEME_FAMILIES, type ThemePreference } from "@/state/theme/constants";
 import { SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
@@ -58,6 +59,11 @@ export function Settings() {
   const autoPick = useValue(settings$.sources.autoPick);
   const slowSkip = useValue(settings$.sources.slowSkip);
   const preference = useValue(settings$.theme.preference);
+  const familyName = useValue(
+    () =>
+      THEME_FAMILIES.find((entry) => entry.id === settings$.theme.family.get())
+        ?.name ?? "",
+  );
   const { dns } = useDns();
   const languages = useValue(() =>
     languageOrder$.get().map(languageName).join(", "),
@@ -142,9 +148,23 @@ export function Settings() {
                 </Label>
               ))}
             </Picker>
-            <VStack alignment="leading" spacing={10} modifiers={ROW_FILL}>
-              <Text>Palette</Text>
-              <ThemePicker />
+          </Section>
+          <Section
+            header={
+              <HStack>
+                <Text>Palette</Text>
+                <Spacer />
+                <Text>{familyName}</Text>
+              </HStack>
+            }
+          >
+            <VStack
+              modifiers={[
+                listRowBackground("#00000000"),
+                listRowInsets({ top: 0, leading: 0, bottom: 0, trailing: 0 }),
+              ]}
+            >
+              <PaletteRail />
             </VStack>
           </Section>
           <Section modifiers={[rowBackground]} title="Sources">
