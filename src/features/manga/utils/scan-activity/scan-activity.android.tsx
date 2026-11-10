@@ -41,13 +41,14 @@ import {
   scanStatus,
   trackScan,
 } from "./utils/status";
-import { widgetImage } from "./utils/widget-image";
 import {
   coalesce,
+  endCovers,
   imageLoader,
   limiter,
   routeStop,
   stopTarget,
+  type WidgetCover,
   type WidgetMark,
   type WidgetUpdates,
   widgetMarks,
@@ -71,7 +72,9 @@ interface Props {
   /** The Reading scan's manga still finishing behind this one. */
   finishing?: string;
   /** An ended Reading scan's manga with new chapters, up to 3. */
-  covers: string[];
+  covers: WidgetCover[];
+  /** The ended Reading scan's other manga with new chapters. */
+  coversMore?: number;
   /** The Stop button's target; none once the scan ends. */
   stop?: string;
 }
@@ -94,12 +97,26 @@ const ScanNotification = createCustomNotification<Props>(
       );
     const covers = (width: number, tall: number) =>
       props.covers.length > 0 ? (
-        <Row>
-          {props.covers.map((uri, i) => (
-            <Box key={String(i)} modifiers={[padding(0, 0, 4, 0)]}>
-              {cover(uri, width, tall)}
-            </Box>
+        <Row verticalAlignment="center">
+          {props.covers.map((c, i) => (
+            <Column
+              key={String(i)}
+              horizontalAlignment="center"
+              modifiers={[padding(0, 0, 4, 0)]}
+            >
+              {cover(c.uri, width, tall)}
+              <Text
+                color={m3.primary}
+                style={{ fontSize: 9, fontWeight: "bold" }}
+              >{`+${c.unread}`}</Text>
+            </Column>
           ))}
+          {!!props.coversMore && (
+            <Text
+              color={m3.onSurfaceVariant}
+              style={{ typography: "labelSmall" }}
+            >{`+${props.coversMore}`}</Text>
+          )}
         </Row>
       ) : (
         cover(props.cover, width, tall)
@@ -454,9 +471,7 @@ export function startLibraryActivity({
     end: (summary) => {
       ended = true;
       scanStops.delete("library");
-      void Promise.all(
-        summary.withNew.slice(0, 3).map((m) => widgetImage(m.cover)),
-      ).then((covers) => {
+      void endCovers(summary.withNew).then((covers) => {
         if (run !== libraryRun) return;
         void notification.end({
           name: "Reading",
@@ -466,7 +481,7 @@ export function startLibraryActivity({
           trackHeight: TRACK_HEIGHT.md,
           marks: [],
           more: 0,
-          covers: covers.filter((c): c is string => !!c),
+          ...covers,
         });
       });
     },

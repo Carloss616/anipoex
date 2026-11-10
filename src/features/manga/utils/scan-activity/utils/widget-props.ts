@@ -1,4 +1,5 @@
 import { scanStops } from "../../../state/scan-views";
+import { type LibrarySummary, topNew } from "../../library-run";
 import {
   type MarkState,
   orderMarks,
@@ -14,6 +15,26 @@ export interface WidgetMark {
   initials: string;
   state: MarkState;
   unread?: number;
+}
+
+/** An ended Reading scan's cover, with its manga's new chapters. */
+export interface WidgetCover {
+  uri: string;
+  unread: number;
+}
+
+/**
+ * An ended Reading scan's covers, saved for a widget: most new chapters first,
+ * up to 3, and how many manga with new chapters are left out.
+ */
+export async function endCovers(withNew: LibrarySummary["withNew"]) {
+  const { top, more } = topNew(withNew);
+  const uris = await Promise.all(top.map((m) => widgetImage(m.cover)));
+  const covers = top.flatMap((m, i): WidgetCover[] => {
+    const uri = uris[i];
+    return uri ? [{ uri, unread: m.unread }] : [];
+  });
+  return { covers, coversMore: more };
 }
 
 /**

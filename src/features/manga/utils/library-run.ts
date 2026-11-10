@@ -19,7 +19,7 @@ export interface LibrarySummary {
   skipped?: string[];
   /** How many manga were processed when the run was stopped. */
   stoppedAt?: number;
-  withNew: { mangaId: number; cover?: string }[];
+  withNew: { mangaId: number; cover?: string; unread: number }[];
 }
 
 /** Starts a manga's scan activity, as `startScanActivity` does. */
@@ -61,6 +61,12 @@ export function libraryStatus(summary: LibrarySummary): string {
   ]
     .filter(Boolean)
     .join(" · ");
+}
+
+/** The manga with the most new chapters first, the first `count`, and how many more. */
+export function topNew(withNew: LibrarySummary["withNew"], count = 3) {
+  const top = [...withNew].sort((a, b) => b.unread - a.unread).slice(0, count);
+  return { top, more: withNew.length - top.length };
 }
 
 /** The next manga starts when the one before has this many sources left. */
@@ -166,10 +172,12 @@ export async function runLibrary(args: {
             picks.push({ mangaId: entry.mangaId, ...result.picked });
             summary.picked++;
           }
-          if (unread(entry) > 0)
+          const n = unread(entry);
+          if (n > 0)
             summary.withNew.push({
               mangaId: entry.mangaId,
               cover: entry.cover,
+              unread: n,
             });
         })
         .finally(tail);

@@ -8,6 +8,7 @@ import {
   type StartActivity,
   scanOrder,
   TAIL_SOURCES,
+  topNew,
 } from "./library-run";
 
 const entry = (mangaId: number): LibraryEntry => ({
@@ -69,7 +70,7 @@ describe("scanOrder", () => {
 
 describe("libraryStatus", () => {
   const some = (n: number) =>
-    Array.from({ length: n }, (_, i) => ({ mangaId: i }));
+    Array.from({ length: n }, (_, i) => ({ mangaId: i, unread: 1 }));
   const base = { total: 42, scanned: 30, recent: 0, picked: 0 };
   test("reports manga with new chapters, picks and recent checks", () => {
     expect(
@@ -92,6 +93,19 @@ describe("libraryStatus", () => {
         skipped: ["Source A", "Source B"],
       }),
     ).toBe("No new chapters · Skipped slow: Source A, Source B");
+  });
+});
+
+describe("topNew", () => {
+  test("puts the most new chapters first and counts the rest", () => {
+    const withNew = [3, 12, 1, 5, 2].map((unread, mangaId) => ({
+      mangaId,
+      unread,
+    }));
+    const { top, more } = topNew(withNew);
+    expect(top.map((m) => m.unread)).toEqual([12, 5, 3]);
+    expect(more).toBe(2);
+    expect(topNew(withNew.slice(0, 2)).more).toBe(0);
   });
 });
 
@@ -225,7 +239,9 @@ describe("runLibrary", () => {
       activity: a,
       stopped: () => false,
     });
-    expect(summary.withNew).toEqual([{ mangaId: 2, cover: undefined }]);
+    expect(summary.withNew).toEqual([
+      { mangaId: 2, cover: undefined, unread: 2 },
+    ]);
     expect(picks).toEqual([{ mangaId: 1, id: "a", previous }]);
   });
 

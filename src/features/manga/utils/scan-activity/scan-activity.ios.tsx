@@ -52,12 +52,13 @@ import {
   scanStatus,
   trackScan,
 } from "./utils/status";
-import { widgetImage } from "./utils/widget-image";
 import {
   coalesce,
+  endCovers,
   imageLoader,
   routeStop,
   stopTarget,
+  type WidgetCover,
   type WidgetMark,
   type WidgetUpdates,
   widgetMarks,
@@ -91,7 +92,9 @@ interface Props {
   /** The Reading scan's manga still finishing behind this one. */
   finishing?: string;
   /** An ended Reading scan's manga with new chapters, up to 3. */
-  covers: string[];
+  covers: WidgetCover[];
+  /** The ended Reading scan's other manga with new chapters. */
+  coversMore?: number;
   /** The Stop button's target; none once the scan ends. */
   stop?: string;
 }
@@ -189,9 +192,23 @@ const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
       <HStack spacing={12} modifiers={[padding({ all: 16 })]}>
         {props.covers.length > 0 ? (
           <HStack spacing={4}>
-            {props.covers.map((uri, i) => (
-              <VStack key={String(i)}>{cover(uri, 30, 44)}</VStack>
+            {props.covers.map((c, i) => (
+              <VStack key={String(i)} spacing={2}>
+                {cover(c.uri, 30, 44)}
+                <Text
+                  modifiers={[
+                    font({ size: 9, weight: "semibold" }),
+                    foregroundStyle("green"),
+                    monospacedDigit(),
+                  ]}
+                >
+                  {`+${c.unread}`}
+                </Text>
+              </VStack>
             ))}
+            {!!props.coversMore && (
+              <Text modifiers={caption}>{`+${props.coversMore}`}</Text>
+            )}
           </HStack>
         ) : (
           cover(props.cover, 44, 64)
@@ -433,9 +450,7 @@ export function startLibraryActivity({
       ended = true;
       scanStops.delete("library");
       // An ended Live Activity takes no update: its covers are saved first.
-      void Promise.all(
-        summary.withNew.slice(0, 3).map((m) => widgetImage(m.cover)),
-      )
+      void endCovers(summary.withNew)
         .then((covers) =>
           live.end({
             name: "Reading",
@@ -446,7 +461,7 @@ export function startLibraryActivity({
             stopIcon: STOP_ICON,
             marks: [],
             more: 0,
-            covers: covers.filter((c): c is string => !!c),
+            ...covers,
           }),
         )
         .finally(() => backgroundTime.end(task));
