@@ -135,7 +135,7 @@ describe("scanReading", () => {
     installed$.set(before);
     expect(shown.mock.calls).toEqual([["No sources installed"]]);
     expect(startLibraryActivity).not.toHaveBeenCalled();
-    expect(libraryScan$.get()).toBeNull();
+    expect(libraryScan$.get()).toBe(false);
   });
 
   it("a stop while the list loads ends quietly", async () => {
@@ -148,19 +148,19 @@ describe("scanReading", () => {
     expect(startLibraryActivity).not.toHaveBeenCalled();
     expect(shown).not.toHaveBeenCalled();
     expect(search).not.toHaveBeenCalled();
-    expect(libraryScan$.get()).toBeNull();
+    expect(libraryScan$.get()).toBe(false);
   });
 
   it("a second call while one runs does nothing", async () => {
     let resolve = (_value: unknown) => {};
     reply = () => new Promise((r) => (resolve = r));
     const first = scanReading();
-    expect(libraryScan$.get()).not.toBeNull();
+    expect(libraryScan$.get()).toBe(true);
     await scanReading();
     expect(query).toHaveBeenCalledTimes(1);
     resolve(list());
     await first;
-    expect(libraryScan$.get()).toBeNull();
+    expect(libraryScan$.get()).toBe(false);
   });
 
   it("undo restores every pick", async () => {
@@ -170,7 +170,7 @@ describe("scanReading", () => {
     await scanReading();
     expect(source$[401].get()).toMatchObject({ sourceId: "a", auto: true });
     expect(source$[402].get()).toMatchObject({ sourceId: "a", auto: true });
-    expect(libraryScan$.get()).toBeNull();
+    expect(libraryScan$.get()).toBe(false);
 
     shown.mock.calls.at(-1)?.[1]?.action?.onAction();
     expect(source$[401].get()).toBeUndefined();

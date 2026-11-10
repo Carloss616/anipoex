@@ -89,14 +89,13 @@ export async function runLibrary(args: {
   unread: (entry: LibraryEntry) => number;
   activity: LibraryActivity;
   stopped: () => boolean;
-  onIndex?: (index: number) => void;
   /** The sources the run skipped as slow, id to name; read at the end. */
   skipped?: Map<string, string>;
 }): Promise<{
   summary: LibrarySummary;
   picks: LibraryPick[];
 }> {
-  const { entries, scan, unread, activity, stopped, onIndex } = args;
+  const { entries, scan, unread, activity, stopped } = args;
   const summary: LibrarySummary = {
     total: entries.length,
     scanned: 0,
@@ -117,7 +116,6 @@ export async function runLibrary(args: {
       await runs[i - OVERLAP];
       if (stopped()) break;
       supersede?.();
-      onIndex?.(i + 1);
       let tail!: () => void;
       const tailed = new Promise<void>((resolve) => {
         tail = resolve;

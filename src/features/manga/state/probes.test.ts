@@ -250,6 +250,19 @@ describe("probeSource", () => {
     expect(searchCalls).not.toContain("t");
   });
 
+  it("a stored page the runtime times out is an error, not searched again", async () => {
+    memoryStorage.entries["1009/r"] = {
+      manga: { url: "/r", title: "T" },
+      chapters: [],
+    };
+    const done = probeSource(1009, { id: "r", name: "R" }, titles);
+    await flush();
+    await flush();
+    chaptersPending.r.reject(new Error("java.io.IOException: timeout"));
+    expect(await done).toMatchObject({ errored: true });
+    expect(searchCalls).not.toContain("r");
+  });
+
   it("an empty stored page found again by the search is read once", async () => {
     memoryStorage.entries["1008/e"] = {
       manga: { url: "/e", title: "T" },
@@ -352,6 +365,32 @@ describe("scanSources", () => {
     expect(searchCalls).toEqual(["y"]);
     searchPending.y([]);
     await second;
+  });
+
+  it("a stopped read's slow timer leaves a newer rescan alone", async () => {
+    const slow = { after: 20, skipped: new Map<string, string>() };
+    const first = scan({ sources: sources("s"), slow });
+    await flush();
+    stopScan("201", "s");
+    await first;
+    const rescan = scan({ sources: sources("s"), only: ["s"] });
+    await Bun.sleep(40);
+    searchPending.s([]);
+    await Bun.sleep(5);
+    expect(searchCalls.filter((id) => id === "s")).toHaveLength(2);
+    searchPending.s([]);
+    await rescan;
+    expect(probes$["201"].s.get()?.matched).toBe(false);
+  });
+
+  it("a source skipped as slow frees the manga waiting for it", async () => {
+    const slow = { after: 20, skipped: new Map<string, string>() };
+    const first = scan({ mangaId: 301, sources: sources("q"), slow });
+    const second = scan({ mangaId: 302, sources: sources("q"), slow });
+    await Promise.all([first, second]);
+    expect(searchCalls).toEqual(["q"]);
+    expect(scanning$["302"].q.get()).toBeUndefined();
+    searchPending.q([]);
   });
 
   it("missFor skips recent no-matches only", async () => {

@@ -3,18 +3,15 @@ export const SEARCH_TIMEOUT_MS = 30_000;
 // runtime's 2-minute host call, so the runtime's own error comes first.
 export const CHAPTERS_TIMEOUT_MS = 180_000;
 
-/** What `withTimeout` rejects with. */
-export class SourceTimeout extends Error {
-  constructor() {
-    super("Source timed out");
-  }
-}
-
 /** Rejects past `ms`, so a hung call ends like a failed one. */
 export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new SourceTimeout()), ms);
+    timer = setTimeout(() => reject(new Error("Source timed out")), ms);
   });
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
+
+/** A read that hung: ours, or the runtime's own network timeout. */
+export const isTimeout = (error: unknown) =>
+  error instanceof Error && /\btimed? ?out\b/i.test(error.message);

@@ -33,8 +33,8 @@ import { type ProbeRead, toProbe } from "../utils/source-probe";
 import { toChapters } from "../utils/to-chapters";
 import {
   CHAPTERS_TIMEOUT_MS,
+  isTimeout,
   SEARCH_TIMEOUT_MS,
-  SourceTimeout,
 } from "../utils/with-timeout";
 import { challenged$, recordChallenges } from "./challenged";
 import { chapters$, chaptersKey, readChapters } from "./chapters";
@@ -75,6 +75,9 @@ export const isScanBusy = (key: string) =>
 
 /** Per `key/id`, what stops waiting on a source a scan holds; not persisted. */
 const stops: Record<string, () => void> = {};
+
+/** Per source, the Reading scan's reads waiting for their turn: a skip frees them. */
+const queued = new Map<string, Set<() => void>>();
 
 /** Per source, the end of its last read; exported for tests to reset. */
 export const turns = new Map<string, Promise<unknown>>();
@@ -153,7 +156,7 @@ export async function probeSource(
       stored &&
       (await fetchChapters(source.id, stored, chaptersTimeoutMs).catch(
         (error) => {
-          if (error instanceof SourceTimeout) throw error;
+          if (isTimeout(error)) throw error;
           return undefined;
         },
       ));
@@ -367,9 +370,10 @@ export async function scanSources(args: {
       const source = targets[next++];
       if (stopped.has(source.id)) continue;
       const { slow } = args;
-      // Stopped like a Stop: its last probe stays, its row is freed.
+      // Stopped like a Stop: its last probe stays, its row is freed. Once
+      // stopped, `stops` may hold a newer scan's read of the same source.
       const skip = () => {
-        stops[`${key}/${source.id}`]?.();
+        if (!stopped.has(source.id)) stops[`${key}/${source.id}`]?.();
         return null;
       };
       if (slow?.skipped.has(source.id)) {
@@ -377,9 +381,12 @@ export async function scanSources(args: {
         continue;
       }
       activity.mark(source.id, { state: "scanning" });
+      const waiting = slow && (queued.get(source.id) ?? new Set());
+      if (waiting) queued.set(source.id, waiting.add(skip));
       const probe = await Promise.race([
         // A source stopped or skipped while it waited is never read.
         inTurn(source.id, async () => {
+          waiting?.delete(skip);
           if (stopped.has(source.id)) return null;
           if (slow?.skipped.has(source.id)) return skip();
           // Timed from its turn, not from the wait behind other manga.
@@ -388,6 +395,8 @@ export async function scanSources(args: {
             setTimeout(() => {
               slow.skipped.set(source.id, source.name);
               skip();
+              for (const next of queued.get(source.id) ?? []) next();
+              queued.delete(source.id);
             }, slow.after);
           try {
             return await probeSource(mangaId, source, titles);
@@ -397,6 +406,7 @@ export async function scanSources(args: {
         }),
         halts[source.id],
       ]);
+      waiting?.delete(skip);
       if (!probe) continue;
       delete stops[`${key}/${source.id}`];
       landed[source.id] = probe;

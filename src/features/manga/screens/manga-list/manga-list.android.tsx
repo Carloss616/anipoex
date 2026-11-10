@@ -49,7 +49,7 @@ function ScanButton({ onPress }: { onPress?: () => void }) {
 
 /** Its own component, so a scan starting or ending redraws only this. */
 function ScanAction() {
-  const scanning = useValue(() => libraryScan$.get() !== null);
+  const scanning = useValue(libraryScan$);
   const m3 = useThemeM3Colors();
 
   if (!scanning) {

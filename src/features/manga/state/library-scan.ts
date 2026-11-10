@@ -23,20 +23,15 @@ import { manualTitles } from "./manual-matches";
 import { probes$, scanSources, stopScanAll, undoPick } from "./probes";
 import { source$ } from "./source";
 
-/**
- * While the Reading scan runs, the manga it is on (1-based; 0 before the
- * first, total 0 while the list loads); not persisted.
- */
-export const libraryScan$ = observable<{ index: number; total: number } | null>(
-  null,
-);
+/** Whether the Reading scan runs, list loading included; not persisted. */
+export const libraryScan$ = observable(false);
 
 const DAY_MS = 86_400_000;
 /** A read past this is stopped, and its source skipped for the rest of the run. */
 const SLOW_SOURCE_MS = 60_000;
 
 let stopped = false;
-/** The manga being scanned: the one shown and one finishing behind it. */
+/** The manga being scanned: the one shown and those finishing behind it. */
 const current = new Set<number>();
 
 /** Stops the Reading scan: the manga in progress at once, then the rest. */
@@ -53,7 +48,7 @@ export function stopReadingScan() {
 export async function scanReading({ everything = false } = {}) {
   // Set before the list loads, so a second tap during the query is dropped too.
   if (libraryScan$.peek()) return;
-  libraryScan$.set({ index: 0, total: 0 });
+  libraryScan$.set(true);
   stopped = false;
   try {
     const userId = session$.user.peek()?.id;
@@ -84,7 +79,6 @@ export async function scanReading({ everything = false } = {}) {
       probes$.peek(),
     );
     const total = entries.length;
-    libraryScan$.set({ index: 0, total });
     // Unpersisted: a scan from the list may run before a screen loaded it.
     if (!installedLoaded$.peek()) await refreshInstalled();
     // A Stop tapped while the list loaded: nothing ran, so nothing to report.
@@ -150,7 +144,6 @@ export async function scanReading({ everything = false } = {}) {
       },
       activity: startLibraryActivity({ total, onStop: stopReadingScan }),
       stopped: () => stopped,
-      onIndex: (index) => libraryScan$.set({ index, total }),
     });
 
     toast(
@@ -168,6 +161,6 @@ export async function scanReading({ everything = false } = {}) {
     );
   } finally {
     current.clear();
-    libraryScan$.set(null);
+    libraryScan$.set(false);
   }
 }

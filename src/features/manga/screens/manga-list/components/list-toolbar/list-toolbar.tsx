@@ -50,7 +50,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const mutedForeground = useThemeColor("muted-foreground");
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
-  const scanning = useValue(() => libraryScan$.get() !== null);
+  const scanning = useValue(libraryScan$);
   const reading = status === MediaListStatus.Current;
   const [refetching, setRefetching] = useState(false);
 

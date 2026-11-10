@@ -25,7 +25,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const primary = useThemeColor("primary");
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
-  const scanning = useValue(() => libraryScan$.get() !== null);
+  const scanning = useValue(libraryScan$);
   const reading = status === MediaListStatus.Current;
 
   return (
