@@ -18,16 +18,17 @@ import { unreadChapters } from "../utils/source-classify";
 import { readMatch, searchTitles } from "../utils/source-match";
 import { toEntries } from "../utils/to-entries";
 import { manualTitles } from "./manual-matches";
-import { probes$, scanSources, stopScanAll } from "./probes";
-import { restoreMatch, source$ } from "./source";
+import { probes$, scanSources, stopScanAll, undoPick } from "./probes";
+import { source$ } from "./source";
 
-/** The Reading scan's place in the list (1-based) while it runs; not persisted. */
+/**
+ * While the Reading scan runs, the manga it is on (1-based; 0 before the
+ * first, total 0 while the list loads); not persisted.
+ */
 export const libraryScan$ = observable<{ index: number; total: number } | null>(
   null,
 );
 
-// Set before the list loads, so a second tap during the query is dropped too.
-let running = false;
 let stopped = false;
 let current: number | undefined;
 
@@ -42,8 +43,9 @@ export function stopReadingScan() {
  * sources probed within the hour unless `everything`.
  */
 export async function scanReading({ everything = false } = {}) {
-  if (running) return;
-  running = true;
+  // Set before the list loads, so a second tap during the query is dropped too.
+  if (libraryScan$.peek()) return;
+  libraryScan$.set({ index: 0, total: 0 });
   stopped = false;
   try {
     const userId = session$.user.peek()?.id;
@@ -74,6 +76,7 @@ export async function scanReading({ everything = false } = {}) {
       probes$.peek(),
     );
     const total = entries.length;
+    libraryScan$.set({ index: 0, total });
     // Unpersisted: a scan from the list may run before a screen loaded it.
     if (!installedLoaded$.peek()) await refreshInstalled();
 
@@ -121,14 +124,13 @@ export async function scanReading({ everything = false } = {}) {
             action: {
               label: "Undo",
               onAction: () => {
-                for (const p of picks) restoreMatch(p.mangaId, p.previous);
+                for (const p of picks) undoPick(p.mangaId, p);
               },
             },
           }
         : undefined,
     );
   } finally {
-    running = false;
     current = undefined;
     libraryScan$.set(null);
   }

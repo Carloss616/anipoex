@@ -27,6 +27,8 @@ export interface LibraryActivity {
   end(summary: LibrarySummary): void;
 }
 
+type LibraryPick = { mangaId: number } & NonNullable<ScanResult["picked"]>;
+
 const newest = (probes: ProbeMap | undefined) =>
   Math.max(0, ...Object.values(probes ?? {}).map((p) => p.updatedAt));
 
@@ -60,10 +62,7 @@ export async function runLibrary(args: {
   onIndex?: (index: number) => void;
 }): Promise<{
   summary: LibrarySummary;
-  picks: {
-    mangaId: number;
-    previous: NonNullable<ScanResult["picked"]>["previous"];
-  }[];
+  picks: LibraryPick[];
 }> {
   const { entries, scan, unread, activity, stopped, onIndex } = args;
   const summary: LibrarySummary = {
@@ -72,10 +71,7 @@ export async function runLibrary(args: {
     recent: 0,
     withNew: [],
   };
-  const picks: {
-    mangaId: number;
-    previous: NonNullable<ScanResult["picked"]>["previous"];
-  }[] = [];
+  const picks: LibraryPick[] = [];
 
   try {
     for (const [i, entry] of entries.entries()) {
@@ -95,10 +91,7 @@ export async function runLibrary(args: {
       if (result.scanned) summary.scanned++;
       else summary.recent++;
       if (result.picked)
-        picks.push({
-          mangaId: entry.mangaId,
-          previous: result.picked.previous,
-        });
+        picks.push({ mangaId: entry.mangaId, ...result.picked });
       if (unread(entry) > 0)
         summary.withNew.push({ mangaId: entry.mangaId, cover: entry.cover });
     }

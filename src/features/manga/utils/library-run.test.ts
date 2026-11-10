@@ -99,14 +99,14 @@ describe("runLibrary", () => {
       entries: [entry(1), entry(2)],
       scan: async (e) =>
         e.mangaId === 1
-          ? { scanned: true, picked: { previous } }
+          ? { scanned: true, picked: { id: "a", previous } }
           : { scanned: true },
       unread: (e) => (e.mangaId === 2 ? 2 : 0),
       activity: a,
       stopped: () => false,
     });
     expect(summary.withNew).toEqual([{ mangaId: 2, cover: undefined }]);
-    expect(picks).toEqual([{ mangaId: 1, previous }]);
+    expect(picks).toEqual([{ mangaId: 1, id: "a", previous }]);
   });
 
   test("stops between manga and keeps picks", async () => {
@@ -119,7 +119,7 @@ describe("runLibrary", () => {
       scan: async (e) => {
         scanned.push(e.mangaId);
         done++;
-        return { scanned: true, picked: { previous } };
+        return { scanned: true, picked: { id: "a", previous } };
       },
       unread: () => 0,
       activity: a,

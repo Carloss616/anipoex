@@ -84,7 +84,19 @@ export interface ScanResult {
   /** False when nothing was left to scan or a Scan all of it is running. */
   scanned: boolean;
   /** Set when the scan picked a source: what to restore to undo it. */
-  picked?: { previous: Parameters<typeof restoreMatch>[1] };
+  picked?: { id: string; previous: Parameters<typeof restoreMatch>[1] };
+}
+
+/**
+ * Undoes a scan's pick only while it is still that pick: the user may have
+ * picked by hand since.
+ */
+export function undoPick(
+  mangaId: number,
+  { id, previous }: NonNullable<ScanResult["picked"]>,
+) {
+  const now = readMatch(source$[mangaId].peek());
+  if (now?.auto && now.sourceId === id) restoreMatch(mangaId, previous);
 }
 
 syncObservable(probes$, {
@@ -333,7 +345,8 @@ export async function scanSources(args: {
     const picked = sources.find((s) => s.id === id);
     if (picked) {
       void selectSource(mangaId, picked, titles, undefined, true);
-      result.picked = { previous };
+      const pick = { id: picked.id, previous };
+      result.picked = pick;
       if (!args.activity) {
         const unread = unreadChapters(read(), probes[picked.id].latest);
         toast(
@@ -343,13 +356,7 @@ export async function scanSources(args: {
           {
             action: {
               label: "Undo",
-              // Only while the pick is still this scan's: the user may have
-              // picked by hand since.
-              onAction: () => {
-                const now = readMatch(source$[mangaId].peek());
-                if (now?.auto && now.sourceId === picked.id)
-                  restoreMatch(mangaId, previous);
-              },
+              onAction: () => undoPick(mangaId, pick),
             },
           },
         );

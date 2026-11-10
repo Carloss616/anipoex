@@ -3,10 +3,17 @@ import { observable } from "@legendapp/state";
 import { toSources, withChosen } from "@/features/extensions/utils/sources";
 import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
-const search = mock(async (sourceId: string, query: string) => ({
-  mangas: [{ url: `/${sourceId}/${query}`, title: query, thumbnailUrl: null }],
-  hasNextPage: false,
-}));
+// Titles whose search never answers, so the scan stays on them.
+const held = new Set<string>();
+const search = mock(async (sourceId: string, query: string) => {
+  if (held.has(query)) await new Promise(() => {});
+  return {
+    mangas: [
+      { url: `/${sourceId}/${query}`, title: query, thumbnailUrl: null },
+    ],
+    hasNextPage: false,
+  };
+});
 const chapters = mock(async () => ({
   chapters: [
     { url: "/c/1", name: "Ch.1", number: 1, dateUpload: 0, scanlator: null },
@@ -46,7 +53,8 @@ mock.module("../utils/scan-activity", () => ({
   startScanActivity: () => ({ progress: noop, mark: noop, end: noop }),
   startLibraryActivity,
 }));
-let reply: () => Promise<unknown> = async () => ({ data: undefined });
+const empty = async (): Promise<unknown> => ({ data: undefined });
+let reply = empty;
 const query = mock(() => reply());
 mock.module("@/graphql/client", () => ({ client: { query } }));
 const session$ = observable({ user: { id: 1 } as { id: number } | undefined });
@@ -67,7 +75,9 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { scanReading, libraryScan$ } = await import("./library-scan");
+const { scanReading, stopReadingScan, libraryScan$ } = await import(
+  "./library-scan"
+);
 const { source$ } = await import("./source");
 const { probes$ } = await import("./probes");
 
@@ -86,8 +96,13 @@ const list = (...entries: ReturnType<typeof media>[]) => ({
   },
 });
 
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 beforeEach(() => {
+  reply = empty;
+  held.clear();
   shown.mockClear();
+  search.mockClear();
   query.mockClear();
   startLibraryActivity.mockClear();
   session$.user.set({ id: 1 });
@@ -99,6 +114,7 @@ describe("scanReading", () => {
   it("no user or no entries", async () => {
     session$.user.set(undefined);
     await scanReading();
+    expect(query).not.toHaveBeenCalled();
     session$.user.set({ id: 1 });
     reply = async () => list();
     await scanReading();
@@ -113,6 +129,7 @@ describe("scanReading", () => {
     let resolve = (_value: unknown) => {};
     reply = () => new Promise((r) => (resolve = r));
     const first = scanReading();
+    expect(libraryScan$.get()).not.toBeNull();
     await scanReading();
     expect(query).toHaveBeenCalledTimes(1);
     resolve(list());
@@ -132,5 +149,26 @@ describe("scanReading", () => {
     shown.mock.calls.at(-1)?.[1]?.action?.onAction();
     expect(source$[401].get()).toBeUndefined();
     expect(source$[402].get()).toEqual(before);
+  });
+
+  it("undo leaves a source picked by hand since", async () => {
+    reply = async () => list(media(403, "Three"), media(404, "Four"));
+    await scanReading();
+    source$[403].set({ sourceId: "c" });
+
+    shown.mock.calls.at(-1)?.[1]?.action?.onAction();
+    expect(source$[403].get()).toEqual({ sourceId: "c" });
+    expect(source$[404].get()).toBeUndefined();
+  });
+
+  it("a stop ends the manga in progress and the rest", async () => {
+    held.add("Five");
+    reply = async () => list(media(405, "Five"), media(406, "Six"));
+    const done = scanReading();
+    while (!search.mock.calls.length) await flush();
+    stopReadingScan();
+    await done;
+    expect(search.mock.calls.map(([, title]) => title)).toEqual(["Five"]);
+    expect(shown.mock.calls.at(-1)?.[0]).toStartWith("Stopped at 1 of 2");
   });
 });

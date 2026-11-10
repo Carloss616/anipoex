@@ -670,7 +670,10 @@ describe("scanSources", () => {
     const result = await done;
     expect(startScanActivity).not.toHaveBeenCalled();
     expect(shown).not.toHaveBeenCalled();
-    expect(result).toEqual({ scanned: true, picked: { previous: before } });
+    expect(result).toEqual({
+      scanned: true,
+      picked: { id: "b", previous: before },
+    });
   });
 
   it("marks each source scanning, then by its probe", async () => {
@@ -714,7 +717,7 @@ describe("scanSources", () => {
   it("without an activity, the pick toast still shows", async () => {
     const done = scan();
     await answer("a", [3]);
-    expect((await done).picked).toEqual({ previous: undefined });
+    expect((await done).picked).toEqual({ id: "a", previous: undefined });
     expect(shown.mock.calls.at(-1)?.[0]).toBe("Picked A · +3");
   });
 });
