@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* **Reading scan skips week-old no-matches and counts any source**: unless "Rescan everything", it also skips sources that found no match in the last 7 days; "with new chapters" counts a manga when any readable source is ahead, not only the picked one. Updated [source probes](stores/source-probes.md).
 * **Scan the Reading list**: the Reading list's header runs each manga's Scan all in turn, stalest first, skipping sources probed within 60 minutes unless "Rescan everything"; one summary toast with one Undo for the picks it made. Updated [source probes](stores/source-probes.md).
 * **Home layout matches its preset again**: a toggle or move that brings back a preset's sections, in its order, selects that preset instead of staying custom. Updated [Home layout](stores/home-layout.md).
 * **One settings table**: the theme, Home layout, manga list view and extension repos move into one `settings` object, with a `device` section for values that never leave the device. The first launch moves the old tables in once and deletes them. Added [settings](stores/settings.md); updated [theme](stores/theme.md), [Home layout](stores/home-layout.md), [manga list view](stores/manga-list-view.md), [extension repos](stores/extension-repos.md).

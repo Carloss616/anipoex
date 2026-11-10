@@ -80,6 +80,7 @@ const { scanReading, stopReadingScan, libraryScan$ } = await import(
 );
 const { source$ } = await import("./source");
 const { probes$ } = await import("./probes");
+const { settings$ } = await import("@/state/settings");
 
 const media = (id: number, title: string) => ({
   id,
@@ -173,6 +174,17 @@ describe("scanReading", () => {
     shown.mock.calls.at(-1)?.[1]?.action?.onAction();
     expect(source$[401].get()).toBeUndefined();
     expect(source$[402].get()).toEqual(before);
+  });
+
+  it("counts new chapters on any source, picked or not", async () => {
+    settings$.sources.autoPick.set(false);
+    reply = async () => list(media(409, "Nine"));
+    await scanReading();
+    settings$.sources.autoPick.set(true);
+    expect(source$[409].get()).toBeUndefined();
+    expect(shown.mock.calls.at(-1)?.[0]).toBe(
+      "1 with new chapters · 1 scanned · 0 recent",
+    );
   });
 
   it("undo leaves a source picked by hand since", async () => {

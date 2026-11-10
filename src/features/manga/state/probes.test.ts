@@ -87,6 +87,7 @@ const { titleSearch$ } = await import("./title-search");
 const { forgetByTitle, takeByTitle } = await import("./title-takes");
 const { settings$ } = await import("@/state/settings");
 
+const DAY = 86_400_000;
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 const sources = (...ids: string[]) =>
   ids.map((id) => ({ id, name: id.toUpperCase(), initials: "XX" }));
@@ -241,6 +242,42 @@ describe("scanSources", () => {
     searchPending.b([]);
     await flush();
     expect(probes$["201"].b.get()?.latest).toBe(7);
+  });
+
+  it("a slow source holds one slot, not the next sources", async () => {
+    const ids = Array.from({ length: PARALLEL_BATCH + 1 }, (_, i) => `s${i}`);
+    const done = scan({ sources: sources(...ids) });
+    await flush();
+    expect(searchCalls).not.toContain(ids[PARALLEL_BATCH]);
+    // s0 never answers; s1 answering frees its slot for the 11th.
+    searchPending.s1([]);
+    await flush();
+    expect(searchCalls).toContain(ids[PARALLEL_BATCH]);
+    for (const id of ids.slice(2)) searchPending[id]([]);
+    searchPending.s0([]);
+    await done;
+  });
+
+  it("missFor skips recent no-matches only", async () => {
+    const probe = (id: string, over: Record<string, unknown>) => ({
+      provider: id,
+      providerName: id,
+      latest: 0,
+      count: 0,
+      matched: false,
+      errored: false,
+      updatedAt: Date.now() - 1000,
+      ...over,
+    });
+    probes$["201"].a.set(probe("a", {}));
+    probes$["201"].b.set(probe("b", { errored: true }));
+    probes$["201"].c.set(probe("c", { matched: true, latest: 3, count: 3 }));
+    probes$["201"].d.set(probe("d", { updatedAt: Date.now() - 2 * DAY }));
+    const done = scan({ sources: sources("a", "b", "c", "d"), missFor: DAY });
+    await flush();
+    expect(searchCalls.sort()).toEqual(["b", "c", "d"]);
+    for (const id of ["b", "c", "d"]) searchPending[id]([]);
+    await done;
   });
 
   it("a source stopped before its batch is never read", async () => {

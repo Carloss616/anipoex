@@ -182,8 +182,10 @@ export async function scanSources(args: {
   activity?: (args: ScanActivityArgs) => ScanActivity;
   /** Leaves out sources probed within these ms. */
   freshFor?: number;
+  /** Leaves out sources that found no match within these ms. */
+  missFor?: number;
 }): Promise<ScanResult> {
-  const { mangaId, sources, titles, read, keep, only, name, freshFor } = args;
+  const { mangaId, sources, titles, read, keep, only, name } = args;
   const key = mediaKey(mangaId);
   // One Scan all at a time; a rescan waits only for its own source's.
   if (
@@ -211,11 +213,19 @@ export async function scanSources(args: {
   // A Scan all leaves the sources a rescan is probing to it.
   const busy = scanning$[key].peek() ?? {};
   const prev = { ...probes$[key].peek() };
+  const within = (id: string, ms: number | undefined) =>
+    ms !== undefined && (prev[id]?.updatedAt ?? 0) > Date.now() - ms;
   const targets = sources.filter(
     (s) =>
       ids.includes(s.id) &&
       !busy[s.id] &&
-      !(freshFor && (prev[s.id]?.updatedAt ?? 0) > Date.now() - freshFor),
+      !within(s.id, args.freshFor) &&
+      !(
+        prev[s.id] &&
+        !prev[s.id].matched &&
+        !prev[s.id].errored &&
+        within(s.id, args.missFor)
+      ),
   );
   if (targets.length === 0) return { scanned: false };
 
@@ -278,7 +288,7 @@ export async function scanSources(args: {
     activity.progress(count);
     if (!only) scanProgress$[key].done.set(count);
   };
-  // A stop frees the row at once; before its batch, the source is never read.
+  // A stop frees the row at once; before its turn, the source is never read.
   const halts = Object.fromEntries(
     targets.map((s) => {
       const id = `${key}/${s.id}`;
@@ -303,28 +313,34 @@ export async function scanSources(args: {
   );
   const result: ScanResult = { scanned: true };
 
-  try {
-    for (let i = 0; i < targets.length; i += PARALLEL_BATCH) {
-      await Promise.all(
-        targets.slice(i, i + PARALLEL_BATCH).map(async (source) => {
-          if (stopped.has(source.id)) return;
-          activity.mark(source.id, { state: "scanning" });
-          const probe = await Promise.race([
-            probeSource(mangaId, source, titles),
-            halts[source.id],
-          ]);
-          if (!probe) return;
-          delete stops[`${key}/${source.id}`];
-          landed[source.id] = probe;
-          probes$[key][source.id].set(probe);
-          activity.mark(source.id, markOf(probe, read()));
-          // Judged before its row is freed, so it moves once.
-          judge(source.id, probe);
-          scanning$[key][source.id].delete();
-          done();
-        }),
-      );
+  // A pool, not batches: a slow source holds one slot while the rest move on,
+  // instead of holding up the whole batch behind it.
+  let next = 0;
+  const work = async () => {
+    while (next < targets.length) {
+      const source = targets[next++];
+      if (stopped.has(source.id)) continue;
+      activity.mark(source.id, { state: "scanning" });
+      const probe = await Promise.race([
+        probeSource(mangaId, source, titles),
+        halts[source.id],
+      ]);
+      if (!probe) continue;
+      delete stops[`${key}/${source.id}`];
+      landed[source.id] = probe;
+      probes$[key][source.id].set(probe);
+      activity.mark(source.id, markOf(probe, read()));
+      // Judged before its row is freed, so it moves once.
+      judge(source.id, probe);
+      scanning$[key][source.id].delete();
+      done();
     }
+  };
+
+  try {
+    await Promise.all(
+      Array.from({ length: Math.min(PARALLEL_BATCH, targets.length) }, work),
+    );
   } finally {
     if (!only) {
       scanningAll$[key].delete();

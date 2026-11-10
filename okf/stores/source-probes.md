@@ -23,8 +23,10 @@ background. Closing the sheet doesn't stop a scan. Android, iOS and
 desktop probe; the web app in a browser doesn't.
 
 A Reading scan (the Reading list's header) runs each Reading manga's own Scan all, one manga at a time, never-probed
-and then the stalest first. It skips sources probed within the last 60 minutes unless the user picks "Rescan everything",
-and ends with one summary toast and one Undo, which restores only the picks that are still the scan's own.
+and then the stalest first. Unless the user picks "Rescan everything", it skips sources probed within the last 60 minutes
+and sources that found no match within the last 7 days. It ends with one summary toast and one Undo, which restores only
+the picks that are still the scan's own. A manga counts as having new chapters when any source it can be read from is ahead
+of the user's progress, picked or not.
 
 An error probe keeps what the source threw. A row with one, available or excluded, offers
 **See error** in its menu (the ⋯ button, the iOS context menu or the Android long-press),

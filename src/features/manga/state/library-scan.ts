@@ -11,12 +11,14 @@ import { client } from "@/graphql/client";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
 import { MangaListDocument } from "../graphql/manga-list.generated";
+import { readableSources } from "../utils/best-source";
 import { libraryStatus, runLibrary, scanOrder } from "../utils/library-run";
-import { mediaKey, RECENT_SCAN_MS } from "../utils/msu";
+import { AUTO_RECHECK_DAYS, mediaKey, RECENT_SCAN_MS } from "../utils/msu";
 import { startLibraryActivity } from "../utils/scan-activity";
 import { unreadChapters } from "../utils/source-classify";
 import { readMatch, searchTitles } from "../utils/source-match";
 import { toEntries } from "../utils/to-entries";
+import { exclusions$ } from "./exclusions";
 import { manualTitles } from "./manual-matches";
 import { probes$, scanSources, stopScanAll, undoPick } from "./probes";
 import { source$ } from "./source";
@@ -29,6 +31,8 @@ export const libraryScan$ = observable<{ index: number; total: number } | null>(
   null,
 );
 
+const DAY_MS = 86_400_000;
+
 let stopped = false;
 let current: number | undefined;
 
@@ -39,8 +43,9 @@ export function stopReadingScan() {
 }
 
 /**
- * Scans every manga in Reading, never-probed and stalest first, skipping
- * sources probed within the hour unless `everything`.
+ * Scans every manga in Reading, never-probed and stalest first. Unless
+ * `everything`, it skips sources probed within the hour and those that found
+ * no match within the week.
  */
 export async function scanReading({ everything = false } = {}) {
   // Set before the list loads, so a second tap during the query is dropped too.
@@ -86,19 +91,27 @@ export async function scanReading({ everything = false } = {}) {
       return;
     }
 
+    const sourcesOf = (mangaId: number) => {
+      const installed = installed$.peek();
+      const keep = readMatch(source$[mangaId].peek())?.sourceId;
+      return {
+        keep,
+        sources: withChosen(
+          toSources(installed),
+          toSources(installed, { all: true }),
+          keep,
+        ),
+      };
+    };
+
     const { summary, picks } = await runLibrary({
       entries,
       scan: (entry, activity) => {
         current = entry.mangaId;
-        const installed = installed$.peek();
-        const keep = readMatch(source$[entry.mangaId].peek())?.sourceId;
+        const { keep, sources } = sourcesOf(entry.mangaId);
         return scanSources({
           mangaId: entry.mangaId,
-          sources: withChosen(
-            toSources(installed),
-            toSources(installed, { all: true }),
-            keep,
-          ),
+          sources,
           titles: searchTitles(
             media.get(entry.mangaId) ?? {},
             manualTitles(entry.mangaId),
@@ -109,14 +122,25 @@ export async function scanReading({ everything = false } = {}) {
           cover: entry.cover,
           activity,
           freshFor: everything ? undefined : RECENT_SCAN_MS,
+          missFor: everything ? undefined : AUTO_RECHECK_DAYS * DAY_MS,
         });
       },
+      // Any source the manga can be read from counts, not only the one picked:
+      // a manga with no pick, or a pick behind, still has new chapters.
       unread: (entry) => {
-        const id = readMatch(source$[entry.mangaId].peek())?.sourceId;
-        const probe = id
-          ? probes$[mediaKey(entry.mangaId)][id].peek()
-          : undefined;
-        return probe?.matched ? unreadChapters(entry.read, probe.latest) : 0;
+        const key = mediaKey(entry.mangaId);
+        const probes = probes$[key].peek() ?? {};
+        const readable = readableSources(
+          sourcesOf(entry.mangaId).sources,
+          exclusions$[key].peek() ?? {},
+          probes,
+        );
+        return Math.max(
+          0,
+          ...readable.map((s) =>
+            unreadChapters(entry.read, probes[s.id].latest),
+          ),
+        );
       },
       activity: startLibraryActivity({ total, onStop: stopReadingScan }),
       stopped: () => stopped,
