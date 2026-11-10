@@ -19,17 +19,13 @@ import {
   scanReading,
   stopReadingScan,
 } from "@/features/manga/state/library-scan";
+import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openViewSheet } from "../view-sheet";
 
-// Asked on the click: browsers drop a prompt without one.
 const scanWithNotice = (everything: boolean) => {
-  if (
-    typeof Notification !== "undefined" &&
-    Notification.permission === "default"
-  )
-    void Notification.requestPermission();
+  askToNotify();
   void scanReading({ everything });
 };
 

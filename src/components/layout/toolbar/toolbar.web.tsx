@@ -21,7 +21,12 @@ function ToolbarItemView({
     (item.kind === "menu" ? "ellipsis-vertical" : undefined)) as IconName;
   const isLoading = loading && item.kind === "button" && item.props.disabled;
 
-  const icon = iconName == null ? label : <Icon name={iconName} />;
+  const icon =
+    iconName == null ? (
+      label
+    ) : (
+      <Icon name={iconName} color={item.props.tintColor} />
+    );
 
   const trigger = (
     <Button

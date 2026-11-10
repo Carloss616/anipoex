@@ -116,6 +116,7 @@ export function MangaCard({
               type: "hierarchical",
               style: "tertiary",
             }),
+            ...(scanning ? [opacity(0.5)] : []),
           ]}
         />
       )}

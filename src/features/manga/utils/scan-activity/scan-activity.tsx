@@ -40,6 +40,16 @@ export interface LibraryActivityArgs {
 
 const canNotify = () => typeof Notification !== "undefined";
 
+/**
+ * Asks for notifications once; call it on the scan's starting click, since
+ * browsers drop a prompt without one.
+ * @platform web
+ */
+export function askToNotify() {
+  if (canNotify() && Notification.permission === "default")
+    void Notification.requestPermission();
+}
+
 const notify = (title: string, body: string) => {
   if (Notification.permission !== "granted") return;
   const notification = new Notification(title, { body });
@@ -99,9 +109,7 @@ export function startScanActivity({
     }
     notify(`Scanned ${name}`, body);
   };
-  // Asked on the scan's starting click: browsers drop a prompt without one.
-  if (!source && canNotify() && Notification.permission === "default")
-    void Notification.requestPermission();
+  if (!source) askToNotify();
   show();
 
   return {
