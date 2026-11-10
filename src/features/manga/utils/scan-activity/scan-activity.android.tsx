@@ -20,7 +20,6 @@ import {
   addUserInteractionListener,
   type CustomNotification,
   type CustomNotificationOptions,
-  type CustomNotificationUpdateOptions,
   createCustomNotification,
 } from "expo-widgets";
 import { PermissionsAndroid } from "react-native";
@@ -44,10 +43,12 @@ import {
 } from "./utils/status";
 import { widgetImage } from "./utils/widget-image";
 import {
+  coalesce,
   imageLoader,
   routeStop,
   stopTarget,
   type WidgetMark,
+  type WidgetUpdates,
   widgetMarks,
 } from "./utils/widget-props";
 
@@ -244,17 +245,10 @@ const post = (props: Props, options: CustomNotificationOptions): Shown =>
     .then(() => ScanNotification.post(props, options))
     .catch(() => undefined);
 
-// In order: an update that lands before the post would be lost.
-const update = (
-  shown: Shown,
-  props: Props,
-  options: CustomNotificationUpdateOptions = {},
-): Shown =>
-  shown.then((notification) =>
-    notification?.update(props, options).then(
-      () => notification,
-      () => notification,
-    ),
+// After the post: an update that lands before it would be lost.
+const updates = (shown: Shown) =>
+  coalesce<Props>((props, end) =>
+    shown.then((notification) => notification?.update(props, end ? ENDED : {})),
   );
 
 interface Group {
@@ -264,7 +258,7 @@ interface Group {
   scans: Scan[];
   marks: Record<string, SourceMark>;
   image: (url: string | undefined) => string | undefined;
-  shown: Shown;
+  updates?: WidgetUpdates<Props>;
 }
 
 const groups = new Map<number, Group>();
@@ -288,7 +282,8 @@ const propsOf = (group: Group): Props => {
 
 const render = (group: Group) => {
   const next = propsOf(group);
-  group.shown = update(group.shown, next, next.ended ? ENDED : {});
+  if (next.ended) void group.updates?.end(next);
+  else group.updates?.push(next);
 };
 
 /**
@@ -313,7 +308,6 @@ export function startScanActivity({
       scans: [],
       marks: {},
       image: () => undefined,
-      shown: Promise.resolve(undefined),
     };
     next.image = imageLoader(() => render(next));
     return next;
@@ -322,11 +316,13 @@ export function startScanActivity({
   if (onStop) scanStops.set(group.key, onStop);
   if (running) render(group);
   else
-    group.shown = post(propsOf(group), {
-      id: `scan-${mangaId}`,
-      ongoing: true,
-      url: `anipoex://manga/${mangaId}`,
-    });
+    group.updates = updates(
+      post(propsOf(group), {
+        id: `scan-${mangaId}`,
+        ongoing: true,
+        url: `anipoex://manga/${mangaId}`,
+      }),
+    );
 
   const tracked = trackScan(scan, () => render(group));
 
@@ -378,14 +374,16 @@ export function startLibraryActivity({
     };
   };
   const render = () => {
-    if (!ended) shown = update(shown, propsOfView());
+    if (!ended) notification.push(propsOfView());
   };
   const image = imageLoader(render);
-  let shown = post(propsOfView(), {
-    id: "scan-library",
-    ongoing: true,
-    url: "anipoex://manga",
-  });
+  const notification = updates(
+    post(propsOfView(), {
+      id: "scan-library",
+      ongoing: true,
+      url: "anipoex://manga",
+    }),
+  );
 
   return {
     manga: ({ entry, index, newSoFar }) => {
@@ -417,22 +415,18 @@ export function startLibraryActivity({
       scanStops.delete("library");
       void Promise.all(
         summary.withNew.slice(0, 3).map((m) => widgetImage(m.cover)),
-      ).then((covers) => {
-        shown = update(
-          shown,
-          {
-            name: "Reading",
-            status: libraryStatus(summary),
-            progress: 1,
-            ended: true,
-            trackHeight: TRACK_HEIGHT.md,
-            marks: [],
-            more: 0,
-            covers: covers.filter((c): c is string => !!c),
-          },
-          ENDED,
-        );
-      });
+      ).then((covers) =>
+        notification.end({
+          name: "Reading",
+          status: libraryStatus(summary),
+          progress: 1,
+          ended: true,
+          trackHeight: TRACK_HEIGHT.md,
+          marks: [],
+          more: 0,
+          covers: covers.filter((c): c is string => !!c),
+        }),
+      );
     },
   };
 }

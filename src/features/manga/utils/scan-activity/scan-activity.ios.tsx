@@ -54,10 +54,12 @@ import {
 } from "./utils/status";
 import { widgetImage } from "./utils/widget-image";
 import {
+  coalesce,
   imageLoader,
   routeStop,
   stopTarget,
   type WidgetMark,
+  type WidgetUpdates,
   widgetMarks,
 } from "./utils/widget-props";
 
@@ -246,6 +248,11 @@ const start = (props: Props, url: string) => {
   }
 };
 
+const updates = (activity: LiveActivity<Props> | undefined) =>
+  coalesce<Props>((props, end) =>
+    end ? activity?.end("default", props, new Date()) : activity?.update(props),
+  );
+
 interface Group {
   key: string;
   name: string;
@@ -254,6 +261,7 @@ interface Group {
   marks: Record<string, SourceMark>;
   image: (url: string | undefined) => string | undefined;
   activity?: LiveActivity<Props>;
+  updates: WidgetUpdates<Props>;
 }
 
 const groups = new Map<number, Group>();
@@ -279,11 +287,8 @@ const propsOf = (group: Group): Props => {
 
 const render = (group: Group) => {
   const next = propsOf(group);
-  void (
-    isRunning(group.scans)
-      ? group.activity?.update(next)
-      : group.activity?.end("default", next, new Date())
-  )?.catch(() => {});
+  if (isRunning(group.scans)) group.updates.push(next);
+  else void group.updates.end(next);
 };
 
 /**
@@ -310,6 +315,7 @@ export function startScanActivity({
       scans: [],
       marks: {},
       image: () => undefined,
+      updates: updates(undefined),
     };
     next.image = imageLoader(() => render(next));
     return next;
@@ -321,6 +327,7 @@ export function startScanActivity({
     // An ended Live Activity can't take updates: a new one replaces it.
     void group.activity?.end("immediate").catch(() => {});
     group.activity = start(propsOf(group), `anipoex://manga/${mangaId}`);
+    group.updates = updates(group.activity);
   }
 
   const tracked = trackScan(scan, () => render(group));
@@ -333,8 +340,12 @@ export function startScanActivity({
     },
     end: (found) => {
       tracked.end(found);
-      if (!isRunning(group.scans)) scanStops.delete(group.key);
-      backgroundTime.end(task);
+      if (isRunning(group.scans)) return backgroundTime.end(task);
+      scanStops.delete(group.key);
+      // Kept until the end lands, which waits for the update in flight.
+      void group.updates
+        .end(propsOf(group))
+        .finally(() => backgroundTime.end(task));
     },
   };
 }
@@ -376,10 +387,10 @@ export function startLibraryActivity({
     };
   };
   const render = () => {
-    if (!ended) void activity?.update(propsOfView()).catch(() => {});
+    if (!ended) live.push(propsOfView());
   };
   const image = imageLoader(render);
-  const activity = start(propsOfView(), "anipoex://manga");
+  const live = updates(start(propsOfView(), "anipoex://manga"));
 
   return {
     manga: ({ entry, index, newSoFar }) => {
@@ -414,23 +425,18 @@ export function startLibraryActivity({
         summary.withNew.slice(0, 3).map((m) => widgetImage(m.cover)),
       )
         .then((covers) =>
-          activity?.end(
-            "default",
-            {
-              name: "Reading",
-              status: libraryStatus(summary),
-              progress: 1,
-              count: `${summary.scanned + summary.recent}/${summary.total}`,
-              icon: ICON,
-              stopIcon: STOP_ICON,
-              marks: [],
-              more: 0,
-              covers: covers.filter((c): c is string => !!c),
-            },
-            new Date(),
-          ),
+          live.end({
+            name: "Reading",
+            status: libraryStatus(summary),
+            progress: 1,
+            count: `${summary.scanned + summary.recent}/${summary.total}`,
+            icon: ICON,
+            stopIcon: STOP_ICON,
+            marks: [],
+            more: 0,
+            covers: covers.filter((c): c is string => !!c),
+          }),
         )
-        .catch(() => {})
         .finally(() => backgroundTime.end(task));
     },
   };

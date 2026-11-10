@@ -72,3 +72,85 @@ export function widgetMarks(
     more,
   };
 }
+
+/** A widget's updates, as `coalesce` sends them. */
+export interface WidgetUpdates<P> {
+  push(props: P): void;
+  /** Sends `props` as the last update; settles once it's sent. */
+  end(props: P): Promise<void>;
+}
+
+export interface Clock {
+  now(): number;
+  after(ms: number, run: () => void): void;
+}
+
+const realClock: Clock = {
+  now: () => Date.now(),
+  after: (ms, run) => void setTimeout(run, ms),
+};
+
+/**
+ * Sends one update at a time, at most one per `interval`, the latest props
+ * winning: Android sheds an app's notification updates past about 5 a
+ * second, and a Live Activity has an update budget. The end skips the wait
+ * and nothing is sent after it.
+ */
+export function coalesce<P>(
+  send: (props: P, end: boolean) => Promise<unknown> | undefined,
+  { interval = 250, clock = realClock } = {},
+): WidgetUpdates<P> {
+  let next: { props: P } | undefined;
+  let ending: Promise<void> | undefined;
+  let finish = () => {};
+  let busy = false;
+  let waiting = false;
+  let last = Number.NEGATIVE_INFINITY;
+
+  const flush = () => {
+    if (busy || !next) return;
+    if (!ending) {
+      if (waiting) return;
+      const wait = last + interval - clock.now();
+      if (wait > 0) {
+        waiting = true;
+        clock.after(wait, () => {
+          waiting = false;
+          flush();
+        });
+        return;
+      }
+    }
+    const { props } = next;
+    const end = !!ending;
+    next = undefined;
+    busy = true;
+    last = clock.now();
+    void Promise.resolve()
+      .then(() => send(props, end))
+      .catch(() => {})
+      .finally(() => {
+        busy = false;
+        if (end) finish();
+        else flush();
+      });
+  };
+
+  return {
+    push: (props) => {
+      if (ending) return;
+      next = { props };
+      flush();
+    },
+    end: (props) => {
+      if (!ending) {
+        ending = new Promise((resolve) => {
+          finish = resolve;
+        });
+        next = { props };
+        flush();
+      }
+      return ending;
+    },
+  };
+}
