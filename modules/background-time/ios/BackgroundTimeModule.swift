@@ -18,5 +18,10 @@ public class BackgroundTimeModule: Module {
     Function("end") { (task: Int) in
       UIApplication.shared.endBackgroundTask(UIBackgroundTaskIdentifier(rawValue: task))
     }
+
+    // Seconds left off screen; in the foreground iOS reports no limit at all.
+    AsyncFunction("remaining") { () -> Double in
+      UIApplication.shared.backgroundTimeRemaining
+    }.runOnQueue(.main)
   }
 }

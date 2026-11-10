@@ -33,6 +33,7 @@ import {
   createLiveActivity,
   type LiveActivity,
 } from "expo-widgets";
+import { AppState } from "react-native";
 import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
 import { scanStops } from "../../state/scan-views";
@@ -69,10 +70,66 @@ import {
 const backgroundTime = requireNativeModule<{
   begin(name: string): number;
   end(task: number): void;
+  remaining(): Promise<number>;
 }>("BackgroundTime");
 
 const ICON = sfSymbol(Icons.refresh) ?? "arrow.clockwise";
 const STOP_ICON = sfSymbol(Icons.stop) ?? "stop.fill";
+const PAUSED = "Paused · open the app to continue";
+/** Room for the update to land before iOS suspends the app. */
+const PAUSE_AHEAD_MS = 5_000;
+
+/** Running scans' renders, redrawn when they pause or resume. */
+const repaints = new Set<() => void>();
+let paused = false;
+let pauseTimer: ReturnType<typeof setTimeout> | undefined;
+const repaint = () => {
+  for (const render of repaints) render();
+};
+const inBackground = () => AppState.currentState === "background";
+
+/** One background task while any scan runs, else iOS suspends it off screen. */
+let task: number | undefined;
+const hold = () => {
+  task ??= backgroundTime.begin("Scan sources");
+};
+const release = () => {
+  if (repaints.size || task === undefined) return;
+  backgroundTime.end(task);
+  task = undefined;
+};
+
+const schedulePause = () => {
+  if (!repaints.size || !inBackground()) return;
+  void backgroundTime.remaining().then((seconds) => {
+    if (!inBackground()) return;
+    // Right after the app leaves the screen iOS still reports no limit.
+    pauseTimer =
+      seconds > 600
+        ? setTimeout(schedulePause, 1000)
+        : setTimeout(
+            () => {
+              if (!inBackground()) return;
+              paused = true;
+              repaint();
+            },
+            Math.max(0, seconds * 1000 - PAUSE_AHEAD_MS),
+          );
+  });
+};
+
+// iOS suspends the app once its background time runs out, and the scan with
+// it until the app is back: the activity says so instead of "Scanning".
+AppState.addEventListener("change", (state) => {
+  clearTimeout(pauseTimer);
+  if (state === "background") schedulePause();
+  else if (state === "active" && paused) {
+    paused = false;
+    // iOS ended the task as the time ran out: the next trip off screen needs one.
+    if (task !== undefined) task = backgroundTime.begin("Scan sources");
+    repaint();
+  }
+});
 
 interface Props {
   name: string;
@@ -285,6 +342,7 @@ interface Group {
   image: (url: string | undefined) => string | undefined;
   activity?: LiveActivity<Props>;
   updates: WidgetUpdates<Props>;
+  repaint: () => void;
 }
 
 const groups = new Map<number, Group>();
@@ -295,7 +353,7 @@ const propsOf = (group: Group): Props => {
   const running = isRunning(scans);
   return {
     name,
-    status: groupStatus(scans),
+    status: running && paused ? PAUSED : groupStatus(scans),
     // Ended, the bar fills instead of looping.
     progress: all ? all.done / all.total : running ? null : 1,
     count: all ? `${all.done}/${all.total}` : "",
@@ -328,8 +386,6 @@ export function startScanActivity({
   onStop,
 }: ScanActivityArgs): ScanActivity {
   const scan: Scan = { done: 0, total, found: null, source: source?.name };
-  // Else iOS suspends the app off screen and every probe in flight fails.
-  const task = backgroundTime.begin("Scan sources");
   const { group, running } = joinGroup(groups, mangaId, scan, () => {
     const next: Group = {
       key: String(mangaId),
@@ -339,12 +395,15 @@ export function startScanActivity({
       marks: {},
       image: () => undefined,
       updates: updates(undefined),
+      repaint: () => render(next),
     };
-    next.image = imageLoader(() => render(next));
+    next.image = imageLoader(next.repaint);
     return next;
   });
   Object.assign(group.marks, marksById(sources));
   if (onStop) scanStops.set(group.key, onStop);
+  repaints.add(group.repaint);
+  hold();
   if (running) render(group);
   else {
     // An ended Live Activity can't take updates: a new one replaces it.
@@ -363,12 +422,11 @@ export function startScanActivity({
     },
     end: (found) => {
       tracked.end(found);
-      if (isRunning(group.scans)) return backgroundTime.end(task);
+      if (isRunning(group.scans)) return;
       scanStops.delete(group.key);
+      repaints.delete(group.repaint);
       // Kept until the end lands, which waits for the update in flight.
-      void group.updates
-        .end(propsOf(group))
-        .finally(() => backgroundTime.end(task));
+      void group.updates.end(propsOf(group)).finally(release);
     },
   };
 }
@@ -381,7 +439,6 @@ export function startLibraryActivity({
   total,
   onStop,
 }: LibraryActivityArgs): LibraryActivity {
-  const task = backgroundTime.begin("Scan Reading");
   scanStops.set("library", onStop);
   let view: {
     name: string;
@@ -398,7 +455,7 @@ export function startLibraryActivity({
     const done = index - 1 + (scan ? scan.done / scan.total : 0);
     return {
       name: view.name,
-      status: scan ? scanStatus(scan) : "Checking sources",
+      status: paused ? PAUSED : scan ? scanStatus(scan) : "Checking sources",
       progress: total ? done / total : 0,
       count: `${index}/${total}`,
       icon: ICON,
@@ -416,6 +473,8 @@ export function startLibraryActivity({
   };
   const image = imageLoader(render);
   const live = updates(start(propsOfView(), "anipoex://manga"));
+  repaints.add(render);
+  hold();
 
   return {
     finishing: (line) => {
@@ -449,6 +508,7 @@ export function startLibraryActivity({
     end: (summary) => {
       ended = true;
       scanStops.delete("library");
+      repaints.delete(render);
       // An ended Live Activity takes no update: its covers are saved first.
       void endCovers(summary.withNew)
         .then((covers) =>
@@ -464,7 +524,7 @@ export function startLibraryActivity({
             ...covers,
           }),
         )
-        .finally(() => backgroundTime.end(task));
+        .finally(release);
     },
   };
 }

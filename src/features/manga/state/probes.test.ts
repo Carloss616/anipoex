@@ -387,7 +387,8 @@ describe("scanSources", () => {
   });
 
   it("a slow timer that fires after a suspension gives the read a new window", async () => {
-    const slow = { after: 20, skipped: new Map<string, string>() };
+    // Long enough that a loaded run arms the timer before the jump.
+    const slow = { after: 200, skipped: new Map<string, string>() };
     const now = Date.now;
     let suspended = 0;
     Date.now = () => now() + suspended;
@@ -395,9 +396,9 @@ describe("scanSources", () => {
       const first = scan({ sources: sources("w"), slow });
       await flush();
       suspended = 60_000;
-      await Bun.sleep(30);
+      await Bun.sleep(250);
       expect(slow.skipped.size).toBe(0);
-      await Bun.sleep(30);
+      await Bun.sleep(250);
       expect([...slow.skipped]).toEqual([["w", "W"]]);
       await first;
     } finally {
