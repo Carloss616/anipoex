@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/toast";
 import { desktop } from "@/utils/desktop";
 import { scanStops, scanViews$ } from "../../state/scan-views";
 import { type LibraryActivity, libraryStatus } from "../library-run";
-import { orderMarks, type SourceMark } from "./utils/marks";
+import { marksById, orderMarks, type SourceMark, setMark } from "./utils/marks";
 import {
   counted,
   groupStatus,
@@ -46,19 +46,6 @@ const notify = (title: string, body: string) => {
   notification.onclick = () => window.focus();
 };
 
-const byId = (marks: SourceMark[]) =>
-  Object.fromEntries(marks.map((m) => [m.id, m]));
-
-/** Writes a source's new state over its mark, keeping its name and icon. */
-const setMark = (
-  marks: Record<string, SourceMark>,
-  id: string,
-  mark: Pick<SourceMark, "state" | "unread">,
-) => {
-  const current = marks[id];
-  if (current) marks[id] = { ...current, ...mark };
-};
-
 const groups = new Map<
   number,
   { scans: Scan[]; marks: Record<string, SourceMark> }
@@ -83,7 +70,7 @@ export function startScanActivity({
     scans: [],
     marks: {},
   }));
-  Object.assign(group.marks, byId(sources));
+  Object.assign(group.marks, marksById(sources));
   if (onStop) scanStops.set(String(mangaId), onStop);
   const view$ = scanViews$[mangaId];
   const show = () => {
@@ -152,7 +139,7 @@ export function startLibraryActivity({
       });
       return ({ mangaId, name, total: sources, cover, ...args }) => {
         const scan: Scan = { done: 0, total: sources, found: null };
-        const marks = byId(args.sources);
+        const marks = marksById(args.sources);
         const show = () =>
           view$.set({
             mangaId,

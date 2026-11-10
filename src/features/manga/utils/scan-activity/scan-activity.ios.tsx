@@ -1,30 +1,65 @@
-import { HStack, Image, ProgressView, Text, VStack } from "@expo/ui/swift-ui";
 import {
+  Button,
+  HStack,
+  Image,
+  ProgressView,
+  Spacer,
+  Text,
+  VStack,
+} from "@expo/ui/swift-ui";
+import {
+  aspectRatio,
+  background,
+  buttonBorderShape,
+  buttonStyle,
+  clipShape,
   font,
   foregroundStyle,
+  frame,
+  labelStyle,
+  lineLimit,
   monospacedDigit,
+  opacity,
   padding,
   progressViewStyle,
+  resizable,
+  shapes,
+  tint,
 } from "@expo/ui/swift-ui/modifiers";
 import { requireNativeModule } from "expo";
 import type { SFSymbol } from "expo-symbols";
-import { createLiveActivity, type LiveActivity } from "expo-widgets";
+import {
+  addUserInteractionListener,
+  createLiveActivity,
+  type LiveActivity,
+} from "expo-widgets";
 import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
-import type { LibraryActivity } from "../library-run";
+import { scanStops } from "../../state/scan-views";
+import { type LibraryActivity, libraryStatus } from "../library-run";
 import type {
   LibraryActivityArgs,
   ScanActivity,
   ScanActivityArgs,
 } from "./scan-activity";
+import { marksById, type SourceMark, setMark } from "./utils/marks";
 import {
   counted,
   groupStatus,
   isRunning,
   joinGroup,
   type Scan,
+  scanStatus,
   trackScan,
 } from "./utils/status";
+import { widgetImage } from "./utils/widget-image";
+import {
+  imageLoader,
+  routeStop,
+  stopTarget,
+  type WidgetMark,
+  widgetMarks,
+} from "./utils/widget-props";
 
 // shortcut: iOS grants about 30s once the app leaves the screen; a longer
 // scan needs BGContinuedProcessingTask (iOS 26).
@@ -33,61 +68,162 @@ const backgroundTime = requireNativeModule<{
   end(task: number): void;
 }>("BackgroundTime");
 
+const ICON = sfSymbol(Icons.refresh) ?? "arrow.clockwise";
+
 interface Props {
   name: string;
   status: string;
   /** 0 to 1; null loops, for a rescan. */
   progress: number | null;
-  /** `done/total` for a Scan all; empty for a rescan. */
+  /** `done/total` for a Scan all or the Reading scan; empty for a rescan. */
   count: string;
   icon: SFSymbol;
+  /** The cover's widget file; none shows the icon. */
+  cover?: string;
+  marks: WidgetMark[];
+  more: number;
+  /** The Reading scan's place in the list. */
+  library?: string;
+  /** An ended Reading scan's manga with new chapters, up to 3. */
+  covers: string[];
+  /** The Stop button's target; none once the scan ends. */
+  stop?: string;
 }
 
 // A widget function runs in its own runtime: all it shows comes in props.
 const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
   "widget";
   const secondary = { type: "hierarchical", style: "secondary" } as const;
-
-  return {
-    banner: (
-      <VStack
-        alignment="leading"
-        spacing={8}
-        modifiers={[padding({ all: 16 })]}
-      >
-        <HStack spacing={8}>
-          <Image systemName={props.icon} />
-          <Text modifiers={[font({ weight: "semibold" })]}>{props.name}</Text>
-        </HStack>
-        <ProgressView
-          value={props.progress ?? undefined}
-          modifiers={[progressViewStyle("linear")]}
+  const caption = [
+    font({ size: 13 }),
+    foregroundStyle(secondary),
+    monospacedDigit(),
+  ];
+  const cover = (uri: string | undefined, width: number, height: number) =>
+    uri ? (
+      <Image
+        uiImage={uri}
+        modifiers={[
+          resizable(),
+          aspectRatio({ contentMode: "fill" }),
+          frame({ width, height }),
+          clipShape("roundedRectangle", width / 6),
+        ]}
+      />
+    ) : (
+      <Image systemName={props.icon} />
+    );
+  const mark = (m: WidgetMark, i: number) => (
+    <VStack
+      key={String(i)}
+      spacing={2}
+      modifiers={[
+        opacity(m.state === "pending" || m.state === "nomatch" ? 0.4 : 1),
+      ]}
+    >
+      {m.uri ? (
+        <Image
+          uiImage={m.uri}
+          modifiers={[
+            resizable(),
+            frame({ width: 18, height: 18 }),
+            clipShape("roundedRectangle", 5),
+          ]}
         />
+      ) : (
         <Text
           modifiers={[
-            font({ size: 13 }),
-            foregroundStyle(secondary),
+            font({ size: 8, weight: "bold" }),
+            frame({ width: 18, height: 18 }),
+            background(
+              { type: "hierarchical", style: "quaternary" },
+              shapes.roundedRectangle({ cornerRadius: 5 }),
+            ),
+          ]}
+        >
+          {m.initials}
+        </Text>
+      )}
+      {m.state === "found" && !!m.unread && (
+        <Text
+          modifiers={[
+            font({ size: 9, weight: "semibold" }),
+            foregroundStyle("green"),
             monospacedDigit(),
           ]}
         >
-          {props.status}
+          {`+${m.unread}`}
         </Text>
-      </VStack>
+      )}
+    </VStack>
+  );
+  const stop = props.stop && (
+    <Button
+      target={props.stop}
+      label="Stop scan"
+      systemImage="stop.fill"
+      modifiers={[
+        labelStyle("iconOnly"),
+        buttonStyle("bordered"),
+        buttonBorderShape("circle"),
+        tint("red"),
+      ]}
+    />
+  );
+  const progress = (
+    <ProgressView
+      value={props.progress ?? undefined}
+      modifiers={[progressViewStyle("linear")]}
+    />
+  );
+  const count = <Text modifiers={[monospacedDigit()]}>{props.count}</Text>;
+
+  return {
+    banner: (
+      <HStack spacing={12} modifiers={[padding({ all: 16 })]}>
+        {props.covers.length > 0 ? (
+          <HStack spacing={4}>
+            {props.covers.map((uri, i) => (
+              <VStack key={String(i)}>{cover(uri, 30, 44)}</VStack>
+            ))}
+          </HStack>
+        ) : (
+          cover(props.cover, 44, 64)
+        )}
+        <VStack alignment="leading" spacing={6}>
+          {props.library && <Text modifiers={caption}>{props.library}</Text>}
+          <Text modifiers={[font({ weight: "semibold" }), lineLimit(1)]}>
+            {props.name}
+          </Text>
+          {props.marks.length > 0 && (
+            <HStack alignment="top" spacing={4}>
+              {props.marks.map(mark)}
+              {props.more > 0 && (
+                <Text modifiers={caption}>{`+${props.more}`}</Text>
+              )}
+            </HStack>
+          )}
+          {progress}
+          <Text modifiers={caption}>{props.status}</Text>
+        </VStack>
+        <Spacer />
+        {stop}
+      </HStack>
     ),
-    compactLeading: <Image systemName={props.icon} />,
-    compactTrailing: <Text modifiers={[monospacedDigit()]}>{props.count}</Text>,
-    minimal: <Image systemName={props.icon} />,
-    expandedLeading: <Image systemName={props.icon} />,
+    compactLeading: cover(props.cover, 18, 24),
+    compactTrailing: count,
+    minimal: cover(props.cover, 16, 22),
+    expandedLeading: cover(props.cover, 32, 46),
     expandedTrailing: (
-      <Text modifiers={[monospacedDigit()]}>{props.count}</Text>
+      <HStack spacing={8}>
+        {count}
+        {stop}
+      </HStack>
     ),
     expandedBottom: (
       <VStack alignment="leading" spacing={6}>
         <Text modifiers={[font({ weight: "semibold" })]}>{props.name}</Text>
-        <ProgressView
-          value={props.progress ?? undefined}
-          modifiers={[progressViewStyle("linear")]}
-        />
+        {progress}
       </VStack>
     ),
   };
@@ -97,23 +233,44 @@ const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
 for (const stale of ScanLiveActivity.getInstances())
   void stale.end("immediate").catch(() => {});
 
+addUserInteractionListener(({ target }) => routeStop(target));
+
+const start = (props: Props, url: string) => {
+  try {
+    return ScanLiveActivity.start(props, url);
+  } catch {
+    // Live Activities turned off in Settings: the sheet still shows the scan.
+    return undefined;
+  }
+};
+
 interface Group {
+  key: string;
   name: string;
+  cover?: string;
   scans: Scan[];
+  marks: Record<string, SourceMark>;
+  image: (url: string | undefined) => string | undefined;
   activity?: LiveActivity<Props>;
 }
 
 const groups = new Map<number, Group>();
 
-const propsOf = ({ name, scans }: Group): Props => {
+const propsOf = (group: Group): Props => {
+  const { key, name, scans, image } = group;
   const all = counted(scans);
+  const running = isRunning(scans);
   return {
     name,
     status: groupStatus(scans),
     // Ended, the bar fills instead of looping.
-    progress: all ? all.done / all.total : isRunning(scans) ? null : 1,
+    progress: all ? all.done / all.total : running ? null : 1,
     count: all ? `${all.done}/${all.total}` : "",
-    icon: sfSymbol(Icons.refresh) ?? "arrow.clockwise",
+    icon: ICON,
+    cover: image(group.cover),
+    ...widgetMarks(Object.values(group.marks), image),
+    covers: [],
+    stop: running && scanStops.has(key) ? stopTarget(key) : undefined,
   };
 };
 
@@ -135,47 +292,141 @@ export function startScanActivity({
   name,
   total,
   source,
+  cover,
+  sources,
+  onStop,
 }: ScanActivityArgs): ScanActivity {
   const scan: Scan = { done: 0, total, found: null, source: source?.name };
   // Else iOS suspends the app off screen and every probe in flight fails.
   const task = backgroundTime.begin("Scan sources");
-  const { group, running } = joinGroup(groups, mangaId, scan, () => ({
-    name,
-    scans: [],
-  }));
+  const { group, running } = joinGroup(groups, mangaId, scan, () => {
+    const next: Group = {
+      key: String(mangaId),
+      name,
+      cover,
+      scans: [],
+      marks: {},
+      image: () => undefined,
+    };
+    next.image = imageLoader(() => render(next));
+    return next;
+  });
+  Object.assign(group.marks, marksById(sources));
+  if (onStop) scanStops.set(group.key, onStop);
   if (running) render(group);
   else {
     // An ended Live Activity can't take updates: a new one replaces it.
     void group.activity?.end("immediate").catch(() => {});
-    group.activity = undefined;
-    try {
-      group.activity = ScanLiveActivity.start(
-        propsOf(group),
-        `anipoex://manga/${mangaId}`,
-      );
-    } catch {
-      // Live Activities turned off in Settings: the sheet still shows the scan.
-    }
+    group.activity = start(propsOf(group), `anipoex://manga/${mangaId}`);
   }
-  const activity = trackScan(scan, () => render(group));
+
+  const tracked = trackScan(scan, () => render(group));
 
   return {
-    progress: activity.progress,
-    mark: () => {},
+    progress: tracked.progress,
+    mark: (id, mark) => {
+      setMark(group.marks, id, mark);
+      render(group);
+    },
     end: (found) => {
-      activity.end(found);
+      tracked.end(found);
+      if (!isRunning(group.scans)) scanStops.delete(group.key);
       backgroundTime.end(task);
     },
   };
 }
 
-// shortcut: reports nothing, until the Reading scan gets its own view.
-export function startLibraryActivity(
-  _args: LibraryActivityArgs,
-): LibraryActivity {
-  const none = () => {};
+/**
+ * The Reading scan in one Live Activity, showing each manga as it comes; its
+ * scans start none of their own. A tap opens the list.
+ */
+export function startLibraryActivity({
+  total,
+  onStop,
+}: LibraryActivityArgs): LibraryActivity {
+  const task = backgroundTime.begin("Scan Reading");
+  scanStops.set("library", onStop);
+  let view: {
+    name: string;
+    cover?: string;
+    marks: Record<string, SourceMark>;
+    scan?: Scan;
+    index: number;
+    newSoFar: number;
+  } = { name: "Reading", marks: {}, index: 1, newSoFar: 0 };
+  let ended = false;
+  const propsOfView = (): Props => {
+    const { scan, index } = view;
+    const done = index - 1 + (scan ? scan.done / scan.total : 0);
+    return {
+      name: view.name,
+      status: scan ? scanStatus(scan) : "Checking sources",
+      progress: total ? done / total : 0,
+      count: `${index}/${total}`,
+      icon: ICON,
+      cover: image(view.cover),
+      ...widgetMarks(Object.values(view.marks), image),
+      library: `Reading · ${index} of ${total} · ${view.newSoFar} new`,
+      covers: [],
+      stop: stopTarget("library"),
+    };
+  };
+  const render = () => {
+    if (!ended) void activity?.update(propsOfView()).catch(() => {});
+  };
+  const image = imageLoader(render);
+  const activity = start(propsOfView(), "anipoex://manga");
+
   return {
-    manga: () => () => ({ progress: none, mark: none, end: none }),
-    end: none,
+    manga: ({ entry, index, newSoFar }) => {
+      // Shown before its scan starts: a manga read recently never starts one.
+      view = {
+        name: entry.name,
+        cover: entry.cover,
+        marks: {},
+        index,
+        newSoFar,
+      };
+      render();
+      return ({ name, total: sources, cover, ...args }) => {
+        const scan: Scan = { done: 0, total: sources, found: null };
+        const marks = marksById(args.sources);
+        view = { ...view, name, cover, marks, scan };
+        render();
+        return {
+          ...trackScan(scan, render),
+          mark: (id, mark) => {
+            setMark(marks, id, mark);
+            render();
+          },
+        };
+      };
+    },
+    end: (summary) => {
+      ended = true;
+      scanStops.delete("library");
+      // An ended Live Activity takes no update: its covers are saved first.
+      void Promise.all(
+        summary.withNew.slice(0, 3).map((m) => widgetImage(m.cover)),
+      )
+        .then((covers) =>
+          activity?.end(
+            "default",
+            {
+              name: "Reading",
+              status: libraryStatus(summary),
+              progress: 1,
+              count: `${summary.scanned + summary.recent}/${summary.total}`,
+              icon: ICON,
+              marks: [],
+              more: 0,
+              covers: covers.filter((c): c is string => !!c),
+            },
+            new Date(),
+          ),
+        )
+        .catch(() => {})
+        .finally(() => backgroundTime.end(task));
+    },
   };
 }

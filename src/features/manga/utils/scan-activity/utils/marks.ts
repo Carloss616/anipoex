@@ -40,3 +40,16 @@ export function orderMarks(marks: SourceMark[]): SourceMark[] {
 export function visibleMarks(marks: SourceMark[], max = VISIBLE_MARKS) {
   return { shown: marks.slice(0, max), more: Math.max(0, marks.length - max) };
 }
+
+export const marksById = (marks: SourceMark[]) =>
+  Object.fromEntries(marks.map((m) => [m.id, m]));
+
+/** Writes a source's new state over its mark, keeping its name and icon. */
+export function setMark(
+  marks: Record<string, SourceMark>,
+  id: string,
+  mark: Pick<SourceMark, "state" | "unread">,
+) {
+  const current = marks[id];
+  if (current) marks[id] = { ...current, ...mark };
+}
