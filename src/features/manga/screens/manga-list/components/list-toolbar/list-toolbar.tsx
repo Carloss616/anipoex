@@ -6,6 +6,7 @@ import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icons } from "@/components/ui/icon";
+import { isRuntimeAvailable } from "@/features/extensions";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import {
   ALL,
@@ -102,7 +103,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
           accessibilityLabel="View options"
         />
         <Stack.Toolbar.Menu
-          hidden={!reading || scanning}
+          hidden={!isRuntimeAvailable || !reading || scanning}
           icon={Icons.scanList}
           accessibilityLabel="Scan Reading"
         >

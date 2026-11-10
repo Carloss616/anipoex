@@ -125,6 +125,30 @@ describe("scanReading", () => {
     expect(startLibraryActivity).not.toHaveBeenCalled();
   });
 
+  it("no sources installed", async () => {
+    const before = installed$.peek();
+    installed$.set([]);
+    reply = async () => list(media(407, "Seven"));
+    await scanReading();
+    installed$.set(before);
+    expect(shown.mock.calls).toEqual([["No sources installed"]]);
+    expect(startLibraryActivity).not.toHaveBeenCalled();
+    expect(libraryScan$.get()).toBeNull();
+  });
+
+  it("a stop while the list loads ends quietly", async () => {
+    let resolve = (_value: unknown) => {};
+    reply = () => new Promise((r) => (resolve = r));
+    const done = scanReading();
+    stopReadingScan();
+    resolve(list(media(408, "Eight")));
+    await done;
+    expect(startLibraryActivity).not.toHaveBeenCalled();
+    expect(shown).not.toHaveBeenCalled();
+    expect(search).not.toHaveBeenCalled();
+    expect(libraryScan$.get()).toBeNull();
+  });
+
   it("a second call while one runs does nothing", async () => {
     let resolve = (_value: unknown) => {};
     reply = () => new Promise((r) => (resolve = r));

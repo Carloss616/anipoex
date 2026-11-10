@@ -79,6 +79,12 @@ export async function scanReading({ everything = false } = {}) {
     libraryScan$.set({ index: 0, total });
     // Unpersisted: a scan from the list may run before a screen loaded it.
     if (!installedLoaded$.peek()) await refreshInstalled();
+    // A Stop tapped while the list loaded: nothing ran, so nothing to report.
+    if (stopped) return;
+    if (!installed$.peek().length) {
+      toast("No sources installed");
+      return;
+    }
 
     const { summary, picks } = await runLibrary({
       entries,
