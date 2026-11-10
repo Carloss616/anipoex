@@ -1,4 +1,4 @@
-import type { ScanActivity } from "./scan-activity";
+import type { ScanActivity } from "../scan-activity";
 
 /** The line under the manga's name: the scan's progress, or what it found. */
 export function scanStatus({

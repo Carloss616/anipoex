@@ -8,7 +8,7 @@ import {
   joinGroup,
   type Scan,
   trackScan,
-} from "./utils";
+} from "./utils/status";
 
 export interface ScanActivityArgs {
   mangaId: number;

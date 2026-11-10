@@ -23,7 +23,7 @@ import {
   joinGroup,
   type Scan,
   trackScan,
-} from "./utils";
+} from "./utils/status";
 
 interface Props {
   name: string;

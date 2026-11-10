@@ -19,7 +19,7 @@ import {
   joinGroup,
   type Scan,
   trackScan,
-} from "./utils";
+} from "./utils/status";
 
 // shortcut: iOS grants about 30s once the app leaves the screen; a longer
 // scan needs BGContinuedProcessingTask (iOS 26).

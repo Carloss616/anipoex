@@ -5,7 +5,7 @@ import {
   type Scan,
   scanStatus,
   trackScan,
-} from "./utils";
+} from "./status";
 
 describe("scanStatus", () => {
   it("counts a Scan all", () => {
