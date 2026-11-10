@@ -14,7 +14,8 @@ import {
   type ProbeMap,
   type ProviderProbe,
 } from "../utils/msu";
-import { startScanActivity } from "../utils/scan-activity";
+import { type ScanActivity, startScanActivity } from "../utils/scan-activity";
+import { markOf } from "../utils/scan-activity/utils/marks";
 import type { Source } from "../utils/source";
 import { unreadChapters } from "../utils/source-classify";
 import {
@@ -72,6 +73,19 @@ const stops: Record<string, () => void> = {};
  * keeping its last probe; the runtime's call runs out on its own.
  */
 export const stopScan = (key: string, id: string) => stops[`${key}/${id}`]?.();
+
+/** Stops every source a running scan of the manga holds. */
+export function stopScanAll(key: string) {
+  for (const id of Object.keys(stops))
+    if (id.startsWith(`${key}/`)) stops[id]();
+}
+
+export interface ScanResult {
+  /** False when nothing was left to scan. */
+  scanned: boolean;
+  /** Set when the scan picked a source: what to restore to undo it. */
+  picked?: { previous: Parameters<typeof restoreMatch>[1] };
+}
 
 syncObservable(probes$, {
   persist: { name: "source-probes", plugin: ObservablePersist },
@@ -147,8 +161,13 @@ export async function scanSources(args: {
   only?: string[];
   /** What a scan calls the manga outside the app. */
   name?: string;
-}): Promise<void> {
-  const { mangaId, sources, titles, read, keep, only, name } = args;
+  cover?: string;
+  /** Reports the scan instead of its own activity and pick toast. */
+  activity?: ScanActivity;
+  /** Leaves out sources probed within these ms. */
+  freshFor?: number;
+}): Promise<ScanResult> {
+  const { mangaId, sources, titles, read, keep, only, name, freshFor } = args;
   const key = mediaKey(mangaId);
   // One Scan all at a time; a rescan waits only for its own source's.
   if (
@@ -156,7 +175,7 @@ export async function scanSources(args: {
       ? only.some((id) => scanning$[key][id].peek())
       : scanningAll$[key].peek()
   )
-    return;
+    return { scanned: false };
 
   const excluded = exclusions$[key].peek() ?? {};
   const pinned = pins$[key].peek() ?? {};
@@ -175,22 +194,38 @@ export async function scanSources(args: {
   ];
   // A Scan all leaves the sources a rescan is probing to it.
   const busy = scanning$[key].peek() ?? {};
-  const targets = sources.filter((s) => ids.includes(s.id) && !busy[s.id]);
-  if (targets.length === 0) return;
-
   const prev = { ...probes$[key].peek() };
+  const targets = sources.filter(
+    (s) =>
+      ids.includes(s.id) &&
+      !busy[s.id] &&
+      !(freshFor && (prev[s.id]?.updatedAt ?? 0) > Date.now() - freshFor),
+  );
+  if (targets.length === 0) return { scanned: false };
+
   // Added beside the sources other rescans are probing, not over them.
   for (const s of targets) scanning$[key][s.id].set(true);
   if (!only) {
     scanningAll$[key].set(true);
     scanProgress$[key].set({ done: 0, total: targets.length });
   }
-  const activity = startScanActivity({
-    mangaId,
-    name: name ?? titles.search[0] ?? "",
-    total: targets.length,
-    source: only && targets.length === 1 ? targets[0] : undefined,
-  });
+  const activity =
+    args.activity ??
+    startScanActivity({
+      mangaId,
+      name: name ?? titles.search[0] ?? "",
+      total: targets.length,
+      source: only && targets.length === 1 ? targets[0] : undefined,
+      cover: args.cover,
+      sources: targets.map((s) => ({
+        id: s.id,
+        name: s.name,
+        initials: s.initials,
+        iconUrl: s.iconUrl,
+        state: "pending",
+      })),
+      onStop: () => stopScanAll(key),
+    });
   // Each source is judged as it lands, on the state of that moment: what the
   // user decided meanwhile, the progress, the source picked now.
   const judge = (id: string, probe: ProviderProbe) => {
@@ -247,12 +282,14 @@ export async function scanSources(args: {
       ];
     }),
   );
+  const result: ScanResult = { scanned: true };
 
   try {
     for (let i = 0; i < targets.length; i += PARALLEL_BATCH) {
       await Promise.all(
         targets.slice(i, i + PARALLEL_BATCH).map(async (source) => {
           if (stopped.has(source.id)) return;
+          activity.mark(source.id, { state: "scanning" });
           const probe = await Promise.race([
             probeSource(mangaId, source, titles),
             halts[source.id],
@@ -261,6 +298,7 @@ export async function scanSources(args: {
           delete stops[`${key}/${source.id}`];
           landed[source.id] = probe;
           probes$[key][source.id].set(probe);
+          activity.mark(source.id, markOf(probe, read()));
           // Judged before its row is freed, so it moves once.
           judge(source.id, probe);
           scanning$[key][source.id].delete();
@@ -290,22 +328,28 @@ export async function scanSources(args: {
     const picked = sources.find((s) => s.id === id);
     if (picked) {
       void selectSource(mangaId, picked, titles, undefined, true);
-      const unread = unreadChapters(read(), probes[picked.id].latest);
-      toast(
-        unread ? `Picked ${picked.name} · +${unread}` : `Picked ${picked.name}`,
-        {
-          action: {
-            label: "Undo",
-            // Only while the pick is still this scan's: the user may have
-            // picked by hand since.
-            onAction: () => {
-              const now = readMatch(source$[mangaId].peek());
-              if (now?.auto && now.sourceId === picked.id)
-                restoreMatch(mangaId, previous);
+      result.picked = { previous };
+      if (!args.activity) {
+        const unread = unreadChapters(read(), probes[picked.id].latest);
+        toast(
+          unread
+            ? `Picked ${picked.name} · +${unread}`
+            : `Picked ${picked.name}`,
+          {
+            action: {
+              label: "Undo",
+              // Only while the pick is still this scan's: the user may have
+              // picked by hand since.
+              onAction: () => {
+                const now = readMatch(source$[mangaId].peek());
+                if (now?.auto && now.sourceId === picked.id)
+                  restoreMatch(mangaId, previous);
+              },
             },
           },
-        },
-      );
+        );
+      }
     }
   }
+  return result;
 }

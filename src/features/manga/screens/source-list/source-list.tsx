@@ -43,7 +43,7 @@ import { type SheetItem, sheetItemKey, sheetItems } from "./utils/sheet-items";
 import { titleMenuItems } from "./utils/title-menu";
 
 export interface ListBodyProps {
-  manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
+  manga: Pick<MangaDetail, "id" | "title" | "synonyms" | "coverImage">;
   read: number;
   selectedId: string | undefined;
   onSelect: (id: string) => void;

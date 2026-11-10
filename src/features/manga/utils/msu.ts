@@ -54,5 +54,7 @@ export const PARALLEL_BATCH = 10;
 // anipoex-only, not in MSU
 export const AUTO_RECHECK_DAYS = 7;
 export const SUSPICIOUS_FACTOR = 2;
+/** A source probed this recently is left out of a list-wide scan. */
+export const RECENT_SCAN_MS = 60 * 60_000;
 
 export const mediaKey = (mediaId: number) => String(mediaId);

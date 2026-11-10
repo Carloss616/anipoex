@@ -1,6 +1,7 @@
 import { toast } from "@/components/ui/toast";
 import { desktop } from "@/utils/desktop";
 import { scanViews$ } from "../../state/scan-views";
+import type { SourceMark } from "./utils/marks";
 import {
   counted,
   groupStatus,
@@ -16,11 +17,16 @@ export interface ScanActivityArgs {
   total: number;
   /** A rescan of this one source: nothing to count, so its progress loops. */
   source?: { id: string; name: string };
+  cover?: string;
+  /** The sources the scan probes, all pending. */
+  sources: SourceMark[];
+  onStop?: () => void;
 }
 
 /** The scan outside the sheet: in the OS where it can, else in the app. */
 export interface ScanActivity {
   progress(done: number): void;
+  mark(id: string, mark: Pick<SourceMark, "state" | "unread">): void;
   /** `found`: the sources that have the manga. */
   end(found: number): void;
 }
@@ -73,5 +79,5 @@ export function startScanActivity({
     void Notification.requestPermission();
   show();
 
-  return trackScan(scan, show);
+  return { ...trackScan(scan, show), mark: () => {} };
 }

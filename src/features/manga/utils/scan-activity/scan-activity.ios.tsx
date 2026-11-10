@@ -156,6 +156,7 @@ export function startScanActivity({
 
   return {
     progress: activity.progress,
+    mark: () => {},
     end: (found) => {
       activity.end(found);
       backgroundTime.end(task);

@@ -154,5 +154,5 @@ export function startScanActivity({
       )
       .catch(() => undefined);
 
-  return trackScan(scan, () => render(group));
+  return { ...trackScan(scan, () => render(group)), mark: () => {} };
 }

@@ -62,7 +62,10 @@ export function joinGroup<G extends { scans: Scan[] }>(
 }
 
 /** Records the scan's progress, then shows its group anew. */
-export const trackScan = (scan: Scan, show: () => void): ScanActivity => ({
+export const trackScan = (
+  scan: Scan,
+  show: () => void,
+): Omit<ScanActivity, "mark"> => ({
   progress: (done) => {
     scan.done = done;
     show();

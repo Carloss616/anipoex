@@ -47,7 +47,7 @@ export function useSourceActions({
   read,
   selectedId,
 }: {
-  manga: Pick<MangaDetail, "id" | "title" | "synonyms">;
+  manga: Pick<MangaDetail, "id" | "title" | "synonyms" | "coverImage">;
   read: number;
   selectedId: string | undefined;
 }) {
@@ -70,6 +70,7 @@ export function useSourceActions({
       keep: selectedId,
       only,
       name: manga.title?.userPreferred ?? undefined,
+      cover: manga.coverImage?.medium ?? undefined,
     });
   const scanAll = () => void scan();
   const rescan = (id: string) => void scan([id]);

@@ -44,6 +44,7 @@ mock.module("@/components/ui/toast", () => ({
 const activity = {
   progress: mock((_done: number) => {}),
   end: mock((_found: number) => {}),
+  mark: mock((_id: string, _mark: unknown) => {}),
 };
 const startScanActivity = mock((_args: unknown) => activity);
 mock.module("../utils/scan-activity", () => ({ startScanActivity }));
@@ -74,9 +75,10 @@ const {
   probeSource,
   isScanning,
   stopScan,
+  stopScanAll,
 } = await import("./probes");
 const { fetchChapters } = await import("../utils/fetch-chapters");
-const { PARALLEL_BATCH } = await import("../utils/msu");
+const { PARALLEL_BATCH, RECENT_SCAN_MS } = await import("../utils/msu");
 const { clearManual, readManual, setManual } = await import("./manual-matches");
 const { titleSearch$ } = await import("./title-search");
 const { forgetByTitle, takeByTitle } = await import("./title-takes");
@@ -117,6 +119,8 @@ beforeEach(() => {
   startScanActivity.mockClear();
   activity.progress.mockClear();
   activity.end.mockClear();
+  activity.mark.mockClear();
+  shown.mockClear();
   search.mockClear();
   chapters.mockClear();
   searchCalls.length = 0;
@@ -338,6 +342,9 @@ describe("scanSources", () => {
       name: "T",
       total: 2,
       source: undefined,
+      cover: undefined,
+      sources: sources("a", "b").map((s) => ({ ...s, state: "pending" })),
+      onStop: expect.any(Function),
     });
     expect(activity.progress.mock.calls).toEqual([[1], [2]]);
     expect(activity.end.mock.calls).toEqual([[1]]);
@@ -586,6 +593,88 @@ describe("scanSources", () => {
     await done;
     expect(exclusions$["201"].a.get().deletedAt).toBeDefined();
     expect(pins$["201"].a.get().deletedAt).toBeUndefined();
+  });
+
+  it("returns scanned false when nothing is left to scan", async () => {
+    exclusions$["201"].a.set({ reason: "other", updatedAt: Date.now() });
+    expect(await scan()).toEqual({ scanned: false });
+    expect(startScanActivity).not.toHaveBeenCalled();
+  });
+
+  it("returns scanned false when a Scan all already runs", async () => {
+    const first = scan();
+    await flush();
+    expect(await scan()).toEqual({ scanned: false });
+    searchPending.a([]);
+    await first;
+  });
+
+  it("freshFor skips sources probed within it", async () => {
+    const probe = (id: string, updatedAt: number) => ({
+      provider: id,
+      providerName: id,
+      latest: 1,
+      count: 1,
+      matched: true,
+      errored: false,
+      updatedAt,
+    });
+    probes$["201"].a.set(probe("a", Date.now() - 1000));
+    probes$["201"].b.set(probe("b", Date.now() - 2 * RECENT_SCAN_MS));
+    const done = scan({
+      sources: sources("a", "b"),
+      freshFor: RECENT_SCAN_MS,
+    });
+    await flush();
+    expect(searchCalls).toEqual(["b"]);
+    searchPending.b([]);
+    await done;
+  });
+
+  it("an injected activity replaces startScanActivity and the pick toast", async () => {
+    const before = {
+      sourceId: "a",
+      manga: { url: "/a", title: "T" },
+      auto: true,
+    };
+    source$[201].set(before);
+    const done = scan({ sources: sources("a", "b"), keep: "a", activity });
+    await answer("a", [5]);
+    await answer("b", [9]);
+    const result = await done;
+    expect(startScanActivity).not.toHaveBeenCalled();
+    expect(shown).not.toHaveBeenCalled();
+    expect(result).toEqual({ scanned: true, picked: { previous: before } });
+  });
+
+  it("marks each source scanning, then by its probe", async () => {
+    const done = scan({ read: () => 0 });
+    await flush();
+    expect(activity.mark.mock.calls).toEqual([["a", { state: "scanning" }]]);
+    await answer("a", [1, 2, 3]);
+    await done;
+    expect(activity.mark).toHaveBeenLastCalledWith("a", {
+      state: "found",
+      unread: 3,
+    });
+  });
+
+  it("stopScanAll frees every running source", async () => {
+    probes$["201"].b.set({ latest: 7 } as never);
+    const done = scan({ sources: sources("a", "b") });
+    await flush();
+    stopScanAll("201");
+    expect(isScanning(201)).toBe(false);
+    await done;
+    expect(probes$["201"].b.get()).toEqual({ latest: 7 } as never);
+    expect(probes$["201"].a.get()).toBeUndefined();
+  });
+
+  it("without an activity, the pick toast still shows", async () => {
+    const done = scan();
+    await answer("a", [3]);
+    expect((await done).picked).toEqual({ previous: undefined });
+    expect(shown.mock.calls.at(-1)?.[0]).toBe("Picked A · +3");
   });
 });
 
