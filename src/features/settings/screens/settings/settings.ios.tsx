@@ -43,7 +43,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
 import type { ThemePreference } from "@/state/theme/constants";
-import { THEME_OPTIONS } from "./constants";
+import { SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const AVATAR = 40;
@@ -56,6 +56,7 @@ export function Settings() {
   // The preset alone: the count doesn't fit beside the label in this font.
   const layout = useValue(() => PRESET_LABELS[settings$.home.preset.get()]);
   const autoPick = useValue(settings$.sources.autoPick);
+  const slowSkip = useValue(settings$.sources.slowSkip);
   const preference = useValue(settings$.theme.preference);
   const { dns } = useDns();
   const languages = useValue(() =>
@@ -160,6 +161,26 @@ export function Settings() {
                 After a scan, the one with the most new chapters
               </Text>
             </Toggle>
+            <Picker
+              label={
+                <VStack alignment="leading">
+                  <Text>Skip slow sources</Text>
+                  <Text modifiers={[foregroundStyle("secondary")]}>
+                    In a Reading scan
+                  </Text>
+                </VStack>
+              }
+              selection={slowSkip}
+              onSelectionChange={(seconds: number | null) =>
+                seconds !== null && settings$.sources.slowSkip.set(seconds)
+              }
+            >
+              {SLOW_SKIP_OPTIONS.map((option) => (
+                <Text key={option.seconds} modifiers={[tag(option.seconds)]}>
+                  {option.label}
+                </Text>
+              ))}
+            </Picker>
             <Button onPress={() => router.push("/settings/languages")}>
               <HStack spacing={8} modifiers={ROW_FILL}>
                 <Text modifiers={[foregroundStyle("primary")]}>Languages</Text>

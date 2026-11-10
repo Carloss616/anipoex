@@ -1,4 +1,5 @@
 import DnsIcon from "@expo/material-symbols/dns.xml";
+import HourglassIcon from "@expo/material-symbols/hourglass.xml";
 import ManageSearchIcon from "@expo/material-symbols/manage_search.xml";
 import PaletteIcon from "@expo/material-symbols/palette.xml";
 import TranslateIcon from "@expo/material-symbols/translate.xml";
@@ -46,7 +47,7 @@ import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
-import { THEME_OPTIONS } from "./constants";
+import { SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 /** M3 Expressive settings: labelled groups of segmented rows. */
@@ -70,6 +71,15 @@ export function Settings() {
     languageOrder$.get().map(languageName).join(", "),
   );
   const toggleAutoPick = () => settings$.sources.autoPick.set((on) => !on);
+  const slowSkip = useValue(settings$.sources.slowSkip);
+  const slowSkipItems = SLOW_SKIP_OPTIONS.map((option) => ({
+    label: option.label,
+    checked: option.seconds === slowSkip,
+    onPress: () => settings$.sources.slowSkip.set(option.seconds),
+  }));
+  const slowSkipLabel =
+    SLOW_SKIP_OPTIONS.find((option) => option.seconds === slowSkip)?.label ??
+    `${slowSkip} s`;
   const row = { containerColor: m3.surfaceContainerLow };
 
   return (
@@ -177,7 +187,7 @@ export function Settings() {
             <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
               <SegmentedListItem
                 index={0}
-                count={2}
+                count={3}
                 {...row}
                 onPress={toggleAutoPick}
               >
@@ -194,9 +204,22 @@ export function Settings() {
                   <Switch value={autoPick} onCheckedChange={toggleAutoPick} />
                 </SegmentedListItem.Trailing>
               </SegmentedListItem>
+              <Menu items={slowSkipItems}>
+                <SegmentedListItem index={1} count={3} {...row}>
+                  <SegmentedListItem.Leading>
+                    <LeadingIcon name={HourglassIcon} />
+                  </SegmentedListItem.Leading>
+                  <Text>Skip slow sources</Text>
+                  <SegmentedListItem.Supporting>
+                    <Text style={{ typography: "bodyMedium" }}>
+                      {`${slowSkipLabel} · in a Reading scan`}
+                    </Text>
+                  </SegmentedListItem.Supporting>
+                </SegmentedListItem>
+              </Menu>
               <SegmentedListItem
-                index={1}
-                count={2}
+                index={2}
+                count={3}
                 {...row}
                 onPress={() => router.push("/settings/languages")}
               >

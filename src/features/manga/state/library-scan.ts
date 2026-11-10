@@ -10,6 +10,7 @@ import {
 import { client } from "@/graphql/client";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
+import { settings$ } from "@/state/settings";
 import { MangaListDocument } from "../graphql/manga-list.generated";
 import { readableSources } from "../utils/best-source";
 import { libraryStatus, runLibrary, scanOrder } from "../utils/library-run";
@@ -27,8 +28,6 @@ import { source$ } from "./source";
 export const libraryScan$ = observable(false);
 
 const DAY_MS = 86_400_000;
-/** A read past this is stopped, and its source skipped for the rest of the run. */
-const SLOW_SOURCE_MS = 60_000;
 
 let stopped = false;
 /** The manga being scanned: the one shown and those finishing behind it. */
@@ -102,6 +101,8 @@ export async function scanReading({ everything = false } = {}) {
     };
 
     const skipped = new Map<string, string>();
+    // A read past this is stopped, and its source skipped for the rest of the run.
+    const slowAfter = settings$.sources.slowSkip.peek() * 1000;
     const { summary, picks } = await runLibrary({
       entries,
       skipped,
@@ -122,7 +123,7 @@ export async function scanReading({ everything = false } = {}) {
           activity,
           freshFor: everything ? undefined : RECENT_SCAN_MS,
           missFor: everything ? undefined : AUTO_RECHECK_DAYS * DAY_MS,
-          slow: { after: SLOW_SOURCE_MS, skipped },
+          slow: slowAfter ? { after: slowAfter, skipped } : undefined,
         }).finally(() => current.delete(entry.mangaId));
       },
       // Any source the manga can be read from counts, not only the one picked:

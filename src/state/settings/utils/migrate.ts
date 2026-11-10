@@ -23,7 +23,12 @@ export interface Settings {
   home: HomeLayout;
   mangaList: { density: Density; title: TitlePosition };
   extensions: { repos: Repo[] };
-  sources: { autoPick: boolean; languages: string[] };
+  sources: {
+    autoPick: boolean;
+    languages: string[];
+    /** Seconds a source's read may take in a Reading scan; 0 never skips. */
+    slowSkip: number;
+  };
   /** This device's own values, never synced. */
   device: { dns?: DnsId };
 }
@@ -71,6 +76,7 @@ export function normalizeSettings(raw: unknown): Settings {
       languages: Array.isArray(sources?.languages)
         ? sources.languages.filter((code) => typeof code === "string")
         : [],
+      slowSkip: typeof sources?.slowSkip === "number" ? sources.slowSkip : 60,
     },
     device: dns ? { dns } : {},
   };

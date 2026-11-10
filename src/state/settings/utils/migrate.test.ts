@@ -37,7 +37,11 @@ test("normalizeSettings fills defaults", () => {
   const settings = normalizeSettings(undefined);
 
   expect(settings.version).toBe(0);
-  expect(settings.sources).toEqual({ autoPick: true, languages: [] });
+  expect(settings.sources).toEqual({
+    autoPick: true,
+    languages: [],
+    slowSkip: 60,
+  });
   expect(settings.home).toEqual(withPreset("balanced"));
   expect(settings.device).toEqual({});
 });

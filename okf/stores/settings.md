@@ -16,7 +16,7 @@ Key `settings`, one object:
 | `home` | Home's sections and their order | [Home layout](home-layout.md) |
 | `mangaList` | grid density and title position | [Manga list view](manga-list-view.md) |
 | `extensions.repos` | the repos extensions come from | [Extension repos](extension-repos.md) |
-| `sources` | `autoPick` (on by default) and `languages`, the user's order; edited in Settings → Sources | [Source](../concepts/source.md) |
+| `sources` | `autoPick` (on by default), `languages`, the user's order, and `slowSkip`, the seconds a Reading scan waits on a source before skipping it (60 by default, 0 never skips); edited in Settings → Sources | [Source](../concepts/source.md) |
 | `device` | values that belong to this device only, never synced | |
 
 Per-item data (chosen sources, probes, exclusions, chapters, search history) and the

@@ -23,12 +23,16 @@ import { layoutSummary } from "@/features/home/utils/home-layout";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
-import { THEME_OPTIONS } from "./constants";
+import { SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const DNS_ITEMS = DNS_OPTIONS.map(({ id, name }) => ({
   value: id,
   label: name,
+}));
+const SLOW_SKIP_ITEMS = SLOW_SKIP_OPTIONS.map(({ seconds, label }) => ({
+  value: String(seconds),
+  label,
 }));
 
 /** The settings as Frames in a narrow column under the header. */
@@ -40,6 +44,7 @@ export function Settings() {
   const user = useValue(session$.user);
   const layout = useValue(() => layoutSummary(settings$.home.get()));
   const autoPick = useValue(settings$.sources.autoPick);
+  const slowSkip = useValue(() => String(settings$.sources.slowSkip.get()));
   const preference = useValue(settings$.theme.preference);
   const { dns } = useDns();
   const languages = useValue(() =>
@@ -158,6 +163,38 @@ export function Settings() {
                         settings$.sources.autoPick.set(on)
                       }
                     />
+                  </Frame.Actions>
+                </Frame.Row>
+                <Frame.Row>
+                  <Frame.Content>
+                    <Frame.Title as="p">Skip slow sources</Frame.Title>
+                    <Frame.Description>
+                      In a Reading scan, a source slower than this is left out
+                      of the rest
+                    </Frame.Description>
+                  </Frame.Content>
+                  <Frame.Actions>
+                    <Select
+                      items={SLOW_SKIP_ITEMS}
+                      value={slowSkip}
+                      onValueChange={(value) =>
+                        value && settings$.sources.slowSkip.set(Number(value))
+                      }
+                    >
+                      <Select.Trigger
+                        variant="ghost"
+                        aria-label="Skip slow sources"
+                      >
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {SLOW_SKIP_ITEMS.map((item) => (
+                          <Select.Item key={item.value} value={item.value}>
+                            {item.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                   </Frame.Actions>
                 </Frame.Row>
                 <Frame.Row
