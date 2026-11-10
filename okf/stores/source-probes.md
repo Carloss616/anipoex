@@ -22,6 +22,10 @@ stays and its exclusion doesn't change; the source's own call still runs out in 
 background. Closing the sheet doesn't stop a scan. Android, iOS and
 desktop probe; the web app in a browser doesn't.
 
+A Reading scan (the Reading list's header) runs each Reading manga's own Scan all, one manga at a time, never-probed
+and then the stalest first. It skips sources probed within the last 60 minutes unless the user picks "Rescan everything",
+and ends with one summary toast and one Undo, which restores only the picks that are still the scan's own.
+
 An error probe keeps what the source threw. A row with one, available or excluded, offers
 **See error** in its menu (the ⋯ button, the iOS context menu or the Android long-press),
 which shows the message with Rescan, or Include on an excluded row. Probes from before
