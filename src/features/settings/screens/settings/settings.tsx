@@ -7,7 +7,7 @@ import { Frame } from "panelui-web/frame";
 import { Select } from "panelui-web/select";
 import { Switch } from "panelui-web/switch";
 import { ScrollView } from "react-native";
-import { ThemePicker } from "@/components/blocks/theme-picker";
+import { PaletteRail } from "@/components/blocks/palette-rail";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Icon } from "@/components/ui/icon";
 import {
@@ -126,13 +126,11 @@ export function Settings() {
                   </ButtonGroup>
                 </Frame.Actions>
               </Frame.Row>
-              <Frame.Row className="flex-wrap">
-                <Frame.Content className="basis-auto">
+              <Frame.Row className="flex-col items-stretch gap-2 px-0">
+                <Frame.Content className="px-4">
                   <Frame.Title as="p">Palette</Frame.Title>
                 </Frame.Content>
-                <Frame.Actions>
-                  <ThemePicker />
-                </Frame.Actions>
+                <PaletteRail />
               </Frame.Row>
             </Frame.Panel>
           </Frame>
