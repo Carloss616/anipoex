@@ -5,8 +5,12 @@ import { router, usePathname } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
-import { memo } from "react";
-import { Pressable, View } from "react-native";
+import { memo, useEffect, useRef } from "react";
+import { Pressable, View, type ViewStyle } from "react-native";
+import {
+  LegendList,
+  type LegendListRef,
+} from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
@@ -21,6 +25,10 @@ import { type ScanView, scanStops, scanViews$ } from "../../state/scan-views";
 import type { SourceMark } from "../../utils/scan-activity/utils/marks";
 
 const DETAIL = /^\/manga\/\d+$/;
+// The cell's padding (half the gap) is the room the +N badge hangs into: the
+// list's cells clip their paint.
+const MARK_GAP = 8;
+const MARK_SPAN = 40 + MARK_GAP;
 
 /**
  * The running scans over every screen, each hidden while its manga's source
@@ -94,13 +102,7 @@ const ScanCard = memo(function ScanCard({
           <Typography type="small" numberOfLines={1}>
             {view.name}
           </Typography>
-          {view.marks.length > 0 && (
-            <View className="flex-row flex-wrap gap-1.5">
-              {view.marks.map((mark) => (
-                <MarkTile key={mark.id} mark={mark} />
-              ))}
-            </View>
-          )}
+          {view.marks.length > 0 && <MarkRail marks={view.marks} />}
           <View className="pe-17">
             <Progress
               label={view.status}
@@ -128,6 +130,42 @@ const ScanCard = memo(function ScanCard({
     </View>
   );
 });
+
+/**
+ * The sources in one row, found first; it scrolls itself to the first one
+ * scanning, the end of what's done.
+ */
+function MarkRail({ marks }: { marks: SourceMark[] }) {
+  const list = useRef<LegendListRef>(null);
+  const focus = marks.findIndex((mark) => mark.state === "scanning");
+  useEffect(() => {
+    if (focus >= 0)
+      void list.current?.scrollToIndex({ index: focus, viewPosition: 0.5 });
+  }, [focus]);
+
+  return (
+    <LegendList
+      ref={list}
+      horizontal
+      data={marks}
+      keyExtractor={(mark) => mark.id}
+      estimatedItemSize={MARK_SPAN}
+      recycleItems
+      columnWrapperStyle={{ gap: MARK_GAP }}
+      // The indicator prop does nothing on web, and the badges' overhang
+      // would let the row scroll up and down.
+      style={
+        {
+          minWidth: 0,
+          minHeight: MARK_SPAN,
+          scrollbarWidth: "none",
+          overflowY: "hidden",
+        } as ViewStyle
+      }
+      renderItem={({ item }) => <MarkTile mark={item} />}
+    />
+  );
+}
 
 /** A source's tile in its scan state; reads the theme so the card doesn't. */
 const MarkTile = memo(function MarkTile({ mark }: { mark: SourceMark }) {
