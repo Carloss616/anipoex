@@ -26,7 +26,7 @@ anipoex/
 │   ├── components/                  # global — reused across features
 │   │   ├── ui/                      # design system (button, icon, typography…)
 │   │   ├── layout/                  # structure (header, tabs, toolbar…)
-│   │   ├── blocks/                  # product pieces built from ui/ (empty-state, theme-picker…)
+│   │   ├── blocks/                  # product pieces built from ui/ (empty-state, palette-rail…)
 │   │   │   ├── <component>/         # complex or multi-platform component
 │   │   │   │   ├── <sub-component>/ # only used by this component (no nested components/)
 │   │   │   │   ├── <component>.tsx
