@@ -84,6 +84,7 @@ const { fetchChapters } = await import("../utils/fetch-chapters");
 const { PARALLEL_BATCH, RECENT_SCAN_MS } = await import("../utils/msu");
 const { clearManual, readManual, setManual } = await import("./manual-matches");
 const { titleSearch$ } = await import("./title-search");
+const { dropChapters } = await import("./chapters");
 const { forgetByTitle, takeByTitle } = await import("./title-takes");
 const { settings$ } = await import("@/state/settings");
 
@@ -136,6 +137,11 @@ beforeEach(() => {
   exclusions$.set({});
   pins$.set({});
   source$.set({});
+  // A stored page skips the search, and most tests answer one.
+  for (const key of Object.keys(memoryStorage.entries)) {
+    const [mangaId, sourceId] = key.split("/");
+    dropChapters(Number(mangaId), sourceId);
+  }
 });
 
 describe("probeSource", () => {
@@ -201,6 +207,57 @@ describe("probeSource", () => {
     expect(await done).toMatchObject({ errored: true, matched: false });
   });
 
+  it("reads a stored page without searching, and searches when it fails", async () => {
+    memoryStorage.entries["1006/s"] = {
+      manga: { url: "/old", title: "T" },
+      chapters: [],
+    };
+    const done = probeSource(1006, { id: "s", name: "S" }, titles);
+    await flush();
+    await flush();
+    expect(searchCalls).not.toContain("s");
+    chaptersPending.s.resolve({ chapters: [ch("c4", 4)] });
+    expect(await done).toMatchObject({ matched: true, latest: 4 });
+
+    const again = probeSource(1006, { id: "s", name: "S" }, titles);
+    await flush();
+    await flush();
+    chaptersPending.s.reject(new Error("gone"));
+    await flush();
+    searchPending.s(["T"]);
+    await flush();
+    expect(chaptersCalls.at(-1)).toBe("s/s");
+    chaptersPending.s.resolve({ chapters: [ch("c5", 5)] });
+    expect(await again).toMatchObject({ matched: true, latest: 5 });
+    await flush();
+    expect(memoryStorage.entries["1006/s"].manga.url).toBe("/s");
+  });
+
+  it("a stored page that hangs is an error, not searched again", async () => {
+    memoryStorage.entries["1007/t"] = {
+      manga: { url: "/t", title: "T" },
+      chapters: [],
+    };
+    const done = probeSource(1007, { id: "t", name: "T" }, titles, 20, 20);
+    expect(await done).toMatchObject({ errored: true });
+    expect(searchCalls).not.toContain("t");
+  });
+
+  it("an empty stored page found again by the search is read once", async () => {
+    memoryStorage.entries["1008/e"] = {
+      manga: { url: "/e", title: "T" },
+      chapters: [],
+    };
+    const done = probeSource(1008, { id: "e", name: "E" }, titles);
+    await flush();
+    await flush();
+    chaptersPending.e.resolve({ chapters: [] });
+    await flush();
+    searchPending.e(["T"]);
+    await done;
+    expect(chaptersCalls.filter((c) => c === "e/e")).toHaveLength(1);
+  });
+
   it("a probe shares the detail's chapter load", async () => {
     const detail = fetchChapters("a", { url: "/a", title: "T" });
     const done = probeSource(201, { id: "a", name: "A" }, titles);
@@ -251,7 +308,8 @@ describe("scanSources", () => {
     expect(searchCalls).not.toContain(ids[PARALLEL_BATCH]);
     // s0 never answers; s1 answering frees its slot for the 11th.
     searchPending.s1([]);
-    await flush();
+    // Past the stored-page read (storage answers after 1ms) to its search.
+    await Bun.sleep(5);
     expect(searchCalls).toContain(ids[PARALLEL_BATCH]);
     for (const id of ids.slice(2)) searchPending[id]([]);
     searchPending.s0([]);

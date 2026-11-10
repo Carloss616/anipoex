@@ -31,9 +31,13 @@ import {
 import { readMatch, type Titles } from "../utils/source-match";
 import { type ProbeRead, toProbe } from "../utils/source-probe";
 import { toChapters } from "../utils/to-chapters";
-import { CHAPTERS_TIMEOUT_MS, SEARCH_TIMEOUT_MS } from "../utils/with-timeout";
+import {
+  CHAPTERS_TIMEOUT_MS,
+  SEARCH_TIMEOUT_MS,
+  SourceTimeout,
+} from "../utils/with-timeout";
 import { challenged$, recordChallenges } from "./challenged";
-import { chapters$, chaptersKey } from "./chapters";
+import { chapters$, chaptersKey, readChapters } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
 import { readManual } from "./manual-matches";
 import {
@@ -120,13 +124,30 @@ export async function probeSource(
 ): Promise<ProviderProbe> {
   try {
     const manual = readManual(mangaId, source.id);
-    const manga = manual ?? (await findManga(source.id, titles, timeoutMs));
+    const stored = manual
+      ? undefined
+      : (await readChapters(mangaId, source.id))?.manga;
+    // The page an earlier read matched skips the search; one that fails or
+    // comes back empty (moved, removed) is searched for again. A hung one
+    // isn't: a search and a second read would only double the wait.
+    let read =
+      stored &&
+      (await fetchChapters(source.id, stored, chaptersTimeoutMs).catch(
+        (error) => {
+          if (error instanceof SourceTimeout) throw error;
+          return undefined;
+        },
+      ));
+    const manga =
+      manual ??
+      (read?.chapters.length
+        ? stored
+        : await findManga(source.id, titles, timeoutMs));
     if (!manga) return toProbe(source, "no-match", Date.now());
-    const { chapters } = await fetchChapters(
-      source.id,
-      manga,
-      chaptersTimeoutMs,
-    );
+    // The search found the page just read: its empty list stands.
+    if (!read || manga.url !== stored?.url)
+      read = await fetchChapters(source.id, manga, chaptersTimeoutMs);
+    const { chapters } = read;
     // A manual page undone while its chapters loaded keeps none: stored, they
     // would make it the source's match again.
     if (manual && readManual(mangaId, source.id)?.url !== manual.url)

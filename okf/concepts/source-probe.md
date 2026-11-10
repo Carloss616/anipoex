@@ -18,7 +18,10 @@ so a probe can sync through its gist later; the error message is anipoex's own a
 The source is searched for the manga by title, the same way picking a source
 matches (see [chosen source](../stores/source-matches.md)), unless the user set its page by
 hand ([manual match](../stores/manual-matches.md)), which is read instead; then its
-[chapters](chapter.md) are read. The latest chapter is the highest chapter number,
+[chapters](chapter.md) are read. A source that already found the manga
+([its chapters](../stores/source-chapters.md) are kept) reads that page straight away, in
+every kind of scan; only when that read fails or comes back empty is it searched again. A read that doesn't answer
+in 3 minutes is *error*, not searched again. The latest chapter is the highest chapter number,
 ignoring unnumbered rows. No matching title, or no chapters, is *no match*; a failure, a
 search that doesn't answer in 30 s or chapters that don't in 3 minutes is *error*.
 
