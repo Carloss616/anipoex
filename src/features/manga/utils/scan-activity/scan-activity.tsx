@@ -1,14 +1,15 @@
 import { toast } from "@/components/ui/toast";
 import { desktop } from "@/utils/desktop";
-import { scanViews$ } from "../../state/scan-views";
-import type { LibraryActivity } from "../library-run";
-import type { SourceMark } from "./utils/marks";
+import { scanStops, scanViews$ } from "../../state/scan-views";
+import { type LibraryActivity, libraryStatus } from "../library-run";
+import { orderMarks, type SourceMark } from "./utils/marks";
 import {
   counted,
   groupStatus,
   isRunning,
   joinGroup,
   type Scan,
+  scanStatus,
   trackScan,
 } from "./utils/status";
 
@@ -39,7 +40,29 @@ export interface LibraryActivityArgs {
 
 const canNotify = () => typeof Notification !== "undefined";
 
-const groups = new Map<number, { scans: Scan[] }>();
+const notify = (title: string, body: string) => {
+  if (Notification.permission !== "granted") return;
+  const notification = new Notification(title, { body });
+  notification.onclick = () => window.focus();
+};
+
+const byId = (marks: SourceMark[]) =>
+  Object.fromEntries(marks.map((m) => [m.id, m]));
+
+/** Writes a source's new state over its mark, keeping its name and icon. */
+const setMark = (
+  marks: Record<string, SourceMark>,
+  id: string,
+  mark: Pick<SourceMark, "state" | "unread">,
+) => {
+  const current = marks[id];
+  if (current) marks[id] = { ...current, ...mark };
+};
+
+const groups = new Map<
+  number,
+  { scans: Scan[]; marks: Record<string, SourceMark> }
+>();
 
 /**
  * A floating view over every screen, one per manga for all its scans that run
@@ -51,9 +74,17 @@ export function startScanActivity({
   name,
   total,
   source,
+  cover,
+  sources,
+  onStop,
 }: ScanActivityArgs): ScanActivity {
   const scan: Scan = { done: 0, total, found: null, source: source?.name };
-  const { group } = joinGroup(groups, mangaId, scan, () => ({ scans: [] }));
+  const { group } = joinGroup(groups, mangaId, scan, () => ({
+    scans: [],
+    marks: {},
+  }));
+  Object.assign(group.marks, byId(sources));
+  if (onStop) scanStops.set(String(mangaId), onStop);
   const view$ = scanViews$[mangaId];
   const show = () => {
     const { scans } = group;
@@ -67,8 +98,11 @@ export function startScanActivity({
         name,
         status: groupStatus(scans),
         progress: all ? all.done / all.total : null,
+        cover,
+        marks: orderMarks(Object.values(group.marks)),
       });
     view$.delete();
+    scanStops.delete(String(mangaId));
     // A rescan is short: the view is enough.
     if (scans.every((s) => s.source)) return;
     const body = groupStatus(scans);
@@ -76,25 +110,75 @@ export function startScanActivity({
       toast.success(`${name}: ${body}`);
       return;
     }
-    if (Notification.permission !== "granted") return;
-    const notification = new Notification(`Scanned ${name}`, { body });
-    notification.onclick = () => window.focus();
+    notify(`Scanned ${name}`, body);
   };
   // Asked on the scan's starting click: browsers drop a prompt without one.
   if (!source && canNotify() && Notification.permission === "default")
     void Notification.requestPermission();
   show();
 
-  return { ...trackScan(scan, show), mark: () => {} };
+  return {
+    ...trackScan(scan, show),
+    mark: (id, mark) => {
+      setMark(group.marks, id, mark);
+      show();
+    },
+  };
 }
 
-// shortcut: reports nothing, until the Reading scan gets its own view.
-export function startLibraryActivity(
-  _args: LibraryActivityArgs,
-): LibraryActivity {
-  const none = () => {};
+/**
+ * The Reading scan in one view at `library`, replaced for each manga; the
+ * list's summary toast is the caller's, so only a notification ends it here.
+ */
+export function startLibraryActivity({
+  total,
+  onStop,
+}: LibraryActivityArgs): LibraryActivity {
+  const view$ = scanViews$.library;
+  scanStops.set("library", onStop);
   return {
-    manga: () => () => ({ progress: none, mark: none, end: none }),
-    end: none,
+    manga: ({ entry, index, newSoFar }) => {
+      const library = { index, total, newSoFar };
+      desktop?.scanProgress((index - 1) / total);
+      // Shown before its scan starts: a manga read recently never starts one.
+      view$.set({
+        mangaId: entry.mangaId,
+        name: entry.name,
+        status: "Checking sources",
+        progress: null,
+        cover: entry.cover,
+        marks: [],
+        library,
+      });
+      return ({ mangaId, name, total: sources, cover, ...args }) => {
+        const scan: Scan = { done: 0, total: sources, found: null };
+        const marks = byId(args.sources);
+        const show = () =>
+          view$.set({
+            mangaId,
+            name,
+            status: scanStatus(scan),
+            progress: scan.done / scan.total,
+            cover,
+            marks: orderMarks(Object.values(marks)),
+            library,
+          });
+        show();
+        return {
+          ...trackScan(scan, show),
+          mark: (id, mark) => {
+            setMark(marks, id, mark);
+            show();
+          },
+        };
+      };
+    },
+    end: (summary) => {
+      view$.delete();
+      scanStops.delete("library");
+      desktop?.scanProgress(-1);
+      if (!document.hasFocus() && canNotify())
+        notify("Scanned Reading", libraryStatus(summary));
+    },
   };
 }
