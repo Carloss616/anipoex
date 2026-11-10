@@ -1,6 +1,6 @@
 import type { ScanResult } from "../state/probes";
 import { mediaKey, type ProbeMap } from "./msu";
-import type { ScanActivity } from "./scan-activity";
+import type { ScanActivity, ScanActivityArgs } from "./scan-activity";
 
 export interface LibraryEntry {
   mangaId: number;
@@ -18,12 +18,15 @@ export interface LibrarySummary {
   withNew: { mangaId: number; cover?: string }[];
 }
 
+/** Starts a manga's scan activity, as `startScanActivity` does. */
+export type StartActivity = (args: ScanActivityArgs) => ScanActivity;
+
 export interface LibraryActivity {
   manga(args: {
     entry: LibraryEntry;
     index: number;
     newSoFar: number;
-  }): ScanActivity;
+  }): StartActivity;
   end(summary: LibrarySummary): void;
 }
 
@@ -55,7 +58,7 @@ export function libraryStatus(summary: LibrarySummary): string {
 
 export async function runLibrary(args: {
   entries: LibraryEntry[];
-  scan: (entry: LibraryEntry, activity: ScanActivity) => Promise<ScanResult>;
+  scan: (entry: LibraryEntry, activity: StartActivity) => Promise<ScanResult>;
   unread: (entry: LibraryEntry) => number;
   activity: LibraryActivity;
   stopped: () => boolean;

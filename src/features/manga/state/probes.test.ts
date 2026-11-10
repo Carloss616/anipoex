@@ -49,7 +49,7 @@ const activity = {
 const startScanActivity = mock((_args: unknown) => activity);
 mock.module("../utils/scan-activity", () => ({
   startScanActivity,
-  startLibraryActivity: () => ({ manga: () => activity, end() {} }),
+  startLibraryActivity: () => ({ manga: () => () => activity, end() {} }),
 }));
 mock.module("../utils/chapter-storage", () => memoryStorage);
 mock.module("@/state/observable-persist", () => ({
@@ -664,11 +664,17 @@ describe("scanSources", () => {
       auto: true,
     };
     source$[201].set(before);
-    const done = scan({ sources: sources("a", "b"), keep: "a", activity });
+    const start = mock((_args: unknown) => activity);
+    const done = scan({
+      sources: sources("a", "b"),
+      keep: "a",
+      activity: start,
+    });
     await answer("a", [5]);
     await answer("b", [9]);
     const result = await done;
     expect(startScanActivity).not.toHaveBeenCalled();
+    expect(start.mock.calls[0]?.[0]).toMatchObject({ total: 2 });
     expect(shown).not.toHaveBeenCalled();
     expect(result).toEqual({
       scanned: true,

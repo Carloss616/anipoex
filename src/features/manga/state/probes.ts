@@ -14,7 +14,11 @@ import {
   type ProbeMap,
   type ProviderProbe,
 } from "../utils/msu";
-import { type ScanActivity, startScanActivity } from "../utils/scan-activity";
+import {
+  type ScanActivity,
+  type ScanActivityArgs,
+  startScanActivity,
+} from "../utils/scan-activity";
 import { markOf } from "../utils/scan-activity/utils/marks";
 import type { Source } from "../utils/source";
 import { unreadChapters } from "../utils/source-classify";
@@ -174,8 +178,8 @@ export async function scanSources(args: {
   /** What a scan calls the manga outside the app. */
   name?: string;
   cover?: string;
-  /** Reports the scan instead of its own activity and pick toast. */
-  activity?: ScanActivity;
+  /** Starts the scan's activity in place of its own, with no pick toast. */
+  activity?: (args: ScanActivityArgs) => ScanActivity;
   /** Leaves out sources probed within these ms. */
   freshFor?: number;
 }): Promise<ScanResult> {
@@ -221,23 +225,21 @@ export async function scanSources(args: {
     scanningAll$[key].set(true);
     scanProgress$[key].set({ done: 0, total: targets.length });
   }
-  const activity =
-    args.activity ??
-    startScanActivity({
-      mangaId,
-      name: name ?? titles.search[0] ?? "",
-      total: targets.length,
-      source: only && targets.length === 1 ? targets[0] : undefined,
-      cover: args.cover,
-      sources: targets.map((s) => ({
-        id: s.id,
-        name: s.name,
-        initials: s.initials,
-        iconUrl: s.iconUrl,
-        state: "pending",
-      })),
-      onStop: () => stopScanAll(key),
-    });
+  const activity = (args.activity ?? startScanActivity)({
+    mangaId,
+    name: name ?? titles.search[0] ?? "",
+    total: targets.length,
+    source: only && targets.length === 1 ? targets[0] : undefined,
+    cover: args.cover,
+    sources: targets.map((s) => ({
+      id: s.id,
+      name: s.name,
+      initials: s.initials,
+      iconUrl: s.iconUrl,
+      state: "pending",
+    })),
+    onStop: () => stopScanAll(key),
+  });
   // Each source is judged as it lands, on the state of that moment: what the
   // user decided meanwhile, the progress, the source picked now.
   const judge = (id: string, probe: ProviderProbe) => {

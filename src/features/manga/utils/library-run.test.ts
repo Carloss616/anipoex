@@ -6,7 +6,6 @@ import {
   runLibrary,
   scanOrder,
 } from "./library-run";
-import type { ScanActivity } from "./scan-activity";
 
 const entry = (mangaId: number): LibraryEntry => ({
   mangaId,
@@ -14,7 +13,7 @@ const entry = (mangaId: number): LibraryEntry => ({
   read: 0,
 });
 const probe = (updatedAt: number) => ({ "source-1": { updatedAt } }) as never;
-const noop: ScanActivity = { progress() {}, mark() {}, end() {} };
+const noop = () => ({ progress() {}, mark() {}, end() {} });
 
 function activity() {
   const ended: unknown[] = [];

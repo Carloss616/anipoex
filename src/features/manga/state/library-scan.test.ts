@@ -46,7 +46,7 @@ mock.module("@/components/ui/toast", () => ({
 }));
 const noop = () => {};
 const startLibraryActivity = mock((_args: unknown) => ({
-  manga: () => ({ progress: noop, mark: noop, end: noop }),
+  manga: () => () => ({ progress: noop, mark: noop, end: noop }),
   end: noop,
 }));
 mock.module("../utils/scan-activity", () => ({

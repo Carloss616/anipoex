@@ -168,7 +168,7 @@ export function startLibraryActivity(
 ): LibraryActivity {
   const none = () => {};
   return {
-    manga: () => ({ progress: none, mark: none, end: none }),
+    manga: () => () => ({ progress: none, mark: none, end: none }),
     end: none,
   };
 }
