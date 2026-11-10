@@ -263,7 +263,12 @@ const updates = (shown: Shown) =>
   coalesce<Props>(
     (props, end) =>
       shown.then((notification) =>
-        notification?.update(props, end ? ENDED : {}),
+        // An update rejects any undefined value, nested ones too (a cover not
+        // downloaded yet); JSON drops them.
+        notification?.update(
+          JSON.parse(JSON.stringify(props)),
+          end ? ENDED : {},
+        ),
       ),
     spacing,
   );

@@ -9,8 +9,8 @@ export function widgetFileName(url: string): string {
 }
 
 /**
- * Downloads a remote image into the widgets directory, where a widget layout
- * can read it, and returns its file uri. Never throws.
+ * Downloads a remote image (or copies a local one) into the widgets directory,
+ * where a widget layout can read it, and returns its file uri. Never throws.
  */
 export async function widgetImage(
   url: string | undefined,
@@ -29,7 +29,11 @@ export async function widgetImage(
     // Android streams into the destination: a cut-off file must not take its name.
     const part = new File(dir, `${name}.part`);
     try {
-      await File.downloadFileAsync(url, part, { idempotent: true });
+      // Android's extension icons are the runtime's own files, not urls.
+      // shortcut: a copy isn't refreshed when an extension update redraws its
+      // icon; key the name on the file's mtime if that shows.
+      if (url.startsWith("file:")) new File(url).copySync(part);
+      else await File.downloadFileAsync(url, part, { idempotent: true });
       part.moveSync(file, { overwrite: true });
     } catch {
       if (part.exists) part.delete();

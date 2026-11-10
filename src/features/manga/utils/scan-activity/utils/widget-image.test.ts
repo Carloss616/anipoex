@@ -5,8 +5,8 @@ const disk = new Set<string>();
 let cut = false;
 class File {
   name: string;
-  constructor(_dir: unknown, name: string) {
-    this.name = name;
+  constructor(dirOrUri: unknown, name?: string) {
+    this.name = name ?? String(dirOrUri);
   }
   get uri() {
     return `file:///w/${this.name}`;
@@ -21,6 +21,9 @@ class File {
     disk.delete(this.name);
     disk.add(to.name);
     this.name = to.name;
+  }
+  copySync(to: File) {
+    disk.add(to.name);
   }
   static async downloadFileAsync(_url: string, to: File) {
     disk.add(to.name);
@@ -65,5 +68,12 @@ describe("widgetImage", () => {
     cut = false;
     expect(await widgetImage(url)).toBe(`file:///w/${widgetFileName(url)}`);
     expect([...disk]).toEqual([widgetFileName(url)]);
+  });
+
+  it("copies a local file instead of downloading it", async () => {
+    const local = "file:///data/exts/source-1.png";
+    cut = true;
+    expect(await widgetImage(local)).toBe(`file:///w/${widgetFileName(local)}`);
+    expect([...disk]).toEqual([widgetFileName(local)]);
   });
 });
