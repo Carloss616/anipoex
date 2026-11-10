@@ -46,6 +46,9 @@ const show: ShowToast = (message, options) => {
       message,
       actionLabel: options?.action?.label,
       withDismissAction: true,
+      // Compose keeps a snackbar with an action until it's dismissed, and later
+      // ones queue behind it: an Undo toast hid every toast after it.
+      duration: options?.action ? "long" : "short",
     })
     .then((result) => {
       if (result === "actionPerformed") options?.action?.onAction();

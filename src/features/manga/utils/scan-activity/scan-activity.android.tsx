@@ -238,6 +238,10 @@ type Shown = Promise<CustomNotification<Props> | undefined>;
 
 const ENDED = { ongoing: false, autoCancel: true };
 
+// A post or update rejects any undefined value, nested ones too (a cover not
+// downloaded yet, a mark's missing icon); JSON drops them.
+const defined = (props: Props): Props => JSON.parse(JSON.stringify(props));
+
 // Android sheds an app's notification posts past 5 a second, counted across
 // all of them: every scan notification's posts and updates share one spacing.
 const spacing = limiter(350);
@@ -252,7 +256,7 @@ const post = (props: Props, options: CustomNotificationOptions): Shown =>
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
       )
         .catch(() => {})
-        .then(() => ScanNotification.post(props, options))
+        .then(() => ScanNotification.post(defined(props), options))
         .catch(() => undefined);
       resolve(posted);
       return posted;
@@ -263,12 +267,7 @@ const updates = (shown: Shown) =>
   coalesce<Props>(
     (props, end) =>
       shown.then((notification) =>
-        // An update rejects any undefined value, nested ones too (a cover not
-        // downloaded yet); JSON drops them.
-        notification?.update(
-          JSON.parse(JSON.stringify(props)),
-          end ? ENDED : {},
-        ),
+        notification?.update(defined(props), end ? ENDED : {}),
       ),
     spacing,
   );
