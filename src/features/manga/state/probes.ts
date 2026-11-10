@@ -81,7 +81,7 @@ export function stopScanAll(key: string) {
 }
 
 export interface ScanResult {
-  /** False when nothing was left to scan. */
+  /** False when nothing was left to scan or a Scan all of it is running. */
   scanned: boolean;
   /** Set when the scan picked a source: what to restore to undo it. */
   picked?: { previous: Parameters<typeof restoreMatch>[1] };
@@ -274,6 +274,11 @@ export async function scanSources(args: {
           stops[id] = () => {
             delete stops[id];
             stopped.add(s.id);
+            const last = prev[s.id];
+            activity.mark(
+              s.id,
+              last ? markOf(last, read()) : { state: "pending" },
+            );
             scanning$[key][s.id].delete();
             done();
             resolve(null);

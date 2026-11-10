@@ -627,8 +627,31 @@ describe("scanSources", () => {
     });
     await flush();
     expect(searchCalls).toEqual(["b"]);
+    expect(startScanActivity).toHaveBeenCalledWith(
+      expect.objectContaining({
+        total: 1,
+        sources: [expect.objectContaining({ id: "b", state: "pending" })],
+      }),
+    );
     searchPending.b([]);
     await done;
+  });
+
+  it("returns scanned false when every target is fresh", async () => {
+    probes$["201"].a.set({
+      provider: "a",
+      providerName: "A",
+      latest: 1,
+      count: 1,
+      matched: true,
+      errored: false,
+      updatedAt: Date.now() - 1000,
+    });
+    expect(await scan({ freshFor: RECENT_SCAN_MS })).toEqual({
+      scanned: false,
+    });
+    expect(startScanActivity).not.toHaveBeenCalled();
+    expect(searchCalls).toEqual([]);
   });
 
   it("an injected activity replaces startScanActivity and the pick toast", async () => {
@@ -660,14 +683,29 @@ describe("scanSources", () => {
   });
 
   it("stopScanAll frees every running source", async () => {
-    probes$["201"].b.set({ latest: 7 } as never);
-    const done = scan({ sources: sources("a", "b") });
+    const last = {
+      provider: "b",
+      providerName: "B",
+      latest: 7,
+      count: 7,
+      matched: true,
+      errored: false,
+      updatedAt: 1,
+    };
+    probes$["201"].b.set(last);
+    const done = scan({ sources: sources("a", "b"), read: () => 5 });
     await flush();
     stopScanAll("201");
     expect(isScanning(201)).toBe(false);
     await done;
-    expect(probes$["201"].b.get()).toEqual({ latest: 7 } as never);
+    expect(probes$["201"].b.get()).toEqual(last);
     expect(probes$["201"].a.get()).toBeUndefined();
+    // Each stopped source shows its last probe, or pending without one.
+    expect(activity.mark).toHaveBeenCalledWith("a", { state: "pending" });
+    expect(activity.mark).toHaveBeenCalledWith("b", {
+      state: "found",
+      unread: 2,
+    });
   });
 
   it("without an activity, the pick toast still shows", async () => {
