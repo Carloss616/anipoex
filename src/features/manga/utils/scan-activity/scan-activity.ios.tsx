@@ -11,7 +11,12 @@ import type { SFSymbol } from "expo-symbols";
 import { createLiveActivity, type LiveActivity } from "expo-widgets";
 import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
-import type { ScanActivity, ScanActivityArgs } from "./scan-activity";
+import type { LibraryActivity } from "../library-run";
+import type {
+  LibraryActivityArgs,
+  ScanActivity,
+  ScanActivityArgs,
+} from "./scan-activity";
 import {
   counted,
   groupStatus,
@@ -161,5 +166,16 @@ export function startScanActivity({
       activity.end(found);
       backgroundTime.end(task);
     },
+  };
+}
+
+// shortcut: reports nothing, until the Reading scan gets its own view.
+export function startLibraryActivity(
+  _args: LibraryActivityArgs,
+): LibraryActivity {
+  const none = () => {};
+  return {
+    manga: () => ({ progress: none, mark: none, end: none }),
+    end: none,
   };
 }

@@ -47,7 +47,10 @@ const activity = {
   mark: mock((_id: string, _mark: unknown) => {}),
 };
 const startScanActivity = mock((_args: unknown) => activity);
-mock.module("../utils/scan-activity", () => ({ startScanActivity }));
+mock.module("../utils/scan-activity", () => ({
+  startScanActivity,
+  startLibraryActivity: () => ({ manga: () => activity, end() {} }),
+}));
 mock.module("../utils/chapter-storage", () => memoryStorage);
 mock.module("@/state/observable-persist", () => ({
   ObservablePersist: class {

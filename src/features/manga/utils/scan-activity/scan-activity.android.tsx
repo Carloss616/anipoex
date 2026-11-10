@@ -15,7 +15,12 @@ import {
 } from "expo-widgets";
 import { PermissionsAndroid } from "react-native";
 import { TRACK_HEIGHT } from "@/components/ui/progress/constants";
-import type { ScanActivity, ScanActivityArgs } from "./scan-activity";
+import type { LibraryActivity } from "../library-run";
+import type {
+  LibraryActivityArgs,
+  ScanActivity,
+  ScanActivityArgs,
+} from "./scan-activity";
 import {
   counted,
   groupStatus,
@@ -155,4 +160,15 @@ export function startScanActivity({
       .catch(() => undefined);
 
   return { ...trackScan(scan, () => render(group)), mark: () => {} };
+}
+
+// shortcut: reports nothing, until the Reading scan gets its own view.
+export function startLibraryActivity(
+  _args: LibraryActivityArgs,
+): LibraryActivity {
+  const none = () => {};
+  return {
+    manga: () => ({ progress: none, mark: none, end: none }),
+    end: none,
+  };
 }

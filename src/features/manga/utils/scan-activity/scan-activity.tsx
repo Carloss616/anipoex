@@ -1,6 +1,7 @@
 import { toast } from "@/components/ui/toast";
 import { desktop } from "@/utils/desktop";
 import { scanViews$ } from "../../state/scan-views";
+import type { LibraryActivity } from "../library-run";
 import type { SourceMark } from "./utils/marks";
 import {
   counted,
@@ -29,6 +30,11 @@ export interface ScanActivity {
   mark(id: string, mark: Pick<SourceMark, "state" | "unread">): void;
   /** `found`: the sources that have the manga. */
   end(found: number): void;
+}
+
+export interface LibraryActivityArgs {
+  total: number;
+  onStop: () => void;
 }
 
 const canNotify = () => typeof Notification !== "undefined";
@@ -80,4 +86,15 @@ export function startScanActivity({
   show();
 
   return { ...trackScan(scan, show), mark: () => {} };
+}
+
+// shortcut: reports nothing, until the Reading scan gets its own view.
+export function startLibraryActivity(
+  _args: LibraryActivityArgs,
+): LibraryActivity {
+  const none = () => {};
+  return {
+    manga: () => ({ progress: none, mark: none, end: none }),
+    end: none,
+  };
 }
