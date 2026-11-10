@@ -23,8 +23,18 @@ export async function widgetImage(
       import("expo-file-system"),
     ]);
     const dir = new Directory(widgetsDirectory);
-    const file = new File(dir, widgetFileName(url));
-    if (!file.exists) await File.downloadFileAsync(url, file);
+    const name = widgetFileName(url);
+    const file = new File(dir, name);
+    if (file.exists) return file.uri;
+    // Android streams into the destination: a cut-off file must not take its name.
+    const part = new File(dir, `${name}.part`);
+    try {
+      await File.downloadFileAsync(url, part, { idempotent: true });
+      part.moveSync(file, { overwrite: true });
+    } catch {
+      if (part.exists) part.delete();
+      return undefined;
+    }
     return file.uri;
   } catch {
     return undefined;

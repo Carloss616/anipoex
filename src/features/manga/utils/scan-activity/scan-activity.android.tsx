@@ -356,6 +356,9 @@ export function startScanActivity({
   };
 }
 
+// Runs share one notification id: a run's late end must not land on the next.
+let libraryRun = 0;
+
 /**
  * The Reading scan in one notification, showing each manga as it comes; its
  * scans post none of their own. A tap opens the list.
@@ -364,6 +367,7 @@ export function startLibraryActivity({
   total,
   onStop,
 }: LibraryActivityArgs): LibraryActivity {
+  const run = ++libraryRun;
   scanStops.set("library", onStop);
   let view: {
     name: string;
@@ -432,8 +436,9 @@ export function startLibraryActivity({
       scanStops.delete("library");
       void Promise.all(
         summary.withNew.slice(0, 3).map((m) => widgetImage(m.cover)),
-      ).then((covers) =>
-        notification.end({
+      ).then((covers) => {
+        if (run !== libraryRun) return;
+        void notification.end({
           name: "Reading",
           status: libraryStatus(summary),
           progress: 1,
@@ -442,8 +447,8 @@ export function startLibraryActivity({
           marks: [],
           more: 0,
           covers: covers.filter((c): c is string => !!c),
-        }),
-      );
+        });
+      });
     },
   };
 }
