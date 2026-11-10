@@ -40,8 +40,8 @@ export function PaletteRail() {
         aria-label="Palette"
         className="w-max gap-3"
       >
-        {THEME_FAMILIES.map((entry,i) => (
-          <PaletteCard key={entry.id+i} id={entry.id} name={entry.name} />
+        {THEME_FAMILIES.map((entry) => (
+          <PaletteCard key={entry.id} id={entry.id} name={entry.name} />
         ))}
       </ChoiceCards>
     </ScrollView>

@@ -1,7 +1,6 @@
 import DnsIcon from "@expo/material-symbols/dns.xml";
 import HourglassIcon from "@expo/material-symbols/hourglass.xml";
 import ManageSearchIcon from "@expo/material-symbols/manage_search.xml";
-import PaletteIcon from "@expo/material-symbols/palette.xml";
 import TranslateIcon from "@expo/material-symbols/translate.xml";
 import TuneIcon from "@expo/material-symbols/tune.xml";
 import {
@@ -24,7 +23,7 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
-import { ThemePicker } from "@/components/blocks/theme-picker";
+import { PaletteRail } from "@/components/blocks/palette-rail";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/jetpack-compose/image";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
@@ -149,39 +148,27 @@ export function Settings() {
             </SegmentedListItem>
 
             <Label>Appearance</Label>
-            <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
-              <Menu
-                items={THEME_OPTIONS.map((option) => ({
-                  label: option.label,
-                  icon: option.icon,
-                  checked: option.id === preference,
-                  onPress: () => settings$.theme.preference.set(option.id),
-                }))}
-              >
-                <SegmentedListItem index={0} count={2} {...row}>
-                  <SegmentedListItem.Leading>
-                    <LeadingIcon name={theme.icon} />
-                  </SegmentedListItem.Leading>
-                  <Text>Theme</Text>
-                  <SegmentedListItem.Supporting>
-                    <Text style={{ typography: "bodyMedium" }}>
-                      {theme.label}
-                    </Text>
-                  </SegmentedListItem.Supporting>
-                </SegmentedListItem>
-              </Menu>
-              <SegmentedListItem index={1} count={2} {...row}>
+            <Menu
+              items={THEME_OPTIONS.map((option) => ({
+                label: option.label,
+                icon: option.icon,
+                checked: option.id === preference,
+                onPress: () => settings$.theme.preference.set(option.id),
+              }))}
+            >
+              <SegmentedListItem index={0} count={1} {...row}>
                 <SegmentedListItem.Leading>
-                  <LeadingIcon name={PaletteIcon} />
+                  <LeadingIcon name={theme.icon} />
                 </SegmentedListItem.Leading>
-                <Text>Palette</Text>
+                <Text>Theme</Text>
                 <SegmentedListItem.Supporting>
-                  <Box modifiers={[padding(0, 8, 0, 0)]}>
-                    <ThemePicker />
-                  </Box>
+                  <Text style={{ typography: "bodyMedium" }}>
+                    {theme.label}
+                  </Text>
                 </SegmentedListItem.Supporting>
               </SegmentedListItem>
-            </Column>
+            </Menu>
+            <PaletteRail />
 
             <Label>Sources</Label>
             <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
