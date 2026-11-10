@@ -49,7 +49,11 @@ const activity = {
 const startScanActivity = mock((_args: unknown) => activity);
 mock.module("../utils/scan-activity", () => ({
   startScanActivity,
-  startLibraryActivity: () => ({ manga: () => () => activity, end() {} }),
+  startLibraryActivity: () => ({
+    manga: () => () => activity,
+    finishing() {},
+    end() {},
+  }),
 }));
 mock.module("../utils/chapter-storage", () => memoryStorage);
 mock.module("@/state/observable-persist", () => ({
@@ -76,6 +80,7 @@ const {
   scanProgress$,
   scanSources,
   probeSource,
+  turns,
   isScanning,
   stopScan,
   stopScanAll,
@@ -137,6 +142,8 @@ beforeEach(() => {
   exclusions$.set({});
   pins$.set({});
   source$.set({});
+  // Earlier tests leave reads that never answer, holding their source's turn.
+  turns.clear();
   // A stored page skips the search, and most tests answer one.
   for (const key of Object.keys(memoryStorage.entries)) {
     const [mangaId, sourceId] = key.split("/");
@@ -314,6 +321,18 @@ describe("scanSources", () => {
     for (const id of ids.slice(2)) searchPending[id]([]);
     searchPending.s0([]);
     await done;
+  });
+
+  it("two manga read one source in turn", async () => {
+    const first = scan({ mangaId: 301, sources: sources("q") });
+    const second = scan({ mangaId: 302, sources: sources("q") });
+    await Bun.sleep(5);
+    expect(searchCalls).toEqual(["q"]);
+    searchPending.q([]);
+    await Bun.sleep(5);
+    expect(searchCalls).toEqual(["q", "q"]);
+    searchPending.q([]);
+    await Promise.all([first, second]);
   });
 
   it("missFor skips recent no-matches only", async () => {
@@ -526,7 +545,7 @@ describe("scanSources", () => {
     await answer("b", [9]);
     await done;
     expect(source$[201].get()).toMatchObject({ sourceId: "b", auto: true });
-    expect(shown.mock.calls.at(-1)?.[0]).toBe("Picked B · +9");
+    expect(shown.mock.calls.at(-1)?.[0]).toBe("Now reading from B · +9");
 
     shown.mock.calls.at(-1)?.[1]?.action?.onAction();
     expect(source$[201].get()).toEqual(before);
@@ -819,7 +838,7 @@ describe("scanSources", () => {
     const done = scan();
     await answer("a", [3]);
     expect((await done).picked).toEqual({ id: "a", previous: undefined });
-    expect(shown.mock.calls.at(-1)?.[0]).toBe("Picked A · +3");
+    expect(shown.mock.calls.at(-1)?.[0]).toBe("Now reading from A · +3");
   });
 });
 
@@ -927,7 +946,7 @@ describe("auto pick", () => {
     const done = scan({ mangaId: 1503, sources: sources("a"), read: () => 2 });
     await answer("a", [1, 2]);
     await done;
-    expect(shown.mock.calls.at(-1)?.[0]).toBe("Picked A");
+    expect(shown.mock.calls.at(-1)?.[0]).toBe("Now reading from A");
   });
 
   it("picks nothing when auto-pick is off", async () => {

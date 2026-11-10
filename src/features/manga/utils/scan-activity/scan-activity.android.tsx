@@ -68,6 +68,8 @@ interface Props {
   more: number;
   /** The Reading scan's place in the list. */
   library?: string;
+  /** The Reading scan's manga still finishing behind this one. */
+  finishing?: string;
   /** An ended Reading scan's manga with new chapters, up to 3. */
   covers: string[];
   /** The Stop button's target; none once the scan ends. */
@@ -209,6 +211,14 @@ const ScanNotification = createCustomNotification<Props>(
               )}
               {!props.ended && progress}
               {status}
+              {props.finishing && (
+                <Text
+                  color={m3.onSurfaceVariant}
+                  style={{ typography: "labelSmall" }}
+                >
+                  {props.finishing}
+                </Text>
+              )}
             </Column>
           </Row>
           {props.stop && (
@@ -381,6 +391,7 @@ export function startLibraryActivity({
     index: number;
     newSoFar: number;
   } = { name: "Reading", marks: {}, index: 1, newSoFar: 0 };
+  let finishing: string | undefined;
   let ended = false;
   const propsOfView = (): Props => {
     const { scan, index } = view;
@@ -393,7 +404,8 @@ export function startLibraryActivity({
       trackHeight: TRACK_HEIGHT.md,
       cover: image(view.cover),
       ...widgetMarks(Object.values(view.marks), image),
-      library: `Reading · ${index} of ${total} · ${view.newSoFar} new`,
+      library: `Reading · ${index} of ${total} · ${view.newSoFar} with new chapters`,
+      finishing,
       covers: [],
       stop: stopTarget("library"),
     };
@@ -411,6 +423,10 @@ export function startLibraryActivity({
   );
 
   return {
+    finishing: (line) => {
+      finishing = line;
+      render();
+    },
     manga: ({ entry, index, newSoFar }) => {
       // Shown before its scan starts: a manga read recently never starts one.
       view = {

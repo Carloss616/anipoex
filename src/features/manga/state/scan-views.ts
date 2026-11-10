@@ -12,7 +12,13 @@ export interface ScanView {
   /** Every source the scans probe, found first. */
   marks: SourceMark[];
   /** A Reading scan's place in the list. */
-  library?: { index: number; total: number; newSoFar: number };
+  library?: {
+    index: number;
+    total: number;
+    newSoFar: number;
+    /** The manga still finishing behind this one. */
+    finishing?: string;
+  };
 }
 
 /**

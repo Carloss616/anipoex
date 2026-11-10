@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* **Reading scan overlaps manga; toasts name what they undo**: the next manga starts once the one before has 2 sources left (at most two at once, one read per source at a time), and the view shows "Finishing <manga> · N left" for the one behind. The pick toast says "Now reading from <source>" with *Undo pick*, the Reading summary counts the picks with *Undo picks*, the title-match toast offers *Unmatch*. Updated [source probes](stores/source-probes.md), [chosen source](stores/source-matches.md), [source](concepts/source.md).
 * **A probe reuses the page it found**: a source that already matched the manga reads that page's chapters without searching again, in every scan; it searches only when the page fails or is empty, not when it hangs. Updated [source probe](concepts/source-probe.md).
 * **Reading scan skips week-old no-matches and counts any source**: unless "Rescan everything", it also skips sources that found no match in the last 7 days; "with new chapters" counts a manga when any readable source is ahead, not only the picked one. Updated [source probes](stores/source-probes.md).
 * **Scan the Reading list**: the Reading list's header runs each manga's Scan all in turn, stalest first, skipping sources probed within 60 minutes unless "Rescan everything"; one summary toast with one Undo for the picks it made. Updated [source probes](stores/source-probes.md).

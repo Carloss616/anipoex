@@ -34,12 +34,13 @@ export const libraryScan$ = observable<{ index: number; total: number } | null>(
 const DAY_MS = 86_400_000;
 
 let stopped = false;
-let current: number | undefined;
+/** The manga being scanned: the one shown and one finishing behind it. */
+const current = new Set<number>();
 
 /** Stops the Reading scan: the manga in progress at once, then the rest. */
 export function stopReadingScan() {
   stopped = true;
-  if (current !== undefined) stopScanAll(mediaKey(current));
+  for (const mangaId of current) stopScanAll(mediaKey(mangaId));
 }
 
 /**
@@ -107,7 +108,7 @@ export async function scanReading({ everything = false } = {}) {
     const { summary, picks } = await runLibrary({
       entries,
       scan: (entry, activity) => {
-        current = entry.mangaId;
+        current.add(entry.mangaId);
         const { keep, sources } = sourcesOf(entry.mangaId);
         return scanSources({
           mangaId: entry.mangaId,
@@ -123,7 +124,7 @@ export async function scanReading({ everything = false } = {}) {
           activity,
           freshFor: everything ? undefined : RECENT_SCAN_MS,
           missFor: everything ? undefined : AUTO_RECHECK_DAYS * DAY_MS,
-        });
+        }).finally(() => current.delete(entry.mangaId));
       },
       // Any source the manga can be read from counts, not only the one picked:
       // a manga with no pick, or a pick behind, still has new chapters.
@@ -152,7 +153,7 @@ export async function scanReading({ everything = false } = {}) {
       picks.length
         ? {
             action: {
-              label: "Undo",
+              label: "Undo picks",
               onAction: () => {
                 for (const p of picks) undoPick(p.mangaId, p);
               },
@@ -161,7 +162,7 @@ export async function scanReading({ everything = false } = {}) {
         : undefined,
     );
   } finally {
-    current = undefined;
+    current.clear();
     libraryScan$.set(null);
   }
 }

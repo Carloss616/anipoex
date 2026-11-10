@@ -96,7 +96,12 @@ const ScanCard = memo(function ScanCard({
         <View className="min-w-0 flex-1 gap-2">
           {library && (
             <Typography type="body-xs" muted>
-              {`Manga ${library.index} of ${library.total} · ${library.newSoFar} new`}
+              {`Manga ${library.index} of ${library.total} · ${library.newSoFar} with new chapters`}
+            </Typography>
+          )}
+          {library?.finishing && (
+            <Typography type="body-xs" muted>
+              {library.finishing}
             </Typography>
           )}
           <Typography type="small" numberOfLines={1}>

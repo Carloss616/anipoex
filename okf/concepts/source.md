@@ -83,8 +83,8 @@ is stable across launches.
   source with no match of its own takes a result equal to a known title. When the user picks a
   match, every other source whose loaded results hold one equal to the new title takes it at
   once, without searching again, and reads its chapters, and its search ends (the other rows keep
-  theirs); a toast says how many, with *Undo*.
-  Undo, or *Remove match* on one of those, drops it and leaves the source unmatched without
+  theirs); a toast says how many, with *Unmatch*.
+  Unmatch, or *Remove match* on one of those, drops it and leaves the source unmatched without
   searching again, since a search would take the same page back, and that page isn't taken again
   until the app restarts. A chosen source stays chosen, with no match. Closing the list or *Stop
   searching* ends the search; nothing searched is stored.

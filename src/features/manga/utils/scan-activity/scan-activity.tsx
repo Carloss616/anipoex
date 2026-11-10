@@ -131,7 +131,12 @@ export function startLibraryActivity({
 }: LibraryActivityArgs): LibraryActivity {
   const view$ = scanViews$.library;
   scanStops.set("library", onStop);
+  let finishing: string | undefined;
   return {
+    finishing: (line) => {
+      finishing = line;
+      if (view$.peek()) view$.library.finishing.set(line);
+    },
     manga: ({ entry, index, newSoFar }) => {
       const library = { index, total, newSoFar };
       desktop?.scanProgress((index - 1) / total);
@@ -143,7 +148,7 @@ export function startLibraryActivity({
         progress: null,
         cover: entry.cover,
         marks: [],
-        library,
+        library: { ...library, finishing },
       });
       return ({ mangaId, name, total: sources, cover, ...args }) => {
         const scan: Scan = { done: 0, total: sources, found: null };
@@ -156,7 +161,7 @@ export function startLibraryActivity({
             progress: scan.done / scan.total,
             cover,
             marks: orderMarks(Object.values(marks)),
-            library,
+            library: { ...library, finishing },
           });
         show();
         return {

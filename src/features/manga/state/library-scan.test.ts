@@ -47,6 +47,7 @@ mock.module("@/components/ui/toast", () => ({
 const noop = () => {};
 const startLibraryActivity = mock((_args: unknown) => ({
   manga: () => () => ({ progress: noop, mark: noop, end: noop }),
+  finishing: noop,
   end: noop,
 }));
 mock.module("../utils/scan-activity", () => ({
@@ -182,9 +183,7 @@ describe("scanReading", () => {
     await scanReading();
     settings$.sources.autoPick.set(true);
     expect(source$[409].get()).toBeUndefined();
-    expect(shown.mock.calls.at(-1)?.[0]).toBe(
-      "1 with new chapters · 1 scanned · 0 recent",
-    );
+    expect(shown.mock.calls.at(-1)?.[0]).toBe("1 with new chapters");
   });
 
   it("undo leaves a source picked by hand since", async () => {
@@ -205,6 +204,7 @@ describe("scanReading", () => {
     stopReadingScan();
     await done;
     expect(search.mock.calls.map(([, title]) => title)).toEqual(["Five"]);
-    expect(shown.mock.calls.at(-1)?.[0]).toStartWith("Stopped at 1 of 2");
+    // One source each, so Six started behind Five and waits for its turn.
+    expect(shown.mock.calls.at(-1)?.[0]).toStartWith("Stopped at 2 of 2");
   });
 });

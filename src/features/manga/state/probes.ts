@@ -76,6 +76,25 @@ export const isScanBusy = (key: string) =>
 /** Per `key/id`, what stops waiting on a source a scan holds; not persisted. */
 const stops: Record<string, () => void> = {};
 
+/** Per source, the end of its last read; exported for tests to reset. */
+export const turns = new Map<string, Promise<unknown>>();
+
+/**
+ * Runs `read` once the source's reads for other manga end: one at a time per
+ * source, so overlapping scans never queue in an extension's rate limit,
+ * whose wait would count against the read's timeout.
+ */
+function inTurn<T>(sourceId: string, read: () => Promise<T>): Promise<T> {
+  const last = turns.get(sourceId);
+  const run = last ? last.then(read) : read();
+  const settled = run.catch(() => {});
+  turns.set(sourceId, settled);
+  void settled.then(() => {
+    if (turns.get(sourceId) === settled) turns.delete(sourceId);
+  });
+  return run;
+}
+
 /**
  * Stops waiting on one source of a running scan: the scan goes on without it,
  * keeping its last probe; the runtime's call runs out on its own.
@@ -343,7 +362,10 @@ export async function scanSources(args: {
       if (stopped.has(source.id)) continue;
       activity.mark(source.id, { state: "scanning" });
       const probe = await Promise.race([
-        probeSource(mangaId, source, titles),
+        // A source stopped while it waited is never read.
+        inTurn(source.id, async () =>
+          stopped.has(source.id) ? null : probeSource(mangaId, source, titles),
+        ),
         halts[source.id],
       ]);
       if (!probe) continue;
@@ -390,11 +412,11 @@ export async function scanSources(args: {
         const unread = unreadChapters(read(), probes[picked.id].latest);
         toast(
           unread
-            ? `Picked ${picked.name} · +${unread}`
-            : `Picked ${picked.name}`,
+            ? `Now reading from ${picked.name} · +${unread}`
+            : `Now reading from ${picked.name}`,
           {
             action: {
-              label: "Undo",
+              label: "Undo pick",
               onAction: () => undoPick(mangaId, pick),
             },
           },

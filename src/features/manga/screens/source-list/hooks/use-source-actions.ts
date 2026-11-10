@@ -131,7 +131,7 @@ export function useSourceActions({
           `Matched ${taken.length} more source${taken.length > 1 ? "s" : ""} by title`,
           {
             action: {
-              label: "Undo",
+              label: "Unmatch",
               onAction: () => taken.forEach(forget),
             },
           },

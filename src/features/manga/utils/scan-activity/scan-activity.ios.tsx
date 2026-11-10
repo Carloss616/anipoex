@@ -88,6 +88,8 @@ interface Props {
   more: number;
   /** The Reading scan's place in the list. */
   library?: string;
+  /** The Reading scan's manga still finishing behind this one. */
+  finishing?: string;
   /** An ended Reading scan's manga with new chapters, up to 3. */
   covers: string[];
   /** The Stop button's target; none once the scan ends. */
@@ -209,6 +211,9 @@ const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
           )}
           {progress}
           <Text modifiers={caption}>{props.status}</Text>
+          {props.finishing && (
+            <Text modifiers={caption}>{props.finishing}</Text>
+          )}
         </VStack>
         <Spacer />
         {stop}
@@ -228,6 +233,7 @@ const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
       <VStack alignment="leading" spacing={6}>
         <Text modifiers={[font({ weight: "semibold" })]}>{props.name}</Text>
         {progress}
+        {props.finishing && <Text modifiers={caption}>{props.finishing}</Text>}
       </VStack>
     ),
   };
@@ -368,6 +374,7 @@ export function startLibraryActivity({
     index: number;
     newSoFar: number;
   } = { name: "Reading", marks: {}, index: 1, newSoFar: 0 };
+  let finishing: string | undefined;
   let ended = false;
   const propsOfView = (): Props => {
     const { scan, index } = view;
@@ -381,7 +388,8 @@ export function startLibraryActivity({
       stopIcon: STOP_ICON,
       cover: image(view.cover),
       ...widgetMarks(Object.values(view.marks), image),
-      library: `Reading · ${index} of ${total} · ${view.newSoFar} new`,
+      library: `Reading · ${index} of ${total} · ${view.newSoFar} with new chapters`,
+      finishing,
       covers: [],
       stop: stopTarget("library"),
     };
@@ -393,6 +401,10 @@ export function startLibraryActivity({
   const live = updates(start(propsOfView(), "anipoex://manga"));
 
   return {
+    finishing: (line) => {
+      finishing = line;
+      render();
+    },
     manga: ({ entry, index, newSoFar }) => {
       // Shown before its scan starts: a manga read recently never starts one.
       view = {

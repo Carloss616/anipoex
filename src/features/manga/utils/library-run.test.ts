@@ -4,7 +4,9 @@ import {
   type LibraryEntry,
   libraryStatus,
   runLibrary,
+  type StartActivity,
   scanOrder,
+  TAIL_SOURCES,
 } from "./library-run";
 
 const entry = (mangaId: number): LibraryEntry => ({
@@ -17,8 +19,41 @@ const noop = () => ({ progress() {}, mark() {}, end() {} });
 
 function activity() {
   const ended: unknown[] = [];
-  const a: LibraryActivity = { manga: () => noop, end: (s) => ended.push(s) };
-  return { a, ended };
+  const lines: (string | undefined)[] = [];
+  const a: LibraryActivity = {
+    manga: () => noop,
+    finishing: (line) => lines.push(line),
+    end: (s) => ended.push(s),
+  };
+  return { a, ended, lines };
+}
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+/** Scans that start their activity with `total` sources and wait to be ended. */
+function heldScans(total: number) {
+  const started: number[] = [];
+  const held: Record<
+    number,
+    { activity: ReturnType<StartActivity>; end: () => void }
+  > = {};
+  const scan = (e: LibraryEntry, start: StartActivity) =>
+    new Promise<{ scanned: boolean }>((resolve) => {
+      started.push(e.mangaId);
+      const activity = start({
+        mangaId: e.mangaId,
+        name: e.name,
+        total,
+        sources: [],
+      });
+      held[e.mangaId] = {
+        activity,
+        end: () => {
+          activity.end(0);
+          resolve({ scanned: true });
+        },
+      };
+    });
+  return { started, held, scan };
 }
 
 describe("scanOrder", () => {
@@ -34,48 +69,80 @@ describe("scanOrder", () => {
 describe("libraryStatus", () => {
   const some = (n: number) =>
     Array.from({ length: n }, (_, i) => ({ mangaId: i }));
-  test("reports manga with new chapters", () => {
+  const base = { total: 42, scanned: 30, recent: 0, picked: 0 };
+  test("reports manga with new chapters, picks and recent checks", () => {
     expect(
-      libraryStatus({ total: 42, scanned: 30, recent: 7, withNew: some(5) }),
-    ).toBe("5 with new chapters · 30 scanned · 7 recent");
+      libraryStatus({ ...base, recent: 7, picked: 3, withNew: some(5) }),
+    ).toBe("5 with new chapters · 3 sources picked · 7 checked recently");
   });
-  test("reports none", () => {
-    expect(
-      libraryStatus({ total: 42, scanned: 30, recent: 7, withNew: [] }),
-    ).toBe("No new chapters · 30 scanned · 7 recent");
+  test("reports none, leaving out zeros", () => {
+    expect(libraryStatus({ ...base, withNew: [] })).toBe("No new chapters");
   });
   test("reports where it stopped", () => {
     expect(
-      libraryStatus({
-        total: 42,
-        scanned: 11,
-        recent: 0,
-        stoppedAt: 12,
-        withNew: some(2),
-      }),
-    ).toBe("Stopped at 12 of 42 · 2 with new chapters · 11 scanned · 0 recent");
+      libraryStatus({ ...base, picked: 1, stoppedAt: 12, withNew: some(2) }),
+    ).toBe("Stopped at 12 of 42 · 2 with new chapters · 1 source picked");
   });
 });
 
 describe("runLibrary", () => {
-  test("runs one manga at a time", async () => {
-    let running = 0;
-    let overlap = false;
+  test("starts the next manga once one is down to its last sources", async () => {
     const { a } = activity();
-    await runLibrary({
+    const { started, held, scan } = heldScans(5);
+    const run = runLibrary({
       entries: [entry(1), entry(2), entry(3)],
-      scan: async () => {
-        running++;
-        overlap ||= running > 1;
-        await Promise.resolve();
-        running--;
-        return { scanned: true };
-      },
+      scan,
       unread: () => 0,
       activity: a,
       stopped: () => false,
     });
-    expect(overlap).toBe(false);
+    await flush();
+    held[1].activity.progress(5 - TAIL_SOURCES - 1);
+    await flush();
+    expect(started).toEqual([1]);
+    held[1].activity.progress(5 - TAIL_SOURCES);
+    await flush();
+    expect(started).toEqual([1, 2]);
+    // Never a third while the first still runs.
+    held[2].activity.progress(5);
+    await flush();
+    expect(started).toEqual([1, 2]);
+    held[1].end();
+    await flush();
+    expect(started).toEqual([1, 2, 3]);
+    held[2].end();
+    held[3].end();
+    await run;
+  });
+
+  test("a manga behind the shown one only counts down its finishing line", async () => {
+    const { a, lines } = activity();
+    const progressed: number[] = [];
+    a.manga = () => (args) => ({
+      ...noop(),
+      progress: () => progressed.push(args.mangaId),
+    });
+    const { held, scan } = heldScans(3);
+    const run = runLibrary({
+      entries: [entry(1), entry(2)],
+      scan,
+      unread: () => 0,
+      activity: a,
+      stopped: () => false,
+    });
+    await flush();
+    held[1].activity.progress(1);
+    await flush();
+    held[1].activity.progress(2);
+    held[1].end();
+    held[2].end();
+    await run;
+    expect(progressed).toEqual([1]);
+    expect(lines).toEqual([
+      "Finishing Manga 1 · 2 left",
+      "Finishing Manga 1 · 1 left",
+      undefined,
+    ]);
   });
 
   test("counts a skipped manga as recent", async () => {
