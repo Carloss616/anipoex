@@ -116,6 +116,9 @@ const ScanCard = memo(function ScanCard({
         variant="destructive"
         size="sm"
         className="absolute inset-e-3 bottom-3"
+        aria-label={
+          library ? "Stop Reading scan" : `Stop scanning ${view.name}`
+        }
         onClick={() =>
           scanStops.get(library ? "library" : String(view.mangaId))?.()
         }

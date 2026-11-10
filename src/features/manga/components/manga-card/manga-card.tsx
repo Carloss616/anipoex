@@ -180,14 +180,10 @@ export function MangaCard({
 
   const content = (
     <>
-      <Layer
-        tilt={tilt}
-        depth={3}
-        className={css.image({ className: scanning && "opacity-50" })}
-      >
+      <Layer tilt={tilt} depth={3} className={css.image()}>
         {cover ? (
           <CoverImage
-            style={StyleSheet.absoluteFill}
+            style={[StyleSheet.absoluteFill, scanning && { opacity: 0.5 }]}
             cover={cover}
             coverThumb={coverThumb}
             coverColor={coverColor}
@@ -195,7 +191,10 @@ export function MangaCard({
         ) : (
           <View
             style={StyleSheet.absoluteFill}
-            className="items-center justify-center"
+            className={cn(
+              "items-center justify-center",
+              scanning && "opacity-50",
+            )}
           >
             <Icon
               name="book-open"
