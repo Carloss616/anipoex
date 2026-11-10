@@ -45,6 +45,7 @@ import { widgetImage } from "./utils/widget-image";
 import {
   coalesce,
   imageLoader,
+  limiter,
   routeStop,
   stopTarget,
   type WidgetMark,
@@ -237,18 +238,34 @@ type Shown = Promise<CustomNotification<Props> | undefined>;
 
 const ENDED = { ongoing: false, autoCancel: true };
 
-// Also over an ended one, which the user may have dismissed. Denied or
-// dismissed, the post rejects and the sheet still shows the scan.
-const post = (props: Props, options: CustomNotificationOptions): Shown =>
-  PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
-    .catch(() => {})
-    .then(() => ScanNotification.post(props, options))
-    .catch(() => undefined);
+// Android sheds an app's notification posts past 5 a second, counted across
+// all of them: every scan notification's posts and updates share one spacing.
+const spacing = limiter(350);
 
-// After the post: an update that lands before it would be lost.
+// Also over an ended one, which the user may have dismissed. Denied or
+// dismissed, the post rejects and the sheet still shows the scan. Queued
+// now, so the notification's updates come after it.
+const post = (props: Props, options: CustomNotificationOptions): Shown =>
+  new Promise((resolve) =>
+    spacing.run(() => {
+      const posted = PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      )
+        .catch(() => {})
+        .then(() => ScanNotification.post(props, options))
+        .catch(() => undefined);
+      resolve(posted);
+      return posted;
+    }),
+  );
+
 const updates = (shown: Shown) =>
-  coalesce<Props>((props, end) =>
-    shown.then((notification) => notification?.update(props, end ? ENDED : {})),
+  coalesce<Props>(
+    (props, end) =>
+      shown.then((notification) =>
+        notification?.update(props, end ? ENDED : {}),
+      ),
+    spacing,
   );
 
 interface Group {

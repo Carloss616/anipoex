@@ -91,64 +91,88 @@ const realClock: Clock = {
 };
 
 /**
- * Sends one update at a time, at most one per `interval`, the latest props
- * winning: Android sheds an app's notification updates past about 5 a
- * second, and a Live Activity has an update budget. The end skips the wait
- * and nothing is sent after it.
+ * Runs sends one at a time, in order, each at least `interval` after the last
+ * one settled: a native update posts at its end, after it renders.
+ */
+export interface Limiter {
+  run(send: () => Promise<unknown>): void;
+}
+
+export function limiter(interval: number, clock = realClock): Limiter {
+  const queue: (() => Promise<unknown>)[] = [];
+  let busy = false;
+  let waiting = false;
+  let last = Number.NEGATIVE_INFINITY;
+  const next = () => {
+    if (busy || waiting || queue.length === 0) return;
+    const wait = last + interval - clock.now();
+    if (wait > 0) {
+      waiting = true;
+      clock.after(wait, () => {
+        waiting = false;
+        next();
+      });
+      return;
+    }
+    const send = queue.shift() as () => Promise<unknown>;
+    busy = true;
+    void Promise.resolve()
+      .then(send)
+      .catch(() => {})
+      .finally(() => {
+        busy = false;
+        last = clock.now();
+        next();
+      });
+  };
+  return {
+    run: (send) => {
+      queue.push(send);
+      next();
+    },
+  };
+}
+
+/**
+ * Sends a widget's props through `limit`, the latest winning while it waits,
+ * for fewer renders and calls to native. The end is always sent, last.
  */
 export function coalesce<P>(
   send: (props: P, end: boolean) => Promise<unknown> | undefined,
-  { interval = 250, clock = realClock } = {},
+  limit = limiter(250),
 ): WidgetUpdates<P> {
   let next: { props: P } | undefined;
   let ending: Promise<void> | undefined;
   let finish = () => {};
-  let busy = false;
-  let waiting = false;
-  let last = Number.NEGATIVE_INFINITY;
-
-  const flush = () => {
-    if (busy || !next) return;
-    if (!ending) {
-      if (waiting) return;
-      const wait = last + interval - clock.now();
-      if (wait > 0) {
-        waiting = true;
-        clock.after(wait, () => {
-          waiting = false;
-          flush();
-        });
-        return;
-      }
-    }
+  let queued = false;
+  const take = () => {
+    queued = false;
+    if (!next) return Promise.resolve();
     const { props } = next;
     const end = !!ending;
     next = undefined;
-    busy = true;
-    last = clock.now();
-    void Promise.resolve()
+    return Promise.resolve()
       .then(() => send(props, end))
-      .catch(() => {})
       .finally(() => {
-        busy = false;
         if (end) finish();
-        else flush();
       });
   };
-
+  const schedule = (props: P) => {
+    next = { props };
+    if (queued) return;
+    queued = true;
+    limit.run(take);
+  };
   return {
     push: (props) => {
-      if (ending) return;
-      next = { props };
-      flush();
+      if (!ending) schedule(props);
     },
     end: (props) => {
       if (!ending) {
         ending = new Promise((resolve) => {
           finish = resolve;
         });
-        next = { props };
-        flush();
+        schedule(props);
       }
       return ending;
     },
