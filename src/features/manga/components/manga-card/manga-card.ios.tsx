@@ -25,7 +25,7 @@ import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host, useIsInsideHost } from "@/components/ui/host";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ramp } from "@/utils/ramp";
@@ -109,7 +109,7 @@ export function MangaCard({
         </ZStack>
       ) : (
         <Icon
-          name="book"
+          name={Icons.cover}
           size={22}
           modifiers={[
             foregroundStyle({

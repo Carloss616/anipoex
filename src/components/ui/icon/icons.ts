@@ -207,6 +207,11 @@ export const Icons = {
   }),
 
   // Metadata
+  cover: Icon.select({
+    ios: "book",
+    android: require("@expo/material-symbols/book.xml"),
+    web: "book-open",
+  }),
   person: Icon.select({
     ios: "person",
     android: require("@expo/material-symbols/person.xml"),

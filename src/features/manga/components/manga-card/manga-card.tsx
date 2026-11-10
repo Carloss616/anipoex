@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { tv } from "tailwind-variants";
 import { Badge } from "@/components/ui/badge";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
@@ -197,7 +197,7 @@ export function MangaCard({
             )}
           >
             <Icon
-              name="book-open"
+              name={Icons.cover}
               size={22}
               className="text-muted-foreground/20"
             />

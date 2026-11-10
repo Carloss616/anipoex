@@ -43,3 +43,13 @@ export const THEME_NAMES = THEME_FAMILIES.flatMap((family) => [
 export const EXTRA_THEMES = THEME_NAMES.filter(
   (name) => name !== "light" && name !== "dark",
 );
+
+export type ThemeName = (typeof THEME_NAMES)[number];
+
+/** The family's theme for `mode`; an unknown id falls back to `default`. */
+export function familyTheme(id: string, mode: ThemeMode): ThemeName {
+  const family =
+    THEME_FAMILIES.find((entry) => entry.id === id) ?? THEME_FAMILIES[0];
+
+  return family[mode];
+}

@@ -1,4 +1,5 @@
 import { expect, mock, test } from "bun:test";
+import { familyTheme } from "./constants";
 
 const setTheme = mock((_: string) => {});
 const setColorScheme = mock((_: string) => {});
@@ -88,4 +89,11 @@ test("on web, a custom family's dark half also gets `dark` for `dark:`", async (
     Reflect.deleteProperty(globalThis, "window");
     Reflect.deleteProperty(globalThis, "document");
   }
+});
+
+test("familyTheme picks the family's half for the mode", () => {
+  expect(familyTheme("moon", "dark")).toBe("moon-dark");
+  expect(familyTheme("grass", "light")).toBe("grass");
+  expect(familyTheme("default", "dark")).toBe("dark");
+  expect(familyTheme("gone", "light")).toBe("light");
 });

@@ -1,4 +1,3 @@
-import BookIcon from "@expo/material-symbols/book.xml";
 import { Box, Column } from "@expo/ui/jetpack-compose";
 import {
   align,
@@ -21,7 +20,7 @@ import { linearGradient } from "@/components/native/jetpack-compose/linear-gradi
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Host, useIsInsideHost } from "@/components/ui/host";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
 import { Progress } from "@/components/ui/progress";
 import { ramp } from "@/utils/ramp";
 import { CoverImage } from "./cover-image";
@@ -100,7 +99,7 @@ export function MangaCard({
             coverColor={coverColor}
           />
         ) : (
-          <Icon name={BookIcon} size={22} muted />
+          <Icon name={Icons.cover} size={22} muted />
         )}
       </Box>
       {corner && (

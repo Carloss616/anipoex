@@ -7,7 +7,7 @@ import { synced } from "@legendapp/state/sync";
 import { Appearance, Platform } from "react-native";
 import { Uniwind } from "uniwind";
 import { settings$ } from "../settings";
-import { THEME_FAMILIES, type ThemeMode } from "./constants";
+import { familyTheme, type ThemeMode } from "./constants";
 
 /** The device's scheme, re-read whenever the OS flips. */
 const scheme$ = observable(
@@ -40,18 +40,16 @@ export const themeMode$ = observable((): ThemeMode => {
 
 observe(() => {
   const mode = themeMode$.get();
-  const family =
-    THEME_FAMILIES.find((entry) => entry.id === settings$.theme.family.get()) ??
-    THEME_FAMILIES[0];
+  const theme = familyTheme(settings$.theme.family.get(), mode);
 
   // `default` is Uniwind's own adaptive pair, so hand `system` straight to it.
   if (
     settings$.theme.preference.get() === "system" &&
-    family.id === "default"
+    (theme === "light" || theme === "dark")
   ) {
     Uniwind.setTheme("system");
   } else {
-    Uniwind.setTheme(family[mode]);
+    Uniwind.setTheme(theme);
   }
 
   // Uniwind pins Appearance only for `light`/`dark`; native sheets follow it.
