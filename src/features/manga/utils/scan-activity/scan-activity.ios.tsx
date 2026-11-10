@@ -69,6 +69,7 @@ const backgroundTime = requireNativeModule<{
 }>("BackgroundTime");
 
 const ICON = sfSymbol(Icons.refresh) ?? "arrow.clockwise";
+const STOP_ICON = sfSymbol(Icons.stop) ?? "stop.fill";
 
 interface Props {
   name: string;
@@ -78,6 +79,7 @@ interface Props {
   /** `done/total` for a Scan all or the Reading scan; empty for a rescan. */
   count: string;
   icon: SFSymbol;
+  stopIcon: SFSymbol;
   /** The cover's widget file; none shows the icon. */
   cover?: string;
   marks: WidgetMark[];
@@ -161,7 +163,7 @@ const ScanLiveActivity = createLiveActivity<Props>("ScanActivity", (props) => {
     <Button
       target={props.stop}
       label="Stop scan"
-      systemImage="stop.fill"
+      systemImage={props.stopIcon}
       modifiers={[
         labelStyle("iconOnly"),
         buttonStyle("bordered"),
@@ -267,6 +269,7 @@ const propsOf = (group: Group): Props => {
     progress: all ? all.done / all.total : running ? null : 1,
     count: all ? `${all.done}/${all.total}` : "",
     icon: ICON,
+    stopIcon: STOP_ICON,
     cover: image(group.cover),
     ...widgetMarks(Object.values(group.marks), image),
     covers: [],
@@ -364,6 +367,7 @@ export function startLibraryActivity({
       progress: total ? done / total : 0,
       count: `${index}/${total}`,
       icon: ICON,
+      stopIcon: STOP_ICON,
       cover: image(view.cover),
       ...widgetMarks(Object.values(view.marks), image),
       library: `Reading · ${index} of ${total} · ${view.newSoFar} new`,
@@ -418,6 +422,7 @@ export function startLibraryActivity({
               progress: 1,
               count: `${summary.scanned + summary.recent}/${summary.total}`,
               icon: ICON,
+              stopIcon: STOP_ICON,
               marks: [],
               more: 0,
               covers: covers.filter((c): c is string => !!c),

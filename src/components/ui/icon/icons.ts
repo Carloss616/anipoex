@@ -14,6 +14,11 @@ export const Icons = {
     android: require("@expo/material-symbols/refresh.xml"),
     web: "refresh-cw",
   }),
+  stop: Icon.select({
+    ios: "stop.fill",
+    android: require("@expo/material-symbols/stop.xml"),
+    web: "square",
+  }),
   update: Icon.select({
     ios: "arrow.clockwise",
     android: require("@expo/material-symbols/sync.xml"),
