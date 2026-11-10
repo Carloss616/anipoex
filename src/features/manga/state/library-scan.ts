@@ -32,6 +32,8 @@ export const libraryScan$ = observable<{ index: number; total: number } | null>(
 );
 
 const DAY_MS = 86_400_000;
+/** A read past this is stopped, and its source skipped for the rest of the run. */
+const SLOW_SOURCE_MS = 60_000;
 
 let stopped = false;
 /** The manga being scanned: the one shown and one finishing behind it. */
@@ -105,8 +107,10 @@ export async function scanReading({ everything = false } = {}) {
       };
     };
 
+    const skipped = new Map<string, string>();
     const { summary, picks } = await runLibrary({
       entries,
+      skipped,
       scan: (entry, activity) => {
         current.add(entry.mangaId);
         const { keep, sources } = sourcesOf(entry.mangaId);
@@ -124,6 +128,7 @@ export async function scanReading({ everything = false } = {}) {
           activity,
           freshFor: everything ? undefined : RECENT_SCAN_MS,
           missFor: everything ? undefined : AUTO_RECHECK_DAYS * DAY_MS,
+          slow: { after: SLOW_SOURCE_MS, skipped },
         }).finally(() => current.delete(entry.mangaId));
       },
       // Any source the manga can be read from counts, not only the one picked:

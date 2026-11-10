@@ -224,6 +224,11 @@ export async function scanSources(args: {
   freshFor?: number;
   /** Leaves out sources that found no match within these ms. */
   missFor?: number;
+  /**
+   * Stops a source whose read runs past `after` ms and adds it to `skipped`
+   * (id to name), which leaves it out of every scan sharing the map.
+   */
+  slow?: { after: number; skipped: Map<string, string> };
 }): Promise<ScanResult> {
   const { mangaId, sources, titles, read, keep, only, name } = args;
   const key = mediaKey(mangaId);
@@ -260,6 +265,7 @@ export async function scanSources(args: {
       ids.includes(s.id) &&
       !busy[s.id] &&
       !within(s.id, args.freshFor) &&
+      !args.slow?.skipped.has(s.id) &&
       !(
         prev[s.id] &&
         !prev[s.id].matched &&
@@ -360,12 +366,35 @@ export async function scanSources(args: {
     while (next < targets.length) {
       const source = targets[next++];
       if (stopped.has(source.id)) continue;
+      const { slow } = args;
+      // Stopped like a Stop: its last probe stays, its row is freed.
+      const skip = () => {
+        stops[`${key}/${source.id}`]?.();
+        return null;
+      };
+      if (slow?.skipped.has(source.id)) {
+        skip();
+        continue;
+      }
       activity.mark(source.id, { state: "scanning" });
       const probe = await Promise.race([
-        // A source stopped while it waited is never read.
-        inTurn(source.id, async () =>
-          stopped.has(source.id) ? null : probeSource(mangaId, source, titles),
-        ),
+        // A source stopped or skipped while it waited is never read.
+        inTurn(source.id, async () => {
+          if (stopped.has(source.id)) return null;
+          if (slow?.skipped.has(source.id)) return skip();
+          // Timed from its turn, not from the wait behind other manga.
+          const timer =
+            slow &&
+            setTimeout(() => {
+              slow.skipped.set(source.id, source.name);
+              skip();
+            }, slow.after);
+          try {
+            return await probeSource(mangaId, source, titles);
+          } finally {
+            clearTimeout(timer);
+          }
+        }),
         halts[source.id],
       ]);
       if (!probe) continue;

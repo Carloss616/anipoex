@@ -15,6 +15,8 @@ export interface LibrarySummary {
   recent: number;
   /** Manga whose source the run picked. */
   picked: number;
+  /** Sources left out of the rest of the run for reading too slowly. */
+  skipped?: string[];
   /** How many manga were processed when the run was stopped. */
   stoppedAt?: number;
   withNew: { mangaId: number; cover?: string }[];
@@ -49,12 +51,13 @@ export function scanOrder<T extends { mangaId: number }>(
 }
 
 export function libraryStatus(summary: LibrarySummary): string {
-  const { total, recent, picked, stoppedAt, withNew } = summary;
+  const { total, recent, picked, skipped, stoppedAt, withNew } = summary;
   return [
     stoppedAt === undefined ? null : `Stopped at ${stoppedAt} of ${total}`,
     withNew.length ? `${withNew.length} with new chapters` : "No new chapters",
     picked > 0 && `${picked} source${picked > 1 ? "s" : ""} picked`,
     recent > 0 && `${recent} checked recently`,
+    skipped?.length && `Skipped slow: ${skipped.join(", ")}`,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -62,12 +65,23 @@ export function libraryStatus(summary: LibrarySummary): string {
 
 /** The next manga starts when the one before has this many sources left. */
 export const TAIL_SOURCES = 2;
-/** Manga scanned at once: the one shown and one finishing behind it. */
-const OVERLAP = 2;
+/** Manga scanned at once: the one shown and those finishing behind it. */
+export const OVERLAP = 4;
+
+/** The manga finishing behind the one shown, in one line. */
+function finishingLine(behind: { name: string; left: number }[]) {
+  const rows = behind.filter((m) => m.left > 0);
+  if (rows.length === 0) return undefined;
+  if (rows.length === 1)
+    return `Finishing ${rows[0].name} · ${rows[0].left} left`;
+  const left = rows.reduce((sum, m) => sum + m.left, 0);
+  return `Finishing ${rows.length} manga · ${left} sources left`;
+}
 
 /**
  * Scans the entries in order, each starting once the one before is down to
- * its last `TAIL_SOURCES` sources: its slowest no longer hold up the list.
+ * its last `TAIL_SOURCES` sources, up to `OVERLAP` at once: the slowest
+ * sources no longer hold up the list.
  */
 export async function runLibrary(args: {
   entries: LibraryEntry[];
@@ -76,6 +90,8 @@ export async function runLibrary(args: {
   activity: LibraryActivity;
   stopped: () => boolean;
   onIndex?: (index: number) => void;
+  /** The sources the run skipped as slow, id to name; read at the end. */
+  skipped?: Map<string, string>;
 }): Promise<{
   summary: LibrarySummary;
   picks: LibraryPick[];
@@ -92,6 +108,9 @@ export async function runLibrary(args: {
   const runs: Promise<void>[] = [];
   // Hands the view over when the next manga starts.
   let supersede: (() => void) | undefined;
+  const behind = new Map<number, { name: string; left: number }>();
+  const showBehind = () =>
+    activity.finishing(finishingLine([...behind.values()]));
 
   try {
     for (const [i, entry] of entries.entries()) {
@@ -109,11 +128,12 @@ export async function runLibrary(args: {
         newSoFar: summary.withNew.length,
       });
       let shown = true;
-      let left: number | undefined;
-      const finishing = () =>
-        activity.finishing(
-          left ? `Finishing ${entry.name} · ${left} left` : undefined,
-        );
+      let left = 0;
+      const finishing = () => {
+        if (left) behind.set(i, { name: entry.name, left });
+        else behind.delete(i);
+        showBehind();
+      };
       supersede = () => {
         shown = false;
         finishing();
@@ -164,6 +184,7 @@ export async function runLibrary(args: {
     await Promise.all(runs);
     // Where the stop came: the newest manga started, maybe the last one.
     if (stopped()) summary.stoppedAt = runs.length;
+    if (args.skipped?.size) summary.skipped = [...args.skipped.values()];
   } finally {
     activity.end(summary);
   }

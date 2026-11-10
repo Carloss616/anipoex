@@ -335,6 +335,25 @@ describe("scanSources", () => {
     await Promise.all([first, second]);
   });
 
+  it("a read past slow.after is stopped and skipped from then on", async () => {
+    probes$["201"].z.set({ latest: 7 } as never);
+    const skipped = new Map<string, string>();
+    const slow = { after: 20, skipped };
+    const first = scan({ sources: sources("z", "y"), slow });
+    await flush();
+    searchPending.y([]);
+    await first;
+    expect([...skipped]).toEqual([["z", "Z"]]);
+    expect(probes$["201"].z.get()?.latest).toBe(7);
+    expect(scanning$["201"].z.get()).toBeUndefined();
+    searchCalls.length = 0;
+    const second = scan({ mangaId: 202, sources: sources("z", "y"), slow });
+    await Bun.sleep(5);
+    expect(searchCalls).toEqual(["y"]);
+    searchPending.y([]);
+    await second;
+  });
+
   it("missFor skips recent no-matches only", async () => {
     const probe = (id: string, over: Record<string, unknown>) => ({
       provider: id,

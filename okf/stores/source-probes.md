@@ -23,10 +23,11 @@ background. Closing the sheet doesn't stop a scan. Android, iOS and
 desktop probe; the web app in a browser doesn't.
 
 A Reading scan (the Reading list's header) runs each Reading manga's own Scan all, never-probed
-and then the stalest first. The next manga starts once the one before is down to its last 2 sources, so at most two run
-at once, and a source is read for one manga at a time. Unless the user picks "Rescan everything", it skips sources probed within the last 60 minutes
+and then the stalest first. The next manga starts once the one before is down to its last 2 sources, up to four at once,
+and a source is read for one manga at a time. A source whose read runs past 60 seconds is stopped there (its last probe
+stays) and left out of the rest of the run. Unless the user picks "Rescan everything", it skips sources probed within the last 60 minutes
 and sources that found no match within the last 7 days. It ends with one summary toast: where a Stop came, how many manga
-have new chapters, how many sources it picked and how many manga it skipped as checked recently (zeros left out), with
+have new chapters, how many sources it picked and how many manga it skipped as checked recently, which sources it skipped as slow (zeros left out), with
 *Undo picks*, which restores only the picks that are still the scan's own. A manga counts as having new chapters when any source it can be read from is ahead
 of the user's progress, picked or not.
 

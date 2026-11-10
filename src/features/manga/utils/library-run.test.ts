@@ -3,6 +3,7 @@ import {
   type LibraryActivity,
   type LibraryEntry,
   libraryStatus,
+  OVERLAP,
   runLibrary,
   type StartActivity,
   scanOrder,
@@ -83,6 +84,15 @@ describe("libraryStatus", () => {
       libraryStatus({ ...base, picked: 1, stoppedAt: 12, withNew: some(2) }),
     ).toBe("Stopped at 12 of 42 · 2 with new chapters · 1 source picked");
   });
+  test("names the sources skipped as slow", () => {
+    expect(
+      libraryStatus({
+        ...base,
+        withNew: [],
+        skipped: ["Source A", "Source B"],
+      }),
+    ).toBe("No new chapters · Skipped slow: Source A, Source B");
+  });
 });
 
 describe("runLibrary", () => {
@@ -103,15 +113,58 @@ describe("runLibrary", () => {
     held[1].activity.progress(5 - TAIL_SOURCES);
     await flush();
     expect(started).toEqual([1, 2]);
-    // Never a third while the first still runs.
-    held[2].activity.progress(5);
-    await flush();
-    expect(started).toEqual([1, 2]);
+    held[2].end();
     held[1].end();
     await flush();
     expect(started).toEqual([1, 2, 3]);
-    held[2].end();
     held[3].end();
+    await run;
+  });
+
+  test("runs at most OVERLAP manga at once", async () => {
+    const { a } = activity();
+    const { started, held, scan } = heldScans(5);
+    const ids = Array.from({ length: OVERLAP + 1 }, (_, i) => i + 1);
+    const run = runLibrary({
+      entries: ids.map(entry),
+      scan,
+      unread: () => 0,
+      activity: a,
+      stopped: () => false,
+    });
+    for (const id of ids) {
+      await flush();
+      held[id]?.activity.progress(5);
+    }
+    await flush();
+    expect(started).toEqual(ids.slice(0, OVERLAP));
+    held[1].end();
+    await flush();
+    expect(started).toEqual(ids);
+    for (const id of ids.slice(1)) held[id].end();
+    await run;
+  });
+
+  test("names one manga behind, and counts several", async () => {
+    const { a, lines } = activity();
+    const { held, scan } = heldScans(4);
+    const run = runLibrary({
+      entries: [entry(1), entry(2), entry(3)],
+      scan,
+      unread: () => 0,
+      activity: a,
+      stopped: () => false,
+    });
+    await flush();
+    held[1].activity.progress(2);
+    await flush();
+    held[2].activity.progress(3);
+    await flush();
+    expect(lines).toEqual([
+      "Finishing Manga 1 · 2 left",
+      "Finishing 2 manga · 3 sources left",
+    ]);
+    for (const id of [1, 2, 3]) held[id].end();
     await run;
   });
 

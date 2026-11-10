@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-10
+
+* **Reading scan skips slow sources and runs up to four manga**: a read past 60 seconds is stopped and its source left out of the rest of the run, named in the summary ("Skipped slow: …"); up to four manga run at once, and the view counts those behind ("Finishing 2 manga · 3 sources left"). Updated [source probes](stores/source-probes.md).
+
 ## 2026-11-09
 
 * **Reading scan overlaps manga; toasts name what they undo**: the next manga starts once the one before has 2 sources left (at most two at once, one read per source at a time), and the view shows "Finishing <manga> · N left" for the one behind. The pick toast says "Now reading from <source>" with *Undo pick*, the Reading summary counts the picks with *Undo picks*, the title-match toast offers *Unmatch*. Updated [source probes](stores/source-probes.md), [chosen source](stores/source-matches.md), [source](concepts/source.md).
