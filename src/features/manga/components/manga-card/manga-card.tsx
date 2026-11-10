@@ -45,6 +45,8 @@ export interface MangaCardProps {
   progress?: number;
   /** Chapters left, a top-right badge: green above 0, neutral at 0. */
   unread?: number;
+  /** Its sources are being scanned: a dimmed cover over a looping bar. */
+  scanning?: boolean;
   style?: StyleProp<ViewStyle>;
   /** The cover's corner radius; each platform's `COVER_RADIUS` when omitted. */
   radius?: number;
@@ -152,6 +154,7 @@ export function MangaCard({
   titlePosition = "split",
   progress,
   unread,
+  scanning = false,
   style,
   radius,
   className,
@@ -177,7 +180,11 @@ export function MangaCard({
 
   const content = (
     <>
-      <Layer tilt={tilt} depth={3} className={css.image()}>
+      <Layer
+        tilt={tilt}
+        depth={3}
+        className={css.image({ className: scanning && "opacity-50" })}
+      >
         {cover ? (
           <CoverImage
             style={StyleSheet.absoluteFill}
@@ -224,6 +231,11 @@ export function MangaCard({
             <Badge color="secondary" solid className="bg-surface-secondary">
               {label}
             </Badge>
+          </View>
+        )}
+        {scanning && (
+          <View className="absolute inset-x-3 bottom-0.5">
+            <Progress indeterminate size="sm" />
           </View>
         )}
       </Layer>

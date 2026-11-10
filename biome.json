@@ -54,6 +54,7 @@
               "Sheet.Description",
               "Sheet.Title",
               "Stack.Title",
+              "Stack.Toolbar.MenuAction",
               "Stat.Unit",
               "Typography",
               "Typography.Code",

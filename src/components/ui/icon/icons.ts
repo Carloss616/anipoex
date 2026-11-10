@@ -19,6 +19,11 @@ export const Icons = {
     android: require("@expo/material-symbols/stop.xml"),
     web: "square",
   }),
+  scanList: Icon.select({
+    ios: "sparkle.magnifyingglass",
+    android: require("@expo/material-symbols/travel_explore.xml"),
+    web: "scan-search",
+  }),
   update: Icon.select({
     ios: "arrow.clockwise",
     android: require("@expo/material-symbols/sync.xml"),

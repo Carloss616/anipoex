@@ -14,9 +14,24 @@ import {
   REFRESH_QUERIES,
 } from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
-import type { MediaListStatus } from "@/graphql/types.generated";
+import {
+  libraryScan$,
+  scanReading,
+  stopReadingScan,
+} from "@/features/manga/state/library-scan";
+import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openViewSheet } from "../view-sheet";
+
+// Asked on the click: browsers drop a prompt without one.
+const scanWithNotice = (everything: boolean) => {
+  if (
+    typeof Notification !== "undefined" &&
+    Notification.permission === "default"
+  )
+    void Notification.requestPermission();
+  void scanReading({ everything });
+};
 
 export interface ListToolbarProps {
   status: MediaListStatus;
@@ -38,6 +53,8 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const mutedForeground = useThemeColor("muted-foreground");
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
+  const scanning = useValue(() => libraryScan$.get() !== null);
+  const reading = status === MediaListStatus.Current;
   const [refetching, setRefetching] = useState(false);
 
   const refresh = () => {
@@ -87,6 +104,25 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
           icon={Icons.grid}
           onPress={openViewSheet}
           accessibilityLabel="View options"
+        />
+        <Stack.Toolbar.Menu
+          hidden={!reading || scanning}
+          icon={Icons.scanList}
+          accessibilityLabel="Scan Reading"
+        >
+          <Stack.Toolbar.MenuAction onPress={() => scanWithNotice(false)}>
+            Scan for new chapters
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction onPress={() => scanWithNotice(true)}>
+            Rescan everything
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
+        <Stack.Toolbar.Button
+          hidden={!reading || !scanning}
+          icon={Icons.stop}
+          tintColor={primary}
+          onPress={stopReadingScan}
+          accessibilityLabel="Stop scan"
         />
         <Stack.Toolbar.Button
           icon={Icons.refresh}

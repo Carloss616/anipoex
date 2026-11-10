@@ -2,6 +2,7 @@ import BookIcon from "@expo/material-symbols/book.xml";
 import { Box, Column } from "@expo/ui/jetpack-compose";
 import {
   align,
+  alpha,
   clickable,
   clip,
   combinedClickable,
@@ -48,6 +49,7 @@ export function MangaCard({
   titlePosition = "split",
   progress,
   unread,
+  scanning = false,
   style,
   radius = COVER_RADIUS,
   accessibilityLabel,
@@ -87,15 +89,20 @@ export function MangaCard({
       contentAlignment="center"
       modifiers={[fillMaxSize(), clip(Shapes.RoundedCorner(radius))]}
     >
-      {cover ? (
-        <CoverImage
-          cover={cover}
-          coverThumb={coverThumb}
-          coverColor={coverColor}
-        />
-      ) : (
-        <Icon name={BookIcon} size={22} muted />
-      )}
+      <Box
+        contentAlignment="center"
+        modifiers={[matchParentSize(), ...(scanning ? [alpha(0.5)] : [])]}
+      >
+        {cover ? (
+          <CoverImage
+            cover={cover}
+            coverThumb={coverThumb}
+            coverColor={coverColor}
+          />
+        ) : (
+          <Icon name={BookIcon} size={22} muted />
+        )}
+      </Box>
       {corner && (
         <Box modifiers={[align("topStart"), padding(8, 8, 8, 8)]}>
           <Badge color={corner.color} icon={corner.icon} />
@@ -111,6 +118,11 @@ export function MangaCard({
       {titlePosition === "split" && label && (
         <Box modifiers={[align("bottomCenter"), padding(8, 8, 8, 8)]}>
           <Badge>{label}</Badge>
+        </Box>
+      )}
+      {scanning && (
+        <Box modifiers={[align("bottomCenter"), padding(12, 0, 12, 2)]}>
+          <Progress indeterminate size="sm" />
         </Box>
       )}
       {titlePosition === "over" && (title || label) && (

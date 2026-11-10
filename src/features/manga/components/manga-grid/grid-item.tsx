@@ -1,4 +1,5 @@
 import { useFragment } from "@apollo/client/react";
+import { useValue } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { memo } from "react";
 import {
@@ -8,6 +9,8 @@ import {
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { useUnreadCount } from "@/features/manga/hooks/use-unread-count";
+import { scanningAll$ } from "@/features/manga/state/probes";
+import { mediaKey } from "@/features/manga/utils/msu";
 import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { MediaStatus } from "@/graphql/types.generated";
@@ -49,6 +52,9 @@ export const GridItem = memo(function GridItem({
 }) {
   const router = useRouter();
   const progress = useProgress(item);
+  const scanning = useValue(
+    () => scanningAll$[mediaKey(item.id)].get() === true,
+  );
   const title = item.title?.userPreferred;
 
   return (
@@ -62,6 +68,7 @@ export const GridItem = memo(function GridItem({
       label={progress.label}
       progress={progress.fraction}
       unread={progress.unread}
+      scanning={scanning}
       titlePosition={titlePosition}
       tilt
       // The badge is a letter and the label a fraction: say both in words.
@@ -72,6 +79,7 @@ export const GridItem = memo(function GridItem({
         progress.unread === 0
           ? "up to date"
           : progress.unread && `${progress.unread} unread`,
+        scanning && "scanning sources",
       ]
         .filter(Boolean)
         .join(", ")}

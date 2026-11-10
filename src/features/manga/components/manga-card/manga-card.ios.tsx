@@ -15,6 +15,7 @@ import {
   multilineTextAlignment,
   onLongPressGesture,
   onTapGesture,
+  opacity,
   padding,
   shadow,
   shapes,
@@ -52,6 +53,7 @@ export function MangaCard({
   titlePosition = "split",
   progress,
   unread,
+  scanning = false,
   style,
   radius = COVER_RADIUS,
   accessibilityLabel: a11yLabel,
@@ -99,6 +101,7 @@ export function MangaCard({
           modifiers={[
             background(coverColor ?? overlay),
             clipShape("roundedRectangle", radius),
+            ...(scanning ? [opacity(0.5)] : []),
           ]}
         >
           {coverThumb && <Image source={{ uri: coverThumb }} />}
@@ -169,6 +172,20 @@ export function MangaCard({
             <Badge>{label}</Badge>
           </HStack>
         </HStack>
+      )}
+      {scanning && (
+        <VStack
+          modifiers={[
+            padding({ horizontal: 16, bottom: 2 }),
+            frame({
+              maxWidth: Infinity,
+              maxHeight: Infinity,
+              alignment: "bottom",
+            }),
+          ]}
+        >
+          <Progress indeterminate size="sm" />
+        </VStack>
       )}
       <VStack
         spacing={0}

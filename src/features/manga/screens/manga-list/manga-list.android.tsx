@@ -1,6 +1,6 @@
 import { IconButton } from "@expo/ui/jetpack-compose";
 import { fillMaxSize } from "@expo/ui/jetpack-compose/modifiers";
-import { useObservable } from "@legendapp/state/react";
+import { useObservable, useValue } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,17 +8,63 @@ import { LoadingState } from "@/components/blocks/loading-state";
 import { TopAppBar } from "@/components/native/jetpack-compose/top-app-bar";
 import { Host } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
+import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import {
   emptyMangaList,
   type MangaListStore,
 } from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
+import {
+  libraryScan$,
+  scanReading,
+  stopReadingScan,
+} from "@/features/manga/state/library-scan";
 import { parseList } from "@/features/manga/utils/parse-list";
-import type { MediaListStatus } from "@/graphql/types.generated";
+import { MediaListStatus } from "@/graphql/types.generated";
 import { useSearchQuery } from "@/hooks/use-search-query";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ListPage } from "./components/list-page";
 import { openViewSheet, ViewSheet } from "./components/view-sheet";
+
+const SCAN_ITEMS = [
+  { label: "Scan for new chapters", onPress: () => void scanReading() },
+  {
+    label: "Rescan everything",
+    onPress: () => void scanReading({ everything: true }),
+  },
+];
+
+function ScanButton({ onPress }: { onPress?: () => void }) {
+  return (
+    <IconButton onClick={onPress}>
+      <Icon
+        name={Icons.scanList}
+        accessibilityLabel="Scan Reading"
+        color="inherit"
+      />
+    </IconButton>
+  );
+}
+
+/** Its own component, so a scan starting or ending redraws only this. */
+function ScanAction() {
+  const scanning = useValue(() => libraryScan$.get() !== null);
+  const m3 = useThemeM3Colors();
+
+  if (!scanning) {
+    return (
+      <Menu items={SCAN_ITEMS}>
+        <ScanButton />
+      </Menu>
+    );
+  }
+  return (
+    <IconButton onClick={stopReadingScan} colors={{ contentColor: m3.primary }}>
+      <Icon name={Icons.stop} accessibilityLabel="Stop scan" color="inherit" />
+    </IconButton>
+  );
+}
 
 /**
  * Android: a search app bar over M3 tabs and a pager, drawn in the screen's own
@@ -71,6 +117,7 @@ export function MangaList() {
                 color="inherit"
               />
             </IconButton>
+            {status === MediaListStatus.Current && <ScanAction />}
           </TopAppBar.Actions>
           {MANGA_STATUS_ENTRIES.map(([key]) =>
             visited.has(key) ? (

@@ -4,6 +4,12 @@ import { Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES, mangaCount } from "@/features/manga/constants";
 import { ALL, genresOf } from "@/features/manga/hooks/use-manga-list";
 import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
+import {
+  libraryScan$,
+  scanReading,
+  stopReadingScan,
+} from "@/features/manga/state/library-scan";
+import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { LIST_SYMBOLS } from "../../constants";
 import { openViewSheet } from "../view-sheet";
@@ -19,6 +25,8 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const primary = useThemeColor("primary");
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
+  const scanning = useValue(() => libraryScan$.get() !== null);
+  const reading = status === MediaListStatus.Current;
 
   return (
     <Stack.Toolbar placement="right">
@@ -59,6 +67,27 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
         icon={Icons.grid}
         onPress={openViewSheet}
         accessibilityLabel="View options"
+      />
+      <Stack.Toolbar.Menu
+        hidden={!reading || scanning}
+        icon={Icons.scanList}
+        accessibilityLabel="Scan Reading"
+      >
+        <Stack.Toolbar.MenuAction onPress={() => scanReading()}>
+          Scan for new chapters
+        </Stack.Toolbar.MenuAction>
+        <Stack.Toolbar.MenuAction
+          onPress={() => scanReading({ everything: true })}
+        >
+          Rescan everything
+        </Stack.Toolbar.MenuAction>
+      </Stack.Toolbar.Menu>
+      <Stack.Toolbar.Button
+        hidden={!reading || !scanning}
+        icon={Icons.stop}
+        tintColor={primary}
+        onPress={stopReadingScan}
+        accessibilityLabel="Stop scan"
       />
     </Stack.Toolbar>
   );
