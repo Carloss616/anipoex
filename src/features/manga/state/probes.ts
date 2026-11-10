@@ -113,6 +113,8 @@ export function stopScanAll(key: string) {
 export interface ScanResult {
   /** False when nothing was left to scan or a Scan all of it is running. */
   scanned: boolean;
+  /** Not scanned because every source left was probed recently. */
+  recent?: boolean;
   /** Set when the scan picked a source: what to restore to undo it. */
   picked?: { id: string; previous: Parameters<typeof restoreMatch>[1] };
 }
@@ -263,12 +265,12 @@ export async function scanSources(args: {
   const prev = { ...probes$[key].peek() };
   const within = (id: string, ms: number | undefined) =>
     ms !== undefined && (prev[id]?.updatedAt ?? 0) > Date.now() - ms;
-  const targets = sources.filter(
+  const candidates = sources.filter(
+    (s) => ids.includes(s.id) && !busy[s.id] && !args.slow?.skipped.has(s.id),
+  );
+  const targets = candidates.filter(
     (s) =>
-      ids.includes(s.id) &&
-      !busy[s.id] &&
       !within(s.id, args.freshFor) &&
-      !args.slow?.skipped.has(s.id) &&
       !(
         prev[s.id] &&
         !prev[s.id].matched &&
@@ -276,7 +278,8 @@ export async function scanSources(args: {
         within(s.id, args.missFor)
       ),
   );
-  if (targets.length === 0) return { scanned: false };
+  if (targets.length === 0)
+    return { scanned: false, recent: candidates.length > 0 };
 
   // Added beside the sources other rescans are probing, not over them.
   for (const s of targets) scanning$[key][s.id].set(true);

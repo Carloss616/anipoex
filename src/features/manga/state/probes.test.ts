@@ -772,7 +772,8 @@ describe("scanSources", () => {
 
   it("returns scanned false when nothing is left to scan", async () => {
     exclusions$["201"].a.set({ reason: "other", updatedAt: Date.now() });
-    expect(await scan()).toEqual({ scanned: false });
+    // Excluded, not recent: the Reading summary leaves it out of "checked recently".
+    expect(await scan()).toEqual({ scanned: false, recent: false });
     expect(startScanActivity).not.toHaveBeenCalled();
   });
 
@@ -824,6 +825,7 @@ describe("scanSources", () => {
     });
     expect(await scan({ freshFor: RECENT_SCAN_MS })).toEqual({
       scanned: false,
+      recent: true,
     });
     expect(startScanActivity).not.toHaveBeenCalled();
     expect(searchCalls).toEqual([]);

@@ -161,7 +161,7 @@ export async function runLibrary(args: {
       const run = scan(entry, tracked)
         .then((result) => {
           if (result.scanned) summary.scanned++;
-          else summary.recent++;
+          else if (result.recent) summary.recent++;
           if (result.picked) {
             picks.push({ mangaId: entry.mangaId, ...result.picked });
             summary.picked++;

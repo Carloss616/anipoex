@@ -198,11 +198,12 @@ describe("runLibrary", () => {
     ]);
   });
 
-  test("counts a skipped manga as recent", async () => {
+  test("counts a manga as recent only when its sources were probed recently", async () => {
     const { a } = activity();
     const { summary } = await runLibrary({
-      entries: [entry(1)],
-      scan: async () => ({ scanned: false }),
+      entries: [entry(1), entry(2)],
+      // Manga 2 had nothing to scan: every source excluded or skipped as slow.
+      scan: async (e) => ({ scanned: false, recent: e.mangaId === 1 }),
       unread: () => 0,
       activity: a,
       stopped: () => false,
