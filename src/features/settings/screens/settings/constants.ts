@@ -18,3 +18,11 @@ export const THEME_OPTIONS: {
   { id: "light", label: "Light", icon: Icons.themeLight },
   { id: "dark", label: "Dark", icon: Icons.themeDark },
 ];
+
+/** Each setting's supporting line, the same on every platform. */
+export const DESCRIPTIONS = {
+  layout: "The sections on Home and their order",
+  autoPick: "After a scan, the one with the most new chapters",
+  slowSkip: "A source slower than this is left out of a Reading scan",
+  dns: "The resolver extensions use",
+};

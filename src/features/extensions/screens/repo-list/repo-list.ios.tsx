@@ -65,13 +65,16 @@ export function RepoList() {
     trust,
     remove,
   } = useRepoList();
-  const [muted, destructive] = useThemeColor(["muted", "destructive"]);
+  const [surfaceSecondary, destructive] = useThemeColor([
+    "surface-secondary",
+    "destructive",
+  ]);
   const text = useNativeState("");
   const empty = useValue(() => url$.get() === "");
   const fieldOpen = useValue(fieldOpen$);
   const error = useValue(error$);
   const font = useFont();
-  const bgMuted = listRowBackground(muted);
+  const bgSurface = listRowBackground(surfaceSecondary);
   const bgTransparent = listRowBackground("transparent");
 
   // Trusting a repo clears the url; only that is mirrored, so typing is
@@ -160,17 +163,11 @@ export function RepoList() {
             modifiers={[
               listStyle("insetGrouped"),
               scrollContentBackground("hidden"),
+              font,
             ]}
           >
             {repos.length > 0 ? (
-              <Section
-                modifiers={[bgMuted]}
-                header={
-                  <Text textStyle="footnote" weight="medium">
-                    Available
-                  </Text>
-                }
-              >
+              <Section modifiers={[bgSurface]} title="Available">
                 <List.ForEach
                   data={repos}
                   keyExtractor={(repo) => repo.indexUrl}

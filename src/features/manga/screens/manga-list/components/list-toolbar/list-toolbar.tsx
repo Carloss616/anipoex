@@ -46,8 +46,10 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const client = useApolloClient();
   const counts = useMangaListCounts();
   const wide = useBreakpoint().isAtLeast("md");
-  const primary = useThemeColor("primary");
-  const mutedForeground = useThemeColor("muted-foreground");
+  const [primary, mutedForeground] = useThemeColor([
+    "primary",
+    "muted-foreground",
+  ]);
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
   const scanning = useValue(libraryScan$);

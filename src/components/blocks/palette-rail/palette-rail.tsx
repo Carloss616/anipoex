@@ -25,12 +25,12 @@ export function PaletteRail() {
       horizontal
       style={
         {
-          scrollbarWidth: "none",
           maskImage: FADE,
           WebkitMaskImage: FADE,
         } as ViewStyle
       }
-      contentContainerClassName="px-4 py-1"
+      className="scrollbar-none hover:scrollbar-auto"
+      contentContainerClassName="p-4 pt-1"
     >
       <ChoiceCards
         value={family}
@@ -60,7 +60,7 @@ const PaletteCard = memo(function PaletteCard({
   return (
     <ChoiceCards.Item value={id} className="w-30">
       <ScopedTheme theme={theme}>
-        <ChoiceCards.Media className="bg-background items-stretch">
+        <ChoiceCards.Media className="items-stretch">
           <PalettePreview selected={false} />
         </ChoiceCards.Media>
       </ScopedTheme>

@@ -7,6 +7,7 @@ import {
   Box,
   Column,
   FilledTonalButton,
+  Row,
   Switch,
 } from "@expo/ui/jetpack-compose";
 import {
@@ -41,12 +42,13 @@ import {
   useDns,
   useLoadInstalled,
 } from "@/features/extensions";
-import { layoutSummary } from "@/features/home/utils/home-layout";
+import { PRESET_LABELS } from "@/features/home/constants";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
-import { SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
+import { THEME_FAMILIES } from "@/state/theme";
+import { DESCRIPTIONS, SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 /** M3 Expressive settings: labelled groups of segmented rows. */
@@ -57,10 +59,16 @@ export function Settings() {
   const headerHeight = useHeaderHeight();
   const setHeaderScrolled = useSetHeaderScrolled();
   const m3 = useThemeM3Colors();
-  const layout = useValue(() => layoutSummary(settings$.home.get()));
+  // The preset alone: the count squeezes the description beside it.
+  const layout = useValue(() => PRESET_LABELS[settings$.home.preset.get()]);
   const avatarUrl = useValue(session$.user.avatarUrl);
   const name = useValue(session$.user.name);
   const preference = useValue(settings$.theme.preference);
+  const familyName = useValue(
+    () =>
+      THEME_FAMILIES.find((entry) => entry.id === settings$.theme.family.get())
+        ?.name ?? "",
+  );
   const theme =
     THEME_OPTIONS.find((option) => option.id === preference) ??
     THEME_OPTIONS[0];
@@ -79,7 +87,11 @@ export function Settings() {
   const slowSkipLabel =
     SLOW_SKIP_OPTIONS.find((option) => option.seconds === slowSkip)?.label ??
     `${slowSkip} s`;
-  const row = { containerColor: m3.surfaceContainerLow };
+  // Values and switches stay level with the title when a description wraps.
+  const row = {
+    colors: { containerColor: m3.surfaceContainerLow },
+    verticalAlignment: "center",
+  } as const;
 
   return (
     <>
@@ -120,7 +132,7 @@ export function Settings() {
                   )}
                 </Box>
               </SegmentedListItem.Leading>
-              <Text style={{ typography: "titleMedium" }}>{greeting}</Text>
+              <Text>{greeting}</Text>
               <SegmentedListItem.Supporting>
                 <Text style={{ typography: "bodyMedium" }}>
                   Signed in with AniList
@@ -138,37 +150,70 @@ export function Settings() {
               <SegmentedListItem.Leading>
                 <LeadingIcon name={TuneIcon} />
               </SegmentedListItem.Leading>
-              <Text>Home layout</Text>
+              <Text>Layout</Text>
               <SegmentedListItem.Supporting>
-                <Text style={{ typography: "bodyMedium" }}>{layout}</Text>
+                <Text style={{ typography: "bodyMedium" }}>
+                  {DESCRIPTIONS.layout}
+                </Text>
               </SegmentedListItem.Supporting>
               <SegmentedListItem.Trailing>
-                <Icon name={Icons.chevronRight} muted />
+                <Row verticalAlignment="center">
+                  <Text>{layout}</Text>
+                  <Icon name={Icons.chevronRight} color="inherit" />
+                </Row>
               </SegmentedListItem.Trailing>
             </SegmentedListItem>
 
             <Label>Appearance</Label>
-            <Menu
-              items={THEME_OPTIONS.map((option) => ({
-                label: option.label,
-                icon: option.icon,
-                checked: option.id === preference,
-                onPress: () => settings$.theme.preference.set(option.id),
-              }))}
-            >
-              <SegmentedListItem index={0} count={1} {...row}>
-                <SegmentedListItem.Leading>
-                  <LeadingIcon name={theme.icon} />
-                </SegmentedListItem.Leading>
-                <Text>Theme</Text>
-                <SegmentedListItem.Supporting>
-                  <Text style={{ typography: "bodyMedium" }}>
-                    {theme.label}
-                  </Text>
-                </SegmentedListItem.Supporting>
-              </SegmentedListItem>
-            </Menu>
-            <PaletteRail />
+            <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
+              <Menu
+                items={THEME_OPTIONS.map((option) => ({
+                  label: option.label,
+                  icon: option.icon,
+                  checked: option.id === preference,
+                  onPress: () => settings$.theme.preference.set(option.id),
+                }))}
+              >
+                <SegmentedListItem index={0} count={3} {...row}>
+                  <SegmentedListItem.Leading>
+                    <LeadingIcon name={theme.icon} />
+                  </SegmentedListItem.Leading>
+                  <Text>Theme</Text>
+                  <SegmentedListItem.Trailing>
+                    <Row verticalAlignment="center">
+                      <Text>{theme.label}</Text>
+                      <Icon name={Icons.chevronDown} color="inherit" />
+                    </Row>
+                  </SegmentedListItem.Trailing>
+                </SegmentedListItem>
+              </Menu>
+              <Column>
+                {/* Squared where they meet: the rail reads as part of this row. */}
+                <SegmentedListItem
+                  index={1}
+                  count={3}
+                  {...row}
+                  shape={{ bottomStart: 0, bottomEnd: 0 }}
+                >
+                  <SegmentedListItem.Leading>
+                    <LeadingIcon name={theme.icon} />
+                  </SegmentedListItem.Leading>
+                  <Text>Palette</Text>
+                  <SegmentedListItem.Trailing>
+                    <Text>{familyName}</Text>
+                  </SegmentedListItem.Trailing>
+                </SegmentedListItem>
+                <SegmentedListItem
+                  index={2}
+                  count={3}
+                  {...row}
+                  shape={{ topStart: 0, topEnd: 0 }}
+                  contentPadding={{ start: 0, top: 0, end: 0, bottom: 0 }}
+                >
+                  <PaletteRail />
+                </SegmentedListItem>
+              </Column>
+            </Column>
 
             <Label>Sources</Label>
             <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
@@ -184,7 +229,7 @@ export function Settings() {
                 <Text>Auto-pick a source</Text>
                 <SegmentedListItem.Supporting>
                   <Text style={{ typography: "bodyMedium" }}>
-                    After a scan, the one with the most new chapters
+                    {DESCRIPTIONS.autoPick}
                   </Text>
                 </SegmentedListItem.Supporting>
                 <SegmentedListItem.Trailing>
@@ -199,9 +244,15 @@ export function Settings() {
                   <Text>Skip slow sources</Text>
                   <SegmentedListItem.Supporting>
                     <Text style={{ typography: "bodyMedium" }}>
-                      {`${slowSkipLabel} · in a Reading scan`}
+                      {DESCRIPTIONS.slowSkip}
                     </Text>
                   </SegmentedListItem.Supporting>
+                  <SegmentedListItem.Trailing>
+                    <Row verticalAlignment="center">
+                      <Text>{slowSkipLabel}</Text>
+                      <Icon name={Icons.chevronDown} color="inherit" />
+                    </Row>
+                  </SegmentedListItem.Trailing>
                 </SegmentedListItem>
               </Menu>
               <SegmentedListItem
@@ -214,17 +265,16 @@ export function Settings() {
                   <LeadingIcon name={TranslateIcon} />
                 </SegmentedListItem.Leading>
                 <Text>Languages</Text>
-                <SegmentedListItem.Supporting>
-                  <Text style={{ typography: "bodyMedium" }}>{languages}</Text>
-                </SegmentedListItem.Supporting>
                 <SegmentedListItem.Trailing>
-                  <Icon name={Icons.chevronRight} muted />
+                  <Row verticalAlignment="center">
+                    <Text>{languages}</Text>
+                    <Icon name={Icons.chevronRight} muted />
+                  </Row>
                 </SegmentedListItem.Trailing>
               </SegmentedListItem>
             </Column>
 
             <Label>Network</Label>
-            {/* The value as the supporting line, where M3 lists show it. */}
             <Menu items={dns.items}>
               <SegmentedListItem index={0} count={1} {...row}>
                 <SegmentedListItem.Leading>
@@ -233,9 +283,15 @@ export function Settings() {
                 <Text>DNS</Text>
                 <SegmentedListItem.Supporting>
                   <Text style={{ typography: "bodyMedium" }}>
-                    {dns.name ?? ""}
+                    {DESCRIPTIONS.dns}
                   </Text>
                 </SegmentedListItem.Supporting>
+                <SegmentedListItem.Trailing>
+                  <Row verticalAlignment="center">
+                    {dns.name && <Text>{dns.name}</Text>}
+                    <Icon name={Icons.chevronDown} color="inherit" />
+                  </Row>
+                </SegmentedListItem.Trailing>
               </SegmentedListItem>
             </Menu>
 
@@ -250,7 +306,7 @@ export function Settings() {
                   contentColor: m3.onErrorContainer,
                 }}
               >
-                <Text style={{ typography: "labelLarge" }}>Sign out</Text>
+                <Text>Sign out</Text>
               </FilledTonalButton>
             </Box>
           </Column>
@@ -286,7 +342,7 @@ function LeadingIcon({ name }: { name: IconName }) {
         background(m3.surfaceContainerHigh),
       ]}
     >
-      <Icon name={name} muted />
+      <Icon name={name} color="inherit" />
     </Box>
   );
 }

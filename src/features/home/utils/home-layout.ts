@@ -1,6 +1,5 @@
 import { moveTo } from "@/utils/move-to";
 import {
-  PRESET_LABELS,
   PRESETS,
   type Preset,
   SECTION_IDS,
@@ -48,12 +47,6 @@ export const moved = (
   id: SectionId,
   to: number,
 ): HomeLayout => matched({ ...layout, order: moveTo(layout.order, id, to) });
-
-/** "Balanced · 7 sections", for the settings row that opens the editor. */
-export function layoutSummary(layout: HomeLayout): string {
-  const count = visibleSections(layout).length;
-  return `${PRESET_LABELS[layout.preset]} · ${count} section${count === 1 ? "" : "s"}`;
-}
 
 const isSectionId = (id: unknown): id is SectionId =>
   SECTION_IDS.includes(id as SectionId);

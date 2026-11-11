@@ -27,7 +27,7 @@ export function Languages() {
     .split(",")
     .filter(Boolean);
   // The theme's surfaces, not the system's grouped grays.
-  const rowBackground = listRowBackground(useThemeColor("muted"));
+  const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
 
   const move = (sources: number[], destination: number) => {
     const from = sources[0];

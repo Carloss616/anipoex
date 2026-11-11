@@ -61,9 +61,12 @@ export function MangaCard({
   onPress,
   onLongPress,
 }: MangaCardProps) {
-  const card = useThemeColor("card");
   const corner = cornerBadge(status, mark);
-  const [overlay, solid] = useThemeColor(["overlay", "surface-secondary"]);
+  const [card, overlay, solid] = useThemeColor([
+    "card",
+    "overlay",
+    "surface-secondary",
+  ]);
   const isInsideHost = useIsInsideHost();
   // Keeps its headers: an image host can refuse a request without its Referer.
   const coverSource = typeof cover === "string" ? { uri: cover } : cover;

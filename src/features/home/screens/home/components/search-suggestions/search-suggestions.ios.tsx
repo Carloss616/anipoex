@@ -28,7 +28,7 @@ export function SearchSuggestions({
   const draft = useValue(draft$).trim();
   const recent = matchingHistory(useValue(searchHistory$), draft);
   const clearFont = useFont("footnote");
-  const rowBackground = listRowBackground(useThemeColor("muted"));
+  const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
 
   return (
     <SuggestionsOverlay>
@@ -58,9 +58,7 @@ export function SearchSuggestions({
               modifiers={[rowBackground]}
               header={
                 <HStack>
-                  <Text textStyle="footnote" weight="medium">
-                    Recent
-                  </Text>
+                  <Text>Recent</Text>
                   <Spacer />
                   <Button
                     label="Clear"

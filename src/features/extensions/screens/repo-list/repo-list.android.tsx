@@ -244,7 +244,7 @@ const RepoRow = memo(function RepoRow({
         <SegmentedListItem
           index={index}
           count={count}
-          containerColor={m3.surfaceContainerHigh}
+          colors={{ containerColor: m3.surfaceContainerHigh }}
         >
           <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
             {repo.name}

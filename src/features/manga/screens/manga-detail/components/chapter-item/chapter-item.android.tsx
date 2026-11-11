@@ -32,7 +32,7 @@ export function ChapterItem({
       <SegmentedListItem
         index={index}
         count={count}
-        containerColor={m3.surfaceContainerLow}
+        colors={{ containerColor: m3.surfaceContainerLow }}
         onPress={() =>
           router.push({
             pathname: "/manga/[id]/reader",

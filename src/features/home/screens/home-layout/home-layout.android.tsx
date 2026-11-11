@@ -116,7 +116,7 @@ export function HomeLayout() {
                     <SegmentedListItem
                       index={i}
                       count={order.length}
-                      containerColor={m3.surfaceContainerLow}
+                      colors={{ containerColor: m3.surfaceContainerLow }}
                       onPress={toggle}
                     >
                       <Text>{SECTIONS[id].title}</Text>

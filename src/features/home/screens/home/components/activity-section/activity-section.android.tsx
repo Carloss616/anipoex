@@ -41,7 +41,7 @@ export function ActivitySection({ title, activities }: ActivitySectionProps) {
               key={a.id}
               index={i}
               count={activities.length}
-              containerColor={m3.surfaceContainerLow}
+              colors={{ containerColor: m3.surfaceContainerLow }}
               onPress={
                 media ? () => router.push(`/manga/${media.id}`) : undefined
               }

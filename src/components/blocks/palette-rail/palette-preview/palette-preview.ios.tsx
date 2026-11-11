@@ -13,6 +13,7 @@ import {
   frame,
   glassEffect,
   offset,
+  onTapGesture,
   opacity,
   padding,
   shapes,
@@ -28,13 +29,28 @@ const META = WIDTH - 16 - COVER - 6;
 const TAGS = [26, 32, 22];
 
 /** A manga detail page in miniature, in the colors of its `ScopedTheme`. */
-export function PalettePreview({ selected }: PalettePreviewProps) {
-  const [bg, fg, overlay, muted, primary] = useThemeColor([
+export function PalettePreview({
+  selected = false,
+  onSelect = () => {},
+}: PalettePreviewProps) {
+  const [
+    bg,
+    fg,
+    overlay,
+    muted,
+    surfaceSecondary,
+    primary,
+    accent,
+    accentForeground,
+  ] = useThemeColor([
     "background",
     "foreground",
     "overlay",
     "muted",
+    "surface-secondary",
     "primary",
+    "accent",
+    "accent-foreground",
   ]);
   const bar = (width: number, alpha: number, height = 5) => (
     <Capsule
@@ -54,34 +70,37 @@ export function PalettePreview({ selected }: PalettePreviewProps) {
         modifiers={[
           padding({ all: 8 }),
           frame({ width: WIDTH }),
-          background(bg, shapes.roundedRectangle({ cornerRadius: 18 })),
-          strokeBorder({
-            content: selected ? primary : muted,
-            style: { lineWidth: selected ? 3 : 1 },
+          glassEffect({
+            glass: {
+              variant: "regular",
+              interactive: !selected,
+              tint: bg,
+            },
             shape: "roundedRectangle",
             cornerRadius: 18,
           }),
+          strokeBorder({
+            content: selected ? primary : undefined,
+            style: { lineWidth: selected ? 3 : 0 },
+            shape: "roundedRectangle",
+            cornerRadius: 18,
+          }),
+          ...(selected ? [] : [onTapGesture(onSelect)]),
         ]}
       >
         <HStack alignment="bottom" spacing={6}>
           <ZStack
             modifiers={[
               frame({ width: COVER, height: COVER * 1.5 }),
-              background(overlay),
+              background(accent),
               clipShape("roundedRectangle", 8),
             ]}
           >
-            <Icon
-              name={Icons.cover}
-              size={14}
-              modifiers={[
-                foregroundStyle({ type: "hierarchical", style: "tertiary" }),
-              ]}
-            />
+            <Icon name={Icons.cover} size={14} color={accentForeground} />
           </ZStack>
           <VStack alignment="leading" spacing={4}>
             {bar(META, 0.85)}
-            {bar(META * 0.7, 0.85)}
+            {bar(META * 0.7, 0.65)}
             {bar(META / 2, 0.45)}
           </VStack>
         </HStack>
@@ -97,7 +116,7 @@ export function PalettePreview({ selected }: PalettePreviewProps) {
           spacing={5}
           modifiers={[
             padding({ all: 7 }),
-            glassEffect({ shape: "roundedRectangle", cornerRadius: 10 }),
+            background(muted, shapes.roundedRectangle({ cornerRadius: 10 })),
           ]}
         >
           <HStack>
@@ -124,7 +143,10 @@ export function PalettePreview({ selected }: PalettePreviewProps) {
         </VStack>
         <VStack
           spacing={1}
-          modifiers={[background(muted), clipShape("roundedRectangle", 8)]}
+          modifiers={[
+            background(surfaceSecondary),
+            clipShape("roundedRectangle", 8),
+          ]}
         >
           {[true, false].map((latest) => (
             <HStack
@@ -156,14 +178,10 @@ export function PalettePreview({ selected }: PalettePreviewProps) {
           modifiers={[
             frame({ width: 22, height: 22 }),
             background(primary, shapes.circle()),
-            offset({ x: 7, y: -7 }),
+            offset({ x: -8, y: 8 }),
           ]}
         >
-          <Icon
-            name={Icons.check}
-            size={11}
-            modifiers={[foregroundStyle(bg)]}
-          />
+          <Icon name={Icons.check} size={11} color={bg} />
         </ZStack>
       )}
     </ZStack>

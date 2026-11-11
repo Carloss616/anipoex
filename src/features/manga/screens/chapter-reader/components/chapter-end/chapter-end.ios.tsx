@@ -67,8 +67,7 @@ export function ChapterEnd({
   onBack,
 }: ChapterEndProps) {
   const insets = useSafeAreaInsets();
-  const success = useThemeColor("success");
-  const successSoft = useThemeColor("success-soft");
+  const [success, successSoft] = useThemeColor(["success", "success-soft"]);
   const undoFont = useFont("subheadline", "medium");
   const confirming = save.state === "confirm";
   const saving = save.state === "saving";

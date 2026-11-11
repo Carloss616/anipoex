@@ -13,7 +13,7 @@ import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
-import { Text } from "@/components/native/swift-ui/text";
+import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { settings$ } from "@/state/settings";
@@ -35,7 +35,7 @@ import { moved, toggled, withPreset } from "../../utils/home-layout";
 export function HomeLayout() {
   const { preset, order, on } = useValue(settings$.home);
   // The theme's surfaces, not the system's grouped grays.
-  const rowBackground = listRowBackground(useThemeColor("muted"));
+  const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
 
   const move = (sources: number[], destination: number) => {
     const from = sources[0];
@@ -55,12 +55,13 @@ export function HomeLayout() {
             listStyle("insetGrouped"),
             scrollContentBackground("hidden"),
             environment("editMode", "active"),
+            useFont(),
           ]}
         >
           <Section
             modifiers={[rowBackground]}
             title="Preset"
-            footer={<Text>{PRESET_NOTES[preset]}</Text>}
+            footer={<Text textStyle="footnote">{PRESET_NOTES[preset]}</Text>}
           >
             <Picker
               selection={preset}

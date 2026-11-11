@@ -1,8 +1,8 @@
-import { Box, Column, Row } from "@expo/ui/jetpack-compose";
+import { Column, Row } from "@expo/ui/jetpack-compose";
 import {
+  clickable,
   horizontalScroll,
   padding,
-  selectable,
   selectableGroup,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -25,7 +25,11 @@ export function PaletteRail() {
     // shortcut: on a phone the third card already starts partly off-screen; scroll the chosen one into view when there are more families.
     <Row
       horizontalArrangement={{ spacedBy: 12 }}
-      modifiers={[selectableGroup(), horizontalScroll(), padding(0, 8, 0, 8)]}
+      modifiers={[
+        selectableGroup(),
+        horizontalScroll(),
+        padding(16, 0, 16, 16),
+      ]}
     >
       {THEME_FAMILIES.map((entry) => (
         <PaletteCard key={entry.id} id={entry.id} name={entry.name} />
@@ -43,26 +47,28 @@ const PaletteCard = memo(function PaletteCard({
 }) {
   const theme = useValue(() => familyTheme(id, themeMode$.get()));
   const selected = useValue(() => settings$.theme.family.get() === id);
-  const pick = () => settings$.theme.family.set(id);
+  const select = () => settings$.theme.family.set(id);
 
   return (
-    <Column
-      horizontalAlignment="center"
-      verticalArrangement={{ spacedBy: 7 }}
-      modifiers={[selectable(selected, pick, "radioButton")]}
-    >
-      <Box modifiers={[padding(0, 7, 7, 0)]}>
-        <ScopedTheme theme={theme}>
-          <PalettePreview selected={selected} />
-        </ScopedTheme>
-      </Box>
-      <Name name={name} selected={selected} />
+    <Column horizontalAlignment="center" verticalArrangement={{ spacedBy: 7 }}>
+      <ScopedTheme theme={theme}>
+        <PalettePreview selected={selected} onSelect={select} />
+      </ScopedTheme>
+      <Name name={name} selected={selected} onSelect={select} />
     </Column>
   );
 });
 
 /** Apart from the card: it reads the app's colors, which a pick changes. */
-function Name({ name, selected }: { name: string; selected: boolean }) {
+function Name({
+  name,
+  selected,
+  onSelect,
+}: {
+  name: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const m3 = useThemeM3Colors();
 
   return (
@@ -72,6 +78,8 @@ function Name({ name, selected }: { name: string; selected: boolean }) {
         fontWeight: selected ? "600" : undefined,
       }}
       color={selected ? m3.primary : m3.onSurface}
+      // No ripple: the card shows the press, the name only widens its target.
+      modifiers={selected ? [] : [clickable(onSelect, { indication: false })]}
     >
       {name}
     </Text>

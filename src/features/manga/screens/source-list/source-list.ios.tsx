@@ -122,9 +122,12 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
   const excluding = request && "suspicious" in request ? request : null;
   const failure =
     failed && errorDialog(failed.source.name, failed.error, failed.excluded);
-  const [muted, primary] = useThemeColor(["muted", "primary"]);
+  const [surfaceSecondary, primary] = useThemeColor([
+    "surface-secondary",
+    "primary",
+  ]);
   // Rows as in the extension list: inset-grouped cards, default row insets.
-  const rowBackground = listRowBackground(muted);
+  const rowBackground = listRowBackground(surfaceSecondary);
 
   return (
     <>

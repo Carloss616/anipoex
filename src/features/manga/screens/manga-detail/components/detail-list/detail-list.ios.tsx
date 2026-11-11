@@ -42,12 +42,10 @@ export function DetailList({
   onRefresh,
   className,
 }: DetailListProps) {
-  const rowBackground = listRowBackground(useThemeColor("muted"));
+  const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
   const sectionHeader = (
     <HStack spacing={12}>
-      <Text textStyle="footnote" weight="medium">
-        Chapters
-      </Text>
+      <Text>Chapters</Text>
       <Badge>{total}</Badge>
       <Spacer />
       <SourcePicker manga={manga} />

@@ -1,5 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Stack, useRouter } from "expo-router";
+import { Typography } from "panelui-native/components/typography";
 import { Avatar } from "panelui-web/avatar";
 import { Button } from "panelui-web/button";
 import { ButtonGroup } from "panelui-web/button-group";
@@ -19,11 +20,11 @@ import {
   useDns,
   useLoadInstalled,
 } from "@/features/extensions";
-import { layoutSummary } from "@/features/home/utils/home-layout";
+import { PRESET_LABELS } from "@/features/home/constants";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
-import { SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
+import { DESCRIPTIONS, SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const DNS_ITEMS = DNS_OPTIONS.map(({ id, name }) => ({
@@ -42,7 +43,7 @@ export function Settings() {
   const headerScroll = useHeaderScroll();
   const { greeting, signOut } = useSignOut();
   const user = useValue(session$.user);
-  const layout = useValue(() => layoutSummary(settings$.home.get()));
+  const layout = useValue(() => PRESET_LABELS[settings$.home.preset.get()]);
   const autoPick = useValue(settings$.sources.autoPick);
   const slowSkip = useValue(() => String(settings$.sources.slowSkip.get()));
   const preference = useValue(settings$.theme.preference);
@@ -90,9 +91,14 @@ export function Settings() {
                 onClick={() => router.push("/settings/layout")}
               >
                 <Frame.Content>
-                  <Frame.Title as="p">Home layout</Frame.Title>
-                  <Frame.Description>{layout}</Frame.Description>
+                  <Frame.Title as="p">Layout</Frame.Title>
+                  <Frame.Description>{DESCRIPTIONS.layout}</Frame.Description>
                 </Frame.Content>
+                <Frame.Actions>
+                  <Typography type="body-sm" muted>
+                    {layout}
+                  </Typography>
+                </Frame.Actions>
               </Frame.Row>
             </Frame.Panel>
           </Frame>
@@ -126,7 +132,7 @@ export function Settings() {
                   </ButtonGroup>
                 </Frame.Actions>
               </Frame.Row>
-              <Frame.Row className="flex-col items-stretch gap-2 px-0">
+              <Frame.Row className="flex-col items-stretch gap-2 px-0 pb-0">
                 <Frame.Content className="px-4">
                   <Frame.Title as="p">Palette</Frame.Title>
                 </Frame.Content>
@@ -149,7 +155,7 @@ export function Settings() {
                   <Frame.Content>
                     <Frame.Title as="p">Auto-pick a source</Frame.Title>
                     <Frame.Description>
-                      After a scan, the one with the most new chapters
+                      {DESCRIPTIONS.autoPick}
                     </Frame.Description>
                   </Frame.Content>
                   <Frame.Actions>
@@ -167,8 +173,7 @@ export function Settings() {
                   <Frame.Content>
                     <Frame.Title as="p">Skip slow sources</Frame.Title>
                     <Frame.Description>
-                      In a Reading scan, a source slower than this is left out
-                      of the rest
+                      {DESCRIPTIONS.slowSkip}
                     </Frame.Description>
                   </Frame.Content>
                   <Frame.Actions>
@@ -201,8 +206,12 @@ export function Settings() {
                 >
                   <Frame.Content>
                     <Frame.Title as="p">Languages</Frame.Title>
-                    <Frame.Description>{languages}</Frame.Description>
                   </Frame.Content>
+                  <Frame.Actions className="max-w-1/2">
+                    <Typography type="body-sm" muted numberOfLines={1}>
+                      {languages}
+                    </Typography>
+                  </Frame.Actions>
                 </Frame.Row>
               </Frame.Panel>
             </Frame>
@@ -216,9 +225,7 @@ export function Settings() {
                 <Frame.Row>
                   <Frame.Content>
                     <Frame.Title as="p">DNS</Frame.Title>
-                    <Frame.Description>
-                      The resolver extensions use
-                    </Frame.Description>
+                    <Frame.Description>{DESCRIPTIONS.dns}</Frame.Description>
                   </Frame.Content>
                   <Frame.Actions>
                     <Select

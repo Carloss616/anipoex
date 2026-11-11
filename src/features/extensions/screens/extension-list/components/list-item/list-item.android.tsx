@@ -56,7 +56,7 @@ export const ListItem = memo(function ListItem({
     <SegmentedListItem
       index={index}
       count={count}
-      containerColor={m3.surfaceContainer}
+      colors={{ containerColor: m3.surfaceContainer }}
     >
       <SegmentedListItem.Leading>
         <SourceTile

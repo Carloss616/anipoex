@@ -13,10 +13,13 @@ import {
 import {
   background,
   clipShape,
+  fixedSize,
   foregroundStyle,
   frame,
+  labelsHidden,
   listRowBackground,
   listRowInsets,
+  listRowSeparator,
   listStyle,
   onTapGesture,
   scrollContentBackground,
@@ -44,7 +47,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
 import { THEME_FAMILIES, type ThemePreference } from "@/state/theme/constants";
-import { SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
+import { DESCRIPTIONS, SLOW_SKIP_OPTIONS, THEME_OPTIONS } from "./constants";
 import { useSignOut } from "./hooks/use-sign-out";
 
 const AVATAR = 40;
@@ -70,9 +73,12 @@ export function Settings() {
   );
   const avatarUrl = useValue(session$.user.avatarUrl);
   const initial = useValue(() => session$.user.name.get()?.[0] ?? "?");
-  const overlay = useThemeColor("overlay");
-  // The theme's surfaces, not the system's grouped grays.
-  const rowBackground = listRowBackground(useThemeColor("muted"));
+  const [primary, card, surfaceSecondary] = useThemeColor([
+    "primary",
+    "card",
+    "surface-secondary",
+  ]);
+  const rowBackground = listRowBackground(surfaceSecondary);
 
   return (
     <>
@@ -82,14 +88,15 @@ export function Settings() {
           modifiers={[
             listStyle("insetGrouped"),
             scrollContentBackground("hidden"),
+            useFont(),
           ]}
         >
           <Section modifiers={[rowBackground]}>
-            <HStack spacing={12} modifiers={ROW_FILL}>
+            <HStack spacing={12}>
               <ZStack
                 modifiers={[
                   frame({ width: AVATAR, height: AVATAR }),
-                  background(overlay),
+                  background(card),
                   clipShape("circle"),
                 ]}
               >
@@ -110,20 +117,18 @@ export function Settings() {
               </VStack>
             </HStack>
           </Section>
-          <Section
-            modifiers={[rowBackground]}
-            title="Home"
-            footer={
-              <Text textStyle="footnote">
-                The sections on Home and their order.
-              </Text>
-            }
-          >
+          <Section modifiers={[rowBackground]} title="Home">
             <Button onPress={() => router.push("/settings/layout")}>
-              <HStack spacing={8} modifiers={ROW_FILL}>
-                <Text modifiers={[foregroundStyle("primary")]}>
-                  Home layout
-                </Text>
+              <HStack spacing={8}>
+                <VStack alignment="leading">
+                  <Text modifiers={[foregroundStyle("primary")]}>Layout</Text>
+                  <Text
+                    textStyle="subheadline"
+                    modifiers={[foregroundStyle("secondary")]}
+                  >
+                    {DESCRIPTIONS.layout}
+                  </Text>
+                </VStack>
                 <Spacer />
                 <Text modifiers={[foregroundStyle("secondary")]}>{layout}</Text>
                 <Icon name={Icons.chevronRight} size={13} muted />
@@ -131,7 +136,9 @@ export function Settings() {
             </Button>
           </Section>
           <Section modifiers={[rowBackground]} title="Appearance">
+            {/* A menu Picker keeps its first tint: rebuild it on a new one. */}
             <Picker
+              key={primary}
               label={<Text>Theme</Text>}
               selection={preference}
               onSelectionChange={(id: ThemePreference) =>
@@ -148,19 +155,13 @@ export function Settings() {
                 </Label>
               ))}
             </Picker>
-          </Section>
-          <Section
-            header={
-              <HStack>
-                <Text>Palette</Text>
-                <Spacer />
-                <Text>{familyName}</Text>
-              </HStack>
-            }
-          >
+            <HStack modifiers={[listRowSeparator("hidden")]}>
+              <Text>Palette</Text>
+              <Spacer />
+              <Text modifiers={[foregroundStyle(primary)]}>{familyName}</Text>
+            </HStack>
             <VStack
               modifiers={[
-                listRowBackground("#00000000"),
                 listRowInsets({ top: 0, leading: 0, bottom: 0, trailing: 0 }),
               ]}
             >
@@ -177,30 +178,41 @@ export function Settings() {
               ]}
             >
               <Text>Auto-pick a source</Text>
-              <Text modifiers={[foregroundStyle("secondary")]}>
-                After a scan, the one with the most new chapters
+              <Text
+                textStyle="subheadline"
+                modifiers={[foregroundStyle("secondary")]}
+              >
+                {DESCRIPTIONS.autoPick}
               </Text>
             </Toggle>
-            <Picker
-              label={
-                <VStack alignment="leading">
-                  <Text>Skip slow sources</Text>
-                  <Text modifiers={[foregroundStyle("secondary")]}>
-                    In a Reading scan
-                  </Text>
-                </VStack>
-              }
-              selection={slowSkip}
-              onSelectionChange={(seconds: number | null) =>
-                seconds !== null && settings$.sources.slowSkip.set(seconds)
-              }
-            >
-              {SLOW_SKIP_OPTIONS.map((option) => (
-                <Text key={option.seconds} modifiers={[tag(option.seconds)]}>
-                  {option.label}
+            {/* With a two-line label, a menu Picker drops its value below it. */}
+            <HStack>
+              <VStack alignment="leading">
+                <Text>Skip slow sources</Text>
+                <Text
+                  textStyle="subheadline"
+                  modifiers={[foregroundStyle("secondary")]}
+                >
+                  {DESCRIPTIONS.slowSkip}
                 </Text>
-              ))}
-            </Picker>
+              </VStack>
+              <Spacer />
+              <Picker
+                key={primary}
+                label={<Text>Skip slow sources</Text>}
+                selection={slowSkip}
+                onSelectionChange={(seconds: number | null) =>
+                  seconds !== null && settings$.sources.slowSkip.set(seconds)
+                }
+                modifiers={[labelsHidden(), fixedSize()]}
+              >
+                {SLOW_SKIP_OPTIONS.map((option) => (
+                  <Text key={option.seconds} modifiers={[tag(option.seconds)]}>
+                    {option.label}
+                  </Text>
+                ))}
+              </Picker>
+            </HStack>
             <Button onPress={() => router.push("/settings/languages")}>
               <HStack spacing={8} modifiers={ROW_FILL}>
                 <Text modifiers={[foregroundStyle("primary")]}>Languages</Text>
@@ -213,17 +225,31 @@ export function Settings() {
             </Button>
           </Section>
           <Section modifiers={[rowBackground]} title="Network">
-            <Picker
-              label={<Text>DNS</Text>}
-              selection={dns}
-              onSelectionChange={(id: DnsId | null) => id && selectDns(id)}
-            >
-              {DNS_OPTIONS.map((option) => (
-                <Text key={option.id} modifiers={[tag(option.id)]}>
-                  {option.name}
+            <HStack>
+              <VStack alignment="leading">
+                <Text>DNS</Text>
+                <Text
+                  textStyle="subheadline"
+                  modifiers={[foregroundStyle("secondary")]}
+                >
+                  {DESCRIPTIONS.dns}
                 </Text>
-              ))}
-            </Picker>
+              </VStack>
+              <Spacer />
+              <Picker
+                key={primary}
+                label={<Text>DNS</Text>}
+                selection={dns}
+                onSelectionChange={(id: DnsId | null) => id && selectDns(id)}
+                modifiers={[labelsHidden(), fixedSize()]}
+              >
+                {DNS_OPTIONS.map((option) => (
+                  <Text key={option.id} modifiers={[tag(option.id)]}>
+                    {option.name}
+                  </Text>
+                ))}
+              </Picker>
+            </HStack>
           </Section>
           <Section modifiers={[rowBackground]}>
             <Button

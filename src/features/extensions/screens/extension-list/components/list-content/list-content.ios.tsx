@@ -35,7 +35,7 @@ export function ListContent({
   emptyState,
 }: ListContentProps) {
   const sections = useSections({ extensions, filter, language, query$ });
-  const rowBackground = listRowBackground(useThemeColor("muted"));
+  const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
   const buttonFont = useFont("subheadline", "medium");
 
   return (
@@ -63,9 +63,7 @@ export function ListContent({
               modifiers={[rowBackground]}
               header={
                 <HStack spacing={12}>
-                  <Text textStyle="footnote" weight="medium">
-                    {s.title}
-                  </Text>
+                  <Text>{s.title}</Text>
                   <Badge>{s.data.length}</Badge>
                   {language && <Badge>{language.toUpperCase()}</Badge>}
                   <Spacer />

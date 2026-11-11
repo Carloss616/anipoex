@@ -8,9 +8,7 @@ import type { SectionHeaderProps } from "./section-header";
 export function SectionHeader({ title, count, menu }: SectionHeaderProps) {
   return (
     <HStack spacing={12}>
-      <Text textStyle="footnote" weight="medium">
-        {title}
-      </Text>
+      <Text>{title}</Text>
       <Badge>{count}</Badge>
       {menu && (
         <>

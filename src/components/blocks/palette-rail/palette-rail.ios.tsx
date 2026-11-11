@@ -1,9 +1,10 @@
-import { Button, HStack, ScrollView, VStack } from "@expo/ui/swift-ui";
+import { HStack, ScrollView, VStack } from "@expo/ui/swift-ui";
 import {
   accessibilityAddTraits,
+  accessibilityElement,
   accessibilityLabel,
-  buttonStyle,
   foregroundStyle,
+  onTapGesture,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -24,10 +25,7 @@ export function PaletteRail() {
   return (
     // shortcut: on a phone the third card already starts partly off-screen; scroll the chosen one into view when there are more families.
     <ScrollView axes="horizontal" showsIndicators={false}>
-      <HStack
-        spacing={12}
-        modifiers={[padding({ horizontal: 20, vertical: 8 })]}
-      >
+      <HStack spacing={12} modifiers={[padding({ all: 16 })]}>
         {THEME_FAMILIES.map((entry) => (
           <PaletteCard key={entry.id} id={entry.id} name={entry.name} />
         ))}
@@ -45,28 +43,32 @@ const PaletteCard = memo(function PaletteCard({
 }) {
   const theme = useValue(() => familyTheme(id, themeMode$.get()));
   const selected = useValue(() => settings$.theme.family.get() === id);
+  const select = () => settings$.theme.family.set(id);
 
   return (
-    <Button
-      onPress={() => settings$.theme.family.set(id)}
+    <VStack
+      spacing={7}
       modifiers={[
-        buttonStyle("plain"),
+        // One VoiceOver element for preview and name; its activation taps the preview.
+        accessibilityElement("combine"),
         accessibilityLabel(name),
-        accessibilityAddTraits(selected ? ["isSelected"] : []),
+        accessibilityAddTraits(
+          selected ? ["isButton", "isSelected"] : ["isButton"],
+        ),
       ]}
     >
-      <VStack spacing={7}>
-        <ScopedTheme theme={theme}>
-          <PalettePreview selected={selected} />
-        </ScopedTheme>
-        <Text
-          textStyle="footnote"
-          weight={selected ? "semibold" : undefined}
-          modifiers={selected ? [] : [foregroundStyle("secondary")]}
-        >
-          {name}
-        </Text>
-      </VStack>
-    </Button>
+      <ScopedTheme theme={theme}>
+        <PalettePreview selected={selected} onSelect={select} />
+      </ScopedTheme>
+      <Text
+        textStyle="footnote"
+        weight={selected ? "semibold" : undefined}
+        modifiers={
+          selected ? [] : [foregroundStyle("secondary"), onTapGesture(select)]
+        }
+      >
+        {name}
+      </Text>
+    </VStack>
   );
 });

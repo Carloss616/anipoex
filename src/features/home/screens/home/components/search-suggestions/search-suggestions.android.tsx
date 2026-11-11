@@ -50,7 +50,7 @@ export function SearchSuggestions({
           <SegmentedListItem
             index={0}
             count={1}
-            containerColor={m3.surfaceContainerLow}
+            colors={{ containerColor: m3.surfaceContainerLow }}
             onPress={() => onSubmit(draft)}
           >
             <SegmentedListItem.Leading>
@@ -85,7 +85,7 @@ export function SearchSuggestions({
                   key={q}
                   index={i}
                   count={recent.length}
-                  containerColor={m3.surfaceContainerLow}
+                  colors={{ containerColor: m3.surfaceContainerLow }}
                   onPress={() => onSubmit(q)}
                 >
                   <SegmentedListItem.Leading>

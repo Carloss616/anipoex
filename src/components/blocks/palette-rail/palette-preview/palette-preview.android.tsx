@@ -1,4 +1,4 @@
-import { Box, Column, Row } from "@expo/ui/jetpack-compose";
+import { Box, Column, OutlinedCard, Row } from "@expo/ui/jetpack-compose";
 import {
   align,
   alpha,
@@ -8,7 +8,9 @@ import {
   height,
   offset,
   padding,
+  paddingAll,
   Shapes,
+  selectable,
   size,
   width,
 } from "@expo/ui/jetpack-compose/modifiers";
@@ -27,40 +29,39 @@ const pill = Shapes.RoundedCorner(3);
  * The chosen card's corners switch from 18 to 28 at once: `@expo/ui` can't
  * animate a shape.
  */
-export function PalettePreview({ selected }: PalettePreviewProps) {
+export function PalettePreview({
+  selected = false,
+  onSelect = () => {},
+}: PalettePreviewProps) {
   const m3 = useThemeM3Colors();
-  const radius = selected ? 28 : 18;
-  const edge = selected ? 3 : 1;
   const bar = (barWidth: number, color: string, opacity = 1) => (
     <Box
       modifiers={[
         size(barWidth, 5),
         clip(pill),
-        background(color),
         alpha(opacity),
+        background(color),
       ]}
     />
   );
 
   return (
     <Box>
-      {/* The edge is the outer box showing around the inner one. */}
-      <Box
+      <OutlinedCard
+        border={selected ? { width: 3, color: m3.primary } : undefined}
         modifiers={[
           width(WIDTH),
-          clip(Shapes.RoundedCorner(radius)),
-          background(selected ? m3.primary : m3.outlineVariant),
-          padding(edge, edge, edge, edge),
+          ...(selected
+            ? []
+            : [
+                clip(Shapes.RoundedCorner(12)), // clip the ripple
+                selectable(selected, onSelect, "radioButton"),
+              ]),
         ]}
       >
         <Column
           verticalArrangement={{ spacedBy: 7 }}
-          modifiers={[
-            fillMaxWidth(),
-            clip(Shapes.RoundedCorner(radius - edge)),
-            background(m3.surface),
-            padding(8 - edge, 8 - edge, 8 - edge, 8 - edge),
-          ]}
+          modifiers={[fillMaxWidth(), paddingAll(8)]}
         >
           <Row
             verticalAlignment="bottom"
@@ -70,19 +71,23 @@ export function PalettePreview({ selected }: PalettePreviewProps) {
               contentAlignment="center"
               modifiers={[
                 size(COVER, COVER * 1.5),
-                clip(Shapes.RoundedCorner(10)),
-                background(m3.surfaceContainerHighest),
+                clip(Shapes.RoundedCorner(6)),
+                background(m3.primaryContainer),
               ]}
             >
-              <Icon name={Icons.cover} size={14} muted />
+              <Icon
+                name={Icons.cover}
+                size={14}
+                color={m3.onPrimaryContainer}
+              />
             </Box>
             <Column
               verticalArrangement={{ spacedBy: 4 }}
               modifiers={[padding(0, 0, 0, 2)]}
             >
-              {bar(META, m3.onSurface, 0.85)}
-              {bar(META * 0.7, m3.onSurface, 0.85)}
-              {bar(META / 2, m3.onSurfaceVariant)}
+              {bar(META, m3.onSurface)}
+              {bar(META * 0.7, m3.onSurfaceVariant)}
+              {bar(META / 2, m3.onSurfaceVariant, 0.85)}
             </Column>
           </Row>
           <Row horizontalArrangement={{ spacedBy: 4 }}>
@@ -103,7 +108,7 @@ export function PalettePreview({ selected }: PalettePreviewProps) {
               fillMaxWidth(),
               clip(Shapes.RoundedCorner(12)),
               background(m3.surfaceContainerHigh),
-              padding(7, 7, 7, 7),
+              paddingAll(7),
             ]}
           >
             <Row
@@ -179,13 +184,13 @@ export function PalettePreview({ selected }: PalettePreviewProps) {
             ))}
           </Column>
         </Column>
-      </Box>
+      </OutlinedCard>
       {selected && (
         <Box
           contentAlignment="center"
           modifiers={[
             align("topEnd"),
-            offset(7, -7),
+            offset(-8, 8),
             size(22, 22),
             clip(Shapes.Circle),
             background(m3.primary),

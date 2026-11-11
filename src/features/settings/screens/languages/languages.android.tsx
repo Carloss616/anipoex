@@ -95,7 +95,7 @@ export function Languages() {
                     <SegmentedListItem
                       index={i}
                       count={codes.length}
-                      containerColor={m3.surfaceContainerLow}
+                      colors={{ containerColor: m3.surfaceContainerLow }}
                     >
                       <Text>{languageName(code)}</Text>
                     </SegmentedListItem>

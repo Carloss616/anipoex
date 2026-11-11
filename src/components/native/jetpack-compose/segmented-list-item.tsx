@@ -1,4 +1,4 @@
-import type { ViewEvent } from "@expo/ui/jetpack-compose";
+import type { ListItemColors, ViewEvent } from "@expo/ui/jetpack-compose";
 import type { ModifierConfig } from "@expo/ui/jetpack-compose/modifiers";
 import { requireNativeView } from "expo";
 import { Children, isValidElement, type ReactNode } from "react";
@@ -13,10 +13,31 @@ interface SegmentedListItemProps {
   /** Leave out for an action row; set, the row is one choice of a single-select list, with its radio. */
   selected?: boolean;
   enabled?: boolean;
-  /** Its fill when not selected; M3's segmented color (surface) when left out. */
-  containerColor?: ColorValue;
+  /** `ListItemDefaults.segmentedColors`; one left out keeps M3's (surface fill). */
+  colors?: ListItemColors & {
+    selectedContainerColor?: ColorValue;
+    selectedContentColor?: ColorValue;
+  };
+  /** Left out, M3 centers short rows and tops tall ones (three lines and up). */
+  verticalAlignment?: "top" | "center" | "bottom";
+  /** In dp; a side left out keeps M3's. */
+  contentPadding?: {
+    start?: number;
+    top?: number;
+    end?: number;
+    bottom?: number;
+  };
+  /** Corner radii in dp over the segmented ones: `0` on a shared edge joins two rows. */
+  shape?: {
+    topStart?: number;
+    topEnd?: number;
+    bottomEnd?: number;
+    bottomStart?: number;
+  };
   onPress?: () => void;
   onLongPress?: () => void;
+  /** TalkBack's name for the long-press action ("Open menu"). */
+  onLongPressLabel?: string;
   modifiers?: ModifierConfig[];
   /** The headline, then `SegmentedListItem.Leading`, `.Trailing`, `.Overline`, `.Supporting`. */
   children: ReactNode;
@@ -24,6 +45,7 @@ interface SegmentedListItemProps {
 
 const NativeItem = requireNativeView<
   Omit<SegmentedListItemProps, "onPress" | "onLongPress"> & {
+    pressable: boolean;
     longPressable: boolean;
   } & ViewEvent<"onItemPress", ItemEvent> &
     ViewEvent<"onItemLongPress", ItemEvent>
@@ -49,6 +71,7 @@ export function SegmentedListItem({
       // Never undefined: a recycled row that drops its list sends null, which
       // the native list prop can't read.
       modifiers={modifiers}
+      pressable={!!onPress}
       longPressable={!!onLongPress}
       onItemPress={onPress}
       onItemLongPress={onLongPress}
