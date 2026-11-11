@@ -15,7 +15,6 @@ import {
   multilineTextAlignment,
   onLongPressGesture,
   onTapGesture,
-  opacity,
   padding,
   shadow,
   shapes,
@@ -26,6 +25,7 @@ import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { Progress } from "@/components/ui/progress";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ramp } from "@/utils/ramp";
@@ -35,6 +35,8 @@ import { cornerBadge } from "./utils";
 /** The cover's corner radius, for placeholders that stand in for a card. */
 export const COVER_RADIUS = 24;
 const SCRIM = ramp("#000000");
+/** The scan loader's circle, as Android's contained indicator. */
+const RING = 24;
 /** Legible on any cover: a light caption over the dark wash. */
 const OVER_COVER = [
   multilineTextAlignment("center"),
@@ -62,10 +64,11 @@ export function MangaCard({
   onLongPress,
 }: MangaCardProps) {
   const corner = cornerBadge(status, mark);
-  const [card, overlay, solid] = useThemeColor([
+  const [card, overlay, solid, popover] = useThemeColor([
     "card",
     "overlay",
     "surface-secondary",
+    "popover",
   ]);
   const isInsideHost = useIsInsideHost();
   // Keeps its headers: an image host can refuse a request without its Referer.
@@ -104,7 +107,6 @@ export function MangaCard({
           modifiers={[
             background(coverColor ?? overlay),
             clipShape("roundedRectangle", radius),
-            ...(scanning ? [opacity(0.5)] : []),
           ]}
         >
           {coverThumb && <Image source={{ uri: coverThumb }} />}
@@ -119,7 +121,6 @@ export function MangaCard({
               type: "hierarchical",
               style: "tertiary",
             }),
-            ...(scanning ? [opacity(0.5)] : []),
           ]}
         />
       )}
@@ -137,7 +138,7 @@ export function MangaCard({
           <Badge color={corner.color} icon={corner.icon} />
         </HStack>
       )}
-      {unread != null && (
+      {(scanning || unread != null) && (
         <HStack
           modifiers={[
             padding({ all: 8 }),
@@ -148,17 +149,33 @@ export function MangaCard({
             }),
           ]}
         >
-          {/* Secondary is see-through, made for rows: over a cover it needs a
-              solid fill behind. */}
-          <HStack
-            modifiers={
-              unread === 0 ? [background(solid, shapes.capsule())] : undefined
-            }
-          >
-            <Badge color={unread > 0 ? "success" : "secondary"}>
-              {String(unread)}
-            </Badge>
-          </HStack>
+          {scanning ? (
+            <ZStack
+              modifiers={[
+                frame({ width: RING, height: RING }),
+                background(popover),
+                clipShape("circle"),
+              ]}
+            >
+              <Loader size="sm" />
+            </ZStack>
+          ) : (
+            unread != null && (
+              // Secondary is see-through, made for rows: over a cover it
+              // needs a solid fill behind.
+              <HStack
+                modifiers={
+                  unread === 0
+                    ? [background(solid, shapes.capsule())]
+                    : undefined
+                }
+              >
+                <Badge color={unread > 0 ? "success" : "secondary"}>
+                  {String(unread)}
+                </Badge>
+              </HStack>
+            )
+          )}
         </HStack>
       )}
       {titlePosition === "split" && label && (
@@ -176,20 +193,6 @@ export function MangaCard({
             <Badge>{label}</Badge>
           </HStack>
         </HStack>
-      )}
-      {scanning && (
-        <VStack
-          modifiers={[
-            padding({ horizontal: 16, bottom: 2 }),
-            frame({
-              maxWidth: Infinity,
-              maxHeight: Infinity,
-              alignment: "bottom",
-            }),
-          ]}
-        >
-          <Progress indeterminate size="sm" />
-        </VStack>
       )}
       <VStack
         spacing={0}

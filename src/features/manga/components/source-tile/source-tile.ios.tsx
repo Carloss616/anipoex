@@ -4,6 +4,7 @@ import {
   clipShape,
   foregroundStyle,
   frame,
+  opacity,
   strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
 import { useState } from "react";
@@ -31,6 +32,7 @@ export function SourceTile({
   // The url that loaded, so a recycled row with another source starts over.
   const [loadedUrl, setLoadedUrl] = useState<string>();
   const loaded = !!iconUrl && loadedUrl === iconUrl;
+  const dim = loading ? [opacity(0.5)] : [];
 
   return (
     <ZStack
@@ -55,7 +57,7 @@ export function SourceTile({
         <Text
           textStyle="caption"
           weight="semibold"
-          modifiers={[foregroundStyle("primary")]}
+          modifiers={[foregroundStyle("primary"), ...dim]}
         >
           {initials}
         </Text>
@@ -63,7 +65,7 @@ export function SourceTile({
       {iconUrl && (
         <Image
           source={{ uri: iconUrl }}
-          modifiers={[frame({ width: SIDE, height: SIDE })]}
+          modifiers={[frame({ width: SIDE, height: SIDE }), ...dim]}
           onLoad={() => setLoadedUrl(iconUrl)}
         />
       )}

@@ -12,6 +12,7 @@ import {
 import { tv } from "tailwind-variants";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
 import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
@@ -45,7 +46,7 @@ export interface MangaCardProps {
   progress?: number;
   /** Chapters left, a top-right badge: green above 0, neutral at 0. */
   unread?: number;
-  /** Its sources are being scanned: a dimmed cover over a looping bar. */
+  /** Its sources are being scanned: a loader in the unread badge's place. */
   scanning?: boolean;
   style?: StyleProp<ViewStyle>;
   /** The cover's corner radius; each platform's `COVER_RADIUS` when omitted. */
@@ -183,7 +184,7 @@ export function MangaCard({
       <Layer tilt={tilt} depth={3} className={css.image()}>
         {cover ? (
           <CoverImage
-            style={[StyleSheet.absoluteFill, scanning && { opacity: 0.5 }]}
+            style={StyleSheet.absoluteFill}
             cover={cover}
             coverThumb={coverThumb}
             coverColor={coverColor}
@@ -191,10 +192,7 @@ export function MangaCard({
         ) : (
           <View
             style={StyleSheet.absoluteFill}
-            className={cn(
-              "items-center justify-center",
-              scanning && "opacity-50",
-            )}
+            className="items-center justify-center"
           >
             <Icon
               name={Icons.cover}
@@ -212,29 +210,30 @@ export function MangaCard({
             className="absolute top-2 left-2"
           />
         )}
-        {unread != null && (
-          <Badge
-            color={unread > 0 ? "success" : "secondary"}
-            solid
-            // Secondary is see-through (made for rows); a cover needs it solid.
-            className={cn(
-              "absolute top-2 right-2",
-              unread === 0 && "bg-surface-secondary",
-            )}
-          >
-            {String(unread)}
-          </Badge>
+        {scanning ? (
+          <View className="bg-popover absolute top-2 right-2 size-6 items-center justify-center rounded-full">
+            <Loader size="sm" />
+          </View>
+        ) : (
+          unread != null && (
+            <Badge
+              color={unread > 0 ? "success" : "secondary"}
+              solid
+              // Secondary is see-through (made for rows); a cover needs it solid.
+              className={cn(
+                "absolute top-2 right-2",
+                unread === 0 && "bg-surface-secondary",
+              )}
+            >
+              {String(unread)}
+            </Badge>
+          )
         )}
         {split && (
           <View className="absolute inset-x-0 bottom-2 items-center">
             <Badge color="secondary" solid className="bg-surface-secondary">
               {label}
             </Badge>
-          </View>
-        )}
-        {scanning && (
-          <View className="absolute inset-x-3 bottom-0.5">
-            <Progress indeterminate size="sm" />
           </View>
         )}
       </Layer>

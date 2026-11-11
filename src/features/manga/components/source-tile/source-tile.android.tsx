@@ -1,5 +1,6 @@
 import { Box } from "@expo/ui/jetpack-compose";
 import {
+  alpha,
   background,
   clip,
   matchParentSize,
@@ -30,6 +31,7 @@ export function SourceTile({
   // The url that loaded, so a recycled row with another source starts over.
   const [loadedUrl, setLoadedUrl] = useState<string>();
   const loaded = !!iconUrl && loadedUrl === iconUrl;
+  const dim = loading ? [alpha(0.5)] : [];
 
   return (
     <Box
@@ -50,7 +52,10 @@ export function SourceTile({
       ]}
     >
       {!loaded && (
-        <Text style={{ typography: "bodySmall", fontWeight: "600" }}>
+        <Text
+          style={{ typography: "bodySmall", fontWeight: "600" }}
+          modifiers={dim}
+        >
           {initials}
         </Text>
       )}
@@ -58,7 +63,7 @@ export function SourceTile({
         <Image
           source={{ uri: iconUrl }}
           onLoad={() => setLoadedUrl(iconUrl)}
-          modifiers={[matchParentSize()]}
+          modifiers={[matchParentSize(), ...dim]}
         />
       )}
       {loading && <Loader size="sm" />}

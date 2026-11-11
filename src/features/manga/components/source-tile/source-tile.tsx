@@ -11,7 +11,10 @@ export interface SourceTileProps {
   color: string;
   /** The source's logo; shown instead of the initials once it loads. */
   iconUrl?: string;
-  /** A contained loading indicator over its middle, as M3 places one over content. */
+  /**
+   * A contained loading indicator over its middle, as M3 places one over
+   * content, the logo dimmed under it.
+   */
   loading?: boolean;
 }
 
@@ -36,7 +39,11 @@ export function SourceTile({
       style={loaded ? undefined : { backgroundColor: color }}
     >
       {!loaded && (
-        <Typography type="body-xs" weight="semibold">
+        <Typography
+          type="body-xs"
+          weight="semibold"
+          className={cn(loading && "opacity-50")}
+        >
           {initials}
         </Typography>
       )}
@@ -44,7 +51,7 @@ export function SourceTile({
         <Image
           source={iconUrl}
           contentFit="cover"
-          style={StyleSheet.absoluteFill}
+          style={[StyleSheet.absoluteFill, loading && { opacity: 0.5 }]}
           onLoad={() => setLoadedUrl(iconUrl)}
         />
       )}

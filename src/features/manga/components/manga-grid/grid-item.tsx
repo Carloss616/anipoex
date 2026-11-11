@@ -9,7 +9,7 @@ import {
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { useUnreadCount } from "@/features/manga/hooks/use-unread-count";
-import { scanningAll$ } from "@/features/manga/state/probes";
+import { isScanBusy } from "@/features/manga/state/probes";
 import { mediaKey } from "@/features/manga/utils/msu";
 import { toProgress } from "@/features/manga/utils/progress";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
@@ -52,9 +52,8 @@ export const GridItem = memo(function GridItem({
 }) {
   const router = useRouter();
   const progress = useProgress(item);
-  const scanning = useValue(
-    () => scanningAll$[mediaKey(item.id)].get() === true,
-  );
+  // Any scan of the manga: a Scan all, a rescan or a title match.
+  const scanning = useValue(() => isScanBusy(mediaKey(item.id)));
   const title = item.title?.userPreferred;
 
   return (
