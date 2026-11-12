@@ -1,4 +1,11 @@
-import { HStack, Rectangle, Spacer, VStack, ZStack } from "@expo/ui/swift-ui";
+import {
+  Button,
+  HStack,
+  Rectangle,
+  Spacer,
+  VStack,
+  ZStack,
+} from "@expo/ui/swift-ui";
 import {
   accessibilityAddTraits,
   accessibilityElement,
@@ -6,6 +13,7 @@ import {
   accessibilityIdentifier,
   accessibilityLabel,
   background,
+  buttonStyle,
   clipShape,
   fixedSize,
   foregroundStyle,
@@ -260,6 +268,19 @@ export function MangaCard({
   // Outside a Host the RN wrapper below speaks for the card.
   const modifiers = isInsideHost ? a11y : undefined;
 
+  const titleText = (
+    <Text
+      textStyle="subheadline"
+      weight="semibold"
+      modifiers={[
+        fixedSize({ horizontal: false, vertical: true }),
+        lineLimit({ min: 2, max: 2 }),
+      ]}
+    >
+      {title}
+    </Text>
+  );
+
   // Needs a width in `style`: the cover's height comes from it.
   const body =
     titlePosition !== "over" ? (
@@ -281,17 +302,19 @@ export function MangaCard({
         >
           {content}
         </VStack>
-        <Text
-          textStyle="subheadline"
-          weight="semibold"
-          modifiers={[
-            fixedSize({ horizontal: false, vertical: true }),
-            // Always two lines tall, so captions and bars line up across a row.
-            lineLimit({ min: 2, max: 2 }),
-          ]}
-        >
-          {title}
-        </Text>
+        {onPress ? (
+          <Button
+            modifiers={[
+              buttonStyle("plain"),
+              ...(onLongPress ? [onLongPressGesture(onLongPress)] : []),
+            ]}
+            onPress={onPress}
+          >
+            {titleText}
+          </Button>
+        ) : (
+          titleText
+        )}
         {label && titlePosition === "below" && <Badge>{label}</Badge>}
         {progress != null && <Progress value={progress * 100} size="sm" />}
       </VStack>

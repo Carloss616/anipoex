@@ -1,10 +1,10 @@
-import { HStack, ScrollView, VStack } from "@expo/ui/swift-ui";
+import { Button, HStack, ScrollView, VStack } from "@expo/ui/swift-ui";
 import {
   accessibilityAddTraits,
   accessibilityElement,
   accessibilityLabel,
+  buttonStyle,
   foregroundStyle,
-  onTapGesture,
   padding,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -60,15 +60,17 @@ const PaletteCard = memo(function PaletteCard({
       <ScopedTheme theme={theme}>
         <PalettePreview selected={selected} onSelect={select} />
       </ScopedTheme>
-      <Text
-        textStyle="footnote"
-        weight={selected ? "semibold" : undefined}
-        modifiers={
-          selected ? [] : [foregroundStyle("secondary"), onTapGesture(select)]
-        }
-      >
-        {name}
-      </Text>
+      {selected ? (
+        <Text textStyle="footnote" weight="semibold">
+          {name}
+        </Text>
+      ) : (
+        <Button modifiers={[buttonStyle("plain")]} onPress={select}>
+          <Text textStyle="footnote" modifiers={[foregroundStyle("secondary")]}>
+            {name}
+          </Text>
+        </Button>
+      )}
     </VStack>
   );
 });

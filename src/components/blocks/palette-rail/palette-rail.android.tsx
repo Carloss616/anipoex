@@ -1,8 +1,7 @@
-import { Column, Row } from "@expo/ui/jetpack-compose";
+import { Column, Row, TextButton } from "@expo/ui/jetpack-compose";
 import {
-  clickable,
   horizontalScroll,
-  padding,
+  paddingAll,
   selectableGroup,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -25,11 +24,7 @@ export function PaletteRail() {
     // shortcut: on a phone the third card already starts partly off-screen; scroll the chosen one into view when there are more families.
     <Row
       horizontalArrangement={{ spacedBy: 12 }}
-      modifiers={[
-        selectableGroup(),
-        horizontalScroll(),
-        padding(16, 0, 16, 16),
-      ]}
+      modifiers={[selectableGroup(), horizontalScroll(), paddingAll(16)]}
     >
       {THEME_FAMILIES.map((entry) => (
         <PaletteCard key={entry.id} id={entry.id} name={entry.name} />
@@ -50,7 +45,7 @@ const PaletteCard = memo(function PaletteCard({
   const select = () => settings$.theme.family.set(id);
 
   return (
-    <Column horizontalAlignment="center" verticalArrangement={{ spacedBy: 7 }}>
+    <Column horizontalAlignment="center">
       <ScopedTheme theme={theme}>
         <PalettePreview selected={selected} onSelect={select} />
       </ScopedTheme>
@@ -72,16 +67,13 @@ function Name({
   const m3 = useThemeM3Colors();
 
   return (
-    <Text
-      style={{
-        typography: "labelLarge",
-        fontWeight: selected ? "600" : undefined,
-      }}
-      color={selected ? m3.primary : m3.onSurface}
-      // No ripple: the card shows the press, the name only widens its target.
-      modifiers={selected ? [] : [clickable(onSelect, { indication: false })]}
-    >
-      {name}
-    </Text>
+    <TextButton onClick={onSelect} enabled={!selected}>
+      <Text
+        style={{ typography: "labelLarge" }}
+        color={selected ? m3.primary : m3.onSurfaceVariant}
+      >
+        {name}
+      </Text>
+    </TextButton>
   );
 }

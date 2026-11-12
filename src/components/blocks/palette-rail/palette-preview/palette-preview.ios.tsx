@@ -20,6 +20,7 @@ import {
   strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
 import { Icon, Icons } from "@/components/ui/icon";
+import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { PalettePreviewProps } from "./palette-preview";
 
@@ -77,13 +78,13 @@ export function PalettePreview({
               tint: bg,
             },
             shape: "roundedRectangle",
-            cornerRadius: 18,
+            cornerRadius: COVER_RADIUS,
           }),
           strokeBorder({
             content: selected ? primary : undefined,
             style: { lineWidth: selected ? 3 : 0 },
             shape: "roundedRectangle",
-            cornerRadius: 18,
+            cornerRadius: COVER_RADIUS,
           }),
           ...(selected ? [] : [onTapGesture(onSelect)]),
         ]}
@@ -93,7 +94,7 @@ export function PalettePreview({
             modifiers={[
               frame({ width: COVER, height: COVER * 1.5 }),
               background(accent),
-              clipShape("roundedRectangle", 8),
+              clipShape("roundedRectangle", COVER_RADIUS / 2),
             ]}
           >
             <Icon name={Icons.cover} size={14} color={accentForeground} />
@@ -116,7 +117,10 @@ export function PalettePreview({
           spacing={5}
           modifiers={[
             padding({ all: 7 }),
-            background(muted, shapes.roundedRectangle({ cornerRadius: 10 })),
+            background(
+              muted,
+              shapes.roundedRectangle({ cornerRadius: COVER_RADIUS / 2 }),
+            ),
           ]}
         >
           <HStack>
@@ -145,7 +149,7 @@ export function PalettePreview({
           spacing={1}
           modifiers={[
             background(surfaceSecondary),
-            clipShape("roundedRectangle", 8),
+            clipShape("roundedRectangle", COVER_RADIUS / 2),
           ]}
         >
           {[true, false].map((latest) => (

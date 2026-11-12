@@ -59,7 +59,7 @@ export function MangaCard({
   const isInsideHost = useIsInsideHost();
   const corner = cornerBadge(status, mark);
 
-  // On top: takes the press and carries the name TalkBack reads.
+  // On top of the cover: takes the press and carries the name TalkBack reads.
   const overlay = (
     <Box
       modifiers={[
@@ -151,7 +151,7 @@ export function MangaCard({
           </Box>
         </Box>
       )}
-      {titlePosition === "over" && overlay}
+      {overlay}
     </Box>
   );
 
@@ -171,27 +171,35 @@ export function MangaCard({
   // Needs a width in `style`: Compose has no `aspectRatio` to size the cover.
   const body =
     titlePosition !== "over" ? (
-      // A Box so the press overlay can cover the cover and the texts alike.
-      <Box>
-        <Column
-          verticalArrangement={{ spacedBy: 6 }}
-          modifiers={width ? [widthModifier(width)] : []}
+      <Column
+        verticalArrangement={{ spacedBy: 6 }}
+        modifiers={width ? [widthModifier(width)] : []}
+      >
+        <Column modifiers={sized}>{content}</Column>
+        <Text
+          style={{ typography: "bodyMedium", fontWeight: "600" }}
+          maxLines={2}
+          minLines={2}
+          overflow="ellipsis"
+          modifiers={[
+            fillMaxWidth(),
+            ...(onLongPress
+              ? [
+                  combinedClickable({
+                    onClick: onPress,
+                    onLongClick: onLongPress,
+                  }),
+                ]
+              : onPress
+                ? [clickable(onPress)]
+                : []),
+          ]}
         >
-          <Column modifiers={sized}>{content}</Column>
-          <Text
-            style={{ typography: "bodyMedium", fontWeight: "600" }}
-            maxLines={2}
-            // Always two lines tall, so captions and bars line up across a row.
-            minLines={2}
-            overflow="ellipsis"
-          >
-            {title}
-          </Text>
-          {label && titlePosition === "below" && <Badge>{label}</Badge>}
-          {progress != null && <Progress value={progress * 100} size="sm" />}
-        </Column>
-        {overlay}
-      </Box>
+          {title}
+        </Text>
+        {label && titlePosition === "below" && <Badge>{label}</Badge>}
+        {progress != null && <Progress value={progress * 100} size="sm" />}
+      </Column>
     ) : (
       <Column modifiers={sized}>{content}</Column>
     );

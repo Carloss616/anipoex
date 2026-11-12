@@ -78,8 +78,9 @@ const cardStyles = tv({
   variants: {
     position: {
       below: {
+        // Only the cover tilts: the text sits under it, outside the card.
         card: cn(
-          "flex flex-col gap-2 overflow-visible bg-transparent",
+          "relative overflow-visible bg-transparent",
           "shadow-(color:--glare) shadow-none",
           // Flat like `over`: in 3D the layers' depth paints over the light.
           "transform-flat",
@@ -88,8 +89,8 @@ const cardStyles = tv({
           "bg-card relative aspect-2/3 w-full overflow-hidden rounded-[inherit]",
           "shadow-(color:--glare) shadow-md transition-shadow group-hover:shadow-sm",
         ),
-        // Over the cover; the column doesn't clip, so they can move freely.
-        badges: "inset-x-0 top-0 aspect-2/3",
+        // The card doesn't clip, so they can move freely.
+        badges: "inset-0",
         // A <button> centers its text by default.
         text: "gap-2 text-start",
         // Always two lines tall, so captions and bars line up across a row.
@@ -179,7 +180,7 @@ export function MangaCard({
   } as CSSProperties;
   const cardClassName = css.card({ className });
 
-  const content = (
+  const coverLayers = (
     <>
       <Layer tilt={tilt} depth={3} className={css.image()}>
         {cover ? (
@@ -237,55 +238,71 @@ export function MangaCard({
           </View>
         )}
       </Layer>
-      {(below || title || label) && (
-        <Layer tilt={tilt} depth={6} className={css.text()}>
-          {!below && (
-            <ScrimGradient
-              colorClassName="accent-black"
-              style={StyleSheet.absoluteFill}
-            />
-          )}
-          {label &&
-            !split &&
-            (below ? (
-              <TiltCard.Description className={css.label()}>
-                {label}
-              </TiltCard.Description>
-            ) : (
-              <Badge color="secondary" solid className="bg-surface-secondary">
-                {label}
-              </Badge>
-            ))}
-          {/* Not a heading: a button's content can't hold one. */}
-          <TiltCard.Title as="p" className={css.title()}>
-            {title}
-          </TiltCard.Title>
-          {below && progress != null && (
-            <Progress value={progress * 100} size="sm" />
-          )}
-        </Layer>
-      )}
     </>
   );
 
-  const card = tilt ? (
+  const text = (below || title || label) && (
+    <Layer tilt={tilt && !below} depth={6} className={css.text()}>
+      {!below && (
+        <ScrimGradient
+          colorClassName="accent-black"
+          style={StyleSheet.absoluteFill}
+        />
+      )}
+      {label &&
+        !split &&
+        (below ? (
+          <TiltCard.Description className={css.label()}>
+            {label}
+          </TiltCard.Description>
+        ) : (
+          <Badge color="secondary" solid className="bg-surface-secondary">
+            {label}
+          </Badge>
+        ))}
+      {/* Not a heading: a button's content can't hold one. */}
+      <TiltCard.Title as="p" className={css.title()}>
+        {title}
+      </TiltCard.Title>
+      {below && progress != null && (
+        <Progress value={progress * 100} size="sm" />
+      )}
+    </Layer>
+  );
+
+  // Below, a column outside the card holds its id, size and colors.
+  const box = tilt ? (
     <TiltCard
-      data-testid={testID}
+      data-testid={below ? undefined : testID}
       className="rounded-[inherit]"
       cardClassName={cardClassName}
       color="primary"
-      style={flatStyle}
+      style={below ? undefined : flatStyle}
     >
-      {content}
+      {coverLayers}
+      {!below && text}
     </TiltCard>
   ) : (
     <View
-      testID={testID}
+      testID={below ? undefined : testID}
       className={cn("rounded-[inherit]", cardClassName)}
+      style={below ? undefined : (flatStyle as ViewStyle)}
+    >
+      {coverLayers}
+      {!below && text}
+    </View>
+  );
+  const card = below ? (
+    <View
+      testID={testID}
+      className="gap-2 rounded-[inherit]"
       style={flatStyle as ViewStyle}
     >
-      {content}
+      {box}
+      {text}
     </View>
+  ) : (
+    box
   );
   // The card inherits it, so the focus ring follows its corners.
   const corners = { borderRadius: radius ?? (below ? COVER_RADIUS : 16) };
