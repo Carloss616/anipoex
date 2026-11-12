@@ -2,6 +2,9 @@ import { useFragment } from "@apollo/client/react";
 import { useValue } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { memo } from "react";
+import { Icons } from "@/components/ui/icon";
+import { ContextMenu } from "@/components/ui/menu";
+import { isRuntimeAvailable } from "@/features/extensions";
 import {
   MangaCard,
   type TitlePosition,
@@ -9,6 +12,7 @@ import {
 import { PUBLICATION_STATUSES } from "@/features/manga/constants";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { useUnreadCount } from "@/features/manga/hooks/use-unread-count";
+import { scanManga } from "@/features/manga/state/library-scan";
 import { isScanBusy } from "@/features/manga/state/probes";
 import { mediaKey } from "@/features/manga/utils/msu";
 import { toProgress } from "@/features/manga/utils/progress";
@@ -31,9 +35,15 @@ function useProgress({
   const read = data.mediaListEntry?.progress ?? 0;
   const unread = useUnreadCount(id, read);
   if (!data.mediaListEntry) {
-    return { label: undefined, spoken: undefined, fraction: undefined, unread };
+    return {
+      label: undefined,
+      spoken: undefined,
+      fraction: undefined,
+      unread,
+      read,
+    };
   }
-  return { ...toProgress(read, data.chapters), unread };
+  return { ...toProgress(read, data.chapters), unread, read };
 }
 
 /**
@@ -56,7 +66,7 @@ export const GridItem = memo(function GridItem({
   const scanning = useValue(() => isScanBusy(mediaKey(item.id)));
   const title = item.title?.userPreferred;
 
-  return (
+  const card = (
     <MangaCard
       style={width ? { width } : undefined}
       cover={item.coverImage?.medium}
@@ -85,5 +95,36 @@ export const GridItem = memo(function GridItem({
       testID={`manga-card-${item.id}`}
       onPress={() => router.push(`/manga/${item.id}`)}
     />
+  );
+
+  // A plain browser has no sources, so nothing to scan.
+  if (!isRuntimeAvailable) return card;
+
+  // The Reading toolbar's scan, for this manga alone.
+  return (
+    <ContextMenu
+      items={[
+        {
+          heading: title ?? undefined,
+          items: [
+            {
+              label: "Scan for new chapters",
+              icon: Icons.scanList,
+              disabled: scanning,
+              onPress: () => void scanManga(item, progress.read),
+            },
+            {
+              label: "Rescan everything",
+              icon: Icons.refresh,
+              disabled: scanning,
+              onPress: () =>
+                void scanManga(item, progress.read, { everything: true }),
+            },
+          ],
+        },
+      ]}
+    >
+      {card}
+    </ContextMenu>
   );
 });

@@ -74,11 +74,12 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { scanReading, stopReadingScan, libraryScan$ } = await import(
+const { scanManga, scanReading, stopReadingScan, libraryScan$ } = await import(
   "./library-scan"
 );
 const { source$ } = await import("./source");
-const { probes$ } = await import("./probes");
+const { probes$, turns } = await import("./probes");
+const { toEntries } = await import("../utils/to-entries");
 const { settings$ } = await import("@/state/settings");
 
 const media = (id: number, title: string) => ({
@@ -108,6 +109,8 @@ beforeEach(() => {
   session$.user.set({ id: 1 });
   source$.set({});
   probes$.set({});
+  // A held search never ends, and would keep its source's turn.
+  turns.clear();
 });
 
 describe("scanReading", () => {
@@ -204,5 +207,40 @@ describe("scanReading", () => {
     expect(search.mock.calls.map(([, title]) => title)).toEqual(["Five"]);
     // One source each, so Six started behind Five and waits for its turn.
     expect(shown.mock.calls.at(-1)?.[0]).toStartWith("Stopped at 2 of 2");
+  });
+});
+
+const entry = (id: number, title: string) =>
+  toEntries(list(media(id, title)).data as never)[0];
+
+describe("scanManga", () => {
+  it("skips a source checked within the hour unless everything", async () => {
+    probes$["410"].a.set({
+      provider: "a",
+      providerName: "Source A",
+      latest: 1,
+      count: 1,
+      matched: true,
+      errored: false,
+      updatedAt: Date.now() - 60_000,
+    });
+    await scanManga(entry(410, "Ten"), 0);
+    expect(search).not.toHaveBeenCalled();
+    expect(shown.mock.calls).toEqual([["Checked recently"]]);
+
+    await scanManga(entry(410, "Ten"), 0, { everything: true });
+    expect(search).toHaveBeenCalled();
+    expect(
+      shown.mock.calls.filter(([label]) => label === "Checked recently"),
+    ).toHaveLength(1);
+  });
+
+  it("no sources installed", async () => {
+    const before = installed$.peek();
+    installed$.set([]);
+    await scanManga(entry(411, "Eleven"), 0);
+    installed$.set(before);
+    expect(shown.mock.calls).toEqual([["No sources installed"]]);
+    expect(search).not.toHaveBeenCalled();
   });
 });

@@ -18,16 +18,60 @@ import { AUTO_RECHECK_DAYS, mediaKey, RECENT_SCAN_MS } from "../utils/msu";
 import { startLibraryActivity } from "../utils/scan-activity";
 import { unreadChapters } from "../utils/source-classify";
 import { readMatch, searchTitles } from "../utils/source-match";
-import { toEntries } from "../utils/to-entries";
+import { type MangaEntry, toEntries } from "../utils/to-entries";
 import { exclusions$ } from "./exclusions";
 import { manualTitles } from "./manual-matches";
 import { probes$, scanSources, stopScanAll, undoPick } from "./probes";
 import { source$ } from "./source";
 
+const DAY_MS = 86_400_000;
+
+/** The installed sources a scan of the manga reads, its pick kept among them. */
+function sourcesOf(mangaId: number) {
+  const installed = installed$.peek();
+  const keep = readMatch(source$[mangaId].peek())?.sourceId;
+  return {
+    keep,
+    sources: withChosen(
+      toSources(installed),
+      toSources(installed, { all: true }),
+      keep,
+    ),
+  };
+}
+
+/**
+ * Scans one manga's sources from where no sheet is open (a card's menu),
+ * skipping what the Reading scan skips unless `everything`.
+ */
+export async function scanManga(
+  media: MangaEntry,
+  read: number,
+  { everything = false } = {},
+) {
+  // Unpersisted: the list can be the first screen to scan.
+  if (!installedLoaded$.peek()) await refreshInstalled();
+  if (!installed$.peek().length) {
+    toast("No sources installed");
+    return;
+  }
+  const { keep, sources } = sourcesOf(media.id);
+  const result = await scanSources({
+    mangaId: media.id,
+    sources,
+    titles: searchTitles(media, manualTitles(media.id)),
+    read: () => read,
+    keep,
+    name: media.title?.userPreferred ?? undefined,
+    cover: media.coverImage?.medium ?? undefined,
+    freshFor: everything ? undefined : RECENT_SCAN_MS,
+    missFor: everything ? undefined : AUTO_RECHECK_DAYS * DAY_MS,
+  });
+  if (result.recent) toast("Checked recently");
+}
+
 /** Whether the Reading scan runs, list loading included; not persisted. */
 export const libraryScan$ = observable(false);
-
-const DAY_MS = 86_400_000;
 
 let stopped = false;
 /** The manga being scanned: the one shown and those finishing behind it. */
@@ -86,19 +130,6 @@ export async function scanReading({ everything = false } = {}) {
       toast("No sources installed");
       return;
     }
-
-    const sourcesOf = (mangaId: number) => {
-      const installed = installed$.peek();
-      const keep = readMatch(source$[mangaId].peek())?.sourceId;
-      return {
-        keep,
-        sources: withChosen(
-          toSources(installed),
-          toSources(installed, { all: true }),
-          keep,
-        ),
-      };
-    };
 
     const skipped = new Map<string, string>();
     // A read past this is stopped, and its source skipped for the rest of the run.
