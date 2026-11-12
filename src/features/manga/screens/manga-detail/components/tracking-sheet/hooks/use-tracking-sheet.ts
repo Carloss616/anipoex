@@ -36,7 +36,14 @@ export function useTrackingSheet({
   /** Every field saves as it is confirmed, so there is no draft to discard. */
   const commit = (next: TrackingForm) => {
     setForm(next);
-    save(toSaveVariables(form, next, { mediaId: manga.id, entryId })).catch(
+    save(toSaveVariables(form, next, { mediaId: manga.id, entryId })).then(
+      (entry) => {
+        // A new entry saved with no status gets AniList's default (Reading).
+        const status = entry?.status ?? undefined;
+        setForm((current) =>
+          current.status || !status ? current : { ...current, status },
+        );
+      },
       () => {
         // Put back what AniList has, unless another field was confirmed since.
         setForm((current) => (current === next ? form : current));

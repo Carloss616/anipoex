@@ -84,7 +84,8 @@ export function useReadingProgress(
     setNotice(saving);
     save(toSaveVariables(notice.result.before, notice.result.after, ids))
       .then(
-        (createdId) => settle(saving, { ...saving, state: "saved", createdId }),
+        (entry) =>
+          settle(saving, { ...saving, state: "saved", createdId: entry?.id }),
         () => settle(saving, notice),
       )
       .finally(() => {
