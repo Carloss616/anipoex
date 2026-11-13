@@ -53,6 +53,10 @@ import type { HeroSectionProps } from "./hero-section";
 const WIDTH = 300;
 const HEIGHT = 210;
 const RADIUS = 22;
+
+const renderCard = ({ item, index }: { item: MangaEntry; index: number }) => (
+  <HeroCard item={item} rank={index + 1} />
+);
 const SCRIM = ["#000000b8", "#00000000"];
 
 /**
@@ -98,10 +102,18 @@ export function HeroSection({ title, media, params }: HeroSectionProps) {
           onScrollPhaseChange((phase) => shown.setIdle(phase === "idle")),
         ]}
       >
-        <LazyHStack spacing={10} modifiers={[scrollTargetLayout()]}>
-          {cards.map((item, i) => (
-            <HeroCard key={item.id} item={item} rank={i + 1} />
-          ))}
+        <LazyHStack
+          spacing={10}
+          // A recycled row has no height until a card is measured.
+          modifiers={[scrollTargetLayout(), frame({ height: HEIGHT })]}
+        >
+          <LazyHStack.ForEach
+            data={cards}
+            keyExtractor={(item) => String(item.id)}
+            estimatedItemSize={WIDTH}
+          >
+            {renderCard}
+          </LazyHStack.ForEach>
         </LazyHStack>
       </ScrollView>
     </VStack>

@@ -3,11 +3,21 @@ import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
+import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import {
+  Pressable,
+  type PressableProps,
+  StyleSheet,
+  View,
+  type ViewStyle,
+} from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
+import { LegendList } from "@/components/layout/legend-list";
 import { PRESS } from "@/components/ui/press";
+import { ScrimGradient } from "@/components/ui/scrim";
+import { COVER_RADIUS } from "@/features/manga/components/manga-card";
 import type { SearchParams } from "@/features/manga/utils/search-params";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useRailScroll } from "../../hooks/use-rail-scroll";
@@ -21,7 +31,8 @@ export interface HeroSectionProps {
   params?: SearchParams;
 }
 
-const GAP = 14;
+const GAP = 12;
+const CARD_HEIGHT = 208;
 
 const genresOf = (manga: MangaEntry) =>
   manga.genres?.filter(Boolean).slice(0, 3).join(" · ");
@@ -32,18 +43,19 @@ const genresOf = (manga: MangaEntry) =>
  */
 export function HeroSection({ title, media, params }: HeroSectionProps) {
   const { isAtLeast } = useBreakpoint();
-  const { ref, scroll } = useRailScroll();
+  const { ref, scroll, edges$ } = useRailScroll();
   const expanded = isAtLeast("lg");
   const compact = !isAtLeast("sm");
 
   return (
-    <Frame variant="band">
+    <Frame>
       <Frame.Header>
         <Frame.Title>{title}</Frame.Title>
         <SectionActions
           title={title}
           params={params}
           onScroll={expanded || compact ? undefined : scroll}
+          edges$={edges$}
         />
       </Frame.Header>
       <Frame.Panel>
@@ -97,80 +109,38 @@ function Banner({ media }: { media: MangaEntry[] }) {
       <View className="min-h-56 min-w-0 flex-1">
         {top.map((manga, i) => {
           const shown = i === focus;
-          const title = manga.title?.userPreferred ?? "";
           return (
-            <Pressable
+            <HeroCard
               key={manga.id}
-              role="button"
-              aria-label={`#${i + 1} trending: ${title}`}
+              manga={manga}
+              rank={i + 1}
               aria-hidden={!shown}
               focusable={shown}
-              onPress={() => open(manga)}
               onHoverIn={() => hold()}
               onHoverOut={release}
               onFocus={() => hold()}
               onBlur={release}
               className={cn(
-                PRESS,
-                "absolute inset-0 flex-row gap-5 overflow-hidden rounded-xl p-5",
-                "transition-opacity duration-700",
+                "absolute inset-0 transition-opacity duration-700",
                 shown ? "opacity-100" : "pointer-events-none opacity-0",
               )}
-              style={{ backgroundColor: manga.coverImage?.color ?? undefined }}
-            >
-              <Image
-                source={manga.coverImage?.extraLarge ?? manga.coverImage?.large}
-                blurRadius={40}
-                contentFit="cover"
-                style={{ position: "absolute", inset: 0, opacity: 0.6 }}
-              />
-              <View className="absolute inset-0 bg-black/45" />
-              <Image
-                source={manga.coverImage?.large}
-                contentFit="cover"
-                style={{
-                  width: 120,
-                  aspectRatio: 2 / 3,
-                  borderRadius: 10,
-                  alignSelf: "center",
-                }}
-              />
-              <View className="min-w-0 flex-1 justify-end gap-1">
-                <Typography type="body-xs" className="text-white/80 uppercase">
-                  #{i + 1} trending
-                </Typography>
-                <Typography type="h3" numberOfLines={2} className="text-white">
-                  {title}
-                </Typography>
-                <Typography
-                  type="body-sm"
-                  numberOfLines={1}
-                  className="text-white/80"
-                >
-                  {genresOf(manga)}
-                </Typography>
-              </View>
-            </Pressable>
+            />
           );
         })}
       </View>
       <View className="w-72 gap-1">
         {top.map((manga, i) => (
-          <Pressable
+          <Button
             key={manga.id}
-            role="button"
+            variant="ghost"
             aria-label={`#${i + 1} trending: ${manga.title?.userPreferred}`}
             aria-current={i === focus || undefined}
-            onPress={() => open(manga)}
-            onHoverIn={() => hold(i)}
-            onHoverOut={release}
+            onClick={() => open(manga)}
+            onMouseEnter={() => hold(i)}
+            onMouseLeave={release}
             onFocus={() => hold(i)}
             onBlur={release}
-            className={cn(
-              PRESS,
-              "hover:bg-accent flex-row items-center gap-3 rounded-lg p-1.5 transition-colors",
-              i === focus && "bg-accent",
-            )}
+            className={cn("h-auto gap-3 p-1.5", i === focus && "bg-accent")}
           >
             <Typography type="small" muted className="w-4 text-center">
               {i + 1}
@@ -193,7 +163,7 @@ function Banner({ media }: { media: MangaEntry[] }) {
                 {genresOf(manga)}
               </Typography>
             </View>
-          </Pressable>
+          </Button>
         ))}
       </View>
     </View>
@@ -209,49 +179,81 @@ function HeroRow({
   compact: boolean;
   rowRef: ReturnType<typeof useRailScroll>["ref"];
 }) {
-  const open = useOpen();
   const [width, setWidth] = useState(0);
   const cardWidth = compact ? width * 0.86 : (width - GAP) / 2;
 
   return (
-    <ScrollView
+    <LegendList
       ref={rowRef}
       horizontal
+      data={media.slice(0, 6)}
+      keyExtractor={(manga) => String(manga.id)}
+      estimatedItemSize={cardWidth}
+      columnWrapperStyle={{ gap: GAP }}
       showsHorizontalScrollIndicator={false}
-      onLayout={(event) => setWidth(event.nativeEvent.layout.width - 16)}
-      className="snap-x snap-mandatory"
-      contentContainerClassName="p-2"
-      contentContainerStyle={{ gap: GAP }}
+      onLayout={(event) => setWidth(event.nativeEvent.layout.width - 32)}
+      className="snap-x snap-mandatory scroll-ps-4"
+      // The last card keeps the gap after it: 4 + 12 ends like the start.
+      contentContainerClassName="py-4 ps-4 pe-1"
+      style={{ minWidth: 0, minHeight: CARD_HEIGHT + 32 }}
+      renderItem={({ item: manga, index: i }) => (
+        <HeroCard
+          manga={manga}
+          rank={i + 1}
+          className="snap-start"
+          style={{ width: cardWidth, height: CARD_HEIGHT }}
+        />
+      )}
+    />
+  );
+}
+
+/** The cover edge to edge, its rank and title over a scrim. */
+function HeroCard({
+  manga,
+  rank,
+  className,
+  style,
+  ...props
+}: {
+  manga: MangaEntry;
+  rank: number;
+  className?: string;
+  style?: ViewStyle;
+} & Omit<PressableProps, "style" | "children">) {
+  const open = useOpen();
+  const title = manga.title?.userPreferred;
+
+  return (
+    <Pressable
+      role="button"
+      aria-label={`#${rank} trending: ${title}`}
+      onPress={() => open(manga)}
+      {...props}
+      style={[
+        {
+          backgroundColor: manga.coverImage?.color ?? undefined,
+          borderRadius: COVER_RADIUS,
+        },
+        style,
+      ]}
+      className={cn(PRESS, "justify-end overflow-hidden p-4", className)}
     >
-      {media.slice(0, 6).map((manga, i) => (
-        <Pressable
-          key={manga.id}
-          role="button"
-          aria-label={`#${i + 1} trending: ${manga.title?.userPreferred}`}
-          onPress={() => open(manga)}
-          style={{
-            width: cardWidth,
-            backgroundColor: manga.coverImage?.color ?? undefined,
-          }}
-          className={cn(
-            PRESS,
-            "h-52 snap-start justify-end overflow-hidden rounded-xl p-4",
-          )}
-        >
-          <Image
-            source={manga.coverImage?.extraLarge ?? manga.coverImage?.large}
-            contentFit="cover"
-            style={{ position: "absolute", inset: 0 }}
-          />
-          <View className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
-          <Typography type="body-xs" className="text-white/80">
-            #{i + 1} trending
-          </Typography>
-          <Typography type="large" numberOfLines={2} className="text-white">
-            {manga.title?.userPreferred}
-          </Typography>
-        </Pressable>
-      ))}
-    </ScrollView>
+      <Image
+        source={manga.coverImage?.extraLarge ?? manga.coverImage?.large}
+        contentFit="cover"
+        style={{ position: "absolute", inset: 0 }}
+      />
+      <ScrimGradient
+        colorClassName="accent-black"
+        style={StyleSheet.absoluteFill}
+      />
+      <Typography type="body-xs" className="text-white/80">
+        #{rank} trending
+      </Typography>
+      <Typography type="large" numberOfLines={2} className="text-white">
+        {title}
+      </Typography>
+    </Pressable>
   );
 }

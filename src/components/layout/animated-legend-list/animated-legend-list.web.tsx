@@ -1,6 +1,6 @@
-import type { LegendListRef } from "@legendapp/list/react-native";
-import * as LegendListModule from "@legendapp/list/react-native";
-import { LegendList } from "@legendapp/list/react-native";
+import type { LegendListRef } from "@legendapp/list/react";
+import * as LegendListModule from "@legendapp/list/react";
+import { LegendList } from "@legendapp/list/react";
 import {
   createContext,
   type ReactNode,

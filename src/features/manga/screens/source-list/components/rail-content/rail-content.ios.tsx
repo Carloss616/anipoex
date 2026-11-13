@@ -119,28 +119,38 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
         <LazyHStack
           spacing={10}
           alignment="top"
-          modifiers={[padding({ bottom: 6 })]}
+          modifiers={[
+            padding({ bottom: 6 }),
+            // A recycled row has no height until a card is measured: the
+            // cover's holds it open, and the cards' text grows it.
+            frame({ minHeight: COVER.height }),
+          ]}
         >
-          {items.map((item, i) => [
-            <Menu key={item.manga.url} items={menu(item)}>
-              {/* A menu label takes the tint and centres its text: the card
-                  keeps its own look. */}
-              <VStack
-                modifiers={[
-                  foregroundStyle(foreground),
-                  multilineTextAlignment("leading"),
-                ]}
-              >
-                <RailCard item={item} headers={source.headers} />
-              </VStack>
-            </Menu>,
-            item.current && i === 0 && items.length > 1 && (
-              <Divider
-                key="divider"
-                modifiers={[frame({ height: COVER.height })]}
-              />
-            ),
-          ])}
+          <LazyHStack.ForEach
+            data={items}
+            keyExtractor={(item) => item.manga.url}
+            estimatedItemSize={COVER.width}
+          >
+            {({ item, index }) => (
+              <HStack spacing={10} alignment="top">
+                <Menu items={menu(item)}>
+                  {/* A menu label takes the tint and centres its text: the
+                      card keeps its own look. */}
+                  <VStack
+                    modifiers={[
+                      foregroundStyle(foreground),
+                      multilineTextAlignment("leading"),
+                    ]}
+                  >
+                    <RailCard item={item} headers={source.headers} />
+                  </VStack>
+                </Menu>
+                {item.current && index === 0 && items.length > 1 && (
+                  <Divider modifiers={[frame({ height: COVER.height })]} />
+                )}
+              </HStack>
+            )}
+          </LazyHStack.ForEach>
           {(rail.hasNextPage || rail.loadingMore) && (
             // Loads as it scrolls into view; a tap retries a page that failed.
             <Button

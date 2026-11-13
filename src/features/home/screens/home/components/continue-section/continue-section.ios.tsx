@@ -37,6 +37,12 @@ import type { ContinueSectionProps } from "./continue-section";
 import { useContinueActions } from "./hooks/use-continue-actions";
 
 const CARD_WIDTH = 240;
+// The cover and the card's padding.
+const CARD_HEIGHT = 90;
+
+const renderCard = ({ item }: { item: ContinueItem }) => (
+  <ContinueCard item={item} />
+);
 
 export function ContinueSection({ title, items }: ContinueSectionProps) {
   return (
@@ -49,10 +55,21 @@ export function ContinueSection({ title, items }: ContinueSectionProps) {
         {title}
       </Text>
       <ScrollView axes="horizontal" modifiers={[scrollIndicators("hidden")]}>
-        <LazyHStack spacing={10} modifiers={[padding({ horizontal: GUTTER })]}>
-          {items.map((item) => (
-            <ContinueCard key={item.mangaId} item={item} />
-          ))}
+        <LazyHStack
+          spacing={10}
+          modifiers={[
+            padding({ horizontal: GUTTER }),
+            // A recycled row has no height until a card is measured.
+            frame({ height: CARD_HEIGHT }),
+          ]}
+        >
+          <LazyHStack.ForEach
+            data={items}
+            keyExtractor={(item) => String(item.mangaId)}
+            estimatedItemSize={CARD_WIDTH}
+          >
+            {renderCard}
+          </LazyHStack.ForEach>
         </LazyHStack>
       </ScrollView>
     </VStack>
@@ -129,7 +146,7 @@ const ContinueCard = memo(function ContinueCard({
           <Text
             textStyle="subheadline"
             weight="semibold"
-            modifiers={[lineLimit(2)]}
+            modifiers={[lineLimit(1)]}
           >
             {title}
           </Text>

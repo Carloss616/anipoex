@@ -1,42 +1,58 @@
 import { useFragment } from "@apollo/client/react";
 import { Image } from "expo-image";
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
-import { cn } from "panelui-native/utils/cn";
+import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
-import { RangeMeter } from "panelui-web/range-meter";
-import { Stat } from "panelui-web/stat";
 import { memo } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
+import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
-import { PRESS } from "@/components/ui/press";
+import { Progress } from "@/components/ui/progress";
 import type { ContinueItem } from "@/features/home/utils/continue-items";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
+import { useRailScroll } from "../../hooks/use-rail-scroll";
+import { SectionActions } from "../section-actions";
 import { useContinueActions } from "./hooks/use-continue-actions";
+
+// Fixed, so every card in the row lines up: two title lines fit.
+const CARD = { width: 280, height: 98 };
 
 export interface ContinueSectionProps {
   title: string;
   items: ContinueItem[];
 }
 
-/** A card per manga, two to a row once there is room. */
 export function ContinueSection({ title, items }: ContinueSectionProps) {
-  const wide = useBreakpoint().isAtLeast("sm");
+  const { isAtLeast } = useBreakpoint();
+  const { ref, scroll, edges$ } = useRailScroll();
 
   return (
     <Frame>
       <Frame.Header>
         <Frame.Title>{title}</Frame.Title>
-        <Frame.Action>{items.length} reading</Frame.Action>
+        <SectionActions
+          title={title}
+          onScroll={isAtLeast("sm") ? scroll : undefined}
+          edges$={edges$}
+        />
       </Frame.Header>
       <Frame.Panel>
-        <View className="flex-row flex-wrap p-1.5">
-          {items.map((item) => (
-            <View
-              key={item.mangaId}
-              className={cn("p-1.5", wide ? "w-1/2" : "w-full")}
-            >
+        <LegendList
+          ref={ref}
+          horizontal
+          data={items}
+          keyExtractor={(item) => String(item.mangaId)}
+          estimatedItemSize={CARD.width}
+          recycleItems
+          columnWrapperStyle={{ gap: 12 }}
+          // The last card keeps the gap after it: 4 + 12 ends like the start.
+          contentContainerClassName="py-4 ps-4 pe-1"
+          style={{ minWidth: 0, minHeight: CARD.height + 32 }}
+          renderItem={({ item }) => (
+            <View style={CARD}>
               <ContinueCard
                 mangaId={item.mangaId}
                 unread={item.unread}
@@ -44,17 +60,14 @@ export function ContinueSection({ title, items }: ContinueSectionProps) {
                 chapterNumber={item.next.number}
               />
             </View>
-          ))}
-        </View>
+          )}
+        />
       </Frame.Panel>
     </Frame>
   );
 }
 
-/**
- * Title, cover and progress from the cache, so a save in the reader shows:
- * how far as a figure with the new chapters beside it, where as a meter.
- */
+/** Title, cover and progress from the cache, so a save in the reader shows. */
 const ContinueCard = memo(function ContinueCard({
   mangaId,
   unread,
@@ -77,64 +90,45 @@ const ContinueCard = memo(function ContinueCard({
     from: { __typename: "Media", id: mangaId },
   });
   const read = data.mediaListEntry?.progress ?? 0;
-  const total = read + unread;
   const title = data.title?.userPreferred ?? "";
 
   return (
     <ContextMenu items={menu}>
-      <Pressable
-        role="button"
+      <Button
         aria-label={`${title}: read chapter ${chapterNumber}, ${unread} new`}
-        onPress={open}
-        className={cn(
-          PRESS,
-          // A <button> centers its text by default.
-          "bg-muted/40 hover:bg-muted/70 gap-3 rounded-xl p-3 text-start transition-colors",
-        )}
+        onClick={open}
+        variant="secondary"
+        className="h-auto gap-2.5 p-2.5"
       >
-        <View className="flex-row gap-3">
-          <View>
-            <Image
-              source={data.coverImage?.medium}
-              contentFit="cover"
-              style={{
-                width: 48,
-                height: 70,
-                borderRadius: 8,
-                backgroundColor: data.coverImage?.color ?? undefined,
-              }}
-            />
-            <View className="absolute inset-0 items-center justify-center">
-              <View className="size-6 items-center justify-center rounded-full bg-black/55">
-                <Icon name={Icons.play} size={12} className="text-white" />
-              </View>
+        <View>
+          <Image
+            source={data.coverImage?.medium}
+            contentFit="cover"
+            className="aspect-2/3 w-13 rounded-sm"
+            style={{
+              backgroundColor: data.coverImage?.color ?? undefined,
+            }}
+          />
+          <View className="absolute inset-0 items-center justify-center">
+            <View className="size-6 items-center justify-center rounded-full bg-black/55">
+              <Icon name={Icons.play} size={12} className="text-white" />
             </View>
           </View>
-          <Stat className="min-w-0 flex-1">
-            <Stat.Content className="min-w-0">
-              <Stat.Label weight="medium" className="text-foreground truncate">
-                {title}
-              </Stat.Label>
-              <Stat.Value size="sm">
-                {/* Floor: 294 of 295 is not done. */}
-                {Math.floor((read / total) * 100)}
-                <Stat.Unit>%</Stat.Unit>
-              </Stat.Value>
-            </Stat.Content>
-            <Badge color="primary">+{unread}</Badge>
-          </Stat>
         </View>
-        <RangeMeter
-          min={0}
-          max={total}
-          value={read}
-          ticks={36}
-          color="primary"
-          formatValue={(value) => `c.${value}`}
-          label={`${title}: chapters read`}
-          valueText={`${read} of ${total} chapters`}
-        />
-      </Pressable>
+        <View className="min-w-0 flex-1 gap-2">
+          <Typography type="small" weight="semibold" numberOfLines={1}>
+            {title}
+          </Typography>
+          <View className="flex-row items-center gap-1.5">
+            <Typography type="body-xs" muted>
+              Read
+            </Typography>
+            <Badge>c.{read}</Badge>
+            {unread > 0 && <Badge color="primary">+{unread}</Badge>}
+          </View>
+          <Progress value={read} maxValue={read + unread} size="sm" />
+        </View>
+      </Button>
     </ContextMenu>
   );
 });

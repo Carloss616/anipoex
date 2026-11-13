@@ -10,12 +10,12 @@ import {
   sectionTitle,
 } from "@/features/home/utils/section-data";
 import { session$ } from "@/state/session";
-import { ActivitySection } from "../activity-section";
-import { ContinueSection } from "../continue-section";
-import { GenreSection } from "../genre-section";
-import { HeroSection } from "../hero-section";
-import { RailSection } from "../rail-section";
-import { SectionPlaceholder } from "../section-placeholder";
+import { ActivitySection } from "./activity-section";
+import { ContinueSection } from "./continue-section";
+import { GenreSection } from "./genre-section";
+import { HeroSection } from "./hero-section";
+import { RailSection } from "./rail-section";
+import { SectionPlaceholder } from "./section-placeholder";
 
 export interface HomeSectionProps {
   id: SectionId;

@@ -25,12 +25,9 @@ import { type ScanView, scanStops, scanViews$ } from "../../state/scan-views";
 import type { SourceMark } from "../../utils/scan-activity/utils/marks";
 
 const DETAIL = /^\/manga\/\d+$/;
-// The cell's padding (half the gap) is the room the +N badge hangs into: the
-// list's cells clip their paint.
 const FADE =
   "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)";
-const MARK_GAP = 8;
-const MARK_SPAN = 40 + MARK_GAP;
+const MARK_SIZE = 40;
 
 /**
  * The running scans over every screen, each hidden while its manga's source
@@ -156,15 +153,17 @@ function MarkRail({ marks }: { marks: SourceMark[] }) {
       horizontal
       data={marks}
       keyExtractor={(mark) => mark.id}
-      estimatedItemSize={MARK_SPAN}
+      estimatedItemSize={MARK_SIZE}
       recycleItems
-      columnWrapperStyle={{ gap: MARK_GAP }}
+      columnWrapperStyle={{ gap: 8 }}
+      // The last tile keeps the gap after it: the same 8 at the start.
+      contentContainerClassName="ps-2"
       // The indicator prop does nothing on web, and the badges' overhang
       // would let the row scroll up and down.
       style={
         {
           minWidth: 0,
-          minHeight: MARK_SPAN,
+          minHeight: MARK_SIZE + 4,
           scrollbarWidth: "none",
           overflowY: "hidden",
           // Fades the edges, so the row shows it scrolls.
@@ -172,7 +171,13 @@ function MarkRail({ marks }: { marks: SourceMark[] }) {
           WebkitMaskImage: FADE,
         } as ViewStyle
       }
-      renderItem={({ item }) => <MarkTile mark={item} />}
+      renderItem={({ item }) => (
+        // Room for the +N badge to hang into: the list's cells clip their
+        // paint, and the gap only pads their end.
+        <View className="pb-1">
+          <MarkTile mark={item} />
+        </View>
+      )}
     />
   );
 }

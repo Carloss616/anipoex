@@ -10,11 +10,8 @@ import type { RailProps } from "../rail";
 import { RailCard } from "../rail-card";
 import { useRail } from "./hooks/use-rail";
 
-const GAP = 10;
-// One card and the gap after it, so the list lays out before measuring.
-const CARD_SPAN = COVER.width + GAP;
-// Cover, two title lines, the label badge, and the cells' gap above and below.
-const RAIL_HEIGHT = COVER.height + 72 + GAP;
+// Cover, two title lines and the label badge.
+const RAIL_HEIGHT = COVER.height + 72;
 const COVER_BOX = { ...COVER, borderRadius: COVER_RADIUS };
 
 /** A skeleton while the first page loads, then the cards and a More card. */
@@ -37,7 +34,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
     );
 
   return (
-    <View className="gap-2 pb-3">
+    <View className="gap-2">
       {items.length > 0 && (
         // A horizontal list in the sheet's vertical one, as in LegendList's
         // media rails.
@@ -45,11 +42,14 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           horizontal
           data={items}
           keyExtractor={(item) => item.manga.url}
-          estimatedItemSize={CARD_SPAN}
+          estimatedItemSize={COVER.width}
           recycleItems
           onEndReached={loadMore}
-          columnWrapperStyle={{ gap: GAP }}
-          contentContainerStyle={{ paddingLeft: 16, paddingRight: 16 }}
+          columnWrapperStyle={{ gap: 10 }}
+          // The last card keeps the gap after it: 6 + 10 ends like the start.
+          contentContainerClassName="ps-4 pe-1.5"
+          // More ends like a card, with the gap after it.
+          ListFooterComponentClassName="pe-2.5"
           style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
@@ -88,7 +88,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
         />
       )}
       {notice === "error" ? (
-        <View className="flex-row items-center gap-2 px-4">
+        <View className="flex-row items-center gap-2 px-4 pb-4">
           <Typography type="body-sm" className="text-destructive flex-1">
             Couldn't search
           </Typography>
@@ -97,7 +97,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           </Button>
         </View>
       ) : notice === "empty" ? (
-        <Typography type="body-sm" muted className="px-4">
+        <Typography type="body-sm" muted className="px-4 pb-4">
           No results
         </Typography>
       ) : null}

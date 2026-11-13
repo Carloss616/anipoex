@@ -8,6 +8,7 @@ import {
 } from "@expo/ui/swift-ui";
 import {
   buttonStyle,
+  frame,
   padding,
   scrollIndicators,
 } from "@expo/ui/swift-ui/modifiers";
@@ -16,9 +17,14 @@ import { GUTTER } from "@/components/native/constants";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { GridItem } from "@/features/manga/components/manga-grid/grid-item";
 import { toRouteParams } from "@/features/manga/utils/search-params";
+import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import type { RailSectionProps } from "./rail-section";
 
 const CARD = 106;
+
+const renderCard = ({ item }: { item: MangaEntry }) => (
+  <GridItem item={item} width={CARD} />
+);
 
 export function RailSection({ title, media, params }: RailSectionProps) {
   const router = useRouter();
@@ -48,11 +54,19 @@ export function RailSection({ title, media, params }: RailSectionProps) {
         <LazyHStack
           alignment="top"
           spacing={10}
-          modifiers={[padding({ horizontal: GUTTER })]}
+          modifiers={[
+            padding({ horizontal: GUTTER }),
+            // A recycled row has no height until a card is measured.
+            frame({ minHeight: CARD * 1.5 }),
+          ]}
         >
-          {media.map((item) => (
-            <GridItem key={item.id} item={item} width={CARD} />
-          ))}
+          <LazyHStack.ForEach
+            data={media}
+            keyExtractor={(item) => String(item.id)}
+            estimatedItemSize={CARD}
+          >
+            {renderCard}
+          </LazyHStack.ForEach>
         </LazyHStack>
       </ScrollView>
     </VStack>
