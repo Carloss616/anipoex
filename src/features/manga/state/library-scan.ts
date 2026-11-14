@@ -13,7 +13,12 @@ import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
 import { MangaListDocument } from "../graphql/manga-list.generated";
 import { readableSources } from "../utils/best-source";
-import { libraryStatus, runLibrary, scanOrder } from "../utils/library-run";
+import {
+  type LibraryEntry,
+  libraryStatus,
+  runLibrary,
+  scanOrder,
+} from "../utils/library-run";
 import { AUTO_RECHECK_DAYS, mediaKey, RECENT_SCAN_MS } from "../utils/msu";
 import { startLibraryActivity } from "../utils/scan-activity";
 import { unreadChapters } from "../utils/source-classify";
@@ -22,6 +27,15 @@ import { type MangaEntry, toEntries } from "../utils/to-entries";
 import { exclusions$ } from "./exclusions";
 import { manualTitles } from "./manual-matches";
 import { probes$, scanSources, stopScanAll, undoPick } from "./probes";
+import {
+  endRun,
+  fillQueue,
+  queueRetry,
+  readingQueue,
+  readingQueue$,
+  readingRun$,
+  settle,
+} from "./reading-queue";
 import { source$ } from "./source";
 
 const DAY_MS = 86_400_000;
@@ -74,13 +88,49 @@ export async function scanManga(
 export const libraryScan$ = observable(false);
 
 let stopped = false;
-/** The manga being scanned: the one shown and those finishing behind it. */
-const current = new Set<number>();
+/** The run's sources skipped as slow, id to name; a retry takes one out. */
+let skipped = new Map<string, string>();
+/** The run's manga by id, for a retry to queue again. */
+let entries = new Map<number, LibraryEntry>();
 
 /** Stops the Reading scan: the manga in progress at once, then the rest. */
 export function stopReadingScan() {
   stopped = true;
-  for (const mangaId of current) stopScanAll(mediaKey(mangaId));
+  for (const m of Object.values(readingQueue$.peek()))
+    if (m.state === "running") stopScanAll(mediaKey(m.mangaId));
+}
+
+/**
+ * Reads a slow source again, with no time limit, for each manga it was left
+ * out of: they go last in the queue.
+ */
+export function retrySkipped(sourceId: string) {
+  const missed = readingRun$.skipped[sourceId].peek();
+  if (!missed || stopped) return;
+  skipped.delete(sourceId);
+  readingRun$.skipped[sourceId].delete();
+  for (const id of missed.mangaIds) {
+    const entry = entries.get(id);
+    if (entry) queueRetry(entry, sourceId);
+  }
+}
+
+export function retryAllSkipped() {
+  for (const id of Object.keys(readingRun$.skipped.peek() ?? {}))
+    retrySkipped(id);
+}
+
+/** Adds the manga to the ones the slow source was left out of. */
+function missed(sourceId: string, mangaId: number) {
+  const skipped$ = readingRun$.skipped[sourceId];
+  const ids = skipped$.mangaIds.peek();
+  if (ids?.includes(mangaId)) return;
+  if (ids) skipped$.mangaIds.push(mangaId);
+  else
+    skipped$.set({
+      name: skipped.get(sourceId) ?? sourceId,
+      mangaIds: [mangaId],
+    });
 }
 
 /**
@@ -112,7 +162,7 @@ export async function scanReading({ everything = false } = {}) {
       toast("No manga in Reading");
       return;
     }
-    const entries = scanOrder(
+    const ordered = scanOrder(
       [...media.values()].map((m) => ({
         mangaId: m.id,
         name: m.title?.userPreferred ?? "",
@@ -121,7 +171,7 @@ export async function scanReading({ everything = false } = {}) {
       })),
       probes$.peek(),
     );
-    const total = entries.length;
+    const total = ordered.length;
     // Unpersisted: a scan from the list may run before a screen loaded it.
     if (!installedLoaded$.peek()) await refreshInstalled();
     // A Stop tapped while the list loaded: nothing ran, so nothing to report.
@@ -131,15 +181,18 @@ export async function scanReading({ everything = false } = {}) {
       return;
     }
 
-    const skipped = new Map<string, string>();
+    skipped = new Map();
+    entries = new Map(ordered.map((e) => [e.mangaId, e]));
+    fillQueue(ordered);
     // A read past this is stopped, and its source skipped for the rest of the run.
     const slowAfter = settings$.sources.slowSkip.peek() * 1000;
     const { summary, picks } = await runLibrary({
-      queue: { next: () => entries.shift(), left: () => entries.length },
+      queue: readingQueue,
       skipped,
       scan: (entry, activity) => {
-        current.add(entry.mangaId);
         const { keep, sources } = sourcesOf(entry.mangaId);
+        // A retry reads its sources whatever their last read or speed.
+        const limits = !entry.only && !everything;
         return scanSources({
           mangaId: entry.mangaId,
           sources,
@@ -149,13 +202,21 @@ export async function scanReading({ everything = false } = {}) {
           ),
           read: () => entry.read,
           keep,
+          only: entry.only,
           name: entry.name,
           cover: entry.cover,
           activity,
-          freshFor: everything ? undefined : RECENT_SCAN_MS,
-          missFor: everything ? undefined : AUTO_RECHECK_DAYS * DAY_MS,
-          slow: slowAfter ? { after: slowAfter, skipped } : undefined,
-        }).finally(() => current.delete(entry.mangaId));
+          freshFor: limits ? RECENT_SCAN_MS : undefined,
+          missFor: limits ? AUTO_RECHECK_DAYS * DAY_MS : undefined,
+          slow:
+            slowAfter && !entry.only
+              ? {
+                  after: slowAfter,
+                  skipped,
+                  missed: (id) => missed(id, entry.mangaId),
+                }
+              : undefined,
+        }).finally(() => settle(entry.id));
       },
       // Any source the manga can be read from counts, not only the one picked:
       // a manga with no pick, or a pick behind, still has new chapters.
@@ -167,12 +228,14 @@ export async function scanReading({ everything = false } = {}) {
           exclusions$[key].peek() ?? {},
           probes,
         );
-        return Math.max(
+        const n = Math.max(
           0,
           ...readable.map((s) =>
             unreadChapters(entry.read, probes[s.id].latest),
           ),
         );
+        if (n > 0) readingRun$.withNew[entry.mangaId].set(true);
+        return n;
       },
       activity: startLibraryActivity({ total, onStop: stopReadingScan }),
       stopped: () => stopped,
@@ -192,7 +255,7 @@ export async function scanReading({ everything = false } = {}) {
         : undefined,
     );
   } finally {
-    current.clear();
+    endRun();
     libraryScan$.set(false);
   }
 }

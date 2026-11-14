@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-14
+
+* **A Reading scan's queue can change while it runs**: each manga is taken from the queue as it starts, so Activity can scan one next or drop it from the run, and a source skipped as slow can be retried, with no time limit, for the manga it was left out of. Updated [source probes](stores/source-probes.md).
+
 ## 2026-11-10
 
 * **A suspension doesn't make a source slow**: a read that iOS suspended in the background gets a fresh window once the app is back; before, every source read at that moment was left out of the run. Updated [source probes](stores/source-probes.md).

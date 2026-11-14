@@ -249,6 +249,20 @@ describe("runLibrary", () => {
     expect(picks).toEqual([{ mangaId: 1, id: "a", previous }]);
   });
 
+  test("counts a retried manga once among those with new chapters", async () => {
+    const { a } = activity();
+    const { summary } = await runLibrary({
+      queue: queueOf([entry(1), { ...entry(1), only: ["source-1"] }]),
+      scan: async () => ({ scanned: true }),
+      unread: (e) => (e.only ? 3 : 1),
+      activity: a,
+      stopped: () => false,
+    });
+    expect(summary.withNew).toEqual([
+      { mangaId: 1, cover: undefined, unread: 3 },
+    ]);
+  });
+
   test("stops between manga and keeps picks", async () => {
     const { a } = activity();
     const previous = {} as never;

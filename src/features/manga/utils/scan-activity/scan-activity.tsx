@@ -126,7 +126,6 @@ export function startScanActivity({
  * list's summary toast is the caller's, so only a notification ends it here.
  */
 export function startLibraryActivity({
-  total,
   onStop,
 }: LibraryActivityArgs): LibraryActivity {
   const view$ = scanViews$.library;
@@ -137,7 +136,7 @@ export function startLibraryActivity({
       finishing = line;
       if (view$.peek()) view$.library.finishing.set(line);
     },
-    manga: ({ entry, index, newSoFar }) => {
+    manga: ({ entry, index, total, newSoFar }) => {
       const library = { index, total, newSoFar };
       desktop?.scanProgress((index - 1) / total);
       // Shown before its scan starts: a manga read recently never starts one.

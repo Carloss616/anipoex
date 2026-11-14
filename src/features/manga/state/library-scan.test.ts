@@ -5,8 +5,11 @@ import { memoryStorage } from "../utils/chapter-storage/chapter-storage.mock";
 
 // Titles whose search never answers, so the scan stays on them.
 const held = new Set<string>();
+// Sources that answer only after this many ms.
+const late = new Map<string, number>();
 const search = mock(async (sourceId: string, query: string) => {
   if (held.has(query)) await new Promise(() => {});
+  if (late.has(sourceId)) await Bun.sleep(late.get(sourceId) ?? 0);
   return {
     mangas: [
       { url: `/${sourceId}/${query}`, title: query, thumbnailUrl: null },
@@ -74,9 +77,10 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { scanManga, scanReading, stopReadingScan, libraryScan$ } = await import(
-  "./library-scan"
-);
+const { scanManga, scanReading, stopReadingScan, retrySkipped, libraryScan$ } =
+  await import("./library-scan");
+const { readingQueue$, readingRun$ } = await import("./reading-queue");
+const { stopScanAll } = await import("./probes");
 const { source$ } = await import("./source");
 const { probes$, turns } = await import("./probes");
 const { toEntries } = await import("../utils/to-entries");
@@ -102,6 +106,7 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 beforeEach(() => {
   reply = empty;
   held.clear();
+  late.clear();
   shown.mockClear();
   search.mockClear();
   query.mockClear();
@@ -207,6 +212,99 @@ describe("scanReading", () => {
     expect(search.mock.calls.map(([, title]) => title)).toEqual(["Five"]);
     // One source each, so Six started behind Five and waits for its turn.
     expect(shown.mock.calls.at(-1)?.[0]).toStartWith("Stopped at 2 of 2");
+  });
+});
+
+describe("the Reading scan's queue", () => {
+  const until = async (done: () => boolean) => {
+    while (!done()) await Bun.sleep(2);
+  };
+
+  it("fills the queue and empties it at the end", async () => {
+    held.add("Twenty");
+    reply = async () => list(media(420, "Twenty"), media(421, "Twentyone"));
+    const done = scanReading();
+    await until(() => search.mock.calls.length > 0);
+    expect(Object.values(readingQueue$.peek()).map((m) => m.mangaId)).toContain(
+      420,
+    );
+    expect(readingRun$.peek()).not.toBeNull();
+    stopReadingScan();
+    await done;
+    expect(readingQueue$.peek()).toEqual({});
+    expect(readingRun$.peek()).toBeNull();
+  });
+
+  it("stopping one manga keeps the run going", async () => {
+    held.add("Twentytwo");
+    held.add("Twentythree");
+    reply = async () =>
+      list(media(422, "Twentytwo"), media(423, "Twentythree"));
+    const done = scanReading();
+    await until(() => search.mock.calls.length > 0);
+    stopScanAll("422");
+    await flush();
+    expect(libraryScan$.get()).toBe(true);
+    expect(
+      Object.values(readingQueue$.peek()).map((m) => [m.mangaId, m.state]),
+    ).toEqual([[423, "running"]]);
+    stopReadingScan();
+    await done;
+  });
+
+  it("clears the queue and the run when it throws", async () => {
+    startLibraryActivity.mockImplementationOnce(() => ({
+      manga: () => {
+        throw new Error("boom");
+      },
+      finishing: noop,
+      end: noop,
+    }));
+    reply = async () => list(media(424, "Twentyfour"));
+    await expect(scanReading()).rejects.toThrow("boom");
+    expect(readingQueue$.peek()).toEqual({});
+    expect(readingRun$.peek()).toBeNull();
+    expect(libraryScan$.get()).toBe(false);
+  });
+
+  it("Retry scans only that source for the manga it missed", async () => {
+    const before = installed$.peek();
+    installed$.set([
+      ...before,
+      {
+        ...before[0],
+        pkg: "pkg-b",
+        name: "Source B",
+        sources: [{ id: "b", name: "Source B", lang: "en", homeUrl: null }],
+      },
+    ]);
+    const slowSkip = settings$.sources.slowSkip.peek();
+    settings$.sources.slowSkip.set(0.02);
+    late.set("b", 60);
+    held.add("Twentysix");
+    try {
+      reply = async () =>
+        list(media(425, "Twentyfive"), media(426, "Twentysix"));
+      const done = scanReading();
+      await until(() => readingRun$.done.peek() === 1);
+      expect(readingRun$.skipped.b.peek()).toEqual({
+        name: "Source B",
+        mangaIds: [425, 426],
+      });
+      search.mockClear();
+      retrySkipped("b");
+      expect(readingRun$.skipped.b.peek()).toBeUndefined();
+      stopScanAll("426");
+      await until(() => probes$["425"].b.peek() !== undefined);
+      // Read past the limit and still kept: a retry has none.
+      expect(probes$["425"].b.peek()?.matched).toBe(true);
+      expect(search.mock.calls.every(([id]) => id === "b")).toBe(true);
+      stopReadingScan();
+      await done;
+    } finally {
+      installed$.set(before);
+      settings$.sources.slowSkip.set(slowSkip);
+    }
   });
 });
 

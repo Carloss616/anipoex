@@ -24,8 +24,8 @@ desktop probe; the web app in a browser doesn't.
 
 A Reading scan (the Reading list's header) runs each Reading manga's own Scan all, never-probed
 and then the stalest first. The next manga starts once the one before is down to its last 2 sources, up to four at once,
-and a source is read for one manga at a time. A source whose read runs past "Skip slow sources" in Settings (1 minute by default; Off never skips) is stopped there (its last probe
-stays) and left out of the rest of the run; a read that iOS suspended in the background gets a fresh window once the app is back. Unless the user picks "Rescan everything", it skips sources probed within the last 60 minutes
+and a source is read for one manga at a time. Each manga is taken from the queue as it starts, so while the scan runs Activity can move a queued manga to the front or drop it from this run. A source whose read runs past "Skip slow sources" in Settings (1 minute by default; Off never skips) is stopped there (its last probe
+stays) and left out of the rest of the run, unless the user retries it from Activity: then it is read again, with no time limit, for each manga it was left out of, after the rest of the queue; a read that iOS suspended in the background gets a fresh window once the app is back. Unless the user picks "Rescan everything", it skips sources probed within the last 60 minutes
 and sources that found no match within the last 7 days. It ends with one summary toast: where a Stop came, how many manga
 have new chapters, how many sources it picked and how many manga it skipped as checked recently, which sources it skipped as slow (zeros left out), with
 *Undo picks*, which restores only the picks that are still the scan's own. A manga counts as having new chapters when any source it can be read from is ahead

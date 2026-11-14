@@ -406,12 +406,13 @@ export function startLibraryActivity({
     marks: Record<string, SourceMark>;
     scan?: Scan;
     index: number;
+    total: number;
     newSoFar: number;
-  } = { name: "Reading", marks: {}, index: 1, newSoFar: 0 };
+  } = { name: "Reading", marks: {}, index: 1, total, newSoFar: 0 };
   let finishing: string | undefined;
   let ended = false;
   const propsOfView = (): Props => {
-    const { scan, index } = view;
+    const { scan, index, total } = view;
     const done = index - 1 + (scan ? scan.done / scan.total : 0);
     return {
       name: view.name,
@@ -444,13 +445,14 @@ export function startLibraryActivity({
       finishing = line;
       render();
     },
-    manga: ({ entry, index, newSoFar }) => {
+    manga: ({ entry, index, total, newSoFar }) => {
       // Shown before its scan starts: a manga read recently never starts one.
       view = {
         name: entry.name,
         cover: entry.cover,
         marks: {},
         index,
+        total,
         newSoFar,
       };
       render();

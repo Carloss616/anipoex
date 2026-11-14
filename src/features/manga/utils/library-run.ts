@@ -194,6 +194,10 @@ export async function runLibrary<E extends LibraryEntry>(args: {
             summary.picked++;
           }
           const n = unread(entry);
+          // A retry's count replaces the manga's first one.
+          summary.withNew = summary.withNew.filter(
+            (m) => m.mangaId !== entry.mangaId,
+          );
           if (n > 0)
             summary.withNew.push({
               mangaId: entry.mangaId,
