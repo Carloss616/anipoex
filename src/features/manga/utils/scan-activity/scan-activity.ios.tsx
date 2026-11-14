@@ -433,7 +433,7 @@ export function startScanActivity({
 
 /**
  * The Reading scan in one Live Activity, showing each manga as it comes; its
- * scans start none of their own. A tap opens the list.
+ * scans start none of their own. A tap opens Activity.
  */
 export function startLibraryActivity({
   total,
@@ -473,7 +473,7 @@ export function startLibraryActivity({
     if (!ended) live.push(propsOfView());
   };
   const image = imageLoader(render);
-  const live = updates(start(propsOfView(), "anipoex://manga"));
+  const live = updates(start(propsOfView(), "anipoex://settings/activity"));
   repaints.add(render);
   hold();
 

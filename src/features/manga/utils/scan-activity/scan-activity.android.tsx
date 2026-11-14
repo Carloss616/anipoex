@@ -392,7 +392,7 @@ let libraryRun = 0;
 
 /**
  * The Reading scan in one notification, showing each manga as it comes; its
- * scans post none of their own. A tap opens the list.
+ * scans post none of their own. A tap opens Activity.
  */
 export function startLibraryActivity({
   total,
@@ -436,7 +436,7 @@ export function startLibraryActivity({
     post(propsOfView(), {
       id: "scan-library",
       ongoing: true,
-      url: "anipoex://manga",
+      url: "anipoex://settings/activity",
     }),
   );
 

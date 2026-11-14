@@ -31,7 +31,8 @@ const MARK_SIZE = 40;
 
 /**
  * The running scans over every screen, each hidden while its manga's source
- * list is open; a tap opens that list over the manga's detail.
+ * list is open; a tap opens that list over the manga's detail, or Activity for
+ * the Reading scan.
  */
 export function ScanFloat() {
   const pathname = usePathname();
@@ -41,6 +42,8 @@ export function ScanFloat() {
     if (pathname !== detail) router.navigate(detail);
     router.push(sourceListHref(mangaId));
   };
+  // Activity lists every running scan itself.
+  if (pathname === "/settings/activity") return null;
 
   return (
     <View
@@ -79,9 +82,11 @@ const ScanCard = memo(function ScanCard({
     // Stop sits over the card, not in it: a button can't hold another.
     <View className="w-full max-w-sm">
       <Pressable
-        onPress={() => onOpen(view.mangaId)}
+        onPress={() =>
+          library ? router.push("/settings/activity") : onOpen(view.mangaId)
+        }
         accessibilityRole="button"
-        accessibilityLabel={`${view.name}, ${view.status}, show sources`}
+        accessibilityLabel={`${view.name}, ${view.status}, ${library ? "show activity" : "show sources"}`}
         className={cn(
           PRESS,
           "glass-chrome hover:glass-muted flex-row gap-3 rounded-2xl border p-3 text-start shadow-lg",

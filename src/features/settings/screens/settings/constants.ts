@@ -21,6 +21,7 @@ export const THEME_OPTIONS: {
 
 /** Each setting's supporting line, the same on every platform. */
 export const DESCRIPTIONS = {
+  activity: "Scans running now and the Reading scan's queue",
   layout: "The sections on Home and their order",
   autoPick: "After a scan, the one with the most new chapters",
   slowSkip: "A source slower than this is left out of a Reading scan",
