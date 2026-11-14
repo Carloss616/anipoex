@@ -37,11 +37,10 @@ import { Loader } from "@/components/ui/loader";
 import { Progress } from "@/components/ui/progress";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ramp } from "@/utils/ramp";
+import { COVER_RADIUS } from "./constants";
 import type { MangaCardProps } from "./manga-card";
 import { cornerBadge } from "./utils";
 
-/** The cover's corner radius, for placeholders that stand in for a card. */
-export const COVER_RADIUS = 24;
 const SCRIM = ramp("#000000");
 /** The scan loader's circle, as Android's contained indicator. */
 const RING = 24;
@@ -65,7 +64,7 @@ export function MangaCard({
   unread,
   scanning = false,
   style,
-  radius = COVER_RADIUS,
+  radius = COVER_RADIUS.ios,
   accessibilityLabel: a11yLabel,
   testID,
   onPress,

@@ -33,14 +33,14 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { RNHostView } from "@/components/ui/host";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
-import { COVER_RADIUS } from "@/features/manga/components/manga-card";
+import { COVER_RADIUS } from "@/features/manga/components/manga-card/constants";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { COVER } from "../../constants";
 import type { RailProps } from "../rail";
 import { RailCard } from "../rail-card";
 import { useRail } from "./hooks/use-rail";
 
-const COVER_SHAPE = clip(Shapes.RoundedCorner(COVER_RADIUS));
+const COVER_SHAPE = clip(Shapes.RoundedCorner(COVER_RADIUS.android));
 
 /**
  * Pulsing covers while the first page loads: the web Skeleton, hosted, since
@@ -50,7 +50,7 @@ function Placeholders() {
   const m3 = useThemeM3Colors();
   const block = {
     ...COVER,
-    borderRadius: COVER_RADIUS,
+    borderRadius: COVER_RADIUS.android,
     backgroundColor: m3.surfaceContainerHighest,
   };
   return (

@@ -57,10 +57,8 @@ const ActivityRow = memo(function ActivityRow({
         <Image
           source={media?.coverImage?.medium}
           contentFit="cover"
+          className="aspect-2/3 w-8 rounded-sm"
           style={{
-            width: 32,
-            height: 46,
-            borderRadius: 6,
             backgroundColor: media?.coverImage?.color ?? undefined,
           }}
         />

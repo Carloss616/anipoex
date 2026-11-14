@@ -17,7 +17,7 @@ import { useReducedMotion } from "react-native-reanimated";
 import { LegendList } from "@/components/layout/legend-list";
 import { PRESS } from "@/components/ui/press";
 import { ScrimGradient } from "@/components/ui/scrim";
-import { COVER_RADIUS } from "@/features/manga/components/manga-card";
+import { COVER_ROUNDED } from "@/features/manga/components/manga-card";
 import type { SearchParams } from "@/features/manga/utils/search-params";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useRailScroll } from "../../hooks/use-rail-scroll";
@@ -104,7 +104,7 @@ function Banner({ media }: { media: MangaEntry[] }) {
   if (!top.length) return null;
 
   return (
-    <View className="flex-row gap-4 p-2">
+    <View className="flex-row">
       {/* Stacked, so the change is a crossfade with every cover loaded. */}
       <View className="min-h-56 min-w-0 flex-1">
         {top.map((manga, i) => {
@@ -121,7 +121,7 @@ function Banner({ media }: { media: MangaEntry[] }) {
               onFocus={() => hold()}
               onBlur={release}
               className={cn(
-                "absolute inset-0 transition-opacity duration-700",
+                "absolute inset-0 rounded-none transition-opacity duration-700",
                 shown ? "opacity-100" : "pointer-events-none opacity-0",
               )}
             />
@@ -140,7 +140,10 @@ function Banner({ media }: { media: MangaEntry[] }) {
             onMouseLeave={release}
             onFocus={() => hold(i)}
             onBlur={release}
-            className={cn("h-auto gap-3 p-1.5", i === focus && "bg-accent")}
+            className={cn(
+              "h-auto gap-3 rounded-none p-1.5",
+              i === focus && "bg-accent",
+            )}
           >
             <Typography type="small" muted className="w-4 text-center">
               {i + 1}
@@ -148,10 +151,8 @@ function Banner({ media }: { media: MangaEntry[] }) {
             <Image
               source={manga.coverImage?.medium}
               contentFit="cover"
+              className="aspect-2/3 w-9 rounded-sm"
               style={{
-                width: 36,
-                height: 52,
-                borderRadius: 6,
                 backgroundColor: manga.coverImage?.color ?? undefined,
               }}
             />
@@ -230,14 +231,13 @@ function HeroCard({
       aria-label={`#${rank} trending: ${title}`}
       onPress={() => open(manga)}
       {...props}
-      style={[
-        {
-          backgroundColor: manga.coverImage?.color ?? undefined,
-          borderRadius: COVER_RADIUS,
-        },
-        style,
-      ]}
-      className={cn(PRESS, "justify-end overflow-hidden p-4", className)}
+      style={[{ backgroundColor: manga.coverImage?.color ?? undefined }, style]}
+      className={cn(
+        PRESS,
+        COVER_ROUNDED,
+        "justify-end overflow-hidden p-4",
+        className,
+      )}
     >
       <Image
         source={manga.coverImage?.extraLarge ?? manga.coverImage?.large}

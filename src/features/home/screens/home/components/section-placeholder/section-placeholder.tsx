@@ -1,7 +1,9 @@
 import { Skeleton } from "panelui-native/components/skeleton";
+import { cn } from "panelui-native/utils/cn";
 import { Frame } from "panelui-web/frame";
 import { View } from "react-native";
 import { SECTIONS, type SectionId } from "@/features/home/constants";
+import { COVER_ROUNDED } from "@/features/manga/components/manga-card";
 
 export interface SectionPlaceholderProps {
   id: SectionId;
@@ -22,7 +24,7 @@ export function SectionPlaceholder({ id }: SectionPlaceholderProps) {
             <Skeleton
               key={i}
               label={i === 0 ? `Loading ${title}` : undefined}
-              className="aspect-2/3 w-28 rounded-[10px]"
+              className={cn("aspect-2/3 w-28", COVER_ROUNDED)}
             />
           ))}
         </View>

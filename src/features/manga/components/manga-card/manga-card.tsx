@@ -20,8 +20,8 @@ import type { MediaStatus } from "@/graphql/types.generated";
 import { CoverImage } from "./cover-image";
 import { type CornerMark, cornerBadge } from "./utils";
 
-/** The cover's corner radius, for placeholders that stand in for a card. */
-export const COVER_RADIUS = 10;
+/** The cover's corners as a theme token, also for its placeholders. */
+export const COVER_ROUNDED = "rounded-lg";
 
 /** `split` is `below` with the progress caption over the cover's foot. */
 export type TitlePosition = "below" | "split" | "over";
@@ -49,7 +49,7 @@ export interface MangaCardProps {
   /** Its sources are being scanned: a loader in the unread badge's place. */
   scanning?: boolean;
   style?: StyleProp<ViewStyle>;
-  /** The cover's corner radius; each platform's `COVER_RADIUS` when omitted. */
+  /** The cover's corner radius; the platform's cover radius when omitted. */
   radius?: number;
   className?: string;
   /** Spoken name: `title` is a node, so it can't be read off it. */
@@ -305,7 +305,8 @@ export function MangaCard({
     box
   );
   // The card inherits it, so the focus ring follows its corners.
-  const corners = { borderRadius: radius ?? (below ? COVER_RADIUS : 16) };
+  const corners = radius == null ? undefined : { borderRadius: radius };
+  const rounded = radius == null && (below ? COVER_ROUNDED : "rounded-2xl");
 
   // On web a disabled Pressable is pointer-events: none, killing the tilt.
   if (!pressable) {
@@ -315,7 +316,7 @@ export function MangaCard({
         aria-label={accessibilityLabel}
         style={corners}
         data-title={titlePosition}
-        className="group"
+        className={cn("group", rounded)}
       >
         {card}
       </View>
@@ -331,7 +332,7 @@ export function MangaCard({
       accessibilityLabel={accessibilityLabel}
       style={corners}
       data-title={titlePosition}
-      className={cn(PRESS, "group focus-visible:ring-ring")}
+      className={cn(PRESS, "group focus-visible:ring-ring", rounded)}
     >
       {card}
     </Pressable>

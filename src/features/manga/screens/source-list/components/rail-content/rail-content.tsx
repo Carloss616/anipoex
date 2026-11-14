@@ -4,7 +4,7 @@ import { Button } from "panelui-web/button";
 import { View } from "react-native";
 import { LegendList } from "@/components/layout/legend-list";
 import { Menu } from "@/components/ui/menu";
-import { COVER_RADIUS } from "@/features/manga/components/manga-card";
+import { COVER_ROUNDED } from "@/features/manga/components/manga-card";
 import { COVER } from "../../constants";
 import type { RailProps } from "../rail";
 import { RailCard } from "../rail-card";
@@ -12,7 +12,6 @@ import { useRail } from "./hooks/use-rail";
 
 // Cover, two title lines and the label badge.
 const RAIL_HEIGHT = COVER.height + 72;
-const COVER_BOX = { ...COVER, borderRadius: COVER_RADIUS };
 
 /** A skeleton while the first page loads, then the cards and a More card. */
 export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
@@ -28,7 +27,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
     return (
       <View className="flex-row gap-2.5 px-4 pb-3">
         {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} style={COVER_BOX} />
+          <Skeleton key={i} style={COVER} className={COVER_ROUNDED} />
         ))}
       </View>
     );
@@ -78,8 +77,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 variant="secondary"
                 loading={rail.loadingMore}
                 onClick={loadMore}
-                className="text-xs"
-                style={COVER_BOX}
+                className={`text-xs ${COVER_ROUNDED}`}
+                style={COVER}
               >
                 More
               </Button>

@@ -23,12 +23,11 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Progress } from "@/components/ui/progress";
 import { ramp } from "@/utils/ramp";
+import { COVER_RADIUS } from "./constants";
 import { CoverImage } from "./cover-image";
 import type { MangaCardProps } from "./manga-card";
 import { cornerBadge } from "./utils";
 
-/** The cover's corner radius, for placeholders that stand in for a card. */
-export const COVER_RADIUS = 12;
 /** Legible on any cover: a light caption over the dark wash. */
 const SHADOW = { color: "#000000b3", offsetX: 0, offsetY: 1, blurRadius: 3 };
 const SCRIM = ramp("#000000");
@@ -50,7 +49,7 @@ export function MangaCard({
   unread,
   scanning = false,
   style,
-  radius = COVER_RADIUS,
+  radius = COVER_RADIUS.android,
   accessibilityLabel,
   testID,
   onPress,

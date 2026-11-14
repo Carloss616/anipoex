@@ -2,6 +2,9 @@ import type { SemanticColor } from "@/components/ui/colors";
 import { type IconName, Icons } from "@/components/ui/icon";
 import type { MediaStatus } from "@/graphql/types.generated";
 
+/** The cover's corner radius in native views; web takes `COVER_ROUNDED`. */
+export const COVER_RADIUS = { ios: 24, android: 12 };
+
 export const STATUS_COLOR: Record<MediaStatus, SemanticColor> = {
   FINISHED: "primary",
   RELEASING: "success",

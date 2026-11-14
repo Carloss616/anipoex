@@ -20,7 +20,7 @@ import {
   strokeBorder,
 } from "@expo/ui/swift-ui/modifiers";
 import { Icon, Icons } from "@/components/ui/icon";
-import { COVER_RADIUS } from "@/features/manga/components/manga-card";
+import { COVER_RADIUS } from "@/features/manga/components/manga-card/constants";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { PalettePreviewProps } from "./palette-preview";
 
@@ -78,13 +78,13 @@ export function PalettePreview({
               tint: bg,
             },
             shape: "roundedRectangle",
-            cornerRadius: COVER_RADIUS,
+            cornerRadius: COVER_RADIUS.ios,
           }),
           strokeBorder({
             content: selected ? primary : undefined,
             style: { lineWidth: selected ? 3 : 0 },
             shape: "roundedRectangle",
-            cornerRadius: COVER_RADIUS,
+            cornerRadius: COVER_RADIUS.ios,
           }),
           ...(selected ? [] : [onTapGesture(onSelect)]),
         ]}
@@ -94,7 +94,7 @@ export function PalettePreview({
             modifiers={[
               frame({ width: COVER, height: COVER * 1.5 }),
               background(accent),
-              clipShape("roundedRectangle", COVER_RADIUS / 2),
+              clipShape("roundedRectangle", COVER_RADIUS.ios / 2),
             ]}
           >
             <Icon name={Icons.cover} size={14} color={accentForeground} />
@@ -119,7 +119,7 @@ export function PalettePreview({
             padding({ all: 7 }),
             background(
               muted,
-              shapes.roundedRectangle({ cornerRadius: COVER_RADIUS / 2 }),
+              shapes.roundedRectangle({ cornerRadius: COVER_RADIUS.ios / 2 }),
             ),
           ]}
         >
@@ -149,7 +149,7 @@ export function PalettePreview({
           spacing={1}
           modifiers={[
             background(surfaceSecondary),
-            clipShape("roundedRectangle", COVER_RADIUS / 2),
+            clipShape("roundedRectangle", COVER_RADIUS.ios / 2),
           ]}
         >
           {[true, false].map((latest) => (

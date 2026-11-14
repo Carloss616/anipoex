@@ -28,7 +28,7 @@ import { useReducedMotion } from "react-native-reanimated";
 import { Text } from "@/components/native/swift-ui/text";
 import { Loader } from "@/components/ui/loader";
 import { Menu } from "@/components/ui/menu";
-import { COVER_RADIUS } from "@/features/manga/components/manga-card";
+import { COVER_RADIUS } from "@/features/manga/components/manga-card/constants";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { COVER } from "../../constants";
 import type { RailProps } from "../rail";
@@ -61,14 +61,14 @@ function Placeholders({ tint }: { tint: string }) {
         // An empty card: the same glass, with nothing on it.
         <RoundedRectangle
           key={i}
-          cornerRadius={COVER_RADIUS}
+          cornerRadius={COVER_RADIUS.ios}
           modifiers={[
             COVER_FRAME,
             foregroundStyle("clear"),
             glassEffect({
               glass: { variant: "regular", tint },
               shape: "roundedRectangle",
-              cornerRadius: COVER_RADIUS,
+              cornerRadius: COVER_RADIUS.ios,
             }),
           ]}
         />
@@ -165,7 +165,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 modifiers={[
                   COVER_FRAME,
                   background(muted),
-                  clipShape("roundedRectangle", COVER_RADIUS),
+                  clipShape("roundedRectangle", COVER_RADIUS.ios),
                 ]}
               >
                 {rail.loadingMore ? (
