@@ -66,16 +66,17 @@ export function DetailHeader({ manga, titleOut$ }: DetailHeaderProps) {
   return (
     <View className="gutters pt-gt">
       <View className="gutters px-gx flex-row items-end gap-4">
-        <MangaCard
-          cover={manga.coverImage?.large}
-          coverThumb={manga.coverImage?.medium}
-          coverColor={manga.coverImage?.color}
-          accessibilityLabel={title ?? undefined}
-          testID="manga-detail-cover"
-          titlePosition="over"
-          style={{ width: 144 }}
-          tilt
-        />
+        <View className="w-36">
+          <MangaCard
+            cover={manga.coverImage?.large}
+            coverThumb={manga.coverImage?.medium}
+            coverColor={manga.coverImage?.color}
+            accessibilityLabel={title ?? undefined}
+            testID="manga-detail-cover"
+            titlePosition="over"
+            tilt
+          />
+        </View>
         <View className="flex-1 gap-3">
           {heading}
           <Meta manga={manga} />

@@ -17,9 +17,6 @@ import { useRailScroll } from "../../hooks/use-rail-scroll";
 import { SectionActions } from "../section-actions";
 import { useContinueActions } from "./hooks/use-continue-actions";
 
-// Fixed, so every card in the row lines up: two title lines fit.
-const CARD = { width: 280, height: 98 };
-
 export interface ContinueSectionProps {
   title: string;
   items: ContinueItem[];
@@ -45,14 +42,15 @@ export function ContinueSection({ title, items }: ContinueSectionProps) {
           horizontal
           data={items}
           keyExtractor={(item) => String(item.mangaId)}
-          estimatedItemSize={CARD.width}
+          estimatedItemSize={280}
           recycleItems
           columnWrapperStyle={{ gap: 12 }}
           // The last card keeps the gap after it: 4 + 12 ends like the start.
           contentContainerClassName="py-4 ps-4 pe-1"
-          style={{ minWidth: 0, minHeight: CARD.height + 32 }}
+          className="min-h-32.5 min-w-0"
           renderItem={({ item }) => (
-            <View style={CARD}>
+            // Fixed, so every card in the row lines up: two title lines fit.
+            <View className="h-24.5 w-70">
               <ContinueCard
                 mangaId={item.mangaId}
                 unread={item.unread}

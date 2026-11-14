@@ -84,7 +84,7 @@ const ScanCard = memo(function ScanCard({
         <Image
           source={view.cover}
           contentFit="cover"
-          style={{ width: 48, minHeight: 72, borderRadius: 6 }}
+          className="aspect-2/3 w-12 rounded-sm"
         />
         <View className="min-w-0 flex-1 gap-2">
           {library && (

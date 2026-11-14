@@ -44,11 +44,10 @@ export function MarkRail({ marks }: MarkRailProps) {
       columnWrapperStyle={{ gap: 8 }}
       // The last tile keeps the gap after it: the same 8 at the start.
       contentContainerClassName="ps-2"
-      // The indicator prop does nothing on web, and the badges' overhang
-      // would let the row scroll up and down.
+      className="min-w-0"
+      // No scrollbar prop on web, and the badges' overhang would scroll it Y.
       style={
         {
-          minWidth: 0,
           minHeight: MARK_SIZE + 4,
           scrollbarWidth: "none",
           overflowY: "hidden",
@@ -58,8 +57,7 @@ export function MarkRail({ marks }: MarkRailProps) {
         } as ViewStyle
       }
       renderItem={({ item }) => (
-        // Room for the +N badge to hang into: the list's cells clip their
-        // paint, and the gap only pads their end.
+        // Room for the +N badge's overhang: cells clip their paint.
         <View className="pb-1">
           <MarkTile mark={item} />
         </View>

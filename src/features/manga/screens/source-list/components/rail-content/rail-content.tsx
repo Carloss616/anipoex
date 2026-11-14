@@ -27,7 +27,11 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
     return (
       <View className="flex-row gap-2.5 px-4 pb-3">
         {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} style={COVER} className={COVER_ROUNDED} />
+          <Skeleton
+            key={i}
+            style={{ width: COVER.width }}
+            className={`aspect-2/3 ${COVER_ROUNDED}`}
+          />
         ))}
       </View>
     );
@@ -49,7 +53,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           contentContainerClassName="ps-4 pe-1.5"
           // More ends like a card, with the gap after it.
           ListFooterComponentClassName="pe-2.5"
-          style={{ minWidth: 0, minHeight: RAIL_HEIGHT }}
+          className="min-w-0"
+          style={{ minHeight: RAIL_HEIGHT }}
           renderItem={({ item, index }) => (
             <View className="flex-row gap-2.5">
               <Menu items={menu(item)}>
@@ -77,8 +82,8 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 variant="secondary"
                 loading={rail.loadingMore}
                 onClick={loadMore}
-                className={`text-xs ${COVER_ROUNDED}`}
-                style={COVER}
+                className={`aspect-2/3 h-auto text-xs ${COVER_ROUNDED}`}
+                style={{ width: COVER.width }}
               >
                 More
               </Button>

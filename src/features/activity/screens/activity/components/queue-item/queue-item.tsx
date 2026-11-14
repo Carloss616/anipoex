@@ -43,7 +43,7 @@ export const QueueItem = memo(function QueueItem({ id }: QueueItemProps) {
             <Image
               source={cover}
               contentFit="cover"
-              style={{ width: 28, height: 40, borderRadius: 6 }}
+              className="aspect-2/3 w-7 rounded-sm"
             />
           </Frame.Media>
           <Frame.Content>

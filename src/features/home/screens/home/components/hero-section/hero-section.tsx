@@ -31,9 +31,6 @@ export interface HeroSectionProps {
   params?: SearchParams;
 }
 
-const GAP = 12;
-const CARD_HEIGHT = 208;
-
 const genresOf = (manga: MangaEntry) =>
   manga.genres?.filter(Boolean).slice(0, 3).join(" · ");
 
@@ -128,7 +125,7 @@ function Banner({ media }: { media: MangaEntry[] }) {
           );
         })}
       </View>
-      <View className="w-72 gap-1">
+      <View className="w-72">
         {top.map((manga, i) => (
           <Button
             key={manga.id}
@@ -141,7 +138,7 @@ function Banner({ media }: { media: MangaEntry[] }) {
             onFocus={() => hold(i)}
             onBlur={release}
             className={cn(
-              "h-auto gap-3 rounded-none p-1.5",
+              "h-auto gap-3 rounded-none p-3",
               i === focus && "bg-accent",
             )}
           >
@@ -180,30 +177,31 @@ function HeroRow({
   compact: boolean;
   rowRef: ReturnType<typeof useRailScroll>["ref"];
 }) {
-  const [width, setWidth] = useState(0);
-  const cardWidth = compact ? width * 0.86 : (width - GAP) / 2;
-
   return (
     <LegendList
       ref={rowRef}
       horizontal
       data={media.slice(0, 6)}
       keyExtractor={(manga) => String(manga.id)}
-      estimatedItemSize={cardWidth}
-      columnWrapperStyle={{ gap: GAP }}
+      estimatedItemSize={320}
       showsHorizontalScrollIndicator={false}
-      onLayout={(event) => setWidth(event.nativeEvent.layout.width - 32)}
-      className="snap-x snap-mandatory scroll-ps-4"
-      // The last card keeps the gap after it: 4 + 12 ends like the start.
+      // The last card keeps its pe-3 gap: 4 + 12 ends like the start.
       contentContainerClassName="py-4 ps-4 pe-1"
-      style={{ minWidth: 0, minHeight: CARD_HEIGHT + 32 }}
+      className="@container min-h-60 min-w-0 snap-x snap-mandatory scroll-ps-4"
       renderItem={({ item: manga, index: i }) => (
-        <HeroCard
-          manga={manga}
-          rank={i + 1}
-          className="snap-start"
-          style={{ width: cardWidth, height: CARD_HEIGHT }}
-        />
+        // The gap as padding, like LegendList's; widths are of the row less 2rem.
+        <View className="pe-3">
+          <HeroCard
+            manga={manga}
+            rank={i + 1}
+            className={cn(
+              "h-52 snap-start",
+              compact
+                ? "w-[calc((100cqw-2rem)*0.86)]"
+                : "w-[calc((100cqw-2.75rem)/2)]",
+            )}
+          />
+        </View>
       )}
     />
   );

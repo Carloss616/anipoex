@@ -52,7 +52,7 @@ export const RunningItem = memo(function RunningItem({
               <Image
                 source={cover}
                 contentFit="cover"
-                style={{ width: 34, height: 48, borderRadius: 6 }}
+                className="aspect-2/3 w-8 rounded-sm"
               />
             </Frame.Media>
             <Frame.Content>
