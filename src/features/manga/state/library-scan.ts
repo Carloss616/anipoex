@@ -135,7 +135,7 @@ export async function scanReading({ everything = false } = {}) {
     // A read past this is stopped, and its source skipped for the rest of the run.
     const slowAfter = settings$.sources.slowSkip.peek() * 1000;
     const { summary, picks } = await runLibrary({
-      entries,
+      queue: { next: () => entries.shift(), left: () => entries.length },
       skipped,
       scan: (entry, activity) => {
         current.add(entry.mangaId);

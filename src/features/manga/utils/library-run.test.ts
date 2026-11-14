@@ -16,6 +16,10 @@ const entry = (mangaId: number): LibraryEntry => ({
   name: `Manga ${mangaId}`,
   read: 0,
 });
+/** A queue over a list the test can still reorder. */
+function queueOf(list: LibraryEntry[]) {
+  return { list, next: () => list.shift(), left: () => list.length };
+}
 const probe = (updatedAt: number) => ({ "source-1": { updatedAt } }) as never;
 const noop = () => ({ progress() {}, mark() {}, end() {} });
 
@@ -114,7 +118,7 @@ describe("runLibrary", () => {
     const { a } = activity();
     const { started, held, scan } = heldScans(5);
     const run = runLibrary({
-      entries: [entry(1), entry(2), entry(3)],
+      queue: queueOf([entry(1), entry(2), entry(3)]),
       scan,
       unread: () => 0,
       activity: a,
@@ -140,7 +144,7 @@ describe("runLibrary", () => {
     const { started, held, scan } = heldScans(5);
     const ids = Array.from({ length: OVERLAP + 1 }, (_, i) => i + 1);
     const run = runLibrary({
-      entries: ids.map(entry),
+      queue: queueOf(ids.map(entry)),
       scan,
       unread: () => 0,
       activity: a,
@@ -163,7 +167,7 @@ describe("runLibrary", () => {
     const { a, lines } = activity();
     const { held, scan } = heldScans(4);
     const run = runLibrary({
-      entries: [entry(1), entry(2), entry(3)],
+      queue: queueOf([entry(1), entry(2), entry(3)]),
       scan,
       unread: () => 0,
       activity: a,
@@ -191,7 +195,7 @@ describe("runLibrary", () => {
     });
     const { held, scan } = heldScans(3);
     const run = runLibrary({
-      entries: [entry(1), entry(2)],
+      queue: queueOf([entry(1), entry(2)]),
       scan,
       unread: () => 0,
       activity: a,
@@ -215,7 +219,7 @@ describe("runLibrary", () => {
   test("counts a manga as recent only when its sources were probed recently", async () => {
     const { a } = activity();
     const { summary } = await runLibrary({
-      entries: [entry(1), entry(2)],
+      queue: queueOf([entry(1), entry(2)]),
       // Manga 2 had nothing to scan: every source excluded or skipped as slow.
       scan: async (e) => ({ scanned: false, recent: e.mangaId === 1 }),
       unread: () => 0,
@@ -230,7 +234,7 @@ describe("runLibrary", () => {
     const { a } = activity();
     const previous = {} as never;
     const { summary, picks } = await runLibrary({
-      entries: [entry(1), entry(2)],
+      queue: queueOf([entry(1), entry(2)]),
       scan: async (e) =>
         e.mangaId === 1
           ? { scanned: true, picked: { id: "a", previous } }
@@ -251,7 +255,7 @@ describe("runLibrary", () => {
     let done = 0;
     const scanned: number[] = [];
     const { summary, picks } = await runLibrary({
-      entries: [entry(1), entry(2)],
+      queue: queueOf([entry(1), entry(2)]),
       scan: async (e) => {
         scanned.push(e.mangaId);
         done++;
@@ -266,10 +270,103 @@ describe("runLibrary", () => {
     expect(picks).toHaveLength(1);
   });
 
+  test("takes each manga when it starts, so a reorder before then counts", async () => {
+    const { a } = activity();
+    const { started, held, scan } = heldScans(5);
+    const queue = queueOf([entry(1), entry(2), entry(3)]);
+    const run = runLibrary({
+      queue,
+      scan,
+      unread: () => 0,
+      activity: a,
+      stopped: () => false,
+    });
+    await flush();
+    queue.list.reverse();
+    held[1].activity.progress(5 - TAIL_SOURCES);
+    await flush();
+    expect(started).toEqual([1, 3]);
+    held[1].end();
+    held[3].end();
+    await flush();
+    held[2].end();
+    await run;
+  });
+
+  test("starts entries queued while the last ones finish", async () => {
+    const { a } = activity();
+    const { started, held, scan } = heldScans(5);
+    const queue = queueOf([entry(1)]);
+    let done = false;
+    const run = runLibrary({
+      queue,
+      scan,
+      unread: () => 0,
+      activity: a,
+      stopped: () => false,
+    }).then(() => {
+      done = true;
+    });
+    await flush();
+    held[1].activity.progress(5 - TAIL_SOURCES);
+    await flush();
+    queue.list.push(entry(2));
+    held[1].end();
+    await flush();
+    expect(started).toEqual([1, 2]);
+    expect(done).toBe(false);
+    held[2].end();
+    await run;
+    expect(done).toBe(true);
+  });
+
+  test("reports the total as started plus left", async () => {
+    const { a } = activity();
+    let started = 0;
+    const { summary } = await runLibrary({
+      queue: queueOf([entry(1), entry(2), entry(3)]),
+      scan: async () => {
+        started++;
+        return { scanned: true };
+      },
+      unread: () => 0,
+      activity: a,
+      stopped: () => started >= 1,
+    });
+    expect(summary.total).toBe(3);
+    expect(summary.stoppedAt).toBe(1);
+  });
+
+  test("passes each manga's total to the activity", async () => {
+    const { a } = activity();
+    const totals: number[] = [];
+    a.manga = ({ total }) => {
+      totals.push(total);
+      return noop;
+    };
+    const { held, scan } = heldScans(5);
+    const queue = queueOf([entry(1), entry(2), entry(3)]);
+    const run = runLibrary({
+      queue,
+      scan,
+      unread: () => 0,
+      activity: a,
+      stopped: () => false,
+    });
+    await flush();
+    queue.list.pop();
+    held[1].activity.progress(5 - TAIL_SOURCES);
+    await flush();
+    expect(totals).toEqual([3, 2]);
+    held[1].end();
+    held[2].end();
+    await run;
+  });
+
   test("ends the activity once with the summary", async () => {
     const { a, ended } = activity();
     const { summary } = await runLibrary({
-      entries: [entry(1)],
+      queue: queueOf([entry(1)]),
       scan: async () => ({ scanned: true }),
       unread: () => 0,
       activity: a,

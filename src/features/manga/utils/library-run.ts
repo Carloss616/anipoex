@@ -7,6 +7,15 @@ export interface LibraryEntry {
   name: string;
   cover?: string;
   read: number;
+  /** A retry: only these sources, with no time limit. */
+  only?: string[];
+}
+
+export interface LibraryQueue<E extends LibraryEntry = LibraryEntry> {
+  /** The next manga, now running; undefined when none is queued. */
+  next(): E | undefined;
+  /** How many are still queued. */
+  left(): number;
 }
 
 export interface LibrarySummary {
@@ -29,6 +38,8 @@ export interface LibraryActivity {
   manga(args: {
     entry: LibraryEntry;
     index: number;
+    /** Manga started so far plus those still queued. */
+    total: number;
     newSoFar: number;
   }): StartActivity;
   /** The manga still finishing behind the one shown; undefined once none is. */
@@ -85,14 +96,14 @@ function finishingLine(behind: { name: string; left: number }[]) {
 }
 
 /**
- * Scans the entries in order, each starting once the one before is down to
+ * Scans the queue in order, taking each manga as it starts, each starting once the one before is down to
  * its last `TAIL_SOURCES` sources, up to `OVERLAP` at once: the slowest
  * sources no longer hold up the list.
  */
-export async function runLibrary(args: {
-  entries: LibraryEntry[];
-  scan: (entry: LibraryEntry, activity: StartActivity) => Promise<ScanResult>;
-  unread: (entry: LibraryEntry) => number;
+export async function runLibrary<E extends LibraryEntry>(args: {
+  queue: LibraryQueue<E>;
+  scan: (entry: E, activity: StartActivity) => Promise<ScanResult>;
+  unread: (entry: E) => number;
   activity: LibraryActivity;
   stopped: () => boolean;
   /** The sources the run skipped as slow, id to name; read at the end. */
@@ -101,9 +112,9 @@ export async function runLibrary(args: {
   summary: LibrarySummary;
   picks: LibraryPick[];
 }> {
-  const { entries, scan, unread, activity, stopped } = args;
+  const { queue, scan, unread, activity, stopped } = args;
   const summary: LibrarySummary = {
-    total: entries.length,
+    total: 0,
     scanned: 0,
     recent: 0,
     picked: 0,
@@ -118,9 +129,18 @@ export async function runLibrary(args: {
     activity.finishing(finishingLine([...behind.values()]));
 
   try {
-    for (const [i, entry] of entries.entries()) {
+    for (let i = 0; ; i++) {
       await runs[i - OVERLAP];
       if (stopped()) break;
+      let next = queue.next();
+      if (!next) {
+        // A retry may queue more while the last ones finish.
+        await Promise.all(runs);
+        next = stopped() ? undefined : queue.next();
+        if (!next) break;
+      }
+      const entry = next;
+      const slot = i;
       supersede?.();
       let tail!: () => void;
       const tailed = new Promise<void>((resolve) => {
@@ -129,13 +149,14 @@ export async function runLibrary(args: {
       const start = activity.manga({
         entry,
         index: i + 1,
+        total: i + 1 + queue.left(),
         newSoFar: summary.withNew.length,
       });
       let shown = true;
       let left = 0;
       const finishing = () => {
-        if (left) behind.set(i, { name: entry.name, left });
-        else behind.delete(i);
+        if (left) behind.set(slot, { name: entry.name, left });
+        else behind.delete(slot);
         showBehind();
       };
       supersede = () => {
@@ -188,6 +209,7 @@ export async function runLibrary(args: {
       await tailed;
     }
     await Promise.all(runs);
+    summary.total = runs.length + queue.left();
     // Where the stop came: the newest manga started, maybe the last one.
     if (stopped()) summary.stoppedAt = runs.length;
     if (args.skipped?.size) summary.skipped = [...args.skipped.values()];
