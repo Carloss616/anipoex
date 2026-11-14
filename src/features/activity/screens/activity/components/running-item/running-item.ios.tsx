@@ -21,7 +21,9 @@ import { Text } from "@/components/native/swift-ui/text";
 import { Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
+import { MarkRail } from "@/features/manga/components/mark-rail";
 import { activeScans$ } from "@/features/manga/state/active-scans";
+import { orderMarks } from "@/features/manga/utils/scan-activity/utils/marks";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { stopManga } from "../../utils/actions";
 import { scanProgress } from "../../utils/progress";
@@ -69,6 +71,7 @@ export const RunningItem = memo(function RunningItem({
                     const { value, line } = scanProgress(marks);
                     return (
                       <VStack alignment="leading" spacing={4}>
+                        {!expanded && <MarkRail marks={orderMarks(marks)} />}
                         <Progress value={value} maxValue={1} size="sm" />
                         <Text
                           textStyle="subheadline"

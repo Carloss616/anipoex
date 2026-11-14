@@ -18,7 +18,9 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
+import { MarkRail } from "@/features/manga/components/mark-rail";
 import { activeScans$ } from "@/features/manga/state/active-scans";
+import { orderMarks } from "@/features/manga/utils/scan-activity/utils/marks";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { scanProgress } from "../../utils/progress";
 import { runningMenu } from "../../utils/row-menu";
@@ -74,7 +76,8 @@ export const RunningItem = memo(function RunningItem({
                   const marks = Object.values(scan$.marks.get() ?? {});
                   const { value, line } = scanProgress(marks);
                   return (
-                    <Column>
+                    <Column verticalArrangement={{ spacedBy: 4 }}>
+                      {!expanded && <MarkRail marks={orderMarks(marks)} />}
                       <Text style={{ typography: "bodyMedium" }}>{line}</Text>
                       <Progress value={value} maxValue={1} size="sm" />
                     </Column>

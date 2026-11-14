@@ -11,23 +11,21 @@ import { SourceTile } from "@/features/manga/components/source-tile";
 import type { ActiveMark } from "@/features/manga/state/active-scans";
 import { sourceColor } from "@/features/manga/utils/source";
 import { themeMode$ } from "@/state/theme";
+import { DIM, markLabel } from "./utils";
 
 const FADE =
   "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)";
 const MARK_SIZE = 40;
-/** Left out of the scan or not found: drawn faded. */
-const DIM = new Set<ActiveMark["state"]>([
-  "pending",
-  "nomatch",
-  "skipped",
-  "stopped",
-]);
 
 /**
  * The sources in one row, in the order given; it scrolls itself to the first
- * one scanning, the end of what's done.
+ * one scanning, the end of what's done. Native shows the first few and a count.
  */
-export function MarkRail({ marks }: { marks: ActiveMark[] }) {
+export interface MarkRailProps {
+  marks: ActiveMark[];
+}
+
+export function MarkRail({ marks }: MarkRailProps) {
   const list = useRef<LegendListRef>(null);
   const focus = marks.findIndex((mark) => mark.state === "scanning");
   useEffect(() => {
@@ -77,7 +75,7 @@ const MarkTile = memo(function MarkTile({ mark }: { mark: ActiveMark }) {
   return (
     <View
       role="img"
-      accessibilityLabel={`${mark.name}, ${state === "nomatch" ? "no match" : state}`}
+      accessibilityLabel={markLabel(mark)}
       className={cn(DIM.has(state) && "opacity-40")}
     >
       <SourceTile
