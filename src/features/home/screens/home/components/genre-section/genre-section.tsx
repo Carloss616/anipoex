@@ -1,3 +1,4 @@
+import { useValue } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
@@ -7,6 +8,8 @@ import { useState } from "react";
 import { Pressable } from "react-native";
 import { PRESS } from "@/components/ui/press";
 import { COVER_ROUNDED } from "@/features/manga/components/manga-card";
+import { sourceColor } from "@/features/manga/utils/source";
+import { themeMode$ } from "@/state/theme";
 import { SectionActions } from "../section-actions";
 
 export interface GenreSectionProps {
@@ -16,12 +19,9 @@ export interface GenreSectionProps {
 
 const COUNT = { base: 8, sm: 12, lg: 8 };
 
-/** A hue of its own for each genre, steady across renders. */
-const hue = (genre: string) =>
-  [...genre].reduce((sum, char) => sum + char.charCodeAt(0) * 7, 0) % 360;
-
 export function GenreSection({ title, genres }: GenreSectionProps) {
   const router = useRouter();
+  const mode = useValue(themeMode$);
   const { isAtLeast } = useBreakpoint();
   const count = COUNT[isAtLeast("lg") ? "lg" : isAtLeast("sm") ? "sm" : "base"];
   const [page, setPage] = useState(0);
@@ -51,15 +51,13 @@ export function GenreSection({ title, genres }: GenreSectionProps) {
             onPress={() =>
               router.push({ pathname: "/search", params: { genre } })
             }
-            style={{
-              backgroundImage: `linear-gradient(135deg, hsl(${hue(genre)} 55% 42%), hsl(${hue(genre) + 40} 60% 30%))`,
-            }}
+            style={{ backgroundColor: sourceColor({ name: genre }, mode) }}
             className={cn(PRESS, COVER_ROUNDED, "h-16 justify-end p-3")}
           >
             <Typography
               type="small"
               // In the side column, where "Psychological" needs the smaller text.
-              className="text-white lg:text-xs"
+              className="lg:text-xs"
             >
               {genre}
             </Typography>

@@ -10,32 +10,18 @@ import {
   padding,
   scrollIndicators,
 } from "@expo/ui/swift-ui/modifiers";
+import { useValue } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { GUTTER } from "@/components/native/constants";
 import { Text } from "@/components/native/swift-ui/text";
+import { sourceColor } from "@/features/manga/utils/source";
+import { themeMode$ } from "@/state/theme";
 import type { GenreSectionProps } from "./genre-section";
-
-/** Dark enough under white text; a genre keeps its color by its name. */
-const TILE_COLORS = [
-  "#7c3aed",
-  "#db2777",
-  "#0891b2",
-  "#ea580c",
-  "#16a34a",
-  "#2563eb",
-  "#c026d3",
-  "#b45309",
-];
-
-const colorOf = (genre: string) =>
-  TILE_COLORS[
-    [...genre].reduce((sum, char) => sum + char.charCodeAt(0), 0) %
-      TILE_COLORS.length
-  ];
 
 /** Two rows of tiles, scrolling sideways by column. */
 export function GenreSection({ title, genres }: GenreSectionProps) {
   const router = useRouter();
+  const mode = useValue(themeMode$);
   const columns = genres.flatMap((_, i) =>
     i % 2 ? [] : [genres.slice(i, i + 2)],
   );
@@ -59,7 +45,7 @@ export function GenreSection({ title, genres }: GenreSectionProps) {
                   textStyle="subheadline"
                   weight="semibold"
                   modifiers={[
-                    foregroundStyle("#ffffff"),
+                    foregroundStyle("primary"),
                     lineLimit(1),
                     padding({ horizontal: 12, vertical: 10 }),
                     frame({
@@ -67,7 +53,7 @@ export function GenreSection({ title, genres }: GenreSectionProps) {
                       height: 64,
                       alignment: "bottomLeading",
                     }),
-                    background(colorOf(genre)),
+                    background(sourceColor({ name: genre }, mode)),
                     clipShape("roundedRectangle", 14),
                     onTapGesture(() =>
                       router.push({ pathname: "/search", params: { genre } }),

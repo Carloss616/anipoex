@@ -9,11 +9,13 @@ import {
   size,
   width,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { useValue } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { GUTTER } from "@/components/native/constants";
 import { SectionHeader } from "@/components/native/jetpack-compose/section-header";
 import { Text } from "@/components/native/jetpack-compose/text";
-import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { sourceColor } from "@/features/manga/utils/source";
+import { themeMode$ } from "@/state/theme";
 import type { GenreSectionProps } from "./genre-section";
 
 const TILE = 64;
@@ -63,12 +65,7 @@ export function GenreSection({ title, genres }: GenreSectionProps) {
 
 function GenreTile({ genre, index }: { genre: string; index: number }) {
   const router = useRouter();
-  const m3 = useThemeM3Colors();
-  const [container, content] = [
-    [m3.primaryContainer, m3.onPrimaryContainer],
-    [m3.secondaryContainer, m3.onSecondaryContainer],
-    [m3.tertiaryContainer, m3.onTertiaryContainer],
-  ][index % 3];
+  const mode = useValue(themeMode$);
 
   return (
     <Column
@@ -89,12 +86,10 @@ function GenreTile({ genre, index }: { genre: string; index: number }) {
         modifiers={[
           size(TILE, TILE),
           clip(SHAPES[index % SHAPES.length]),
-          background(container),
+          background(sourceColor({ name: genre }, mode)),
         ]}
       >
-        <Text style={{ typography: "titleMedium" }} color={content}>
-          {genre.slice(0, 2)}
-        </Text>
+        <Text style={{ typography: "titleMedium" }}>{genre.slice(0, 2)}</Text>
       </Box>
       <Text
         style={{ typography: "labelMedium", textAlign: "center" }}

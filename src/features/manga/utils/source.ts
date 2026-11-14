@@ -35,7 +35,10 @@ export function initialsOf(name: string): string {
 }
 
 /** The tile's tint, hashed from the name; a pastel of it in light mode. */
-export function sourceColor({ name }: Source, mode: ThemeMode): string {
+export function sourceColor(
+  { name }: Pick<Source, "name">,
+  mode: ThemeMode,
+): string {
   let h = 0;
   for (let i = 0; i < name.length; i++) {
     h = (h * 31 + name.charCodeAt(i)) % 360;
