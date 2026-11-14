@@ -1,4 +1,4 @@
-import { type ReactNode, Suspense, use } from "react";
+import { type ReactNode, Suspense } from "react";
 
 const NEVER = new Promise<never>(() => {});
 
@@ -22,6 +22,8 @@ export function Frozen({ frozen, children }: FrozenProps) {
 }
 
 function Suspender({ frozen, children }: FrozenProps) {
-  if (frozen) use(NEVER);
+  // Thrown, not `use()`: a list mounted frozen (under a linked detail) that
+  // later shows stops calling `use()`, which React reports as an error.
+  if (frozen) throw NEVER;
   return children;
 }
