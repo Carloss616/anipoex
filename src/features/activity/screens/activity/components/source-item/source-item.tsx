@@ -17,6 +17,13 @@ import { sourceMenu } from "../../utils/row-menu";
 export interface SourceItemProps {
   mangaId: string;
   sourceId: string;
+  /**
+   * Its place among the manga's sources, for its corners.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
 /** One source of a running manga, with its state; Stop while it reads. */

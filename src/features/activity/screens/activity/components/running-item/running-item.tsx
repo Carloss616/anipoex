@@ -17,6 +17,13 @@ import { SourceItem } from "../source-item";
 
 export interface RunningItemProps {
   mangaId: string;
+  /**
+   * Its place in the section, for its corners.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
 /** A manga being scanned; a tap shows its sources under it. */

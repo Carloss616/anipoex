@@ -15,6 +15,13 @@ import { queuedIds, split } from "../../utils/state";
 
 export interface QueueItemProps {
   id: string;
+  /**
+   * Its place in the section, for its corners.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
 /** A manga waiting its turn in the Reading scan, with its place. */

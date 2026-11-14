@@ -32,3 +32,13 @@ export const skippedIds = () =>
   Object.keys(readingRun$.skipped.get(true) ?? {}).join();
 
 export const split = (ids: string) => (ids ? ids.split(",") : []);
+
+/**
+ * A segmented row's place reduced to its corners (first, middle, last, only),
+ * so a row re-renders only when its corners change, not on every shift.
+ */
+export function corners(i: number, n: number) {
+  if (n === 1) return { index: 0, count: 1 };
+  if (i === 0) return { index: 0, count: 2 };
+  return i === n - 1 ? { index: 1, count: 2 } : { index: 1, count: 3 };
+}

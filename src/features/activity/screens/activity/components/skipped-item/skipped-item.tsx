@@ -11,6 +11,13 @@ import { skippedMenu } from "../../utils/row-menu";
 
 export interface SkippedItemProps {
   sourceId: string;
+  /**
+   * Its place in the section, for its corners.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
 /** A source skipped as slow, and how many manga it was left out of. */
