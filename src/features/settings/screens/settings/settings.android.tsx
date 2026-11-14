@@ -16,7 +16,6 @@ import { useLoadInstalled } from "@/features/extensions";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { AccountSection } from "./components/account-section";
-import { ActivitySection } from "./components/activity-section";
 import { AppearanceSection } from "./components/appearance-section";
 import { HomeSection } from "./components/home-section";
 import { NetworkSection } from "./components/network-section";
@@ -43,7 +42,6 @@ export function Settings() {
               padding(GUTTER, 8, GUTTER, GUTTER),
             ]}
           >
-            <ActivitySection />
             <AccountSection />
             <HomeSection />
             <AppearanceSection />

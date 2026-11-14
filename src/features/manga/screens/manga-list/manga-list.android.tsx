@@ -1,7 +1,7 @@
 import { IconButton } from "@expo/ui/jetpack-compose";
 import { fillMaxSize } from "@expo/ui/jetpack-compose/modifiers";
 import { useObservable, useValue } from "@legendapp/state/react";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { router, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
@@ -27,17 +27,32 @@ import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ListPage } from "./components/list-page";
 import { openViewSheet, ViewSheet } from "./components/view-sheet";
 
+const ACTIVITY_ITEM = {
+  label: "Activity",
+  onPress: () => router.push("/settings/activity"),
+};
 const SCAN_ITEMS = [
   { label: "Scan for new chapters", onPress: () => void scanReading() },
   {
     label: "Rescan everything",
     onPress: () => void scanReading({ everything: true }),
   },
+  ACTIVITY_ITEM,
+];
+const SCANNING_ITEMS = [
+  ACTIVITY_ITEM,
+  { label: "Stop scan", onPress: stopReadingScan },
 ];
 
-function ScanButton({ onPress }: { onPress?: () => void }) {
+function ScanButton({
+  onPress,
+  color,
+}: {
+  onPress?: () => void;
+  color?: string;
+}) {
   return (
-    <IconButton onClick={onPress}>
+    <IconButton onClick={onPress} colors={{ contentColor: color }}>
       <Icon
         name={Icons.scanList}
         accessibilityLabel="Scan Reading"
@@ -52,17 +67,10 @@ function ScanAction() {
   const scanning = useValue(libraryScan$);
   const m3 = useThemeM3Colors();
 
-  if (!scanning) {
-    return (
-      <Menu items={SCAN_ITEMS}>
-        <ScanButton />
-      </Menu>
-    );
-  }
   return (
-    <IconButton onClick={stopReadingScan} colors={{ contentColor: m3.primary }}>
-      <Icon name={Icons.stop} accessibilityLabel="Stop scan" color="inherit" />
-    </IconButton>
+    <Menu items={scanning ? SCANNING_ITEMS : SCAN_ITEMS}>
+      <ScanButton color={scanning ? m3.primary : undefined} />
+    </Menu>
   );
 }
 

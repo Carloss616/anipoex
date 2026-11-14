@@ -1,5 +1,5 @@
 import { useValue } from "@legendapp/state/react";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES, mangaCount } from "@/features/manga/constants";
 import { ALL, genresOf } from "@/features/manga/hooks/use-manga-list";
@@ -14,6 +14,8 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { LIST_SYMBOLS } from "../../constants";
 import { openViewSheet } from "../view-sheet";
 import type { ListToolbarProps } from "./list-toolbar";
+
+const openActivity = () => router.push("/settings/activity");
 
 /**
  * iOS: one menu switches the list and picks the genre; a second button opens
@@ -69,26 +71,30 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
         accessibilityLabel="View options"
       />
       <Stack.Toolbar.Menu
-        hidden={!reading || scanning}
+        hidden={!reading}
         icon={Icons.scanList}
+        tintColor={scanning ? primary : undefined}
         accessibilityLabel="Scan Reading"
       >
-        <Stack.Toolbar.MenuAction onPress={() => scanReading()}>
+        <Stack.Toolbar.MenuAction
+          hidden={scanning}
+          onPress={() => scanReading()}
+        >
           Scan for new chapters
         </Stack.Toolbar.MenuAction>
         <Stack.Toolbar.MenuAction
+          hidden={scanning}
           onPress={() => scanReading({ everything: true })}
         >
           Rescan everything
         </Stack.Toolbar.MenuAction>
+        <Stack.Toolbar.MenuAction onPress={openActivity}>
+          Activity
+        </Stack.Toolbar.MenuAction>
+        <Stack.Toolbar.MenuAction hidden={!scanning} onPress={stopReadingScan}>
+          Stop scan
+        </Stack.Toolbar.MenuAction>
       </Stack.Toolbar.Menu>
-      <Stack.Toolbar.Button
-        hidden={!reading || !scanning}
-        icon={Icons.stop}
-        tintColor={primary}
-        onPress={stopReadingScan}
-        accessibilityLabel="Stop scan"
-      />
     </Stack.Toolbar>
   );
 }

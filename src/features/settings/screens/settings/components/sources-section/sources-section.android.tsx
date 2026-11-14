@@ -17,6 +17,7 @@ import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "../../constants";
 import { useRowProps } from "../../hooks/use-row-props";
 import { Label } from "../label";
 import { LeadingIcon } from "../leading-icon";
+import { ActivityRow } from "./activity-row";
 
 const toggleAutoPick = () => settings$.sources.autoPick.set((on) => !on);
 
@@ -28,9 +29,10 @@ export function SourcesSection() {
     <>
       <Label>Sources</Label>
       <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
+        <ActivityRow index={0} count={4} />
         <SegmentedListItem
-          index={0}
-          count={3}
+          index={1}
+          count={4}
           {...row}
           onPress={toggleAutoPick}
         >
@@ -66,7 +68,7 @@ export function SourcesSection() {
                   onPress: () => settings$.sources.slowSkip.set(option.seconds),
                 }))}
               >
-                <SegmentedListItem index={1} count={3} {...row}>
+                <SegmentedListItem index={2} count={4} {...row}>
                   <SegmentedListItem.Leading>
                     <LeadingIcon name={HourglassIcon} />
                   </SegmentedListItem.Leading>
@@ -92,8 +94,8 @@ export function SourcesSection() {
           }}
         </Computed>
         <SegmentedListItem
-          index={2}
-          count={3}
+          index={3}
+          count={4}
           {...row}
           onPress={() => router.push("/settings/languages")}
         >

@@ -4,19 +4,20 @@ import { useRouter } from "expo-router";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
-import { DESCRIPTIONS } from "../../constants";
-import { useRowProps } from "../../hooks/use-row-props";
-import { LeadingIcon } from "../leading-icon";
+import { DESCRIPTIONS } from "../../../constants";
+import { useRowProps } from "../../../hooks/use-row-props";
+import { LeadingIcon } from "../../leading-icon";
+import type { ActivityRowProps } from "./activity-row";
 import { runningLabel } from "./utils";
 
-export function ActivitySection() {
+export function ActivityRow({ index = 0, count = 1 }: ActivityRowProps) {
   const router = useRouter();
   const row = useRowProps();
 
   return (
     <SegmentedListItem
-      index={0}
-      count={1}
+      index={index}
+      count={count}
       {...row}
       onPress={() => router.push("/settings/activity")}
     >

@@ -1,7 +1,7 @@
 import { useApolloClient } from "@apollo/client/react";
 import type { Observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useState } from "react";
 import { Toolbar } from "@/components/layout/toolbar";
@@ -24,6 +24,8 @@ import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openViewSheet } from "../view-sheet";
+
+const openActivity = () => router.push("/settings/activity");
 
 const scanWithNotice = (everything: boolean) => {
   askToNotify();
@@ -105,24 +107,33 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
           accessibilityLabel="View options"
         />
         <Stack.Toolbar.Menu
-          hidden={!isRuntimeAvailable || !reading || scanning}
+          hidden={!isRuntimeAvailable || !reading}
           icon={Icons.scanList}
+          tintColor={scanning ? primary : undefined}
           accessibilityLabel="Scan Reading"
         >
-          <Stack.Toolbar.MenuAction onPress={() => scanWithNotice(false)}>
+          <Stack.Toolbar.MenuAction
+            hidden={scanning}
+            onPress={() => scanWithNotice(false)}
+          >
             Scan for new chapters
           </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction onPress={() => scanWithNotice(true)}>
+          <Stack.Toolbar.MenuAction
+            hidden={scanning}
+            onPress={() => scanWithNotice(true)}
+          >
             Rescan everything
           </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction onPress={openActivity}>
+            Activity
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            hidden={!scanning}
+            onPress={stopReadingScan}
+          >
+            Stop scan
+          </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
-        <Stack.Toolbar.Button
-          hidden={!reading || !scanning}
-          icon={Icons.stop}
-          tintColor={primary}
-          onPress={stopReadingScan}
-          accessibilityLabel="Stop scan"
-        />
         <Stack.Toolbar.Button
           icon={Icons.refresh}
           onPress={refresh}

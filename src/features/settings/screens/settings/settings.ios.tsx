@@ -9,7 +9,6 @@ import { Host } from "@/components/ui/host";
 import { signOut } from "@/features/auth/utils/sign-out";
 import { useLoadInstalled } from "@/features/extensions";
 import { AccountSection } from "./components/account-section";
-import { ActivitySection } from "./components/activity-section";
 import { AppearanceSection } from "./components/appearance-section";
 import { HomeSection } from "./components/home-section";
 import { NetworkSection } from "./components/network-section";
@@ -32,7 +31,6 @@ export function Settings() {
             useFont(),
           ]}
         >
-          <ActivitySection />
           <AccountSection />
           <HomeSection />
           <AppearanceSection />
