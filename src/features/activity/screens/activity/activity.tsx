@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icons } from "@/components/ui/icon";
+import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { Overview } from "./components/overview";
 import { QueueItem } from "./components/queue-item";
@@ -64,7 +65,15 @@ export function Activity() {
         <EmptyState
           title="Nothing running"
           description="Scans show here while they run."
-          actions={[{ label: "Scan Reading", onPress: startReadingScan }]}
+          actions={[
+            {
+              label: "Scan Reading",
+              onPress: () => {
+                askToNotify();
+                startReadingScan();
+              },
+            },
+          ]}
         />
       )}
     </>

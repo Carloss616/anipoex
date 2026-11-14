@@ -1,3 +1,4 @@
+import type { ModifierConfig } from "@expo/ui/swift-ui/modifiers";
 import { Memo, useValue } from "@legendapp/state/react";
 import { Typography } from "panelui-native/components/typography";
 import { Frame } from "panelui-web/frame";
@@ -5,8 +6,16 @@ import { View } from "react-native";
 import { Progress } from "@/components/ui/progress";
 import { figures } from "../../utils/overview";
 
+export interface OverviewProps {
+  /**
+   * The section's row background.
+   * @platform ios
+   */
+  modifiers?: ModifierConfig[];
+}
+
 /** The Reading scan's tally, or how many rescans run outside it. */
-export function Overview() {
+export function Overview(_: OverviewProps) {
   const reading = useValue(figures.reading);
 
   if (!reading)

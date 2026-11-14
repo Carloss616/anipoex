@@ -13,7 +13,6 @@ import {
   scanNext,
 } from "@/features/manga/state/reading-queue";
 import { mediaKey } from "@/features/manga/utils/msu";
-import { askToNotify } from "@/features/manga/utils/scan-activity";
 
 export { clearQueue, removeFromQueue, retryAllSkipped, retrySkipped, scanNext };
 
@@ -29,6 +28,5 @@ export function stopAll() {
 }
 
 export function startReadingScan() {
-  askToNotify();
   void scanReading();
 }
