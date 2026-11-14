@@ -1,6 +1,6 @@
 import { Box, Column } from "@expo/ui/jetpack-compose";
 import { padding } from "@expo/ui/jetpack-compose/modifiers";
-import { Memo, useValue } from "@legendapp/state/react";
+import { Computed, Memo, useValue } from "@legendapp/state/react";
 import type { ReactNode } from "react";
 import { GUTTER } from "@/components/native/constants";
 import {
@@ -120,13 +120,13 @@ function Stat({
     <OverviewRow index={1} count={last ? 2 : 3}>
       <Text>{label}</Text>
       <SegmentedListItem.Trailing>
-        <Memo>
+        <Computed>
           {() => (
             <Text style={{ typography: "titleMedium" }} color={color}>
               {String(figure())}
             </Text>
           )}
-        </Memo>
+        </Computed>
       </SegmentedListItem.Trailing>
     </OverviewRow>
   );

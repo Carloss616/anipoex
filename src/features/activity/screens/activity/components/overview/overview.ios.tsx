@@ -1,6 +1,6 @@
 import { HStack, Section, Spacer, VStack } from "@expo/ui/swift-ui";
 import { foregroundStyle } from "@expo/ui/swift-ui/modifiers";
-import { Memo, useValue } from "@legendapp/state/react";
+import { Computed, Memo, useValue } from "@legendapp/state/react";
 import { Text } from "@/components/native/swift-ui/text";
 import { Progress } from "@/components/ui/progress";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -86,13 +86,13 @@ function Stat({
     <HStack>
       <Text>{label}</Text>
       <Spacer />
-      <Memo>
+      <Computed>
         {() => (
           <Text modifiers={[foregroundStyle(color ?? "secondary")]}>
             {String(figure())}
           </Text>
         )}
-      </Memo>
+      </Computed>
     </HStack>
   );
 }

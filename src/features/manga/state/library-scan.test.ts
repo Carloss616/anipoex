@@ -267,6 +267,26 @@ describe("the Reading scan's queue", () => {
     expect(libraryScan$.get()).toBe(false);
   });
 
+  it("a scan landing after the run threw doesn't bring the run back", async () => {
+    let started = 0;
+    startLibraryActivity.mockImplementationOnce(() => ({
+      manga: () => {
+        if (++started > 1) throw new Error("boom");
+        return () => ({ progress: noop, mark: noop, end: noop });
+      },
+      finishing: noop,
+      end: noop,
+    }));
+    late.set("a", 40);
+    reply = async () =>
+      list(media(427, "Twentyseven"), media(428, "Twentyeight"));
+    await expect(scanReading()).rejects.toThrow("boom");
+    expect(readingRun$.peek()).toBeNull();
+    // Twentyseven's read lands now, with new chapters.
+    await Bun.sleep(80);
+    expect(readingRun$.peek()).toBeNull();
+  });
+
   it("Retry scans only that source for the manga it missed", async () => {
     const before = installed$.peek();
     installed$.set([

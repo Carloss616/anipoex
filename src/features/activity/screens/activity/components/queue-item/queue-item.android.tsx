@@ -6,7 +6,7 @@ import {
   size,
   width,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { Memo, useValue } from "@legendapp/state/react";
+import { Computed, useValue } from "@legendapp/state/react";
 import { router } from "expo-router";
 import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
@@ -48,7 +48,7 @@ export const QueueItem = memo(function QueueItem({
         >
           <SegmentedListItem.Leading>
             <Row verticalAlignment="center">
-              <Memo>
+              <Computed>
                 {() => (
                   <Text
                     style={{ typography: "labelLarge" }}
@@ -58,7 +58,7 @@ export const QueueItem = memo(function QueueItem({
                     {String(split(queuedIds()).indexOf(id) + 1)}
                   </Text>
                 )}
-              </Memo>
+              </Computed>
               {cover ? (
                 <Image
                   source={{ uri: cover }}

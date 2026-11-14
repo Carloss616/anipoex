@@ -29,6 +29,7 @@ Legend State gotchas:
 - `@expo/ui` native `Text` takes only a string child: wrap the whole `Text` in `Computed`, never its content.
 - To reset state when an observable changes, use `useObserve(obs$, reaction)`, not a `useEffect` keyed on its value: `bun run check:fix` (Biome, unsafe) silently drops deps the effect body doesn't read (`use-title-mode.ts`).
 - A zero-argument function stored in an observable runs as a computed when read (`@legendapp/state` `index.mjs`, `value.length === 0`), so a callback in one is called, not returned: keep callbacks in a plain `Map` (`scanStops` in `src/features/manga/state/scan-views.ts`).
+- Setting a child of an observable whose value is `null` creates the parent again: a late write after a reset brings back the record it cleared (a ghost Reading scan in Activity). Drop writes from work that outlived its run (`runId` in `src/features/manga/state/library-scan.ts`).
 - `peek()` for call-time reads (in handlers and actions), `get()` in anything that must update (`isScanning` vs `isScanBusy` in `state/probes.ts`). A `peek()` in render is worse than stale: the Compiler caches it and keeps the first render's value (`use-title-mode.ts` reads the query with `useValue`).
 
 # React Compiler

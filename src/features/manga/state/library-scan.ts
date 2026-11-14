@@ -88,6 +88,8 @@ export async function scanManga(
 export const libraryScan$ = observable(false);
 
 let stopped = false;
+/** The current run; bumped as one ends, so a scan still landing writes nothing. */
+let runId = 0;
 /** The run's sources skipped as slow, id to name; a retry takes one out. */
 let skipped = new Map<string, string>();
 /** The run's manga by id, for a retry to queue again. */
@@ -143,6 +145,7 @@ export async function scanReading({ everything = false } = {}) {
   if (libraryScan$.peek()) return;
   libraryScan$.set(true);
   stopped = false;
+  const run = ++runId;
   try {
     const userId = session$.user.peek()?.id;
     const result =
@@ -213,10 +216,14 @@ export async function scanReading({ everything = false } = {}) {
               ? {
                   after: slowAfter,
                   skipped,
-                  missed: (id) => missed(id, entry.mangaId),
+                  missed: (id) => {
+                    if (run === runId) missed(id, entry.mangaId);
+                  },
                 }
               : undefined,
-        }).finally(() => settle(entry.id));
+        }).finally(() => {
+          if (run === runId) settle(entry.id);
+        });
       },
       // Any source the manga can be read from counts, not only the one picked:
       // a manga with no pick, or a pick behind, still has new chapters.
@@ -234,7 +241,8 @@ export async function scanReading({ everything = false } = {}) {
             unreadChapters(entry.read, probes[s.id].latest),
           ),
         );
-        if (n > 0) readingRun$.withNew[entry.mangaId].set(true);
+        if (n > 0 && run === runId)
+          readingRun$.withNew[entry.mangaId].set(true);
         return n;
       },
       activity: startLibraryActivity({ total, onStop: stopReadingScan }),
@@ -255,6 +263,7 @@ export async function scanReading({ everything = false } = {}) {
         : undefined,
     );
   } finally {
+    runId++;
     endRun();
     libraryScan$.set(false);
   }
