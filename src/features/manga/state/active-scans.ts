@@ -1,12 +1,10 @@
 import { observable } from "@legendapp/state";
 import type { ScanActivity, ScanActivityArgs } from "../utils/scan-activity";
 import {
-  type MarkState,
   marksById,
+  type RowState,
   type SourceMark,
 } from "../utils/scan-activity/utils/marks";
-
-export type RowState = MarkState | "skipped" | "stopped";
 
 export interface ActiveMark extends Omit<SourceMark, "state"> {
   state: RowState;

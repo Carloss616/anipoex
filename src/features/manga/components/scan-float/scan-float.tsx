@@ -5,29 +5,18 @@ import { router, usePathname } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
-import { memo, useEffect, useRef } from "react";
-import { Pressable, View, type ViewStyle } from "react-native";
-import {
-  LegendList,
-  type LegendListRef,
-} from "@/components/layout/legend-list";
-import { Badge } from "@/components/ui/badge";
+import { memo } from "react";
+import { Pressable, View } from "react-native";
 import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
-import { SourceTile } from "@/features/manga/components/source-tile";
-import { sourceColor } from "@/features/manga/utils/source";
+import { MarkRail } from "@/features/manga/components/mark-rail";
 import {
   sourceListHref,
   sourceListMangaId,
 } from "@/features/manga/utils/source-list-href";
-import { themeMode$ } from "@/state/theme";
 import { type ScanView, scanStops, scanViews$ } from "../../state/scan-views";
-import type { SourceMark } from "../../utils/scan-activity/utils/marks";
 
 const DETAIL = /^\/manga\/\d+$/;
-const FADE =
-  "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)";
-const MARK_SIZE = 40;
 
 /**
  * The running scans over every screen, each hidden while its manga's source
@@ -136,86 +125,6 @@ const ScanCard = memo(function ScanCard({
       >
         Stop
       </Button>
-    </View>
-  );
-});
-
-/**
- * The sources in one row, found first; it scrolls itself to the first one
- * scanning, the end of what's done.
- */
-function MarkRail({ marks }: { marks: SourceMark[] }) {
-  const list = useRef<LegendListRef>(null);
-  const focus = marks.findIndex((mark) => mark.state === "scanning");
-  useEffect(() => {
-    if (focus >= 0)
-      void list.current?.scrollToIndex({ index: focus, viewPosition: 0.5 });
-  }, [focus]);
-
-  return (
-    <LegendList
-      ref={list}
-      horizontal
-      data={marks}
-      keyExtractor={(mark) => mark.id}
-      estimatedItemSize={MARK_SIZE}
-      recycleItems
-      columnWrapperStyle={{ gap: 8 }}
-      // The last tile keeps the gap after it: the same 8 at the start.
-      contentContainerClassName="ps-2"
-      // The indicator prop does nothing on web, and the badges' overhang
-      // would let the row scroll up and down.
-      style={
-        {
-          minWidth: 0,
-          minHeight: MARK_SIZE + 4,
-          scrollbarWidth: "none",
-          overflowY: "hidden",
-          // Fades the edges, so the row shows it scrolls.
-          maskImage: FADE,
-          WebkitMaskImage: FADE,
-        } as ViewStyle
-      }
-      renderItem={({ item }) => (
-        // Room for the +N badge to hang into: the list's cells clip their
-        // paint, and the gap only pads their end.
-        <View className="pb-1">
-          <MarkTile mark={item} />
-        </View>
-      )}
-    />
-  );
-}
-
-/** A source's tile in its scan state; reads the theme so the card doesn't. */
-const MarkTile = memo(function MarkTile({ mark }: { mark: SourceMark }) {
-  const mode = useValue(themeMode$);
-  const { state, unread } = mark;
-  return (
-    <View
-      role="img"
-      accessibilityLabel={`${mark.name}, ${state === "nomatch" ? "no match" : state}`}
-      className={cn(
-        (state === "pending" || state === "nomatch") && "opacity-40",
-      )}
-    >
-      <SourceTile
-        initials={mark.initials}
-        iconUrl={mark.iconUrl}
-        color={sourceColor(mark, mode)}
-        loading={state === "scanning"}
-      />
-      {state === "found" && !!unread && (
-        <Badge color="success" solid className="absolute -inset-e-1 -bottom-1">
-          {`+${unread}`}
-        </Badge>
-      )}
-      {state === "error" && (
-        <Badge
-          color="destructive"
-          className="absolute -inset-e-0.5 -bottom-0.5"
-        />
-      )}
     </View>
   );
 });

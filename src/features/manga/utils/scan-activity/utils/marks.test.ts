@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { ProviderProbe } from "../../msu";
-import { markOf, orderMarks, type SourceMark, visibleMarks } from "./marks";
+import { markOf, orderMarks, type RowState, visibleMarks } from "./marks";
 
 const probe = (p: Partial<ProviderProbe>): ProviderProbe => ({
   provider: "source-1",
@@ -13,7 +13,7 @@ const probe = (p: Partial<ProviderProbe>): ProviderProbe => ({
   ...p,
 });
 
-const mark = (id: string, state: SourceMark["state"], unread?: number) => ({
+const mark = <S extends RowState>(id: string, state: S, unread?: number) => ({
   id,
   name: id,
   initials: id,
@@ -56,6 +56,15 @@ describe("orderMarks", () => {
       "D",
       "A",
     ]);
+  });
+  it("puts a source skipped as slow after an error, and a stopped one last", () => {
+    const marks = [
+      mark("A", "stopped"),
+      mark("B", "nomatch"),
+      mark("C", "skipped"),
+      mark("D", "error"),
+    ];
+    expect(orderMarks(marks).map((m) => m.id)).toEqual(["D", "C", "B", "A"]);
   });
 });
 

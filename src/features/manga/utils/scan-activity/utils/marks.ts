@@ -3,6 +3,8 @@ import type { Source } from "../../source";
 import { unreadChapters } from "../../source-classify";
 
 export type MarkState = "pending" | "scanning" | "found" | "nomatch" | "error";
+/** A mark's state in Activity, which also shows sources left out of a scan. */
+export type RowState = MarkState | "skipped" | "stopped";
 
 export interface SourceMark
   extends Pick<Source, "id" | "name" | "initials" | "iconUrl"> {
@@ -13,12 +15,14 @@ export interface SourceMark
 
 export const VISIBLE_MARKS = 6;
 
-const RANK: Record<MarkState, number> = {
+const RANK: Record<RowState, number> = {
   found: 0,
   scanning: 1,
   pending: 2,
   error: 3,
-  nomatch: 4,
+  skipped: 4,
+  nomatch: 5,
+  stopped: 6,
 };
 
 export function markOf(
@@ -30,7 +34,9 @@ export function markOf(
   return { state: "found", unread: unreadChapters(read, probe.latest) };
 }
 
-export function orderMarks(marks: SourceMark[]): SourceMark[] {
+export function orderMarks<M extends { state: RowState; unread?: number }>(
+  marks: M[],
+): M[] {
   return [...marks].sort(
     (a, b) =>
       RANK[a.state] - RANK[b.state] || (b.unread ?? 0) - (a.unread ?? 0),
