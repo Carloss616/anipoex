@@ -281,12 +281,14 @@ describe("the Reading scan's queue", () => {
     const slowSkip = settings$.sources.slowSkip.peek();
     settings$.sources.slowSkip.set(0.02);
     late.set("b", 60);
-    held.add("Twentysix");
+    // Every read of source a waits its turn, which isn't timed: the run stays
+    // on both manga while b is skipped as slow.
+    turns.set("a", new Promise(() => {}));
     try {
       reply = async () =>
         list(media(425, "Twentyfive"), media(426, "Twentysix"));
       const done = scanReading();
-      await until(() => readingRun$.done.peek() === 1);
+      await until(() => readingRun$.skipped.b.mangaIds.peek()?.length === 2);
       expect(readingRun$.skipped.b.peek()).toEqual({
         name: "Source B",
         mangaIds: [425, 426],
@@ -294,6 +296,7 @@ describe("the Reading scan's queue", () => {
       search.mockClear();
       retrySkipped("b");
       expect(readingRun$.skipped.b.peek()).toBeUndefined();
+      stopScanAll("425");
       stopScanAll("426");
       await until(() => probes$["425"].b.peek() !== undefined);
       // Read past the limit and still kept: a retry has none.
