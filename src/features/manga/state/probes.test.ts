@@ -382,6 +382,38 @@ describe("scanSources", () => {
     await second;
   });
 
+  it("reports a source that runs past the limit as missed", async () => {
+    const missed: string[] = [];
+    const slow = {
+      after: 20,
+      skipped: new Map<string, string>(),
+      missed: (id: string) => missed.push(id),
+    };
+    const done = scan({ mangaId: 203, sources: sources("v", "u"), slow });
+    await flush();
+    searchPending.u([]);
+    await done;
+    expect(missed).toEqual(["v"]);
+  });
+
+  it("reports a source already skipped as missed for the next manga", async () => {
+    const missed: string[] = [];
+    const slow = {
+      after: 1000,
+      skipped: new Map([["source-1", "Source A"]]),
+      missed: (id: string) => missed.push(id),
+    };
+    const done = scan({
+      mangaId: 204,
+      sources: sources("source-1", "t"),
+      slow,
+    });
+    await flush();
+    searchPending.t([]);
+    await done;
+    expect(missed).toEqual(["source-1"]);
+  });
+
   it("a stopped read's slow timer leaves a newer rescan alone", async () => {
     const slow = { after: 20, skipped: new Map<string, string>() };
     const first = scan({ sources: sources("s"), slow });

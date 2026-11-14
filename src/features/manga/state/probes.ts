@@ -239,8 +239,13 @@ export async function scanSources(args: {
   /**
    * Stops a source whose read runs past `after` ms and adds it to `skipped`
    * (id to name), which leaves it out of every scan sharing the map.
+   * `missed` hears once of each skipped source this scan left out.
    */
-  slow?: { after: number; skipped: Map<string, string> };
+  slow?: {
+    after: number;
+    skipped: Map<string, string>;
+    missed?: (sourceId: string) => void;
+  };
 }): Promise<ScanResult> {
   const { mangaId, sources, titles, read, keep, only, name } = args;
   const key = mediaKey(mangaId);
@@ -272,9 +277,14 @@ export async function scanSources(args: {
   const prev = { ...probes$[key].peek() };
   const within = (id: string, ms: number | undefined) =>
     ms !== undefined && (prev[id]?.updatedAt ?? 0) > Date.now() - ms;
-  const candidates = sources.filter(
-    (s) => ids.includes(s.id) && !busy[s.id] && !args.slow?.skipped.has(s.id),
-  );
+  // Once per source: a target is never also left out here.
+  const miss = (id: string) => args.slow?.missed?.(id);
+  const candidates = sources.filter((s) => {
+    if (!ids.includes(s.id) || busy[s.id]) return false;
+    if (!args.slow?.skipped.has(s.id)) return true;
+    miss(s.id);
+    return false;
+  });
   const targets = candidates.filter(
     (s) =>
       !within(s.id, args.freshFor) &&
@@ -368,10 +378,9 @@ export async function scanSources(args: {
               s.id,
               last ? markOf(last, read()) : { state: "pending" },
             );
-            active.leave(
-              s.id,
-              args.slow?.skipped.has(s.id) ? "skipped" : "stopped",
-            );
+            const slow = args.slow?.skipped.has(s.id);
+            if (slow) miss(s.id);
+            active.leave(s.id, slow ? "skipped" : "stopped");
             scanning$[key][s.id].delete();
             done();
             resolve(null);
