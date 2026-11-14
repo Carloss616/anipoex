@@ -88,6 +88,7 @@ const {
   stopScan,
   stopScanAll,
 } = await import("./probes");
+const { activeScans$ } = await import("./active-scans");
 const { fetchChapters } = await import("../utils/fetch-chapters");
 const { PARALLEL_BATCH, RECENT_SCAN_MS } = await import("../utils/msu");
 const { clearManual, readManual, setManual } = await import("./manual-matches");
@@ -322,6 +323,17 @@ describe("scanSources", () => {
     searchPending.b([]);
     await flush();
     expect(probes$["201"].b.get()?.latest).toBe(7);
+  });
+
+  it("shows a running scan in activeScans$ and a stopped source as stopped", async () => {
+    const done = scan({ sources: sources("a", "b") });
+    await flush();
+    expect(activeScans$["201"].marks.b.state.get()).toBe("scanning");
+    stopScan("201", "b");
+    expect(activeScans$["201"].marks.b.state.get()).toBe("stopped");
+    await answer("a", [3]);
+    await done;
+    expect(activeScans$["201"].get()).toBeUndefined();
   });
 
   it("a slow source holds one slot, not the next sources", async () => {

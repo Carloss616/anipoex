@@ -36,6 +36,7 @@ import {
   isTimeout,
   SEARCH_TIMEOUT_MS,
 } from "../utils/with-timeout";
+import { teeActivity, trackActiveScan } from "./active-scans";
 import { challenged$, recordChallenges } from "./challenged";
 import { chapters$, chaptersKey, readChapters } from "./chapters";
 import { exclusions$, pins$ } from "./exclusions";
@@ -293,7 +294,7 @@ export async function scanSources(args: {
     scanningAll$[key].set(true);
     scanProgress$[key].set({ done: 0, total: targets.length });
   }
-  const activity = (args.activity ?? startScanActivity)({
+  const activityArgs: ScanActivityArgs = {
     mangaId,
     name: name ?? titles.search[0] ?? "",
     total: targets.length,
@@ -307,7 +308,13 @@ export async function scanSources(args: {
       state: "pending",
     })),
     onStop: () => stopScanAll(key),
-  });
+  };
+  // Every scan shows in Activity, whatever activity it was given.
+  const active = trackActiveScan(activityArgs);
+  const activity = teeActivity(
+    active,
+    (args.activity ?? startScanActivity)(activityArgs),
+  );
   // Each source is judged as it lands, on the state of that moment: what the
   // user decided meanwhile, the progress, the source picked now.
   const judge = (id: string, probe: ProviderProbe) => {
@@ -360,6 +367,10 @@ export async function scanSources(args: {
             activity.mark(
               s.id,
               last ? markOf(last, read()) : { state: "pending" },
+            );
+            active.leave(
+              s.id,
+              args.slow?.skipped.has(s.id) ? "skipped" : "stopped",
             );
             scanning$[key][s.id].delete();
             done();
