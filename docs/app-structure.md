@@ -39,7 +39,9 @@ anipoex/
 ├── modules/extension-runtime/{android,jvm}  # Mihon extension host: Android module, shared JVM core (desktop + iOS)
 ├── desktop/                         # Electron app (macOS) that runs the JVM core as a sidecar
 │   ├── host/                        # what the JVM asks the app for (`Host`), one file per ios/*Host.swift
+│   ├── build/                       # electron-builder resources: the macOS app icon
 │   └── assets/                      # what the window loads: its schemes, cover headers
+├── scripts/app-icon/                # generates the app icon, splash and favicon (docs/app-icon.md)
 └── assets/                          # images, fonts, icons (@/assets/*)
 ```
 

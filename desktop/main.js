@@ -109,6 +109,11 @@ protocol.registerSchemesAsPrivileged([
 app.whenReady().then(() => {
   // `quit` is async, so `ready` can still reach the instance that is leaving.
   if (!PRIMARY) return;
+  // A packaged app takes build/icon.png from electron-builder; `electron .`
+  // shows Electron's own.
+  if (!app.isPackaged) {
+    app.dock?.setIcon(path.join(import.meta.dirname, "build/icon.png"));
+  }
   // `net.fetch` of the file sets the Content-Type from its extension.
   protocol.handle("app", (request) => {
     const file = resolveAsset(PATHS.web, new URL(request.url).pathname);
