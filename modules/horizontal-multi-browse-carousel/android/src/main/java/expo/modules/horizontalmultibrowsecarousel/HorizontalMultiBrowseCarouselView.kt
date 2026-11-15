@@ -4,9 +4,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
+import android.view.View
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.size
 import expo.modules.kotlin.views.ComposeProps
@@ -48,6 +56,13 @@ fun FunctionalComposableScope.HorizontalMultiBrowseCarouselContent(props: Horizo
       val scrolling = snapshotFlow { state.isScrollInProgress }
       while (true) {
         scrolling.first { !it }
+        try {
+          // A slide cut short (a tap, a pause) leaves the row between items.
+          state.animateScrollToItem(state.currentItem)
+        } catch (e: CancellationException) {
+          ensureActive()
+          continue
+        }
         // A drag inside the wait starts it over, so a swipe keeps its item.
         val dragged = withTimeoutOrNull(interval) { scrolling.first { it } }
         if (dragged != null) continue
@@ -64,16 +79,35 @@ fun FunctionalComposableScope.HorizontalMultiBrowseCarouselContent(props: Horizo
   val minSmallItemWidth = props.minSmallItemWidth?.dp ?: CarouselDefaults.MinSmallItemSize
   val maxSmallItemWidth = (props.maxSmallItemWidth?.dp ?: CarouselDefaults.MaxSmallItemSize).coerceAtLeast(minSmallItemWidth)
 
-  HorizontalMultiBrowseCarousel(
-    state = state,
-    preferredItemWidth = props.preferredItemWidth.dp,
-    modifier = ModifierRegistry.applyModifiers(props.modifiers, appContext, composableScope, globalEventDispatcher),
-    itemSpacing = props.itemSpacing.dp,
-    flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state = state),
-    minSmallItemWidth = minSmallItemWidth,
-    maxSmallItemWidth = maxSmallItemWidth,
-    contentPadding = props.contentPadding?.toPaddingValues() ?: PaddingValues()
-  ) { itemIndex ->
-    Child(CarouselItemComposableScope(this), itemIndex)
+  // Compose stops watching layout state while its view is detached (a screen
+  // pushed over Home), so a scroll then leaves each item's mask and offset
+  // stale on return: a fresh carousel re-places them from the kept state.
+  val hostView = LocalView.current
+  var attaches by remember { mutableIntStateOf(0) }
+  DisposableEffect(hostView) {
+    val listener = object : View.OnAttachStateChangeListener {
+      override fun onViewAttachedToWindow(v: View) {
+        attaches++
+      }
+
+      override fun onViewDetachedFromWindow(v: View) = Unit
+    }
+    hostView.addOnAttachStateChangeListener(listener)
+    onDispose { hostView.removeOnAttachStateChangeListener(listener) }
+  }
+
+  key(attaches) {
+    HorizontalMultiBrowseCarousel(
+      state = state,
+      preferredItemWidth = props.preferredItemWidth.dp,
+      modifier = ModifierRegistry.applyModifiers(props.modifiers, appContext, composableScope, globalEventDispatcher),
+      itemSpacing = props.itemSpacing.dp,
+      flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state = state),
+      minSmallItemWidth = minSmallItemWidth,
+      maxSmallItemWidth = maxSmallItemWidth,
+      contentPadding = props.contentPadding?.toPaddingValues() ?: PaddingValues()
+    ) { itemIndex ->
+      Child(CarouselItemComposableScope(this), itemIndex)
+    }
   }
 }
