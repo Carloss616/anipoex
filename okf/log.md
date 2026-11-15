@@ -2,6 +2,7 @@
 
 ## 2026-11-14
 
+* **The default theme is the icon's violet**: `default` paints the app in the app icon's violet, light and dark; its old black and white moves to a new `ink` family, which a saved `default` doesn't follow. Updated [theme](stores/theme.md).
 * **A Reading scan's queue can change while it runs**: each manga is taken from the queue as it starts, so Activity can scan one next or drop it from the run, and a source skipped as slow can be retried, with no time limit, for the manga it was left out of. Updated [source probes](stores/source-probes.md).
 
 ## 2026-11-10

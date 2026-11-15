@@ -11,8 +11,8 @@ Section `theme` of [settings](settings.md).
 
 | Field | Values | Default |
 |---|---|---|
-| `family` | `default`, `moon`, `grass` | `default` |
+| `family` | `default`, `ink`, `moon`, `grass` | `default` |
 | `preference` | `system`, `light`, `dark` | `system` |
 
-`mode` (the painted light or dark) is computed, not stored: `system` follows the OS
+`default` is the app icon's violet; `ink` is black and white. `mode` (the painted light or dark) is computed, not stored: `system` follows the OS
 and re-reads it when it flips.

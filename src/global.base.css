@@ -5,6 +5,366 @@
 
 @source "../node_modules/panelui-native/src";
 
+/* Declared here, like PanelUI's own, or a production bundle fails on them. */
+@custom-variant ink (&:where(.ink, .ink *));
+@custom-variant ink-dark (&:where(.ink-dark, .ink-dark *));
+
+/*
+ * The default family is the app icon's violet (docs/app-icon.md). It keeps
+ * Uniwind's `light`/`dark` names, the only pair it resolves against the OS,
+ * by overriding PanelUI's values; PanelUI's neutral pair moves to `ink`.
+ * Every theme must define every token, or Uniwind fails the build.
+ */
+@layer theme {
+  :root {
+    @variant light {
+      --color-background: #fcfbff;
+      --color-foreground: #1c1530;
+
+      --color-card: #ffffff;
+      --color-card-foreground: #1c1530;
+
+      --color-popover: #ffffff;
+      --color-popover-foreground: #1c1530;
+
+      --color-overlay: #ffffff;
+      --color-overlay-foreground: #1c1530;
+      --color-inset: rgba(40, 20, 70, 0.04);
+
+      /* 6.9:1 against its foreground */
+      --color-primary: #6f3fb3;
+      --color-primary-foreground: #ffffff;
+
+      --color-secondary: rgba(111, 63, 179, 0.08);
+      --color-secondary-foreground: #1c1530;
+
+      --color-muted: rgba(111, 63, 179, 0.07);
+      --color-muted-foreground: #6b6380;
+
+      --color-accent: rgba(111, 63, 179, 0.1);
+      --color-accent-foreground: #1c1530;
+
+      --color-destructive: #ef4444;
+      --color-destructive-foreground: #b91c1c;
+      --color-destructive-solid-foreground: #171717;
+
+      --color-info: #3b82f6;
+      --color-info-foreground: #1d4ed8;
+      --color-info-solid-foreground: #171717;
+
+      --color-success: #10b981;
+      --color-success-foreground: #047857;
+      --color-success-solid-foreground: #171717;
+
+      --color-warning: #f59e0b;
+      --color-warning-foreground: #b45309;
+      --color-warning-solid-foreground: #171717;
+
+      --color-border: rgba(40, 20, 70, 0.09);
+      --color-input: rgba(40, 20, 70, 0.13);
+      --color-ring: #b27cf0;
+
+      --color-surface: #f6f2fc;
+      --color-surface-secondary: #f0eafa;
+      --color-surface-tertiary: #e9e1f7;
+      --color-skeleton: rgba(111, 63, 179, 0.12);
+
+      --color-info-soft: rgba(59, 130, 246, 0.1);
+      --color-info-subtle: rgba(59, 130, 246, 0.08);
+      --color-success-soft: rgba(16, 185, 129, 0.1);
+      --color-success-subtle: rgba(16, 185, 129, 0.08);
+      --color-warning-soft: rgba(245, 158, 11, 0.1);
+      --color-warning-subtle: rgba(245, 158, 11, 0.08);
+      --color-destructive-soft: rgba(239, 68, 68, 0.1);
+      --color-destructive-subtle: rgba(239, 68, 68, 0.08);
+
+      --color-code-keyword: #8250df;
+      --color-code-string: #0a7d55;
+      --color-code-number: #0550ae;
+      --color-code-comment: #8b949e;
+      --color-code-function: #6639ba;
+      --color-code-property: #953800;
+      --color-code-punctuation: #57606a;
+      --color-code-inserted: #0a7d55;
+      --color-code-deleted: #cf222e;
+
+      /* the icon's violet and its magenta ribbon lead */
+      --color-chart-1: #6f3fb3;
+      --color-chart-2: #c81e6e;
+      --color-chart-3: #10b981;
+      --color-chart-4: #f59e0b;
+      --color-chart-5: #3b82f6;
+
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 14px;
+      --radius-2xl: 16px;
+      --radius-3xl: 24px;
+    }
+
+    @variant dark {
+      --color-background: #110c18;
+      --color-foreground: #f5f1ff;
+
+      --color-card: #17111f;
+      --color-card-foreground: #f5f1ff;
+
+      --color-popover: #1d1627;
+      --color-popover-foreground: #f5f1ff;
+
+      --color-overlay: #241c30;
+      --color-overlay-foreground: #f5f1ff;
+      --color-inset: rgba(0, 0, 0, 0.25);
+
+      /* 6.2:1 against its foreground, 6.5:1 on the background */
+      --color-primary: #b27cf0;
+      --color-primary-foreground: #1a0f29;
+
+      --color-secondary: rgba(178, 124, 240, 0.1);
+      --color-secondary-foreground: #f5f1ff;
+
+      --color-muted: rgba(178, 124, 240, 0.09);
+      /* 6:1 on the popover */
+      --color-muted-foreground: #9d93ad;
+
+      --color-accent: rgba(178, 124, 240, 0.12);
+      --color-accent-foreground: #f5f1ff;
+
+      --color-destructive: #f15757;
+      --color-destructive-foreground: #f87171;
+      --color-destructive-solid-foreground: #171717;
+
+      --color-info: #3b82f6;
+      --color-info-foreground: #60a5fa;
+      --color-info-solid-foreground: #171717;
+
+      --color-success: #10b981;
+      --color-success-foreground: #34d399;
+      --color-success-solid-foreground: #171717;
+
+      --color-warning: #f59e0b;
+      --color-warning-foreground: #fbbf24;
+      --color-warning-solid-foreground: #171717;
+
+      --color-border: rgba(210, 180, 255, 0.08);
+      --color-input: rgba(210, 180, 255, 0.11);
+      --color-ring: #8a52c4;
+
+      --color-surface: #1a1423;
+      --color-surface-secondary: #201929;
+      --color-surface-tertiary: #271f31;
+      --color-skeleton: rgba(210, 180, 255, 0.14);
+
+      --color-info-soft: rgba(59, 130, 246, 0.06);
+      --color-info-subtle: rgba(59, 130, 246, 0.16);
+      --color-success-soft: rgba(16, 185, 129, 0.06);
+      --color-success-subtle: rgba(16, 185, 129, 0.16);
+      --color-warning-soft: rgba(245, 158, 11, 0.06);
+      --color-warning-subtle: rgba(245, 158, 11, 0.16);
+      --color-destructive-soft: rgba(241, 87, 87, 0.06);
+      --color-destructive-subtle: rgba(241, 87, 87, 0.16);
+
+      --color-code-keyword: #d2a8ff;
+      --color-code-string: #7ee787;
+      --color-code-number: #79c0ff;
+      --color-code-comment: #8b949e;
+      --color-code-function: #d2a8ff;
+      --color-code-property: #ffa657;
+      --color-code-punctuation: #8b949e;
+      --color-code-inserted: #7ee787;
+      --color-code-deleted: #ff7b72;
+
+      --color-chart-1: #b27cf0;
+      --color-chart-2: #f0509a;
+      --color-chart-3: #34d399;
+      --color-chart-4: #fbbf24;
+      --color-chart-5: #60a5fa;
+
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 14px;
+      --radius-2xl: 16px;
+      --radius-3xl: 24px;
+    }
+
+    /* PanelUI's own neutral `light`, black and white. */
+    @variant ink {
+      --color-background: #ffffff;
+      --color-foreground: #262626;
+
+      --color-card: #ffffff;
+      --color-card-foreground: #262626;
+
+      --color-popover: #ffffff;
+      --color-popover-foreground: #262626;
+
+      --color-overlay: #ffffff;
+      --color-overlay-foreground: #262626;
+      --color-inset: rgba(0, 0, 0, 0.035);
+
+      --color-primary: #262626;
+      --color-primary-foreground: #fafafa;
+
+      --color-secondary: rgba(0, 0, 0, 0.06);
+      --color-secondary-foreground: #262626;
+
+      --color-muted: rgba(0, 0, 0, 0.06);
+      --color-muted-foreground: #686868;
+
+      --color-accent: rgba(0, 0, 0, 0.06);
+      --color-accent-foreground: #262626;
+
+      --color-destructive: #ef4444;
+      --color-destructive-foreground: #b91c1c;
+      --color-destructive-solid-foreground: #171717;
+
+      --color-info: #3b82f6;
+      --color-info-foreground: #1d4ed8;
+      --color-info-solid-foreground: #171717;
+
+      --color-success: #10b981;
+      --color-success-foreground: #047857;
+      --color-success-solid-foreground: #171717;
+
+      --color-warning: #f59e0b;
+      --color-warning-foreground: #b45309;
+      --color-warning-solid-foreground: #171717;
+
+      --color-border: rgba(0, 0, 0, 0.08);
+      --color-input: rgba(0, 0, 0, 0.1);
+      --color-ring: #a3a3a3;
+
+      --color-surface: #f7f7f7;
+      --color-surface-secondary: #f1f1f1;
+      --color-surface-tertiary: #eaeaea;
+      --color-skeleton: rgba(0, 0, 0, 0.1);
+
+      --color-info-soft: rgba(59, 130, 246, 0.1);
+      --color-info-subtle: rgba(59, 130, 246, 0.08);
+      --color-success-soft: rgba(16, 185, 129, 0.1);
+      --color-success-subtle: rgba(16, 185, 129, 0.08);
+      --color-warning-soft: rgba(245, 158, 11, 0.1);
+      --color-warning-subtle: rgba(245, 158, 11, 0.08);
+      --color-destructive-soft: rgba(239, 68, 68, 0.1);
+      --color-destructive-subtle: rgba(239, 68, 68, 0.08);
+
+      --color-code-keyword: #8250df;
+      --color-code-string: #0a7d55;
+      --color-code-number: #0550ae;
+      --color-code-comment: #8b949e;
+      --color-code-function: #6639ba;
+      --color-code-property: #953800;
+      --color-code-punctuation: #57606a;
+      --color-code-inserted: #0a7d55;
+      --color-code-deleted: #cf222e;
+
+      --color-chart-1: #262626;
+      --color-chart-2: #3b82f6;
+      --color-chart-3: #10b981;
+      --color-chart-4: #f59e0b;
+      --color-chart-5: #8b5cf6;
+
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 14px;
+      --radius-2xl: 16px;
+      --radius-3xl: 24px;
+    }
+
+    /* PanelUI's own neutral `dark`. */
+    @variant ink-dark {
+      --color-background: #141414;
+      --color-foreground: #f5f5f5;
+
+      --color-card: #191919;
+      --color-card-foreground: #f5f5f5;
+
+      --color-popover: #1d1d1d;
+      --color-popover-foreground: #f5f5f5;
+
+      --color-overlay: #232323;
+      --color-overlay-foreground: #f5f5f5;
+      --color-inset: rgba(0, 0, 0, 0.22);
+
+      --color-primary: #f5f5f5;
+      --color-primary-foreground: #262626;
+
+      --color-secondary: rgba(255, 255, 255, 0.08);
+      --color-secondary-foreground: #f5f5f5;
+
+      --color-muted: rgba(255, 255, 255, 0.08);
+      --color-muted-foreground: #878787;
+
+      --color-accent: rgba(255, 255, 255, 0.08);
+      --color-accent-foreground: #f5f5f5;
+
+      --color-destructive: #f15757;
+      --color-destructive-foreground: #f87171;
+      --color-destructive-solid-foreground: #171717;
+
+      --color-info: #3b82f6;
+      --color-info-foreground: #60a5fa;
+      --color-info-solid-foreground: #171717;
+
+      --color-success: #10b981;
+      --color-success-foreground: #34d399;
+      --color-success-solid-foreground: #171717;
+
+      --color-warning: #f59e0b;
+      --color-warning-foreground: #fbbf24;
+      --color-warning-solid-foreground: #171717;
+
+      --color-border: rgba(255, 255, 255, 0.06);
+      --color-input: rgba(255, 255, 255, 0.08);
+      --color-ring: #737373;
+
+      --color-surface: #1c1c1c;
+      --color-surface-secondary: #222222;
+      --color-surface-tertiary: #282828;
+      --color-skeleton: rgba(255, 255, 255, 0.13);
+
+      --color-info-soft: rgba(59, 130, 246, 0.06);
+      --color-info-subtle: rgba(59, 130, 246, 0.16);
+      --color-success-soft: rgba(16, 185, 129, 0.06);
+      --color-success-subtle: rgba(16, 185, 129, 0.16);
+      --color-warning-soft: rgba(245, 158, 11, 0.06);
+      --color-warning-subtle: rgba(245, 158, 11, 0.16);
+      --color-destructive-soft: rgba(241, 87, 87, 0.06);
+      --color-destructive-subtle: rgba(241, 87, 87, 0.16);
+
+      --color-code-keyword: #d2a8ff;
+      --color-code-string: #7ee787;
+      --color-code-number: #79c0ff;
+      --color-code-comment: #8b949e;
+      --color-code-function: #d2a8ff;
+      --color-code-property: #ffa657;
+      --color-code-punctuation: #8b949e;
+      --color-code-inserted: #7ee787;
+      --color-code-deleted: #ff7b72;
+
+      --color-chart-1: #fafafa;
+      --color-chart-2: #60a5fa;
+      --color-chart-3: #34d399;
+      --color-chart-4: #fbbf24;
+      --color-chart-5: #a78bfa;
+
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 10px;
+      --radius-xl: 14px;
+      --radius-2xl: 16px;
+      --radius-3xl: 24px;
+    }
+  }
+}
+
 /* `static` so @/hooks/use-font reads all four, className or not. */
 @theme static {
   --font-normal: "MapleMono-Regular";
