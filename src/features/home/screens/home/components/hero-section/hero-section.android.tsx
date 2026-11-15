@@ -12,7 +12,7 @@ import {
   Shapes,
   semantics,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useRouter } from "expo-router";
+import { useIsFocused, useRouter } from "expo-router";
 import { useWindowDimensions } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import { GUTTER } from "@/components/native/constants";
@@ -40,6 +40,7 @@ export function HeroSection({ title, media, params }: HeroSectionProps) {
   const reduced = useReducedMotion();
   const screenReader = useScreenReader();
   const still = reduced || screenReader;
+  const focused = useIsFocused();
   const { width } = useWindowDimensions();
   const m3 = useThemeM3Colors();
 
@@ -57,7 +58,7 @@ export function HeroSection({ title, media, params }: HeroSectionProps) {
         preferredItemWidth={width - GUTTER * 2 - PEEK}
         itemSpacing={8}
         contentPadding={{ start: GUTTER, end: GUTTER }}
-        autoAdvanceInterval={still ? 0 : ROTATE_MS}
+        autoAdvanceInterval={still || !focused ? 0 : ROTATE_MS}
         modifiers={[fillMaxWidth(), height(HEIGHT)]}
       >
         {media.map((item, i) => {

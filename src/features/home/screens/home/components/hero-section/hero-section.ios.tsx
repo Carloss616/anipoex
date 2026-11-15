@@ -34,7 +34,7 @@ import {
   scrollTargetLayout,
   textCase,
 } from "@expo/ui/swift-ui/modifiers";
-import { useRouter } from "expo-router";
+import { useIsFocused, useRouter } from "expo-router";
 import { memo, useEffect, useState } from "react";
 import { useReducedMotion } from "react-native-reanimated";
 import { GUTTER } from "@/components/native/constants";
@@ -127,13 +127,14 @@ function useRotation(ids: string[]) {
   const reduced = useReducedMotion();
   const screenReader = useScreenReader();
   const still = reduced || screenReader;
+  const focused = useIsFocused();
   const [idle, setIdle] = useState(true);
   // A string, so a new array of the same ids doesn't restart the timer.
   const key = ids.join();
 
   useEffect(() => {
     const order = key.split(",");
-    if (!idle || still || order.length < 2) return;
+    if (!idle || still || !focused || order.length < 2) return;
     const timer = setInterval(() => {
       const next =
         order[(order.indexOf(position.get() ?? "") + 1) % order.length];
@@ -143,7 +144,7 @@ function useRotation(ids: string[]) {
       });
     }, ROTATE_MS);
     return () => clearInterval(timer);
-  }, [idle, still, key, position]);
+  }, [idle, still, focused, key, position]);
 
   return { position, setIdle };
 }

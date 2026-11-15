@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
+import { useIsFocused, useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
@@ -76,12 +76,13 @@ function useRotation(count: number) {
   const reduced = useReducedMotion();
   const [focus, setFocus] = useState(0);
   const [held, setHeld] = useState(false);
+  const focused = useIsFocused();
 
   useEffect(() => {
-    if (held || reduced || count < 2) return;
+    if (held || reduced || !focused || count < 2) return;
     const id = setInterval(() => setFocus((f) => (f + 1) % count), ROTATE_MS);
     return () => clearInterval(id);
-  }, [held, reduced, count]);
+  }, [held, reduced, focused, count]);
 
   const hold = (index?: number) => {
     if (index != null) setFocus(index);
