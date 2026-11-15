@@ -1,9 +1,9 @@
-import { LinearWavyProgressIndicator } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
   height as heightModifier,
   testID as testIDModifier,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { LinearWavyProgressIndicator } from "@/components/native/jetpack-compose/linear-wavy-progress-indicator";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { EnsureHost } from "../host";
 import { TRACK_HEIGHT } from "./constants";

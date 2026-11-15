@@ -1,5 +1,7 @@
 import { ProgressView } from "@expo/ui/swift-ui";
 import {
+  Animation,
+  animation,
   frame,
   progressViewStyle,
   scaleEffect,
@@ -44,6 +46,7 @@ export function Progress({
           // that follows hands the layout the height the scaled bar takes.
           scaleEffect({ x: 1, y: height / TRACK }),
           frame({ height }),
+          animation(Animation.default, fraction),
         ]}
         testID={testID}
       />
