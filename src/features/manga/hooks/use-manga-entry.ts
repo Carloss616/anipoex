@@ -5,8 +5,10 @@ import {
   useQuery,
 } from "@apollo/client/react";
 import { useCallback, useState } from "react";
+import { session$ } from "@/state/session";
 import { MangaDetailDocument } from "../graphql/manga-detail.generated";
 import { MangaDetailFragmentDoc } from "../graphql/manga-fragments.generated";
+import { refileEntry } from "../utils/file-entry";
 import { toDetail } from "../utils/to-detail";
 
 const CONTEXT = { errorMessage: "Couldn't load this manga" };
@@ -30,6 +32,7 @@ export function useMangaEntry(id: string) {
       : { variables: { id: mediaId }, context: CONTEXT },
   );
 
+  const priorId = cached.data?.mediaListEntry?.id;
   // Skipped once the cache is complete, the query has no `refetch`; the
   // client hits the network and the fragment above picks the data up.
   const refresh = useCallback(() => {
@@ -44,11 +47,17 @@ export function useMangaEntry(id: string) {
           fetchPolicy: "network-only",
           context: CONTEXT,
         })
+        .then(({ data }) => {
+          const userId = session$.user.peek()?.id;
+          if (data?.Media && userId != null) {
+            refileEntry(client.cache, userId, priorId, data.Media);
+          }
+        })
         // The error link already toasts it; rejecting would go unhandled.
         .catch(() => {})
         .finally(() => setRefreshing(false))
     );
-  }, [client, mediaId, valid]);
+  }, [client, mediaId, priorId, valid]);
 
   // `cached.data` is partial when incomplete, so the list's half paints now and
   // the fetch fills the rest in. Once complete it wins: the query spreads its

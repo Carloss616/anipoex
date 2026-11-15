@@ -6,7 +6,7 @@ import {
   type MangaListQuery,
 } from "../graphql/manga-list.generated";
 import { MangaListCountsDocument } from "../graphql/manga-list-counts.generated";
-import { fileEntry } from "./file-entry";
+import { fileEntry, refileEntry } from "./file-entry";
 
 const userId = 1;
 
@@ -118,5 +118,29 @@ describe("fileEntry", () => {
 
     expect(ids(MediaListStatus.Current)).toEqual([1]);
     expect(counts()?.[0]).toEqual([MediaListStatus.Current, [1]]);
+  });
+});
+
+describe("refileEntry", () => {
+  const refreshed = (id: number, status: MediaListStatus) => ({
+    ...entry(id).media,
+    mediaListEntry: { ...entry(id).media.mediaListEntry, status },
+  });
+
+  it("moves an entry whose status changed elsewhere", () => {
+    const { cache, ids } = setup();
+    refileEntry(cache, userId, 1, refreshed(1, MediaListStatus.Planning));
+
+    expect(ids(MediaListStatus.Current)).toEqual([2]);
+    expect(ids(MediaListStatus.Planning)).toEqual([1]);
+  });
+
+  it("drops an entry removed or replaced elsewhere", () => {
+    const { cache, ids } = setup();
+    refileEntry(cache, userId, 2, { ...entry(2).media, mediaListEntry: null });
+    refileEntry(cache, userId, 1, refreshed(3, MediaListStatus.Planning));
+
+    expect(ids(MediaListStatus.Current)).toEqual([]);
+    expect(ids(MediaListStatus.Planning)).toEqual([3]);
   });
 });

@@ -95,7 +95,7 @@ Legend State gotchas:
 # Apollo
 
 - A query that spreads a fragment `@nonreactive` doesn't re-render on that fragment's fields, and its `data` keeps the first values: read them through `useFragment` once the cache is complete, or a save never shows (`manga/hooks/use-manga-entry.ts`).
-- `refetchQueries` by name reaches only watched queries: a cached result no screen shows (another list status) stays stale and `cache-first` serves it. A mutation updates the cached results in its `update` instead (`manga/utils/file-entry.ts`).
+- `refetchQueries` by name reaches only watched queries: a cached result no screen shows (another list status) stays stale and `cache-first` serves it. A mutation updates the cached results in its `update` instead (`manga/utils/file-entry.ts`), and so does a refetch that can bring a status changed elsewhere (`refileEntry` in `manga/hooks/use-manga-entry.ts`): the cache rewrites the entry, never which lists hold it.
 
 # Persistence
 

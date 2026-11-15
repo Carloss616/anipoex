@@ -105,3 +105,36 @@ export function fileEntry(
     },
   );
 }
+
+/**
+ * Files a refetched media's entry where its status says, as a save does: a
+ * change made outside the app only rewrites the entry, not the lists that hold
+ * it. `priorId` is the entry the app had, dropped if it's gone or replaced.
+ */
+export function refileEntry(
+  cache: ApolloCache,
+  userId: number,
+  priorId: number | undefined,
+  media: NonNullable<ListEntry["media"]> & {
+    mediaListEntry: { id: number; status: MediaListStatus | null } | null;
+  },
+) {
+  const entry = media.mediaListEntry;
+  const type = "MediaList" as const;
+  if (priorId != null && priorId !== entry?.id) {
+    fileEntry(
+      cache,
+      userId,
+      { __typename: type, id: priorId, media: null },
+      null,
+    );
+  }
+  if (entry) {
+    fileEntry(
+      cache,
+      userId,
+      { __typename: type, id: entry.id, media },
+      entry.status,
+    );
+  }
+}
