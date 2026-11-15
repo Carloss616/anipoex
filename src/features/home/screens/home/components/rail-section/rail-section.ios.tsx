@@ -10,6 +10,7 @@ import {
   buttonStyle,
   frame,
   padding,
+  scrollClipDisabled,
   scrollIndicators,
 } from "@expo/ui/swift-ui/modifiers";
 import { useRouter } from "expo-router";
@@ -50,7 +51,10 @@ export function RailSection({ title, media, params }: RailSectionProps) {
           />
         )}
       </HStack>
-      <ScrollView axes="horizontal" modifiers={[scrollIndicators("hidden")]}>
+      <ScrollView
+        axes="horizontal"
+        modifiers={[scrollIndicators("hidden"), scrollClipDisabled()]}
+      >
         <LazyHStack
           alignment="top"
           spacing={10}

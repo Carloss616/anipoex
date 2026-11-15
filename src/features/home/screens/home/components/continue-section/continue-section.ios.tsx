@@ -19,6 +19,7 @@ import {
   lineLimit,
   onTapGesture,
   padding,
+  scrollClipDisabled,
   scrollIndicators,
   shapes,
 } from "@expo/ui/swift-ui/modifiers";
@@ -54,7 +55,10 @@ export function ContinueSection({ title, items }: ContinueSectionProps) {
       >
         {title}
       </Text>
-      <ScrollView axes="horizontal" modifiers={[scrollIndicators("hidden")]}>
+      <ScrollView
+        axes="horizontal"
+        modifiers={[scrollIndicators("hidden"), scrollClipDisabled()]}
+      >
         <LazyHStack
           spacing={10}
           modifiers={[
