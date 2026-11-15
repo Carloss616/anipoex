@@ -1,12 +1,12 @@
-package expo.modules.carousel
+package expo.modules.horizontalmultibrowsecarousel
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.ui.ExpoUIView
 
-class CarouselModule : Module() {
+class HorizontalMultiBrowseCarouselModule : Module() {
   override fun definition() = ModuleDefinition {
-    Name("Carousel")
+    Name("HorizontalMultiBrowseCarousel")
 
     ExpoUIView<HorizontalMultiBrowseCarouselProps>("HorizontalMultiBrowseCarouselView") {
       Content { props -> HorizontalMultiBrowseCarouselContent(props) }

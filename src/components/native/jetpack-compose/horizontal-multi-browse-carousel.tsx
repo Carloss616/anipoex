@@ -17,11 +17,11 @@ export interface HorizontalMultiBrowseCarouselProps
 }
 
 /**
- * M3's multi-browse carousel (`modules/carousel`): @expo/ui's, which can't be
- * moved from code, plus `autoAdvanceInterval`.
+ * M3's multi-browse carousel (`modules/horizontal-multi-browse-carousel`):
+ * @expo/ui's, which can't be moved from code, plus `autoAdvanceInterval`.
  */
 export const HorizontalMultiBrowseCarousel =
   requireNativeView<HorizontalMultiBrowseCarouselProps>(
-    "Carousel",
+    "HorizontalMultiBrowseCarousel",
     "HorizontalMultiBrowseCarouselView",
   );
