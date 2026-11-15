@@ -1,4 +1,3 @@
-import { useFragment } from "@apollo/client/react";
 import {
   Button,
   HStack,
@@ -14,15 +13,12 @@ import {
 import {
   Animation,
   accessibilityAddTraits,
-  accessibilityLabel,
-  buttonBorderShape,
   buttonStyle,
   clipShape,
-  disabled,
   foregroundStyle,
   frame,
+  glassEffect,
   id,
-  labelStyle,
   lineLimit,
   onScrollPhaseChange,
   onTapGesture,
@@ -40,12 +36,8 @@ import { useReducedMotion } from "react-native-reanimated";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
-import { Icon, Icons } from "@/components/ui/icon";
-import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
-import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import { toRouteParams } from "@/features/manga/utils/search-params";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
-import { MediaListStatus } from "@/graphql/types.generated";
 import { useScreenReader } from "@/hooks/use-screen-reader";
 import { ROTATE_MS } from "./constants";
 import type { HeroSectionProps } from "./hero-section";
@@ -157,15 +149,9 @@ const HeroCard = memo(function HeroCard({
   rank: number;
 }) {
   const router = useRouter();
-  const { data } = useFragment({
-    fragment: MangaMediaFragmentDoc,
-    fragmentName: "MangaMedia",
-    from: item,
-  });
-  const { save, saving } = useSaveTracking(item.id);
-  const listed = !!data.mediaListEntry;
   const title = item.title?.userPreferred ?? "";
   const cover = item.coverImage?.extraLarge ?? item.coverImage?.large;
+  const color = item.coverImage?.color ?? "#808080";
 
   return (
     <ZStack
@@ -174,13 +160,20 @@ const HeroCard = memo(function HeroCard({
         id(String(item.id)),
         frame({ width: WIDTH, height: HEIGHT }),
         clipShape("roundedRectangle", RADIUS),
+        glassEffect({
+          glass: {
+            variant: "regular",
+            interactive: true,
+            tint: color,
+          },
+          shape: "roundedRectangle",
+          cornerRadius: RADIUS,
+        }),
         onTapGesture(() => router.push(`/manga/${item.id}`)),
         accessibilityAddTraits(["isButton"]),
       ]}
     >
-      <Rectangle
-        modifiers={[foregroundStyle(item.coverImage?.color ?? "#808080")]}
-      />
+      <Rectangle modifiers={[foregroundStyle(color)]} />
       {cover && <Image source={{ uri: cover }} />}
       <Rectangle
         modifiers={[
@@ -192,56 +185,26 @@ const HeroCard = memo(function HeroCard({
           }),
         ]}
       />
-      <HStack
-        alignment="bottom"
-        spacing={12}
-        modifiers={[padding({ leading: 16, trailing: 12, bottom: 12 })]}
+      <VStack
+        alignment="leading"
+        spacing={2}
+        modifiers={[padding({ horizontal: 16, bottom: 12 })]}
       >
-        <VStack alignment="leading" spacing={2}>
-          <Text
-            textStyle="caption2"
-            weight="semibold"
-            modifiers={[foregroundStyle("#ffffffd9"), textCase("uppercase")]}
-          >
-            #{rank} trending
-          </Text>
-          <Text
-            textStyle="title3"
-            weight="semibold"
-            modifiers={[foregroundStyle("#ffffff"), lineLimit(2)]}
-          >
-            {title}
-          </Text>
-        </VStack>
-        <Spacer />
-        <Button
-          onPress={() =>
-            void save({
-              mediaId: item.id,
-              status: MediaListStatus.Planning,
-              progress: 0,
-              score: 0,
-              // The error link toasts a failure.
-            }).catch(() => {})
-          }
-          modifiers={[
-            buttonStyle("glass"),
-            buttonBorderShape("circle"),
-            labelStyle("iconOnly"),
-            foregroundStyle("#ffffff"),
-            disabled(listed || saving),
-            accessibilityLabel(
-              listed ? `${title} is on your list` : `Add ${title} to Planning`,
-            ),
-          ]}
+        <Text
+          textStyle="caption2"
+          weight="semibold"
+          modifiers={[foregroundStyle("#ffffffd9"), textCase("uppercase")]}
         >
-          <Icon
-            name={listed ? Icons.check : Icons.add}
-            color="inherit"
-            modifiers={[frame({ width: 24, height: 24 })]}
-          />
-        </Button>
-      </HStack>
+          #{rank} trending
+        </Text>
+        <Text
+          textStyle="title3"
+          weight="semibold"
+          modifiers={[foregroundStyle("#ffffff"), lineLimit(2)]}
+        >
+          {title}
+        </Text>
+      </VStack>
     </ZStack>
   );
 });

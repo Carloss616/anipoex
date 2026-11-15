@@ -1,14 +1,16 @@
 import { HStack, ScrollView, VStack } from "@expo/ui/swift-ui";
 import {
   accessibilityAddTraits,
-  background,
-  clipShape,
+  contentShape,
   foregroundStyle,
   frame,
+  glassEffect,
   lineLimit,
   onTapGesture,
   padding,
+  scrollClipDisabled,
   scrollIndicators,
+  shapes,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
@@ -35,7 +37,10 @@ export function GenreSection({ title, genres }: GenreSectionProps) {
       >
         {title}
       </Text>
-      <ScrollView axes="horizontal" modifiers={[scrollIndicators("hidden")]}>
+      <ScrollView
+        axes="horizontal"
+        modifiers={[scrollIndicators("hidden"), scrollClipDisabled()]}
+      >
         <HStack spacing={10} modifiers={[padding({ horizontal: GUTTER })]}>
           {columns.map((column) => (
             <VStack key={column[0]} spacing={10} alignment="leading">
@@ -53,8 +58,16 @@ export function GenreSection({ title, genres }: GenreSectionProps) {
                       height: 64,
                       alignment: "bottomLeading",
                     }),
-                    background(sourceColor({ name: genre }, mode)),
-                    clipShape("roundedRectangle", 14),
+                    glassEffect({
+                      glass: {
+                        variant: "regular",
+                        interactive: true,
+                        tint: sourceColor({ name: genre }, mode),
+                      },
+                      shape: "roundedRectangle",
+                      cornerRadius: 14,
+                    }),
+                    contentShape(shapes.roundedRectangle({ cornerRadius: 14 })),
                     onTapGesture(() =>
                       router.push({ pathname: "/search", params: { genre } }),
                     ),
