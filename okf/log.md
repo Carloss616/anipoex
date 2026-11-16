@@ -2,6 +2,7 @@
 
 ## 2026-11-16
 
+* **Extension installs keep their signing key**: a device installs a synced extension from the repo signed with the same key, not whichever lists it first. Updated [Extension installs](stores/extension-installs.md).
 * **Sync stays under GitHub's limit**: changes that keep coming push at most once a minute, and when GitHub asks to wait the gist pauses until the time it gives. Updated [sync state](stores/sync-state.md).
 * **Extensions sync**: the extensions a user keeps sync as a list, and each device installs and removes extensions to match it. Added [Extension installs](stores/extension-installs.md); updated [sync stamps](stores/sync-meta.md).
 * **Device icons**: each device's sync files say what it is (phone, tablet, computer, browser), and the Sync section's device rows show it as an icon. Updated [GitHub account](stores/github-account.md).

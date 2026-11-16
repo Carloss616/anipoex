@@ -4,7 +4,7 @@ import { settings$ } from "@/state/settings";
 import { type InstalledExtension, runtime } from "../runtime";
 import { type Extension, hasUpdate, keepUnchanged } from "../utils/extension";
 import { toExtensions } from "../utils/registry";
-import { fetchIndex } from "../utils/repo";
+import { fetchIndex, type Repo, type RepoEntry } from "../utils/repo";
 import "./dns";
 import { installs$ } from "./installs";
 
@@ -44,6 +44,9 @@ const message = (error: unknown) =>
 
 let latest = 0;
 
+/** Every repo's index from the last load: a package may come from several. */
+let indexes: { repo: Repo; entries: RepoEntry[] }[] = [];
+
 export async function loadExtensions(): Promise<void> {
   const mine = ++latest;
   const installed = await runtime.installed().catch((error) => {
@@ -62,6 +65,7 @@ export async function loadExtensions(): Promise<void> {
   );
   // A slower, older load must not overwrite a newer one.
   if (mine !== latest) return;
+  indexes = repos;
   if (installed) {
     installed$.set(installed);
     installedLoaded$.set(true);
@@ -98,7 +102,9 @@ async function perform(
 /** What other devices learn from an operation that landed here. */
 const keep: Partial<Record<ExtensionOperation, (e: Extension) => void>> = {
   installing: (e) => {
-    if (!installs$[e.id].peek()) installs$[e.id].set({ name: e.name });
+    if (!installs$[e.id].peek()) {
+      installs$[e.id].set({ name: e.name, signingKey: e.signingKey });
+    }
   },
   uninstalling: (e) => installs$[e.id].delete(),
 };
@@ -139,9 +145,23 @@ const download = (e: Extension) => {
 export const installExtension = (id: string) =>
   run([id], "installing", download);
 
-/** Installs several in one queue, as a sync brings them; resolves to the ids done. */
-export const installExtensions = (ids: string[]) =>
-  run(ids, "installing", download);
+/**
+ * Installs several in one queue, as a sync brings them, each from the repo
+ * signed with its key when it has one; resolves to the ids done.
+ */
+export const installExtensions = (
+  ids: string[],
+  keys: Record<string, string | undefined> = {},
+) =>
+  run(ids, "installing", (e) => {
+    const key = keys[e.id];
+    if (!key) return download(e);
+    const entry = indexes
+      .find(({ repo }) => repo.signingKey === key)
+      ?.entries.find((listed) => listed.pkg === e.id);
+    if (!entry) throw new Error(`No repo signed with its key lists ${e.name}`);
+    return runtime.install(entry.apkUrl, key);
+  });
 
 export const updateExtension = (id: string) => run([id], "updating", download);
 

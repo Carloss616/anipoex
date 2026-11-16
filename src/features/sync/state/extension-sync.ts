@@ -1,7 +1,10 @@
 import { batch, observe } from "@legendapp/state";
 import { Platform } from "react-native";
 import { toast } from "@/components/ui/toast";
-import { runtime } from "@/features/extensions/runtime";
+import {
+  type InstalledExtension,
+  runtime,
+} from "@/features/extensions/runtime";
 import {
   extensionOperations$,
   installExtensions,
@@ -28,18 +31,30 @@ const plural = (n: number) => `${n} extension${n === 1 ? "" : "s"}`;
 
 /**
  * Adds what this device has installed and the list doesn't name, unstamped:
- * a removal another device made since still wins over it.
+ * a removal another device made since still wins over it. An entry from
+ * before keys were kept takes this device's key, as a change of its own.
  */
-function seed(installed: { pkg: string; name: string }[]) {
+function seed(installed: InstalledExtension[]) {
   const stamps = syncMeta$[TABLE].peek() ?? {};
   const missing = installed.filter(
     (e) => !installs$[e.pkg].peek() && !stamps[e.pkg],
   );
-  if (!missing.length) return false;
+  const keyless = installed.filter((e) => {
+    const entry = installs$[e.pkg].peek();
+    return entry && !entry.signingKey;
+  });
+  const entry = (e: InstalledExtension) => ({
+    name: e.name,
+    signingKey: e.signingKey,
+  });
+  batch(() => {
+    for (const e of keyless) installs$[e.pkg].set(entry(e));
+  });
+  if (!missing.length) return keyless.length > 0;
   applying.current = true;
   try {
     batch(() => {
-      for (const e of missing) installs$[e.pkg].set({ name: e.name });
+      for (const e of missing) installs$[e.pkg].set(entry(e));
     });
   } finally {
     applying.current = false;
@@ -69,7 +84,11 @@ const reconcile = serial(async () => {
   // Both act on the merged catalog: an install needs a repo's download
   // address, and either fails on an extension missing from it.
   await loadExtensions();
-  const added = add.length ? await installExtensions(add) : [];
+  const wanted = installs$.peek();
+  const keys = Object.fromEntries(
+    add.map((pkg) => [pkg, wanted[pkg]?.signingKey]),
+  );
+  const added = add.length ? await installExtensions(add, keys) : [];
   const removed = remove.length ? await uninstallExtensions(remove) : [];
   for (const pkg of [...add, ...remove]) {
     if (!added.includes(pkg) && !removed.includes(pkg)) failed.add(pkg);

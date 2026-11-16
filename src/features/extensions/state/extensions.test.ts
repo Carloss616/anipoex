@@ -81,6 +81,7 @@ const {
   installed$,
   installedLoaded$,
   installExtension,
+  installExtensions,
   loadExtensions,
   refreshInstalled,
   updateAllExtensions,
@@ -228,6 +229,18 @@ describe("installExtension", () => {
     ]);
     expect(install).toHaveBeenCalledTimes(1);
     expect(install).toHaveBeenCalledWith(apkUrl, "k1");
+  });
+
+  it("installs from the repo signed with the key a sync names", async () => {
+    // Both repos list pkg.foo; the catalog offers the first one's (Bad).
+    globalThis.fetch = (async () =>
+      Response.json(INDEX)) as unknown as typeof fetch;
+    await loadExtensions();
+    await installExtensions(["pkg.foo"], { "pkg.foo": "k1" });
+    expect(install).toHaveBeenCalledTimes(1);
+    const [apkUrl, key] = install.mock.calls[0];
+    expect(apkUrl.startsWith("https://good")).toBe(true);
+    expect(key).toBe("k1");
   });
 
   it("toasts instead of installing an extension with no apk", async () => {
