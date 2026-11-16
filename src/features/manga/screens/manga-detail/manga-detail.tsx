@@ -7,8 +7,10 @@ import { Platform } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { Toolbar } from "@/components/layout/toolbar";
+import { Dialog } from "@/components/ui/dialog";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
+import type { MenuAction } from "@/components/ui/menu";
 import {
   installedLoaded$,
   isRuntimeAvailable,
@@ -27,10 +29,10 @@ import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { shareUrl } from "@/utils/copy-url";
 import { openExternal } from "@/utils/open-external";
-import { noop } from "@/utils/utils";
 import { ContinueSync } from "./components/continue-sync";
 import { DetailList } from "./components/detail-list";
 import type { ContinueAction } from "./hooks/use-continue";
+import { useDownloadMenu } from "./hooks/use-download-menu";
 
 const MENU_ACTIONS = [
   {
@@ -39,17 +41,24 @@ const MENU_ACTIONS = [
     onPress: (id: string) => shareUrl(`https://anilist.co/manga/${id}`),
   },
   {
-    icon: Icons.download,
-    label: "Download",
-    onPress: () => noop(),
-  },
-  {
     icon: Icons.openExternal,
     // The destination names itself better than "Website" did.
     label: "View on AniList",
     onPress: (id: string) => openExternal(`https://anilist.co/manga/${id}`),
   },
 ] as const;
+
+const menuAction =
+  (id: string) =>
+  ({ icon, label, onPress }: (typeof MENU_ACTIONS)[number]) => (
+    <Stack.Toolbar.MenuAction
+      key={label}
+      icon={icon}
+      onPress={() => onPress(id)}
+    >
+      {label}
+    </Stack.Toolbar.MenuAction>
+  );
 
 export function MangaDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -116,6 +125,11 @@ export function MangaDetail() {
   const sourceName =
     sources.find((entry) => entry.id === match?.sourceId)?.name ??
     "this source";
+  const download = useDownloadMenu(manga, rows, match, sourceName);
+  const [deleting, setDeleting] = useState(false);
+  const confirm = download?.items.find(
+    (item) => item.onPressMode === "dialog",
+  ) as Extract<MenuAction, { onPressMode: "dialog" }> | undefined;
   const empty = !match
     ? {
         title: "Pick a source",
@@ -214,15 +228,26 @@ export function MangaDetail() {
             icon={Icons.more}
             accessibilityLabel="More options"
           >
-            {MENU_ACTIONS.map(({ icon, label, onPress }) => (
-              <Stack.Toolbar.MenuAction
-                key={label}
-                icon={icon}
-                onPress={() => onPress(id)}
-              >
-                {label}
-              </Stack.Toolbar.MenuAction>
-            ))}
+            {MENU_ACTIONS.slice(0, 1).map(menuAction(id))}
+            {download && (
+              <Stack.Toolbar.Menu title={download.label} icon={Icons.download}>
+                {download.items.map((item) => (
+                  <Stack.Toolbar.MenuAction
+                    key={item.label}
+                    destructive={item.destructive}
+                    disabled={item.disabled}
+                    onPress={
+                      item.onPressMode === "dialog"
+                        ? () => setDeleting(true)
+                        : item.onPress
+                    }
+                  >
+                    {item.label}
+                  </Stack.Toolbar.MenuAction>
+                ))}
+              </Stack.Toolbar.Menu>
+            )}
+            {MENU_ACTIONS.slice(1).map(menuAction(id))}
           </Stack.Toolbar.Menu>
         </Stack.Toolbar>
       </Toolbar>
@@ -240,6 +265,15 @@ export function MangaDetail() {
         onContinue={openContinue}
         titleOut$={titleOut$}
       />
+      {confirm && (
+        <Dialog
+          open={deleting}
+          onOpenChange={setDeleting}
+          {...confirm.dialogConfig}
+          role="destructive"
+          onConfirm={confirm.onPress}
+        />
+      )}
       <ContinueSync
         manga={manga}
         chapters={rows}

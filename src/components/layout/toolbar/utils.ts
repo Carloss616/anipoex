@@ -6,6 +6,9 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
+import type { IconName } from "@/components/ui/icon";
+import type { MenuItem } from "@/components/ui/menu";
+import { noop } from "@/utils/utils";
 
 export type StackToolbarProps = ComponentProps<typeof Stack.Toolbar>;
 export type ToolbarButtonProps = ComponentProps<typeof Stack.Toolbar.Button>;
@@ -18,7 +21,10 @@ export interface ToolbarAction {
   icon?: ToolbarMenuActionProps["icon"];
   disabled?: boolean;
   isOn?: boolean;
+  destructive?: boolean;
   onPress?: () => void;
+  /** A nested `Stack.Toolbar.Menu`: its own rows. */
+  items?: ToolbarAction[];
 }
 
 export type ToolbarItem =
@@ -73,16 +79,50 @@ function labelOf(
 }
 
 function toActions(children: ReactNode): ToolbarAction[] {
-  return Children.toArray(children)
-    .filter(isToolbarMenuAction)
-    .filter((action) => !action.props.hidden)
-    .map((action, index) => ({
-      label: labelOf(action.props, `Action ${index + 1}`),
-      icon: action.props.icon,
-      disabled: action.props.disabled,
-      isOn: action.props.isOn,
-      onPress: action.props.onPress,
-    }));
+  return Children.toArray(children).flatMap<ToolbarAction>((child, index) => {
+    if (isToolbarMenu(child)) {
+      if (child.props.hidden) return [];
+      return {
+        label: labelOf(
+          { ...child.props, children: child.props.title },
+          `Menu ${index + 1}`,
+        ),
+        icon: child.props.icon,
+        disabled: child.props.disabled,
+        items: toActions(child.props.children),
+      };
+    }
+    if (!isToolbarMenuAction(child) || child.props.hidden) return [];
+    return {
+      label: labelOf(child.props, `Action ${index + 1}`),
+      icon: child.props.icon,
+      disabled: child.props.disabled,
+      isOn: child.props.isOn,
+      destructive: child.props.destructive,
+      onPress: child.props.onPress,
+    };
+  });
+}
+
+/** The house `Menu`'s rows for a toolbar menu's actions. */
+export function toMenuItems(actions: ToolbarAction[]): MenuItem[] {
+  return actions.map((action) =>
+    action.items
+      ? {
+          label: action.label,
+          icon: action.icon as IconName,
+          disabled: action.disabled,
+          items: toMenuItems(action.items) as never,
+        }
+      : {
+          label: action.label,
+          icon: action.icon as IconName,
+          disabled: action.disabled,
+          destructive: action.destructive,
+          checked: action.isOn,
+          onPress: action.onPress ?? noop,
+        },
+  );
 }
 
 /**

@@ -5,24 +5,31 @@ import { startDownloads } from "../state/run-downloads";
 import { currentStore } from "./current-store";
 import type { DownloadStore } from "./download-store";
 
+/** A chapter as the queue stores it. */
+export function chapterToQueued(
+  manga: QueuedDownload["manga"],
+  source: QueuedDownload["source"],
+  chapter: Chapter,
+): Omit<QueuedDownload, "key" | "order" | "state"> {
+  return {
+    manga,
+    source,
+    chapter: {
+      url: chapter.id,
+      name: chapter.title,
+      number: chapter.number,
+      scanlator: chapter.scanlator,
+      memo: chapter.memo,
+    },
+  };
+}
+
 export function downloadOne(
   manga: QueuedDownload["manga"],
   source: QueuedDownload["source"],
   chapter: Chapter,
 ) {
-  enqueue([
-    {
-      manga,
-      source,
-      chapter: {
-        url: chapter.id,
-        name: chapter.title,
-        number: chapter.number,
-        scanlator: chapter.scanlator,
-        memo: chapter.memo,
-      },
-    },
-  ]);
+  enqueue([chapterToQueued(manga, source, chapter)]);
   startDownloads();
 }
 
