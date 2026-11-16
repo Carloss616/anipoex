@@ -62,4 +62,5 @@ Reaching the end of a chapter in the reader sets progress to the chapter's whole
 when that is higher, with the progress rules above; a manga not in the list is added (as
 Reading, or Completed at its last chapter) only after the user confirms. The reader lists
 the changed fields like the sheet does as soon as the save starts, not when it lands, and
-offers Undo once it has.
+offers Undo once it has. Without a connection the progress waits on the device as
+[pending progress](../stores/pending-progress.md), and these rules apply when it is sent.

@@ -21,6 +21,7 @@ const {
   effectiveProgress,
   flushPending,
   isNetworkError,
+  keepIfOffline,
   keepPending,
   pendingProgress$,
 } = await import("./pending-progress");
@@ -137,6 +138,15 @@ describe("flushPending", () => {
     expect(pendingProgress$[1].get().error).toBe("undefined is not a function");
   });
 
+  it("leaves an entry that failed for a retry", async () => {
+    keepPending(1, { progress: 12 });
+    pendingProgress$[1].error.set("Denied");
+    const send = mock(async () => {});
+    await flushPending(() => 0, send);
+    expect(send).not.toHaveBeenCalled();
+    expect(pendingProgress$[1].get().error).toBe("Denied");
+  });
+
   it("shares one run between concurrent calls", async () => {
     keepPending(1, { progress: 12 });
     const send = mock(async () => {});
@@ -153,6 +163,11 @@ describe("isNetworkError", () => {
     expect(isNetworkError(new TypeError("Network request failed"))).toBe(true);
     expect(isNetworkError(new TypeError("Failed to fetch"))).toBe(true);
     expect(isNetworkError(new TypeError("Load failed"))).toBe(true);
+    expect(
+      isNetworkError(
+        new TypeError("NetworkError when attempting to fetch resource."),
+      ),
+    ).toBe(true);
     expect(isNetworkError({ networkError: new Error("x") })).toBe(true);
   });
 
@@ -173,5 +188,27 @@ describe("isNetworkError", () => {
     expect(isNetworkError(new Error("other"))).toBe(false);
     expect(isNetworkError(new TypeError("x is not a function"))).toBe(false);
     expect(isNetworkError(null)).toBe(false);
+  });
+});
+
+describe("keepIfOffline", () => {
+  it("keeps a save that failed for want of a connection", () => {
+    const kept = keepIfOffline(new TypeError("Failed to fetch"), 1, {
+      progress: 7,
+      status: MediaListStatus.Current,
+    });
+    expect(kept).toBe(true);
+    expect(pendingProgress$[1].get()).toMatchObject({
+      progress: 7,
+      status: MediaListStatus.Current,
+    });
+  });
+
+  it("leaves any other failure alone", () => {
+    const error = new CombinedGraphQLErrors({
+      errors: [{ message: "Denied" }],
+    });
+    expect(keepIfOffline(error, 1, { progress: 7 })).toBe(false);
+    expect(pendingProgress$[1].get()).toBeUndefined();
   });
 });

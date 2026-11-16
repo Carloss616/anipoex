@@ -1,6 +1,7 @@
 import { observable } from "@legendapp/state";
 import { downloadQueue$ } from "@/features/downloads";
 import { activeScans$ } from "@/features/manga/state/active-scans";
+import { pendingProgress$ } from "@/features/manga/state/pending-progress";
 import {
   readingQueue$,
   readingRun$,
@@ -17,9 +18,18 @@ export const hasScans = () =>
   Object.keys(activeScans$.get(true)).length > 0 ||
   readingRun$.get(true) != null;
 
-/** Whether anything runs: a scan, or a download in the queue. */
+/** Whether anything shows: a scan, a queued download, progress not sent. */
 export const hasActivity = () =>
-  hasScans() || Object.keys(downloadQueue$.get(true)).length > 0;
+  hasScans() ||
+  Object.keys(downloadQueue$.get(true)).length > 0 ||
+  unsentIds() !== "";
+
+/** The manga whose kept progress AniList turned down, joined. */
+export const unsentIds = () =>
+  Object.entries(pendingProgress$.get())
+    .filter(([, pending]) => pending.error)
+    .map(([id]) => id)
+    .join();
 
 const downloads = () =>
   Object.values(downloadQueue$.get()).sort((a, b) => a.order - b.order);

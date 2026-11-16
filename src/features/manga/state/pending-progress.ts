@@ -48,17 +48,29 @@ export function effectiveProgress(
   return Math.max(remote ?? 0, pendingProgress$[mediaId].get()?.progress ?? 0);
 }
 
-// React Native, Chrome/Firefox and Safari word a failed fetch differently
+// React Native, Chrome, Safari and Firefox word a failed fetch differently
 const FETCH_FAILURES = new Set([
   "Network request failed",
   "Failed to fetch",
   "Load failed",
+  "NetworkError when attempting to fetch resource.",
 ]);
 
 /** A dropped connection, not an answer from the server (GraphQL or HTTP error). */
 export function isNetworkError(error: unknown): boolean {
   if (error instanceof TypeError) return FETCH_FAILURES.has(error.message);
   return typeof error === "object" && error !== null && "networkError" in error;
+}
+
+/** Keeps a save that failed for want of a connection; false for any other failure. */
+export function keepIfOffline(
+  error: unknown,
+  mediaId: number,
+  next: { progress: number; status?: MediaListStatus },
+): boolean {
+  if (!isNetworkError(error)) return false;
+  keepPending(mediaId, next);
+  return true;
 }
 
 let running: Promise<void> | undefined;
@@ -85,6 +97,8 @@ async function run(
       pendingProgress$[mediaId].delete();
       continue;
     }
+    // A failed one waits for Retry, or it would fail again on every flush
+    if (pending.error) continue;
     try {
       await send(mediaId, pending);
       // Progress written during the send stays for the next flush

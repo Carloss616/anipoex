@@ -16,6 +16,9 @@ mock.module("@/state/observable-persist", () => ({
 }));
 
 const { downloadQueue$ } = await import("@/features/downloads");
+const { pendingProgress$ } = await import(
+  "@/features/manga/state/pending-progress"
+);
 const {
   canMoveUp,
   corners,
@@ -24,6 +27,7 @@ const {
   downloadsView$,
   hasActivity,
   hasScans,
+  unsentIds,
 } = await import("./state");
 
 type State = "queued" | "running" | "failed";
@@ -36,7 +40,28 @@ const entry = (key: string, order: number, state: State) => ({
   chapter: { url: key, name: key, number: 1, scanlator: null, memo: null },
 });
 
-afterEach(() => downloadQueue$.set({}));
+afterEach(() => {
+  downloadQueue$.set({});
+  pendingProgress$.set({});
+});
+
+describe("progress not sent", () => {
+  test("lists only the entries that failed, as activity", () => {
+    pendingProgress$.set({
+      "901": { progress: 3, at: 1 },
+      "902": { progress: 5, at: 1, error: "Denied" },
+    });
+    expect(unsentIds()).toBe("902");
+    expect(hasActivity()).toBe(true);
+    expect(hasScans()).toBe(false);
+  });
+
+  test("is no activity while every entry waits to be sent", () => {
+    pendingProgress$.set({ "901": { progress: 3, at: 1 } });
+    expect(unsentIds()).toBe("");
+    expect(hasActivity()).toBe(false);
+  });
+});
 
 describe("corners", () => {
   test("keeps only the first, middle, last or only row's place", () => {

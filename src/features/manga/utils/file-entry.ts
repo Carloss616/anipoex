@@ -107,6 +107,27 @@ export function fileEntry(
 }
 
 /**
+ * A save's cache update. Apollo merges the returned entry and its media by id
+ * on its own; what it can't infer is which lists hold the entry, nor the
+ * media's link to it, which AniList returns as null even on an edit.
+ */
+export function fileSaved(
+  cache: ApolloCache,
+  userId: number | undefined,
+  mediaId: number,
+  entry: (ListEntry & { status: MediaListStatus | null }) | null | undefined,
+) {
+  if (!entry || userId == null) return;
+
+  fileEntry(cache, userId, entry, entry.status);
+  // Last: filing it writes the returned media, whose link is null.
+  cache.modify({
+    id: cache.identify({ __typename: "Media", id: mediaId }),
+    fields: { mediaListEntry: () => ({ __ref: cache.identify(entry) }) },
+  });
+}
+
+/**
  * Files a refetched media's entry where its status says, as a save does: a
  * change made outside the app only rewrites the entry, not the lists that hold
  * it. `priorId` is the entry the app had, dropped if it's gone or replaced.

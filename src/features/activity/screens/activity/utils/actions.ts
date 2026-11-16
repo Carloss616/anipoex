@@ -13,12 +13,14 @@ import {
   scanReading,
   stopReadingScan,
 } from "@/features/manga/state/library-scan";
+import { pendingProgress$ } from "@/features/manga/state/pending-progress";
 import { stopScan, stopScanAll } from "@/features/manga/state/probes";
 import {
   clearQueue,
   removeFromQueue,
   scanNext,
 } from "@/features/manga/state/reading-queue";
+import { sendPending } from "@/features/manga/state/send-pending";
 import { mediaKey } from "@/features/manga/utils/msu";
 
 export {
@@ -48,3 +50,11 @@ export function stopAll() {
 export function startReadingScan() {
   void scanReading();
 }
+
+export function retryUnsent(mediaId: string) {
+  pendingProgress$[mediaId].error.delete();
+  void sendPending();
+}
+
+export const discardUnsent = (mediaId: string) =>
+  pendingProgress$[mediaId].delete();

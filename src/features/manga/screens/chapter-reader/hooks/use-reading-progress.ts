@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
+import { toast } from "@/components/ui/toast";
 import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
+import { keepIfOffline } from "@/features/manga/state/pending-progress";
 import {
   type ReadingSave,
   readingSave,
@@ -18,6 +20,8 @@ interface Notice {
 }
 
 const NONE: ChapterEndProps["save"] = { state: "none", changes: [] };
+
+const OFFLINE = "Progress saved on this device. It'll send when you're online.";
 
 /**
  * Saves AniList progress at a chapter's end with the tracking sheet's rules,
@@ -70,10 +74,15 @@ export function useReadingProgress(
     // Shown before the write lands, so leaving early never hides it.
     const saving: Notice = { chapterId: chapter.id, state: "saving", result };
     setNotice(saving);
-    save(toSaveVariables(result.before, result.after, ids)).then(
+    save(toSaveVariables(result.before, result.after, ids), {
+      queueOffline: true,
+    }).then(
       () => settle(saving, { ...saving, state: "saved" }),
-      // useSaveTracking already toasted it.
-      () => settle(saving),
+      (error) => {
+        // Any other failure: useSaveTracking already toasted it.
+        if (keepIfOffline(error, manga.id, result.after)) toast(OFFLINE);
+        settle(saving);
+      },
     );
   };
 

@@ -1,4 +1,5 @@
 import type { Observable } from "@legendapp/state";
+import { useValue } from "@legendapp/state/react";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { useAllInstalledSources } from "@/features/extensions";
@@ -7,6 +8,7 @@ import {
   type ContinueReading,
   continueReading$,
 } from "@/features/manga/state/continue-reading";
+import { effectiveProgress } from "@/features/manga/state/pending-progress";
 import type { ContinueKind } from "@/features/manga/utils/continue-label";
 import { continueChapter } from "@/features/manga/utils/next-chapter";
 import type { SourceMatch } from "@/features/manga/utils/source-match";
@@ -28,7 +30,8 @@ export function useContinue(
   match: SourceMatch | undefined,
   continue$: Continue$,
 ) {
-  const progress = useTrackingEntry(manga.mediaListEntry?.id)?.progress ?? 0;
+  const remote = useTrackingEntry(manga.mediaListEntry?.id)?.progress;
+  const progress = useValue(() => effectiveProgress(remote, manga.id));
   const source = useAllInstalledSources().find((s) => s.id === match?.sourceId);
   const chapter = match ? continueChapter(chapters, progress) : undefined;
   const started = progress > 0;

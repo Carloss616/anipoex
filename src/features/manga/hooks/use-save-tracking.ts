@@ -5,7 +5,7 @@ import {
   DeleteMangaTrackingDocument,
   SaveMangaTrackingDocument,
 } from "../graphql/manga-tracking.generated";
-import { fileEntry } from "../utils/file-entry";
+import { fileEntry, fileSaved } from "../utils/file-entry";
 import type { SaveVariables } from "../utils/tracking-form";
 
 /** Never the only feedback: the entry redraws, and the error link toasts. */
@@ -20,28 +20,18 @@ async function felt<T>(work: Promise<T>) {
   }
 }
 
-/**
- * Apollo merges the returned entry and its media by id on its own; what it
- * can't infer is which lists hold the entry, nor the media's link to it, which
- * AniList returns as null even on an edit.
- */
 export function useSaveTracking(mediaId: number) {
   const [saveEntry, { loading: saving }] = useMutation(
     SaveMangaTrackingDocument,
     {
       context: { errorMessage: "Couldn't save your changes" },
-      update(cache, { data }) {
-        const entry = data?.SaveMediaListEntry;
-        const userId = session$.user.peek()?.id;
-        if (!entry || userId == null) return;
-
-        fileEntry(cache, userId, entry, entry.status);
-        // Last: filing it writes the returned media, whose link is null.
-        cache.modify({
-          id: cache.identify({ __typename: "Media", id: mediaId }),
-          fields: { mediaListEntry: () => ({ __ref: cache.identify(entry) }) },
-        });
-      },
+      update: (cache, { data }) =>
+        fileSaved(
+          cache,
+          session$.user.peek()?.id,
+          mediaId,
+          data?.SaveMediaListEntry,
+        ),
     },
   );
 
@@ -73,8 +63,14 @@ export function useSaveTracking(mediaId: number) {
   return {
     saving,
     removing,
-    save: async (variables: SaveVariables) => {
-      const result = await felt(saveEntry({ variables }));
+    /** `queueOffline`: the caller keeps the save when the connection drops. */
+    save: async (variables: SaveVariables, { queueOffline = false } = {}) => {
+      const result = await felt(
+        saveEntry({
+          variables,
+          context: (base) => ({ ...base, queueOffline }),
+        }),
+      );
       return result.data?.SaveMediaListEntry;
     },
     remove: async (entryId: number) => {

@@ -46,7 +46,7 @@ export const ChapterItem = memo(function ChapterItem({
   continue$,
 }: ChapterItemProps) {
   const router = useRouter();
-  const read = useChapterRead(entryId, chapter.number);
+  const read = useChapterRead(manga.id, entryId, chapter.number);
   const next = useIsNext(continue$, chapter.id);
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
   const { state, key, actions } = useChapterDownload(manga, source, chapter);
