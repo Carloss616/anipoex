@@ -39,7 +39,7 @@ flowchart TD
     style IOS fill:#8b6fb31a,stroke:#8b6fb3
 ```
 
-1. **RuntimeApi**: `install` · `installed` · `uninstall` · `search` · `chapters` · `pages` · `mangaWebUrl` · `stagePage` · `pack` · `dropStage` · `unpack`, the same on every platform.
+1. **RuntimeApi**: `install` · `installed` · `uninstall` · `search` · `chapters` · `pages` · `pageImage` · `mangaWebUrl` · `stagePage` · `pack` · `dropStage` · `unpack`, the same on every platform.
 2. **Expo module** `ExtensionRuntimeModule.kt`.
 3. **ART class loader**: loads the APK as is.
 4. **preload + IPC**: the renderer's `window.anipoex`, answered by `main.js`.

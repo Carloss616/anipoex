@@ -111,6 +111,7 @@ Legend State gotchas:
 # Tests
 
 - Bun's `mock.module` lasts the whole run, not one file, and file order differs by OS (Windows alphabetical, macOS not): never mock a module that has its own test file. Mock what it depends on and set its real state, resetting it in `afterAll` (`extensions/state/extensions.test.ts` with `repos$`).
+- A bun test imports the extension runtime from `@/features/extensions/runtime`, not the feature's index: that one reaches react-native, which bun can't parse (`Unexpected typeof`) (`downloads/utils/open-download.ts`).
 
 # Desktop
 
