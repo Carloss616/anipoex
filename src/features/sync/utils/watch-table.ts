@@ -10,6 +10,8 @@ export interface SyncTable {
   depth: number;
   /** Whether a record's key syncs; settings keeps some sections to the device. */
   synced?: (key: string) => boolean;
+  /** Reads a value pulled from another build into this build's shape. */
+  normalize?: (value: unknown) => unknown;
 }
 
 /** Set while a sync writes what it pulled, so that write isn't stamped as new. */

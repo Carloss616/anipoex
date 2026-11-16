@@ -1,0 +1,159 @@
+import { batch, type Observable, type ObservableParam } from "@legendapp/state";
+import {
+  localRecords,
+  mergeRecords,
+  purge,
+  type Records,
+  type Stamp,
+  valueAt,
+} from "./records";
+import {
+  parseSyncFile,
+  SYNC_FORMAT,
+  serializeSyncFile,
+  syncFileName,
+} from "./sync-file";
+import { applying, type SyncTable } from "./watch-table";
+
+/** Where the files live: a gist or a folder, behind the same three calls. */
+export interface SyncTarget {
+  /** Every file name on the target. */
+  list(): Promise<string[]>;
+  /** A file's text; undefined when it is gone. */
+  read(name: string): Promise<string | undefined>;
+  /** Writes these files, each whole, in one go when the target can. */
+  write(files: Record<string, string>): Promise<void>;
+}
+
+export interface SyncTablesOptions {
+  tables: SyncTable[];
+  meta$: Observable<Record<string, Record<string, Stamp>>>;
+  /** Per table, the hash of the file this device last wrote. */
+  pushed$: Observable<Record<string, string>>;
+  device: string;
+  target: SyncTarget;
+  now?: () => number;
+}
+
+/** FNV-1a: tells a changed file apart; not for anything secret. */
+export function hash(text: string) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16);
+}
+
+type Node = ObservableParam & Record<string, ObservableParam>;
+
+const nodeAt = (obs$: ObservableParam, key: string): ObservableParam =>
+  key === ""
+    ? obs$
+    : key.split("/").reduce((node, part) => (node as Node)[part], obs$);
+
+/**
+ * Writes the records that won over this device's into the store and takes
+ * their stamps; resolves to how many changed the store.
+ */
+function apply(
+  table: SyncTable,
+  merged: Records,
+  local: Records,
+  stamps$: Observable<Record<string, Stamp>>,
+) {
+  const root = table.obs$.peek();
+  let changed = 0;
+  for (const [key, record] of Object.entries(merged)) {
+    if (record === local[key]) continue;
+    const { value, ...stamp } = record;
+    stamps$[key].set(stamp);
+    const current = valueAt(root, key);
+    if (record.deletedAt != null) {
+      if (current === undefined) continue;
+      nodeAt(table.obs$, key).delete();
+    } else if (JSON.stringify(current) !== JSON.stringify(value)) {
+      // Parsed fresh from the file, so no one else holds this object.
+      nodeAt(table.obs$, key).set(value);
+    } else continue;
+    changed++;
+  }
+  // A store shape another build wrote is read as this build reads its own.
+  if (changed && table.normalize) {
+    table.obs$.set(table.normalize(table.obs$.peek()));
+  }
+  return changed;
+}
+
+/**
+ * One sync: reads every device's files, merges them with this device's
+ * records, applies what won, and writes this device's files that changed.
+ * Resolves to how many records it changed in this device's stores.
+ */
+export async function syncTables({
+  tables,
+  meta$,
+  pushed$,
+  device,
+  target,
+  now = Date.now,
+}: SyncTablesOptions) {
+  const names = await target.list();
+  const out: Record<string, string> = {};
+  const hashes: Record<string, string> = {};
+  let pulled = 0;
+
+  for (const table of tables) {
+    const prefix = `anipoex-${table.name}.`;
+    const texts = await Promise.all(
+      names
+        .filter((name) => name.startsWith(prefix) && name.endsWith(".json"))
+        .map((name) => target.read(name)),
+    );
+    const remote = texts.flatMap((text) => {
+      const file = text && parseSyncFile(text, table.name);
+      return file ? [file] : [];
+    });
+
+    const stamps = meta$[table.name].peek() ?? {};
+    const local = localRecords(
+      table.obs$.peek(),
+      table.depth,
+      stamps,
+      table.synced,
+    );
+    const merged = mergeRecords(local, remote);
+    const kept = purge(merged, now());
+
+    applying.current = true;
+    try {
+      batch(() => {
+        pulled += apply(table, merged, local, meta$[table.name]);
+        for (const key of Object.keys(merged)) {
+          if (!(key in kept)) meta$[table.name][key].delete();
+        }
+      });
+    } finally {
+      applying.current = false;
+    }
+
+    const text = serializeSyncFile({
+      format: SYNC_FORMAT,
+      device,
+      table: table.name,
+      records: kept,
+    });
+    const h = hash(text);
+    const name = syncFileName(table.name, device);
+    // A file gone from the target (a new gist) is written even if unchanged.
+    if (h !== pushed$[table.name].peek() || !names.includes(name)) {
+      out[name] = text;
+      hashes[table.name] = h;
+    }
+  }
+
+  if (Object.keys(out).length) await target.write(out);
+  // Only a write that landed counts as pushed; a failed one is retried whole.
+  for (const [name, h] of Object.entries(hashes)) pushed$[name].set(h);
+  return { pulled };
+}
