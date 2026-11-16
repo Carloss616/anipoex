@@ -103,6 +103,10 @@ Legend State gotchas:
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).
 - A setting goes in `settings$` (`src/state/settings/`), one table so a sync carries it as one object: read and write its section where it's used (`settings$.extensions.repos`), with no per-feature alias. Per-item data and the session keep their own tables, and a device-only value goes under `device`.
 
+# Sync
+
+- Fast Refresh of a module under `src/features/sync` leaves the old engine running beside the new one, with the same device id: fully reload every app that runs it. With a flag of its own, the old copy stamped each pull as a local change and the two rewrote the gist every 3 s until GitHub refused writes with a 403 "API rate limit exceeded"; `applying` now lives on `globalThis` (`utils/watch-table.ts`).
+
 # Tests
 
 - Bun's `mock.module` lasts the whole run, not one file, and file order differs by OS (Windows alphabetical, macOS not): never mock a module that has its own test file. Mock what it depends on and set its real state, resetting it in `afterAll` (`extensions/state/extensions.test.ts` with `repos$`).

@@ -10,10 +10,15 @@ export class SyncError extends Error {
   constructor(
     readonly kind: "offline" | "auth" | "other",
     message: string,
+    /** When GitHub said to try again, in epoch ms; nothing is sent before. */
+    readonly retryAt?: number,
   ) {
     super(message);
   }
 }
+
+/** How long to wait when GitHub limits a token but doesn't say. */
+const LIMIT_WAIT_MS = 5 * 60 * 1000;
 
 type Fetch = typeof fetch;
 
@@ -40,12 +45,37 @@ async function send(url: string, init: RequestInit, fetchFn: Fetch) {
     throw new SyncError("auth", "GitHub access was revoked");
   }
   if (!res.ok) {
+    const retryAt = await limitedUntil(res);
     throw Object.assign(
-      new SyncError("other", `GitHub answered ${res.status}`),
+      new SyncError(
+        "other",
+        retryAt
+          ? "GitHub asked to wait; it tries again later"
+          : `GitHub answered ${res.status}`,
+        retryAt,
+      ),
       { status: res.status },
     );
   }
   return res;
+}
+
+/**
+ * When a 403 or 429 is GitHub limiting the token, until when: its
+ * `retry-after`, its reset time once nothing remains, or a few minutes when
+ * only its message says so (the limit on writes sends neither header).
+ * @see https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api#exceeding-the-rate-limit
+ */
+async function limitedUntil(res: Response) {
+  if (res.status !== 403 && res.status !== 429) return undefined;
+  const retryAfter = Number(res.headers.get("retry-after"));
+  if (retryAfter > 0) return Date.now() + retryAfter * 1000;
+  const reset = Number(res.headers.get("x-ratelimit-reset"));
+  if (res.headers.get("x-ratelimit-remaining") === "0" && reset > 0) {
+    return reset * 1000;
+  }
+  const said = /rate limit/i.test(await res.text().catch(() => ""));
+  return res.status === 429 || said ? Date.now() + LIMIT_WAIT_MS : undefined;
 }
 
 /** A GitHub API call: offline and a refused token become a `SyncError`. */

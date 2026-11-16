@@ -22,6 +22,12 @@ import { TABLES } from "./tables";
 /** Waits after a local change, so a scan's burst of writes is one push. */
 const DEBOUNCE_MS = 3000;
 
+/**
+ * GitHub limits writes per user, so every device shares one budget: a scan's
+ * stream of changes pushes at most once a minute.
+ */
+const MIN_GAP_MS = 60_000;
+
 /** Minutes between syncs while the app is open, until the device picks. */
 export const DEFAULT_SYNC_MINUTES = 5;
 
@@ -93,6 +99,12 @@ export const syncing$ = observable<Partial<Record<TargetKey, boolean>>>({});
 
 const targets = new Map<TargetKey, SyncTarget>();
 
+/** Targets that asked to wait, until when; asking again only adds refusals. */
+const paused = new Map<TargetKey, number>();
+
+/** When the last sync started, so a burst of changes waits for the gap. */
+let lastRun = 0;
+
 /** Every device seen on any target, each at its newest change. */
 const mergeDevices = (lists: SyncDevice[][]) => {
   const byId = new Map<string, SyncDevice>();
@@ -133,13 +145,16 @@ async function syncWith(key: TargetKey, target: SyncTarget, device: string) {
     return devices;
   } catch (error) {
     // Kept for the Sync section; the next trigger tries again.
+    if (error instanceof SyncError && error.retryAt) {
+      paused.set(key, error.retryAt);
+    }
     if (targets.get(key) === target) {
       state$.error.set({
         kind: error instanceof SyncError ? error.kind : "other",
         message: error instanceof Error ? error.message : String(error),
       });
     }
-    return [];
+    return undefined;
   } finally {
     syncing$[key].delete();
   }
@@ -149,11 +164,21 @@ async function syncWith(key: TargetKey, target: SyncTarget, device: string) {
 export const requestSync = serial(async () => {
   const device = settings$.device.id.peek();
   if (!device || !targets.size) return;
+  lastRun = Date.now();
   const seen: SyncDevice[][] = [];
+  let failed = false;
   // One after the other: both write this device's stamps and stores.
   for (const [key, target] of targets) {
-    seen.push(await syncWith(key, target, device));
+    if ((paused.get(key) ?? 0) > Date.now()) {
+      failed = true;
+      continue;
+    }
+    const found = await syncWith(key, target, device);
+    if (found) seen.push(found);
+    else failed = true;
   }
+  // A target that failed keeps the devices last seen, or they'd drop off.
+  if (failed) seen.push(syncState$.devices.peek());
   const devices = mergeDevices(seen);
   if (devices.length) syncState$.devices.set(devices);
 });
@@ -164,6 +189,7 @@ export const requestSync = serial(async () => {
  * empty folder) are written whole on its first sync.
  */
 export function setSyncTarget(key: TargetKey, next: SyncTarget | undefined) {
+  paused.delete(key);
   if (next) {
     targets.set(key, next);
     void requestSync();
@@ -198,7 +224,8 @@ let debounce: ReturnType<typeof setTimeout> | undefined;
 syncMeta$.onChange(({ isFromPersist }) => {
   if (isFromPersist || applying.current || !targets.size) return;
   clearTimeout(debounce);
-  debounce = setTimeout(() => void requestSync(), DEBOUNCE_MS);
+  const wait = Math.max(DEBOUNCE_MS, lastRun + MIN_GAP_MS - Date.now());
+  debounce = setTimeout(() => void requestSync(), wait);
 });
 
 AppState.addEventListener("change", (state) => {

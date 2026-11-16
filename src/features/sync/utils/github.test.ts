@@ -150,6 +150,52 @@ describe("createGistTarget", () => {
       ),
     ).toBe("offline");
   });
+
+  it("names GitHub's rate limit instead of its status", async () => {
+    const limited = fakeFetch({
+      "GET https://api.github.com/gists/g1": () =>
+        new Response('{"message":"API rate limit exceeded for user ID 1."}', {
+          status: 403,
+        }),
+    });
+    const gistId = id();
+    gistId.set("g1");
+
+    const error = await createGistTarget({
+      token: "t",
+      gistId,
+      fetchFn: limited.fn,
+    })
+      .list()
+      .catch((e: SyncError) => e);
+
+    expect((error as SyncError).message).toBe(
+      "GitHub asked to wait; it tries again later",
+    );
+    // No header says when: a few minutes.
+    expect((error as SyncError).retryAt).toBeGreaterThan(Date.now());
+  });
+
+  it("waits as long as GitHub's retry-after says", async () => {
+    const limited = fakeFetch({
+      "GET https://api.github.com/gists/g1": () =>
+        new Response("", { status: 429, headers: { "retry-after": "60" } }),
+    });
+    const gistId = id();
+    gistId.set("g1");
+    const before = Date.now();
+
+    const error = (await createGistTarget({
+      token: "t",
+      gistId,
+      fetchFn: limited.fn,
+    })
+      .list()
+      .catch((e: SyncError) => e)) as SyncError;
+
+    expect(error.retryAt).toBeGreaterThanOrEqual(before + 60_000);
+    expect(error.retryAt).toBeLessThan(before + 61_000);
+  });
 });
 
 describe("device flow", () => {

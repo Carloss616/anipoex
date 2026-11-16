@@ -25,6 +25,30 @@ const checkDir = (dir) => {
   return dir;
 };
 
+/** macOS's EDEADLK: a cloud-only file its provider couldn't download yet. */
+const NOT_DOWNLOADED = -11;
+const READ_TRIES = 3;
+
+/**
+ * A file's text, waiting a little for a cloud folder's provider (OneDrive)
+ * to download a file another device just wrote.
+ */
+async function readCloudFile(file) {
+  for (let tries = 1; ; tries++) {
+    try {
+      return await readFile(file, "utf8");
+    } catch (error) {
+      if (error.errno !== NOT_DOWNLOADED) throw error;
+      if (tries === READ_TRIES) {
+        throw new Error(
+          `${path.basename(file)} is still downloading; it tries again later`,
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+}
+
 /**
  * The sync folder: picked in a dialog, read and written here since a page
  * has no file system, and watched so another device's change syncs at once.
@@ -54,10 +78,7 @@ export function registerFolder(ipcMain, window, fromApp) {
         }
       case "read":
         try {
-          return await readFile(
-            path.join(checkDir(dir), checkName(arg)),
-            "utf8",
-          );
+          return await readCloudFile(path.join(checkDir(dir), checkName(arg)));
         } catch (error) {
           if (error.code === "ENOENT") return null;
           throw error;

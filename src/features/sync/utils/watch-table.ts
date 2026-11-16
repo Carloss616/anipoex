@@ -14,8 +14,15 @@ export interface SyncTable {
   normalize?: (value: unknown) => unknown;
 }
 
-/** Set while a sync writes what it pulled, so that write isn't stamped as new. */
-export const applying = { current: false };
+/**
+ * Set while a sync writes what it pulled, so that write isn't stamped as new.
+ * One object for every copy of this module: Fast Refresh leaves the old
+ * copy's listeners running, and with a flag of their own they stamped each
+ * pull as a local change, which looped writes to the gist.
+ */
+const shared = globalThis as { __syncApplying?: { current: boolean } };
+shared.__syncApplying ??= { current: false };
+export const applying = shared.__syncApplying;
 
 /**
  * Stamps each record the table changes with the time, and a removal with a

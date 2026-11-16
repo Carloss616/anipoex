@@ -27,9 +27,12 @@ device's files. What it writes into the stores is not stamped again, so it doesn
 back as a change of its own. Syncs never overlap: one asked for while another runs happens
 right after it, once. They run on launch, when the app comes to the foreground, every few
 minutes while it's open (each device picks 1, 5 or 15, or none; 5 until it picks), 3 seconds
-after a change to a synced store, on the web when the
+after a change to a synced store (at most once a minute while changes keep coming, as in a
+scan), on the web when the
 browser is back online, and on desktop a second after a sync file in the folder changes. A failure keeps everything for the next one: nothing counts as
-pushed until the target took it.
+pushed until the target took it. GitHub limits writes per user, across every device: when it
+asks to wait, the gist isn't tried again until the time it gives (a few minutes when it gives
+none), and a folder keeps syncing meanwhile.
 
 ## Folder
 
