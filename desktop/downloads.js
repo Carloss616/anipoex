@@ -75,16 +75,33 @@ export async function list(root, mangaId, sourceId) {
   );
 }
 
+/**
+ * Same layout check as `isDownloadPath` in `src/features/downloads/utils/paths.ts`:
+ * on a case-insensitive disk a root's own `Downloads` folder is `downloads/`.
+ */
+export function isDownloadPath(rel) {
+  const parts = rel.split("/");
+  return (
+    parts.length === 4 &&
+    parts[0] === "downloads" &&
+    !!idOf(parts[1]) &&
+    !!idOf(parts[2]) &&
+    parts[3].toLowerCase().endsWith(".cbz") &&
+    /^[0-9a-f]{8}$/.test(idOf(parts[3]) ?? "")
+  );
+}
+
 export async function listAll(root) {
   const out = [];
-  const walk = async (rel) => {
+  const walk = async (rel, depth) => {
     for (const entry of await entries(path.join(root, rel))) {
       const child = `${rel}/${entry.name}`;
-      if (entry.isDirectory()) await walk(child);
-      else if (entry.name.toLowerCase().endsWith(".cbz")) out.push(child);
+      if (entry.isDirectory()) {
+        if (depth < 2) await walk(child, depth + 1);
+      } else if (entry.isFile() && isDownloadPath(child)) out.push(child);
     }
   };
-  await walk("downloads");
+  await walk("downloads", 0);
   return out;
 }
 

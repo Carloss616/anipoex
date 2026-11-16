@@ -47,6 +47,22 @@ export function idOf(name: string) {
   return [...name.matchAll(/\[([^\]]*)\]/g)].at(-1)?.[1];
 }
 
+/**
+ * `downloads/<…[id]>/<…[id]>/<…[hash]>.cbz` and nothing else: on a case-insensitive
+ * disk a root's own `Downloads` folder is `downloads/`, and its files aren't ours.
+ */
+export function isDownloadPath(path: string) {
+  const parts = path.split("/");
+  return (
+    parts.length === 4 &&
+    parts[0] === "downloads" &&
+    !!idOf(parts[1]) &&
+    !!idOf(parts[2]) &&
+    parts[3].toLowerCase().endsWith(".cbz") &&
+    /^[0-9a-f]{8}$/.test(idOf(parts[3]) ?? "")
+  );
+}
+
 /** 1-based page file name, at least 3 digits. */
 export function pageName(index: number, count: number) {
   return String(index + 1).padStart(Math.max(3, String(count).length), "0");

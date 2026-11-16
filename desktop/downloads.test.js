@@ -4,7 +4,15 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { checkRel, get, list, listAll, put, remove } from "./downloads.js";
+import {
+  checkRel,
+  get,
+  isDownloadPath,
+  list,
+  listAll,
+  put,
+  remove,
+} from "./downloads.js";
 
 const REL = "downloads/Renamed [21]/Source A [1234]/Ch 1 [a1b2c3d4].cbz";
 let root;
@@ -46,6 +54,23 @@ test("list by ids", async () => {
   ]);
   expect(await list(root, 22, "1234")).toEqual([]);
   expect(await listAll(root)).toEqual([REL]);
+});
+
+test("listAll skips files outside the app's layout", async () => {
+  await put(root, REL, await pack("a.cbz", "x"), packedDir);
+  for (const rel of [
+    "downloads/Some comic.cbz",
+    "downloads/x/y.cbz",
+    "downloads/Renamed [21]/Source A [1234]/Ch 2 [vol 2].cbz",
+    "downloads/Renamed [21]/Source A [1234]/x/Ch 3 [b1b2c3d4].cbz",
+  ]) {
+    await mkdir(path.dirname(path.join(root, rel)), { recursive: true });
+    await writeFile(path.join(root, rel), "x");
+  }
+  expect(await listAll(root)).toEqual([REL]);
+  expect(
+    isDownloadPath("downloads/Title/Source A [1234]/Ch [a1b2c3d4].cbz"),
+  ).toBe(false);
 });
 
 test("put refuses a file outside packedDir", async () => {

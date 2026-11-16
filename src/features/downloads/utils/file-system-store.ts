@@ -1,7 +1,7 @@
 import { Directory, File, FileMode } from "expo-file-system";
 import type { DownloadStore } from "./download-store/download-store";
 import { NotDownloadedError } from "./download-store/utils/errors";
-import { groupDownloads, idOf } from "./paths";
+import { groupDownloads, idOf, isDownloadPath } from "./paths";
 
 // A provider keeps the display name as given for this type; others may append an extension.
 const MIME = "application/octet-stream";
@@ -54,16 +54,16 @@ export function fileSystemStore(root: Directory): DownloadStore {
     },
     async listAll() {
       const out: string[] = [];
-      const walk = (dir: Directory, rel: string) => {
+      const walk = (dir: Directory, rel: string, depth: number) => {
         for (const entry of dir.list()) {
-          const name = nameOf(entry.uri);
-          if (entry instanceof Directory) walk(entry, `${rel}/${name}`);
-          else if (name.toLowerCase().endsWith(".cbz"))
-            out.push(`${rel}/${name}`);
+          const path = `${rel}/${nameOf(entry.uri)}`;
+          if (entry instanceof Directory) {
+            if (depth < 2) walk(entry, path, depth + 1);
+          } else if (isDownloadPath(path)) out.push(path);
         }
       };
       const downloads = subdir(root, named("downloads"));
-      if (downloads) walk(downloads, "downloads");
+      if (downloads) walk(downloads, "downloads", 0);
       return out;
     },
     async put(path, fileUri) {

@@ -5,6 +5,7 @@ import {
   downloadKey,
   groupDownloads,
   idOf,
+  isDownloadPath,
   pageName,
   safeName,
   stageId,
@@ -96,5 +97,28 @@ describe("groupDownloads", () => {
       },
       { hash: "ffffffff", paths: ["d/Other [ffffffff].cbz"], local: true },
     ]);
+  });
+});
+
+describe("isDownloadPath", () => {
+  test("takes only the app's layout", () => {
+    expect(
+      isDownloadPath(
+        "downloads/Title [21]/Source A [1234]/Ch 1 [a1b2c3d4].cbz",
+      ),
+    ).toBe(true);
+    for (const path of [
+      "downloads/Some comic.cbz",
+      "downloads/x/y.cbz",
+      "downloads/Title [21]/Ch 1 [a1b2c3d4].cbz",
+      "downloads/Title/Source A [1234]/Ch 1 [a1b2c3d4].cbz",
+      "downloads/Title [21]/Source A/Ch 1 [a1b2c3d4].cbz",
+      "downloads/Title [21]/Source A [1234]/Ch 1 [vol 2].cbz",
+      "downloads/Title [21]/Source A [1234]/Ch 1 [a1b2c3d4].zip",
+      "downloads/Title [21]/Source A [1234]/x/Ch 1 [a1b2c3d4].cbz",
+      "other/Title [21]/Source A [1234]/Ch 1 [a1b2c3d4].cbz",
+    ]) {
+      expect(isDownloadPath(path)).toBe(false);
+    }
   });
 });

@@ -3,7 +3,7 @@ import { Directory, File, Paths } from "expo-file-system";
 import { bookmarkOf } from "@/utils/picked-folder";
 import type { DownloadRoot } from "../download-root";
 import { fileSystemStore } from "../file-system-store";
-import { idOf } from "../paths";
+import { idOf, isDownloadPath } from "../paths";
 import type { DownloadStore } from "./download-store";
 import { NotDownloadedError } from "./utils/errors";
 import { type TreeFile, treeDownloads } from "./utils/tree-downloads";
@@ -34,9 +34,7 @@ function folderStore(location: string): DownloadStore {
     },
     async listAll() {
       const tree = await folder.listTree(bookmark, "downloads");
-      return tree
-        .map((file) => file.path)
-        .filter((path) => path.toLowerCase().endsWith(".cbz"));
+      return tree.map((file) => file.path).filter(isDownloadPath);
     },
     put: (path, fileUri) => folder.copyIn(bookmark, path, fileUri),
     async get(path) {
