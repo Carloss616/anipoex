@@ -1,7 +1,11 @@
 import { Icons } from "@/components/ui/icon";
 import type { MenuItem } from "@/components/ui/menu";
+import type { QueuedDownload } from "@/features/downloads";
 import {
+  cancelDownload,
+  moveDownloadUp,
   removeFromQueue,
+  retryDownload,
   retrySkipped,
   scanNext,
   stopManga,
@@ -52,6 +56,33 @@ export function sourceMenu(mangaId: number, sourceId: string): MenuItem[] {
       onPress: () => stopSource(mangaId, sourceId),
     },
   ];
+}
+
+/** Takes what it shows as arguments: the Compiler caches a call on its inputs. */
+export function downloadRowMenu(
+  key: string,
+  { state, canMoveUp }: { state: QueuedDownload["state"]; canMoveUp: boolean },
+): MenuItem[] {
+  const items: MenuItem[] = [];
+  if (state === "queued" && canMoveUp)
+    items.push({
+      label: "Move up",
+      icon: Icons.moveUp,
+      onPress: () => moveDownloadUp(key),
+    });
+  if (state === "failed")
+    items.push({
+      label: "Retry",
+      icon: Icons.refresh,
+      onPress: () => retryDownload(key),
+    });
+  items.push({
+    label: "Cancel",
+    icon: Icons.close,
+    destructive: true,
+    onPress: () => cancelDownload(key),
+  });
+  return items;
 }
 
 export function skippedMenu(sourceId: string): MenuItem[] {

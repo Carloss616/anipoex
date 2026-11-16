@@ -1,3 +1,10 @@
+import {
+  cancel as cancelDownload,
+  moveUp as moveDownloadUp,
+  pauseDownloads,
+  resumeDownloads,
+  retryDownload,
+} from "@/features/downloads";
 import { activeScans$ } from "@/features/manga/state/active-scans";
 import {
   libraryScan$,
@@ -14,7 +21,18 @@ import {
 } from "@/features/manga/state/reading-queue";
 import { mediaKey } from "@/features/manga/utils/msu";
 
-export { clearQueue, removeFromQueue, retryAllSkipped, retrySkipped, scanNext };
+export {
+  cancelDownload,
+  clearQueue,
+  moveDownloadUp,
+  pauseDownloads,
+  removeFromQueue,
+  resumeDownloads,
+  retryAllSkipped,
+  retryDownload,
+  retrySkipped,
+  scanNext,
+};
 
 export const stopManga = (mangaId: number) => stopScanAll(mediaKey(mangaId));
 

@@ -16,32 +16,40 @@ import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
+import { downloadsPaused$ } from "@/features/downloads";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { DownloadItem } from "./components/download-item";
 import { Overview } from "./components/overview";
 import { QueueItem } from "./components/queue-item";
 import { RunningItem } from "./components/running-item";
 import { SkippedItem } from "./components/skipped-item";
 import {
   clearQueue,
+  pauseDownloads,
+  resumeDownloads,
   retryAllSkipped,
   startReadingScan,
   stopAll,
 } from "./utils/actions";
 import {
   corners,
+  downloadIds,
+  downloadsPending,
   hasActivity,
+  hasScans,
   queuedIds,
   runningIds,
   skippedIds,
   split,
 } from "./utils/state";
 
-/** Up next shows this many; the rest are a count. */
-const QUEUE_SHOWN = 10;
+/** Up next and Downloads show this many; the rest are a count. */
+const SHOWN = 10;
 
 export function Activity() {
   const active = useValue(hasActivity);
+  const scanning = useValue(hasScans);
   const m3 = useThemeM3Colors();
 
   return (
@@ -50,7 +58,7 @@ export function Activity() {
       <Toolbar>
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
-            hidden={!active}
+            hidden={!scanning}
             icon={Icons.stop}
             tintColor={m3.error}
             onPress={stopAll}
@@ -90,6 +98,7 @@ function ActivityList() {
           <Overview />
           <RunningSection />
           <QueueSection />
+          <DownloadsSection />
           <SkippedSection />
         </Column>
       </Box>
@@ -114,7 +123,7 @@ function RunningSection() {
 function QueueSection() {
   const ids = split(useValue(queuedIds));
   if (!ids.length) return null;
-  const shown = ids.slice(0, QUEUE_SHOWN);
+  const shown = ids.slice(0, SHOWN);
   const more = ids.length - shown.length;
 
   return (
@@ -126,6 +135,36 @@ function QueueSection() {
       />
       {shown.map((id, i) => (
         <QueueItem key={id} id={id} {...corners(i, shown.length)} />
+      ))}
+      {more > 0 && (
+        <Text
+          style={{ typography: "bodyMedium" }}
+          modifiers={[padding(GUTTER + 16, 8, GUTTER, 0)]}
+        >
+          {`${more} more`}
+        </Text>
+      )}
+    </>
+  );
+}
+
+function DownloadsSection() {
+  const ids = split(useValue(downloadIds));
+  const paused = useValue(downloadsPaused$);
+  const pending = useValue(downloadsPending);
+  if (!ids.length) return null;
+  const shown = ids.slice(0, SHOWN);
+  const more = ids.length - shown.length;
+
+  return (
+    <>
+      <Label
+        title={`Downloads · ${ids.length}`}
+        action={paused ? "Resume" : pending ? "Pause" : undefined}
+        onPress={paused ? resumeDownloads : pauseDownloads}
+      />
+      {shown.map((id, i) => (
+        <DownloadItem key={id} id={id} {...corners(i, shown.length)} />
       ))}
       {more > 0 && (
         <Text

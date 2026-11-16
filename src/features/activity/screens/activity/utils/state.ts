@@ -1,4 +1,5 @@
 import { observable } from "@legendapp/state";
+import { downloadQueue$ } from "@/features/downloads";
 import { activeScans$ } from "@/features/manga/state/active-scans";
 import {
   readingQueue$,
@@ -11,10 +12,33 @@ export const expanded$ = observable<Record<string, boolean>>({});
 export const toggleExpanded = (mangaId: number) =>
   expanded$[mangaId].set((open) => !open);
 
-/** Whether anything runs: a scan of any manga, or the Reading scan. */
-export const hasActivity = () =>
+/** Whether a scan runs: of any manga, or the Reading scan. */
+export const hasScans = () =>
   Object.keys(activeScans$.get(true)).length > 0 ||
   readingRun$.get(true) != null;
+
+/** Whether anything runs: a scan, or a download in the queue. */
+export const hasActivity = () =>
+  hasScans() || Object.keys(downloadQueue$.get(true)).length > 0;
+
+const downloads = () =>
+  Object.values(downloadQueue$.get()).sort((a, b) => a.order - b.order);
+
+/** Whether a download is left to run: queued or running, not only failed ones. */
+export const downloadsPending = () =>
+  downloads().some((d) => d.state !== "failed");
+
+/** Every download's key in order, joined. */
+export const downloadIds = () =>
+  downloads()
+    .map((d) => d.key)
+    .join();
+
+/** Whether a queued download comes before this queued one. */
+export function canMoveUp(key: string) {
+  const queued = downloads().filter((d) => d.state === "queued");
+  return queued.findIndex((d) => d.key === key) > 0;
+}
 
 /** The running manga's ids, joined: changes only when one starts or ends. */
 export const runningIds = () => Object.keys(activeScans$.get(true)).join();
