@@ -11,6 +11,8 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ToastHost, ToastProvider } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
+// Stamps every synced store's changes from launch, before any sync connects.
+import "@/features/sync/state/sync-meta";
 import { client } from "@/graphql/client";
 import { useCacheRestored } from "@/graphql/use-cache-restored";
 import { useNavigationTheme } from "@/hooks/use-theme";

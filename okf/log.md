@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Synced stores stamp their changes**: every change to settings, chosen sources, manual matches, exclusions, pins, probes and search history records when each record changed (and a removal as a tombstone), ahead of syncing between devices; each device gets a random `id` in settings. Added [sync stamps](stores/sync-meta.md); updated [settings](stores/settings.md).
 * **A late Completed takes its dates from activity**: choosing Completed in the tracking sheet dates the finish by the newest chapter read in the viewer's list activity, and the start by the first one when it was chapter 1, instead of today; so does raising progress to the last chapter. A reread (Rereading, or a repeat count) gets no start. Added [MangaReadDates](operations/manga-read-dates.md); updated [tracking rules](concepts/tracking-rules.md), [list entry](concepts/list-entry.md) and [MangaDetail](operations/manga-detail.md).
 
 ## 2026-11-14

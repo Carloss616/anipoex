@@ -34,6 +34,10 @@ IndexedDB), and nothing persists during web's server render.
 * [Source chapters](source-chapters.md) - The last chapter list each manga's source answered with.
 * [Reader pages](reader-pages.md) - Page images as their source's client downloaded them; the newest 500.
 
+# Sync
+
+* [Sync stamps](sync-meta.md) - When each record of a synced store last changed; what syncs and how two copies settle.
+
 # In memory only
 
 * [Extensions](extensions.md) - The extension list, rebuilt from the added repos and what is installed.

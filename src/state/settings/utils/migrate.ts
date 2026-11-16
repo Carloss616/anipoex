@@ -30,7 +30,11 @@ export interface Settings {
     slowSkip: number;
   };
   /** This device's own values, never synced. */
-  device: { dns?: DnsId };
+  device: {
+    dns?: DnsId;
+    /** Names this device's sync files. */
+    id?: string;
+  };
 }
 
 export const SETTINGS_VERSION = 1;
@@ -55,7 +59,9 @@ export function normalizeSettings(raw: unknown): Settings {
   const mangaList = section(root?.mangaList);
   const repos = section(root?.extensions)?.repos;
   const sources = section(root?.sources);
-  const dns = section(root?.device)?.dns as DnsId | undefined;
+  const device = section(root?.device);
+  const dns = device?.dns as DnsId | undefined;
+  const id = typeof device?.id === "string" ? device.id : undefined;
   return {
     version: typeof root?.version === "number" ? root.version : 0,
     theme: {
@@ -78,7 +84,7 @@ export function normalizeSettings(raw: unknown): Settings {
         : [],
       slowSkip: typeof sources?.slowSkip === "number" ? sources.slowSkip : 60,
     },
-    device: dns ? { dns } : {},
+    device: { ...(dns && { dns }), ...(id && { id }) },
   };
 }
 
