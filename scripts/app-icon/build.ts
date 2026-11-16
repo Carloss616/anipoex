@@ -38,6 +38,7 @@ interface Config {
   android: { look: Look; scale: number };
   desktop: Look;
   favicon: Look;
+  icon: Look;
 }
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
@@ -84,9 +85,10 @@ const CONFIG: Config = {
   splash: { light: "#FCFAFF", dark: "#221131", imageWidth: 120 },
   // Android's adaptive icon has no dark variant: it takes one look.
   android: { look: "dark", scale: 0.72 },
-  // The look of the desktop icon and the favicon.
+  // The look of the desktop icon, the favicon and the fallback icon.png.
   desktop: "dark",
   favicon: "dark",
+  icon: "dark",
 };
 
 const svg = (
@@ -329,7 +331,7 @@ write(
   )}\n`,
 );
 
-const icon = composite("light", { id: "i" });
+const icon = composite(CONFIG.icon, { id: "i" });
 png(
   "assets/images/icon.png",
   svg(icon.bg + icon.mark, { defs: icon.defs }),

@@ -49,7 +49,7 @@ Built in this order, the same recipe in both looks:
 | Splash | `assets/images/splash-icon*.png` | Both | A flat color with the mark at 120 dp. The images are cropped to the mark, so `imageWidth` is its width. |
 | Web | `assets/images/favicon.png` | Dark | 48 px, the small mark, solid: glass blurs at that size. |
 | Desktop | `desktop/build/icon.png` | Dark | macOS doesn't mask icons: an 824 pt rounded square with its own shadow, on Apple's 1024 grid. electron-builder picks it up from `build/` when packaging (`bun run dist` in `desktop/`); in development `main.js` sets it as the Dock icon. |
-| Fallback | `assets/images/icon.png` | Light | The full composite, unmasked. |
+| Fallback | `assets/images/icon.png` | Dark | The full composite, unmasked. |
 
 ## Changing the icon
 
