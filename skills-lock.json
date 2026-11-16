@@ -168,9 +168,10 @@
     },
     "uniwind": {
       "source": "uni-stack/uniwind",
+      "commit": "3792ceee6700bb7c759b964a5ce3fbc4cc77753b",
       "sourceType": "github",
       "skillPath": "skills/uniwind/SKILL.md",
-      "computedHash": "03ad51f7e27174ab20af090acb5dd60e34666c799aaf8465b3466f330cd01c7b"
+      "computedHash": "f2809bbc8bcee500eda187d1ad17e1bd993c1f63c3cee55a40482c8671a63d7e"
     }
   }
 }
