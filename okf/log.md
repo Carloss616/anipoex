@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Folder sync on iOS**: the Files picker chooses the folder and a bookmark keeps the access across launches; reads wait for iCloud's download. Updated [sync state](stores/sync-state.md), [settings](stores/settings.md).
 * **Leaving a target takes the device's files**: Disconnect (gist) and Stop syncing (folder) sync once more, then remove this device's files when another device's files carry every record in them, so nothing is lost and the others stop listing it; otherwise they stay. Updated [GitHub account](stores/github-account.md), [sync state](stores/sync-state.md).
 * **Sync through a folder**: desktop (watched) and Android (through the system picker, a folder a sync app keeps in the cloud) can sync through a folder as well as, or instead of, the gist; each target keeps its own state. Updated [sync state](stores/sync-state.md), [settings](stores/settings.md).
 * **Sync downloads only what changed**: an unchanged gist answers "not modified" and unchanged files aren't fetched again, where every sync downloaded every device's files (megabytes once scans are in). Android devices go by the name set on the phone instead of the model code. Updated [GitHub account](stores/github-account.md).

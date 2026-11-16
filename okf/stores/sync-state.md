@@ -40,6 +40,9 @@ through a temporary file. On Android it is picked with the system's folder picke
 permission persists; Drive and OneDrive don't sync folders there, so a separate sync app
 keeps it in sync, and the app reads it on the usual triggers (Android can't watch it). Each
 file is replaced by a new one on write, since some providers don't shorten a rewritten
-file. iOS and a plain browser don't offer folders yet. The folder is kept per device in
+file. On iOS it is picked with the Files picker (iCloud Drive, OneDrive, Google Drive), and a
+bookmark iOS gives for it keeps the access across launches; reads wait for iCloud to
+download a file, and, as on Android, the folder is read on the usual triggers. A plain
+browser doesn't offer folders. The folder is kept per device in
 [settings](settings.md) `device.folder`. Stopping takes this device's files out of it the
 same way disconnecting the gist does: only when another device's files carry every record.

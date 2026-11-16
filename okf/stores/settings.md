@@ -17,7 +17,7 @@ Key `settings`, one object:
 | `mangaList` | grid density and title position | [Manga list view](manga-list-view.md) |
 | `extensions.repos` | the repos extensions come from | [Extension repos](extension-repos.md) |
 | `sources` | `autoPick` (on by default), `languages`, the user's order, and `slowSkip`, the seconds a Reading scan waits on a source before skipping it (60 by default, 0 never skips); edited in Settings → Sources | [Source](../concepts/source.md) |
-| `device` | values that belong to this device only, never synced: the extension DNS, `id` (a random name for this device's sync files, made on first launch) and `folder`, the folder it syncs through ([sync state](sync-state.md)) | [Sync stamps](sync-meta.md) |
+| `device` | values that belong to this device only, never synced: the extension DNS, `id` (a random name for this device's sync files, made on first launch) and `folder`, the folder it syncs through (on iOS its name and bookmark) ([sync state](sync-state.md)) | [Sync stamps](sync-meta.md) |
 
 Per-item data (chosen sources, probes, exclusions, chapters, search history) and the
 session keep their own tables: they grow with use, and the session is the account's.

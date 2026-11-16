@@ -25,7 +25,6 @@ import { FOLDER_HINT, SYNC_FOOTER } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
 
 const AVATAR = 40;
-const SECONDARY = [foregroundStyle("secondary")];
 
 function Lines({
   title,
@@ -59,7 +58,7 @@ function Lines({
  */
 export function SyncSection() {
   const sync = useSyncSection();
-  const { account, gist } = sync;
+  const { account, gist, folder } = sync;
   const rowBackground = useRowBackground();
   const card = useThemeColor("card");
   const primary = useThemeColor("primary");
@@ -70,7 +69,7 @@ export function SyncSection() {
       header={
         <HStack>
           <Text>Sync</Text>
-          {account && !gist.revoked ? (
+          {sync.connected && !gist.revoked ? (
             <>
               <Spacer />
               <Button
@@ -128,7 +127,32 @@ export function SyncSection() {
           </HStack>
         </Button>
       )}
-      {account
+      {folder?.name ? (
+        <ContextMenu items={folder.menu}>
+          <HStack spacing={12} modifiers={ROW_FILL}>
+            <Lines
+              title={folder.name}
+              detail={folder.status}
+              danger={folder.failed}
+            />
+            <Spacer />
+            {folder.busy ? (
+              <Loader size="sm" />
+            ) : (
+              <Icon name={Icons.check} size={15} muted />
+            )}
+          </HStack>
+        </ContextMenu>
+      ) : folder ? (
+        <Button onPress={folder.choose}>
+          <HStack spacing={8} modifiers={ROW_FILL}>
+            <Lines title="Folder" detail={FOLDER_HINT} />
+            <Spacer />
+            <Text modifiers={[foregroundStyle(primary)]}>Choose</Text>
+          </HStack>
+        </Button>
+      ) : null}
+      {sync.connected
         ? sync.devices.map((device) => (
             <Lines
               key={device.id}
@@ -137,11 +161,6 @@ export function SyncSection() {
             />
           ))
         : null}
-      <HStack spacing={8}>
-        <Lines title="Folder" detail={FOLDER_HINT} />
-        <Spacer />
-        <Text modifiers={SECONDARY}>Soon</Text>
-      </HStack>
     </Section>
   );
 }
