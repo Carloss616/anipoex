@@ -46,6 +46,18 @@ test("normalizeSettings fills defaults", () => {
   expect(settings.device).toEqual({});
 });
 
+test("normalizeSettings keeps valid download settings", () => {
+  const { device } = normalizeSettings({
+    device: { downloadsIn: "folder", downloadsFolder: "/d" },
+  });
+  expect(device).toEqual({ downloadsIn: "folder", downloadsFolder: "/d" });
+
+  const dropped = normalizeSettings({
+    device: { downloadsIn: "cloud", downloadsFolder: 3 },
+  });
+  expect(dropped.device).toEqual({});
+});
+
 test("normalizeSettings runs a stored layout through normalizeLayout", () => {
   const home = withPreset("balanced");
   const settings = normalizeSettings({

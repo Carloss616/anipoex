@@ -38,6 +38,10 @@ export interface Settings {
     folder?: string;
     /** Minutes between syncs while the app is open; 0 never polls. */
     syncInterval?: number;
+    /** Where chapter downloads go; "sync" follows `folder`. */
+    downloadsIn?: "sync" | "folder" | "device";
+    /** Same format as `folder`; used when `downloadsIn` is "folder". */
+    downloadsFolder?: string;
   };
 }
 
@@ -69,6 +73,15 @@ export function normalizeSettings(raw: unknown): Settings {
   const folder = typeof device?.folder === "string" ? device.folder : undefined;
   const syncInterval =
     typeof device?.syncInterval === "number" ? device.syncInterval : undefined;
+  const downloadsIn = ["sync", "folder", "device"].includes(
+    device?.downloadsIn as string,
+  )
+    ? (device?.downloadsIn as Settings["device"]["downloadsIn"])
+    : undefined;
+  const downloadsFolder =
+    typeof device?.downloadsFolder === "string"
+      ? device.downloadsFolder
+      : undefined;
   return {
     version: typeof root?.version === "number" ? root.version : 0,
     theme: {
@@ -96,6 +109,8 @@ export function normalizeSettings(raw: unknown): Settings {
       ...(id && { id }),
       ...(folder && { folder }),
       ...(syncInterval !== undefined && { syncInterval }),
+      ...(downloadsIn && { downloadsIn }),
+      ...(downloadsFolder && { downloadsFolder }),
     },
   };
 }
