@@ -23,14 +23,14 @@ import { SkippedItem } from "./components/skipped-item";
 import { UnsentItem } from "./components/unsent-item";
 import {
   clearQueue,
-  pauseDownloads,
-  resumeDownloads,
   retryAllSkipped,
   startReadingScan,
   stopAll,
 } from "./utils/actions";
+import { downloadActions, type HeaderAction } from "./utils/download-actions";
 import {
   downloadIds,
+  downloadsFailed,
   downloadsPending,
   hasActivity,
   hasScans,
@@ -125,8 +125,7 @@ function QueueSection({ modifiers }: Row) {
       header={
         <SectionHeader
           title={`Up next · ${ids.length}`}
-          action="Clear"
-          onPress={clearQueue}
+          actions={[{ label: "Clear", onPress: clearQueue }]}
         />
       }
       footer={<Text>Each starts when the one before has 2 sources left</Text>}
@@ -142,6 +141,7 @@ function DownloadsSection({ modifiers }: Row) {
   const ids = split(useValue(downloadIds));
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
+  const failed = useValue(downloadsFailed);
   if (!ids.length) return null;
   const more = ids.length - SHOWN;
 
@@ -151,8 +151,7 @@ function DownloadsSection({ modifiers }: Row) {
       header={
         <SectionHeader
           title={`Downloads · ${ids.length}`}
-          action={paused ? "Resume" : pending ? "Pause" : undefined}
-          onPress={paused ? resumeDownloads : pauseDownloads}
+          actions={downloadActions(paused, pending, failed)}
         />
       }
       footer={more > 0 ? <Text>{`${more} more`}</Text> : undefined}
@@ -191,8 +190,7 @@ function SkippedSection({ modifiers }: Row) {
       header={
         <SectionHeader
           title="Skipped as slow"
-          action="Retry all"
-          onPress={retryAllSkipped}
+          actions={[{ label: "Retry all", onPress: retryAllSkipped }]}
         />
       }
       footer={<Text>Left out of the rest of this scan</Text>}
@@ -206,12 +204,10 @@ function SkippedSection({ modifiers }: Row) {
 
 function SectionHeader({
   title,
-  action,
-  onPress,
+  actions = [],
 }: {
   title: string;
-  action?: string;
-  onPress: () => void;
+  actions?: HeaderAction[];
 }) {
   const font = useFont("subheadline", "medium");
 
@@ -219,13 +215,14 @@ function SectionHeader({
     <HStack>
       <Text>{title}</Text>
       <Spacer />
-      {action ? (
+      {actions.map(({ label, onPress }) => (
         <Button
-          label={action}
+          key={label}
+          label={label}
           onPress={onPress}
           modifiers={[buttonStyle("borderless"), controlSize("small"), font]}
         />
-      ) : null}
+      ))}
     </HStack>
   );
 }

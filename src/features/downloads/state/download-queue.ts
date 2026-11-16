@@ -93,5 +93,13 @@ export function retry(key: string) {
   });
 }
 
+/** Requeues every failed entry: offline, a whole queue fails within seconds. */
+export function retryFailed() {
+  batch(() => {
+    for (const entry of sorted())
+      if (entry.state === "failed") retry(entry.key);
+  });
+}
+
 export const queuedOf = (sourceId: string) =>
   sorted().filter((e) => e.source.id === sourceId && e.state === "queued");

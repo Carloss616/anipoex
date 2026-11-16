@@ -27,15 +27,15 @@ import { SkippedItem } from "./components/skipped-item";
 import { UnsentItem } from "./components/unsent-item";
 import {
   clearQueue,
-  pauseDownloads,
-  resumeDownloads,
   retryAllSkipped,
   startReadingScan,
   stopAll,
 } from "./utils/actions";
+import { downloadActions, type HeaderAction } from "./utils/download-actions";
 import {
   corners,
   downloadIds,
+  downloadsFailed,
   downloadsPending,
   hasActivity,
   hasScans,
@@ -133,8 +133,7 @@ function QueueSection() {
     <>
       <Label
         title={`Up next · ${ids.length}`}
-        action="Clear"
-        onPress={clearQueue}
+        actions={[{ label: "Clear", onPress: clearQueue }]}
       />
       {shown.map((id, i) => (
         <QueueItem key={id} id={id} {...corners(i, shown.length)} />
@@ -155,6 +154,7 @@ function DownloadsSection() {
   const ids = split(useValue(downloadIds));
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
+  const failed = useValue(downloadsFailed);
   if (!ids.length) return null;
   const shown = ids.slice(0, SHOWN);
   const more = ids.length - shown.length;
@@ -163,8 +163,7 @@ function DownloadsSection() {
     <>
       <Label
         title={`Downloads · ${ids.length}`}
-        action={paused ? "Resume" : pending ? "Pause" : undefined}
-        onPress={paused ? resumeDownloads : pauseDownloads}
+        actions={downloadActions(paused, pending, failed)}
       />
       {shown.map((id, i) => (
         <DownloadItem key={id} id={id} {...corners(i, shown.length)} />
@@ -203,8 +202,7 @@ function SkippedSection() {
     <>
       <Label
         title="Skipped as slow"
-        action="Retry all"
-        onPress={retryAllSkipped}
+        actions={[{ label: "Retry all", onPress: retryAllSkipped }]}
       />
       {ids.map((id, i) => (
         <SkippedItem key={id} sourceId={id} {...corners(i, ids.length)} />
@@ -215,12 +213,10 @@ function SkippedSection() {
 
 function Label({
   title,
-  action,
-  onPress,
+  actions = [],
 }: {
   title: string;
-  action?: string;
-  onPress?: () => void;
+  actions?: HeaderAction[];
 }) {
   const m3 = useThemeM3Colors();
 
@@ -233,11 +229,11 @@ function Label({
         {title}
       </Text>
       <Spacer modifiers={[weight(1)]} />
-      {action && onPress ? (
-        <TextButton onClick={onPress}>
-          <Text style={{ typography: "labelLarge" }}>{action}</Text>
+      {actions.map(({ label, onPress }) => (
+        <TextButton key={label} onClick={onPress}>
+          <Text style={{ typography: "labelLarge" }}>{label}</Text>
         </TextButton>
-      ) : null}
+      ))}
     </Row>
   );
 }

@@ -1,5 +1,10 @@
 import type { Chapter } from "@/features/manga/utils/to-chapters";
-import { enqueue, type QueuedDownload, retry } from "../state/download-queue";
+import {
+  enqueue,
+  type QueuedDownload,
+  retry,
+  retryFailed,
+} from "../state/download-queue";
 import { refreshDownloaded } from "../state/downloaded";
 import { startDownloads } from "../state/run-downloads";
 import { currentStore } from "./current-store";
@@ -35,6 +40,11 @@ export function downloadOne(
 
 export function retryDownload(key: string) {
   retry(key);
+  startDownloads();
+}
+
+export function retryAllDownloads() {
+  retryFailed();
   startDownloads();
 }
 

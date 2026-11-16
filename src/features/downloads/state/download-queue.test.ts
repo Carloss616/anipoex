@@ -25,6 +25,7 @@ const {
   moveUp,
   queuedOf,
   retry,
+  retryFailed,
 } = await import("./download-queue");
 const { chapterHash, downloadKey } = await import("../utils/paths");
 
@@ -129,6 +130,21 @@ describe("retry", () => {
     expect(entry.state).toBe("queued");
     expect(entry.error).toBeUndefined();
     expect(entry.order).toBe(1);
+  });
+});
+
+describe("retryFailed", () => {
+  it("requeues every failed entry and leaves the rest", () => {
+    enqueue([item("a"), item("b"), item("c")]);
+    downloadQueue$[keyOf("a")].assign({ state: "failed", error: "boom" });
+    downloadQueue$[keyOf("b")].state.set("running");
+    downloadQueue$[keyOf("c")].assign({ state: "failed", error: "boom" });
+    retryFailed();
+    const queue = downloadQueue$.get();
+    expect(queue[keyOf("a")].state).toBe("queued");
+    expect(queue[keyOf("a")].error).toBeUndefined();
+    expect(queue[keyOf("b")].state).toBe("running");
+    expect(queue[keyOf("c")].state).toBe("queued");
   });
 });
 

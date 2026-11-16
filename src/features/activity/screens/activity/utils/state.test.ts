@@ -23,6 +23,7 @@ const {
   canMoveUp,
   corners,
   downloadIds,
+  downloadsFailed,
   downloadsPending,
   downloadsView$,
   hasActivity,
@@ -86,6 +87,13 @@ describe("downloads", () => {
     expect(downloadsPending()).toBe(false);
     downloadQueue$.k2.set(entry("k2", 1, "queued"));
     expect(downloadsPending()).toBe(true);
+  });
+
+  test("have failed ones while any entry failed", () => {
+    downloadQueue$.k1.set(entry("k1", 0, "queued"));
+    expect(downloadsFailed()).toBe(false);
+    downloadQueue$.k2.set(entry("k2", 1, "failed"));
+    expect(downloadsFailed()).toBe(true);
   });
 
   test("list every entry by order", () => {

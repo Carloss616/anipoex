@@ -21,6 +21,7 @@ export { currentRoot, currentStore } from "./utils/current-store";
 export {
   deleteDownloads,
   downloadOne,
+  retryAllDownloads,
   retryDownload,
 } from "./utils/download-actions";
 export { type DownloadRoot, downloadRoot } from "./utils/download-root";

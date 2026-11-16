@@ -38,6 +38,9 @@ const downloads = () =>
 export const downloadsPending = () =>
   downloads().some((d) => d.state !== "failed");
 
+export const downloadsFailed = () =>
+  downloads().some((d) => d.state === "failed");
+
 /** Every download's key in order, joined. */
 export const downloadIds = () =>
   downloads()

@@ -18,14 +18,14 @@ import { SkippedItem } from "./components/skipped-item";
 import { UnsentItem } from "./components/unsent-item";
 import {
   clearQueue,
-  pauseDownloads,
-  resumeDownloads,
   retryAllSkipped,
   startReadingScan,
   stopAll,
 } from "./utils/actions";
+import { downloadActions } from "./utils/download-actions";
 import {
   downloadIds,
+  downloadsFailed,
   downloadsPending,
   hasActivity,
   hasScans,
@@ -148,22 +148,22 @@ function DownloadsSection() {
   const ids = split(useValue(downloadIds));
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
+  const failed = useValue(downloadsFailed);
   if (!ids.length) return null;
   const more = ids.length - SHOWN;
+  const actions = downloadActions(paused, pending, failed);
 
   return (
     <Frame>
       <Frame.Header>
         <Frame.Title>{`Downloads · ${ids.length}`}</Frame.Title>
-        {(paused || pending) && (
-          <Frame.Action>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={paused ? resumeDownloads : pauseDownloads}
-            >
-              {paused ? "Resume" : "Pause"}
-            </Button>
+        {actions.length > 0 && (
+          <Frame.Action className="flex flex-row items-center gap-1">
+            {actions.map(({ label, onPress }) => (
+              <Button key={label} variant="ghost" size="sm" onClick={onPress}>
+                {label}
+              </Button>
+            ))}
           </Frame.Action>
         )}
       </Frame.Header>
