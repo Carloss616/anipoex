@@ -55,6 +55,39 @@ describe("createGistTarget", () => {
     expect(await target.read("anipoex-probes.mac.json")).toBe("whole");
   });
 
+  it("downloads nothing again while the gist hasn't changed", async () => {
+    let raws = 0;
+    const gist = {
+      id: "g1",
+      files: {
+        "anipoex-probes.mac.json": {
+          truncated: true,
+          raw_url: "https://gist.githubusercontent.com/raw/sha1/probes",
+        },
+      },
+    };
+    const fn = (async (url: string, init: RequestInit = {}) => {
+      if (url.startsWith("https://gist.githubusercontent.com/")) {
+        raws++;
+        return new Response("whole");
+      }
+      const sent = (init.headers as Record<string, string>)["If-None-Match"];
+      return sent === '"v1"'
+        ? new Response(null, { status: 304 })
+        : new Response(JSON.stringify(gist), { headers: { ETag: '"v1"' } });
+    }) as typeof fetch;
+    const gistId = id();
+    gistId.set("g1");
+    const target = createGistTarget({ token: "t", gistId, fetchFn: fn });
+
+    for (let i = 0; i < 2; i++) {
+      await target.list();
+      expect(await target.read("anipoex-probes.mac.json")).toBe("whole");
+    }
+
+    expect(raws).toBe(1);
+  });
+
   it("makes a private gist when the user has none", async () => {
     let created: { public?: boolean } = {};
     const { fn } = fakeFetch({

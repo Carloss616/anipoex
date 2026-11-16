@@ -49,13 +49,13 @@ async function send(url: string, init: RequestInit, fetchFn: Fetch) {
 }
 
 /** A GitHub API call: offline and a refused token become a `SyncError`. */
-export async function github<T>(
+function request(
   path: string,
   token: string,
   init: RequestInit = {},
   fetchFn: Fetch = fetch,
-): Promise<T> {
-  const res = await send(
+) {
+  return send(
     `${API}${path}`,
     {
       ...init,
@@ -64,11 +64,21 @@ export async function github<T>(
         Authorization: `Bearer ${token}`,
         "X-GitHub-Api-Version": "2022-11-28",
         ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...(init.headers as Record<string, string> | undefined),
       },
     },
     fetchFn,
   );
-  return res.json() as Promise<T>;
+}
+
+/** A GitHub API call's JSON; see `request`. */
+export async function github<T>(
+  path: string,
+  token: string,
+  init?: RequestInit,
+  fetchFn?: Fetch,
+): Promise<T> {
+  return (await request(path, token, init, fetchFn)).json() as Promise<T>;
 }
 
 /** The signed-in GitHub user, to show in the Sync section. */
@@ -122,30 +132,51 @@ export function createGistTarget({
   fetchFn?: Fetch;
 }): SyncTarget {
   let files: Record<string, GistFile | null> = {};
+  // Each sync would download every device's files again (megabytes once a
+  // scan's probes are in): the gist answers 304 to its ETag when nothing
+  // changed, and a file's raw URL changes with its content.
+  let cached: { id: string; etag: string | null; gist: Gist } | undefined;
+  const raws = new Map<string, string>();
+
+  const getGist = async (id: string) => {
+    const etag = cached?.id === id ? cached.etag : null;
+    try {
+      const res = await request(
+        `/gists/${id}`,
+        token,
+        etag ? { headers: { "If-None-Match": etag } } : {},
+        fetchFn,
+      );
+      const gist = (await res.json()) as Gist;
+      cached = { id, etag: res.headers.get("etag"), gist };
+      return gist;
+    } catch (error) {
+      if (cached && (error as { status?: number }).status === 304) {
+        return cached.gist;
+      }
+      throw error;
+    }
+  };
 
   const load = async () => {
     let id = gistId.get() ?? (await findOrCreateGist(token, fetchFn));
     gistId.set(id);
     try {
-      return {
-        id,
-        gist: await github<Gist>(`/gists/${id}`, token, {}, fetchFn),
-      };
+      return { id, gist: await getGist(id) };
     } catch (error) {
       if ((error as { status?: number }).status !== 404) throw error;
       gistId.set(undefined);
       id = await findOrCreateGist(token, fetchFn);
       gistId.set(id);
-      return {
-        id,
-        gist: await github<Gist>(`/gists/${id}`, token, {}, fetchFn),
-      };
+      return { id, gist: await getGist(id) };
     }
   };
 
   return {
     async list() {
       ({ files } = (await load()).gist);
+      const current = new Set(Object.values(files).map((f) => f?.raw_url));
+      for (const url of raws.keys()) if (!current.has(url)) raws.delete(url);
       return Object.keys(files);
     },
     async read(name) {
@@ -156,7 +187,13 @@ export function createGistTarget({
       // A secret gist's raw URL needs no token; without headers a browser
       // sends it as is, with no preflight to another host.
       if (!file.raw_url) return undefined;
-      return (await send(file.raw_url, {}, fetchFn ?? fetch)).text();
+      const known = raws.get(file.raw_url);
+      if (known !== undefined) return known;
+      const text = await (
+        await send(file.raw_url, {}, fetchFn ?? fetch)
+      ).text();
+      raws.set(file.raw_url, text);
+      return text;
     },
     async write(next) {
       const id = gistId.get() ?? (await load()).id;

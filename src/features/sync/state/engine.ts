@@ -27,7 +27,11 @@ const DEVICE_NAME =
     ? desktop
       ? "Mac"
       : "Browser"
-    : (Device.modelName ?? (Platform.OS === "ios" ? "iPhone" : "Android"));
+    : Platform.OS === "android"
+      ? // The name set on the phone ("Galaxy S23 Ultra"), not its model code.
+        (Device.deviceName ?? Device.modelName ?? "Android")
+      : // iOS hands apps a generic "iPhone" for deviceName.
+        (Device.modelName ?? "iPhone");
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 

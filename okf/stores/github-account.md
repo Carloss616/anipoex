@@ -22,7 +22,9 @@ Either way it is kept only once it has found or made the sync gist, which proves
 
 The gist is private, described "Anipoex sync", and marked by its `anipoex-manifest.json`:
 a device finds it among the user's gists, or makes it when there is none, and keeps its id.
-A deleted gist is found or made again on the next sync. Each device writes its own files
+A deleted gist is found or made again on the next sync. A sync downloads only what changed
+since the last one in this session: GitHub answers "not modified" when the gist is the same,
+and a file whose content is unchanged keeps its download address, so it isn't fetched again. Each device writes its own files
 there, `anipoex-<table>.<device>.json` ([sync stamps](sync-meta.md)).
 
 The Sync section shows the GitHub user with the last sync ("Synced 5m ago", "Syncing…", or
