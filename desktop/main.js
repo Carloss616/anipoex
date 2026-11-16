@@ -20,6 +20,7 @@ import {
 } from "./assets/pages.js";
 import { resolveAsset } from "./assets/serve.js";
 import { authRedirect } from "./auth.js";
+import { registerDownloads } from "./downloads.js";
 import { registerFolder } from "./folder.js";
 import { fetchThrough, solveChallenge } from "./host/challenge.js";
 import { renderImage } from "./host/graphics.js";
@@ -306,6 +307,14 @@ app.whenReady().then(() => {
     ipcMain,
     window,
     (event) => originOf(event.senderFrame?.url) === APP_ORIGIN,
+  );
+  registerDownloads(
+    ipcMain,
+    (event) => originOf(event.senderFrame?.url) === APP_ORIGIN,
+    {
+      appRoot: app.getPath("userData"),
+      packedDir: path.join(extensions, "cache/packed"),
+    },
   );
   window.loadURL(APP_URL);
   // The app is this window: hidden ones (kept pages, JS engine) don't count.
