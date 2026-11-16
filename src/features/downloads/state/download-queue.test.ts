@@ -62,9 +62,16 @@ describe("enqueue", () => {
     expect(Object.keys(downloadQueue$.get())).toHaveLength(1);
   });
 
+  it("skips the same chapter twice in one call", () => {
+    expect(enqueue([item("a"), item("a")])).toBe(1);
+  });
+
   it("skips a chapter already downloaded", () => {
-    downloaded$["21/1234"].set({ [chapterHash("a")]: "local" });
-    expect(enqueue([item("a")])).toBe(0);
+    downloaded$["21/1234"].set({
+      [chapterHash("a")]: "local",
+      [chapterHash("b")]: "cloud",
+    });
+    expect(enqueue([item("a"), item("b")])).toBe(0);
     expect(Object.keys(downloadQueue$.get())).toHaveLength(0);
   });
 });
@@ -89,6 +96,20 @@ describe("moveUp", () => {
     enqueue([item("a"), item("b"), item("c")]);
     moveUp(keyOf("c"));
     expect(urls("1234")).toEqual(["a", "c", "b"]);
+  });
+
+  it("skips a running or failed entry", () => {
+    enqueue([item("a"), item("b"), item("c")]);
+    downloadQueue$[keyOf("b")].state.set("failed");
+    moveUp(keyOf("c"));
+    expect(urls("1234")).toEqual(["c", "a"]);
+  });
+
+  it("does nothing when no queued entry is before it", () => {
+    enqueue([item("a"), item("b")]);
+    downloadQueue$[keyOf("a")].state.set("running");
+    moveUp(keyOf("b"));
+    expect(downloadQueue$.get()[keyOf("b")].order).toBe(1);
   });
 
   it("does nothing for the first entry", () => {

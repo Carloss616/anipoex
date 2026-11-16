@@ -47,15 +47,17 @@ export function enqueue(
 ) {
   const queue = downloadQueue$.peek();
   let next = Math.max(-1, ...Object.values(queue).map((e) => e.order)) + 1;
+  const seen = new Set<string>();
   let added = 0;
   batch(() => {
     for (const item of items) {
       const hash = chapterHash(item.chapter.url);
       const key = downloadKey(item.manga.id, item.source.id, hash);
-      if (key in queue) continue;
+      if (key in queue || seen.has(key)) continue;
       if (downloaded$.peek()[`${item.manga.id}/${item.source.id}`]?.[hash])
         continue;
       downloadQueue$[key].set({ ...item, key, order: next++, state: "queued" });
+      seen.add(key);
       added++;
     }
   });
@@ -72,7 +74,7 @@ export function cancel(key: string) {
 }
 
 export function moveUp(key: string) {
-  const entries = sorted();
+  const entries = sorted().filter((e) => e.state === "queued");
   const at = entries.findIndex((e) => e.key === key);
   if (at < 1) return;
   // Legend edits the stored objects in place: read both orders before writing.
