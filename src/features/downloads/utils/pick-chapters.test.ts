@@ -120,10 +120,10 @@ describe("preferredScanlator", () => {
     expect(preferredScanlator([ch(3, "A"), ch(2, "B")], 3, none)).toBe("A");
   });
 
-  test("a fractional chapter under the progress counts as read", () => {
-    expect(preferredScanlator([ch(12.5, "B"), ch(11, "A")], 12, none)).toBe(
-      "B",
-    );
+  test("a fractional chapter above the progress is not read", () => {
+    const list = [ch(12.5, "B")];
+    expect(preferredScanlator(list, 12, none)).toBeNull();
+    expect(preferredScanlator(list, 13, none)).toBe("B");
   });
 
   test("an unnumbered chapter is never the reference", () => {

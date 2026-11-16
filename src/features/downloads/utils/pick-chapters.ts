@@ -1,4 +1,4 @@
-import type { Chapter } from "@/features/manga/utils/to-chapters";
+import { type Chapter, isRead } from "@/features/manga/utils/to-chapters";
 import { chapterHash } from "./paths";
 
 export type DownloadPick = "next" | "next5" | "next10" | "unread" | "all";
@@ -62,8 +62,7 @@ export function preferredScanlator(
   for (const c of chapters) {
     if (c.number < 0) continue;
     const used =
-      Math.floor(c.number) <= progress ||
-      downloadedHashes.has(chapterHash(c.id));
+      isRead(progress, c.number) || downloadedHashes.has(chapterHash(c.id));
     if (used && (!best || c.number > best.number)) best = c;
   }
   return best?.scanlator ?? null;
