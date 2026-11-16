@@ -5,6 +5,7 @@ import { isRuntimeAvailable, useLoadInstalled } from "@/features/extensions";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { AccountSection } from "./components/account-section";
 import { AppearanceSection } from "./components/appearance-section";
+import { DownloadsSection } from "./components/downloads-section";
 import { HomeSection } from "./components/home-section";
 import { NetworkSection } from "./components/network-section";
 import { SourcesSection } from "./components/sources-section";
@@ -27,6 +28,7 @@ export function Settings() {
           {/* A plain browser runs no extensions: nothing to pick or resolve. */}
           {isRuntimeAvailable && <SourcesSection />}
           {isRuntimeAvailable && <NetworkSection />}
+          {isRuntimeAvailable && <DownloadsSection />}
         </HeaderInsetView>
       </ScrollView>
     </>

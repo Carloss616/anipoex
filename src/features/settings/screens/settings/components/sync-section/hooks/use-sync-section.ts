@@ -16,11 +16,11 @@ import {
   type TargetKey,
 } from "@/features/sync/state/engine";
 import { github$ } from "@/features/sync/state/github";
-import { canUseFolder, folderName } from "@/features/sync/utils/folder-target";
 import type { DeviceKind } from "@/features/sync/utils/sync-file";
 import { settings$ } from "@/state/settings";
 import { desktop } from "@/utils/desktop";
 import { openExternal } from "@/utils/open-external";
+import { canUseFolder, folderName } from "@/utils/picked-folder";
 import { timeAgo } from "@/utils/time-ago";
 
 const ago = (ms: number) => timeAgo(ms / 1000);

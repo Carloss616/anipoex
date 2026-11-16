@@ -1,5 +1,6 @@
 import { requireNativeModule } from "expo";
 import { File, Paths } from "expo-file-system";
+import { bookmarkOf } from "@/utils/picked-folder";
 import type { DownloadRoot } from "../download-root";
 import { fileSystemStore } from "../file-system-store";
 import { idOf } from "../paths";
@@ -9,7 +10,7 @@ import { type TreeFile, treeDownloads } from "./utils/tree-downloads";
 
 export { NotDownloadedError } from "./utils/errors";
 
-/** `modules/bookmarked-folder`: the folder the sync also uses. */
+/** `modules/bookmarked-folder`: the sync's folder, or one picked for downloads. */
 const folder = requireNativeModule<{
   listTree(bookmark: string, dir: string): Promise<TreeFile[]>;
   copyIn(bookmark: string, path: string, from: string): Promise<void>;
@@ -21,9 +22,8 @@ const isNotDownloaded = (error: unknown) =>
   (error as { code?: string })?.code === "NOT_DOWNLOADED" ||
   (error as { message?: string })?.message === "NOT_DOWNLOADED";
 
-// A location is `<name>\n<bookmark>` (folder-target.ios.ts).
 function folderStore(location: string): DownloadStore {
-  const bookmark = location.slice(location.indexOf("\n") + 1);
+  const bookmark = bookmarkOf(location);
   return {
     async list(mangaId, sourceId) {
       return treeDownloads(
