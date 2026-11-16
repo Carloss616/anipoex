@@ -1,0 +1,69 @@
+# Anipoex — full reference
+
+> A manga tracker for your AniList list that reads chapters from Mihon extensions, on iOS, Android, web, macOS and Windows.
+
+- Author: Carlos Espinoza (https://github.com/Carloss616)
+- URL: https://github.com/Carloss616/anipoex
+- License: MIT
+
+## Overview
+
+Anipoex is a manga tracker for one person. It signs in to AniList, shows the manga on the user's list and records how far they have read. AniList is the record of truth: the app keeps only a session, a cache and the user's reading setup on the device.
+
+To find chapters, it runs Mihon extensions (extensions-lib 1.4 and 1.6) inside the app, with no server. The user adds extension repos, trusts each repo's signing key and installs extensions; each manga then reads from one source. A scan compares every installed source for a manga and shows how many chapters are past the user's progress (`+N`).
+
+The same features ship on iOS (SwiftUI), Android (Jetpack Compose), the web (PanelUI) and a desktop app for macOS and Windows (Electron). A plain browser can show the list and the extension catalog but cannot run extensions.
+
+## Features
+
+- AniList list by status (Reading, Planning, Completed, Dropped, Paused, Rereading) with per-status counts, search and genre filter.
+- Manga detail with a tracking sheet: status, progress, score in the user's format, start and finish dates; tracking rules fill side effects (a finished manga gets its dates from list activity).
+- Extension repos and catalog; install, update and uninstall, each APK checked against the repo's signing key.
+- Source picker per manga: search by title, set a source's page by hand, exclude or include sources, see a source's last error.
+- Scans: one manga, one source, or the whole Reading list; results per source (new, up to date, outdated, no match, error); auto-exclusion of bad sources, rechecked after 7 days; suspicious chapter numbering flagged; auto-pick of the best source with Undo.
+- Reader: a chapter's pages from the chosen source; progress saved to AniList at a chapter's end.
+- Home: continue reading, trending, recommendations, genres, following activity; sections can be reordered.
+- Scan activity: a Live Activity on iOS and a notification on Android while a scan runs.
+- Sync between devices through a private GitHub gist (GitHub's device code sign-in, or a pasted token on the web) or a folder a cloud app keeps in sync (desktop, Android, iOS).
+- Theme families with light and dark modes; extension DNS (system or DNS over HTTPS) per device.
+
+## Architecture
+
+| Path | Role |
+|------|------|
+| `src/app/` | Expo Router routes, thin wrappers around feature screens |
+| `src/features/manga/` | list, detail, tracking, source picking, scans, reader |
+| `src/features/extensions/` | repos, catalog, install state, the `RuntimeApi` per platform |
+| `src/features/sync/` | sync engine, gist and folder targets, synced tables |
+| `src/features/settings/`, `src/features/home/`, `src/features/activity/` | settings, home sections, scan activity |
+| `src/state/` | app-wide stores: settings (one synced table), theme |
+| `modules/extension-runtime/android` | Kotlin Expo module and the `eu.kanade.tachiyomi.*` host classes; ART loads each APK as is |
+| `modules/extension-runtime/jvm` | JVM core for desktop and iOS: `Bridge.call`, apksig, dex repair, dex2jar, Android shims |
+| `modules/extension-runtime/ios` | embedded OpenJDK Zero (interpreter) reached over JNI |
+| `modules/*` | other local Expo modules (Compose top app bar, menus, carousel, native images, bookmarked folder) |
+| `desktop/` | Electron app: loads the web export, runs the JVM core as a sidecar over JSON lines |
+| `okf/` | domain knowledge in Open Knowledge Format: AniList operations, device stores, rules |
+| `docs/` | guides with diagrams: extensions, sync and source picking, app structure, app icon |
+
+## Technical details
+
+- Stack: Expo SDK 58, React Native 0.88, React 19, Expo Router, `@expo/ui`, PanelUI + Uniwind (Tailwind CSS 4) on web, Legend State v3, Apollo Client 4 with GraphQL codegen, Bun, Biome, TypeScript 7.
+- State: Legend State observables persisted to MMKV (native) or localStorage (web); data that grows per item (chapter lists) is stored one entry at a time.
+- Extension runtime: every platform answers the same `RuntimeApi` (install, installed, uninstall, search, chapters, pages, mangaWebUrl, DNS). Android runs extensions in ART; desktop and iOS convert the APK's dex to a jar after checking its signature, and keep the previous version if loading fails.
+- Sync: each device writes its own files (`anipoex-<table>.<device>.json`) and reads everyone's. Every record carries a change stamp; the newest wins, a tie goes to what is already synced, removals travel as tombstones (kept 90 days). Syncs run on launch, on foreground, on an interval (1, 5 or 15 minutes, or off, per device), 3 s after a change (at most once a minute), and when the desktop sync folder changes.
+- What stays on a device: a failed scan result, an exclusion caused by errors and a source a scan picked (a source can fail on one device and work on another); chapter lists, cookies, DNS and device settings. A source picked by hand syncs and wins everywhere. A device with no source picked for a manga picks the best one from synced scan results when the manga opens, and fetches chapters on demand.
+- Extension installs sync as a list: other devices install and uninstall to match, from the repo signed with the same key; packages no local repo lists are skipped.
+- Distribution: extensions download code at runtime, so the iOS app is sideloaded and the Android app ships outside Google Play. The desktop app runs on macOS and Windows; packaging builds an unsigned arm64 macOS `.dmg` only.
+
+## Run
+
+- `bun install`, then `bun run ios` or `bun run android` (Expo development build), `bun start` for Metro.
+- `bun run web` for the web app; `bun run desktop` for the desktop app on macOS or Windows (see `desktop/README.md`).
+- `bun run extensions:ios-runtime` packages the embedded JDK before the first iOS build.
+- `.env.local` holds `EXPO_PUBLIC_ANILIST_GRAPHQL_URL`, `EXPO_PUBLIC_ANILIST_AUTHORIZE_URL`, `EXPO_PUBLIC_ANILIST_CLIENT_ID_NATIVE`, `EXPO_PUBLIC_ANILIST_CLIENT_ID_WEB` and `EXPO_PUBLIC_GITHUB_CLIENT_ID`.
+- Checks: `bun run typecheck`, `bun run check`, `bun test`; `bun run codegen` after changing a `.gql` operation.
+
+## Roadmap
+
+- Done: AniList tracking; Mihon extensions on Android, iOS, macOS and Windows; scans, auto-exclusion and auto-pick; reader; sync through a gist or a folder; desktop app for macOS and Windows.
+- Planned: chapter downloads; the iOS runtime on a physical iPhone; signed macOS builds; a Windows installer.

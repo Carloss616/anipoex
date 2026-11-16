@@ -1,0 +1,15 @@
+# Anipoex
+
+> A manga tracker for your AniList list that reads chapters from Mihon extensions, on iOS, Android, web, macOS and Windows.
+
+## About
+
+Anipoex tracks the signed-in user's AniList manga list (status, progress, score, dates) and finds new chapters by running Mihon extensions inside the app, with no server: natively on Android, in an embedded JVM on iOS and the desktop app (macOS, Windows). Scans compare every installed source for a manga, auto-exclude bad ones and pick the one furthest ahead. Settings, picks, scan results and installed extensions sync across devices through the user's GitHub gist or a cloud folder. Built with Expo SDK 58, React Native, SwiftUI and Jetpack Compose through @expo/ui, and Electron for macOS and Windows.
+
+- Author: [Carlos Espinoza](https://github.com/Carloss616)
+- URL: https://github.com/Carloss616/anipoex
+- License: MIT
+
+## Docs
+
+- [Full documentation](https://raw.githubusercontent.com/Carloss616/anipoex/main/llms-full.txt): features, architecture, extension runtime, sync and scan rules, roadmap
