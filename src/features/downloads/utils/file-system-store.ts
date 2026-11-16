@@ -1,4 +1,4 @@
-import { Directory, File, FileMode } from "expo-file-system";
+import { Directory, File, type FileHandle, FileMode } from "expo-file-system";
 import type { DownloadStore } from "./download-store/download-store";
 import { NotDownloadedError } from "./download-store/utils/errors";
 import { groupDownloads, idOf, isDownloadPath } from "./paths";
@@ -76,23 +76,27 @@ export function fileSystemStore(root: Directory): DownloadStore {
       // A new document each time, since some providers don't truncate on overwrite;
       // `copy` onto it would delete it first on SAF, and SAF has no rename for a temp name.
       child(dir, named(name))?.delete();
-      const input = new File(fileUri).open(FileMode.ReadOnly);
-      const target = dir.createFile(name, MIME);
-      const output = target.open(FileMode.WriteOnly);
+      let input: FileHandle | undefined;
+      let target: File | undefined;
+      let output: FileHandle | undefined;
       try {
+        input = new File(fileUri).open(FileMode.ReadOnly);
+        target = dir.createFile(name, MIME);
+        output = target.open(FileMode.WriteOnly);
         for (;;) {
           const bytes = await input.readBytes(CHUNK);
           if (!bytes.length) break;
           await output.writeBytes(bytes);
         }
       } catch (error) {
-        // A half-written file would list as a download.
-        output.close();
-        target.delete();
+        // A half-written or empty file would list as a download.
+        output?.close();
+        output = undefined;
+        target?.delete();
         throw error;
       } finally {
-        input.close();
-        output.close();
+        input?.close();
+        output?.close();
       }
     },
     async get(path) {
