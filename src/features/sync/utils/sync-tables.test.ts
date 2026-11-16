@@ -49,6 +49,7 @@ const device = (id: string, target: SyncTarget, initial: Exclusions = {}) => {
         pushed$,
         device: id,
         deviceName: `${id} name`,
+        deviceKind: id === "mac" ? "computer" : "phone",
         target,
         now: () => clock,
       }),
@@ -72,7 +73,7 @@ describe("syncTables", () => {
     });
   });
 
-  it("lists the devices on the target with their names", async () => {
+  it("lists the devices on the target with their names and kinds", async () => {
     const { target } = memoryTarget();
     const mac = device("mac", target);
     const phone = device("phone", target);
@@ -83,8 +84,8 @@ describe("syncTables", () => {
     const { devices } = await mac.sync();
 
     expect(devices).toEqual([
-      { id: "mac", name: "mac name", lastChange: 1000 },
-      { id: "phone", name: "phone name", lastChange: 1000 },
+      { id: "mac", name: "mac name", kind: "computer", lastChange: 1000 },
+      { id: "phone", name: "phone name", kind: "phone", lastChange: 1000 },
     ]);
   });
 

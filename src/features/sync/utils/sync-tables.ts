@@ -10,6 +10,7 @@ import {
   valueAt,
 } from "./records";
 import {
+  type DeviceKind,
   parseSyncFile,
   SYNC_FORMAT,
   serializeSyncFile,
@@ -37,6 +38,8 @@ export interface SyncTablesOptions {
   device: string;
   /** Written in this device's files, so others can name it. */
   deviceName?: string;
+  /** Written in this device's files, for its icon on the others. */
+  deviceKind?: DeviceKind;
   target: SyncTarget;
   now?: () => number;
 }
@@ -45,6 +48,7 @@ export interface SyncTablesOptions {
 export interface SyncDevice {
   id: string;
   name?: string;
+  kind?: DeviceKind;
   lastChange: number;
 }
 
@@ -110,6 +114,7 @@ export async function syncTables({
   pushed$,
   device,
   deviceName,
+  deviceKind,
   target,
   now = Date.now,
 }: SyncTablesOptions) {
@@ -139,6 +144,7 @@ export async function syncTables({
       devices.set(file.device, {
         id: file.device,
         name: file.name,
+        kind: file.kind,
         lastChange: latest,
       });
     }
@@ -169,6 +175,7 @@ export async function syncTables({
       format: SYNC_FORMAT,
       device,
       ...(deviceName && { name: deviceName }),
+      ...(deviceKind && { kind: deviceKind }),
       table: table.name,
       records: kept,
     });

@@ -8,6 +8,7 @@ import { settings$ } from "@/state/settings";
 import { desktop } from "@/utils/desktop";
 import { SyncError } from "../utils/github";
 import { serial } from "../utils/serial";
+import type { DeviceKind } from "../utils/sync-file";
 import {
   retireDevice,
   type SyncDevice,
@@ -35,6 +36,16 @@ const DEVICE_NAME =
         (Device.deviceName ?? Device.modelName ?? "Android")
       : // iOS hands apps a generic "iPhone" for deviceName.
         (Device.modelName ?? "iPhone");
+
+/** What this device is, for its icon on the others. */
+export const DEVICE_KIND: DeviceKind =
+  Platform.OS === "web"
+    ? desktop
+      ? "computer"
+      : "browser"
+    : Device.deviceType === Device.DeviceType.TABLET
+      ? "tablet"
+      : "phone";
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
@@ -104,6 +115,7 @@ async function syncWith(key: TargetKey, target: SyncTarget, device: string) {
       pushed$: state$.pushed,
       device,
       deviceName: DEVICE_NAME,
+      deviceKind: DEVICE_KIND,
       target,
     });
     // A target that was stopped meanwhile keeps no state.

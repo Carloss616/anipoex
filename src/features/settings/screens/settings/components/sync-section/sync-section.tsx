@@ -142,6 +142,9 @@ export function SyncSection() {
         {sync.connected &&
           sync.devices.map((device) => (
             <Frame.Row key={device.id}>
+              <Frame.Media>
+                <Icon name={device.icon} size={18} muted />
+              </Frame.Media>
               <Frame.Content>
                 <Frame.Title as="p">{device.title}</Frame.Title>
                 {device.detail && (

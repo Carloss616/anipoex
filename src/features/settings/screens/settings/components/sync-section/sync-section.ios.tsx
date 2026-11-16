@@ -186,11 +186,15 @@ export function SyncSection() {
       ) : null}
       {sync.connected
         ? sync.devices.map((device) => (
-            <Lines
-              key={device.id}
-              title={device.title}
-              detail={device.detail}
-            />
+            <HStack key={device.id} spacing={12}>
+              <Icon
+                name={device.icon}
+                size={20}
+                muted
+                modifiers={[frame({ width: 28 })]}
+              />
+              <Lines title={device.title} detail={device.detail} />
+            </HStack>
           ))
         : null}
     </Section>

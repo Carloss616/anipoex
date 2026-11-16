@@ -2,6 +2,7 @@
 
 ## 2026-11-16
 
+* **Device icons**: each device's sync files say what it is (phone, tablet, computer, browser), and the Sync section's device rows show it as an icon. Updated [GitHub account](stores/github-account.md).
 * **Sync interval per device**: each device picks how often an open app looks for other devices' changes (1, 5 or 15 minutes, or never; 5 by default), and a folder sync on Android and iOS reads again only the files that changed. Updated [sync state](stores/sync-state.md), [settings](stores/settings.md).
 
 ## 2026-11-15

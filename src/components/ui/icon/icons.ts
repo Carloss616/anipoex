@@ -259,4 +259,31 @@ export const Icons = {
     android: require("@expo/material-symbols/dark_mode.xml"),
     web: "moon",
   }),
+
+  // Devices
+  device: Icon.select({
+    ios: "macbook.and.iphone",
+    android: require("@expo/material-symbols/devices.xml"),
+    web: "monitor-smartphone",
+  }),
+  devicePhone: Icon.select({
+    ios: "iphone",
+    android: require("@expo/material-symbols/mobile.xml"),
+    web: "smartphone",
+  }),
+  deviceTablet: Icon.select({
+    ios: "ipad",
+    android: require("@expo/material-symbols/tablet.xml"),
+    web: "tablet",
+  }),
+  deviceComputer: Icon.select({
+    ios: "laptopcomputer",
+    android: require("@expo/material-symbols/computer.xml"),
+    web: "laptop",
+  }),
+  deviceBrowser: Icon.select({
+    ios: "globe",
+    android: require("@expo/material-symbols/globe.xml"),
+    web: "globe",
+  }),
 };

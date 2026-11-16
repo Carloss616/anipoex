@@ -19,7 +19,7 @@ export function Settings() {
     <>
       <Stack.Title large>Settings</Stack.Title>
       <ScrollView className="flex-1" {...headerScroll}>
-        <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-4 self-center">
+        <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-6 self-center">
           <AccountSection />
           <SyncSection />
           <HomeSection />

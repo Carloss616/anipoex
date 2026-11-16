@@ -3,12 +3,18 @@ import type { Records, SyncRecord } from "./records";
 /** Bumped when a file written now can't be read by an older build. */
 export const SYNC_FORMAT = 1;
 
+/** What a device is, for its icon in the Sync section. */
+export type DeviceKind = "phone" | "tablet" | "computer" | "browser";
+
+const KINDS: readonly unknown[] = ["phone", "tablet", "computer", "browser"];
+
 /** One device's copy of one table, as stored on the target. */
 export interface SyncFile {
   format: number;
   device: string;
   /** The device as people call it ("iPhone 16"), for the Sync section. */
   name?: string;
+  kind?: DeviceKind;
   table: string;
   records: Records;
 }
@@ -47,7 +53,10 @@ export function parseSyncFile(
     return undefined;
   }
   if (!raw || typeof raw !== "object") return undefined;
-  const { format, device, name, records } = raw as Record<string, unknown>;
+  const { format, device, name, kind, records } = raw as Record<
+    string,
+    unknown
+  >;
   if (format !== SYNC_FORMAT || typeof device !== "string") return undefined;
   if ((raw as SyncFile).table !== table) return undefined;
   if (!records || typeof records !== "object") return undefined;
@@ -55,6 +64,8 @@ export function parseSyncFile(
     format,
     device,
     ...(typeof name === "string" && { name }),
+    // A kind a newer build added is left out, so the row takes the generic icon.
+    ...(KINDS.includes(kind) && { kind: kind as DeviceKind }),
     table,
     records: Object.fromEntries(
       Object.entries(records).filter(([, record]) => isRecord(record)),

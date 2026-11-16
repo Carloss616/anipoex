@@ -1,6 +1,8 @@
 {
   "platforms": ["android"],
   "android": {
-    "modules": ["expo.modules.linearwavyprogressindicator.LinearWavyProgressIndicatorModule"]
+    "modules": [
+      "expo.modules.linearwavyprogressindicator.LinearWavyProgressIndicatorModule"
+    ]
   }
 }

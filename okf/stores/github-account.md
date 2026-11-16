@@ -29,8 +29,9 @@ there, `anipoex-<table>.<device>.json` ([sync stamps](sync-meta.md)).
 
 The Sync section shows the GitHub user with the last sync ("Synced 5m ago", "Syncing…", or
 why it failed; no connection isn't shown as a failure), the devices whose files are in the
-gist (this one first, the others with when they last changed something), and a Folder row
-marked Soon. Its menu (long press on Android, context menu on iOS, ⋯ on the web) has Sync
+gist (this one first, the others with when they last changed something), each with an icon
+for what it is: phone, tablet, computer or browser, which its files say; a device on an
+older build gets a generic one. Its menu (long press on Android, context menu on iOS, ⋯ on the web) has Sync
 now, Open gist on GitHub and Disconnect; a revoked token shows Reconnect instead. The first
 sync after connecting ends with one notice: how many devices it merged with and how many
 records it changed here.

@@ -27,6 +27,13 @@ describe("sync files", () => {
     expect(parseSyncFile(serializeSyncFile(file), "exclusions")).toEqual(file);
   });
 
+  it("keeps a known device kind and drops one it doesn't know", () => {
+    const read = (kind: string) =>
+      parseSyncFile(JSON.stringify({ ...file, kind }), "exclusions")?.kind;
+    expect(read("tablet")).toBe("tablet");
+    expect(read("watch")).toBeUndefined();
+  });
+
   it("refuses broken text, another table and a newer format", () => {
     expect(parseSyncFile("{", "exclusions")).toBeUndefined();
     expect(parseSyncFile(serializeSyncFile(file), "pins")).toBeUndefined();

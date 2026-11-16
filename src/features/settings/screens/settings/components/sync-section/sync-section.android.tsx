@@ -208,6 +208,9 @@ export function SyncSection() {
             count={count}
             {...row}
           >
+            <SegmentedListItem.Leading>
+              <LeadingIcon name={device.icon} />
+            </SegmentedListItem.Leading>
             <Text>{device.title}</Text>
             {device.detail ? (
               <SegmentedListItem.Supporting>
