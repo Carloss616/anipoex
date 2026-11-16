@@ -2,11 +2,13 @@ import { useObserve } from "@legendapp/state/react";
 import { useState } from "react";
 import { toast } from "@/components/ui/toast";
 import {
+  currentRoot,
   type DownloadRoot,
   downloaded$,
   downloadRoot,
   downloadStore,
-  moveDownloads,
+  isMoving,
+  moveOnce,
   refreshDownloaded,
   sameRoot,
 } from "@/features/downloads";
@@ -22,7 +24,7 @@ interface Offer {
 // The house toast can't update in place: a new one when the last has gone.
 const PROGRESS_EVERY_MS = 4000;
 
-const currentRoot = () => downloadRoot(settings$.device.peek());
+const plural = (n: number) => (n === 1 ? "" : "s");
 
 function refreshAll() {
   for (const key of Object.keys(downloaded$.peek())) {
@@ -40,17 +42,17 @@ async function move({ from, to }: Offer) {
   if (!source || !target) return;
   let shownAt = 0;
   try {
-    const { moved, failed } = await moveDownloads(
-      source,
-      target,
-      (done, total) => {
-        if (done === total || Date.now() - shownAt < PROGRESS_EVERY_MS) return;
-        shownAt = Date.now();
-        toast(`Moving downloads… ${done}/${total}`);
-      },
-    );
+    const result = await moveOnce(source, target, (done, total) => {
+      if (done === total || Date.now() - shownAt < PROGRESS_EVERY_MS) return;
+      shownAt = Date.now();
+      toast(`Moving downloads… ${done}/${total}`);
+    });
+    if (!result) return;
+    const { moved, skipped, failed } = result;
     toast.success(
-      `Moved ${moved} chapters${failed ? `, ${failed} failed` : ""}`,
+      moved || failed || !skipped
+        ? `Moved ${moved} chapter${plural(moved)}${failed ? `, ${failed} failed` : ""}`
+        : "Already there: nothing to move",
     );
   } catch (error) {
     toast.error(
@@ -67,14 +69,15 @@ export function useMoveDownloads() {
   useObserve(
     () => downloadRoot(settings$.device.get()),
     ({ value: to, previous: from }) => {
-      if (!from || !to || sameRoot(from, to)) return;
+      // moveOnce would refuse it.
+      if (!from || !to || sameRoot(from, to) || isMoving()) return;
       setOffer(undefined);
       downloadStore(from)
         ?.listAll()
         .then(
           (paths) => {
             // A later change made this offer stale.
-            if (paths.length && sameRoot(to, currentRoot()))
+            if (paths.length && sameRoot(to, currentRoot()) && !isMoving())
               setOffer({ from, to, count: paths.length });
           },
           () => {},
@@ -89,7 +92,9 @@ export function useMoveDownloads() {
 
   return {
     open: !!offer,
-    title: offer ? `Move ${offer.count} downloaded chapters to ${name}?` : "",
+    title: offer
+      ? `Move ${offer.count} downloaded chapter${plural(offer.count)} to ${name}?`
+      : "",
     move: () => offer && void move(offer),
     dismiss: () => setOffer(undefined),
   };

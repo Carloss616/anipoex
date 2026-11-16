@@ -8,6 +8,9 @@ export const sameRoot = (a: DownloadRoot, b: DownloadRoot) =>
 /**
  * Moves every download of `from` into `to`, one at a time. A file leaves
  * `from` only once `to` has it; a failure keeps it there and goes on.
+ * A path `to` already has is skipped and kept: two location strings can name
+ * the same folder (a new iOS bookmark, another SAF tree URI), and removing it
+ * would delete the only copy.
  */
 export async function moveDownloads(
   from: DownloadStore,
@@ -17,20 +20,40 @@ export async function moveDownloads(
   const paths = await from.listAll();
   const there = new Set(await to.listAll());
   let moved = 0;
+  let skipped = 0;
   let failed = 0;
   for (const [index, path] of paths.entries()) {
-    try {
-      if (there.has(path)) {
-        await from.remove(path);
-      } else {
+    if (there.has(path)) {
+      skipped++;
+    } else {
+      try {
         await to.put(path, await from.get(path));
         await from.remove(path);
         moved++;
+      } catch {
+        failed++;
       }
-    } catch {
-      failed++;
     }
     onProgress(index + 1, paths.length);
   }
-  return { moved, failed };
+  return { moved, skipped, failed };
+}
+
+let moving = false;
+export const isMoving = () => moving;
+
+/**
+ * `moveDownloads`, but undefined while another move runs: two moves in
+ * opposite directions could each remove the copy the other just made.
+ */
+export async function moveOnce(
+  ...args: Parameters<typeof moveDownloads>
+): Promise<Awaited<ReturnType<typeof moveDownloads>> | undefined> {
+  if (moving) return undefined;
+  moving = true;
+  try {
+    return await moveDownloads(...args);
+  } finally {
+    moving = false;
+  }
 }

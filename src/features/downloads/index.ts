@@ -17,7 +17,7 @@ export {
   startDownloads,
 } from "./state/run-downloads";
 export { downloadTitle } from "./utils/activity-view";
-export { currentStore } from "./utils/current-store";
+export { currentRoot, currentStore } from "./utils/current-store";
 export {
   deleteDownloads,
   downloadOne,
@@ -26,5 +26,5 @@ export {
 export { type DownloadRoot, downloadRoot } from "./utils/download-root";
 export { type DownloadState, downloadStateOf } from "./utils/download-state";
 export { type DownloadStore, downloadStore } from "./utils/download-store";
-export { moveDownloads, sameRoot } from "./utils/move-downloads";
+export { isMoving, moveOnce, sameRoot } from "./utils/move-downloads";
 export { chapterHash, downloadKey, type StoredDownload } from "./utils/paths";
