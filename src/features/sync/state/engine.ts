@@ -1,4 +1,4 @@
-import { observable } from "@legendapp/state";
+import { observable, observe } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import * as Device from "expo-device";
 import { AppState, Platform } from "react-native";
@@ -20,7 +20,9 @@ import { TABLES } from "./tables";
 
 /** Waits after a local change, so a scan's burst of writes is one push. */
 const DEBOUNCE_MS = 3000;
-const INTERVAL_MS = 5 * 60 * 1000;
+
+/** Minutes between syncs while the app is open, until the device picks. */
+export const DEFAULT_SYNC_MINUTES = 5;
 
 /** How the other devices list this one. */
 const DEVICE_NAME =
@@ -191,9 +193,16 @@ AppState.addEventListener("change", (state) => {
   if (state === "active") void requestSync();
 });
 
-setInterval(() => {
-  if (AppState.currentState === "active") void requestSync();
-}, INTERVAL_MS);
+// Brings other devices' changes into an app left open; 0 leaves it to the
+// other triggers.
+observe((e) => {
+  const minutes = settings$.device.syncInterval.get() ?? DEFAULT_SYNC_MINUTES;
+  if (!minutes) return;
+  const timer = setInterval(() => {
+    if (AppState.currentState === "active") void requestSync();
+  }, minutes * 60_000);
+  e.onCleanup = () => clearInterval(timer);
+});
 
 if (typeof window !== "undefined" && "addEventListener" in window) {
   window.addEventListener("online", () => void requestSync());

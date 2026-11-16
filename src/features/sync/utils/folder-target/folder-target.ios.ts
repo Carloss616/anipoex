@@ -1,11 +1,12 @@
 import { requireNativeModule } from "expo";
 import type { SyncTarget } from "../sync-tables";
 import { SYNC_SUBFOLDER } from "./constants";
+import { type ListedFile, readCache } from "./utils";
 
 /** `modules/bookmarked-folder`: a folder kept through a security-scoped bookmark. */
 const folder = requireNativeModule<{
   pick(): Promise<{ bookmark: string; name: string } | null>;
-  list(bookmark: string, sub: string): Promise<string[]>;
+  list(bookmark: string, sub: string): Promise<ListedFile[]>;
   read(bookmark: string, sub: string, name: string): Promise<string | null>;
   write(
     bookmark: string,
@@ -35,10 +36,15 @@ export const folderName = (location: string) => parse(location).name;
 
 export function createFolderTarget(location: string): SyncTarget {
   const { bookmark } = parse(location);
+  const cache = readCache();
   return {
-    list: () => folder.list(bookmark, SYNC_SUBFOLDER),
-    read: async (name) =>
-      (await folder.read(bookmark, SYNC_SUBFOLDER, name)) ?? undefined,
+    list: async () => cache.list(await folder.list(bookmark, SYNC_SUBFOLDER)),
+    read: (name) =>
+      cache.read(
+        name,
+        async () =>
+          (await folder.read(bookmark, SYNC_SUBFOLDER, name)) ?? undefined,
+      ),
     write: (files) => folder.write(bookmark, SYNC_SUBFOLDER, files),
     remove: (names) => folder.remove(bookmark, SYNC_SUBFOLDER, names),
   };

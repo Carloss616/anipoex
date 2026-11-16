@@ -25,8 +25,9 @@ A sync reads every device's files for each table, merges them with this device's
 [stamped records](sync-meta.md), writes what won into the stores, then writes this
 device's files. What it writes into the stores is not stamped again, so it doesn't bounce
 back as a change of its own. Syncs never overlap: one asked for while another runs happens
-right after it, once. They run on launch, when the app comes to the foreground, every 5
-minutes in the foreground, 3 seconds after a change to a synced store, on the web when the
+right after it, once. They run on launch, when the app comes to the foreground, every few
+minutes while it's open (each device picks 1, 5 or 15, or none; 5 until it picks), 3 seconds
+after a change to a synced store, on the web when the
 browser is back online, and on desktop a second after a sync file in the folder changes. A failure keeps everything for the next one: nothing counts as
 pushed until the target took it.
 
@@ -40,7 +41,8 @@ through a temporary file. On Android it is picked with the system's folder picke
 permission persists; Drive and OneDrive don't sync folders there, so a separate sync app
 keeps it in sync, and the app reads it on the usual triggers (Android can't watch it). Each
 file is replaced by a new one on write, since some providers don't shorten a rewritten
-file. On iOS it is picked with the Files picker (iCloud Drive, OneDrive, Google Drive), and a
+file. On Android and iOS a sync reads again only the files whose modified time or size
+changed since it last read them. On iOS it is picked with the Files picker (iCloud Drive, OneDrive, Google Drive), and a
 bookmark iOS gives for it keeps the access across launches; reads wait for iCloud to
 download a file, and, as on Android, the folder is read on the usual triggers. A plain
 browser doesn't offer folders. The folder is kept per device in

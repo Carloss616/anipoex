@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-16
+
+* **Sync interval per device**: each device picks how often an open app looks for other devices' changes (1, 5 or 15 minutes, or never; 5 by default), and a folder sync on Android and iOS reads again only the files that changed. Updated [sync state](stores/sync-state.md), [settings](stores/settings.md).
+
 ## 2026-11-15
 
 * **Folder sync on iOS**: the Files picker chooses the folder and a bookmark keeps the access across launches; reads wait for iCloud's download. Updated [sync state](stores/sync-state.md), [settings](stores/settings.md).

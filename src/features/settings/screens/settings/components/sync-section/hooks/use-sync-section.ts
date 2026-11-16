@@ -8,6 +8,7 @@ import {
   stopFolder,
 } from "@/features/sync/state/connection";
 import {
+  DEFAULT_SYNC_MINUTES,
   requestSync,
   syncing$,
   syncState$,
@@ -21,6 +22,8 @@ import { timeAgo } from "@/utils/time-ago";
 
 const ago = (ms: number) => timeAgo(ms / 1000);
 const syncNow = () => void requestSync();
+const setSyncInterval = (minutes: number) =>
+  settings$.device.syncInterval.set(minutes);
 
 /**
  * One target's status line. Leaves, not the target's object: Legend changes
@@ -52,6 +55,9 @@ export function useSyncSection() {
   const devices = useValue(syncState$.devices);
   const me = useValue(settings$.device.id);
   const location = useValue(settings$.device.folder);
+  const interval = useValue(
+    () => settings$.device.syncInterval.get() ?? DEFAULT_SYNC_MINUTES,
+  );
   const gistStatus = useTargetStatus("gist");
   const folderStatus = useTargetStatus("folder");
 
@@ -118,7 +124,7 @@ export function useSyncSection() {
   return {
     account,
     gist: { ...gistStatus, menu: gistMenu },
-    /** Undefined where folders don't sync (a browser; iOS for now). */
+    /** Undefined where folders don't sync (a browser). */
     folder: canUseFolder
       ? {
           // A name that comes out empty still means a folder is chosen.
@@ -129,6 +135,7 @@ export function useSyncSection() {
         }
       : undefined,
     connected: !!account || !!location,
+    interval: { minutes: interval, set: setSyncInterval },
     devices: rows,
     syncNow,
     connect: () => void openConnect(),

@@ -1,12 +1,23 @@
 import { Avatar } from "panelui-web/avatar";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
+import { Select } from "panelui-web/select";
 import { Icon, Icons } from "@/components/ui/icon";
 import type { MenuItem } from "@/components/ui/menu";
 import { Menu } from "@/components/ui/menu";
 import { ConnectSheet } from "./connect-sheet";
-import { FOLDER_HINT, SYNC_FOOTER } from "./constants";
+import {
+  FOLDER_HINT,
+  INTERVAL_HINT,
+  SYNC_FOOTER,
+  SYNC_INTERVAL_OPTIONS,
+} from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
+
+const INTERVAL_ITEMS = SYNC_INTERVAL_OPTIONS.map(({ minutes, label }) => ({
+  value: String(minutes),
+  label,
+}));
 
 function More({ items }: { items: MenuItem[] }) {
   return (
@@ -95,6 +106,34 @@ export function SyncSection() {
                   Choose…
                 </Button>
               )}
+            </Frame.Actions>
+          </Frame.Row>
+        )}
+        {sync.connected && (
+          <Frame.Row>
+            <Frame.Content>
+              <Frame.Title as="p">Check for changes</Frame.Title>
+              <Frame.Description>{INTERVAL_HINT}</Frame.Description>
+            </Frame.Content>
+            <Frame.Actions>
+              <Select
+                items={INTERVAL_ITEMS}
+                value={String(sync.interval.minutes)}
+                onValueChange={(value) =>
+                  value && sync.interval.set(Number(value))
+                }
+              >
+                <Select.Trigger variant="ghost" aria-label="Check for changes">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  {INTERVAL_ITEMS.map((item) => (
+                    <Select.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
             </Frame.Actions>
           </Frame.Row>
         )}

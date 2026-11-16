@@ -1,6 +1,7 @@
 import { Directory, File } from "expo-file-system";
 import type { SyncTarget } from "../sync-tables";
 import { SYNC_SUBFOLDER } from "./constants";
+import { readCache } from "./utils";
 
 const MIME = "application/json";
 
@@ -37,15 +38,21 @@ export function createFolderTarget(location: string): SyncTarget {
       (entry): entry is File => entry instanceof File,
     );
 
+  const cache = readCache();
+  // Each SAF listing is a round trip to the provider: reads use the last one.
+  let listed = new Map<string, File>();
+
   return {
     async list() {
-      return files().map((file) => nameOf(file.uri));
+      listed = new Map(files().map((file) => [nameOf(file.uri), file]));
+      return cache.list(
+        [...listed].map(([name, file]) => {
+          const { modificationTime, size } = file.info();
+          return { name, version: `${modificationTime}:${size}` };
+        }),
+      );
     },
-    async read(name) {
-      return files()
-        .find((file) => nameOf(file.uri) === name)
-        ?.text();
-    },
+    read: (name) => cache.read(name, async () => listed.get(name)?.text()),
     async write(next) {
       const dir = syncDir(true) as Directory;
       const current = files();

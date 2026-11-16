@@ -1,6 +1,7 @@
 import {
   Button,
   HStack,
+  Picker,
   Section,
   Spacer,
   VStack,
@@ -10,8 +11,11 @@ import {
   background,
   buttonStyle,
   clipShape,
+  fixedSize,
   foregroundStyle,
   frame,
+  labelsHidden,
+  tag,
 } from "@expo/ui/swift-ui/modifiers";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Image } from "@/components/native/swift-ui/image";
@@ -21,7 +25,12 @@ import { Loader } from "@/components/ui/loader";
 import { ContextMenu } from "@/components/ui/menu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useRowBackground } from "../../hooks/use-row-background";
-import { FOLDER_HINT, SYNC_FOOTER } from "./constants";
+import {
+  FOLDER_HINT,
+  INTERVAL_HINT,
+  SYNC_FOOTER,
+  SYNC_INTERVAL_OPTIONS,
+} from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
 
 const AVATAR = 40;
@@ -151,6 +160,27 @@ export function SyncSection() {
             <Text modifiers={[foregroundStyle(primary)]}>Choose</Text>
           </HStack>
         </Button>
+      ) : null}
+      {sync.connected ? (
+        <HStack>
+          <Lines title="Check for changes" detail={INTERVAL_HINT} />
+          <Spacer />
+          <Picker
+            key={primary}
+            label={<Text>Check for changes</Text>}
+            selection={sync.interval.minutes}
+            onSelectionChange={(minutes: number | null) =>
+              minutes !== null && sync.interval.set(minutes)
+            }
+            modifiers={[labelsHidden(), fixedSize()]}
+          >
+            {SYNC_INTERVAL_OPTIONS.map((option) => (
+              <Text key={option.minutes} modifiers={[tag(option.minutes)]}>
+                {option.label}
+              </Text>
+            ))}
+          </Picker>
+        </HStack>
       ) : null}
       {sync.connected
         ? sync.devices.map((device) => (

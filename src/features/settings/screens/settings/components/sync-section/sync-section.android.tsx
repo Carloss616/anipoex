@@ -1,9 +1,11 @@
 import FolderIcon from "@expo/material-symbols/folder.xml";
+import ScheduleIcon from "@expo/material-symbols/schedule.xml";
 import {
   Box,
   Column,
   FilledTonalButton,
   IconButton,
+  Row,
 } from "@expo/ui/jetpack-compose";
 import {
   background,
@@ -21,12 +23,12 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
-import { ContextMenu } from "@/components/ui/menu";
+import { ContextMenu, Menu } from "@/components/ui/menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useRowProps } from "../../hooks/use-row-props";
 import { Label } from "../label";
 import { LeadingIcon } from "../leading-icon";
-import { SYNC_FOOTER } from "./constants";
+import { INTERVAL_HINT, SYNC_FOOTER, SYNC_INTERVAL_OPTIONS } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
 
 const FOLDER_DETAIL = "A folder a sync app keeps in your cloud";
@@ -41,7 +43,7 @@ export function SyncSection() {
   const m3 = useThemeM3Colors();
   const row = useRowProps();
   const devices = sync.connected ? sync.devices : [];
-  const count = 2 + devices.length;
+  const count = (sync.connected ? 3 : 2) + devices.length;
 
   return (
     <>
@@ -160,10 +162,41 @@ export function SyncSection() {
             </SegmentedListItem.Trailing>
           </SegmentedListItem>
         )}
+        {sync.connected ? (
+          <Menu
+            items={SYNC_INTERVAL_OPTIONS.map((option) => ({
+              label: option.label,
+              checked: option.minutes === sync.interval.minutes,
+              onPress: () => sync.interval.set(option.minutes),
+            }))}
+          >
+            <SegmentedListItem index={2} count={count} {...row}>
+              <SegmentedListItem.Leading>
+                <LeadingIcon name={ScheduleIcon} />
+              </SegmentedListItem.Leading>
+              <Text>Check for changes</Text>
+              <SegmentedListItem.Supporting>
+                <Text style={{ typography: "bodyMedium" }}>
+                  {INTERVAL_HINT}
+                </Text>
+              </SegmentedListItem.Supporting>
+              <SegmentedListItem.Trailing>
+                <Row verticalAlignment="center">
+                  <Text>
+                    {SYNC_INTERVAL_OPTIONS.find(
+                      (option) => option.minutes === sync.interval.minutes,
+                    )?.label ?? `${sync.interval.minutes} min`}
+                  </Text>
+                  <Icon name={Icons.chevronDown} color="inherit" />
+                </Row>
+              </SegmentedListItem.Trailing>
+            </SegmentedListItem>
+          </Menu>
+        ) : null}
         {devices.map((device, i) => (
           <SegmentedListItem
             key={device.id}
-            index={i + 2}
+            index={i + 3}
             count={count}
             {...row}
           >

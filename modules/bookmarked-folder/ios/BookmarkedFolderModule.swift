@@ -39,14 +39,18 @@ public class BookmarkedFolderModule: Module {
       current.present(picker, animated: true)
     }.runOnQueue(.main)
 
-    AsyncFunction("list") { (bookmark: String, sub: String) -> [String] in
+    AsyncFunction("list") { (bookmark: String, sub: String) -> [[String: String]] in
       let dir = try self.folder(bookmark).appendingPathComponent(sub, isDirectory: true)
       let names = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
-      // iCloud keeps a file it hasn't downloaded as `.<name>.icloud`.
-      return names.map { name in
-        name.hasPrefix(".") && name.hasSuffix(".icloud")
-          ? String(name.dropFirst().dropLast(".icloud".count))
-          : name
+      return names.map { entry in
+        let values = try? dir.appendingPathComponent(entry)
+          .resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
+        let modified = values?.contentModificationDate?.timeIntervalSince1970 ?? 0
+        // iCloud keeps a file it hasn't downloaded as `.<name>.icloud`.
+        let name = entry.hasPrefix(".") && entry.hasSuffix(".icloud")
+          ? String(entry.dropFirst().dropLast(".icloud".count))
+          : entry
+        return ["name": name, "version": "\(modified):\(values?.fileSize ?? 0)"]
       }
     }
 

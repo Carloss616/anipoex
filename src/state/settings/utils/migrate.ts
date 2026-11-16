@@ -36,6 +36,8 @@ export interface Settings {
     id?: string;
     /** The folder this device syncs through: a path, or a SAF URI on Android. */
     folder?: string;
+    /** Minutes between syncs while the app is open; 0 never polls. */
+    syncInterval?: number;
   };
 }
 
@@ -65,6 +67,8 @@ export function normalizeSettings(raw: unknown): Settings {
   const dns = device?.dns as DnsId | undefined;
   const id = typeof device?.id === "string" ? device.id : undefined;
   const folder = typeof device?.folder === "string" ? device.folder : undefined;
+  const syncInterval =
+    typeof device?.syncInterval === "number" ? device.syncInterval : undefined;
   return {
     version: typeof root?.version === "number" ? root.version : 0,
     theme: {
@@ -91,6 +95,7 @@ export function normalizeSettings(raw: unknown): Settings {
       ...(dns && { dns }),
       ...(id && { id }),
       ...(folder && { folder }),
+      ...(syncInterval !== undefined && { syncInterval }),
     },
   };
 }
