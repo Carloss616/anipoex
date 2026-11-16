@@ -10,7 +10,9 @@ import { signOut } from "@/features/auth/utils/sign-out";
 import { useLoadInstalled } from "@/features/extensions";
 import { AccountSection } from "./components/account-section";
 import { AppearanceSection } from "./components/appearance-section";
+import { DownloadsSection } from "./components/downloads-section";
 import { HomeSection } from "./components/home-section";
+import { MoveDownloadsDialog } from "./components/move-downloads-dialog";
 import { NetworkSection } from "./components/network-section";
 import { SourcesSection } from "./components/sources-section";
 import { SyncSection } from "./components/sync-section";
@@ -39,6 +41,7 @@ export function Settings() {
           <AppearanceSection />
           <SourcesSection />
           <NetworkSection />
+          <DownloadsSection />
           <Section modifiers={[rowBackground]}>
             <Button
               label="Sign out"
@@ -49,6 +52,7 @@ export function Settings() {
           </Section>
         </List>
         <ConnectSheet />
+        <MoveDownloadsDialog />
       </Host>
     </>
   );

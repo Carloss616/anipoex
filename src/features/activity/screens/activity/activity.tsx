@@ -7,32 +7,42 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icons } from "@/components/ui/icon";
+import { downloadsPaused$ } from "@/features/downloads";
 import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
+import { DownloadItem } from "./components/download-item";
 import { Overview } from "./components/overview";
 import { QueueItem } from "./components/queue-item";
 import { RunningItem } from "./components/running-item";
 import { SkippedItem } from "./components/skipped-item";
+import { UnsentItem } from "./components/unsent-item";
 import {
   clearQueue,
   retryAllSkipped,
   startReadingScan,
   stopAll,
 } from "./utils/actions";
+import { downloadActions } from "./utils/download-actions";
 import {
+  downloadIds,
+  downloadsFailed,
+  downloadsPending,
   hasActivity,
+  hasScans,
   queuedIds,
   runningIds,
   skippedIds,
   split,
+  unsentIds,
 } from "./utils/state";
 
-/** Up next shows this many; the rest are a count. */
-const QUEUE_SHOWN = 10;
+/** Up next and Downloads show this many; the rest are a count. */
+const SHOWN = 10;
 
 /** What runs now: each manga's scan, the Reading scan's queue, its slow sources. */
 export function Activity() {
   const active = useValue(hasActivity);
+  const scanning = useValue(hasScans);
   const headerScroll = useHeaderScroll();
 
   return (
@@ -41,7 +51,7 @@ export function Activity() {
       <Toolbar>
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
-            hidden={!active}
+            hidden={!scanning}
             icon={Icons.stop}
             onPress={stopAll}
             accessibilityLabel="Stop all"
@@ -54,6 +64,8 @@ export function Activity() {
             <View className="min-w-0 gap-4 lg:flex-3">
               <RunningSection />
               <QueueSection />
+              <DownloadsSection />
+              <UnsentSection />
             </View>
             <View className="min-w-0 gap-4 max-lg:order-first lg:flex-2">
               <Overview />
@@ -101,7 +113,7 @@ function RunningSection() {
 function QueueSection() {
   const ids = split(useValue(queuedIds));
   if (!ids.length) return null;
-  const more = ids.length - QUEUE_SHOWN;
+  const more = ids.length - SHOWN;
 
   return (
     <Frame>
@@ -117,7 +129,7 @@ function QueueSection() {
         </Frame.Action>
       </Frame.Header>
       <Frame.Panel data-attached="column">
-        {ids.slice(0, QUEUE_SHOWN).map((id) => (
+        {ids.slice(0, SHOWN).map((id) => (
           <QueueItem key={id} id={id} />
         ))}
         {more > 0 && (
@@ -127,6 +139,63 @@ function QueueSection() {
             </Frame.Content>
           </Frame.Row>
         )}
+      </Frame.Panel>
+    </Frame>
+  );
+}
+
+function DownloadsSection() {
+  const ids = split(useValue(downloadIds));
+  const paused = useValue(downloadsPaused$);
+  const pending = useValue(downloadsPending);
+  const failed = useValue(downloadsFailed);
+  if (!ids.length) return null;
+  const more = ids.length - SHOWN;
+  const actions = downloadActions(paused, pending, failed);
+
+  return (
+    <Frame>
+      <Frame.Header>
+        <Frame.Title>{`Downloads · ${ids.length}`}</Frame.Title>
+        {actions.length > 0 && (
+          <Frame.Action className="flex flex-row items-center gap-1">
+            {actions.map(({ label, onPress }) => (
+              <Button key={label} variant="ghost" size="sm" onClick={onPress}>
+                {label}
+              </Button>
+            ))}
+          </Frame.Action>
+        )}
+      </Frame.Header>
+      <Frame.Panel data-attached="column">
+        {ids.slice(0, SHOWN).map((id) => (
+          <DownloadItem key={id} id={id} />
+        ))}
+        {more > 0 && (
+          <Frame.Row>
+            <Frame.Content>
+              <Frame.Description>{`${more} more`}</Frame.Description>
+            </Frame.Content>
+          </Frame.Row>
+        )}
+      </Frame.Panel>
+    </Frame>
+  );
+}
+
+function UnsentSection() {
+  const ids = split(useValue(unsentIds));
+  if (!ids.length) return null;
+
+  return (
+    <Frame>
+      <Frame.Header>
+        <Frame.Title>Progress not sent</Frame.Title>
+      </Frame.Header>
+      <Frame.Panel data-attached="column">
+        {ids.map((id) => (
+          <UnsentItem key={id} id={id} />
+        ))}
       </Frame.Panel>
     </Frame>
   );

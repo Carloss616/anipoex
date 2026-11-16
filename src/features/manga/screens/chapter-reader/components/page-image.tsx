@@ -38,6 +38,7 @@ export const PageImage = memo(function PageImage({
   const label = `Page ${page.index + 1}`;
 
   useEffect(() => {
+    if (page.local) return;
     let current = true;
     runtime.pageImage(sourceId, page).then(
       (uri) => {
@@ -51,7 +52,11 @@ export const PageImage = memo(function PageImage({
       current = false;
     };
   }, [sourceId, page]);
-  const uri = image?.page === page ? image.uri : undefined;
+  const uri = page.local
+    ? page.imageUrl
+    : image?.page === page
+      ? image.uri
+      : undefined;
 
   if (failed === page) {
     return (

@@ -13,29 +13,42 @@ import { Toolbar } from "@/components/layout/toolbar";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
+import { downloadsPaused$ } from "@/features/downloads";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { DownloadItem } from "./components/download-item";
 import { Overview } from "./components/overview";
 import { QueueItem } from "./components/queue-item";
 import { RunningItem } from "./components/running-item";
 import { SkippedItem } from "./components/skipped-item";
+import { UnsentItem } from "./components/unsent-item";
 import {
   clearQueue,
   retryAllSkipped,
   startReadingScan,
   stopAll,
 } from "./utils/actions";
+import { downloadActions, type HeaderAction } from "./utils/download-actions";
 import {
+  downloadIds,
+  downloadsFailed,
+  downloadsPending,
   hasActivity,
+  hasScans,
   queuedIds,
   runningIds,
   skippedIds,
   split,
+  unsentIds,
 } from "./utils/state";
+
+/** Downloads shows this many; the rest are a count. */
+const SHOWN = 10;
 
 type Row = { modifiers: ReturnType<typeof listRowBackground>[] };
 
 export function Activity() {
   const active = useValue(hasActivity);
+  const scanning = useValue(hasScans);
   const destructive = useThemeColor("destructive");
 
   return (
@@ -44,7 +57,7 @@ export function Activity() {
       <Toolbar>
         <Stack.Toolbar placement="right">
           <Stack.Toolbar.Button
-            hidden={!active}
+            hidden={!scanning}
             icon={Icons.stop}
             tintColor={destructive}
             onPress={stopAll}
@@ -81,6 +94,8 @@ function ActivityList() {
         <Overview modifiers={modifiers} />
         <RunningSection modifiers={modifiers} />
         <QueueSection modifiers={modifiers} />
+        <DownloadsSection modifiers={modifiers} />
+        <UnsentSection modifiers={modifiers} />
         <SkippedSection modifiers={modifiers} />
       </List>
     </Host>
@@ -110,14 +125,56 @@ function QueueSection({ modifiers }: Row) {
       header={
         <SectionHeader
           title={`Up next · ${ids.length}`}
-          action="Clear"
-          onPress={clearQueue}
+          actions={[{ label: "Clear", onPress: clearQueue }]}
         />
       }
       footer={<Text>Each starts when the one before has 2 sources left</Text>}
     >
       <List.ForEach data={ids} keyExtractor={(id) => id} recycling={false}>
         {({ item }) => <QueueItem id={item} />}
+      </List.ForEach>
+    </Section>
+  );
+}
+
+function DownloadsSection({ modifiers }: Row) {
+  const ids = split(useValue(downloadIds));
+  const paused = useValue(downloadsPaused$);
+  const pending = useValue(downloadsPending);
+  const failed = useValue(downloadsFailed);
+  if (!ids.length) return null;
+  const more = ids.length - SHOWN;
+
+  return (
+    <Section
+      modifiers={modifiers}
+      header={
+        <SectionHeader
+          title={`Downloads · ${ids.length}`}
+          actions={downloadActions(paused, pending, failed)}
+        />
+      }
+      footer={more > 0 ? <Text>{`${more} more`}</Text> : undefined}
+    >
+      <List.ForEach
+        data={ids.slice(0, SHOWN)}
+        keyExtractor={(id) => id}
+        recycling={false}
+      >
+        {({ item }) => <DownloadItem id={item} />}
+      </List.ForEach>
+    </Section>
+  );
+}
+
+function UnsentSection({ modifiers }: Row) {
+  const ids = split(useValue(unsentIds));
+  if (!ids.length) return null;
+
+  return (
+    <Section title="Progress not sent" modifiers={modifiers}>
+      <List.ForEach data={ids} keyExtractor={(id) => id} recycling={false}>
+        {({ item }) => <UnsentItem id={item} />}
       </List.ForEach>
     </Section>
   );
@@ -133,8 +190,7 @@ function SkippedSection({ modifiers }: Row) {
       header={
         <SectionHeader
           title="Skipped as slow"
-          action="Retry all"
-          onPress={retryAllSkipped}
+          actions={[{ label: "Retry all", onPress: retryAllSkipped }]}
         />
       }
       footer={<Text>Left out of the rest of this scan</Text>}
@@ -148,12 +204,10 @@ function SkippedSection({ modifiers }: Row) {
 
 function SectionHeader({
   title,
-  action,
-  onPress,
+  actions = [],
 }: {
   title: string;
-  action: string;
-  onPress: () => void;
+  actions?: HeaderAction[];
 }) {
   const font = useFont("subheadline", "medium");
 
@@ -161,11 +215,14 @@ function SectionHeader({
     <HStack>
       <Text>{title}</Text>
       <Spacer />
-      <Button
-        label={action}
-        onPress={onPress}
-        modifiers={[buttonStyle("borderless"), controlSize("small"), font]}
-      />
+      {actions.map(({ label, onPress }) => (
+        <Button
+          key={label}
+          label={label}
+          onPress={onPress}
+          modifiers={[buttonStyle("borderless"), controlSize("small"), font]}
+        />
+      ))}
     </HStack>
   );
 }

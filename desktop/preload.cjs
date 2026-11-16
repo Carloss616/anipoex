@@ -19,6 +19,8 @@ contextBridge.exposeInMainWorld("anipoex", {
   scanProgress: (fraction) => ipcRenderer.send("scan-progress", fraction),
   github: (url, body) => invokeClean("github", url, body),
   folder: (method, dir, arg) => invokeClean("folder", method, dir, arg),
+  downloads: (method, root, ...args) =>
+    invokeClean("downloads", method, root, ...args),
   onFolderChange: (callback) => {
     const listener = () => callback();
     ipcRenderer.on("folder-changed", listener);

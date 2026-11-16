@@ -2,18 +2,6 @@ import { desktop } from "@/utils/desktop";
 import type { SyncTarget } from "../sync-tables";
 import { SYNC_SUBFOLDER } from "./constants";
 
-/** Desktop picks a folder; a browser has no file system to sync through. */
-export const canUseFolder = !!desktop;
-
-/** A folder the user picks, as the location `createFolderTarget` takes. */
-export async function pickFolder() {
-  return (await desktop?.folder("pick")) ?? undefined;
-}
-
-/** The folder's own name, to show. */
-export const folderName = (location: string) =>
-  location.split(/[\\/]/).filter(Boolean).pop() ?? location;
-
 /** The folder as a sync target, through the desktop main process. */
 const syncDir = (location: string) => `${location}/${SYNC_SUBFOLDER}`;
 

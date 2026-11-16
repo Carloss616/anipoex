@@ -97,6 +97,7 @@ Legend State gotchas:
 
 - A query that spreads a fragment `@nonreactive` doesn't re-render on that fragment's fields, and its `data` keeps the first values: read them through `useFragment` once the cache is complete, or a save never shows (`manga/hooks/use-manga-entry.ts`).
 - `refetchQueries` by name reaches only watched queries: a cached result no screen shows (another list status) stays stale and `cache-first` serves it. A mutation updates the cached results in its `update` instead (`manga/utils/file-entry.ts`), and so does a refetch that can bring a status changed elsewhere (`refileEntry` in `manga/hooks/use-manga-entry.ts`): the cache rewrites the entry, never which lists hold it.
+- A `context` passed to a `useMutation` call replaces the hook's, not merges with it (Apollo's `mergeOptions` is shallow) and drops the hook's `errorMessage`: pass a function, `context: (base) => ({ ...base, queueOffline })` (`manga/hooks/use-save-tracking.ts`).
 
 # Persistence
 
@@ -110,6 +111,7 @@ Legend State gotchas:
 # Tests
 
 - Bun's `mock.module` lasts the whole run, not one file, and file order differs by OS (Windows alphabetical, macOS not): never mock a module that has its own test file. Mock what it depends on and set its real state, resetting it in `afterAll` (`extensions/state/extensions.test.ts` with `repos$`).
+- A bun test imports the extension runtime from `@/features/extensions/runtime`, not the feature's index: that one reaches react-native, which bun can't parse (`Unexpected typeof`) (`downloads/utils/open-download.ts`).
 
 # Desktop
 

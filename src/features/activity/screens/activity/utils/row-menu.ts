@@ -1,8 +1,18 @@
 import { Icons } from "@/components/ui/icon";
-import type { MenuItem } from "@/components/ui/menu";
+import type {
+  MenuAction,
+  MenuItem,
+  MenuItemDialogConfig,
+} from "@/components/ui/menu";
+import type { QueuedDownload } from "@/features/downloads";
 import {
+  cancelDownload,
+  discardUnsent,
+  moveDownloadUp,
   removeFromQueue,
+  retryDownload,
   retrySkipped,
+  retryUnsent,
   scanNext,
   stopManga,
   stopSource,
@@ -51,6 +61,59 @@ export function sourceMenu(mangaId: number, sourceId: string): MenuItem[] {
       destructive: true,
       onPress: () => stopSource(mangaId, sourceId),
     },
+  ];
+}
+
+/** Takes what it shows as arguments: the Compiler caches a call on its inputs. */
+export function downloadRowMenu(
+  key: string,
+  { state, canMoveUp }: { state: QueuedDownload["state"]; canMoveUp: boolean },
+): MenuItem[] {
+  const items: MenuItem[] = [];
+  if (state === "queued" && canMoveUp)
+    items.push({
+      label: "Move up",
+      icon: Icons.moveUp,
+      onPress: () => moveDownloadUp(key),
+    });
+  if (state === "failed")
+    items.push({
+      label: "Retry",
+      icon: Icons.refresh,
+      onPress: () => retryDownload(key),
+    });
+  items.push({
+    label: "Cancel",
+    icon: Icons.close,
+    destructive: true,
+    onPress: () => cancelDownload(key),
+  });
+  return items;
+}
+
+export const DISCARD_DIALOG: MenuItemDialogConfig = {
+  title: "Discard this progress?",
+  confirmLabel: "Discard",
+};
+
+/** `discard` opens the row's own dialog (an iOS swipe opens it too). */
+export function unsentMenu(mediaId: string, discard?: () => void): MenuItem[] {
+  const row = { label: "Discard", icon: Icons.trash, destructive: true };
+  const discardRow: MenuAction = discard
+    ? { ...row, onPress: discard }
+    : {
+        ...row,
+        onPress: () => discardUnsent(mediaId),
+        onPressMode: "dialog",
+        dialogConfig: DISCARD_DIALOG,
+      };
+  return [
+    {
+      label: "Retry",
+      icon: Icons.refresh,
+      onPress: () => retryUnsent(mediaId),
+    },
+    discardRow,
   ];
 }
 

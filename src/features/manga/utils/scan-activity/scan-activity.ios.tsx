@@ -26,16 +26,20 @@ import {
   shapes,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { requireNativeModule } from "expo";
 import type { SFSymbol } from "expo-symbols";
 import {
   addUserInteractionListener,
   createLiveActivity,
   type LiveActivity,
 } from "expo-widgets";
-import { AppState } from "react-native";
 import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
+import { backgroundWork } from "@/utils/background-time";
+import {
+  coalesce,
+  imageLoader,
+  type WidgetUpdates,
+} from "@/utils/widget-updates";
 import { scanStops } from "../../state/scan-views";
 import { type LibraryActivity, libraryStatus } from "../library-run";
 import type {
@@ -54,82 +58,43 @@ import {
   trackScan,
 } from "./utils/status";
 import {
-  coalesce,
   endCovers,
-  imageLoader,
   routeStop,
   stopTarget,
   type WidgetCover,
   type WidgetMark,
-  type WidgetUpdates,
   widgetMarks,
 } from "./utils/widget-props";
-
-// shortcut: iOS grants about 30s once the app leaves the screen; a longer
-// scan needs BGContinuedProcessingTask (iOS 26).
-const backgroundTime = requireNativeModule<{
-  begin(name: string): number;
-  end(task: number): void;
-  remaining(): Promise<number>;
-}>("BackgroundTime");
 
 const ICON = sfSymbol(Icons.refresh) ?? "arrow.clockwise";
 const STOP_ICON = sfSymbol(Icons.stop) ?? "stop.fill";
 const PAUSED = "Paused · open the app to continue";
-/** Room for the update to land before iOS suspends the app. */
-const PAUSE_AHEAD_MS = 5_000;
 
 /** Running scans' renders, redrawn when they pause or resume. */
 const repaints = new Set<() => void>();
 let paused = false;
-let pauseTimer: ReturnType<typeof setTimeout> | undefined;
 const repaint = () => {
   for (const render of repaints) render();
-};
-const inBackground = () => AppState.currentState === "background";
-
-/** One background task while any scan runs, else iOS suspends it off screen. */
-let task: number | undefined;
-const hold = () => {
-  task ??= backgroundTime.begin("Scan sources");
-};
-const release = () => {
-  if (repaints.size || task === undefined) return;
-  backgroundTime.end(task);
-  task = undefined;
-};
-
-const schedulePause = () => {
-  if (!repaints.size || !inBackground()) return;
-  void backgroundTime.remaining().then((seconds) => {
-    if (!inBackground()) return;
-    // Right after the app leaves the screen iOS still reports no limit.
-    pauseTimer =
-      seconds > 600
-        ? setTimeout(schedulePause, 1000)
-        : setTimeout(
-            () => {
-              if (!inBackground()) return;
-              paused = true;
-              repaint();
-            },
-            Math.max(0, seconds * 1000 - PAUSE_AHEAD_MS),
-          );
-  });
 };
 
 // iOS suspends the app once its background time runs out, and the scan with
 // it until the app is back: the activity says so instead of "Scanning".
-AppState.addEventListener("change", (state) => {
-  clearTimeout(pauseTimer);
-  if (state === "background") schedulePause();
-  else if (state === "active" && paused) {
-    paused = false;
-    // iOS ended the task as the time ran out: the next trip off screen needs one.
-    if (task !== undefined) task = backgroundTime.begin("Scan sources");
+const work = backgroundWork("Scan sources", {
+  running: () => repaints.size > 0,
+  expire: () => {
+    paused = true;
     repaint();
-  }
+  },
+  back: () => {
+    paused = false;
+    repaint();
+  },
 });
+const hold = work.hold;
+/** One background task while any scan runs. */
+const release = () => {
+  if (!repaints.size) work.release();
+};
 
 interface Props {
   name: string;

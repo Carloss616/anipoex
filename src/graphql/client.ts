@@ -3,6 +3,7 @@ import {
   ApolloLink,
   HttpLink,
   InMemoryCache,
+  Observable,
 } from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
 import { ErrorLink } from "@apollo/client/link/error";
@@ -12,6 +13,7 @@ import { OperationTypeNode } from "graphql";
 import { createMMKV } from "react-native-mmkv";
 import { toast } from "@/components/ui/toast";
 import { session$ } from "@/state/session";
+import { shouldToast } from "./utils";
 
 const GRAPHQL_URL = process.env.EXPO_PUBLIC_ANILIST_GRAPHQL_URL;
 
@@ -49,10 +51,11 @@ const authLink = new SetContextLink((prevContext) => {
 const retryLink = new RetryLink({ attempts: { max: 2 } });
 
 const errorLink = new ErrorLink(({ error, operation }) => {
-  const { errorMessage: message, silent } = operation.getContext();
+  const context = operation.getContext();
 
-  if (silent) return;
+  if (!shouldToast(context, error)) return;
 
+  const message = context.errorMessage;
   const { operationName, operationType, query, variables } = operation;
 
   toast.error(typeof message === "string" ? message : error.message, {
@@ -66,6 +69,28 @@ const errorLink = new ErrorLink(({ error, operation }) => {
     }),
   });
 });
+
+const answered = new Set<() => void>();
+
+/** Calls `listener` after each answer from AniList without errors. */
+export function onAnswered(listener: () => void) {
+  answered.add(listener);
+  return () => answered.delete(listener);
+}
+
+const answeredLink = new ApolloLink(
+  (operation, forward) =>
+    new Observable((observer) =>
+      forward(operation).subscribe({
+        next: (result) => {
+          if (!result.errors) for (const listener of answered) listener();
+          observer.next(result);
+        },
+        error: (error) => observer.error(error),
+        complete: () => observer.complete(),
+      }),
+    ),
+);
 
 /**
  * Refetches a failed query's watchers, or re-runs it when nothing watches it
@@ -104,6 +129,7 @@ export const client = new ApolloClient({
   link: ApolloLink.from([
     authLink,
     errorLink,
+    answeredLink,
     retryLink,
     new HttpLink({ uri: GRAPHQL_URL }),
   ]),

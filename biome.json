@@ -161,12 +161,12 @@
               {
                 "group": ["@expo/ui/swift-ui"],
                 "importNamePattern": "ProgressView",
-                "message": "Use Loader from @/components/ui/loader or Progress from @/components/ui/progress"
+                "message": "Use Loader from @/components/ui/loader, Progress from @/components/ui/progress or ProgressRing from @/components/ui/progress-ring"
               },
               {
                 "group": ["@expo/ui/jetpack-compose"],
                 "importNamePattern": "((Circular|Linear)(Wavy)?ProgressIndicator|(Contained)?LoadingIndicator)",
-                "message": "Use Loader from @/components/ui/loader or Progress from @/components/ui/progress"
+                "message": "Use Loader from @/components/ui/loader, Progress from @/components/ui/progress or ProgressRing from @/components/ui/progress-ring"
               },
               {
                 "group": ["@expo/ui/swift-ui", "@expo/ui/jetpack-compose"],
@@ -227,7 +227,10 @@
       }
     },
     {
-      "includes": ["src/features/manga/utils/scan-activity/**"],
+      "includes": [
+        "src/features/manga/utils/scan-activity/**",
+        "src/features/downloads/utils/download-activity/**"
+      ],
       "linter": {
         "rules": { "style": { "noRestrictedImports": "off" } }
       }

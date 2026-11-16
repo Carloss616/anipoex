@@ -18,12 +18,15 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import {
   addUserInteractionListener,
-  type CustomNotification,
   type CustomNotificationOptions,
   createCustomNotification,
 } from "expo-widgets";
-import { PermissionsAndroid } from "react-native";
 import { TRACK_HEIGHT } from "@/components/ui/progress/constants";
+import {
+  notificationUpdates,
+  postNotification,
+} from "@/utils/post-notification";
+import { imageLoader, type WidgetUpdates } from "@/utils/widget-updates";
 import { scanStops } from "../../state/scan-views";
 import { type LibraryActivity, libraryStatus } from "../library-run";
 import type {
@@ -42,15 +45,11 @@ import {
   trackScan,
 } from "./utils/status";
 import {
-  coalesce,
   endCovers,
-  imageLoader,
-  limiter,
   routeStop,
   stopTarget,
   type WidgetCover,
   type WidgetMark,
-  type WidgetUpdates,
   widgetMarks,
 } from "./utils/widget-props";
 
@@ -261,43 +260,11 @@ void ScanNotification.cancelAll().catch(() => {});
 
 addUserInteractionListener(({ target }) => routeStop(target));
 
-type Shown = Promise<CustomNotification<Props> | undefined>;
+// Denied or dismissed, the sheet still shows the scan.
+const post = (props: Props, options: CustomNotificationOptions) =>
+  postNotification(ScanNotification, props, options);
 
-const ENDED = { ongoing: false, autoCancel: true };
-
-// A post or update rejects any undefined value, nested ones too (a cover not
-// downloaded yet, a mark's missing icon); JSON drops them.
-const defined = (props: Props): Props => JSON.parse(JSON.stringify(props));
-
-// Android sheds an app's notification posts past 5 a second, counted across
-// all of them: every scan notification's posts and updates share one spacing.
-const spacing = limiter(350);
-
-// Also over an ended one, which the user may have dismissed. Denied or
-// dismissed, the post rejects and the sheet still shows the scan. Queued
-// now, so the notification's updates come after it.
-const post = (props: Props, options: CustomNotificationOptions): Shown =>
-  new Promise((resolve) =>
-    spacing.run(() => {
-      const posted = PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-      )
-        .catch(() => {})
-        .then(() => ScanNotification.post(defined(props), options))
-        .catch(() => undefined);
-      resolve(posted);
-      return posted;
-    }),
-  );
-
-const updates = (shown: Shown) =>
-  coalesce<Props>(
-    (props, end) =>
-      shown.then((notification) =>
-        notification?.update(defined(props), end ? ENDED : {}),
-      ),
-    spacing,
-  );
+const updates = notificationUpdates<Props>;
 
 interface Group {
   key: string;

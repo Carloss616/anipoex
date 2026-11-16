@@ -1,11 +1,11 @@
 import { requireNativeModule } from "expo";
+import { bookmarkOf } from "@/utils/picked-folder";
 import type { SyncTarget } from "../sync-tables";
 import { SYNC_SUBFOLDER } from "./constants";
 import { type ListedFile, readCache } from "./utils";
 
 /** `modules/bookmarked-folder`: a folder kept through a security-scoped bookmark. */
 const folder = requireNativeModule<{
-  pick(): Promise<{ bookmark: string; name: string } | null>;
   list(bookmark: string, sub: string): Promise<ListedFile[]>;
   read(bookmark: string, sub: string, name: string): Promise<string | null>;
   write(
@@ -16,26 +16,8 @@ const folder = requireNativeModule<{
   remove(bookmark: string, sub: string, names: string[]): Promise<void>;
 }>("BookmarkedFolder");
 
-export const canUseFolder = true;
-
-/**
- * The location is the folder's name and its bookmark, so the row can name it
- * without asking iOS: `<name>\n<bookmark>`.
- */
-export async function pickFolder() {
-  const picked = await folder.pick();
-  return picked ? `${picked.name}\n${picked.bookmark}` : undefined;
-}
-
-const parse = (location: string) => {
-  const cut = location.indexOf("\n");
-  return { name: location.slice(0, cut), bookmark: location.slice(cut + 1) };
-};
-
-export const folderName = (location: string) => parse(location).name;
-
 export function createFolderTarget(location: string): SyncTarget {
-  const { bookmark } = parse(location);
+  const bookmark = bookmarkOf(location);
   const cache = readCache();
   return {
     list: async () => cache.list(await folder.list(bookmark, SYNC_SUBFOLDER)),

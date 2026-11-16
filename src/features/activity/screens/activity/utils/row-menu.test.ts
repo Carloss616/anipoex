@@ -6,15 +6,25 @@ mock.module("@/components/ui/icon", () => ({
   Icons: new Proxy({}, { get: (_, name) => String(name) }),
 }));
 mock.module("./actions", () => ({
+  cancelDownload() {},
+  discardUnsent() {},
+  moveDownloadUp() {},
   removeFromQueue() {},
+  retryDownload() {},
   retrySkipped() {},
+  retryUnsent() {},
   scanNext() {},
   stopManga() {},
   stopSource() {},
 }));
-const { queuedMenu, runningMenu, skippedMenu, sourceMenu } = await import(
-  "./row-menu"
-);
+const {
+  downloadRowMenu,
+  queuedMenu,
+  runningMenu,
+  skippedMenu,
+  sourceMenu,
+  unsentMenu,
+} = await import("./row-menu");
 
 const labels = (items: MenuItem[]) =>
   items.map((i) => ("label" in i ? i.label : ""));
@@ -52,5 +62,44 @@ describe("row menus", () => {
       "Stop this source",
     ]);
     expect(labels(skippedMenu("source-1"))).toEqual(["Retry"]);
+  });
+});
+
+describe("a download's menu", () => {
+  test("queued: Move up only with a queued one before it", () => {
+    const items = downloadRowMenu("k", { state: "queued", canMoveUp: true });
+    expect(labels(items)).toEqual(["Move up", "Cancel"]);
+    expect(destructive(items)).toEqual(["Cancel"]);
+    expect(
+      labels(downloadRowMenu("k", { state: "queued", canMoveUp: false })),
+    ).toEqual(["Cancel"]);
+  });
+
+  test("running: Cancel", () => {
+    expect(
+      labels(downloadRowMenu("k", { state: "running", canMoveUp: true })),
+    ).toEqual(["Cancel"]);
+  });
+
+  test("failed: Retry, Cancel", () => {
+    expect(
+      labels(downloadRowMenu("k", { state: "failed", canMoveUp: true })),
+    ).toEqual(["Retry", "Cancel"]);
+  });
+});
+
+describe("unsent progress's menu", () => {
+  test("Retry, and Discard confirmed in a dialog", () => {
+    const items = unsentMenu("9") as MenuAction[];
+    expect(labels(items)).toEqual(["Retry", "Discard"]);
+    expect(destructive(items)).toEqual(["Discard"]);
+    expect(items[1].dialogConfig).toEqual({
+      title: "Discard this progress?",
+      confirmLabel: "Discard",
+    });
+    const discard = () => {};
+    const own = unsentMenu("9", discard) as MenuAction[];
+    expect(own[1].onPress).toBe(discard);
+    expect(own[1].dialogConfig).toBeUndefined();
   });
 });

@@ -4,9 +4,8 @@ import type { ColorValue } from "react-native";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
-import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
-import { labelOf, readToolbar, type ToolbarItem } from "./utils";
+import { labelOf, readToolbar, type ToolbarItem, toMenuItems } from "./utils";
 
 function ToolbarButton({
   icon,
@@ -57,15 +56,7 @@ function ToolbarItemView({ item }: { item: ToolbarItem }) {
   }
 
   return (
-    <Menu
-      items={item.actions.map((action) => ({
-        label: action.label,
-        icon: action.icon as IconName,
-        disabled: action.disabled,
-        checked: action.isOn,
-        onPress: action.onPress ?? noop,
-      }))}
-    >
+    <Menu items={toMenuItems(item.actions)}>
       {/* `Menu` clones this with the `onPress` that opens it. */}
       <ToolbarButton
         icon={item.props.icon}

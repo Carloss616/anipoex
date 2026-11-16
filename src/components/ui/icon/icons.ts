@@ -194,6 +194,21 @@ export const Icons = {
     android: require("@expo/material-symbols/hourglass.xml"),
     web: "hourglass",
   }),
+  downloaded: Icon.select({
+    ios: "checkmark.circle.fill",
+    android: require("@expo/material-symbols/download_done.xml"),
+    web: "circle-check",
+  }),
+  inCloud: Icon.select({
+    ios: "icloud",
+    android: require("@expo/material-symbols/cloud.xml"),
+    web: "cloud",
+  }),
+  downloadFailed: Icon.select({
+    ios: "exclamationmark.circle",
+    android: require("@expo/material-symbols/error.xml"),
+    web: "circle-alert",
+  }),
 
   info: Icon.select({
     ios: "info.circle",

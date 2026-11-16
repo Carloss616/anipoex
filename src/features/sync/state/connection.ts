@@ -3,17 +3,13 @@ import { Platform } from "react-native";
 import { toast } from "@/components/ui/toast";
 import { settings$ } from "@/state/settings";
 import { desktop } from "@/utils/desktop";
+import { canUseFolder, pickFolder } from "@/utils/picked-folder";
 import {
   type GitHubPost,
   pollForToken,
   requestDeviceCode,
 } from "../utils/device-flow";
-import {
-  canUseFolder,
-  createFolderTarget,
-  pickFolder,
-  watchFolder,
-} from "../utils/folder-target";
+import { createFolderTarget, watchFolder } from "../utils/folder-target";
 import {
   createGistTarget,
   fetchGitHubUser,
@@ -115,8 +111,6 @@ export async function chooseFolder() {
     const location = await pickFolder();
     if (location) settings$.device.folder.set(location);
   } catch (error) {
-    // A dismissed picker rejects too; that's no change, not a failure.
-    if ((error as { code?: string }).code === "ERR_PICKER_CANCELLED") return;
     toast.error(
       `Couldn't use that folder: ${error instanceof Error ? error.message : error}`,
     );

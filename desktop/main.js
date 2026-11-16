@@ -11,9 +11,16 @@ import {
   shell,
 } from "electron";
 import { coverHeaders } from "./assets/covers.js";
-import { PAGE_SCHEME, pageStore, servePage } from "./assets/pages.js";
+import {
+  PAGE_SCHEME,
+  pageStore,
+  servePage,
+  stageArgs,
+  unpackArgs,
+} from "./assets/pages.js";
 import { resolveAsset } from "./assets/serve.js";
 import { authRedirect } from "./auth.js";
+import { registerDownloads } from "./downloads.js";
 import { registerFolder } from "./folder.js";
 import { fetchThrough, solveChallenge } from "./host/challenge.js";
 import { renderImage } from "./host/graphics.js";
@@ -70,6 +77,10 @@ const METHODS = new Set([
   "setDns",
   "challengedHosts",
   "pages",
+  "stagePage",
+  "pack",
+  "dropStage",
+  "unpack",
 ]);
 
 // Not `URL.origin`: a custom scheme's origin is the opaque "null", which
@@ -187,12 +198,20 @@ app.whenReady().then(() => {
   ipcMain.handle("runtime", async (event, method, args) => {
     if (originOf(event.senderFrame?.url) !== APP_ORIGIN || !METHODS.has(method))
       return { error: "Not allowed" };
+    if (method === "stagePage" || method === "unpack") {
+      const checked =
+        method === "stagePage" ? stageArgs(pages, args) : unpackArgs(args);
+      if (checked.error) return checked;
+      args = checked.args;
+    }
     const reply = await sidecar.call(method, args ?? {});
     if (method === "installed") covers.learnSources(reply?.result);
     if (method === "search") covers.learnCovers(args?.sourceId, reply?.result);
-    return method === "pages" && reply?.result
-      ? { result: pages.rewrite(args.sourceId, reply.result) }
-      : reply;
+    if (method === "pages" && reply?.result)
+      return { result: pages.rewrite(args.sourceId, reply.result) };
+    if (method === "unpack" && reply?.result)
+      return { result: pages.rewriteFiles(reply.result) };
+    return reply;
   });
 
   // The two Device Flow endpoints: GitHub serves them without CORS.
@@ -288,6 +307,14 @@ app.whenReady().then(() => {
     ipcMain,
     window,
     (event) => originOf(event.senderFrame?.url) === APP_ORIGIN,
+  );
+  registerDownloads(
+    ipcMain,
+    (event) => originOf(event.senderFrame?.url) === APP_ORIGIN,
+    {
+      appRoot: app.getPath("userData"),
+      packedDir: path.join(extensions, "cache/packed"),
+    },
   );
   window.loadURL(APP_URL);
   // The app is this window: hidden ones (kept pages, JS engine) don't count.

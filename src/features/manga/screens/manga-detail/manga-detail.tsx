@@ -6,9 +6,7 @@ import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
-import { Toolbar } from "@/components/layout/toolbar";
 import { Host } from "@/components/ui/host";
-import { Icons } from "@/components/ui/icon";
 import {
   installedLoaded$,
   isRuntimeAvailable,
@@ -24,37 +22,14 @@ import { startTitleSearch } from "@/features/manga/state/title-search";
 import { sourceListHref } from "@/features/manga/utils/source-list-href";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { shareUrl } from "@/utils/copy-url";
-import { openExternal } from "@/utils/open-external";
-import { noop } from "@/utils/utils";
 import { ContinueSync } from "./components/continue-sync";
 import { DetailList } from "./components/detail-list";
+import { DetailToolbar } from "./components/detail-toolbar";
 import type { ContinueAction } from "./hooks/use-continue";
-
-const MENU_ACTIONS = [
-  {
-    icon: Icons.share,
-    label: "Share",
-    onPress: (id: string) => shareUrl(`https://anilist.co/manga/${id}`),
-  },
-  {
-    icon: Icons.download,
-    label: "Download",
-    onPress: () => noop(),
-  },
-  {
-    icon: Icons.openExternal,
-    // The destination names itself better than "Website" did.
-    label: "View on AniList",
-    onPress: (id: string) => openExternal(`https://anilist.co/manga/${id}`),
-  },
-] as const;
 
 export function MangaDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const maxHeaderHeight = useMaxHeaderHeight();
-  const mutedForeground = useThemeColor("muted-foreground");
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
   const sources = useAllInstalledSources();
   const { match, matching } = useSourceMatch(Number(id));
@@ -201,31 +176,15 @@ export function MangaDetail() {
           }}
         />
       )}
-      <Toolbar loading={refreshing}>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            icon={Icons.refresh}
-            onPress={refreshAll}
-            disabled={refreshing}
-            tintColor={refreshing ? mutedForeground : undefined}
-            accessibilityLabel="Refresh"
-          />
-          <Stack.Toolbar.Menu
-            icon={Icons.more}
-            accessibilityLabel="More options"
-          >
-            {MENU_ACTIONS.map(({ icon, label, onPress }) => (
-              <Stack.Toolbar.MenuAction
-                key={label}
-                icon={icon}
-                onPress={() => onPress(id)}
-              >
-                {label}
-              </Stack.Toolbar.MenuAction>
-            ))}
-          </Stack.Toolbar.Menu>
-        </Stack.Toolbar>
-      </Toolbar>
+      <DetailToolbar
+        id={id}
+        manga={manga}
+        chapters={rows}
+        match={match}
+        sourceName={sourceName}
+        refreshing={refreshing}
+        onRefresh={refreshAll}
+      />
 
       <DetailList
         manga={manga}

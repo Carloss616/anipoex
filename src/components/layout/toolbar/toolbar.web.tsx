@@ -2,9 +2,8 @@ import { Stack } from "expo-router";
 import { Button } from "panelui-web/button";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
-import { noop } from "@/utils/utils";
 import type { ToolbarProps } from "./toolbar";
-import { labelOf, readToolbar, type ToolbarItem } from "./utils";
+import { labelOf, readToolbar, type ToolbarItem, toMenuItems } from "./utils";
 
 function ToolbarItemView({
   item,
@@ -45,15 +44,7 @@ function ToolbarItemView({
   if (item.kind === "button") return trigger;
 
   return (
-    <Menu
-      items={item.actions.map((action) => ({
-        label: action.label,
-        icon: action.icon as IconName,
-        disabled: action.disabled,
-        checked: action.isOn,
-        onPress: action.onPress ?? noop,
-      }))}
-    >
+    <Menu items={toMenuItems(item.actions)}>
       {/* `Menu` clones this with the `onPress` that opens it. */}
       {trigger}
     </Menu>

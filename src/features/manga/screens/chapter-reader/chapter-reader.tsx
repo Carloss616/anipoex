@@ -59,6 +59,7 @@ export function ChapterReader() {
   const current = chapters.find((chapter) => chapter.id === chapterUrl);
   // Pages wait for the list: some sources find them by the chapter's memo.
   const { pages, loading, error, reload } = useChapterPages(
+    Number(mediaId),
     chaptersLoading ? undefined : match?.sourceId,
     chapterUrl,
     current?.memo ?? undefined,
