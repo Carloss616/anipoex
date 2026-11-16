@@ -114,7 +114,11 @@ export function ChapterEnd({
             )}
             <VStack alignment="leading" spacing={4}>
               <Text weight="semibold">
-                {saving ? "Saving to AniList…" : "Saved to AniList"}
+                {saving
+                  ? "Saving to AniList…"
+                  : save.onDevice
+                    ? "Saved on this device"
+                    : "Saved to AniList"}
               </Text>
               <Lines changes={save.changes} />
             </VStack>

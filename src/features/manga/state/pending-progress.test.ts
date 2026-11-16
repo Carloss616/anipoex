@@ -23,6 +23,7 @@ const {
   keepIfOffline,
   keepPending,
   pendingProgress$,
+  restorePending,
 } = await import("./pending-progress");
 
 beforeEach(() => pendingProgress$.set({}));
@@ -51,6 +52,44 @@ describe("keepPending", () => {
     pendingProgress$[1].error.set("boom");
     keepPending(1, { progress: 13 });
     expect(pendingProgress$[1].get().error).toBeUndefined();
+  });
+});
+
+describe("restorePending", () => {
+  it("removes an entry the keep created", () => {
+    const kept = keepPending(1, { progress: 12 });
+    restorePending(1, kept);
+    expect(pendingProgress$.get()).toEqual({});
+  });
+
+  it("puts back the entry the keep replaced", () => {
+    keepPending(1, { progress: 12, status: MediaListStatus.Current });
+    const before = { ...pendingProgress$[1].get() };
+    const kept = keepPending(1, { progress: 14 });
+    restorePending(1, kept);
+    expect(pendingProgress$[1].get()).toEqual(before);
+  });
+
+  it("puts back the entry a lower progress only refreshed", () => {
+    keepPending(1, { progress: 12 });
+    const before = { ...pendingProgress$[1].get() };
+    const kept = keepPending(1, { progress: 10 });
+    restorePending(1, kept);
+    expect(pendingProgress$[1].get()).toEqual(before);
+  });
+
+  it("leaves a sent entry gone", () => {
+    const kept = keepPending(1, { progress: 12 });
+    pendingProgress$[1].delete();
+    restorePending(1, kept);
+    expect(pendingProgress$.get()).toEqual({});
+  });
+
+  it("leaves an entry changed since the keep", () => {
+    const kept = keepPending(1, { progress: 12 });
+    pendingProgress$[1].error.set("boom");
+    restorePending(1, kept);
+    expect(pendingProgress$[1].get().error).toBe("boom");
   });
 });
 
@@ -121,7 +160,9 @@ describe("flushPending", () => {
     keepPending(1, { progress: 12 });
     await flushPending(
       () => 0,
-      async () => keepPending(1, { progress: 14 }),
+      async () => {
+        keepPending(1, { progress: 14 });
+      },
     );
     expect(pendingProgress$[1].get().progress).toBe(14);
   });
@@ -185,7 +226,7 @@ describe("keepIfOffline", () => {
       progress: 7,
       status: MediaListStatus.Current,
     });
-    expect(kept).toBe(true);
+    expect(kept?.kept.progress).toBe(7);
     expect(pendingProgress$[1].get()).toMatchObject({
       progress: 7,
       status: MediaListStatus.Current,
@@ -196,7 +237,7 @@ describe("keepIfOffline", () => {
     const error = new CombinedGraphQLErrors({
       errors: [{ message: "Denied" }],
     });
-    expect(keepIfOffline(error, 1, { progress: 7 })).toBe(false);
+    expect(keepIfOffline(error, 1, { progress: 7 })).toBeUndefined();
     expect(pendingProgress$[1].get()).toBeUndefined();
   });
 });

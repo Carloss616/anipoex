@@ -15,6 +15,10 @@ the device; it is not synced.
 - **Higher wins**: a lower progress never replaces the kept one.
 - **Kept by the reader**: a chapter's save that fails for want of a connection lands
   here, with a notice that it will be sent when online; other failures don't.
+- **Undo**: the reader's notice for a kept save says "Saved on this device" and offers
+  Undo, which puts the table back to what that manga held before the keep (an earlier
+  entry, or none) without calling AniList. If the entry was sent, changed or discarded
+  since, Undo leaves the table alone.
 - **Shown progress** is the higher of AniList's and the pending one: chapters read and
   Continue count it.
 - **Sent later**, while signed in: at launch, when the app comes back to the

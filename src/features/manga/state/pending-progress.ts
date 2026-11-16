@@ -21,25 +21,43 @@ syncObservable(pendingProgress$, {
   persist: { name: "pending-progress", plugin: ObservablePersist },
 });
 
+/** What a keep wrote, and the entry it replaced, for {@link restorePending}. */
+export interface Kept {
+  previous?: PendingProgress;
+  kept: PendingProgress;
+}
+
 /** Keeps the higher progress; a progress that isn't lower also brings its status. */
 export function keepPending(
   mediaId: number,
   next: { progress: number; status?: MediaListStatus },
-) {
-  const kept = pendingProgress$[mediaId].peek();
-  if (kept && next.progress < kept.progress) {
-    pendingProgress$[mediaId].set({
-      ...kept,
-      at: Date.now(),
-      error: undefined,
-    });
+): Kept {
+  const previous = pendingProgress$[mediaId].peek();
+  const kept: PendingProgress =
+    previous && next.progress < previous.progress
+      ? { ...previous, at: Date.now(), error: undefined }
+      : { progress: next.progress, status: next.status, at: Date.now() };
+  pendingProgress$[mediaId].set(kept);
+  // Legend changes the stored object in place, so keep a copy to compare
+  return { previous, kept: { ...kept } };
+}
+
+/**
+ * Puts back what a keep replaced, only while the entry is still the one it
+ * wrote: one sent, changed or discarded since is left alone.
+ */
+export function restorePending(mediaId: number, { previous, kept }: Kept) {
+  const now = pendingProgress$[mediaId].peek();
+  if (
+    !now ||
+    now.at !== kept.at ||
+    now.progress !== kept.progress ||
+    now.status !== kept.status ||
+    now.error !== kept.error
+  )
     return;
-  }
-  pendingProgress$[mediaId].set({
-    progress: next.progress,
-    status: next.status,
-    at: Date.now(),
-  });
+  if (previous) pendingProgress$[mediaId].set(previous);
+  else pendingProgress$[mediaId].delete();
 }
 
 export function effectiveProgress(
@@ -49,15 +67,14 @@ export function effectiveProgress(
   return Math.max(remote ?? 0, pendingProgress$[mediaId].get()?.progress ?? 0);
 }
 
-/** Keeps a save that failed for want of a connection; false for any other failure. */
+/** Keeps a save that failed for want of a connection; undefined for any other failure. */
 export function keepIfOffline(
   error: unknown,
   mediaId: number,
   next: { progress: number; status?: MediaListStatus },
-): boolean {
-  if (!isNetworkError(error)) return false;
-  keepPending(mediaId, next);
-  return true;
+): Kept | undefined {
+  if (!isNetworkError(error)) return undefined;
+  return keepPending(mediaId, next);
 }
 
 let running: Promise<void> | undefined;

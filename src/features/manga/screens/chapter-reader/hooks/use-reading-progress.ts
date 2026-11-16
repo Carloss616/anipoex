@@ -2,7 +2,11 @@ import { useRef, useState } from "react";
 import { toast } from "@/components/ui/toast";
 import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
-import { keepIfOffline } from "@/features/manga/state/pending-progress";
+import {
+  type Kept,
+  keepIfOffline,
+  restorePending,
+} from "@/features/manga/state/pending-progress";
 import {
   type ReadingSave,
   readingSave,
@@ -17,6 +21,8 @@ interface Notice {
   result: ReadingSave;
   /** The entry "Add to list" created, which Undo deletes. */
   createdId?: number;
+  /** Set when the save was kept on the device: Undo restores that, not AniList. */
+  kept?: Kept;
 }
 
 const NONE: ChapterEndProps["save"] = { state: "none", changes: [] };
@@ -80,8 +86,10 @@ export function useReadingProgress(
       () => settle(saving, { ...saving, state: "saved" }),
       (error) => {
         // Any other failure: useSaveTracking already toasted it.
-        if (keepIfOffline(error, manga.id, result.after)) toast(OFFLINE);
-        settle(saving);
+        const kept = keepIfOffline(error, manga.id, result.after);
+        if (!kept) return settle(saving);
+        toast(OFFLINE);
+        settle(saving, { ...saving, state: "saved", kept });
       },
     );
   };
@@ -104,6 +112,11 @@ export function useReadingProgress(
 
   const undo = () => {
     if (notice?.state !== "saved" || busy.current) return;
+    if (notice.kept) {
+      restorePending(manga.id, notice.kept);
+      settle(notice);
+      return;
+    }
     busy.current = true;
     const { before, after } = notice.result;
     (notice.createdId != null
@@ -123,7 +136,11 @@ export function useReadingProgress(
     reached,
     save:
       notice && notice.chapterId === chapterId
-        ? { state: notice.state, changes: notice.result.changes }
+        ? {
+            state: notice.state,
+            changes: notice.result.changes,
+            onDevice: !!notice.kept,
+          }
         : NONE,
     undo,
     add,

@@ -93,7 +93,11 @@ export function ChapterEnd({
                 style={{ typography: "titleMedium" }}
                 color={m3.onSecondaryContainer}
               >
-                {saving ? "Saving to AniList…" : "Saved to AniList"}
+                {saving
+                  ? "Saving to AniList…"
+                  : save.onDevice
+                    ? "Saved on this device"
+                    : "Saved to AniList"}
               </Text>
               {lines}
             </Column>

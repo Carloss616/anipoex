@@ -11,7 +11,12 @@ export interface ChapterEndProps {
    * What reaching the end is saving or saved, or would add once confirmed;
    * "none" shows nothing.
    */
-  save: { state: "saved" | "saving" | "confirm" | "none"; changes: string[] };
+  save: {
+    state: "saved" | "saving" | "confirm" | "none";
+    changes: string[];
+    /** Saved on the device, to be sent when online. */
+    onDevice?: boolean;
+  };
   onUndo: () => void;
   onAdd: () => void;
   onNotNow: () => void;
@@ -51,7 +56,11 @@ export function ChapterEnd({
         <Alert tone={saving ? "neutral" : "success"}>
           <Alert.Icon />
           <Alert.Title>
-            {saving ? "Saving to AniList…" : "Saved to AniList"}
+            {saving
+              ? "Saving to AniList…"
+              : save.onDevice
+                ? "Saved on this device"
+                : "Saved to AniList"}
           </Alert.Title>
           <Alert.Description className="whitespace-pre-line">
             {save.changes.join("\n")}
