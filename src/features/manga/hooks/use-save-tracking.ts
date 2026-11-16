@@ -1,4 +1,5 @@
 import { useMutation } from "@apollo/client/react";
+import { isNetworkError } from "@/graphql/utils";
 import { session$ } from "@/state/session";
 import { failed, succeeded } from "@/utils/haptics";
 import {
@@ -8,14 +9,17 @@ import {
 import { fileEntry, fileSaved } from "../utils/file-entry";
 import type { SaveVariables } from "../utils/tracking-form";
 
-/** Never the only feedback: the entry redraws, and the error link toasts. */
-async function felt<T>(work: Promise<T>) {
+/**
+ * Never the only feedback: the entry redraws, and the error link toasts. A
+ * save kept offline (`queueOffline`) didn't fail, so it gets no failure buzz.
+ */
+async function felt<T>(work: Promise<T>, queueOffline = false) {
   try {
     const result = await work;
     succeeded();
     return result;
   } catch (error) {
-    failed();
+    if (!(queueOffline && isNetworkError(error))) failed();
     throw error;
   }
 }
@@ -70,6 +74,7 @@ export function useSaveTracking(mediaId: number) {
           variables,
           context: (base) => ({ ...base, queueOffline }),
         }),
+        queueOffline,
       );
       return result.data?.SaveMediaListEntry;
     },

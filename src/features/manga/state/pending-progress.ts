@@ -1,6 +1,7 @@
 import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import type { MediaListStatus } from "@/graphql/types.generated";
+import { isNetworkError } from "@/graphql/utils";
 import { ObservablePersist } from "@/state/observable-persist";
 
 export interface PendingProgress {
@@ -46,20 +47,6 @@ export function effectiveProgress(
   mediaId: number,
 ): number {
   return Math.max(remote ?? 0, pendingProgress$[mediaId].get()?.progress ?? 0);
-}
-
-// React Native, Chrome, Safari and Firefox word a failed fetch differently
-const FETCH_FAILURES = new Set([
-  "Network request failed",
-  "Failed to fetch",
-  "Load failed",
-  "NetworkError when attempting to fetch resource.",
-]);
-
-/** A dropped connection, not an answer from the server (GraphQL or HTTP error). */
-export function isNetworkError(error: unknown): boolean {
-  if (error instanceof TypeError) return FETCH_FAILURES.has(error.message);
-  return typeof error === "object" && error !== null && "networkError" in error;
 }
 
 /** Keeps a save that failed for want of a connection; false for any other failure. */

@@ -2,52 +2,59 @@ import { AppState } from "react-native";
 import { cache, cacheRestored, client, onAnswered } from "@/graphql/client";
 import { session$ } from "@/state/session";
 import { debouncer } from "@/utils/debouncer";
-import {
-  MangaMediaFragmentDoc,
-  MangaTrackingFragmentDoc,
-} from "../graphql/manga-fragments.generated";
+import { MangaDetailDocument } from "../graphql/manga-detail.generated";
+import { MangaMediaFragmentDoc } from "../graphql/manga-fragments.generated";
 import { SaveMangaTrackingDocument } from "../graphql/manga-tracking.generated";
-import { fileSaved } from "../utils/file-entry";
+import { fileSaved, refileEntry } from "../utils/file-entry";
 import { pendingSave } from "../utils/pending-save";
 import { flushPending, type PendingProgress } from "./pending-progress";
 
+const CONTEXT = {
+  queueOffline: true,
+  errorMessage: "Couldn't send your reading progress",
+};
+
 // Partial: any query that shows the manga caches its entry's progress.
-const cachedMedia = (mediaId: number) =>
+const cachedEntry = (mediaId: number) =>
   cache.readFragment({
     fragment: MangaMediaFragmentDoc,
     fragmentName: "MangaMedia",
     from: { __typename: "Media", id: mediaId },
     returnPartialData: true,
-  });
+  })?.mediaListEntry;
 
 const remoteOf = (mediaId: number) =>
-  cachedMedia(mediaId)?.mediaListEntry?.progress ?? undefined;
+  cachedEntry(mediaId)?.progress ?? undefined;
 
+/**
+ * Compares with AniList's entry as it is now, never the cache: the cache can
+ * predate reading on another device, and saving over it would lower progress.
+ */
 async function send(mediaId: number, pending: PendingProgress) {
-  const media = cachedMedia(mediaId);
-  const entryId = media?.mediaListEntry?.id;
-  const entry =
-    entryId == null
-      ? null
-      : cache.readFragment({
-          fragment: MangaTrackingFragmentDoc,
-          fragmentName: "MangaTracking",
-          from: { __typename: "MediaList", id: entryId },
-        });
+  const priorId = cachedEntry(mediaId)?.id;
+  const { data } = await client.query({
+    query: MangaDetailDocument,
+    variables: { id: mediaId },
+    fetchPolicy: "network-only",
+    context: CONTEXT,
+  });
+  const media = data?.Media;
+  const userId = session$.user.peek()?.id;
+  if (media && userId != null) refileEntry(cache, userId, priorId, media);
+
+  const variables = pendingSave(
+    mediaId,
+    pending.progress,
+    media?.mediaListEntry,
+    media?.chapters,
+    new Date(),
+  );
+  if (!variables) return;
 
   await client.mutate({
     mutation: SaveMangaTrackingDocument,
-    variables: pendingSave(
-      mediaId,
-      pending,
-      entry && entryId != null ? { ...entry, id: entryId } : null,
-      media?.chapters,
-      new Date(),
-    ),
-    context: {
-      queueOffline: true,
-      errorMessage: "Couldn't send your reading progress",
-    },
+    variables,
+    context: CONTEXT,
     update: (cache, { data }) =>
       fileSaved(
         cache,

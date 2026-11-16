@@ -1,4 +1,16 @@
-import { isNetworkError } from "@/features/manga/state/pending-progress";
+// React Native, Chrome, Safari and Firefox word a failed fetch differently
+const FETCH_FAILURES = new Set([
+  "Network request failed",
+  "Failed to fetch",
+  "Load failed",
+  "NetworkError when attempting to fetch resource.",
+]);
+
+/** A dropped connection, not an answer from the server (GraphQL or HTTP error). */
+export function isNetworkError(error: unknown): boolean {
+  if (error instanceof TypeError) return FETCH_FAILURES.has(error.message);
+  return typeof error === "object" && error !== null && "networkError" in error;
+}
 
 /**
  * Whether the error link toasts a failure: not when the operation asks for

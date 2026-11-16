@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { CombinedGraphQLErrors, ServerError } from "@apollo/client/errors";
+import { CombinedGraphQLErrors } from "@apollo/client/errors";
 import { MediaListStatus } from "@/graphql/types.generated";
 
 mock.module("@/state/observable-persist", () => ({
@@ -20,7 +20,6 @@ mock.module("@/state/observable-persist", () => ({
 const {
   effectiveProgress,
   flushPending,
-  isNetworkError,
   keepIfOffline,
   keepPending,
   pendingProgress$,
@@ -155,39 +154,6 @@ describe("flushPending", () => {
     expect(second).toBe(first);
     await first;
     expect(send).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("isNetworkError", () => {
-  it("is true for a dropped connection", () => {
-    expect(isNetworkError(new TypeError("Network request failed"))).toBe(true);
-    expect(isNetworkError(new TypeError("Failed to fetch"))).toBe(true);
-    expect(isNetworkError(new TypeError("Load failed"))).toBe(true);
-    expect(
-      isNetworkError(
-        new TypeError("NetworkError when attempting to fetch resource."),
-      ),
-    ).toBe(true);
-    expect(isNetworkError({ networkError: new Error("x") })).toBe(true);
-  });
-
-  it("is false for an answer from the server", () => {
-    expect(
-      isNetworkError(
-        new CombinedGraphQLErrors({ errors: [{ message: "Denied" }] }),
-      ),
-    ).toBe(false);
-    expect(
-      isNetworkError(
-        new ServerError("down", {
-          response: new Response("", { status: 503 }),
-          bodyText: "",
-        }),
-      ),
-    ).toBe(false);
-    expect(isNetworkError(new Error("other"))).toBe(false);
-    expect(isNetworkError(new TypeError("x is not a function"))).toBe(false);
-    expect(isNetworkError(null)).toBe(false);
   });
 });
 

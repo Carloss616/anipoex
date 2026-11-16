@@ -2,7 +2,7 @@
 
 ## 2026-11-16
 
-* **Offline reading progress is sent and shown**: the reader keeps a save the connection dropped and says so; it is sent at launch, when the app comes back, and once AniList answers again. Chapters read and Continue count it, and progress AniList turned down waits in Activity for Retry or Discard. Updated [Pending progress](stores/pending-progress.md), [Tracking rules](concepts/tracking-rules.md).
+* **Offline reading progress is sent and shown**: the reader keeps a save the connection dropped and says so; it is sent at launch, when the app comes back, and once AniList answers again, checked first against AniList's current entry so it never lowers progress read elsewhere nor undoes a status set there. Chapters read and Continue count it, progress AniList turned down waits in Activity for Retry or Discard, and signing out empties it. Updated [Pending progress](stores/pending-progress.md), [Tracking rules](concepts/tracking-rules.md).
 * **Offline reading progress is kept**: progress made while AniList is unreachable waits on the device and is sent later; an entry AniList already reached is dropped. Added [Pending progress](stores/pending-progress.md).
 * **A synced extension no repo lists is skipped**: a device no longer shows "Extension not found" on each sync for a package its repos dropped. Updated [Extension installs](stores/extension-installs.md).
 * **Another device's scan picks again here**: a manga with no source chosen picks the best one by its probes when its detail opens, and loads its chapters then; until then the list's `+N` is that source's. Updated [source matches](stores/source-matches.md), [unread chapters](metrics/unread-chapters.md).
