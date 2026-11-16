@@ -11,7 +11,13 @@ import {
   shell,
 } from "electron";
 import { coverHeaders } from "./assets/covers.js";
-import { PAGE_SCHEME, pageStore, servePage } from "./assets/pages.js";
+import {
+  PAGE_SCHEME,
+  pageStore,
+  servePage,
+  stageArgs,
+  unpackArgs,
+} from "./assets/pages.js";
 import { resolveAsset } from "./assets/serve.js";
 import { authRedirect } from "./auth.js";
 import { registerFolder } from "./folder.js";
@@ -191,11 +197,11 @@ app.whenReady().then(() => {
   ipcMain.handle("runtime", async (event, method, args) => {
     if (originOf(event.senderFrame?.url) !== APP_ORIGIN || !METHODS.has(method))
       return { error: "Not allowed" };
-    if (method === "stagePage") {
-      const page = pages.original(args?.imageUrl);
-      if (!page || page.sourceId !== args.sourceId)
-        return { error: "Unknown page" };
-      args = { ...args, imageUrl: page.imageUrl, index: page.index };
+    if (method === "stagePage" || method === "unpack") {
+      const checked =
+        method === "stagePage" ? stageArgs(pages, args) : unpackArgs(args);
+      if (checked.error) return checked;
+      args = checked.args;
     }
     const reply = await sidecar.call(method, args ?? {});
     if (method === "installed") covers.learnSources(reply?.result);

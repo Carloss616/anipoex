@@ -91,3 +91,32 @@ export async function servePage(store, url, image) {
     headers: { "Content-Type": "application/octet-stream" },
   });
 }
+
+/** The args to send the sidecar for `stagePage`, or an error. */
+export function stageArgs(store, args) {
+  const page = store.original(args?.imageUrl);
+  if (!page || page.sourceId !== args.sourceId)
+    return { error: "Unknown page" };
+  return { args: { ...args, imageUrl: page.imageUrl, index: page.index } };
+}
+
+/**
+ * `unpack` extracts any CBZ it is given, whose images then become servable:
+ * only a `.cbz` under a `downloads` folder (where every chapter lives) goes.
+ */
+export function unpackArgs(args) {
+  const parsed = URL.parse(args?.uri ?? "");
+  const segments =
+    parsed?.protocol === "file:"
+      ? decodeURIComponent(parsed.pathname).split("/")
+      : [];
+  if (
+    !path.isAbsolute(segments.join("/")) ||
+    !segments.at(-1)?.toLowerCase().endsWith(".cbz") ||
+    !segments.slice(0, -1).includes("downloads") ||
+    segments.includes("..") ||
+    !/^[A-Za-z0-9-]{1,200}$/.test(args.key ?? "")
+  )
+    return { error: "Not a downloaded chapter" };
+  return { args };
+}

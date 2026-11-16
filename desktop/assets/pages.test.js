@@ -3,7 +3,13 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { PAGE_SCHEME, pageStore, servePage } from "./pages.js";
+import {
+  PAGE_SCHEME,
+  pageStore,
+  servePage,
+  stageArgs,
+  unpackArgs,
+} from "./pages.js";
 
 const page = (index, imageUrl = `https://example.com/${index}.png`) => ({
   index,
@@ -138,4 +144,74 @@ test("aMissingFileIs404", async () => {
   const store = pageStore();
   const [item] = store.rewriteFiles([{ index: 0, uri: "file:///nope/1.png" }]);
   expect((await servePage(store, item.uri, () => {})).status).toBe(404);
+});
+
+test("stageArgsSwapsInTheOriginal", () => {
+  const store = pageStore();
+  const [{ imageUrl }] = store.rewrite("7", [page(2, "https://example.com/a")]);
+  expect(
+    stageArgs(store, { sourceId: "7", imageUrl, index: 9, stage: "s" }),
+  ).toEqual({
+    args: {
+      sourceId: "7",
+      imageUrl: "https://example.com/a",
+      index: 2,
+      stage: "s",
+    },
+  });
+});
+
+test("stageArgsRejectsUnknownMismatchedAndFiles", () => {
+  const store = pageStore();
+  const [{ imageUrl }] = store.rewrite("7", [page(0)]);
+  const [file] = store.rewriteFiles([
+    { index: 0, uri: "file:///d/downloads/1.jpg" },
+  ]);
+  const unknown = { error: "Unknown page" };
+  const nope = `${PAGE_SCHEME}://p/nope`;
+  expect(stageArgs(store, { sourceId: "7", imageUrl: nope })).toEqual(unknown);
+  expect(stageArgs(store, { sourceId: "8", imageUrl })).toEqual(unknown);
+  expect(stageArgs(store, { sourceId: "7", imageUrl: file.uri })).toEqual(
+    unknown,
+  );
+  expect(stageArgs(store, {})).toEqual(unknown);
+});
+
+test("unpackArgsAcceptsADownloadedCbz", () => {
+  for (const uri of [
+    "file:///Users/me/Documents/downloads/Title%20%5B1%5D/Source%20%5B2%5D/Ch%201%20%5Bab%5D.cbz",
+    "file:///data/userData/downloads/a/b/c.CBZ",
+  ])
+    expect(unpackArgs({ uri, key: "1-2-ab" })).toEqual({
+      args: { uri, key: "1-2-ab" },
+    });
+});
+
+test("unpackArgsRejectsTheRest", () => {
+  const bad = { error: "Not a downloaded chapter" };
+  for (const uri of [
+    "file:///etc/other.cbz",
+    "file:///d/downloads/a.zip",
+    "file:///d/downloads/../secret.cbz",
+    "file:///d/downloads/%2e%2e/secret.cbz",
+    "https://example.com/downloads/a.cbz",
+    "content://x/downloads/a.cbz",
+    "file:///d/downloads",
+    "nope",
+  ])
+    expect(unpackArgs({ uri, key: "k" })).toEqual(bad);
+  const uri = "file:///d/downloads/a.cbz";
+  for (const key of ["", "a/b", "../x", "a".repeat(201), undefined])
+    expect(unpackArgs({ uri, key })).toEqual(bad);
+  expect(unpackArgs(undefined)).toEqual(bad);
+});
+
+test("fileAndPageEntriesShareTheLimit", () => {
+  const store = pageStore(2);
+  const [first] = store.rewrite("7", [page(0)]);
+  store.rewriteFiles([
+    { index: 0, uri: "file:///d/downloads/1.jpg" },
+    { index: 1, uri: "file:///d/downloads/2.jpg" },
+  ]);
+  expect(store.original(first.imageUrl)).toBeUndefined();
 });
