@@ -9,6 +9,7 @@ import {
   type PartialFuzzyDate,
   toFuzzyDate,
 } from "./fuzzy-date";
+import type { ReadDates } from "./read-dates";
 
 export interface TrackingForm {
   status?: MediaListStatus;
@@ -16,11 +17,14 @@ export interface TrackingForm {
   score: number;
   startedAt?: Date;
   completedAt?: Date;
+  /** Times the manga was read again; only read, never saved from here. */
+  repeat: number;
 }
 
 export interface PartialEntry {
   status?: MediaListStatus | null;
   progress?: number | null;
+  repeat?: number | null;
   score?: number | null;
   startedAt?: PartialFuzzyDate;
   completedAt?: PartialFuzzyDate;
@@ -49,14 +53,21 @@ export function toTrackingForm(
     score: entry?.score ?? 0,
     startedAt: fromFuzzyDate(entry?.startedAt),
     completedAt: fromFuzzyDate(entry?.completedAt),
+    repeat: entry?.repeat ?? 0,
   };
 }
 
+/**
+ * `read` holds when the reading began and ended, if known: marking Completed
+ * long after the last chapter (a source that stopped short of AniList's
+ * count) dates it then, not today.
+ */
 export function setStatus(
   form: TrackingForm,
   status: MediaListStatus | undefined,
   total: number | null | undefined,
   today: Date,
+  read: ReadDates = {},
 ): TrackingForm {
   const next: TrackingForm = { ...form, status };
 
@@ -66,8 +77,9 @@ export function setStatus(
 
   if (status === FINISHED) {
     if (total) next.progress = total;
-    next.startedAt ??= today;
-    next.completedAt ??= today;
+    // Today can't start a reading that ended earlier: leave it unknown.
+    next.startedAt ??= read.startedAt ?? (read.completedAt ? undefined : today);
+    next.completedAt ??= read.completedAt ?? today;
   } else if (form.status === FINISHED) {
     // Undoing Completed takes back the finish date it stamped. The progress it
     // filled stays — there is nothing to restore it from, and it is on screen.
@@ -77,11 +89,13 @@ export function setStatus(
   return next;
 }
 
+/** `read` dates a Completed the last chapter brings, as in `setStatus`. */
 export function setProgress(
   form: TrackingForm,
   progress: number,
   total: number | null | undefined,
   today: Date,
+  read: ReadDates = {},
 ): TrackingForm {
   const clamped = Math.max(0, total ? Math.min(progress, total) : progress);
   const next: TrackingForm = { ...form, progress: clamped };
@@ -98,7 +112,7 @@ export function setProgress(
     (form.status === READING || form.status === MediaListStatus.Planning)
   ) {
     next.status = FINISHED;
-    next.completedAt ??= today;
+    next.completedAt ??= read.completedAt ?? today;
   }
 
   return next;

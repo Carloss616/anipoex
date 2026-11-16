@@ -47,11 +47,18 @@ export function TrackingSheet({
         canScore={sheet.canScore}
       />
       <Sheet.Next name="status" showClose={false}>
-        <Status form={form} total={total} onCancel={noop} onConfirm={commit} />
+        <Status
+          form={form}
+          mediaId={manga.id}
+          total={total}
+          onCancel={noop}
+          onConfirm={commit}
+        />
       </Sheet.Next>
       <Sheet.Next name="progress" showClose={false}>
         <Progress
           form={form}
+          mediaId={manga.id}
           total={total}
           onCancel={noop}
           onConfirm={commit}

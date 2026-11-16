@@ -18,6 +18,7 @@ const form = (over: Partial<TrackingForm> = {}): TrackingForm => ({
   score: 0,
   startedAt: undefined,
   completedAt: undefined,
+  repeat: 0,
   ...over,
 });
 
@@ -70,6 +71,41 @@ describe("setStatus", () => {
     expect(result.completedAt).toEqual(picked);
   });
 
+  it("dates a late Completed by the last chapter read", () => {
+    const finished = new Date(2025, 4, 4);
+    const result = setStatus(form(), MediaListStatus.Completed, 121, TODAY, {
+      completedAt: finished,
+    });
+
+    expect(result.completedAt).toEqual(finished);
+    // Today would start the reading after it ended.
+    expect(result.startedAt).toBeUndefined();
+  });
+
+  it("takes the start from the first chapter read when known", () => {
+    const started = new Date(2024, 1, 1);
+    const result = setStatus(form(), MediaListStatus.Completed, 121, TODAY, {
+      startedAt: started,
+      completedAt: new Date(2025, 4, 4),
+    });
+
+    expect(result.startedAt).toEqual(started);
+  });
+
+  it("keeps dates the user already has over the activity's", () => {
+    const picked = new Date(2024, 0, 2);
+    const result = setStatus(
+      form({ startedAt: picked, completedAt: picked }),
+      MediaListStatus.Completed,
+      121,
+      TODAY,
+      { startedAt: new Date(2023, 0, 1), completedAt: new Date(2025, 4, 4) },
+    );
+
+    expect(result.startedAt).toEqual(picked);
+    expect(result.completedAt).toEqual(picked);
+  });
+
   it("drops the finish date when the entry leaves Completed", () => {
     const result = setStatus(
       form({ status: MediaListStatus.Completed, completedAt: TODAY }),
@@ -112,6 +148,16 @@ describe("setStatus", () => {
 });
 
 describe("setProgress", () => {
+  it("dates the Completed that the last chapter brings by the last read", () => {
+    const finished = new Date(2025, 4, 4);
+    const result = setProgress(form({ progress: 120 }), 121, 121, TODAY, {
+      completedAt: finished,
+    });
+
+    expect(result.status).toBe(MediaListStatus.Completed);
+    expect(result.completedAt).toEqual(finished);
+  });
+
   it("clamps to the chapter count", () => {
     expect(setProgress(form(), 900, 245, TODAY).progress).toBe(245);
   });

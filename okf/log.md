@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-15
+
+* **A late Completed takes its dates from activity**: choosing Completed in the tracking sheet dates the finish by the newest chapter read in the viewer's list activity, and the start by the first one when it was chapter 1, instead of today; so does raising progress to the last chapter. A reread (Rereading, or a repeat count) gets no start. Added [MangaReadDates](operations/manga-read-dates.md); updated [tracking rules](concepts/tracking-rules.md), [list entry](concepts/list-entry.md) and [MangaDetail](operations/manga-detail.md).
+
 ## 2026-11-14
 
 * **The default theme is the icon's violet**: `default` paints the app in the app icon's violet, light and dark; its old black and white moves to a new `ink` family, which a saved `default` doesn't follow. Updated [theme](stores/theme.md).

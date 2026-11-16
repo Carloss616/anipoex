@@ -10,6 +10,8 @@ import { useStatus } from "./hooks/use-status";
 
 export interface StatusProps {
   form: TrackingForm;
+  /** The manga, whose list activity dates a Completed. */
+  mediaId: number;
   /** Chapter count, if the source knows it — Completed fills progress to it. */
   total?: number | null;
   onCancel: () => void;
@@ -17,9 +19,16 @@ export interface StatusProps {
 }
 
 /** The status list, with a preview of what the pick would change. */
-export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
+export function Status({
+  form,
+  mediaId,
+  total,
+  onCancel,
+  onConfirm,
+}: StatusProps) {
   const { selected, setSelected, next, dirty, changes } = useStatus(
     form,
+    mediaId,
     total,
   );
 

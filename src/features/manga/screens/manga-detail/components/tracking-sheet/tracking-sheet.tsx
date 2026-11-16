@@ -55,10 +55,22 @@ export function TrackingSheet({
 
   const views: Record<Field, () => ReactNode> = {
     status: () => (
-      <Status form={form} total={total} onCancel={back} onConfirm={commit} />
+      <Status
+        form={form}
+        mediaId={manga.id}
+        total={total}
+        onCancel={back}
+        onConfirm={commit}
+      />
     ),
     progress: () => (
-      <Progress form={form} total={total} onCancel={back} onConfirm={commit} />
+      <Progress
+        form={form}
+        mediaId={manga.id}
+        total={total}
+        onCancel={back}
+        onConfirm={commit}
+      />
     ),
     score: () => (
       <Score

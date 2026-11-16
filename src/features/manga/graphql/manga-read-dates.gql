@@ -1,0 +1,27 @@
+query MangaReadDates($userId: Int!, $mediaId: Int!) {
+  latest: Page(perPage: 50) {
+    activities(
+      userId: $userId
+      mediaId: $mediaId
+      type: MANGA_LIST
+      sort: ID_DESC
+    ) {
+      ... on ListActivity {
+        id
+        createdAt
+        status
+        progress
+      }
+    }
+  }
+  earliest: Page(perPage: 10) {
+    activities(userId: $userId, mediaId: $mediaId, type: MANGA_LIST, sort: ID) {
+      ... on ListActivity {
+        id
+        createdAt
+        status
+        progress
+      }
+    }
+  }
+}

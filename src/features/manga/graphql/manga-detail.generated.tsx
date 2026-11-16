@@ -59,6 +59,7 @@ export type MangaDetailQuery = {
       id: number;
       status: Types.MediaListStatus | null;
       progress: number | null;
+      repeat: number | null;
       score: number | null;
       notes: string | null;
       startedAt: {
@@ -219,6 +220,7 @@ export const MangaDetailDocument = {
         selections: [
           { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "progress" } },
+          { kind: "Field", name: { kind: "Name", value: "repeat" } },
           { kind: "Field", name: { kind: "Name", value: "score" } },
           {
             kind: "Field",

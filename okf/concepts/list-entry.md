@@ -19,6 +19,7 @@ when the manga is not on the list.
 | `score` | In the viewer's [score format](score-format.md); `0` means unscored. |
 | `startedAt`, `completedAt` | [Fuzzy dates](fuzzy-date.md). |
 | `notes` | Read but never written: the app sends no `notes`, so AniList keeps them. |
+| `repeat` | Times the manga was read again. Read but never written; it tells a reread apart when [dating a Completed](tracking-rules.md). |
 
 # Lifecycle
 

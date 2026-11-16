@@ -8,6 +8,8 @@ import { useProgress } from "./hooks/use-progress";
 
 export interface ProgressProps {
   form: TrackingForm;
+  /** The manga, whose list activity dates a Completed. */
+  mediaId: number;
   /** Chapter count, when the source knows it — the ceiling and the `/total`. */
   total?: number | null;
   onCancel: () => void;
@@ -15,8 +17,18 @@ export interface ProgressProps {
 }
 
 /** One stepper, no scroller: the control is shorter than the sheet. */
-export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
-  const { value, step, next, dirty, changes } = useProgress(form, total);
+export function Progress({
+  form,
+  mediaId,
+  total,
+  onCancel,
+  onConfirm,
+}: ProgressProps) {
+  const { value, step, next, dirty, changes } = useProgress(
+    form,
+    mediaId,
+    total,
+  );
 
   return (
     <>

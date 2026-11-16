@@ -33,10 +33,17 @@ const STATUS_ICON: Record<MediaListStatus, IconName> = {
   [MediaListStatus.Repeating]: ReplayIcon,
 };
 
-export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
+export function Status({
+  form,
+  mediaId,
+  total,
+  onCancel,
+  onConfirm,
+}: StatusProps) {
   const { isLandscape } = useBreakpoint();
   const { selected, setSelected, next, dirty, changes } = useStatus(
     form,
+    mediaId,
     total,
   );
 

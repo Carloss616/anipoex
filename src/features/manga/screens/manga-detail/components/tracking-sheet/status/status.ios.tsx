@@ -15,10 +15,17 @@ import { Header } from "../header.ios";
 import { useStatus } from "./hooks/use-status";
 import type { StatusProps } from "./status";
 
-export function Status({ form, total, onCancel, onConfirm }: StatusProps) {
+export function Status({
+  form,
+  mediaId,
+  total,
+  onCancel,
+  onConfirm,
+}: StatusProps) {
   const { isLandscape } = useBreakpoint();
   const { selected, setSelected, next, dirty, changes } = useStatus(
     form,
+    mediaId,
     total,
   );
 

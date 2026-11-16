@@ -15,8 +15,32 @@ carry side effects; "today" is the device's local date.
 | New status | Effect |
 |---|---|
 | Reading | Start date ← today, if empty. |
-| Completed | Progress ← the manga's `chapters` (when known); start and finish dates ← today, if empty. |
+| Completed | Progress ← the manga's `chapters` (when known); start and finish dates, if empty, from when the reading happened (below), else today. |
 | Anything else, coming **from** Completed | Finish date cleared (it was stamped by Completed). Progress stays: there is nothing to restore it from. |
+
+## Dating a Completed
+
+A manga is often marked Completed long after its last chapter was read: some sources stop
+a chapter short of AniList's count (120 of 121), so it never reached Completed by itself.
+Completing it in the sheet, by choosing Completed or by raising progress to the last chapter,
+reads the viewer's [list activity](../operations/manga-read-dates.md) for the manga and dates
+it from there:
+
+- **Finish date**: the day of the newest activity with chapters read.
+- **Start date**: the day of the first activity with chapters read, only when it starts at
+  chapter 1; a first read further in (activity began mid-series) gives none.
+- Reads from before an earlier Completed belong to that one: when the newest is older than
+  it, there is no finish date. A reread never gets a start: the entry is Rereading, has a
+  repeat count, or an earlier Completed shows in the activity.
+- Raising progress fills only the finish date; its start keeps the rule below. Raising it
+  to the last chapter right after reading that chapter elsewhere dates the finish by the
+  chapter before, the last one AniList saw: the preview shows it, and it can be changed.
+- A finish date from activity with no start leaves the start empty: today would put it after
+  the finish. With no activity at all, both fall back to today as before.
+
+Days are the device's local calendar days. OK waits for the activity when the change
+completes the entry, so it can't save today's date while it loads. The reader's own Completed (reaching the last chapter) still
+uses today: that is when it was read.
 
 # Changing the progress
 

@@ -7,9 +7,19 @@ import { Header } from "../header.ios";
 import { useProgress } from "./hooks/use-progress";
 import type { ProgressProps } from "./progress";
 
-export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
+export function Progress({
+  form,
+  mediaId,
+  total,
+  onCancel,
+  onConfirm,
+}: ProgressProps) {
   const { isLandscape } = useBreakpoint();
-  const { value, step, next, dirty, changes } = useProgress(form, total);
+  const { value, step, next, dirty, changes } = useProgress(
+    form,
+    mediaId,
+    total,
+  );
 
   return (
     <VStack

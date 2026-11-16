@@ -12,8 +12,18 @@ import { Footer } from "../footer";
 import { useProgress } from "./hooks/use-progress";
 import type { ProgressProps } from "./progress";
 
-export function Progress({ form, total, onCancel, onConfirm }: ProgressProps) {
-  const { value, step, next, dirty, changes } = useProgress(form, total);
+export function Progress({
+  form,
+  mediaId,
+  total,
+  onCancel,
+  onConfirm,
+}: ProgressProps) {
+  const { value, step, next, dirty, changes } = useProgress(
+    form,
+    mediaId,
+    total,
+  );
 
   return (
     // The whole view scrolls: in landscape the keyboard leaves no room
