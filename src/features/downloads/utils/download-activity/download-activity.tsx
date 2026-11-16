@@ -10,7 +10,8 @@ export interface DownloadActivity {
     total: number;
     fraction: number;
   }): void;
-  end(summary: { done: number; failed: number }): void;
+  /** `paused`: the queue was paused with chapters left, not finished. */
+  end(summary: { done: number; failed: number; paused: boolean }): void;
 }
 
 // A Scan all or the Reading scan shows on the Dock first; a rescan never does.
@@ -33,6 +34,7 @@ export function startDownloadActivity(_onPause: () => void): DownloadActivity {
     end: (summary) => {
       if (!scanOwnsDock()) bridge.scanProgress(-1);
       if (
+        summary.paused ||
         document.hasFocus() ||
         typeof Notification === "undefined" ||
         Notification.permission !== "granted"

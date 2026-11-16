@@ -30,7 +30,7 @@ const isDownloaded = (key: string) => {
 export function syncDownloadActivity() {
   let activity: DownloadActivity | undefined;
   let tally: Tally | undefined;
-  observe(() => {
+  return observe(() => {
     const queue = downloadQueue$.get();
     const progress = downloadProgress$.get();
     const paused = downloadsPaused$.get();
@@ -41,7 +41,11 @@ export function syncDownloadActivity() {
       activity.update(view);
       return;
     }
-    activity?.end({ done: tally.done, failed: tally.failed.length });
+    activity?.end({
+      done: tally.done,
+      failed: tally.failed.length,
+      paused: !!view,
+    });
     activity = undefined;
     if (!view) tally = undefined;
   });

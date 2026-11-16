@@ -18,35 +18,24 @@ import {
   padding,
   progressViewStyle,
 } from "@expo/ui/swift-ui/modifiers";
-import { requireNativeModule } from "expo";
 import type { SFSymbol } from "expo-symbols";
 import {
   addUserInteractionListener,
   createLiveActivity,
   type LiveActivity,
 } from "expo-widgets";
-import { AppState } from "react-native";
 import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
+import { backgroundWork } from "@/utils/background-time";
 import { coalesce } from "@/utils/widget-updates";
 import { resumeDownloads } from "../../state/run-downloads";
 import { countStatus, endStatus } from "../activity-view";
 import type { DownloadActivity } from "./download-activity";
 
-// shortcut: iOS grants about 30s once the app leaves the screen; a longer
-// queue needs BGContinuedProcessingTask (iOS 26).
-const backgroundTime = requireNativeModule<{
-  begin(name: string): number;
-  end(task: number): void;
-  remaining(): Promise<number>;
-}>("BackgroundTime");
-
 const ICON = sfSymbol(Icons.download) ?? "arrow.down";
 const PAUSE_ICON = sfSymbol(Icons.pause) ?? "pause.fill";
 const PAUSE_TARGET = "pause:downloads";
-const PAUSED = "Paused · open the app to continue";
-/** Room for the update to land before iOS suspends the app. */
-const PAUSE_AHEAD_MS = 5_000;
+const SUSPENDED = "Paused · open the app to continue";
 
 interface Props {
   title: string;
@@ -136,55 +125,32 @@ for (const stale of DownloadLiveActivity.getInstances())
 
 /** The running activity's Pause; one activity at a time. */
 let current: { onPause: () => void } | undefined;
-/** Left on "Paused" while iOS keeps the app suspended. */
-let paused: LiveActivity<Props> | undefined;
-let pausedByUs = false;
-let pauseTimer: ReturnType<typeof setTimeout> | undefined;
+/** Set while iOS has the app suspended and the queue paused for it. */
+let suspended = false;
+/** The activity left on "Paused" meanwhile. */
+let left: LiveActivity<Props> | undefined;
 
-/** One background task while downloads run, else iOS suspends them off screen. */
-let task: number | undefined;
+// iOS suspends the app once its background time runs out: the downloads pause
+// before that, the activity says so, and they resume when the app is back.
+const work = backgroundWork("Downloads", {
+  running: () => current !== undefined,
+  expire: () => {
+    suspended = true;
+    current?.onPause();
+  },
+  back: () => {
+    suspended = false;
+    void left?.end("immediate").catch(() => {});
+    left = undefined;
+    resumeDownloads();
+  },
+});
 const release = () => {
-  if (current || task === undefined) return;
-  backgroundTime.end(task);
-  task = undefined;
+  if (!current) work.release();
 };
 
 addUserInteractionListener(({ target }) => {
   if (target === PAUSE_TARGET) current?.onPause();
-});
-
-const inBackground = () => AppState.currentState === "background";
-
-const schedulePause = () => {
-  if (!current || !inBackground()) return;
-  void backgroundTime.remaining().then((seconds) => {
-    if (!inBackground()) return;
-    // Right after the app leaves the screen iOS still reports no limit.
-    pauseTimer =
-      seconds > 600
-        ? setTimeout(schedulePause, 1000)
-        : setTimeout(
-            () => {
-              if (!inBackground() || !current) return;
-              pausedByUs = true;
-              current.onPause();
-            },
-            Math.max(0, seconds * 1000 - PAUSE_AHEAD_MS),
-          );
-  });
-};
-
-// iOS suspends the app once its background time runs out: the downloads pause
-// before that, the activity says so, and they resume when the app is back.
-AppState.addEventListener("change", (state) => {
-  clearTimeout(pauseTimer);
-  if (state === "background") schedulePause();
-  else if (state === "active" && pausedByUs) {
-    pausedByUs = false;
-    void paused?.end("immediate").catch(() => {});
-    paused = undefined;
-    resumeDownloads();
-  }
 });
 
 const start = (props: Props) => {
@@ -203,10 +169,10 @@ const start = (props: Props) => {
 export function startDownloadActivity(onPause: () => void): DownloadActivity {
   const self = { onPause };
   current = self;
-  task ??= backgroundTime.begin("Downloads");
+  work.hold();
   let live: LiveActivity<Props> | undefined;
   let last: Props | undefined;
-  /** Paused by iOS's clock: the end shows "Paused" and keeps the activity. */
+  /** Paused by iOS's clock: the end keeps the activity for the app's return. */
   let keep = false;
   const updates = coalesce<Props>((props, end) =>
     end && !keep
@@ -234,17 +200,19 @@ export function startDownloadActivity(onPause: () => void): DownloadActivity {
       if (current !== self) return;
       current = undefined;
       if (!last) return release();
-      keep = pausedByUs;
-      if (keep) paused = live;
+      keep = suspended;
+      if (keep) left = live;
+      const status = keep
+        ? SUSPENDED
+        : summary.paused
+          ? "Paused"
+          : endStatus(summary);
+      const finished = summary.paused
+        ? {}
+        : { title: "Downloads", progress: 1 };
       // Kept until the end lands, which waits for the update in flight.
       void updates
-        .end({
-          ...last,
-          ...(keep
-            ? { status: PAUSED }
-            : { title: "Downloads", status: endStatus(summary), progress: 1 }),
-          pause: undefined,
-        })
+        .end({ ...last, ...finished, status, pause: undefined })
         .finally(release);
     },
   };

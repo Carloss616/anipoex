@@ -14,12 +14,14 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import {
   addUserInteractionListener,
-  type CustomNotification,
   createCustomNotification,
 } from "expo-widgets";
-import { PermissionsAndroid } from "react-native";
 import { TRACK_HEIGHT } from "@/components/ui/progress/constants";
-import { coalesce, notificationLimiter } from "@/utils/widget-updates";
+import {
+  notificationUpdates,
+  postNotification,
+} from "@/utils/post-notification";
+import type { WidgetUpdates } from "@/utils/widget-updates";
 import { countStatus, endStatus } from "../activity-view";
 import type { DownloadActivity } from "./download-activity";
 
@@ -112,46 +114,13 @@ addUserInteractionListener(({ target }) => {
   if (target === PAUSE_TARGET) current?.onPause();
 });
 
-const ENDED = { ongoing: false, autoCancel: true };
-
-// A post or update rejects any undefined value, nested ones too; JSON drops them.
-const defined = (props: Props): Props => JSON.parse(JSON.stringify(props));
-
 /**
  * An ongoing notification of the downloads, with Pause; a tap opens Activity.
  */
 export function startDownloadActivity(onPause: () => void): DownloadActivity {
   const self = { onPause };
   current = self;
-  let shown: Promise<CustomNotification<Props> | undefined> | undefined;
-  const updates = coalesce<Props>(
-    (props, end) =>
-      shown?.then((notification) =>
-        notification?.update(defined(props), end ? ENDED : {}),
-      ),
-    notificationLimiter,
-  );
-  // Denied or dismissed, the post rejects and Activity still shows the queue.
-  // Queued now, so the notification's updates come after it.
-  const post = (props: Props) =>
-    new Promise<CustomNotification<Props> | undefined>((resolve) =>
-      notificationLimiter.run(() => {
-        const posted = PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-        )
-          .catch(() => {})
-          .then(() =>
-            DownloadNotification.post(defined(props), {
-              id: "downloads",
-              ongoing: true,
-              url: "anipoex://settings/activity",
-            }),
-          )
-          .catch(() => undefined);
-        resolve(posted);
-        return posted;
-      }),
-    );
+  let updates: WidgetUpdates<Props> | undefined;
   let last: Props | undefined;
 
   return {
@@ -165,19 +134,27 @@ export function startDownloadActivity(onPause: () => void): DownloadActivity {
         trackHeight: TRACK_HEIGHT.md,
         pause: PAUSE_TARGET,
       };
-      if (shown) updates.push(next);
-      else shown = post(next);
+      // Denied or dismissed, Activity still shows the queue.
+      if (updates) updates.push(next);
+      else
+        updates = notificationUpdates(
+          postNotification(DownloadNotification, next, {
+            id: "downloads",
+            ongoing: true,
+            url: "anipoex://settings/activity",
+          }),
+        );
       last = next;
     },
     end: (summary) => {
       if (current !== self) return;
       current = undefined;
       if (!last) return;
-      void updates.end({
+      void updates?.end({
         ...last,
-        title: "Downloads",
-        status: endStatus(summary),
-        progress: 1,
+        ...(summary.paused
+          ? { status: "Paused" }
+          : { title: "Downloads", status: endStatus(summary), progress: 1 }),
         ended: true,
         pause: undefined,
       });
