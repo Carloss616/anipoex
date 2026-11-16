@@ -40,4 +40,4 @@ in Settings ("Auto-pick a source", [settings](settings.md) `sources.autoPick`, o
 default). A missing key means no source chosen; so does a match whose source no installed extension provides any more
 (it was uninstalled), once the installed list has been read, so the detail asks to pick
 a source again instead of failing to load chapters. Deselecting the source, or
-[excluding](../concepts/source-exclusion.md) it by hand or by a scan, removes the key. Survives sign-out (it is not cleared) and does not sync anywhere.
+[excluding](../concepts/source-exclusion.md) it by hand or by a scan, removes the key. Survives sign-out (it is not cleared) and [syncs](sync-meta.md) when picked by hand; a scan's pick stays on its device.

@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { observable } from "@legendapp/state";
 import type { Stamp } from "./records";
 import { retireDevice, type SyncTarget, syncTables } from "./sync-tables";
-import { watchTable } from "./watch-table";
+import { type SyncTable, watchTable } from "./watch-table";
 
 type Exclusions = Record<string, Record<string, { reason: string }>>;
 
@@ -31,12 +31,17 @@ const memoryTarget = () => {
 };
 
 /** One device: its own store, stamps and pushed hashes, sharing `target`. */
-const device = (id: string, target: SyncTarget, initial: Exclusions = {}) => {
+const device = (
+  id: string,
+  target: SyncTarget,
+  initial: Exclusions = {},
+  options: Pick<SyncTable, "local" | "localYields"> = {},
+) => {
   const store$ = observable<Exclusions>(initial);
   const meta$ = observable<Record<string, Record<string, Stamp>>>({});
   const pushed$ = observable<Record<string, string>>({});
   let clock = 1000;
-  const table = { name: "exclusions", obs$: store$, depth: 2 };
+  const table = { name: "exclusions", obs$: store$, depth: 2, ...options };
   watchTable(table, meta$.exclusions, () => clock);
   return {
     store$,
@@ -197,6 +202,62 @@ describe("syncTables", () => {
 
     expect(await mac.retire()).toBe(false);
     expect(files.has("anipoex-exclusions.mac.json")).toBe(true);
+  });
+
+  it("keeps what fails here to this device, both ways", async () => {
+    const { target, files } = memoryTarget();
+    const failing = {
+      local: (v: unknown) => (v as { reason: string }).reason === "failed",
+    };
+    const mac = device("mac", target, {}, failing);
+    const phone = device("phone", target, {}, failing);
+    mac.store$[21]["source-1"].set({ reason: "outdated" });
+    await mac.sync();
+    await phone.sync();
+
+    phone.tick(2000);
+    phone.store$[21]["source-1"].set({ reason: "failed" });
+    await phone.sync();
+    await mac.sync();
+
+    expect(mac.store$[21]["source-1"].peek()).toEqual({ reason: "outdated" });
+    expect(phone.store$[21]["source-1"].peek()).toEqual({ reason: "failed" });
+    expect(files.get("anipoex-exclusions.phone.json")).not.toContain("failed");
+  });
+
+  it("doesn't publish the removal of a record kept here", async () => {
+    const { target, files } = memoryTarget();
+    const failing = {
+      local: (v: unknown) => (v as { reason: string }).reason === "failed",
+    };
+    const mac = device("mac", target, {}, failing);
+    mac.store$[21]["source-1"].set({ reason: "failed" });
+    mac.tick(2000);
+    mac.store$[21]["source-1"].delete();
+    await mac.sync();
+
+    expect(files.get("anipoex-exclusions.mac.json")).not.toContain(
+      "21/source-1",
+    );
+  });
+
+  it("replaces a local record with another device's when it yields", async () => {
+    const { target } = memoryTarget();
+    const auto = {
+      local: (v: unknown) => (v as { reason: string }).reason === "auto",
+      localYields: true,
+    };
+    const mac = device("mac", target, {}, auto);
+    const phone = device("phone", target, {}, auto);
+    mac.store$[21]["source-1"].set({ reason: "by hand" });
+    await mac.sync();
+    // Newer, but a scan's: the hand's pick still wins.
+    phone.tick(2000);
+    phone.store$[21]["source-1"].set({ reason: "auto" });
+
+    await phone.sync();
+
+    expect(phone.store$[21]["source-1"].peek()).toEqual({ reason: "by hand" });
   });
 
   it("the only device on the target takes its files when it leaves", async () => {

@@ -2,6 +2,7 @@
 
 ## 2026-11-16
 
+* **A failing source stays on its device**: failed probes, exclusions for errors and a scan's pick of a source don't sync, so a source that fails on one device no longer marks it failed, excludes it or switches the pick on the others; a pick by hand still syncs and wins. Updated [sync stamps](stores/sync-meta.md).
 * **Extension installs keep their signing key**: a device installs a synced extension from the repo signed with the same key, not whichever lists it first. Updated [Extension installs](stores/extension-installs.md).
 * **Sync stays under GitHub's limit**: changes that keep coming push at most once a minute, and when GitHub asks to wait the gist pauses until the time it gives. Updated [sync state](stores/sync-state.md).
 * **Extensions sync**: the extensions a user keeps sync as a list, and each device installs and removes extensions to match it. Added [Extension installs](stores/extension-installs.md); updated [sync stamps](stores/sync-meta.md).

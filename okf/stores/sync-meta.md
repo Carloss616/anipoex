@@ -22,6 +22,13 @@ The synced stores and what one record of each is:
 | `search-history` | [Search history](search-history.md) | the whole list |
 | `extensions` | [Extension installs](extension-installs.md) | one extension |
 
+A source can fail on one device and work on another (its runtime, its network or DNS), so
+what a device finds about reading a source stays on it, and only what it finds about the
+source itself syncs. A device never publishes, and ignores in other devices' files: a probe
+that failed, an exclusion for errors (`error-found`; the other reasons describe the source),
+and a source a scan picked. A pick made by hand still syncs and replaces a scan's pick on
+every device, however old. A removal of one of these records stays on its device too.
+
 A record's key is its path in the store, joined by `/` (`21/<sourceId>`). Every change the
 app makes stamps the records it touched, from the first launch on, whether a sync is
 connected or not; removing a record leaves a stamp with `deletedAt` (a tombstone) so the

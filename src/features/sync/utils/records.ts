@@ -2,6 +2,8 @@
 export interface Stamp {
   updatedAt: number;
   deletedAt?: number;
+  /** A removal of a record this device kept to itself: it isn't published. */
+  local?: true;
 }
 
 /** One record of a synced table; a removed one keeps its stamp, no value. */

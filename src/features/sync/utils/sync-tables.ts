@@ -6,6 +6,7 @@ import {
   purge,
   type Records,
   type Stamp,
+  type SyncRecord,
   stampOf,
   valueAt,
 } from "./records";
@@ -63,6 +64,14 @@ export function hash(text: string) {
 }
 
 type Node = ObservableParam & Record<string, ObservableParam>;
+
+const without = (
+  records: Records,
+  drop: (record: SyncRecord, key: string) => boolean,
+): Records =>
+  Object.fromEntries(
+    Object.entries(records).filter(([key, record]) => !drop(record, key)),
+  );
 
 const nodeAt = (obs$: ObservableParam, key: string): ObservableParam =>
   key === ""
@@ -131,9 +140,12 @@ export async function syncTables({
         .filter((name) => name.startsWith(prefix) && name.endsWith(".json"))
         .map((name) => target.read(name)),
     );
+    const isLocal = (record: SyncRecord) =>
+      record.value !== undefined && !!table.local?.(record.value);
+    // A file from a build that published local records still holds some.
     const remote = texts.flatMap((text) => {
       const file = text && parseSyncFile(text, table.name);
-      return file ? [file] : [];
+      return file ? [{ ...file, records: without(file.records, isLocal) }] : [];
     });
     for (const file of remote) {
       const seen = devices.get(file.device);
@@ -150,12 +162,16 @@ export async function syncTables({
     }
 
     const stamps = meta$[table.name].peek() ?? {};
-    const local = localRecords(
+    const mine = localRecords(
       table.obs$.peek(),
       table.depth,
       stamps,
       table.synced,
     );
+    const elsewhere = new Set(remote.flatMap((f) => Object.keys(f.records)));
+    const local = table.localYields
+      ? without(mine, (record, key) => isLocal(record) && elsewhere.has(key))
+      : mine;
     const merged = mergeRecords(local, remote);
     const kept = purge(merged, now());
 
@@ -171,13 +187,17 @@ export async function syncTables({
       applying.current = false;
     }
 
+    const stampsNow = meta$[table.name].peek() ?? {};
     const text = serializeSyncFile({
       format: SYNC_FORMAT,
       device,
       ...(deviceName && { name: deviceName }),
       ...(deviceKind && { kind: deviceKind }),
       table: table.name,
-      records: kept,
+      records: without(
+        kept,
+        (record, key) => isLocal(record) || !!stampsNow[key]?.local,
+      ),
     });
     const h = hash(text);
     const name = syncFileName(table.name, device);

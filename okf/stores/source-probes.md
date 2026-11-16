@@ -37,4 +37,4 @@ which shows the message with Rescan, or Include on an excluded row. Probes from 
 the message was kept have none and offer nothing until the next read.
 
 Mirrors the plugin's `probes` map and its gist file `seanime-msu-probes.json`. Survives
-sign-out and doesn't sync yet.
+sign-out and [syncs](sync-meta.md), except a probe that failed, which stays on its device.

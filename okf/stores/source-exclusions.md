@@ -15,6 +15,6 @@ It is the same layout as the plugin's `exclusions` map and its gist file
 `seanime-msu-exclusions.json`, keyed by the app's source ids (not seanime's).
 
 Records of an uninstalled source stay and apply again if it's reinstalled. Survives
-sign-out and doesn't sync yet.
+sign-out and [syncs](sync-meta.md), except an exclusion for errors, which stays on its device.
 
 Meaning: [source exclusion](../concepts/source-exclusion.md).

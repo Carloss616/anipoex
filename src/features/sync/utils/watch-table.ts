@@ -12,6 +12,13 @@ export interface SyncTable {
   synced?: (key: string) => boolean;
   /** Reads a value pulled from another build into this build's shape. */
   normalize?: (value: unknown) => unknown;
+  /**
+   * A record this device keeps to itself, as what only it found (a source
+   * that fails here): never published, and ignored in other devices' files.
+   */
+  local?: (value: unknown) => boolean;
+  /** Whether another device's record replaces a local one, however old. */
+  localYields?: boolean;
 }
 
 /**
@@ -39,6 +46,11 @@ export function watchTable(
     const at = now();
     const root = table.obs$.peek();
     for (const { path, prevAtPath, valueAtPath } of changes) {
+      // The record before this change, for a removal to know what it removed.
+      const before = (key: string) => {
+        const rest = key.split("/").slice(path.length).join("/");
+        return rest ? valueAt(prevAtPath, rest) : prevAtPath;
+      };
       const keys =
         path.length >= table.depth
           ? [path.slice(0, table.depth).join("/")]
@@ -50,10 +62,16 @@ export function watchTable(
             );
       for (const key of keys) {
         if (!synced(key)) continue;
-        const gone = valueAt(root, key) === undefined;
-        stamps$[key].set(
-          gone ? { updatedAt: at, deletedAt: at } : { updatedAt: at },
-        );
+        if (valueAt(root, key) !== undefined) {
+          stamps$[key].set({ updatedAt: at });
+          continue;
+        }
+        const prev = path.length <= table.depth ? before(key) : undefined;
+        stamps$[key].set({
+          updatedAt: at,
+          deletedAt: at,
+          ...(prev !== undefined && table.local?.(prev) && { local: true }),
+        });
       }
     }
   });
