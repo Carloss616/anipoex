@@ -10,6 +10,8 @@ public class BookmarkedFolderModule: Module {
   private var picking: (picker: UIDocumentPickerViewController, delegate: PickerDelegate)?
   /// Resolved once per launch; access stays open for the app's life.
   private var folders: [String: URL] = [:]
+  /// Off Expo's shared queue: a download wait here must not stall other modules.
+  private let queue = DispatchQueue(label: "bookmarked-folder")
 
   public func definition() -> ModuleDefinition {
     Name("BookmarkedFolder")
@@ -52,7 +54,7 @@ public class BookmarkedFolderModule: Module {
           : entry
         return ["name": name, "version": "\(modified):\(values?.fileSize ?? 0)"]
       }
-    }
+    }.runOnQueue(queue)
 
     AsyncFunction("read") { (bookmark: String, sub: String, name: String) -> String? in
       let dir = try self.folder(bookmark).appendingPathComponent(sub, isDirectory: true)
@@ -72,7 +74,7 @@ public class BookmarkedFolderModule: Module {
       }
       if let failure { throw folderError(failure.localizedDescription) }
       return text
-    }
+    }.runOnQueue(queue)
 
     AsyncFunction("write") { (bookmark: String, sub: String, files: [String: String]) in
       let dir = try self.folder(bookmark).appendingPathComponent(sub, isDirectory: true)
@@ -88,7 +90,7 @@ public class BookmarkedFolderModule: Module {
         }
         if let failure { throw folderError(failure.localizedDescription) }
       }
-    }
+    }.runOnQueue(queue)
 
     AsyncFunction("remove") { (bookmark: String, sub: String, names: [String]) in
       let dir = try self.folder(bookmark).appendingPathComponent(sub, isDirectory: true)
@@ -103,7 +105,7 @@ public class BookmarkedFolderModule: Module {
         }
         if let failure { throw folderError(failure.localizedDescription) }
       }
-    }
+    }.runOnQueue(queue)
     // Downloads: whole files under `downloads/`, copied in and out of the folder.
 
     AsyncFunction("listTree") { (bookmark: String, dir: String) -> [[String: Any]] in
@@ -112,12 +114,16 @@ public class BookmarkedFolderModule: Module {
       Self.walk(root.appendingPathComponent(try checkedPath(dir, allowRoot: true), isDirectory: true),
                 rel: dir, depth: 0, into: &out)
       return out
-    }
+    }.runOnQueue(queue)
 
     AsyncFunction("copyIn") { (bookmark: String, path: String, from: String) in
       let target = try self.folder(bookmark).appendingPathComponent(try checkedPath(path))
       let source = fileURL(from)
       let manager = FileManager.default
+      var isDirectory: ObjCBool = false
+      if manager.fileExists(atPath: target.path, isDirectory: &isDirectory), isDirectory.boolValue {
+        throw folderError("Not a file: \(path)")
+      }
       try manager.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
       var failure: Error?
       try self.coordinate { coordinator, error in
@@ -138,7 +144,7 @@ public class BookmarkedFolderModule: Module {
         }
       }
       if let failure { throw folderError(failure.localizedDescription) }
-    }
+    }.runOnQueue(queue)
 
     AsyncFunction("copyOut") { (bookmark: String, path: String, to: String) in
       let file = try self.folder(bookmark).appendingPathComponent(try checkedPath(path))
@@ -167,7 +173,7 @@ public class BookmarkedFolderModule: Module {
         }
       }
       if let failure { throw folderError(failure.localizedDescription) }
-    }
+    }.runOnQueue(queue)
 
     AsyncFunction("removeItem") { (bookmark: String, path: String) in
       let root = try self.folder(bookmark)
@@ -188,10 +194,11 @@ public class BookmarkedFolderModule: Module {
       while parent.standardizedFileURL.path != downloads,
             parent.standardizedFileURL.path.hasPrefix(downloads + "/"),
             (try? manager.contentsOfDirectory(atPath: parent.path))?.isEmpty == true {
-        try self.delete(parent)
+        // rmdir refuses a folder that gained a file since the check.
+        guard try self.deleteEmptyFolder(parent) else { break }
         parent = parent.deletingLastPathComponent()
       }
-    }
+    }.runOnQueue(queue)
   }
 
   private static func placeholder(of file: URL) -> URL {
@@ -202,7 +209,10 @@ public class BookmarkedFolderModule: Module {
   private static func needsDownload(_ file: URL) -> Bool {
     let manager = FileManager.default
     if !manager.fileExists(atPath: file.path) { return manager.fileExists(atPath: placeholder(of: file).path) }
-    let status = try? file.resourceValues(forKeys: [.ubiquitousItemDownloadingStatusKey])
+    // A URL caches its values until a run-loop pass, which this thread never makes.
+    var probe = file
+    probe.removeAllCachedResourceValues()
+    let status = try? probe.resourceValues(forKeys: [.ubiquitousItemDownloadingStatusKey])
       .ubiquitousItemDownloadingStatus
     // Not an iCloud item: no status, already local.
     return status != nil && status != .current
@@ -222,6 +232,16 @@ public class BookmarkedFolderModule: Module {
       let real = dir.appendingPathComponent(name)
       out.append(["path": "\(rel)/\(name)", "placeholder": stub || needsDownload(real)])
     }
+  }
+
+  private func deleteEmptyFolder(_ url: URL) throws -> Bool {
+    var removed = false
+    try coordinate { coordinator, error in
+      coordinator.coordinate(writingItemAt: url, options: .forDeleting, error: error) { target in
+        removed = rmdir(target.path) == 0
+      }
+    }
+    return removed
   }
 
   private func delete(_ url: URL) throws {
@@ -287,6 +307,7 @@ private func notDownloaded() -> Exception {
 /// A path under `downloads/`, relative and without `..`, or an error.
 private func checkedPath(_ path: String, allowRoot: Bool = false) throws -> String {
   let parts = path.split(separator: "/", omittingEmptySubsequences: false)
+  guard !parts.contains(where: \.isEmpty) else { throw folderError("Not a downloads path: \(path)") }
   let inside = path == "downloads" ? allowRoot : path.hasPrefix("downloads/")
   guard inside, !path.hasPrefix("/"), !parts.contains(".."), !parts.contains(".") else {
     throw folderError("Not a downloads path: \(path)")
