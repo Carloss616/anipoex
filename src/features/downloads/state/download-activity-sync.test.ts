@@ -33,6 +33,7 @@ const {
   downloadProgress$,
   downloadQueue$,
   downloadsPaused$,
+  downloadsSuspended$,
   enqueue,
 } = await import("./download-queue");
 const { pauseDownloads } = await import("./run-downloads");
@@ -62,11 +63,12 @@ afterAll(() => {
     for (const url of ["a", "b", "c"]) downloadQueue$[keyOf(url)].delete();
     downloaded$[`77/${SOURCE}`].delete();
     downloadsPaused$.set(false);
+    downloadsSuspended$.set(false);
   });
 });
 
 describe("syncDownloadActivity", () => {
-  it("runs one activity through enqueue, progress, pause, resume and the end", () => {
+  it("runs one activity through enqueue, progress, pauses, resumes and the end", () => {
     enqueue([item("a", 1), item("b", 2)]);
     expect(take()).toEqual([
       ["start"],
@@ -108,6 +110,12 @@ describe("syncDownloadActivity", () => {
         { title: "Manga · Chapter 2", done: 1, total: 2, fraction: 0 },
       ],
     ]);
+
+    // iOS's suspension ends it the same way.
+    downloadsSuspended$.set(true);
+    expect(take()).toEqual([["end", { done: 1, failed: 0, paused: true }]]);
+    downloadsSuspended$.set(false);
+    take();
 
     finish("b");
     expect(take()).toEqual([["end", { done: 2, failed: 0, paused: false }]]);

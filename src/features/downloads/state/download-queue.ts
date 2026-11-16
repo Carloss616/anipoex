@@ -33,7 +33,18 @@ export const downloaded$ = observable<
   Record<string, Record<string, "local" | "cloud">>
 >({});
 
-export const downloadsPaused$ = observable(false);
+// An object root: a boolean root takes whatever the plugin loads, `{}` included.
+const pause$ = observable({ byUser: false });
+
+syncObservable(pause$, {
+  persist: { name: "downloads-paused", plugin: ObservablePersist },
+});
+
+/** The user's pause: it holds across restarts until Resume. */
+export const downloadsPaused$ = pause$.byUser;
+
+/** iOS's pause as its background time runs out: it ends with the app. */
+export const downloadsSuspended$ = observable(false);
 
 /** Callbacks stay out of observables: a function with no arguments would run as a computed. */
 export const downloadStops = new Map<string, () => void>();

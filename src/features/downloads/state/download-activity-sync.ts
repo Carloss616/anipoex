@@ -14,6 +14,7 @@ import {
   downloadProgress$,
   downloadQueue$,
   downloadsPaused$,
+  downloadsSuspended$,
 } from "./download-queue";
 import { pauseDownloads } from "./run-downloads";
 
@@ -33,7 +34,7 @@ export function syncDownloadActivity() {
   return observe(() => {
     const queue = downloadQueue$.get();
     const progress = downloadProgress$.get();
-    const paused = downloadsPaused$.get();
+    const paused = downloadsPaused$.get() || downloadsSuspended$.get();
     tally = tally ? tallyQueue(tally, queue, isDownloaded) : startTally(queue);
     const view = activityView(tally, queue, progress);
     if (view && !paused) {

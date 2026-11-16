@@ -9,6 +9,7 @@ import {
   downloadQueue$,
   downloadStops,
   downloadsPaused$,
+  downloadsSuspended$,
   queuedOf,
 } from "./download-queue";
 
@@ -26,7 +27,7 @@ const running = () =>
 
 /** One loop per source with queued chapters, until it has none left. */
 export function startDownloads() {
-  if (downloadsPaused$.peek()) return;
+  if (downloadsPaused$.peek() || downloadsSuspended$.peek()) return;
   for (const entry of Object.values(downloadQueue$.peek())) {
     const id = entry.source.id;
     if (entry.state !== "queued" || loops.has(id)) continue;
@@ -93,10 +94,10 @@ async function runSource(sourceId: string, run: number) {
 }
 
 /** Running chapters go back to the queue now: their loops' late writes are dropped. */
-export function pauseDownloads() {
+function stopDownloads(paused$: typeof downloadsPaused$) {
   runId++;
   batch(() => {
-    downloadsPaused$.set(true);
+    paused$.set(true);
     for (const { key } of running()) {
       downloadQueue$[key].state.set("queued");
       downloadProgress$[key].delete();
@@ -105,8 +106,18 @@ export function pauseDownloads() {
   for (const stop of downloadStops.values()) stop();
 }
 
+export const pauseDownloads = () => stopDownloads(downloadsPaused$);
+
 export function resumeDownloads() {
   downloadsPaused$.set(false);
+  startDownloads();
+}
+
+export const suspendDownloads = () => stopDownloads(downloadsSuspended$);
+
+/** Leaves a user's pause in place. */
+export function unsuspendDownloads() {
+  downloadsSuspended$.set(false);
   startDownloads();
 }
 

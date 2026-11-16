@@ -22,6 +22,7 @@ const {
   downloadStops,
   downloaded$,
   downloadsPaused$,
+  downloadsSuspended$,
   enqueue,
 } = await import("./download-queue");
 const {
@@ -30,6 +31,8 @@ const {
   resumeDownloads,
   resumeQueue,
   startDownloads,
+  suspendDownloads,
+  unsuspendDownloads,
 } = await import("./run-downloads");
 const { chapterHash, downloadKey, stageId } = await import("../utils/paths");
 
@@ -93,6 +96,7 @@ afterEach(async () => {
   dropStage.mockClear();
   put.mockClear();
   downloadsPaused$.set(false);
+  downloadsSuspended$.set(false);
   downloadQueue$.set({});
   downloadProgress$.set({});
   downloaded$.set({});
@@ -186,6 +190,54 @@ describe("pauseDownloads", () => {
     expect(dropStage.mock.invocationCallOrder[0]).toBeLessThan(
       pages.fn.mock.invocationCallOrder[1],
     );
+  });
+});
+
+describe("resumeDownloads", () => {
+  it("clears the user's pause and starts again", async () => {
+    enqueue([item("a")]);
+    pauseDownloads();
+    startDownloads();
+    await flush();
+    expect(pages.fn).not.toHaveBeenCalled();
+    resumeDownloads();
+    await flush();
+    expect(downloadsPaused$.get()).toBe(false);
+    expect(urlsAsked()).toEqual(["a"]);
+  });
+});
+
+describe("suspendDownloads", () => {
+  it("stops the run without the user's pause", async () => {
+    enqueue([item("a")]);
+    startDownloads();
+    await flush();
+    suspendDownloads();
+    expect(downloadQueue$.get()[keyOf("a")].state).toBe("queued");
+    expect(downloadsSuspended$.get()).toBe(true);
+    expect(downloadsPaused$.get()).toBe(false);
+    startDownloads();
+    await flush();
+    expect(urlsAsked()).toEqual(["a"]);
+  });
+
+  it("starts again once over", async () => {
+    enqueue([item("a")]);
+    suspendDownloads();
+    unsuspendDownloads();
+    await flush();
+    expect(downloadsSuspended$.get()).toBe(false);
+    expect(urlsAsked()).toEqual(["a"]);
+  });
+
+  it("leaves a user's pause in place once over", async () => {
+    enqueue([item("a")]);
+    pauseDownloads();
+    suspendDownloads();
+    unsuspendDownloads();
+    await flush();
+    expect(downloadsPaused$.get()).toBe(true);
+    expect(pages.fn).not.toHaveBeenCalled();
   });
 });
 

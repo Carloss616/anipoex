@@ -28,7 +28,11 @@ import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
 import { backgroundWork } from "@/utils/background-time";
 import { coalesce } from "@/utils/widget-updates";
-import { resumeDownloads } from "../../state/run-downloads";
+import { downloadsSuspended$ } from "../../state/download-queue";
+import {
+  suspendDownloads,
+  unsuspendDownloads,
+} from "../../state/run-downloads";
 import { countStatus, endStatus } from "../activity-view";
 import type { DownloadActivity } from "./download-activity";
 
@@ -125,8 +129,6 @@ for (const stale of DownloadLiveActivity.getInstances())
 
 /** The running activity's Pause; one activity at a time. */
 let current: { onPause: () => void } | undefined;
-/** Set while iOS has the app suspended and the queue paused for it. */
-let suspended = false;
 /** The activity left on "Paused" meanwhile. */
 let left: LiveActivity<Props> | undefined;
 
@@ -134,15 +136,11 @@ let left: LiveActivity<Props> | undefined;
 // before that, the activity says so, and they resume when the app is back.
 const work = backgroundWork("Downloads", {
   running: () => current !== undefined,
-  expire: () => {
-    suspended = true;
-    current?.onPause();
-  },
+  expire: suspendDownloads,
   back: () => {
-    suspended = false;
     void left?.end("immediate").catch(() => {});
     left = undefined;
-    resumeDownloads();
+    unsuspendDownloads();
   },
 });
 const release = () => {
@@ -200,7 +198,7 @@ export function startDownloadActivity(onPause: () => void): DownloadActivity {
       if (current !== self) return;
       current = undefined;
       if (!last) return release();
-      keep = suspended;
+      keep = downloadsSuspended$.peek();
       if (keep) left = live;
       const status = keep
         ? SUSPENDED
