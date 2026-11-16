@@ -16,6 +16,7 @@ export {
   resumeDownloads,
   startDownloads,
 } from "./state/run-downloads";
+export { downloadTitle } from "./utils/activity-view";
 export { currentStore } from "./utils/current-store";
 export {
   deleteDownloads,

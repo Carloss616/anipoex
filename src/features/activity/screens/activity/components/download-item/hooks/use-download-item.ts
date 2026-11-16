@@ -1,7 +1,11 @@
 import { useValue } from "@legendapp/state/react";
-import { downloadQueue$, downloadsPaused$ } from "@/features/downloads";
+import {
+  downloadQueue$,
+  downloadsPaused$,
+  downloadTitle,
+} from "@/features/downloads";
 import { canMoveUp } from "../../../utils/state";
-import { downloadLine, downloadTitle } from "../utils";
+import { downloadLine } from "../utils";
 
 /** A download's leaves, so a row re-renders only when what it shows changes. */
 export function useDownloadItem(id: string) {

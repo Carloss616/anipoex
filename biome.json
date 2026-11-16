@@ -227,7 +227,10 @@
       }
     },
     {
-      "includes": ["src/features/manga/utils/scan-activity/**"],
+      "includes": [
+        "src/features/manga/utils/scan-activity/**",
+        "src/features/downloads/utils/download-activity/**"
+      ],
       "linter": {
         "rules": { "style": { "noRestrictedImports": "off" } }
       }

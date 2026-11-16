@@ -1,19 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { downloadLine, downloadTitle } from "./utils";
-
-describe("downloadTitle", () => {
-  test("names the chapter by number, else by name, else Chapter", () => {
-    expect(downloadTitle("Manga", { number: 12, name: "Ep" })).toBe(
-      "Manga · Chapter 12",
-    );
-    expect(downloadTitle("Manga", { number: -1, name: "Extra" })).toBe(
-      "Manga · Extra",
-    );
-    expect(downloadTitle("Manga", { number: -1, name: "" })).toBe(
-      "Manga · Chapter",
-    );
-  });
-});
+import { downloadLine } from "./utils";
 
 describe("downloadLine", () => {
   test("shows the source and the state", () => {
