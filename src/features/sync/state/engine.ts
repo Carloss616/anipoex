@@ -1,11 +1,18 @@
 import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
-import { AppState } from "react-native";
+import * as Device from "expo-device";
+import { AppState, Platform } from "react-native";
+import { toast } from "@/components/ui/toast";
 import { ObservablePersist } from "@/state/observable-persist";
 import { settings$ } from "@/state/settings";
+import { desktop } from "@/utils/desktop";
 import { SyncError } from "../utils/github";
 import { serial } from "../utils/serial";
-import { type SyncTarget, syncTables } from "../utils/sync-tables";
+import {
+  type SyncDevice,
+  type SyncTarget,
+  syncTables,
+} from "../utils/sync-tables";
 import { applying } from "../utils/watch-table";
 import { syncMeta$ } from "./sync-meta";
 import { TABLES } from "./tables";
@@ -14,11 +21,23 @@ import { TABLES } from "./tables";
 const DEBOUNCE_MS = 3000;
 const INTERVAL_MS = 5 * 60 * 1000;
 
+/** How the other devices list this one. */
+const DEVICE_NAME =
+  Platform.OS === "web"
+    ? desktop
+      ? "Mac"
+      : "Browser"
+    : (Device.modelName ?? (Platform.OS === "ios" ? "iPhone" : "Android"));
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
 /** Persisted, so the Sync section reads right after a relaunch. */
 export const syncState$ = observable({
   /** Per table, the hash of the file this device last wrote. */
   pushed: {} as Record<string, string>,
   lastSync: undefined as number | undefined,
+  /** The devices whose files the last sync read, this one included. */
+  devices: [] as SyncDevice[],
   /** The last sync's failure; cleared by the next one that lands. */
   error: undefined as { kind: SyncError["kind"]; message: string } | undefined,
 });
@@ -39,14 +58,25 @@ export const requestSync = serial(async () => {
   if (!current || !device) return;
   syncing$.set(true);
   try {
-    await syncTables({
+    const first = syncState$.lastSync.peek() === undefined;
+    const { pulled, devices } = await syncTables({
       tables: TABLES,
       meta$: syncMeta$,
       pushed$: syncState$.pushed,
       device,
+      deviceName: DEVICE_NAME,
       target: current,
     });
-    syncState$.assign({ lastSync: Date.now(), error: undefined });
+    syncState$.assign({ lastSync: Date.now(), error: undefined, devices });
+    // One word on the first merge, which may change what the screens show.
+    if (first) {
+      const others = devices.filter((d) => d.id !== device).length;
+      toast.success(
+        others
+          ? `Merged with ${plural(others, "device")} · ${plural(pulled, "change")}`
+          : "Sync is on",
+      );
+    }
   } catch (error) {
     // Kept for the Sync section; the next trigger tries again.
     syncState$.error.set({

@@ -8,6 +8,7 @@ import { AppearanceSection } from "./components/appearance-section";
 import { HomeSection } from "./components/home-section";
 import { NetworkSection } from "./components/network-section";
 import { SourcesSection } from "./components/sources-section";
+import { SyncSection } from "./components/sync-section";
 
 /** The settings as Frames in a narrow column under the header. */
 export function Settings() {
@@ -20,6 +21,7 @@ export function Settings() {
       <ScrollView className="flex-1" {...headerScroll}>
         <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-4 self-center">
           <AccountSection />
+          <SyncSection />
           <HomeSection />
           <AppearanceSection />
           {/* A plain browser runs no extensions: nothing to pick or resolve. */}

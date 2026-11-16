@@ -13,6 +13,8 @@ import { AppearanceSection } from "./components/appearance-section";
 import { HomeSection } from "./components/home-section";
 import { NetworkSection } from "./components/network-section";
 import { SourcesSection } from "./components/sources-section";
+import { SyncSection } from "./components/sync-section";
+import { ConnectSheet } from "./components/sync-section/connect-sheet";
 import { useRowBackground } from "./hooks/use-row-background";
 
 export function Settings() {
@@ -32,6 +34,7 @@ export function Settings() {
           ]}
         >
           <AccountSection />
+          <SyncSection />
           <HomeSection />
           <AppearanceSection />
           <SourcesSection />
@@ -45,6 +48,7 @@ export function Settings() {
             />
           </Section>
         </List>
+        <ConnectSheet />
       </Host>
     </>
   );

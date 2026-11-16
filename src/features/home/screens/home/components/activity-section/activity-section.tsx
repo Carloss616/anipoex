@@ -4,7 +4,8 @@ import { Avatar } from "panelui-web/avatar";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import type { HomeActivityFragment } from "@/features/home/graphql/home-sections.generated";
-import { activityAction, timeAgo } from "./utils";
+import { timeAgo } from "@/utils/time-ago";
+import { activityAction } from "./utils";
 
 export interface ActivitySectionProps {
   title: string;

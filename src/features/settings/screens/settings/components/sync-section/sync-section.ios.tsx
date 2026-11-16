@@ -1,0 +1,148 @@
+import {
+  Button,
+  HStack,
+  Section,
+  Spacer,
+  VStack,
+  ZStack,
+} from "@expo/ui/swift-ui";
+import {
+  background,
+  buttonStyle,
+  clipShape,
+  foregroundStyle,
+  frame,
+} from "@expo/ui/swift-ui/modifiers";
+import { ROW_FILL } from "@/components/native/swift-ui/constants";
+import { Image } from "@/components/native/swift-ui/image";
+import { Text } from "@/components/native/swift-ui/text";
+import { Icon, Icons } from "@/components/ui/icon";
+import { Loader } from "@/components/ui/loader";
+import { ContextMenu } from "@/components/ui/menu";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { useRowBackground } from "../../hooks/use-row-background";
+import { SYNC_FOOTER } from "./constants";
+import { useSyncSection } from "./hooks/use-sync-section";
+
+const AVATAR = 40;
+const SECONDARY = [foregroundStyle("secondary")];
+const FOLDER_DETAIL = "iCloud Drive, OneDrive or any synced folder";
+
+function Lines({
+  title,
+  detail,
+  danger,
+}: {
+  title: string;
+  detail?: string;
+  danger?: boolean;
+}) {
+  const destructive = useThemeColor("destructive");
+  return (
+    <VStack alignment="leading" spacing={2}>
+      {/* Inside a Button the title would take the tint. */}
+      <Text modifiers={[foregroundStyle("primary")]}>{title}</Text>
+      {detail ? (
+        <Text
+          textStyle="subheadline"
+          modifiers={[foregroundStyle(danger ? destructive : "secondary")]}
+        >
+          {detail}
+        </Text>
+      ) : null}
+    </VStack>
+  );
+}
+
+/**
+ * iOS: the GitHub row's menu holds Sync now, the gist and Disconnect; its
+ * trailing edge only shows state, or Reconnect when access was revoked.
+ */
+export function SyncSection() {
+  const sync = useSyncSection();
+  const { account } = sync;
+  const rowBackground = useRowBackground();
+  const card = useThemeColor("card");
+  const primary = useThemeColor("primary");
+
+  return (
+    <Section
+      modifiers={[rowBackground]}
+      header={
+        <HStack>
+          <Text>Sync</Text>
+          {account && !sync.revoked ? (
+            <>
+              <Spacer />
+              <Button
+                onPress={sync.syncNow}
+                modifiers={[buttonStyle("borderless")]}
+              >
+                <Text textStyle="subheadline" weight="medium">
+                  Sync now
+                </Text>
+              </Button>
+            </>
+          ) : null}
+        </HStack>
+      }
+      footer={<Text>{SYNC_FOOTER}</Text>}
+    >
+      {account ? (
+        <ContextMenu items={sync.menu}>
+          <HStack spacing={12} modifiers={ROW_FILL}>
+            <ZStack
+              modifiers={[
+                frame({ width: AVATAR, height: AVATAR }),
+                background(card),
+                clipShape("circle"),
+              ]}
+            >
+              <Image source={{ uri: account.avatarUrl }} />
+            </ZStack>
+            <Lines
+              title={account.login}
+              detail={sync.status}
+              danger={sync.failed}
+            />
+            <Spacer />
+            {sync.syncing ? (
+              <Loader size="sm" />
+            ) : sync.revoked ? (
+              <Button
+                onPress={sync.connect}
+                modifiers={[buttonStyle("borderless")]}
+              >
+                <Text modifiers={[foregroundStyle(primary)]}>Reconnect</Text>
+              </Button>
+            ) : (
+              <Icon name={Icons.check} size={15} muted />
+            )}
+          </HStack>
+        </ContextMenu>
+      ) : (
+        <Button onPress={sync.connect}>
+          <HStack spacing={8} modifiers={ROW_FILL}>
+            <Lines title="GitHub" detail="Not connected" />
+            <Spacer />
+            <Text modifiers={[foregroundStyle(primary)]}>Connect</Text>
+          </HStack>
+        </Button>
+      )}
+      {account
+        ? sync.devices.map((device) => (
+            <Lines
+              key={device.id}
+              title={device.title}
+              detail={device.detail}
+            />
+          ))
+        : null}
+      <HStack spacing={8}>
+        <Lines title="Folder" detail={FOLDER_DETAIL} />
+        <Spacer />
+        <Text modifiers={SECONDARY}>Soon</Text>
+      </HStack>
+    </Section>
+  );
+}

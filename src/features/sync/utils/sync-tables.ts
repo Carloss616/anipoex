@@ -31,8 +31,17 @@ export interface SyncTablesOptions {
   /** Per table, the hash of the file this device last wrote. */
   pushed$: Observable<Record<string, string>>;
   device: string;
+  /** Written in this device's files, so others can name it. */
+  deviceName?: string;
   target: SyncTarget;
   now?: () => number;
+}
+
+/** A device whose files are on the target, and its latest stamp there. */
+export interface SyncDevice {
+  id: string;
+  name?: string;
+  lastChange: number;
 }
 
 /** FNV-1a: tells a changed file apart; not for anything secret. */
@@ -88,19 +97,22 @@ function apply(
 /**
  * One sync: reads every device's files, merges them with this device's
  * records, applies what won, and writes this device's files that changed.
- * Resolves to how many records it changed in this device's stores.
+ * Resolves to how many records it changed in this device's stores, and the
+ * devices whose files it read.
  */
 export async function syncTables({
   tables,
   meta$,
   pushed$,
   device,
+  deviceName,
   target,
   now = Date.now,
 }: SyncTablesOptions) {
   const names = await target.list();
   const out: Record<string, string> = {};
   const hashes: Record<string, string> = {};
+  const devices = new Map<string, SyncDevice>();
   let pulled = 0;
 
   for (const table of tables) {
@@ -114,6 +126,18 @@ export async function syncTables({
       const file = text && parseSyncFile(text, table.name);
       return file ? [file] : [];
     });
+    for (const file of remote) {
+      const seen = devices.get(file.device);
+      const latest = Math.max(
+        seen?.lastChange ?? 0,
+        ...Object.values(file.records).map((r) => r.deletedAt ?? r.updatedAt),
+      );
+      devices.set(file.device, {
+        id: file.device,
+        name: file.name,
+        lastChange: latest,
+      });
+    }
 
     const stamps = meta$[table.name].peek() ?? {};
     const local = localRecords(
@@ -140,6 +164,7 @@ export async function syncTables({
     const text = serializeSyncFile({
       format: SYNC_FORMAT,
       device,
+      ...(deviceName && { name: deviceName }),
       table: table.name,
       records: kept,
     });
@@ -155,5 +180,5 @@ export async function syncTables({
   if (Object.keys(out).length) await target.write(out);
   // Only a write that landed counts as pushed; a failed one is retried whole.
   for (const [name, h] of Object.entries(hashes)) pushed$[name].set(h);
-  return { pulled };
+  return { pulled, devices: [...devices.values()] };
 }

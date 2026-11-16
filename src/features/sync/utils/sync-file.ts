@@ -7,6 +7,8 @@ export const SYNC_FORMAT = 1;
 export interface SyncFile {
   format: number;
   device: string;
+  /** The device as people call it ("iPhone 16"), for the Sync section. */
+  name?: string;
   table: string;
   records: Records;
 }
@@ -45,13 +47,14 @@ export function parseSyncFile(
     return undefined;
   }
   if (!raw || typeof raw !== "object") return undefined;
-  const { format, device, records } = raw as Record<string, unknown>;
+  const { format, device, name, records } = raw as Record<string, unknown>;
   if (format !== SYNC_FORMAT || typeof device !== "string") return undefined;
   if ((raw as SyncFile).table !== table) return undefined;
   if (!records || typeof records !== "object") return undefined;
   return {
     format,
     device,
+    ...(typeof name === "string" && { name }),
     table,
     records: Object.fromEntries(
       Object.entries(records).filter(([, record]) => isRecord(record)),

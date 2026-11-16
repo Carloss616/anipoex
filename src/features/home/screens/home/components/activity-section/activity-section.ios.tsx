@@ -20,8 +20,9 @@ import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
 import type { HomeActivityFragment } from "@/features/home/graphql/home-sections.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { timeAgo } from "@/utils/time-ago";
 import type { ActivitySectionProps } from "./activity-section";
-import { activityAction, timeAgo } from "./utils";
+import { activityAction } from "./utils";
 
 const AVATAR = 32;
 

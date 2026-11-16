@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Settings → Sync**: under Account, connect GitHub (a code sheet in the apps, a token on the web), see the last sync and the devices in the gist, Sync now, open the gist, disconnect, and Reconnect when access was revoked; the first sync says what it merged. Each device's files carry its name. Updated [GitHub account](stores/github-account.md).
 * **Sync connects to GitHub**: the apps sign in with GitHub's code flow (desktop through its main process), the web with a pasted token; a private "Anipoex sync" gist is found by its manifest or made, and syncing runs while a token is set. No screen offers it yet. Added [GitHub account](stores/github-account.md); updated [sync state](stores/sync-state.md).
 * **The sync engine**: a sync reads every device's files, merges them with this device's records, writes what won into the stores unstamped and writes this device's changed files; runs never overlap and start on launch, foreground, every 5 minutes, after a local change and when the web is back online. Nothing calls it until a target connects. Added [sync state](stores/sync-state.md).
 * **Synced stores stamp their changes**: every change to settings, chosen sources, manual matches, exclusions, pins, probes and search history records when each record changed (and a removal as a tombstone), ahead of syncing between devices; each device gets a random `id` in settings. Added [sync stamps](stores/sync-meta.md); updated [settings](stores/settings.md).

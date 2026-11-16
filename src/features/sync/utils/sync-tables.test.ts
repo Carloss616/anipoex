@@ -45,6 +45,7 @@ const device = (id: string, target: SyncTarget, initial: Exclusions = {}) => {
         meta$,
         pushed$,
         device: id,
+        deviceName: `${id} name`,
         target,
         now: () => clock,
       }),
@@ -65,6 +66,22 @@ describe("syncTables", () => {
     expect(phone.store$.peek()).toEqual({
       21: { "source-1": { reason: "outdated" } },
     });
+  });
+
+  it("lists the devices on the target with their names", async () => {
+    const { target } = memoryTarget();
+    const mac = device("mac", target);
+    const phone = device("phone", target);
+    mac.store$[21]["source-1"].set({ reason: "outdated" });
+    await mac.sync();
+    await phone.sync();
+
+    const { devices } = await mac.sync();
+
+    expect(devices).toEqual([
+      { id: "mac", name: "mac name", lastChange: 1000 },
+      { id: "phone", name: "phone name", lastChange: 1000 },
+    ]);
   });
 
   it("brings a removal across as a tombstone", async () => {

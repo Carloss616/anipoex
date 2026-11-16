@@ -20,6 +20,8 @@ import { AppearanceSection } from "./components/appearance-section";
 import { HomeSection } from "./components/home-section";
 import { NetworkSection } from "./components/network-section";
 import { SourcesSection } from "./components/sources-section";
+import { SyncSection } from "./components/sync-section";
+import { ConnectSheet } from "./components/sync-section/connect-sheet";
 
 /** M3 Expressive settings: labelled groups of segmented rows. */
 export function Settings() {
@@ -43,6 +45,7 @@ export function Settings() {
             ]}
           >
             <AccountSection />
+            <SyncSection />
             <HomeSection />
             <AppearanceSection />
             <SourcesSection />
@@ -63,6 +66,7 @@ export function Settings() {
             </Box>
           </Column>
         </Box>
+        <ConnectSheet />
       </Host>
     </>
   );

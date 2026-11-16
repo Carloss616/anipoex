@@ -69,7 +69,7 @@ export async function startDeviceFlow(signal?: AbortSignal) {
 export function disconnectGitHub() {
   github$.token.set(undefined);
   github$.account.set(undefined);
-  syncState$.assign({ lastSync: undefined, error: undefined });
+  syncState$.assign({ lastSync: undefined, error: undefined, devices: [] });
 }
 
 // Syncs with the gist while a token is set.
