@@ -1,4 +1,3 @@
-import FolderIcon from "@expo/material-symbols/folder.xml";
 import ScheduleIcon from "@expo/material-symbols/schedule.xml";
 import {
   Box,
@@ -131,7 +130,7 @@ export function SyncSection() {
           <ContextMenu items={folder.menu}>
             <SegmentedListItem index={1} count={count} {...row}>
               <SegmentedListItem.Leading>
-                <LeadingIcon name={FolderIcon} />
+                <LeadingIcon name={Icons.folder} />
               </SegmentedListItem.Leading>
               <Text>{folder.name}</Text>
               <SegmentedListItem.Supporting>
@@ -157,7 +156,7 @@ export function SyncSection() {
             onPress={folder?.choose}
           >
             <SegmentedListItem.Leading>
-              <LeadingIcon name={FolderIcon} />
+              <LeadingIcon name={Icons.folder} />
             </SegmentedListItem.Leading>
             <Text>Folder</Text>
             <SegmentedListItem.Supporting>

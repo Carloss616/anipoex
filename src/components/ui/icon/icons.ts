@@ -260,6 +260,13 @@ export const Icons = {
     web: "moon",
   }),
 
+  // Sync
+  folder: Icon.select({
+    ios: "folder",
+    android: require("@expo/material-symbols/folder.xml"),
+    web: "folder",
+  }),
+
   // Devices
   device: Icon.select({
     ios: "macbook.and.iphone",

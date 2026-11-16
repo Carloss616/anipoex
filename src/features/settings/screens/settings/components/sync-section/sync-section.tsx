@@ -92,6 +92,9 @@ export function SyncSection() {
         )}
         {folder && (
           <Frame.Row>
+            <Frame.Media>
+              <Avatar fallback={<Icon name={Icons.folder} />} />
+            </Frame.Media>
             <Frame.Content>
               <Frame.Title as="p">{folder.name ?? "Folder"}</Frame.Title>
               <Frame.Description

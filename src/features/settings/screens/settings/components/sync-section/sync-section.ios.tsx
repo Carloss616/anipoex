@@ -8,6 +8,7 @@ import {
   ZStack,
 } from "@expo/ui/swift-ui";
 import {
+  accessibilityHidden,
   background,
   buttonStyle,
   clipShape,
@@ -59,6 +60,27 @@ function Lines({
         </Text>
       ) : null}
     </VStack>
+  );
+}
+
+/** The folder's mark, in the circle the GitHub row's avatar takes. */
+function FolderBadge() {
+  const card = useThemeColor("card");
+  return (
+    <ZStack
+      modifiers={[
+        frame({ width: AVATAR, height: AVATAR }),
+        background(card),
+        clipShape("circle"),
+      ]}
+    >
+      <Icon
+        name={Icons.folder}
+        size={18}
+        muted
+        modifiers={[accessibilityHidden()]}
+      />
+    </ZStack>
   );
 }
 
@@ -141,6 +163,7 @@ export function SyncSection() {
       {folder?.name ? (
         <ContextMenu items={folder.menu}>
           <HStack spacing={12} modifiers={ROW_FILL}>
+            <FolderBadge />
             <Lines
               title={folder.name}
               detail={folder.status}
@@ -156,7 +179,8 @@ export function SyncSection() {
         </ContextMenu>
       ) : folder ? (
         <Button onPress={folder.choose}>
-          <HStack spacing={8} modifiers={ROW_FILL}>
+          <HStack spacing={12} modifiers={ROW_FILL}>
+            <FolderBadge />
             <Lines title="Folder" detail={FOLDER_HINT} />
             <Spacer />
             <Text modifiers={[foregroundStyle(primary)]}>Choose</Text>
