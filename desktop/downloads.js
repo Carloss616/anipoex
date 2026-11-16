@@ -88,7 +88,22 @@ export async function listAll(root) {
   return out;
 }
 
-/** Copies a packed chapter in through a temp file and a rename, replacing. */
+/** `…/downloads/<manga>/<source>/<chapter>.cbz` in some root: a move's source. */
+const isDownload = (file) => {
+  const parts = file.split(path.sep);
+  const rel = parts.slice(-4).join("/");
+  if (parts.length < 5 || parts.at(-4) !== "downloads") return false;
+  try {
+    return !!checkRel(rel);
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Copies a packed chapter, or another root's download, in through a temp file
+ * and a rename, replacing.
+ */
 export async function put(root, rel, fromUri, packedDir) {
   checkRel(rel);
   const from = path.resolve(
@@ -96,7 +111,10 @@ export async function put(root, rel, fromUri, packedDir) {
       ? fileURLToPath(fromUri)
       : String(fromUri),
   );
-  if (!from.startsWith(path.resolve(packedDir) + path.sep)) {
+  if (
+    !from.startsWith(path.resolve(packedDir) + path.sep) &&
+    !isDownload(from)
+  ) {
     throw new Error("Not a packed chapter");
   }
   const file = path.join(root, rel);

@@ -56,6 +56,23 @@ test("put refuses a file outside packedDir", async () => {
   ).rejects.toThrow("Not a packed chapter");
 });
 
+test("put copies another root's download, for a move", async () => {
+  const other = path.join(path.dirname(root), "other");
+  await put(other, REL, await pack("a.cbz", "x"), packedDir);
+  await put(root, REL, await get(other, REL), packedDir);
+  expect(await readFile(path.join(root, REL), "utf8")).toBe("x");
+  expect(existsSync(path.join(other, REL))).toBe(true);
+});
+
+test("put refuses a cbz under downloads/ that isn't a download path", async () => {
+  const loose = path.join(path.dirname(root), "downloads", "loose.cbz");
+  await mkdir(path.dirname(loose));
+  await writeFile(loose, "x");
+  await expect(
+    put(root, REL, pathToFileURL(loose).toString(), packedDir),
+  ).rejects.toThrow("Not a packed chapter");
+});
+
 test("put replaces through a temp file", async () => {
   await put(root, REL, await pack("a.cbz", "one"), packedDir);
   await put(root, REL, await pack("b.cbz", "two"), packedDir);

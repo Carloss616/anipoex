@@ -23,7 +23,8 @@ export {
   downloadOne,
   retryDownload,
 } from "./utils/download-actions";
-export { downloadRoot } from "./utils/download-root";
+export { type DownloadRoot, downloadRoot } from "./utils/download-root";
 export { type DownloadState, downloadStateOf } from "./utils/download-state";
-export type { DownloadStore } from "./utils/download-store";
+export { type DownloadStore, downloadStore } from "./utils/download-store";
+export { moveDownloads, sameRoot } from "./utils/move-downloads";
 export { chapterHash, downloadKey, type StoredDownload } from "./utils/paths";
