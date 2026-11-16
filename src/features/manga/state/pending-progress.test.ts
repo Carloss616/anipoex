@@ -146,6 +146,28 @@ describe("flushPending", () => {
     expect(pendingProgress$[1].get().error).toBe("Denied");
   });
 
+  it("skips an entry cleared during the run, as by sign-out", async () => {
+    keepPending(1, { progress: 12 });
+    keepPending(2, { progress: 5 });
+    const send = mock(async () => {
+      pendingProgress$.set({});
+    });
+    await flushPending(() => 0, send);
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves no error record for an entry cleared during its send", async () => {
+    keepPending(1, { progress: 12 });
+    await flushPending(
+      () => 0,
+      async () => {
+        pendingProgress$.set({});
+        throw new CombinedGraphQLErrors({ errors: [{ message: "Denied" }] });
+      },
+    );
+    expect(pendingProgress$.get()).toEqual({});
+  });
+
   it("shares one run between concurrent calls", async () => {
     keepPending(1, { progress: 12 });
     const send = mock(async () => {});

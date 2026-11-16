@@ -77,8 +77,11 @@ async function run(
   remoteOf: (mediaId: number) => number | undefined,
   send: (mediaId: number, pending: PendingProgress) => Promise<void>,
 ) {
-  for (const [key, pending] of Object.entries(pendingProgress$.peek())) {
+  for (const key of Object.keys(pendingProgress$.peek())) {
     const mediaId = Number(key);
+    // Read afresh: a sign-out during the run clears what's left of it
+    const pending = pendingProgress$[mediaId].peek();
+    if (!pending) continue;
     const remote = remoteOf(mediaId);
     if (remote !== undefined && remote >= pending.progress) {
       pendingProgress$[mediaId].delete();
@@ -94,6 +97,8 @@ async function run(
       }
     } catch (error) {
       if (isNetworkError(error)) return;
+      // Setting a child of a cleared entry would bring it back as a ghost
+      if (!pendingProgress$[mediaId].peek()) continue;
       pendingProgress$[mediaId].error.set(
         error instanceof Error ? error.message : String(error),
       );
