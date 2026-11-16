@@ -1,5 +1,5 @@
 import { requireNativeModule } from "expo";
-import { File, Paths } from "expo-file-system";
+import { Directory, File, Paths } from "expo-file-system";
 import { bookmarkOf } from "@/utils/picked-folder";
 import type { DownloadRoot } from "../download-root";
 import { fileSystemStore } from "../file-system-store";
@@ -41,11 +41,11 @@ function folderStore(location: string): DownloadStore {
     put: (path, fileUri) => folder.copyIn(bookmark, path, fileUri),
     async get(path) {
       const name = path.split("/").at(-1) as string;
-      const out = new File(
-        Paths.cache,
-        "downloads-out",
-        `${idOf(name) ?? "chapter"}.cbz`,
-      );
+      // Only the last copy stays: the reader unpacks it at once.
+      const dir = new Directory(Paths.cache, "downloads-out");
+      if (dir.exists) dir.delete();
+      dir.create();
+      const out = new File(dir, `${idOf(name) ?? "chapter"}.cbz`);
       try {
         await folder.copyOut(bookmark, path, out.uri);
       } catch (error) {

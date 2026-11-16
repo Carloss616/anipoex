@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { runtime, type SourcePage } from "@/features/extensions";
+import { chapterPages } from "@/features/downloads/utils/open-download";
+import type { SourcePage } from "@/features/extensions";
 
 interface State {
   /** The chapter these pages belong to. */
@@ -13,10 +14,11 @@ const EMPTY: State = { pages: [], loading: false, error: null };
 const LOADING: State = { pages: [], loading: true, error: null };
 
 /**
- * The chapter's page images from its source; reloads when the chapter
+ * The chapter's page images, from its download when it has one; reloads when the chapter
  * changes, nothing is persisted.
  */
 export function useChapterPages(
+  mangaId: number,
   sourceId: string | undefined,
   chapterUrl: string | undefined,
   memo: string | undefined,
@@ -39,7 +41,7 @@ export function useChapterPages(
         error: null,
       }));
       try {
-        const pages = await runtime.pages(sourceId, chapterUrl, memo);
+        const pages = await chapterPages(mangaId, sourceId, chapterUrl, memo);
         if (current === ticket.current)
           setState({ chapterUrl, pages, loading: false, error: null });
       } catch (error) {
@@ -52,7 +54,7 @@ export function useChapterPages(
           }));
       }
     },
-    [sourceId, chapterUrl, memo],
+    [mangaId, sourceId, chapterUrl, memo],
   );
 
   useEffect(() => {
