@@ -39,6 +39,9 @@ import {
   split,
 } from "./utils/state";
 
+/** Downloads shows this many; the rest are a count. */
+const SHOWN = 10;
+
 type Row = { modifiers: ReturnType<typeof listRowBackground>[] };
 
 export function Activity() {
@@ -137,6 +140,7 @@ function DownloadsSection({ modifiers }: Row) {
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
   if (!ids.length) return null;
+  const more = ids.length - SHOWN;
 
   return (
     <Section
@@ -148,8 +152,13 @@ function DownloadsSection({ modifiers }: Row) {
           onPress={paused ? resumeDownloads : pauseDownloads}
         />
       }
+      footer={more > 0 ? <Text>{`${more} more`}</Text> : undefined}
     >
-      <List.ForEach data={ids} keyExtractor={(id) => id} recycling={false}>
+      <List.ForEach
+        data={ids.slice(0, SHOWN)}
+        keyExtractor={(id) => id}
+        recycling={false}
+      >
         {({ item }) => <DownloadItem id={item} />}
       </List.ForEach>
     </Section>

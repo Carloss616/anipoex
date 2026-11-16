@@ -21,6 +21,7 @@ const {
   corners,
   downloadIds,
   downloadsPending,
+  downloadsView$,
   hasActivity,
   hasScans,
 } = await import("./state");
@@ -82,5 +83,21 @@ describe("downloads", () => {
     expect(canMoveUp("k4")).toBe(true);
     expect(canMoveUp("k3")).toBe(false);
     expect(canMoveUp("missing")).toBe(false);
+  });
+
+  test("track the first queued one as the queue changes", () => {
+    downloadQueue$.set({
+      k1: entry("k1", 0, "running"),
+      k2: entry("k2", 1, "queued"),
+      k3: entry("k3", 2, "queued"),
+    });
+    expect(downloadsView$.firstQueued.get()).toBe("k2");
+    downloadQueue$.k2.state.set("failed");
+    expect(downloadsView$.firstQueued.get()).toBe("k3");
+    expect(canMoveUp("k3")).toBe(false);
+    downloadQueue$.k1.assign({ state: "queued", order: 3 });
+    expect(canMoveUp("k1")).toBe(true);
+    downloadQueue$.set({});
+    expect(downloadsView$.firstQueued.get()).toBe("");
   });
 });

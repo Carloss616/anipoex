@@ -1,6 +1,7 @@
 import { useValue } from "@legendapp/state/react";
-import { downloadQueue$ } from "@/features/downloads";
+import { downloadQueue$, downloadsPaused$ } from "@/features/downloads";
 import { canMoveUp } from "../../../utils/state";
+import { downloadLine, downloadTitle } from "../utils";
 
 /** A download's leaves, so a row re-renders only when what it shows changes. */
 export function useDownloadItem(id: string) {
@@ -12,15 +13,15 @@ export function useDownloadItem(id: string) {
   const source = useValue(item$.source.name) ?? "";
   const state = useValue(item$.state) ?? "queued";
   const error = useValue(item$.error);
+  const paused = useValue(downloadsPaused$);
   const movable = useValue(() => canMoveUp(id));
 
   return {
-    title: `${manga} · ${number >= 0 ? `Chapter ${number}` : name}`,
+    title: downloadTitle(manga, { number, name }),
     cover,
     source,
     state,
-    /** Under the title when it isn't running: the source and its state. */
-    line: `${source} · ${state === "failed" ? (error ?? "Failed") : "Queued"}`,
+    line: downloadLine(source, state, error, paused),
     canMoveUp: movable,
   };
 }

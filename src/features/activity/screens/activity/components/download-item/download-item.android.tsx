@@ -89,6 +89,9 @@ export const DownloadItem = memo(function DownloadItem({
             >
               <Icon
                 name={failed ? Icons.refresh : Icons.close}
+                accessibilityLabel={
+                  failed ? `Retry ${title}` : `Cancel ${title}`
+                }
                 color="inherit"
               />
             </IconButton>

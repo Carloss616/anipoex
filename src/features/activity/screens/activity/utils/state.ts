@@ -35,10 +35,22 @@ export const downloadIds = () =>
     .join();
 
 /** Whether a queued download comes before this queued one. */
-export function canMoveUp(key: string) {
-  const queued = downloads().filter((d) => d.state === "queued");
-  return queued.findIndex((d) => d.key === key) > 0;
-}
+export const canMoveUp = (key: string) =>
+  downloadQueue$[key].state.get() === "queued" &&
+  downloadsView$.firstQueued.get() !== key;
+
+/**
+ * Computed once per queue change, so each row's check stays O(1). Empty when
+ * nothing is queued: an optional result types as a lookup, with no `get`.
+ */
+export const downloadsView$ = observable({
+  firstQueued: (): string => {
+    let first: { key: string; order: number } | undefined;
+    for (const d of Object.values(downloadQueue$.get()))
+      if (d.state === "queued" && (!first || d.order < first.order)) first = d;
+    return first?.key ?? "";
+  },
+});
 
 /** The running manga's ids, joined: changes only when one starts or ends. */
 export const runningIds = () => Object.keys(activeScans$.get(true)).join();
