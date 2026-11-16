@@ -1,6 +1,7 @@
 package expo.modules.extensionruntime
 
 import android.app.Application
+import anipoex.runtime.ChapterArchive
 import anipoex.runtime.PageCache
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -60,6 +61,9 @@ class ExtensionRuntimeModule : Module() {
   private val app get() = requireNotNull(appContext.reactContext).applicationContext as Application
   private val extensionsDir get() = File(app.filesDir, "exts")
   private val pageCache by lazy { PageCache(File(app.cacheDir, "pages")) }
+  private val staging by lazy { File(app.cacheDir, "staging") }
+  private val packed by lazy { File(app.cacheDir, "packed") }
+  private val unpacked by lazy { File(app.cacheDir, "unpacked") }
   private val sources = ConcurrentHashMap<Long, CatalogueSource>()
   private val extensions = ConcurrentHashMap<String, Map<String, Any?>>()
   private val lock = Any()
@@ -164,6 +168,46 @@ class ExtensionRuntimeModule : Module() {
     // interceptors may rewrite it (descramblers).
     AsyncFunction("image") Coroutine { sourceId: String, imageUrl: String, index: Int ->
       pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
+    }
+
+    AsyncFunction("stagePage") Coroutine { sourceId: String, imageUrl: String, index: Int, stage: String, name: String ->
+      val dir = File(staging, ChapterArchive.checkId(stage))
+      ChapterArchive.checkId(name)
+      val page = pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
+      withContext(Dispatchers.IO) {
+        ChapterArchive.stage(File(java.net.URI(page["uri"] as String)), page["type"] as String?, dir, name)
+      }
+      null
+    }
+
+    AsyncFunction("pack") Coroutine { stage: String, comicInfo: String ->
+      withContext(Dispatchers.IO) {
+        val dest = File(packed, "${ChapterArchive.checkId(stage)}.cbz")
+        ChapterArchive.pack(File(staging, stage), comicInfo, dest)
+        mapOf("uri" to dest.toPath().toUri().toString())
+      }
+    }
+
+    AsyncFunction("dropStage") Coroutine { stage: String ->
+      withContext(Dispatchers.IO) {
+        File(staging, ChapterArchive.checkId(stage)).deleteRecursively()
+        File(packed, "$stage.cbz").delete()
+        null
+      }
+    }
+
+    AsyncFunction("unpack") Coroutine { uri: String, key: String ->
+      withContext(Dispatchers.IO) {
+        val dir = File(unpacked, ChapterArchive.checkId(key))
+        val parsed = Uri.parse(uri)
+        require(parsed.path.orEmpty().endsWith(".cbz")) { "Not a CBZ" }
+        val input = if (parsed.scheme == "content") {
+          checkNotNull(app.contentResolver.openInputStream(parsed)) { "Can't open $uri" }
+        } else File(java.net.URI(uri)).inputStream()
+        val files = input.use { ChapterArchive.unpack(it, dir) }
+        ChapterArchive.prune(unpacked, 3)
+        files.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
+      }
     }
   }
 

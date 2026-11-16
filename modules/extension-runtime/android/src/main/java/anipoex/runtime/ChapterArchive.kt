@@ -73,7 +73,7 @@ object ChapterArchive {
                     zip.closeEntry()
                 }
                 zip.putNextEntry(ZipEntry(COMIC_INFO))
-                zip.write(comicInfo.toByteArray())
+                zip.write(comicInfo.toByteArray(Charsets.UTF_8))
                 zip.closeEntry()
             }
             Files.move(partial.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)

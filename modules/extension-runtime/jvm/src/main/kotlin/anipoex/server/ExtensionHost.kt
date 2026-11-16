@@ -1,6 +1,7 @@
 package anipoex.server
 
 import android.app.Application
+import anipoex.runtime.ChapterArchive
 import anipoex.runtime.PageCache
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.NetworkHelper
@@ -25,6 +26,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.addSingleton
 import uy.kohesive.injekt.api.get
 import java.io.File
+import java.net.URI
 import java.net.URLClassLoader
 import java.util.concurrent.ConcurrentHashMap
 
@@ -39,6 +41,9 @@ private val SUPPORTED_LIBS = setOf(1.4f, 1.6f)
 class ExtensionHost(dataDir: File) {
     private val extensionsDir = File(dataDir, "exts")
     private val pageCache = PageCache(File(dataDir, "cache/pages"))
+    private val staging = File(dataDir, "cache/staging")
+    private val packed = File(dataDir, "cache/packed")
+    private val unpacked = File(dataDir, "cache/unpacked")
     private val sources = ConcurrentHashMap<Long, CatalogueSource>()
     private val extensions = ConcurrentHashMap<String, Map<String, Any?>>()
     private val lock = Any()
@@ -214,6 +219,33 @@ class ExtensionHost(dataDir: File) {
     /** A page's image through its source's client, as a file ([PageCache]). */
     suspend fun image(sourceId: String, imageUrl: String, index: Int): Map<String, Any?> =
         pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
+
+    /** Fetches a page through its source and keeps it in the chapter's staging folder. */
+    suspend fun stagePage(sourceId: String, imageUrl: String, index: Int, stage: String, name: String) {
+        val dir = File(staging, ChapterArchive.checkId(stage))
+        ChapterArchive.checkId(name)
+        val page = pageCache.fetch(source(sourceId) as HttpSource, imageUrl, index)
+        ChapterArchive.stage(File(URI(page["uri"] as String)), page["type"] as String?, dir, name)
+    }
+
+    fun pack(stage: String, comicInfo: String): Map<String, Any?> {
+        val dest = File(packed, "${ChapterArchive.checkId(stage)}.cbz")
+        ChapterArchive.pack(File(staging, stage), comicInfo, dest)
+        return mapOf("uri" to dest.toPath().toUri().toString())
+    }
+
+    fun dropStage(stage: String) {
+        File(staging, ChapterArchive.checkId(stage)).deleteRecursively()
+        File(packed, "$stage.cbz").delete()
+    }
+
+    fun unpack(uri: String, key: String): List<Map<String, Any?>> {
+        val cbz = File(URI(uri))
+        require(cbz.name.endsWith(".cbz")) { "Not a CBZ" }
+        val files = cbz.inputStream().use { ChapterArchive.unpack(it, File(unpacked, ChapterArchive.checkId(key))) }
+        ChapterArchive.prune(unpacked, 3)
+        return files.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
+    }
 
     // As Mihon: an extension without the lib in its metadata carries it in
     // versionName (1.4.3 -> 1.4).
