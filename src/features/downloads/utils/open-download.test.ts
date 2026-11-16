@@ -69,6 +69,14 @@ describe("openDownload", () => {
     );
   });
 
+  it("tries the next store when one only has a cloud placeholder", async () => {
+    const cloud = store([path], async () => {
+      throw new NotDownloadedError(path);
+    });
+    const { deps } = setup([cloud, store([path])]);
+    expect(await openDownload(21, "1234", url, deps)).toEqual(local);
+  });
+
   it("falls back to the device store", async () => {
     const device = store([path]);
     const { deps } = setup([store([]), device]);

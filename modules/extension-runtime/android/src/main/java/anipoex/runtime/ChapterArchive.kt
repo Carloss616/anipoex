@@ -12,6 +12,7 @@ import java.util.zip.ZipOutputStream
 /** A chapter as one CBZ: pages are staged as files, packed, and unpacked for reading. */
 object ChapterArchive {
     private const val COMIC_INFO = "ComicInfo.xml"
+    private const val DONE = ".done"
     private val ID = Regex("^[A-Za-z0-9-]{1,200}$")
     private val TOKEN = Regex("\\d+|\\D+")
 
@@ -83,6 +84,22 @@ object ChapterArchive {
         stage.deleteRecursively()
     }
 
+    /**
+     * The pages in `dir` when an earlier unpack finished there, without opening
+     * the CBZ; else unpacks it. Touches `dir` so `prune` keeps the latest used.
+     */
+    fun unpackCached(open: () -> InputStream, dir: File): List<File> {
+        if (File(dir, DONE).exists()) {
+            dir.setLastModified(System.currentTimeMillis())
+            return dir.listFiles { f -> f.isFile && f.name != DONE }.orEmpty()
+                .sortedWith { a, b -> naturalCompare(a.name, b.name) }
+        }
+        val files = open().use { unpack(it, dir) }
+        // Last, so an interrupted extraction is redone.
+        File(dir, DONE).createNewFile()
+        return files
+    }
+
     fun unpack(cbz: InputStream, dir: File): List<File> {
         dir.deleteRecursively()
         dir.mkdirs()
@@ -92,7 +109,7 @@ object ChapterArchive {
             while (true) {
                 val entry = zip.nextEntry ?: break
                 // Pages are flat, so any path separator is not a page.
-                if (entry.isDirectory || entry.name == COMIC_INFO || '/' in entry.name || '\\' in entry.name) continue
+                if (entry.isDirectory || entry.name == COMIC_INFO || entry.name == DONE || '/' in entry.name || '\\' in entry.name) continue
                 val file = File(dir, entry.name)
                 if (!file.canonicalPath.startsWith(root)) continue
                 file.outputStream().use { zip.copyTo(it) }

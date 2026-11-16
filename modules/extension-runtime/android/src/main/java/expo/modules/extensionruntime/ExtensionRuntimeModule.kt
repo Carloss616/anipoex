@@ -201,10 +201,11 @@ class ExtensionRuntimeModule : Module() {
         val dir = File(unpacked, ChapterArchive.checkId(key))
         val parsed = Uri.parse(uri)
         require(parsed.path.orEmpty().endsWith(".cbz")) { "Not a CBZ" }
-        val input = if (parsed.scheme == "content") {
-          checkNotNull(app.contentResolver.openInputStream(parsed)) { "Can't open $uri" }
-        } else File(java.net.URI(uri)).inputStream()
-        val files = input.use { ChapterArchive.unpack(it, dir) }
+        val files = ChapterArchive.unpackCached({
+          if (parsed.scheme == "content") {
+            checkNotNull(app.contentResolver.openInputStream(parsed)) { "Can't open $uri" }
+          } else File(java.net.URI(uri)).inputStream()
+        }, dir)
         ChapterArchive.prune(unpacked, 3)
         files.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
       }

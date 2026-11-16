@@ -242,7 +242,7 @@ class ExtensionHost(dataDir: File) {
     fun unpack(uri: String, key: String): List<Map<String, Any?>> {
         val cbz = File(URI(uri))
         require(cbz.name.endsWith(".cbz")) { "Not a CBZ" }
-        val files = cbz.inputStream().use { ChapterArchive.unpack(it, File(unpacked, ChapterArchive.checkId(key))) }
+        val files = ChapterArchive.unpackCached({ cbz.inputStream() }, File(unpacked, ChapterArchive.checkId(key)))
         ChapterArchive.prune(unpacked, 3)
         return files.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
     }

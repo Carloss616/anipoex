@@ -95,6 +95,29 @@ class ChapterArchiveTest {
     }
 
     @Test
+    fun unpackCachedSkipsOpenWhenDone() {
+        val dir = File(tmp, "cached")
+        val data = zip("p2.jpg" to "2", "p1.jpg" to "1")
+        var opens = 0
+        val open = { opens++; data.inputStream() }
+        val first = ChapterArchive.unpackCached(open, dir)
+        val second = ChapterArchive.unpackCached(open, dir)
+        assertEquals(1, opens)
+        assertEquals(listOf("p1.jpg", "p2.jpg"), second.map { it.name })
+        assertEquals(first, second)
+    }
+
+    @Test
+    fun unpackCachedRedoesInterrupted() {
+        val dir = File(tmp, "half")
+        dir.mkdirs()
+        File(dir, "stale.jpg").writeText("x")
+        val files = ChapterArchive.unpackCached({ zip("p1.jpg" to "1").inputStream() }, dir)
+        assertEquals(listOf("p1.jpg"), files.map { it.name })
+        assertFalse(File(dir, "stale.jpg").exists())
+    }
+
+    @Test
     fun unpackNaturalOrder() {
         val data = zip("p2.jpg" to "2", "p10.jpg" to "10", "p1.jpg" to "1")
         assertEquals(listOf("p1.jpg", "p2.jpg", "p10.jpg"), ChapterArchive.unpack(data.inputStream(), File(tmp, "d")).map { it.name })
