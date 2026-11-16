@@ -11,7 +11,10 @@ const COUNT: Record<DownloadPick, number> = {
   all: Infinity,
 };
 
-/** Newest-first chapters → oldest-first picks: one row per number, none already downloaded. */
+/**
+ * Newest-first chapters → oldest-first picks: one row per number, none
+ * already downloaded.
+ */
 export function pickChapters(
   chapters: Chapter[],
   pick: DownloadPick,
@@ -31,7 +34,8 @@ export function pickChapters(
   const picked: Chapter[] = [];
   for (const group of groups.values()) {
     if (group.some((c) => downloadedHashes.has(chapterHash(c.id)))) continue;
-    if (pick !== "all" && !(group[0].number > progress)) continue;
+    if (pick !== "all" && !(group[0].number >= 0 && group[0].number > progress))
+      continue;
     picked.push(
       group.find((c) => preferScanlator && c.scanlator === preferScanlator) ??
         group[0],
@@ -45,7 +49,10 @@ export function pickChapters(
   return [...known, ...unknown].slice(0, COUNT[pick]);
 }
 
-/** The scanlator of the highest-numbered chapter read (≤ progress) or downloaded; null if none. */
+/**
+ * The scanlator of the highest-numbered chapter read (≤ progress) or
+ * downloaded; null if none.
+ */
 export function preferredScanlator(
   chapters: Chapter[],
   progress: number,

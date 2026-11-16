@@ -115,4 +115,18 @@ describe("preferredScanlator", () => {
       preferredScanlator([ch(2, null), ch(1, "Group A")], 2, none),
     ).toBeNull();
   });
+
+  test("read chapters count without any download", () => {
+    expect(preferredScanlator([ch(3, "A"), ch(2, "B")], 3, none)).toBe("A");
+  });
+
+  test("a fractional chapter under the progress counts as read", () => {
+    expect(preferredScanlator([ch(12.5, "B"), ch(11, "A")], 12, none)).toBe(
+      "B",
+    );
+  });
+
+  test("an unnumbered chapter is never the reference", () => {
+    expect(preferredScanlator([ch(-1, "A", "x")], 0, none)).toBeNull();
+  });
 });
