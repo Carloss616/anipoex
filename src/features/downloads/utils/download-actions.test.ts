@@ -56,4 +56,21 @@ describe("deleteDownloads", () => {
     ]);
     expect(downloaded$.peek()["314/1234"]).toEqual({ bbbbbbbb: "local" });
   });
+
+  it("relists what is left when a removal fails", async () => {
+    const { store } = fakeStore();
+    downloaded$["314/1234"].set({ aaaaaaaa: "local", bbbbbbbb: "local" });
+    const remove = store.remove;
+    let calls = 0;
+    store.remove = mock(async (path: string) => {
+      if (++calls === 3) throw new Error("busy");
+      await remove(path);
+    });
+
+    await expect(
+      deleteDownloads(314, "1234", ["aaaaaaaa", "bbbbbbbb"], store as never),
+    ).rejects.toThrow("busy");
+    // Both files of the first hash went before the second one failed.
+    expect(downloaded$.peek()["314/1234"]).toEqual({ bbbbbbbb: "local" });
+  });
 });

@@ -40,10 +40,14 @@ export async function deleteDownloads(
 ) {
   if (!store) return;
   const wanted = new Set(hashes);
-  const files = await store.list(mangaId, sourceId);
-  for (const file of files) {
-    if (!wanted.has(file.hash)) continue;
-    for (const path of file.paths) await store.remove(path);
+  try {
+    const files = await store.list(mangaId, sourceId);
+    for (const file of files) {
+      if (!wanted.has(file.hash)) continue;
+      for (const path of file.paths) await store.remove(path);
+    }
+  } finally {
+    // A removal that failed partway still shows what is left.
+    await refreshDownloaded(mangaId, sourceId, store);
   }
-  await refreshDownloaded(mangaId, sourceId, store);
 }

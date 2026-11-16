@@ -62,80 +62,82 @@ export const ChapterItem = memo(function ChapterItem({
   // The swipe takes the menu's first row.
   const [first] = items;
 
+  const row = (
+    <Button
+      onPress={() =>
+        router.push({
+          pathname: "/manga/[id]/reader",
+          params: {
+            id: manga.id,
+            chapter: chapter.id,
+          },
+        })
+      }
+      modifiers={[buttonStyle("plain")]}
+    >
+      {/* A plain button only takes touches on its label, so the
+          label fills the row. */}
+      <HStack
+        spacing={8}
+        modifiers={[
+          padding({ vertical: 16, horizontal: 16 }),
+          ...ROW_FILL,
+          ...(read ? [opacity(0.64)] : []),
+        ]}
+      >
+        <VStack alignment="leading" spacing={2}>
+          <HStack spacing={6}>
+            {read && (
+              <HStack spacing={-7}>
+                <Icon
+                  name={Icons.read}
+                  size={12}
+                  color={primary}
+                  modifiers={[accessibilityLabel("Read")]}
+                />
+                <Icon
+                  name={Icons.read}
+                  size={12}
+                  color={primary}
+                  modifiers={[accessibilityHidden()]}
+                />
+              </HStack>
+            )}
+            {next && <Badge color="primary" />}
+            <Text weight="medium" modifiers={[lineLimit(1)]}>
+              {chapter.title}
+            </Text>
+          </HStack>
+          <Text
+            textStyle="subheadline"
+            modifiers={[foregroundStyle("secondary")]}
+          >
+            {chapter.date}
+          </Text>
+        </VStack>
+        <Spacer />
+        {/* No trigger: a wrapped row would open the alert on every tap. It
+            hangs off its own spacer, beside the row's, and only the swipe or
+            menu row opens it. */}
+        {(state === "local" || state === "cloud") && (
+          <Dialog
+            {...DELETE_DIALOG}
+            alert
+            role="destructive"
+            open={deleting}
+            onOpenChange={setDeleting}
+            onConfirm={actions.remove}
+          />
+        )}
+        {next && <Badge color="primary">Next</Badge>}
+        <DownloadStatus state={state} progressKey={key} />
+      </HStack>
+    </Button>
+  );
+
   return (
     <SwipeActions>
-      <ContextMenu items={items}>
-        {/* The alert hangs off the row content: a swipe or menu row only
-            opens it. */}
-        <Dialog
-          {...DELETE_DIALOG}
-          alert
-          role="destructive"
-          open={deleting}
-          onOpenChange={setDeleting}
-          onConfirm={actions.remove}
-        >
-          <Dialog.Trigger>
-            <Button
-              onPress={() =>
-                router.push({
-                  pathname: "/manga/[id]/reader",
-                  params: {
-                    id: manga.id,
-                    chapter: chapter.id,
-                  },
-                })
-              }
-              modifiers={[buttonStyle("plain")]}
-            >
-              {/* A plain button only takes touches on its label, so the
-                label fills the row. */}
-              <HStack
-                spacing={8}
-                modifiers={[
-                  padding({ vertical: 16, horizontal: 16 }),
-                  ...ROW_FILL,
-                  ...(read ? [opacity(0.64)] : []),
-                ]}
-              >
-                <VStack alignment="leading" spacing={2}>
-                  <HStack spacing={6}>
-                    {read && (
-                      <HStack spacing={-7}>
-                        <Icon
-                          name={Icons.read}
-                          size={12}
-                          color={primary}
-                          modifiers={[accessibilityLabel("Read")]}
-                        />
-                        <Icon
-                          name={Icons.read}
-                          size={12}
-                          color={primary}
-                          modifiers={[accessibilityHidden()]}
-                        />
-                      </HStack>
-                    )}
-                    {next && <Badge color="primary" />}
-                    <Text weight="medium" modifiers={[lineLimit(1)]}>
-                      {chapter.title}
-                    </Text>
-                  </HStack>
-                  <Text
-                    textStyle="subheadline"
-                    modifiers={[foregroundStyle("secondary")]}
-                  >
-                    {chapter.date}
-                  </Text>
-                </VStack>
-                <Spacer />
-                {next && <Badge color="primary">Next</Badge>}
-                <DownloadStatus state={state} progressKey={key} />
-              </HStack>
-            </Button>
-          </Dialog.Trigger>
-        </Dialog>
-      </ContextMenu>
+      {items.length > 0 ? <ContextMenu items={items}>{row}</ContextMenu> : row}
       {first && (
         <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
           {/* No destructive role: SwiftUI would delete the row before the

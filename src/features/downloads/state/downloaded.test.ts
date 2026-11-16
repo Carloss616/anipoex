@@ -48,6 +48,19 @@ describe("refreshDownloaded", () => {
     expect(downloaded$.peek()["21/1234"]).toBeUndefined();
   });
 
+  it("keeps a chapter that finished while the store was listing", async () => {
+    await refreshDownloaded(7, "s", fake([{ hash: "aaaaaaaa", local: true }]));
+    let resolve: (files: unknown[]) => void = () => {};
+    const slow = {
+      list: () => new Promise((done) => (resolve = done)),
+    } as never;
+    const refreshing = refreshDownloaded(7, "s", slow);
+    downloaded$["7/s"].bbbbbbbb.set("local");
+    resolve([]);
+    await refreshing;
+    expect(downloaded$.peek()["7/s"]).toEqual({ bbbbbbbb: "local" });
+  });
+
   it("keeps the previous value when listing fails", async () => {
     await refreshDownloaded(5, "s", fake([{ hash: "aaaaaaaa", local: true }]));
     const failing = {

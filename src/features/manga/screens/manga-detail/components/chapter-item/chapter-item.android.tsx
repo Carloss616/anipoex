@@ -34,63 +34,64 @@ export const ChapterItem = memo(function ChapterItem({
   const { state } = download;
   const label = downloadLabel(state, chapter.title);
 
-  return (
-    <ContextMenu items={download.items}>
-      <SegmentedListItem
-        index={index}
-        count={count}
-        colors={{ containerColor: m3.surfaceContainerLow }}
-        onPress={() =>
-          router.push({
-            pathname: "/manga/[id]/reader",
-            params: { id: manga.id, chapter: chapter.id },
-          })
-        }
-        modifiers={read ? [alpha(0.64)] : []}
-      >
-        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
-          {read && (
-            <Icon
-              name={Icons.read}
-              size={14}
-              color={m3.primary}
-              modifiers={[semantics({ contentDescription: "Read" })]}
-            />
-          )}
-          {next && <Badge color="primary" />}
-          <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
-            {chapter.title}
-          </Text>
-        </Row>
-        {/* An empty slot still takes a line and lifts the title off center. */}
-        {chapter.date !== "" && (
-          <SegmentedListItem.Supporting>
-            <Text style={{ typography: "bodyMedium" }}>{chapter.date}</Text>
-          </SegmentedListItem.Supporting>
+  const row = (
+    <SegmentedListItem
+      index={index}
+      count={count}
+      colors={{ containerColor: m3.surfaceContainerLow }}
+      onPress={() =>
+        router.push({
+          pathname: "/manga/[id]/reader",
+          params: { id: manga.id, chapter: chapter.id },
+        })
+      }
+      modifiers={read ? [alpha(0.64)] : []}
+    >
+      <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+        {read && (
+          <Icon
+            name={Icons.read}
+            size={14}
+            color={m3.primary}
+            modifiers={[semantics({ contentDescription: "Read" })]}
+          />
         )}
-        <SegmentedListItem.Trailing>
-          <Row
-            verticalAlignment="center"
-            horizontalArrangement={{ spacedBy: 4 }}
-          >
-            {next && <Badge color="primary">Next</Badge>}
-            {source &&
-              (state === "local" || state === "cloud" ? (
-                <Menu items={[deleteItem(download.actions.remove)]}>
-                  <DownloadButton state={state} label={label} />
-                </Menu>
-              ) : (
-                <DownloadButton
-                  state={state}
-                  label={label}
-                  progressKey={download.key}
-                  onPress={download.press}
-                />
-              ))}
-          </Row>
-        </SegmentedListItem.Trailing>
-      </SegmentedListItem>
-    </ContextMenu>
+        {next && <Badge color="primary" />}
+        <Text style={{ fontWeight: "500" }} maxLines={1} overflow="ellipsis">
+          {chapter.title}
+        </Text>
+      </Row>
+      {/* An empty slot still takes a line and lifts the title off center. */}
+      {chapter.date !== "" && (
+        <SegmentedListItem.Supporting>
+          <Text style={{ typography: "bodyMedium" }}>{chapter.date}</Text>
+        </SegmentedListItem.Supporting>
+      )}
+      <SegmentedListItem.Trailing>
+        <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 4 }}>
+          {next && <Badge color="primary">Next</Badge>}
+          {source &&
+            (state === "local" || state === "cloud" ? (
+              <Menu items={[deleteItem(download.actions.remove)]}>
+                <DownloadButton state={state} label={label} />
+              </Menu>
+            ) : (
+              <DownloadButton
+                state={state}
+                label={label}
+                progressKey={download.key}
+                onPress={download.press}
+              />
+            ))}
+        </Row>
+      </SegmentedListItem.Trailing>
+    </SegmentedListItem>
+  );
+
+  return download.items.length > 0 ? (
+    <ContextMenu items={download.items}>{row}</ContextMenu>
+  ) : (
+    row
   );
 });
 
