@@ -34,14 +34,19 @@ const chapters = Array.from({ length: 12 }, (_, i) => ch(12 - i));
 const manga = { id: 314, title: "Manga" };
 const source = { id: "source-1", name: "Source A" };
 
-function build(downloaded: Chapter[] = [], progress = 0) {
+function build(
+  downloaded: Chapter[] = [],
+  progress = 0,
+  enqueued?: number,
+  failRemove = false,
+) {
   const calls = {
     enqueued: [] as unknown[][],
     started: 0,
     messages: [] as string[],
     removed: [] as unknown[][],
   };
-  const menu = downloadMenu({
+  const { menu, remove } = downloadMenu({
     manga,
     source,
     chapters,
@@ -50,15 +55,16 @@ function build(downloaded: Chapter[] = [], progress = 0) {
     notify: (m) => calls.messages.push(m),
     enqueue: (items) => {
       calls.enqueued.push(items);
-      return items.length;
+      return enqueued ?? items.length;
     },
     start: () => calls.started++,
     remove: (async (...args: unknown[]) => {
       calls.removed.push(args);
+      if (failRemove) throw new Error("denied");
     }) as never,
   });
   const row = (label: string) => menu.items.find((i) => i.label === label);
-  return { menu, calls, row };
+  return { menu, remove, calls, row };
 }
 
 describe("downloadMenu", () => {
@@ -90,13 +96,27 @@ describe("downloadMenu", () => {
     expect(calls.messages).toEqual(["Downloading 1 chapter"]);
   });
 
+  test("nothing added means no start and no toast", () => {
+    const { row, calls } = build([], 0, 0);
+    row("Next 5")?.onPress();
+    expect(calls.started).toBe(0);
+    expect(calls.messages).toEqual([]);
+  });
+
+  test("a failed delete is toasted", async () => {
+    const { remove, calls } = build([ch(1)], 0, undefined, true);
+    remove.onPress();
+    await Bun.sleep(0);
+    expect(calls.messages).toEqual(["Couldn't delete the downloads"]);
+  });
+
   test("delete confirms and removes every downloaded hash", () => {
     const done = [ch(1), ch(2)];
-    const { row, calls } = build(done);
-    const item = row("Delete downloads");
-    expect(item?.onPressMode).toBe("dialog");
-    expect(item?.destructive).toBe(true);
-    item?.onPress();
+    const { row, remove: item, calls } = build(done);
+    expect(row("Delete downloads")).toBe(item);
+    expect(item.onPressMode).toBe("dialog");
+    expect(item.destructive).toBe(true);
+    item.onPress();
     expect(calls.removed[0]).toEqual([
       314,
       "source-1",

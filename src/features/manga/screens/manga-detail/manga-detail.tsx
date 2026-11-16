@@ -6,11 +6,7 @@ import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
-import { Toolbar } from "@/components/layout/toolbar";
-import { Dialog } from "@/components/ui/dialog";
 import { Host } from "@/components/ui/host";
-import { Icons } from "@/components/ui/icon";
-import type { MenuAction } from "@/components/ui/menu";
 import {
   installedLoaded$,
   isRuntimeAvailable,
@@ -26,44 +22,14 @@ import { startTitleSearch } from "@/features/manga/state/title-search";
 import { sourceListHref } from "@/features/manga/utils/source-list-href";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { shareUrl } from "@/utils/copy-url";
-import { openExternal } from "@/utils/open-external";
 import { ContinueSync } from "./components/continue-sync";
 import { DetailList } from "./components/detail-list";
+import { DetailToolbar } from "./components/detail-toolbar";
 import type { ContinueAction } from "./hooks/use-continue";
-import { useDownloadMenu } from "./hooks/use-download-menu";
-
-const MENU_ACTIONS = [
-  {
-    icon: Icons.share,
-    label: "Share",
-    onPress: (id: string) => shareUrl(`https://anilist.co/manga/${id}`),
-  },
-  {
-    icon: Icons.openExternal,
-    // The destination names itself better than "Website" did.
-    label: "View on AniList",
-    onPress: (id: string) => openExternal(`https://anilist.co/manga/${id}`),
-  },
-] as const;
-
-const menuAction =
-  (id: string) =>
-  ({ icon, label, onPress }: (typeof MENU_ACTIONS)[number]) => (
-    <Stack.Toolbar.MenuAction
-      key={label}
-      icon={icon}
-      onPress={() => onPress(id)}
-    >
-      {label}
-    </Stack.Toolbar.MenuAction>
-  );
 
 export function MangaDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const maxHeaderHeight = useMaxHeaderHeight();
-  const mutedForeground = useThemeColor("muted-foreground");
   const { manga, loading, refreshing, refresh } = useMangaEntry(id);
   const sources = useAllInstalledSources();
   const { match, matching } = useSourceMatch(Number(id));
@@ -125,11 +91,6 @@ export function MangaDetail() {
   const sourceName =
     sources.find((entry) => entry.id === match?.sourceId)?.name ??
     "this source";
-  const download = useDownloadMenu(manga, rows, match, sourceName);
-  const [deleting, setDeleting] = useState(false);
-  const confirm = download?.items.find(
-    (item) => item.onPressMode === "dialog",
-  ) as Extract<MenuAction, { onPressMode: "dialog" }> | undefined;
   const empty = !match
     ? {
         title: "Pick a source",
@@ -215,42 +176,15 @@ export function MangaDetail() {
           }}
         />
       )}
-      <Toolbar loading={refreshing}>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            icon={Icons.refresh}
-            onPress={refreshAll}
-            disabled={refreshing}
-            tintColor={refreshing ? mutedForeground : undefined}
-            accessibilityLabel="Refresh"
-          />
-          <Stack.Toolbar.Menu
-            icon={Icons.more}
-            accessibilityLabel="More options"
-          >
-            {MENU_ACTIONS.slice(0, 1).map(menuAction(id))}
-            {download && (
-              <Stack.Toolbar.Menu title={download.label} icon={Icons.download}>
-                {download.items.map((item) => (
-                  <Stack.Toolbar.MenuAction
-                    key={item.label}
-                    destructive={item.destructive}
-                    disabled={item.disabled}
-                    onPress={
-                      item.onPressMode === "dialog"
-                        ? () => setDeleting(true)
-                        : item.onPress
-                    }
-                  >
-                    {item.label}
-                  </Stack.Toolbar.MenuAction>
-                ))}
-              </Stack.Toolbar.Menu>
-            )}
-            {MENU_ACTIONS.slice(1).map(menuAction(id))}
-          </Stack.Toolbar.Menu>
-        </Stack.Toolbar>
-      </Toolbar>
+      <DetailToolbar
+        id={id}
+        manga={manga}
+        chapters={rows}
+        match={match}
+        sourceName={sourceName}
+        refreshing={refreshing}
+        onRefresh={refreshAll}
+      />
 
       <DetailList
         manga={manga}
@@ -265,15 +199,6 @@ export function MangaDetail() {
         onContinue={openContinue}
         titleOut$={titleOut$}
       />
-      {confirm && (
-        <Dialog
-          open={deleting}
-          onOpenChange={setDeleting}
-          {...confirm.dialogConfig}
-          role="destructive"
-          onConfirm={confirm.onPress}
-        />
-      )}
       <ContinueSync
         manga={manga}
         chapters={rows}

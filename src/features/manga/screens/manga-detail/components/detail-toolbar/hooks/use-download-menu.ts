@@ -9,26 +9,27 @@ import type { Chapter } from "@/features/manga/utils/to-chapters";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 
 /**
- * The Download submenu; undefined with no source match or no runtime. It reads
+ * The Download submenu and its delete row; undefined until the manga is
+ * matched in a source, or with no runtime. It reads
  * the downloaded hashes as one joined string, so a progress tick of a running
  * download never re-renders the screen: only a chapter finishing or deleted.
  */
 export function useDownloadMenu(
-  manga: MangaDetail | undefined,
+  manga: MangaDetail,
   chapters: Chapter[],
   match: SourceMatch | undefined,
   sourceName: string,
 ) {
-  const progress = useTrackingEntry(manga?.mediaListEntry?.id)?.progress ?? 0;
+  const progress = useTrackingEntry(manga.mediaListEntry?.id)?.progress ?? 0;
   const hashes = useValue(() =>
-    match && manga
+    match
       ? Object.keys(downloaded$[`${manga.id}/${match.sourceId}`].get() ?? {})
           .sort()
           .join(",")
       : "",
   );
 
-  if (!match || !manga || !isRuntimeAvailable) return undefined;
+  if (!match?.manga || !isRuntimeAvailable) return undefined;
 
   return downloadMenu({
     manga: {

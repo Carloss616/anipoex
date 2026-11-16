@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import type { IconName } from "@/components/ui/icon";
-import type { MenuItem } from "@/components/ui/menu";
+import type { MenuAction, MenuItem } from "@/components/ui/menu";
 import { noop } from "@/utils/utils";
 
 export type StackToolbarProps = ComponentProps<typeof Stack.Toolbar>;
@@ -104,6 +104,17 @@ function toActions(children: ReactNode): ToolbarAction[] {
   });
 }
 
+function toMenuAction(action: ToolbarAction): MenuAction {
+  return {
+    label: action.label,
+    icon: action.icon as IconName,
+    disabled: action.disabled,
+    destructive: action.destructive,
+    checked: action.isOn,
+    onPress: action.onPress ?? noop,
+  };
+}
+
 /** The house `Menu`'s rows for a toolbar menu's actions. */
 export function toMenuItems(actions: ToolbarAction[]): MenuItem[] {
   return actions.map((action) =>
@@ -112,16 +123,9 @@ export function toMenuItems(actions: ToolbarAction[]): MenuItem[] {
           label: action.label,
           icon: action.icon as IconName,
           disabled: action.disabled,
-          items: toMenuItems(action.items) as never,
+          items: action.items.map(toMenuAction),
         }
-      : {
-          label: action.label,
-          icon: action.icon as IconName,
-          disabled: action.disabled,
-          destructive: action.destructive,
-          checked: action.isOn,
-          onPress: action.onPress ?? noop,
-        },
+      : toMenuAction(action),
   );
 }
 

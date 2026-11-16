@@ -39,8 +39,8 @@ export function downloadMenu({
   notify,
   enqueue = enqueueDownloads,
   start = startDownloads,
-  remove = deleteDownloads,
-}: DownloadMenuArgs): MenuSubmenu {
+  remove: removeDownloads = deleteDownloads,
+}: DownloadMenuArgs): { menu: MenuSubmenu; remove: MenuAction } {
   const scanlator = preferredScanlator(chapters, progress, downloadedHashes);
 
   const items: MenuAction[] = PICKS.map(({ label, pick }) => {
@@ -65,7 +65,7 @@ export function downloadMenu({
     };
   });
 
-  items.push({
+  const remove: MenuAction = {
     label: "Delete downloads",
     destructive: true,
     disabled: downloadedHashes.size === 0,
@@ -75,8 +75,12 @@ export function downloadMenu({
       description: "Removes this manga's downloaded chapters from this source.",
       confirmLabel: "Delete",
     },
-    onPress: () => void remove(manga.id, source.id, [...downloadedHashes]),
-  });
+    onPress: () => {
+      removeDownloads(manga.id, source.id, [...downloadedHashes]).catch(() =>
+        notify?.("Couldn't delete the downloads"),
+      );
+    },
+  };
 
-  return { label: "Download", items };
+  return { menu: { label: "Download", items: [...items, remove] }, remove };
 }
