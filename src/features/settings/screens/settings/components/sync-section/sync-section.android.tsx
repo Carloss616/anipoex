@@ -11,6 +11,7 @@ import {
   background,
   clip,
   matchParentSize,
+  offset,
   padding,
   Shapes,
   size,
@@ -30,6 +31,7 @@ import { Label } from "../label";
 import { LeadingIcon } from "../leading-icon";
 import { INTERVAL_HINT, SYNC_FOOTER, SYNC_INTERVAL_OPTIONS } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
+import { SyncHelp } from "./sync-help";
 
 const FOLDER_DETAIL = "A folder a sync app keeps in your cloud";
 
@@ -47,7 +49,13 @@ export function SyncSection() {
 
   return (
     <>
-      <Label>Sync</Label>
+      {/* Bottom-aligned, the button's glyph sits 6dp above the label's text. */}
+      <Row verticalAlignment="bottom">
+        <Label>Sync</Label>
+        <Box modifiers={[offset(0, 6)]}>
+          <SyncHelp moments={sync.moments} />
+        </Box>
+      </Row>
       <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
         {account ? (
           <ContextMenu items={gist.menu}>

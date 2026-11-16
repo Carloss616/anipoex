@@ -32,6 +32,7 @@ import {
   SYNC_INTERVAL_OPTIONS,
 } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
+import { SyncHelp } from "./sync-help";
 
 const AVATAR = 40;
 
@@ -76,8 +77,9 @@ export function SyncSection() {
     <Section
       modifiers={[rowBackground]}
       header={
-        <HStack>
+        <HStack spacing={2}>
           <Text>Sync</Text>
+          <SyncHelp moments={sync.moments} />
           {sync.connected && !gist.revoked ? (
             <>
               <Spacer />

@@ -13,6 +13,7 @@ import {
   SYNC_INTERVAL_OPTIONS,
 } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
+import { SyncHelp } from "./sync-help";
 
 const INTERVAL_ITEMS = SYNC_INTERVAL_OPTIONS.map(({ minutes, label }) => ({
   value: String(minutes),
@@ -38,8 +39,9 @@ export function SyncSection() {
     <Frame>
       <Frame.Header>
         <Frame.Title>Sync</Frame.Title>
-        {sync.connected && (
-          <Frame.Action>
+        <Frame.Action className="flex items-center gap-1">
+          <SyncHelp moments={sync.moments} />
+          {sync.connected && (
             <Button
               variant="ghost"
               size="sm"
@@ -48,8 +50,8 @@ export function SyncSection() {
             >
               Sync now
             </Button>
-          </Frame.Action>
-        )}
+          )}
+        </Frame.Action>
       </Frame.Header>
       <Frame.Panel data-attached="column">
         {account ? (

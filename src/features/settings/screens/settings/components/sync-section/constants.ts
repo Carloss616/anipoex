@@ -1,5 +1,11 @@
 export const SYNC_FOOTER =
-  "Settings, chosen sources, exclusions and scans sync through a private gist on your GitHub account.";
+  "Settings, sources and scans sync across your devices.";
+
+export const HELP_TITLE = "When it syncs";
+
+/** How a sync settles what two devices changed, below the list of moments. */
+export const HELP_HOW =
+  "Each device writes its own files to the gist or folder, and for each item the newest change wins. A change made offline goes out on the next sync.";
 
 export const FOLDER_HINT = "iCloud Drive, OneDrive or any synced folder";
 

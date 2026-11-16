@@ -1,4 +1,5 @@
 import { useValue } from "@legendapp/state/react";
+import { Platform } from "react-native";
 import { Icons } from "@/components/ui/icon";
 import type { MenuItem } from "@/components/ui/menu";
 import { openConnect } from "@/features/sync/state/connect-sheet";
@@ -17,11 +18,20 @@ import {
 import { github$ } from "@/features/sync/state/github";
 import { canUseFolder, folderName } from "@/features/sync/utils/folder-target";
 import { settings$ } from "@/state/settings";
+import { desktop } from "@/utils/desktop";
 import { openExternal } from "@/utils/open-external";
 import { timeAgo } from "@/utils/time-ago";
 
 const ago = (ms: number) => timeAgo(ms / 1000);
 const syncNow = () => void requestSync();
+
+/** The moments a sync runs on this platform, beyond the timer. */
+const MOMENTS = [
+  "When the app opens or comes back",
+  "A few seconds after a change",
+  ...(Platform.OS === "web" ? ["When the connection comes back"] : []),
+  ...(desktop ? ["When a file in the folder changes"] : []),
+];
 const setSyncInterval = (minutes: number) =>
   settings$.device.syncInterval.set(minutes);
 
@@ -136,6 +146,10 @@ export function useSyncSection() {
       : undefined,
     connected: !!account || !!location,
     interval: { minutes: interval, set: setSyncInterval },
+    /** Every moment a sync runs, for the section's info popup. */
+    moments: interval
+      ? [...MOMENTS, `Every ${interval} min while it's open`]
+      : MOMENTS,
     devices: rows,
     syncNow,
     connect: () => void openConnect(),
