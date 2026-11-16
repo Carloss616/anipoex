@@ -13,7 +13,8 @@ number, scanlator, memo), its place in the queue, its `state` and the last error
 empty. Stays on the device; it is not synced.
 
 - **States**: `queued`, `running` (one chapter at a time per source, sources in
-  parallel) and `failed`, which waits for Retry. A finished chapter leaves the queue.
+  parallel) and `failed`, which waits for Retry, one by one or all at once. A finished
+  chapter leaves the queue.
 - **Survives restarts**: at launch a chapter left `running` goes back to `queued`, its
   half-made files dropped, and the queue goes on.
 - **Not downloaded twice**: a chapter already queued or downloaded is not added again.
@@ -50,6 +51,8 @@ cut to 120 characters.
 - **Changing the root moves the downloads**: each file is copied into the new root and
   removed from the old one only once the new has it. A path the new root already holds is
   skipped and kept, since two strings can name one folder and removing it would delete
-  the only copy. One move runs at a time.
+  the only copy. Only files in the app's own layout move (a folder and a file each named
+  with their id): on a disk that ignores case, a root's own `Downloads` folder is
+  `downloads/`, and the user's files there stay. One move runs at a time.
 - **Reading**: the reader opens a chapter from the current root, then the device's own
   storage, and unpacks it to a cache of the last 3 chapters read.
