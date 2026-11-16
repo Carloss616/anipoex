@@ -63,6 +63,8 @@ export interface SourcePage {
   imageUrl: string;
   /** Request headers the image needs (referer, cookies). */
   headers: Record<string, string>;
+  /** A downloaded page: imageUrl is a file the app shows as is. */
+  local?: true;
 }
 
 /** Extensions' resolver: the system's, or a DNS-over-HTTPS provider. */
@@ -93,6 +95,18 @@ export interface RuntimeApi {
    * image, e.g. to put a scrambled page back in order).
    */
   pageImage(sourceId: string, page: SourcePage): Promise<string>;
+  /** Puts a page, fetched through the source's client, in a chapter's staging. */
+  stagePage(
+    sourceId: string,
+    page: SourcePage,
+    stage: string,
+    name: string,
+  ): Promise<void>;
+  /** Packs the staged pages and `ComicInfo.xml` into a CBZ; resolves to its uri. */
+  pack(stage: string, comicInfo: string): Promise<string>;
+  dropStage(stage: string): Promise<void>;
+  /** Extracts a CBZ's pages under `key`, as `local` pages. */
+  unpack(cbzUri: string, key: string): Promise<SourcePage[]>;
   getDns(): Promise<DnsId>;
   /** Applies to the next lookup of every source; the runtime stores it. */
   setDns(dns: DnsId): Promise<void>;

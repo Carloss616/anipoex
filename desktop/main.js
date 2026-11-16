@@ -70,6 +70,10 @@ const METHODS = new Set([
   "setDns",
   "challengedHosts",
   "pages",
+  "stagePage",
+  "pack",
+  "dropStage",
+  "unpack",
 ]);
 
 // Not `URL.origin`: a custom scheme's origin is the opaque "null", which
@@ -187,12 +191,20 @@ app.whenReady().then(() => {
   ipcMain.handle("runtime", async (event, method, args) => {
     if (originOf(event.senderFrame?.url) !== APP_ORIGIN || !METHODS.has(method))
       return { error: "Not allowed" };
+    if (method === "stagePage") {
+      const page = pages.original(args?.imageUrl);
+      if (!page || page.sourceId !== args.sourceId)
+        return { error: "Unknown page" };
+      args = { ...args, imageUrl: page.imageUrl, index: page.index };
+    }
     const reply = await sidecar.call(method, args ?? {});
     if (method === "installed") covers.learnSources(reply?.result);
     if (method === "search") covers.learnCovers(args?.sourceId, reply?.result);
-    return method === "pages" && reply?.result
-      ? { result: pages.rewrite(args.sourceId, reply.result) }
-      : reply;
+    if (method === "pages" && reply?.result)
+      return { result: pages.rewrite(args.sourceId, reply.result) };
+    if (method === "unpack" && reply?.result)
+      return { result: pages.rewriteFiles(reply.result) };
+    return reply;
   });
 
   // The two Device Flow endpoints: GitHub serves them without CORS.

@@ -1,4 +1,4 @@
-import type { RuntimeApi } from "../runtime";
+import type { RuntimeApi, SourcePage } from "../runtime";
 
 type Send = (
   method: string,
@@ -38,6 +38,28 @@ export const bridgeRuntime = (send: Send): RuntimeApi => {
           index: page.index,
         })
       ).uri,
+    stagePage: (sourceId, page, stage, name) =>
+      call("stagePage", {
+        sourceId,
+        imageUrl: page.imageUrl,
+        index: page.index,
+        stage,
+        name,
+      }),
+    pack: async (stage, comicInfo) =>
+      (await call<{ uri: string }>("pack", { stage, comicInfo })).uri,
+    dropStage: (stage) => call("dropStage", { stage }),
+    unpack: async (uri, key) =>
+      (
+        await call<{ index: number; uri: string }[]>("unpack", { uri, key })
+      ).map(
+        (page): SourcePage => ({
+          index: page.index,
+          imageUrl: page.uri,
+          headers: {},
+          local: true,
+        }),
+      ),
     getDns: () => call("getDns"),
     setDns: (dns) => call("setDns", { dns }),
     challengedHosts: () => call("challengedHosts"),

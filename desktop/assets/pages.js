@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PAGE_SCHEME = "anipoex-page";
@@ -24,9 +25,31 @@ export function pageStore(limit = 1000) {
           if (entries.size > limit) entries.delete(entries.keys().next().value);
           return { ...page, imageUrl: `${PAGE_SCHEME}://p/${id}`, headers: {} };
         }),
-    lookup: (url) => entries.get(URL.parse(url ?? "")?.pathname.slice(1)),
+    /** Files the runtime unpacked (`{index, uri}`) get `PAGE_SCHEME` URLs. */
+    rewriteFiles: (items) =>
+      items.map((item) => {
+        const id = crypto.randomUUID();
+        entries.set(id, { file: fileURLToPath(item.uri) });
+        if (entries.size > limit) entries.delete(entries.keys().next().value);
+        return { index: item.index, uri: `${PAGE_SCHEME}://p/${id}` };
+      }),
+    entry: (url) => entries.get(URL.parse(url ?? "")?.pathname.slice(1)),
+    /** The source page behind a rewritten URL; undefined for a file. */
+    original: (url) => {
+      const entry = entries.get(URL.parse(url ?? "")?.pathname.slice(1));
+      return entry?.file ? undefined : entry;
+    },
   };
 }
+
+const IMAGE_TYPES = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".avif": "image/avif",
+};
 
 const empty = (status) => new Response(null, { status });
 
@@ -36,8 +59,20 @@ const empty = (status) => new Response(null, { status });
  * `image` resolves to the file's `{uri, type}`. Errors carry an empty body.
  */
 export async function servePage(store, url, image) {
-  const page = store.lookup(url);
+  const page = store.entry(url);
   if (!page) return empty(404);
+  if (page.file) {
+    const type =
+      IMAGE_TYPES[path.extname(page.file).toLowerCase()] ??
+      "application/octet-stream";
+    try {
+      return new Response(await readFile(page.file), {
+        headers: { "Content-Type": type },
+      });
+    } catch {
+      return empty(404);
+    }
+  }
   let bytes;
   let type;
   try {

@@ -25,7 +25,7 @@ test("rewritesAndRemembers", () => {
   ]);
   expect(rewritten.imageUrl.startsWith(`${PAGE_SCHEME}://p/`)).toBe(true);
   expect(rewritten.headers).toEqual({});
-  expect(store.lookup(rewritten.imageUrl)).toEqual({
+  expect(store.original(rewritten.imageUrl)).toEqual({
     sourceId: "7",
     imageUrl: "https://example.com/1.png",
     index: 3,
@@ -33,13 +33,13 @@ test("rewritesAndRemembers", () => {
 });
 
 test("unknownIsUndefined", () => {
-  expect(pageStore().lookup(`${PAGE_SCHEME}://p/nope`)).toBeUndefined();
+  expect(pageStore().original(`${PAGE_SCHEME}://p/nope`)).toBeUndefined();
 });
 
 test("evictsOldest", () => {
   const store = pageStore(2);
   const [first] = store.rewrite("7", [page(0), page(1), page(2)]);
-  expect(store.lookup(first.imageUrl)).toBeUndefined();
+  expect(store.original(first.imageUrl)).toBeUndefined();
 });
 
 test("dropsNonWebUpstream", () => {
@@ -104,4 +104,38 @@ test("runtimeFailureIs502", async () => {
     throw new Error("HTTP error 403");
   });
   expect(response.status).toBe(502);
+});
+
+test("originalGivesBackWhatRewriteStored", () => {
+  const store = pageStore();
+  const [{ imageUrl }] = store.rewrite("7", [page(2, "https://example.com/a")]);
+  expect(store.original(imageUrl)).toEqual({
+    sourceId: "7",
+    imageUrl: "https://example.com/a",
+    index: 2,
+  });
+});
+
+test("rewriteFilesServesTheFile", async () => {
+  const store = pageStore();
+  const dir = mkdtempSync(path.join(tmpdir(), "files-"));
+  const target = path.join(dir, "001.jpg");
+  writeFileSync(target, "jpg");
+  const [item] = store.rewriteFiles([
+    { index: 4, uri: pathToFileURL(target).toString() },
+  ]);
+  expect(item.index).toBe(4);
+  expect(item.uri.startsWith(`${PAGE_SCHEME}://p/`)).toBe(true);
+  const response = await servePage(store, item.uri, () => {
+    throw new Error("unreachable");
+  });
+  expect(response.status).toBe(200);
+  expect(response.headers.get("Content-Type")).toBe("image/jpeg");
+  expect(await response.text()).toBe("jpg");
+});
+
+test("aMissingFileIs404", async () => {
+  const store = pageStore();
+  const [item] = store.rewriteFiles([{ index: 0, uri: "file:///nope/1.png" }]);
+  expect((await servePage(store, item.uri, () => {})).status).toBe(404);
 });

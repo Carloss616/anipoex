@@ -35,6 +35,44 @@ describe("bridgeRuntime", () => {
     ]);
   });
 
+  it("stagePage sends the page's url and index", async () => {
+    const { calls, runtime } = recorder({ result: null });
+    await runtime.stagePage(
+      "source-1",
+      { index: 0, imageUrl: "https://example.com/1.jpg", headers: {} },
+      "21-1-a1b2c3d4",
+      "001",
+    );
+    expect(calls).toEqual([
+      [
+        "stagePage",
+        {
+          sourceId: "source-1",
+          imageUrl: "https://example.com/1.jpg",
+          index: 0,
+          stage: "21-1-a1b2c3d4",
+          name: "001",
+        },
+      ],
+    ]);
+  });
+
+  it("pack resolves to the uri", async () => {
+    const { runtime } = recorder({ result: { uri: "file:///c/packed/s.cbz" } });
+    expect(await runtime.pack("s", "<ComicInfo/>")).toBe(
+      "file:///c/packed/s.cbz",
+    );
+  });
+
+  it("unpack returns local pages", async () => {
+    const { runtime } = recorder({
+      result: [{ index: 0, uri: "file:///u/001.jpg" }],
+    });
+    expect(await runtime.unpack("file:///c/s.cbz", "k")).toEqual([
+      { index: 0, imageUrl: "file:///u/001.jpg", headers: {}, local: true },
+    ]);
+  });
+
   it("errorRejects", async () => {
     const { runtime } = recorder({ error: "nope" });
     await expect(runtime.search("1", "q", 1)).rejects.toThrow("nope");
