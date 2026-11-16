@@ -36,6 +36,11 @@ import {
 import { AppState } from "react-native";
 import { Icons } from "@/components/ui/icon/icons";
 import { sfSymbol } from "@/components/ui/icon/utils";
+import {
+  coalesce,
+  imageLoader,
+  type WidgetUpdates,
+} from "@/utils/widget-updates";
 import { scanStops } from "../../state/scan-views";
 import { type LibraryActivity, libraryStatus } from "../library-run";
 import type {
@@ -54,14 +59,11 @@ import {
   trackScan,
 } from "./utils/status";
 import {
-  coalesce,
   endCovers,
-  imageLoader,
   routeStop,
   stopTarget,
   type WidgetCover,
   type WidgetMark,
-  type WidgetUpdates,
   widgetMarks,
 } from "./utils/widget-props";
 

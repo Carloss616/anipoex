@@ -24,6 +24,12 @@ import {
 } from "expo-widgets";
 import { PermissionsAndroid } from "react-native";
 import { TRACK_HEIGHT } from "@/components/ui/progress/constants";
+import {
+  coalesce,
+  imageLoader,
+  notificationLimiter,
+  type WidgetUpdates,
+} from "@/utils/widget-updates";
 import { scanStops } from "../../state/scan-views";
 import { type LibraryActivity, libraryStatus } from "../library-run";
 import type {
@@ -42,15 +48,11 @@ import {
   trackScan,
 } from "./utils/status";
 import {
-  coalesce,
   endCovers,
-  imageLoader,
-  limiter,
   routeStop,
   stopTarget,
   type WidgetCover,
   type WidgetMark,
-  type WidgetUpdates,
   widgetMarks,
 } from "./utils/widget-props";
 
@@ -269,16 +271,12 @@ const ENDED = { ongoing: false, autoCancel: true };
 // downloaded yet, a mark's missing icon); JSON drops them.
 const defined = (props: Props): Props => JSON.parse(JSON.stringify(props));
 
-// Android sheds an app's notification posts past 5 a second, counted across
-// all of them: every scan notification's posts and updates share one spacing.
-const spacing = limiter(350);
-
 // Also over an ended one, which the user may have dismissed. Denied or
 // dismissed, the post rejects and the sheet still shows the scan. Queued
 // now, so the notification's updates come after it.
 const post = (props: Props, options: CustomNotificationOptions): Shown =>
   new Promise((resolve) =>
-    spacing.run(() => {
+    notificationLimiter.run(() => {
       const posted = PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
       )
@@ -296,7 +294,7 @@ const updates = (shown: Shown) =>
       shown.then((notification) =>
         notification?.update(defined(props), end ? ENDED : {}),
       ),
-    spacing,
+    notificationLimiter,
   );
 
 interface Group {
