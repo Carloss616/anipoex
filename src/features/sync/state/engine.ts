@@ -3,6 +3,7 @@ import { syncObservable } from "@legendapp/state/sync";
 import { AppState } from "react-native";
 import { ObservablePersist } from "@/state/observable-persist";
 import { settings$ } from "@/state/settings";
+import { SyncError } from "../utils/github";
 import { serial } from "../utils/serial";
 import { type SyncTarget, syncTables } from "../utils/sync-tables";
 import { applying } from "../utils/watch-table";
@@ -19,7 +20,7 @@ export const syncState$ = observable({
   pushed: {} as Record<string, string>,
   lastSync: undefined as number | undefined,
   /** The last sync's failure; cleared by the next one that lands. */
-  error: undefined as string | undefined,
+  error: undefined as { kind: SyncError["kind"]; message: string } | undefined,
 });
 
 syncObservable(syncState$, {
@@ -48,9 +49,10 @@ export const requestSync = serial(async () => {
     syncState$.assign({ lastSync: Date.now(), error: undefined });
   } catch (error) {
     // Kept for the Sync section; the next trigger tries again.
-    syncState$.error.set(
-      error instanceof Error ? error.message : String(error),
-    );
+    syncState$.error.set({
+      kind: error instanceof SyncError ? error.kind : "other",
+      message: error instanceof Error ? error.message : String(error),
+    });
   } finally {
     syncing$.set(false);
   }

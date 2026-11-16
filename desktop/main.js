@@ -194,6 +194,32 @@ app.whenReady().then(() => {
       : reply;
   });
 
+  // The two Device Flow endpoints: GitHub serves them without CORS.
+  const GITHUB_URLS = new Set([
+    "https://github.com/login/device/code",
+    "https://github.com/login/oauth/access_token",
+  ]);
+  ipcMain.handle("github", async (event, url, body) => {
+    if (
+      originOf(event.senderFrame?.url) !== APP_ORIGIN ||
+      !GITHUB_URLS.has(url)
+    )
+      return { error: "not_allowed" };
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body ?? {}),
+      });
+      return await res.json();
+    } catch {
+      return { error: "offline" };
+    }
+  });
+
   let signInWindow;
   ipcMain.handle("sign-in", (event, url) => {
     if (

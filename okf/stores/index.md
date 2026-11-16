@@ -38,6 +38,7 @@ IndexedDB), and nothing persists during web's server render.
 
 * [Sync stamps](sync-meta.md) - When each record of a synced store last changed; what syncs and how two copies settle.
 * [Sync state](sync-state.md) - What this device last pushed, when it last synced, and when syncs run.
+* [GitHub account](github-account.md) - The token, the GitHub user and the sync gist; how connecting works.
 
 # In memory only
 

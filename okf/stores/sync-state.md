@@ -7,13 +7,14 @@ tags: [sync, persistence]
 generated: { by: claude-code/claude-opus-5-5, at: 2026-11-15T00:00:00Z }
 ---
 
-Key `sync-state`: `{ pushed: { [table]: hash }, lastSync?, error? }`.
+Key `sync-state`: `{ pushed: { [table]: hash }, lastSync?, error?: { kind, message } }`.
 
 - `pushed`: per synced table, a hash of the file this device last wrote. A sync writes only
   the files whose content changed since, plus any of this device's files the target no
   longer has (a new gist gets them all on the first sync).
 - `lastSync`: when the last sync finished, in epoch ms.
-- `error`: what the last sync failed with; the next one that lands clears it.
+- `error`: what the last sync failed with, and its kind: `offline` (GitHub couldn't be
+  reached), `auth` (the token was revoked) or `other`; the next sync that lands clears it.
 
 A sync reads every device's files for each table, merges them with this device's
 [stamped records](sync-meta.md), writes what won into the stores, then writes this

@@ -5,4 +5,5 @@ contextBridge.exposeInMainWorld("anipoex", {
   runtime: (method, args) => ipcRenderer.invoke("runtime", method, args),
   signIn: (url) => ipcRenderer.invoke("sign-in", url),
   scanProgress: (fraction) => ipcRenderer.send("scan-progress", fraction),
+  github: (url, body) => ipcRenderer.invoke("github", url, body),
 });

@@ -7,6 +7,11 @@ export interface DesktopBridge {
   signIn(url: string): Promise<string | null>;
   /** The Dock icon's progress bar, 0 to 1; below 0 hides it. */
   scanProgress(fraction: number): void;
+  /** POSTs to GitHub's Device Flow, which a page can't reach (no CORS). */
+  github(
+    url: string,
+    body: Record<string, string>,
+  ): Promise<Record<string, unknown>>;
 }
 
 declare global {
