@@ -35,7 +35,13 @@ mock.module("panelui-native", () => ({}));
 const { settings$ } = await import("@/state/settings");
 await import("./theme");
 
+test("resolves `system` to the default family's own light theme", () => {
+  expect(setTheme).toHaveBeenLastCalledWith("violet");
+});
+
 test("hands `system` to Uniwind for the family it can resolve itself", () => {
+  settings$.theme.family.set("ink");
+
   expect(setTheme).toHaveBeenLastCalledWith("system");
 });
 
@@ -63,7 +69,7 @@ test("an explicit mode wins over the OS", () => {
 });
 
 test("keeps the mode when the family changes", () => {
-  settings$.theme.family.set("default");
+  settings$.theme.family.set("ink");
 
   expect(setTheme).toHaveBeenLastCalledWith("dark");
 });
@@ -94,6 +100,7 @@ test("on web, a custom family's dark half also gets `dark` for `dark:`", async (
 test("familyTheme picks the family's half for the mode", () => {
   expect(familyTheme("moon", "dark")).toBe("moon-dark");
   expect(familyTheme("grass", "light")).toBe("grass");
-  expect(familyTheme("default", "dark")).toBe("dark");
-  expect(familyTheme("gone", "light")).toBe("light");
+  expect(familyTheme("default", "dark")).toBe("violet-dark");
+  expect(familyTheme("ink", "dark")).toBe("dark");
+  expect(familyTheme("gone", "light")).toBe("violet");
 });

@@ -42,7 +42,7 @@ observe(() => {
   const mode = themeMode$.get();
   const theme = familyTheme(settings$.theme.family.get(), mode);
 
-  // `default` is Uniwind's own adaptive pair, so hand `system` straight to it.
+  // `ink` is Uniwind's own adaptive pair, so hand `system` straight to it.
   if (
     settings$.theme.preference.get() === "system" &&
     (theme === "light" || theme === "dark")
