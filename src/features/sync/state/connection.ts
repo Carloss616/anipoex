@@ -1,5 +1,7 @@
 import { observe } from "@legendapp/state";
 import { Platform } from "react-native";
+import { toast } from "@/components/ui/toast";
+import { settings$ } from "@/state/settings";
 import { desktop } from "@/utils/desktop";
 import {
   type GitHubPost,
@@ -7,12 +9,18 @@ import {
   requestDeviceCode,
 } from "../utils/device-flow";
 import {
+  canUseFolder,
+  createFolderTarget,
+  pickFolder,
+  watchFolder,
+} from "../utils/folder-target";
+import {
   createGistTarget,
   fetchGitHubUser,
   findOrCreateGist,
   SyncError,
 } from "../utils/github";
-import { setSyncTarget, syncState$ } from "./engine";
+import { requestSync, setSyncTarget } from "./engine";
 import { github$ } from "./github";
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID ?? "";
@@ -69,13 +77,13 @@ export async function startDeviceFlow(signal?: AbortSignal) {
 export function disconnectGitHub() {
   github$.token.set(undefined);
   github$.account.set(undefined);
-  syncState$.assign({ lastSync: undefined, error: undefined, devices: [] });
 }
 
 // Syncs with the gist while a token is set.
 observe(() => {
   const token = github$.token.get();
   setSyncTarget(
+    "gist",
     token
       ? createGistTarget({
           token,
@@ -90,4 +98,28 @@ observe(() => {
         })
       : undefined,
   );
+});
+
+/** Syncs through a folder the user picks; the gist, if connected, goes on too. */
+export async function chooseFolder() {
+  try {
+    const location = await pickFolder();
+    if (location) settings$.device.folder.set(location);
+  } catch (error) {
+    // A dismissed picker rejects too; that's no change, not a failure.
+    if ((error as { code?: string }).code === "ERR_PICKER_CANCELLED") return;
+    toast.error(
+      `Couldn't use that folder: ${error instanceof Error ? error.message : error}`,
+    );
+  }
+}
+
+/** Stops syncing through the folder; its files stay where they are. */
+export const stopFolder = () => settings$.device.folder.delete();
+
+// Syncs through the folder while one is set, and at once when it changes.
+observe((e) => {
+  const location = canUseFolder ? settings$.device.folder.get() : undefined;
+  setSyncTarget("folder", location ? createFolderTarget(location) : undefined);
+  if (location) e.onCleanup = watchFolder(location, () => void requestSync());
 });

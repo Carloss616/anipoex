@@ -21,12 +21,11 @@ import { Loader } from "@/components/ui/loader";
 import { ContextMenu } from "@/components/ui/menu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useRowBackground } from "../../hooks/use-row-background";
-import { SYNC_FOOTER } from "./constants";
+import { FOLDER_HINT, SYNC_FOOTER } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
 
 const AVATAR = 40;
 const SECONDARY = [foregroundStyle("secondary")];
-const FOLDER_DETAIL = "iCloud Drive, OneDrive or any synced folder";
 
 function Lines({
   title,
@@ -60,7 +59,7 @@ function Lines({
  */
 export function SyncSection() {
   const sync = useSyncSection();
-  const { account } = sync;
+  const { account, gist } = sync;
   const rowBackground = useRowBackground();
   const card = useThemeColor("card");
   const primary = useThemeColor("primary");
@@ -71,7 +70,7 @@ export function SyncSection() {
       header={
         <HStack>
           <Text>Sync</Text>
-          {account && !sync.revoked ? (
+          {account && !gist.revoked ? (
             <>
               <Spacer />
               <Button
@@ -89,7 +88,7 @@ export function SyncSection() {
       footer={<Text>{SYNC_FOOTER}</Text>}
     >
       {account ? (
-        <ContextMenu items={sync.menu}>
+        <ContextMenu items={gist.menu}>
           <HStack spacing={12} modifiers={ROW_FILL}>
             <ZStack
               modifiers={[
@@ -102,13 +101,13 @@ export function SyncSection() {
             </ZStack>
             <Lines
               title={account.login}
-              detail={sync.status}
-              danger={sync.failed}
+              detail={gist.status}
+              danger={gist.failed}
             />
             <Spacer />
-            {sync.syncing ? (
+            {gist.busy ? (
               <Loader size="sm" />
-            ) : sync.revoked ? (
+            ) : gist.revoked ? (
               <Button
                 onPress={sync.connect}
                 modifiers={[buttonStyle("borderless")]}
@@ -139,7 +138,7 @@ export function SyncSection() {
           ))
         : null}
       <HStack spacing={8}>
-        <Lines title="Folder" detail={FOLDER_DETAIL} />
+        <Lines title="Folder" detail={FOLDER_HINT} />
         <Spacer />
         <Text modifiers={SECONDARY}>Soon</Text>
       </HStack>

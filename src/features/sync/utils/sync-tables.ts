@@ -29,7 +29,7 @@ export interface SyncTablesOptions {
   tables: SyncTable[];
   meta$: Observable<Record<string, Record<string, Stamp>>>;
   /** Per table, the hash of the file this device last wrote. */
-  pushed$: Observable<Record<string, string>>;
+  pushed$: Observable<Record<string, string> | undefined>;
   device: string;
   /** Written in this device's files, so others can name it. */
   deviceName?: string;

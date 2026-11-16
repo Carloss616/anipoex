@@ -14,6 +14,7 @@ import { coverHeaders } from "./assets/covers.js";
 import { PAGE_SCHEME, pageStore, servePage } from "./assets/pages.js";
 import { resolveAsset } from "./assets/serve.js";
 import { authRedirect } from "./auth.js";
+import { registerFolder } from "./folder.js";
 import { fetchThrough, solveChallenge } from "./host/challenge.js";
 import { renderImage } from "./host/graphics.js";
 import { jsClose, jsCreate, jsEvaluate } from "./host/javascript.js";
@@ -283,6 +284,11 @@ app.whenReady().then(() => {
     if (originOf(event.senderFrame?.url) !== APP_ORIGIN) return;
     if (typeof fraction === "number") window.setProgressBar(fraction);
   });
+  registerFolder(
+    ipcMain,
+    window,
+    (event) => originOf(event.senderFrame?.url) === APP_ORIGIN,
+  );
   window.loadURL(APP_URL);
   // The app is this window: hidden ones (kept pages, JS engine) don't count.
   window.on("closed", () => app.quit());

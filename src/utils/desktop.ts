@@ -12,6 +12,18 @@ export interface DesktopBridge {
     url: string,
     body: Record<string, string>,
   ): Promise<Record<string, unknown>>;
+  /** The sync folder, through the main process: pick, list, read, write, watch. */
+  folder(method: "pick"): Promise<string | null>;
+  folder(method: "list", dir: string): Promise<string[]>;
+  folder(method: "read", dir: string, name: string): Promise<string | null>;
+  folder(
+    method: "write",
+    dir: string,
+    files: Record<string, string>,
+  ): Promise<boolean>;
+  folder(method: "watch", dir: string | null): Promise<boolean>;
+  /** Runs `callback` when a sync file in the watched folder changes. */
+  onFolderChange(callback: () => void): () => void;
 }
 
 declare global {

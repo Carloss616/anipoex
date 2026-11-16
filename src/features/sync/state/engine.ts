@@ -35,43 +35,77 @@ const DEVICE_NAME =
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
+/** Where a device syncs: GitHub's gist, a synced folder, or both. */
+export type TargetKey = "gist" | "folder";
+
+export interface TargetState {
+  /** Per table, the hash of the file this device last wrote there. */
+  pushed: Record<string, string>;
+  lastSync?: number;
+  /** The last sync's failure; cleared by the next one that lands. */
+  error?: { kind: SyncError["kind"]; message: string };
+}
+
 /** Persisted, so the Sync section reads right after a relaunch. */
 export const syncState$ = observable({
-  /** Per table, the hash of the file this device last wrote. */
-  pushed: {} as Record<string, string>,
-  lastSync: undefined as number | undefined,
-  /** The devices whose files the last sync read, this one included. */
+  targets: {} as Partial<Record<TargetKey, TargetState>>,
+  /** The devices whose files the last syncs read, this one included. */
   devices: [] as SyncDevice[],
-  /** The last sync's failure; cleared by the next one that lands. */
-  error: undefined as { kind: SyncError["kind"]; message: string } | undefined,
 });
 
 syncObservable(syncState$, {
   persist: { name: "sync-state", plugin: ObservablePersist },
 });
 
-/** A sync is running now. */
-export const syncing$ = observable(false);
+// Builds before folders kept the gist's state at the top: carry it over, or
+// each device would re-upload every file and announce its first merge again.
+const legacy = syncState$.peek() as {
+  pushed?: Record<string, string>;
+  lastSync?: number;
+};
+if (legacy.pushed && !syncState$.targets.gist.peek()) {
+  syncState$.targets.gist.set({
+    pushed: legacy.pushed,
+    lastSync: legacy.lastSync,
+  });
+}
+for (const key of ["pushed", "lastSync", "error"]) {
+  if (key in legacy)
+    (syncState$ as unknown as Record<string, { delete(): void }>)[key].delete();
+}
 
-let target: SyncTarget | undefined;
+/** The targets a sync is running against now. */
+export const syncing$ = observable<Partial<Record<TargetKey, boolean>>>({});
 
-/** Syncs now, or once more right after the sync running. */
-export const requestSync = serial(async () => {
-  const current = target;
-  const device = settings$.device.id.peek();
-  if (!current || !device) return;
-  syncing$.set(true);
+const targets = new Map<TargetKey, SyncTarget>();
+
+/** Every device seen on any target, each at its newest change. */
+const mergeDevices = (lists: SyncDevice[][]) => {
+  const byId = new Map<string, SyncDevice>();
+  for (const device of lists.flat()) {
+    const seen = byId.get(device.id);
+    if (!seen || device.lastChange > seen.lastChange)
+      byId.set(device.id, device);
+  }
+  return [...byId.values()];
+};
+
+async function syncWith(key: TargetKey, target: SyncTarget, device: string) {
+  const state$ = syncState$.targets[key];
+  syncing$[key].set(true);
   try {
-    const first = syncState$.lastSync.peek() === undefined;
+    const first = state$.lastSync.peek() === undefined;
     const { pulled, devices } = await syncTables({
       tables: TABLES,
       meta$: syncMeta$,
-      pushed$: syncState$.pushed,
+      pushed$: state$.pushed,
       device,
       deviceName: DEVICE_NAME,
-      target: current,
+      target,
     });
-    syncState$.assign({ lastSync: Date.now(), error: undefined, devices });
+    // A target that was stopped meanwhile keeps no state.
+    if (targets.get(key) !== target) return [];
+    state$.assign({ lastSync: Date.now(), error: undefined });
     // One word on the first merge, which may change what the screens show.
     if (first) {
       const others = devices.filter((d) => d.id !== device).length;
@@ -81,29 +115,53 @@ export const requestSync = serial(async () => {
           : "Sync is on",
       );
     }
+    return devices;
   } catch (error) {
     // Kept for the Sync section; the next trigger tries again.
-    syncState$.error.set({
-      kind: error instanceof SyncError ? error.kind : "other",
-      message: error instanceof Error ? error.message : String(error),
-    });
+    if (targets.get(key) === target) {
+      state$.error.set({
+        kind: error instanceof SyncError ? error.kind : "other",
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return [];
   } finally {
-    syncing$.set(false);
+    syncing$[key].delete();
   }
+}
+
+/** Syncs with every target now, or once more right after the sync running. */
+export const requestSync = serial(async () => {
+  const device = settings$.device.id.peek();
+  if (!device || !targets.size) return;
+  const seen: SyncDevice[][] = [];
+  // One after the other: both write this device's stamps and stores.
+  for (const [key, target] of targets) {
+    seen.push(await syncWith(key, target, device));
+  }
+  const devices = mergeDevices(seen);
+  if (devices.length) syncState$.devices.set(devices);
 });
 
 /**
- * Syncs with `next` from now on, starting at once; undefined stops. Files
- * the target lacks (a new gist) are written whole on the first sync.
+ * Syncs with `next` as `key` from now on, starting at once; undefined stops
+ * and forgets that target's state. Files the target lacks (a new gist, an
+ * empty folder) are written whole on its first sync.
  */
-export function setSyncTarget(next: SyncTarget | undefined) {
-  target = next;
-  if (next) void requestSync();
+export function setSyncTarget(key: TargetKey, next: SyncTarget | undefined) {
+  if (next) {
+    targets.set(key, next);
+    void requestSync();
+    return;
+  }
+  targets.delete(key);
+  syncState$.targets[key].delete();
+  if (!targets.size) syncState$.devices.set([]);
 }
 
 let debounce: ReturnType<typeof setTimeout> | undefined;
 syncMeta$.onChange(({ isFromPersist }) => {
-  if (isFromPersist || applying.current || !target) return;
+  if (isFromPersist || applying.current || !targets.size) return;
   clearTimeout(debounce);
   debounce = setTimeout(() => void requestSync(), DEBOUNCE_MS);
 });

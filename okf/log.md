@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Sync through a folder**: desktop (watched) and Android (through the system picker, a folder a sync app keeps in the cloud) can sync through a folder as well as, or instead of, the gist; each target keeps its own state. Updated [sync state](stores/sync-state.md), [settings](stores/settings.md).
 * **Sync downloads only what changed**: an unchanged gist answers "not modified" and unchanged files aren't fetched again, where every sync downloaded every device's files (megabytes once scans are in). Android devices go by the name set on the phone instead of the model code. Updated [GitHub account](stores/github-account.md).
 * **Settings → Sync**: under Account, connect GitHub (a code sheet in the apps, a token on the web), see the last sync and the devices in the gist, Sync now, open the gist, disconnect, and Reconnect when access was revoked; the first sync says what it merged. Each device's files carry its name. Updated [GitHub account](stores/github-account.md).
 * **Sync connects to GitHub**: the apps sign in with GitHub's code flow (desktop through its main process), the web with a pasted token; a private "Anipoex sync" gist is found by its manifest or made, and syncing runs while a token is set. No screen offers it yet. Added [GitHub account](stores/github-account.md); updated [sync state](stores/sync-state.md).

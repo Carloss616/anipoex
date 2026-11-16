@@ -6,4 +6,10 @@ contextBridge.exposeInMainWorld("anipoex", {
   signIn: (url) => ipcRenderer.invoke("sign-in", url),
   scanProgress: (fraction) => ipcRenderer.send("scan-progress", fraction),
   github: (url, body) => ipcRenderer.invoke("github", url, body),
+  folder: (method, dir, arg) => ipcRenderer.invoke("folder", method, dir, arg),
+  onFolderChange: (callback) => {
+    const listener = () => callback();
+    ipcRenderer.on("folder-changed", listener);
+    return () => ipcRenderer.off("folder-changed", listener);
+  },
 });

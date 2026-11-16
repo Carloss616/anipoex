@@ -34,6 +34,8 @@ export interface Settings {
     dns?: DnsId;
     /** Names this device's sync files. */
     id?: string;
+    /** The folder this device syncs through: a path, or a SAF URI on Android. */
+    folder?: string;
   };
 }
 
@@ -62,6 +64,7 @@ export function normalizeSettings(raw: unknown): Settings {
   const device = section(root?.device);
   const dns = device?.dns as DnsId | undefined;
   const id = typeof device?.id === "string" ? device.id : undefined;
+  const folder = typeof device?.folder === "string" ? device.folder : undefined;
   return {
     version: typeof root?.version === "number" ? root.version : 0,
     theme: {
@@ -84,7 +87,11 @@ export function normalizeSettings(raw: unknown): Settings {
         : [],
       slowSkip: typeof sources?.slowSkip === "number" ? sources.slowSkip : 60,
     },
-    device: { ...(dns && { dns }), ...(id && { id }) },
+    device: {
+      ...(dns && { dns }),
+      ...(id && { id }),
+      ...(folder && { folder }),
+    },
   };
 }
 
