@@ -35,5 +35,9 @@ now, Open gist on GitHub and Disconnect; a revoked token shows Reconnect instead
 sync after connecting ends with one notice: how many devices it merged with and how many
 records it changed here.
 
-Disconnecting, after a confirmation, forgets the token and the account here and stops syncing; the gist stays on
-GitHub. Survives sign-out from AniList: it is a separate account.
+Disconnecting, after a confirmation, syncs one last time, then forgets the token and the
+account here and stops syncing. This device's files leave the gist when every record in them
+is already, as new or newer, in another device's file, or when no other device is there:
+nothing is lost (the data stays on this device), and the other devices stop listing it. Otherwise (another device hasn't synced its last changes yet) they stay, and
+the notice says so. The gist itself and the other devices' files stay on GitHub; reconnecting
+finds the gist again and writes this device's files back.

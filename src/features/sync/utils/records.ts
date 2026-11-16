@@ -15,7 +15,8 @@ export type Records = Record<string, SyncRecord>;
 /** Tombstones older than this are dropped: every device has seen them. */
 export const PURGE_AFTER_MS = 90 * 24 * 60 * 60 * 1000;
 
-const stampOf = (record: Stamp) =>
+/** When a record last changed, its removal included. */
+export const stampOf = (record: Stamp) =>
   Math.max(record.updatedAt, record.deletedAt ?? 0);
 
 const asObject = (value: unknown): Record<string, unknown> =>

@@ -9,6 +9,7 @@ import { desktop } from "@/utils/desktop";
 import { SyncError } from "../utils/github";
 import { serial } from "../utils/serial";
 import {
+  retireDevice,
   type SyncDevice,
   type SyncTarget,
   syncTables,
@@ -157,6 +158,26 @@ export function setSyncTarget(key: TargetKey, next: SyncTarget | undefined) {
   targets.delete(key);
   syncState$.targets[key].delete();
   if (!targets.size) syncState$.devices.set([]);
+}
+
+/**
+ * Stops syncing with `key` after one last sync, and takes this device's files
+ * off it when every record in them is in another device's file too: removing
+ * them then loses nothing, and the other devices stop listing this one.
+ */
+export async function leaveTarget(key: TargetKey) {
+  const target = targets.get(key);
+  const device = settings$.device.id.peek();
+  await requestSync();
+  setSyncTarget(key, undefined);
+  if (!target || !device) return "kept";
+  try {
+    return (await retireDevice({ tables: TABLES, device, target }))
+      ? "removed"
+      : "kept";
+  } catch {
+    return "failed";
+  }
 }
 
 let debounce: ReturnType<typeof setTimeout> | undefined;

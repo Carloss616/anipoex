@@ -214,5 +214,21 @@ export function createGistTarget({
         fetchFn,
       );
     },
+    async remove(names) {
+      const id = gistId.get();
+      if (!id || !names.length) return;
+      // A file set to null is deleted from the gist.
+      await github(
+        `/gists/${id}`,
+        token,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            files: Object.fromEntries(names.map((name) => [name, null])),
+          }),
+        },
+        fetchFn,
+      );
+    },
   };
 }

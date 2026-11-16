@@ -27,6 +27,9 @@ export function createFolderTarget(location: string): SyncTarget {
     write: async (files) => {
       await bridge.folder("write", dir, files);
     },
+    remove: async (names) => {
+      await bridge.folder("remove", dir, names);
+    },
   };
 }
 

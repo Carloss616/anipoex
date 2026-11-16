@@ -20,7 +20,7 @@ import {
   findOrCreateGist,
   SyncError,
 } from "../utils/github";
-import { requestSync, setSyncTarget } from "./engine";
+import { leaveTarget, requestSync, setSyncTarget } from "./engine";
 import { github$ } from "./github";
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID ?? "";
@@ -73,10 +73,18 @@ export async function startDeviceFlow(signal?: AbortSignal) {
   return { code, connected };
 }
 
-/** Stops syncing and forgets the token; the gist stays on GitHub. */
-export function disconnectGitHub() {
+const LEFT = {
+  removed: "this device's files are off it",
+  kept: "this device's files stay until the other devices sync its last changes",
+  failed: "this device's files couldn't be removed",
+} as const;
+
+/** Stops syncing with the gist and forgets the token; the gist stays on GitHub. */
+export async function disconnectGitHub() {
+  const left = await leaveTarget("gist");
   github$.token.set(undefined);
   github$.account.set(undefined);
+  toast.success(`Disconnected from the gist · ${LEFT[left]}`);
 }
 
 // Syncs with the gist while a token is set.
@@ -114,8 +122,12 @@ export async function chooseFolder() {
   }
 }
 
-/** Stops syncing through the folder; its files stay where they are. */
-export const stopFolder = () => settings$.device.folder.delete();
+/** Stops syncing through the folder; other devices' files stay in it. */
+export async function stopFolder() {
+  const left = await leaveTarget("folder");
+  settings$.device.folder.delete();
+  toast.success(`Stopped syncing through the folder · ${LEFT[left]}`);
+}
 
 // Syncs through the folder while one is set, and at once when it changes.
 observe((e) => {

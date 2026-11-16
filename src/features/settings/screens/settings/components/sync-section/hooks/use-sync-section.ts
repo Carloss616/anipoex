@@ -88,12 +88,12 @@ export function useSyncSection() {
     {
       label: "Disconnect",
       destructive: true,
-      onPress: disconnectGitHub,
+      onPress: () => void disconnectGitHub(),
       onPressMode: "dialog",
       dialogConfig: {
         title: "Disconnect GitHub?",
         description:
-          "This device stops syncing. The gist and what it holds stay on GitHub.",
+          "This device stops syncing, and its files leave the gist once the other devices have its changes. Its data stays here.",
         confirmLabel: "Disconnect",
       },
     },
@@ -104,12 +104,12 @@ export function useSyncSection() {
     {
       label: "Stop syncing",
       destructive: true,
-      onPress: stopFolder,
+      onPress: () => void stopFolder(),
       onPressMode: "dialog",
       dialogConfig: {
         title: "Stop syncing through this folder?",
         description:
-          "This device stops reading and writing it. Its files stay there.",
+          "This device stops reading and writing it, and its files leave once the other devices have its changes. Its data stays here.",
         confirmLabel: "Stop",
       },
     },

@@ -2,6 +2,7 @@
 
 ## 2026-11-15
 
+* **Leaving a target takes the device's files**: Disconnect (gist) and Stop syncing (folder) sync once more, then remove this device's files when another device's files carry every record in them, so nothing is lost and the others stop listing it; otherwise they stay. Updated [GitHub account](stores/github-account.md), [sync state](stores/sync-state.md).
 * **Sync through a folder**: desktop (watched) and Android (through the system picker, a folder a sync app keeps in the cloud) can sync through a folder as well as, or instead of, the gist; each target keeps its own state. Updated [sync state](stores/sync-state.md), [settings](stores/settings.md).
 * **Sync downloads only what changed**: an unchanged gist answers "not modified" and unchanged files aren't fetched again, where every sync downloaded every device's files (megabytes once scans are in). Android devices go by the name set on the phone instead of the model code. Updated [GitHub account](stores/github-account.md).
 * **Settings → Sync**: under Account, connect GitHub (a code sheet in the apps, a token on the web), see the last sync and the devices in the gist, Sync now, open the gist, disconnect, and Reconnect when access was revoked; the first sync says what it merged. Each device's files carry its name. Updated [GitHub account](stores/github-account.md).

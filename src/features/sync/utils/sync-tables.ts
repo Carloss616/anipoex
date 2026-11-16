@@ -2,9 +2,11 @@ import { batch, type Observable, type ObservableParam } from "@legendapp/state";
 import {
   localRecords,
   mergeRecords,
+  PURGE_AFTER_MS,
   purge,
   type Records,
   type Stamp,
+  stampOf,
   valueAt,
 } from "./records";
 import {
@@ -15,7 +17,7 @@ import {
 } from "./sync-file";
 import { applying, type SyncTable } from "./watch-table";
 
-/** Where the files live: a gist or a folder, behind the same three calls. */
+/** Where the files live: a gist or a folder, behind the same calls. */
 export interface SyncTarget {
   /** Every file name on the target. */
   list(): Promise<string[]>;
@@ -23,6 +25,8 @@ export interface SyncTarget {
   read(name: string): Promise<string | undefined>;
   /** Writes these files, each whole, in one go when the target can. */
   write(files: Record<string, string>): Promise<void>;
+  /** Deletes these files. */
+  remove(names: string[]): Promise<void>;
 }
 
 export interface SyncTablesOptions {
@@ -181,4 +185,48 @@ export async function syncTables({
   // Only a write that landed counts as pushed; a failed one is retried whole.
   for (const [name, h] of Object.entries(hashes)) pushed$[name].set(h);
   return { pulled, devices: [...devices.values()] };
+}
+
+/**
+ * A device leaving a target takes its files with it, when nothing is lost:
+ * every record in them is already, as new or newer, in another device's file.
+ * Resolves to whether they were removed.
+ */
+export async function retireDevice({
+  tables,
+  device,
+  target,
+  now = Date.now,
+}: Pick<SyncTablesOptions, "tables" | "device" | "target" | "now">) {
+  const names = await target.list();
+  const own = new Set(tables.map((table) => syncFileName(table.name, device)));
+  for (const table of tables) {
+    const prefix = `anipoex-${table.name}.`;
+    const files = (
+      await Promise.all(
+        names
+          .filter((name) => name.startsWith(prefix) && name.endsWith(".json"))
+          .map(async (name) => {
+            const text = await target.read(name);
+            return text ? parseSyncFile(text, table.name) : undefined;
+          }),
+      )
+    ).filter((file) => file !== undefined);
+    const mine = files.find((file) => file.device === device);
+    const rest = files.filter((file) => file.device !== device);
+    // No other device on the target: no one to lose anything, and the data
+    // stays on this one.
+    if (!mine || !rest.length) continue;
+    const others = mergeRecords({}, rest);
+    const purged = now() - PURGE_AFTER_MS;
+    const carried = Object.entries(mine.records).every(([key, record]) => {
+      // Every device has applied a removal this old and may have dropped it.
+      if (record.deletedAt != null && record.deletedAt <= purged) return true;
+      const other = others[key];
+      return other !== undefined && stampOf(other) >= stampOf(record);
+    });
+    if (!carried) return false;
+  }
+  await target.remove(names.filter((name) => own.has(name)));
+  return true;
 }

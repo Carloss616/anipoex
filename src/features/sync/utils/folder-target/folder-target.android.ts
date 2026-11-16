@@ -56,6 +56,11 @@ export function createFolderTarget(location: string): SyncTarget {
         await dir.createFile(name, MIME).write(text);
       }
     },
+    async remove(names) {
+      for (const file of files()) {
+        if (names.includes(nameOf(file.uri))) file.delete();
+      }
+    },
   };
 }
 

@@ -41,4 +41,5 @@ permission persists; Drive and OneDrive don't sync folders there, so a separate 
 keeps it in sync, and the app reads it on the usual triggers (Android can't watch it). Each
 file is replaced by a new one on write, since some providers don't shorten a rewritten
 file. iOS and a plain browser don't offer folders yet. The folder is kept per device in
-[settings](settings.md) `device.folder`; stopping leaves its files in place.
+[settings](settings.md) `device.folder`. Stopping takes this device's files out of it the
+same way disconnecting the gist does: only when another device's files carry every record.

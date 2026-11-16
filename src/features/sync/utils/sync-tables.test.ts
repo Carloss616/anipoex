@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { observable } from "@legendapp/state";
 import type { Stamp } from "./records";
-import { type SyncTarget, syncTables } from "./sync-tables";
+import { retireDevice, type SyncTarget, syncTables } from "./sync-tables";
 import { watchTable } from "./watch-table";
 
 type Exclusions = Record<string, Record<string, { reason: string }>>;
@@ -22,6 +22,9 @@ const memoryTarget = () => {
       if (state.offline) throw new Error("offline");
       state.writes++;
       for (const [name, text] of Object.entries(next)) files.set(name, text);
+    },
+    async remove(names) {
+      for (const name of names) files.delete(name);
     },
   };
   return { target, files, state };
@@ -49,6 +52,7 @@ const device = (id: string, target: SyncTarget, initial: Exclusions = {}) => {
         target,
         now: () => clock,
       }),
+    retire: () => retireDevice({ tables: [table], device: id, target }),
   };
 };
 
@@ -167,5 +171,40 @@ describe("syncTables", () => {
     };
     expect(phone.store$.peek()).toEqual(both);
     expect(mac.store$.peek()).toEqual(both);
+  });
+
+  it("leaving takes the device's files once the others carry its records", async () => {
+    const { target, files } = memoryTarget();
+    const mac = device("mac", target);
+    const phone = device("phone", target);
+    mac.store$[21]["source-1"].set({ reason: "outdated" });
+    await mac.sync();
+    await phone.sync();
+
+    expect(await mac.retire()).toBe(true);
+    expect([...files.keys()]).toEqual(["anipoex-exclusions.phone.json"]);
+  });
+
+  it("leaving keeps the files while another device lacks a change", async () => {
+    const { target, files } = memoryTarget();
+    const mac = device("mac", target);
+    const phone = device("phone", target);
+    await phone.sync();
+    // Pushed, but the phone hasn't synced since: only the mac's file has it.
+    mac.store$[21]["source-1"].set({ reason: "outdated" });
+    await mac.sync();
+
+    expect(await mac.retire()).toBe(false);
+    expect(files.has("anipoex-exclusions.mac.json")).toBe(true);
+  });
+
+  it("the only device on the target takes its files when it leaves", async () => {
+    const { target, files } = memoryTarget();
+    const mac = device("mac", target);
+    mac.store$[21]["source-1"].set({ reason: "outdated" });
+    await mac.sync();
+
+    expect(await mac.retire()).toBe(true);
+    expect(files.size).toBe(0);
   });
 });

@@ -1,5 +1,12 @@
 import { watch } from "node:fs";
-import { mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 import { dialog } from "electron";
 
@@ -64,6 +71,11 @@ export function registerFolder(ipcMain, window, fromApp) {
           const temp = path.join(dir, `.${name}.tmp`);
           await writeFile(temp, String(text));
           await rename(temp, file);
+        }
+        return true;
+      case "remove":
+        for (const name of Array.isArray(arg) ? arg : []) {
+          await rm(path.join(checkDir(dir), checkName(name)), { force: true });
         }
         return true;
       case "watch":
