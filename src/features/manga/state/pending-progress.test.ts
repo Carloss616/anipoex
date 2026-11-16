@@ -117,6 +117,26 @@ describe("flushPending", () => {
     expect(pendingProgress$[2].get()).toBeUndefined();
   });
 
+  it("keeps progress written while a send is in flight", async () => {
+    keepPending(1, { progress: 12 });
+    await flushPending(
+      () => 0,
+      async () => keepPending(1, { progress: 14 }),
+    );
+    expect(pendingProgress$[1].get().progress).toBe(14);
+  });
+
+  it("records a TypeError that is not a fetch failure", async () => {
+    keepPending(1, { progress: 12 });
+    await flushPending(
+      () => 0,
+      async () => {
+        throw new TypeError("undefined is not a function");
+      },
+    );
+    expect(pendingProgress$[1].get().error).toBe("undefined is not a function");
+  });
+
   it("shares one run between concurrent calls", async () => {
     keepPending(1, { progress: 12 });
     const send = mock(async () => {});
@@ -151,6 +171,7 @@ describe("isNetworkError", () => {
       ),
     ).toBe(false);
     expect(isNetworkError(new Error("other"))).toBe(false);
+    expect(isNetworkError(new TypeError("x is not a function"))).toBe(false);
     expect(isNetworkError(null)).toBe(false);
   });
 });

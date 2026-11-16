@@ -10,7 +10,10 @@ export interface PendingProgress {
   error?: string;
 }
 
-/** Reading progress made offline, by AniList media id, waiting to be sent. Device-only. */
+/**
+ * Reading progress made offline, by AniList media id, waiting to be sent.
+ * Device-only.
+ */
 export const pendingProgress$ = observable<Record<string, PendingProgress>>({});
 
 syncObservable(pendingProgress$, {
@@ -45,9 +48,16 @@ export function effectiveProgress(
   return Math.max(remote ?? 0, pendingProgress$[mediaId].get()?.progress ?? 0);
 }
 
+// React Native, Chrome/Firefox and Safari word a failed fetch differently
+const FETCH_FAILURES = new Set([
+  "Network request failed",
+  "Failed to fetch",
+  "Load failed",
+]);
+
 /** A dropped connection, not an answer from the server (GraphQL or HTTP error). */
 export function isNetworkError(error: unknown): boolean {
-  if (error instanceof TypeError) return true;
+  if (error instanceof TypeError) return FETCH_FAILURES.has(error.message);
   return typeof error === "object" && error !== null && "networkError" in error;
 }
 
@@ -77,7 +87,10 @@ async function run(
     }
     try {
       await send(mediaId, pending);
-      pendingProgress$[mediaId].delete();
+      // Progress written during the send stays for the next flush
+      if (pendingProgress$[mediaId].peek()?.progress === pending.progress) {
+        pendingProgress$[mediaId].delete();
+      }
     } catch (error) {
       if (isNetworkError(error)) return;
       pendingProgress$[mediaId].error.set(
