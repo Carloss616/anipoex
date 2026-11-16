@@ -1,4 +1,5 @@
 import { batch, type Observable, type ObservableParam } from "@legendapp/state";
+import { fnv1a } from "@/utils/fnv";
 import {
   localRecords,
   mergeRecords,
@@ -51,16 +52,6 @@ export interface SyncDevice {
   name?: string;
   kind?: DeviceKind;
   lastChange: number;
-}
-
-/** FNV-1a: tells a changed file apart; not for anything secret. */
-export function hash(text: string) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < text.length; i++) {
-    h ^= text.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return (h >>> 0).toString(16);
 }
 
 type Node = ObservableParam & Record<string, ObservableParam>;
@@ -199,7 +190,7 @@ export async function syncTables({
         (record, key) => isLocal(record) || !!stampsNow[key]?.local,
       ),
     });
-    const h = hash(text);
+    const h = fnv1a(text);
     const name = syncFileName(table.name, device);
     // A file gone from the target (a new gist) is written even if unchanged.
     if (h !== pushed$[table.name].peek() || !names.includes(name)) {
