@@ -148,9 +148,17 @@
     },
     "panelui": {
       "source": "panel-ui/PanelUI",
+      "commit": "880bd3d0788c3905bb61201bf8913ffa4581d0f8",
       "sourceType": "github",
       "skillPath": "skills/panelui/SKILL.md",
-      "computedHash": "37b91bdc01c762afdf809dab9d544c21d0bb245a2bd1947dde4f4d7ea000fc05"
+      "computedHash": "4e0be9b4ddee92468b1c34be68e586f0ec8f03e5df5be6a07bac50f07be98023"
+    },
+    "panelui-web": {
+      "source": "panel-ui/PanelUI",
+      "commit": "880bd3d0788c3905bb61201bf8913ffa4581d0f8",
+      "sourceType": "github",
+      "skillPath": "skills/panelui-web/SKILL.md",
+      "computedHash": "9affda2919b6af8b1f9aee105277f92899bd2378a5bc400e0698ff96bb9b7804"
     },
     "react-native-best-practices": {
       "source": "software-mansion-labs/skills",
