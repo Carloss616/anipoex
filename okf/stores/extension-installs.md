@@ -17,7 +17,8 @@ change it. It [syncs](sync-meta.md) as the `extensions` table, so the list is th
 every device, and after each sync a device brings its installs in line: it installs, at the
 repo's newest version, what another device added, and uninstalls what one removed, each with
 one notice ("Installed 2 extensions from your other devices"). An install that fails is not
-tried again until the app restarts.
+tried again until the app restarts. A package no repo on the device lists (a repo dropped it
+after another device installed it) is skipped without a notice.
 
 On the first sync with it, a device adds what it already has installed without a time, so
 the lists of all devices join, and a removal made elsewhere still wins over it. An entry

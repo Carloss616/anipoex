@@ -7,6 +7,7 @@ import {
 } from "@/features/extensions/runtime";
 import {
   extensionOperations$,
+  extensions$,
   installExtensions,
   loadExtensions,
   uninstallExtensions,
@@ -84,11 +85,17 @@ const reconcile = serial(async () => {
   // Both act on the merged catalog: an install needs a repo's download
   // address, and either fails on an extension missing from it.
   await loadExtensions();
+  // A repo may have dropped a package since another device installed it: no
+  // download here, so it's skipped quietly instead of failing every launch.
+  const listed = new Set(extensions$.peek().map((e) => e.id));
+  const installable = add.filter((pkg) => listed.has(pkg));
   const wanted = installs$.peek();
   const keys = Object.fromEntries(
-    add.map((pkg) => [pkg, wanted[pkg]?.signingKey]),
+    installable.map((pkg) => [pkg, wanted[pkg]?.signingKey]),
   );
-  const added = add.length ? await installExtensions(add, keys) : [];
+  const added = installable.length
+    ? await installExtensions(installable, keys)
+    : [];
   const removed = remove.length ? await uninstallExtensions(remove) : [];
   for (const pkg of [...add, ...remove]) {
     if (!added.includes(pkg) && !removed.includes(pkg)) failed.add(pkg);
