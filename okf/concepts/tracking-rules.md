@@ -63,4 +63,7 @@ when that is higher, with the progress rules above; a manga not in the list is a
 Reading, or Completed at its last chapter) only after the user confirms. The reader lists
 the changed fields like the sheet does as soon as the save starts, not when it lands, and
 offers Undo once it has. Without a connection the progress waits on the device as
-[pending progress](../stores/pending-progress.md), and these rules apply when it is sent.
+[pending progress](../stores/pending-progress.md): progress read offline is kept on the
+device and sent once AniList is reachable again, and these rules apply when it is sent.
+It is checked against a fresh fetch of the entry first, so it never lowers the progress
+AniList already has, and it is cleared on sign-out.

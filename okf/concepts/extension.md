@@ -31,9 +31,11 @@ starts; iOS keeps them in the app's storage and runs them in a Java runtime buil
 app, which a sideloaded build can ship but an App Store one couldn't. Installed extensions
 survive restarts on both. The web app in a browser lists nothing installed and refuses to
 install ("Extensions run in the Android, iOS and desktop apps."). Only extensions built against library 1.4 or 1.6 are offered. The app
-provides what those extensions commonly use, not all of it yet: rate limiting, the
-JavaScript engine some sites need, and a source fetching its own images are missing, so
-an extension that relies on one of them fails when it reaches that step. Each
+provides what those extensions commonly use, not all of it yet: rate limiting and the
+JavaScript engine some sites need are missing, so an extension that relies on one of
+them fails when it reaches that step. A chapter's page images, in the reader and in
+[downloads](stores/downloads.md), are fetched through the source's own client, so what
+its interceptors do to an image (unscrambling it, say) applies. Each
 repo signs its APKs; an install is accepted only if the APK carries the repo's signing
 key, and an installed build is matched to the repo that signed it.
 

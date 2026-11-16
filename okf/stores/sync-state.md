@@ -38,7 +38,7 @@ none), and a folder keeps syncing meanwhile.
 
 A folder another program keeps in sync between devices (iCloud Drive, OneDrive, Syncthing)
 holds the same files as the gist, in its `sync/` subfolder: the folder also holds what isn't
-synced as data (chapter downloads will go in `downloads/`). On desktop the user picks it in a dialog and the app
+synced as data (chapter [downloads](downloads.md) go in `downloads/`, beside `sync/`, and are never synced as records). On desktop the user picks it in a dialog and the app
 watches it; only `anipoex-*.json` files are read or written there, each written whole
 through a temporary file. On Android it is picked with the system's folder picker, whose
 permission persists; Drive and OneDrive don't sync folders there, so a separate sync app

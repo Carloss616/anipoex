@@ -8,11 +8,11 @@ generated: { by: claude-code, at: 2026-11-16T00:00:00Z }
 ---
 
 Key `pending-progress`: a record by AniList media id of the chapter progress, the status
-that came with it, when it was written and the last send error. Default empty. Stays on
+that came with it (kept but not sent: the send takes the status from a fresh AniList
+entry), when it was written and the last send error. Default empty. Stays on
 the device; it is not synced.
 
-- **Higher wins**: a lower progress never replaces the kept one; a progress that is not
-  lower also takes its status.
+- **Higher wins**: a lower progress never replaces the kept one.
 - **Kept by the reader**: a chapter's save that fails for want of a connection lands
   here, with a notice that it will be sent when online; other failures don't.
 - **Shown progress** is the higher of AniList's and the pending one: chapters read and
