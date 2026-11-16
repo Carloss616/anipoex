@@ -123,6 +123,35 @@ describe("downloadChapter", () => {
     expect(s.put).not.toHaveBeenCalled();
   });
 
+  it("doesn't put a chapter aborted while packing", async () => {
+    const s = setup();
+    s.pack.mockImplementationOnce(async () => {
+      s.controller.abort();
+      return "file:///tmp/packed.cbz";
+    });
+    const error = await downloadChapter(item, s.deps).catch((e) => e);
+    expect(error.name).toBe("AbortError");
+    expect(s.put).not.toHaveBeenCalled();
+    expect(s.dropStage).toHaveBeenCalledWith(stage);
+  });
+
+  it("keeps the first list's page name width after a reload", async () => {
+    const s = setup([1]);
+    s.pages.mockImplementationOnce(async () =>
+      Array.from({ length: 999 }, (_, i) => page(i)),
+    );
+    s.pages.mockImplementationOnce(async () =>
+      Array.from({ length: 1000 }, (_, i) => page(i, 1)),
+    );
+    await downloadChapter(item, s.deps);
+    expect(s.stagePage.mock.calls.slice(0, 4).map((c) => c[3])).toEqual([
+      "001",
+      "002",
+      "002",
+      "003",
+    ]);
+  });
+
   it("puts into the root current at put time", async () => {
     const s = setup();
     const a = { put: mock(async () => {}) } as unknown as DownloadStore;

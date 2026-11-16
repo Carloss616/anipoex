@@ -55,7 +55,7 @@ const page: SourcePage = {
   headers: {},
 };
 const pages = held<SourcePage[]>();
-let packHeld: ReturnType<typeof held<string>> | undefined;
+let putHeld: ReturnType<typeof held<void>> | undefined;
 const dropStage = mock(async (_stage: string) => {});
 const put = mock(async (_path: string, _uri: string) => {});
 const original = { ...downloadDeps };
@@ -63,11 +63,13 @@ Object.assign(downloadDeps, {
   runtime: {
     pages: pages.fn,
     stagePage: async () => {},
-    pack: (...args: unknown[]) =>
-      packHeld ? packHeld.fn(...args) : Promise.resolve("file:///x.cbz"),
+    pack: async () => "file:///x.cbz",
     dropStage,
   },
-  store: () => ({ put }),
+  store: () => ({
+    put: (...args: [string, string]) =>
+      putHeld ? putHeld.fn(...args) : put(...args),
+  }),
 });
 
 const flush = () => Bun.sleep(1);
@@ -82,12 +84,12 @@ const urlsAsked = () => pages.calls.map((c) => c.args[1]);
 
 afterEach(async () => {
   pauseDownloads();
-  for (const call of [...pages.calls, ...(packHeld?.calls ?? [])])
+  for (const call of [...pages.calls, ...(putHeld?.calls ?? [])])
     call.reject(new Error("test over"));
   await flush();
   pages.calls.length = 0;
   pages.fn.mockClear();
-  packHeld = undefined;
+  putHeld = undefined;
   dropStage.mockClear();
   put.mockClear();
   downloadsPaused$.set(false);
@@ -166,21 +168,24 @@ describe("pauseDownloads", () => {
   });
 
   it("drops the old run's writes after a pause and resume", async () => {
-    packHeld = held<string>();
+    putHeld = held<void>();
     enqueue([item("a")]);
     startDownloads();
     await flush();
     pages.calls[0].resolve([page]);
     await flush();
-    expect(packHeld.calls).toHaveLength(1);
+    expect(putHeld.calls).toHaveLength(1);
     pauseDownloads();
     resumeDownloads();
-    packHeld.calls[0].resolve("file:///x.cbz");
+    putHeld.calls[0].resolve();
     await flush();
     expect(downloadQueue$.get()[keyOf("a")]).toBeDefined();
     expect(downloaded$.get()["21/1234"]).toBeUndefined();
-    // The new run starts the chapter again once the old one is out.
+    // The new run starts the chapter again once the old one dropped its stage.
     expect(urlsAsked()).toEqual(["a", "a"]);
+    expect(dropStage.mock.invocationCallOrder[0]).toBeLessThan(
+      pages.fn.mock.invocationCallOrder[1],
+    );
   });
 });
 
@@ -191,5 +196,14 @@ describe("resumeQueue", () => {
     await resumeQueue();
     expect(downloadQueue$.get()[keyOf("a")].state).toBe("queued");
     expect(dropStage).toHaveBeenCalledWith(stageId(keyOf("a")));
+  });
+
+  it("leaves the queue alone while downloads run", async () => {
+    enqueue([item("a")]);
+    startDownloads();
+    await flush();
+    await resumeQueue();
+    expect(downloadQueue$.get()[keyOf("a")].state).toBe("running");
+    expect(dropStage).not.toHaveBeenCalled();
   });
 });

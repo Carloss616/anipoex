@@ -31,10 +31,12 @@ export async function downloadChapter(
   try {
     let pages = await load();
     if (pages.length === 0) throw new Error("No pages");
+    // A reload can change the count: keep every name the same width.
+    const count = pages.length;
     let retried = false;
     for (let i = 0; i < pages.length; i++) {
       if (signal.aborted) throw abortError();
-      const name = pageName(i, pages.length);
+      const name = pageName(i, count);
       try {
         await runtime.stagePage(source.id, pages[i], stage, name);
       } catch (error) {
@@ -49,6 +51,8 @@ export async function downloadChapter(
       onProgress((i + 1) / pages.length);
     }
     const uri = await runtime.pack(stage, comicInfo(item));
+    // A cancelled chapter must not land in a folder the app never cleans.
+    if (signal.aborted) throw abortError();
     const target = store();
     if (!target) throw new Error("Downloads need the app");
     await target.put(chapterPath(manga, source, chapter), uri);

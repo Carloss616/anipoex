@@ -112,6 +112,8 @@ export function resumeDownloads() {
 
 /** At app start: a chapter left running by a killed app starts over. */
 export async function resumeQueue() {
+  // A running loop owns its "running" entry and its stage.
+  if (loops.size > 0) return;
   const stale = running();
   batch(() => {
     for (const { key } of stale) downloadQueue$[key].state.set("queued");
