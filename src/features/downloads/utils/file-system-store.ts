@@ -1,10 +1,14 @@
-import { Directory, File } from "expo-file-system";
+import { Directory, File, FileMode } from "expo-file-system";
 import type { DownloadStore } from "./download-store/download-store";
 import { NotDownloadedError } from "./download-store/utils/errors";
 import { groupDownloads, idOf } from "./paths";
 
-const MIME = "application/vnd.comicbook+zip";
+// A provider keeps the display name as given for this type; others may append an extension.
+const MIME = "application/octet-stream";
+const CHUNK = 1024 * 1024;
 
+// shortcut: the name comes from the URI, which holds the path only on providers whose
+// document id is the path (local storage); opaque ids need a display-name lookup.
 /** A SAF document's name: its URI's last segment, decoded. */
 const nameOf = (uri: string) =>
   decodeURIComponent(uri).split(/[/:]/).filter(Boolean).pop() ?? uri;
@@ -69,10 +73,27 @@ export function fileSystemStore(root: Directory): DownloadStore {
       for (const part of parts) {
         dir = subdir(dir, named(part)) ?? dir.createDirectory(part);
       }
-      // Some SAF providers don't truncate on overwrite: a new document keeps no tail.
+      // A new document each time, since some providers don't truncate on overwrite;
+      // `copy` onto it would delete it first on SAF, and SAF has no rename for a temp name.
       child(dir, named(name))?.delete();
+      const input = new File(fileUri).open(FileMode.ReadOnly);
       const target = dir.createFile(name, MIME);
-      await new File(fileUri).copy(target, { overwrite: true });
+      const output = target.open(FileMode.WriteOnly);
+      try {
+        for (;;) {
+          const bytes = await input.readBytes(CHUNK);
+          if (!bytes.length) break;
+          await output.writeBytes(bytes);
+        }
+      } catch (error) {
+        // A half-written file would list as a download.
+        output.close();
+        target.delete();
+        throw error;
+      } finally {
+        input.close();
+        output.close();
+      }
     },
     async get(path) {
       const file = fileAt(path);
