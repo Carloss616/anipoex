@@ -2,6 +2,7 @@
 
 ## 2026-11-16
 
+* **Offline reading progress is kept**: progress made while AniList is unreachable waits on the device and is sent later; an entry AniList already reached is dropped. Added [Pending progress](stores/pending-progress.md).
 * **A synced extension no repo lists is skipped**: a device no longer shows "Extension not found" on each sync for a package its repos dropped. Updated [Extension installs](stores/extension-installs.md).
 * **Another device's scan picks again here**: a manga with no source chosen picks the best one by its probes when its detail opens, and loads its chapters then; until then the list's `+N` is that source's. Updated [source matches](stores/source-matches.md), [unread chapters](metrics/unread-chapters.md).
 * **A failing source stays on its device**: failed probes, exclusions for errors and a scan's pick of a source don't sync, so a source that fails on one device no longer marks it failed, excludes it or switches the pick on the others; a pick by hand still syncs and wins. Updated [sync stamps](stores/sync-meta.md).
