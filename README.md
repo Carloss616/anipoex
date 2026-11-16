@@ -10,24 +10,102 @@
 ![Platforms](https://img.shields.io/badge/iOS_·_Android_·_Web_·_macOS_·_Windows-555555?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)
 
-**A manga tracker for your AniList list that reads chapters from Mihon extensions, on iOS, Android, web, macOS and Windows.**
+**An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, web, macOS and Windows.**
 
 </div>
 
-> AniList keeps your list; Anipoex keeps it current. It finds the chapters you haven't read across the sources you install, and runs those sources inside the app, with no server of its own.
+> One manga, many sources: Anipoex reads them all, tells you which one is ahead, and follows you to every device you use, through storage only you own.
 
 <div align="center">
   <!-- Preview: add a screenshot or GIF here, e.g. <img src="docs/preview.png" width="600" alt="Anipoex preview"> -->
-  <a href="#-quick-start">Quick Start</a> · <a href="#-features">Features</a> · <a href="#-tech-stack">Tech Stack</a> · <a href="#-docs">Docs</a> · <a href="#-roadmap">Roadmap</a>
+  <a href="#-multi-source-per-manga">Multi-source</a> · <a href="#-private-sync-on-every-platform">Private sync</a> · <a href="#-how-it-differs">How it differs</a> · <a href="#-quick-start">Quick Start</a> · <a href="#-features">Features</a> · <a href="#-tech-stack">Tech Stack</a> · <a href="#-docs">Docs</a> · <a href="#-roadmap">Roadmap</a>
 </div>
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🔀 Multi-source
+
+**Every source compared. The one ahead, read.**
+
+- `+N` for each source, not just one
+- Outdated, missing and failing sources set aside
+- The furthest ahead picked for you, with Undo
+
+<a href="#-multi-source-per-manga">How it works →</a>
+
+</td>
+<td width="50%" valign="top">
+
+### 🔐 Private sync
+
+**One setup on iOS, Android, web, macOS and Windows.**
+
+- Your own GitHub gist or synced folder
+- No Anipoex account, no server
+- Picks, scans and extensions follow you
+
+<a href="#-private-sync-on-every-platform">How it works →</a>
+
+</td>
+</tr>
+</table>
 
 ---
 
 ## 💡 Concept
 
-Tracking manga means two jobs: keeping your list right, and knowing where the next chapter is. Anipoex does the first against [AniList](https://anilist.co), the record of truth, and the second with [Mihon](https://github.com/mihonapp/mihon) extensions: install sources from the repos you trust, and a scan tells you which manga have new chapters (`+N`), picks the source furthest ahead, and opens the reader there.
+The same manga is published by many sites, and they don't keep pace: one is ten chapters ahead, another stopped, a third numbers its chapters wrong. Most readers tie a manga to one source and leave you to notice when it falls behind. Anipoex keeps every source in play: your list lives on your tracker ([AniList](https://anilist.co) today, more to come), and for each manga it reads all the sources you installed through [Mihon](https://github.com/mihonapp/mihon) extensions, then reads from the one furthest ahead.
 
-Everything runs on your devices. Android loads the extensions natively; iOS and the desktop app run them in an embedded JVM. Your choices follow you between devices through your own GitHub gist or a cloud folder.
+You read on more than one device, so your setup follows you, privately: no Anipoex account and no server, just a GitHub gist or a folder you already sync. The extensions run inside the app on every platform: natively on Android, in an embedded JVM on iOS and the desktop app.
+
+---
+
+## 🔀 Multi-source, per manga
+
+A scan reads every installed source for a manga and keeps one result per source:
+
+- **`+N` per source**: how many chapters each one has past your progress.
+- **The furthest ahead wins**: ties go to a source with no Cloudflare check, then to your languages. It is picked for you, with Undo, unless you picked one by hand.
+- **Bad sources step aside**: outdated, missing or failing sources are excluded for that manga only, and checked again a week later.
+- **Suspicious numbering is flagged**: a source far ahead of all the others doesn't win by mistake.
+- **Your whole Reading list at once**: a Reading scan goes through every manga you're reading and tells you which have new chapters.
+
+How it decides, step by step: [Sync and source picking](docs/sync-and-sources.md#how-a-scan-picks-a-source).
+
+---
+
+## 🔐 Private sync, on every platform
+
+iOS, Android, the web, macOS and Windows share one setup: your source picks, scan results, exclusions, settings and installed extensions.
+
+- **Storage you own**: a private GitHub gist, a folder kept in sync by iCloud Drive, OneDrive or Syncthing, or both. Anipoex runs no server and has no account of its own.
+- **Extensions follow you**: install one on your phone and your computer installs it too.
+- **Per-device truth**: a source that fails on one device doesn't break it on the others; failures and automatic picks stay where they happened, your own choices travel.
+- **Light on the network**: a device writes and downloads only the files that changed.
+
+What travels and what stays: [Sync and source picking](docs/sync-and-sources.md#what-syncs).
+
+---
+
+## 🆚 How it differs
+
+| | Anipoex | [Mihon](https://github.com/mihonapp/mihon) | [Seanime](https://github.com/5rahim/seanime) | [AnymeX](https://github.com/RyanYuuki/AnymeX) |
+|---|---|---|---|---|
+| Platforms | iOS, Android, web, macOS, Windows | Android | Server with web and desktop clients; iOS and Android companion | Android, iOS, Windows, macOS, Linux |
+| Your list lives in | Your tracker: AniList today, more planned | Its own library; trackers get your progress one way | AniList, plus a local file library | AniList, MyAnimeList or Simkl |
+| Chapters come from | Mihon extensions | Mihon extensions | Its extension marketplace | A tracking client, not a reader |
+| Sync between devices | Private gist or folder, every platform | Backups, local or to a cloud service | Your server holds it | Through the tracker |
+| Needs a server | No | No | Yes, self-hosted | No |
+
+What Anipoex adds:
+
+- **Every source compared, per manga.** Not one source per entry: all of them, with the furthest ahead read for you. The scan rules come from the [manga-source-updates](https://github.com/Carloss616/seanime-extensions/tree/main/src/plugins/manga-source-updates) plugin for Seanime.
+- **Private sync on every platform.** Your gist or folder, from iOS to Windows, with no server in between.
+- **Mihon extensions beyond Android, with no server.** The same extensions run natively on Android and in an embedded JVM on iOS and the desktop app, where running them elsewhere usually means hosting a server like [Suwayomi](https://github.com/Suwayomi/Suwayomi-Server).
+- **Your tracker is the library.** No second library to keep in step: status, progress and dates are read from and saved to your tracker directly. AniList today; more trackers are planned.
+- **Native on each platform.** SwiftUI on iOS and Jetpack Compose on Android, rather than one UI drawn everywhere.
 
 ---
 
@@ -35,12 +113,12 @@ Everything runs on your devices. Android loads the extensions natively; iOS and 
 
 | Feature | Description |
 |---------|-------------|
+| 🔀 Multi-source scans | Every source per manga compared: `+N` each, bad ones set aside, the furthest ahead picked |
+| 🔐 Private sync | Picks, scans, settings and extensions across all your devices, through your gist or folder |
 | 📋 AniList tracking | Your list by status, with progress, score and dates; tracking rules fill the obvious side effects |
 | 🧩 Mihon extensions | Add repos, install extensions (checked against the repo's signing key) and read from their sources |
-| 🔎 Source scans | Scan one manga or your whole Reading list: new chapters per source, auto-exclusion of bad sources, auto-pick of the best one |
 | 📖 Reader | Chapter pages from the chosen source, with progress saved back to AniList |
 | 🏠 Home | Continue reading, trending, recommendations; sections you can reorder |
-| 🔄 Sync | Settings, picks, scans and installed extensions across devices, through a GitHub gist or a folder |
 | 📱 Native UI | SwiftUI on iOS and Jetpack Compose on Android through `@expo/ui`; PanelUI on the web; theme families |
 | 🔔 Scan activity | Scan progress as a Live Activity on iOS and a notification on Android |
 | 🖥️ Desktop | A macOS and Windows app (Electron) that runs extensions in a JVM sidecar |
@@ -152,6 +230,7 @@ anipoex/
 - [x] Reader
 - [x] Sync through a GitHub gist or a folder
 - [x] Desktop app for macOS and Windows
+- [ ] More trackers beyond AniList
 - [ ] Chapter downloads
 - [ ] iOS extension runtime on a physical iPhone
 - [ ] Signed macOS builds

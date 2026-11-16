@@ -1,6 +1,6 @@
 # Anipoex
 
-> A manga tracker for your AniList list that reads chapters from Mihon extensions, on iOS, Android, web, macOS and Windows.
+> An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, web, macOS and Windows.
 
 ## About
 

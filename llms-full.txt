@@ -1,6 +1,6 @@
 # Anipoex — full reference
 
-> A manga tracker for your AniList list that reads chapters from Mihon extensions, on iOS, Android, web, macOS and Windows.
+> An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, web, macOS and Windows.
 
 - Author: Carlos Espinoza (https://github.com/Carloss616)
 - URL: https://github.com/Carloss616/anipoex
@@ -13,6 +13,14 @@ Anipoex is a manga tracker for one person. It signs in to AniList, shows the man
 To find chapters, it runs Mihon extensions (extensions-lib 1.4 and 1.6) inside the app, with no server. The user adds extension repos, trusts each repo's signing key and installs extensions; each manga then reads from one source. A scan compares every installed source for a manga and shows how many chapters are past the user's progress (`+N`).
 
 The same features ship on iOS (SwiftUI), Android (Jetpack Compose), the web (PanelUI) and a desktop app for macOS and Windows (Electron). A plain browser can show the list and the extension catalog but cannot run extensions.
+
+## Compared with other apps
+
+- Mihon: Android only, keeps its own library and sends progress to trackers one way; Anipoex runs the same Mihon extensions on Android, iOS and desktop, and uses the tracker list itself as the library (AniList today, more trackers planned).
+- Seanime: a self-hosted server (Go) with web and desktop clients and its own extension marketplace; Anipoex needs no server.
+- AnymeX: a multi-tracker client (AniList, MyAnimeList, Simkl) that is a tracking tool, not a reader.
+- Running Mihon extensions outside Android otherwise usually means a server such as Suwayomi; Anipoex embeds the runtime.
+- Anipoex's scans compare every installed source for a manga and read from the one furthest ahead, with rules from the manga-source-updates plugin for Seanime.
 
 ## Features
 
@@ -66,4 +74,4 @@ The same features ship on iOS (SwiftUI), Android (Jetpack Compose), the web (Pan
 ## Roadmap
 
 - Done: AniList tracking; Mihon extensions on Android, iOS, macOS and Windows; scans, auto-exclusion and auto-pick; reader; sync through a gist or a folder; desktop app for macOS and Windows.
-- Planned: chapter downloads; the iOS runtime on a physical iPhone; signed macOS builds; a Windows installer.
+- Planned: more trackers beyond AniList; chapter downloads; the iOS runtime on a physical iPhone; signed macOS builds; a Windows installer.
