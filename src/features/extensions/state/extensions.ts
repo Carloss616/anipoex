@@ -6,6 +6,7 @@ import { type Extension, hasUpdate, keepUnchanged } from "../utils/extension";
 import { toExtensions } from "../utils/registry";
 import { fetchIndex } from "../utils/repo";
 import "./dns";
+import { installs$ } from "./installs";
 
 /** Catalog of the added repos merged with what the runtime has installed. */
 export const extensions$ = observable<Extension[]>([]);
@@ -94,8 +95,16 @@ async function perform(
   }
 }
 
+/** What other devices learn from an operation that landed here. */
+const keep: Partial<Record<ExtensionOperation, (e: Extension) => void>> = {
+  installing: (e) => {
+    if (!installs$[e.id].peek()) installs$[e.id].set({ name: e.name });
+  },
+  uninstalling: (e) => installs$[e.id].delete(),
+};
+
 // One at a time (native install lock), one reload; rows show progress until
-// it lands, so no stale action flashes back.
+// it lands, so no stale action flashes back. Resolves to the ids it did.
 async function run(
   ids: string[],
   operation: ExtensionOperation,
@@ -103,13 +112,22 @@ async function run(
 ) {
   const mine = ids.filter((id) => !extensionOperations$[id].peek());
   for (const id of mine) extensionOperations$[id].set(operation);
+  const done: string[] = [];
   try {
-    let changed = false;
-    for (const id of mine) if (await perform(id, task)) changed = true;
-    if (changed) await loadExtensions();
+    for (const id of mine) {
+      if (
+        await perform(id, async (e) => {
+          await task(e);
+          keep[operation]?.(e);
+        })
+      )
+        done.push(id);
+    }
+    if (done.length) await loadExtensions();
   } finally {
     for (const id of mine) extensionOperations$[id].delete();
   }
+  return done;
 }
 
 const download = (e: Extension) => {
@@ -121,10 +139,20 @@ const download = (e: Extension) => {
 export const installExtension = (id: string) =>
   run([id], "installing", download);
 
+/** Installs several in one queue, as a sync brings them; resolves to the ids done. */
+export const installExtensions = (ids: string[]) =>
+  run(ids, "installing", download);
+
 export const updateExtension = (id: string) => run([id], "updating", download);
 
+const remove = (e: Extension) => runtime.uninstall(e.id);
+
 export const uninstallExtension = (id: string) =>
-  run([id], "uninstalling", (e) => runtime.uninstall(e.id));
+  run([id], "uninstalling", remove);
+
+/** Uninstalls several in one queue; resolves to the ids done. */
+export const uninstallExtensions = (ids: string[]) =>
+  run(ids, "uninstalling", remove);
 
 export const updateAllExtensions = () =>
   run(

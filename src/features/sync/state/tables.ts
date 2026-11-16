@@ -1,4 +1,5 @@
 import type { ObservableParam } from "@legendapp/state";
+import { installs$ } from "@/features/extensions/state/installs";
 import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
 import { manualMatches$ } from "@/features/manga/state/manual-matches";
 import { probes$ } from "@/features/manga/state/probes";
@@ -30,4 +31,5 @@ export const TABLES: SyncTable[] = [
   table("pins", pins$, 2),
   table("probes", probes$, 2),
   table("search-history", searchHistory$, 0),
+  table("extensions", installs$, 1),
 ];

@@ -21,6 +21,7 @@ import {
   SyncError,
 } from "../utils/github";
 import { leaveTarget, requestSync, setSyncTarget } from "./engine";
+import "./extension-sync";
 import { github$ } from "./github";
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID ?? "";

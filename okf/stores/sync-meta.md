@@ -20,6 +20,7 @@ The synced stores and what one record of each is:
 | `pins` | [Source pins](source-pins.md) | one manga on one source |
 | `probes` | [Source probes](source-probes.md) | one manga on one source |
 | `search-history` | [Search history](search-history.md) | the whole list |
+| `extensions` | [Extension installs](extension-installs.md) | one extension |
 
 A record's key is its path in the store, joined by `/` (`21/<sourceId>`). Every change the
 app makes stamps the records it touched, from the first launch on, whether a sync is
