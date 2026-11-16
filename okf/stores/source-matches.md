@@ -35,7 +35,10 @@ a scan: matched, not excluded, not failing, numbering not suspicious, then in th
 the list. Such a pick carries `auto: true`, kept while its search resumes; a pick the user makes
 has none, and a scan never replaces it. It says "Now reading from <source> · +N" (no `+N` when nothing is new) with *Undo pick*, which puts
 back what was there before (no source, or the previous scan's pick), as long as the scan's pick
-is still the one chosen. The user can turn it off
+is still the one chosen. Opening the detail of a manga with no key at all picks the same way
+from the probes it has, with no toast and no scan, once per visit: a scan's pick on another
+device doesn't sync, its probes do, so the other device picks the same source when the manga
+opens and loads its chapters then. The user can turn it off
 in Settings ("Auto-pick a source", [settings](settings.md) `sources.autoPick`, on by
 default). A missing key means no source chosen; so does a match whose source no installed extension provides any more
 (it was uninstalled), once the installed list has been read, so the detail asks to pick

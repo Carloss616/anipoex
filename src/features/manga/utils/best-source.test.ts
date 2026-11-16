@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { bestSource, nextAutoPick } from "./best-source";
+import { bestLatest, bestSource, nextAutoPick } from "./best-source";
 import type { PickPrefs } from "./compare-sources";
 
 const NONE: PickPrefs = { challenged: {}, languages: [] };
@@ -89,5 +89,23 @@ describe("nextAutoPick", () => {
   it("does nothing when auto-pick is off, or nothing qualifies", () => {
     expect(nextAutoPick(undefined, "a", false)).toBeUndefined();
     expect(nextAutoPick(undefined, undefined, true)).toBeUndefined();
+  });
+});
+
+describe("bestLatest", () => {
+  it("takes the newest readable source, past suspicious and excluded ones", () => {
+    const probes = {
+      a: probe(500),
+      b: probe(0, false),
+      c: probe(41),
+      d: probe(40),
+      e: probe(45),
+    };
+    const excluded = { e: { reason: "other" as const, updatedAt: 1 } };
+    expect(bestLatest(excluded, probes)).toBe(41);
+  });
+
+  it("is undefined with nothing readable", () => {
+    expect(bestLatest({}, { a: probe(0, false) })).toBeUndefined();
   });
 });

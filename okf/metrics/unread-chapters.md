@@ -22,7 +22,9 @@ rule, so both apps show the same number.
 
 The manga list's badge is the chosen source's `+N`, the same number its row shows, so it
 changes at once when another source is chosen; with no matched probe for it, `latest` is the
-last chapter of its stored list. Home's [continue reading](../concepts/continue-reading.md)
+last chapter of its stored list. With no source chosen, it is the newest readable source's `+N`
+(matched, not excluded, not failing, numbering not suspicious), so a device that got another's probes by
+sync shows it before the manga is opened. Home's [continue reading](../concepts/continue-reading.md)
 counts the same way from the stored list.
 
 ## What a source row shows

@@ -42,6 +42,21 @@ export function bestSource(
 }
 
 /**
+ * The newest chapter in a readable source, by the probes alone: the +N a
+ * manga shows when nothing is chosen.
+ */
+export function bestLatest(
+  excluded: Excluded,
+  probes: ProbeMap,
+): number | undefined {
+  const sources = Object.keys(probes).map((id) => ({ id, name: id }));
+  const latest = readableSources(sources, excluded, probes).map(
+    (s) => probes[s.id].latest,
+  );
+  return latest.length ? Math.max(...latest) : undefined;
+}
+
+/**
  * What a scan should pick: `best` when nothing is chosen or a scan chose
  * another; never over a pick made by hand.
  */

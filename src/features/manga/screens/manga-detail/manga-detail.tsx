@@ -1,4 +1,4 @@
-import { Computed, useObservable } from "@legendapp/state/react";
+import { Computed, useObservable, useValue } from "@legendapp/state/react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { cn } from "panelui-native/utils/cn";
@@ -10,6 +10,7 @@ import { Toolbar } from "@/components/layout/toolbar";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
 import {
+  installedLoaded$,
   isRuntimeAvailable,
   RUNTIME_UNAVAILABLE,
   refreshInstalled,
@@ -71,8 +72,10 @@ export function MangaDetail() {
     refresh: refreshChapters,
   } = useSourceChapters(Number(id), match);
 
-  const { resume } = useSourceSearch(manga);
+  const { resume, pick } = useSourceSearch(manga);
   const [resumed, setResumed] = useState(false);
+  const [picked, setPicked] = useState(false);
+  const loaded = useValue(installedLoaded$);
   const pendingId = match?.manga === undefined ? match?.sourceId : undefined;
 
   // A pick without a manga is searched once each time the detail opens;
@@ -82,6 +85,14 @@ export function MangaDetail() {
     setResumed(true);
     resume(pendingId);
   }, [pendingId, manga, resume, resumed]);
+
+  // With no pick at all, the best source by its probes is picked once when
+  // the detail opens, as a scan would; its chapters then load.
+  useEffect(() => {
+    if (picked || !manga || !loaded) return;
+    setPicked(true);
+    pick();
+  }, [picked, manga, loaded, pick]);
 
   // A new pick hides the previous source's rows so the loading state shows.
   const rows = matching ? [] : chapters;

@@ -127,6 +127,33 @@ export interface ScanResult {
 }
 
 /**
+ * Picks the best readable source by the stored probes, when nothing is chosen
+ * or a scan chose another: what a scan does once it lands, and the detail
+ * does with probes another device synced.
+ */
+export function autoPick(mangaId: number, sources: Source[], titles: Titles) {
+  const key = mediaKey(mangaId);
+  const previous = source$[mangaId].peek();
+  const id = nextAutoPick(
+    readMatch(previous),
+    bestSource(
+      sources,
+      exclusions$[key].peek() ?? {},
+      probes$[key].peek() ?? {},
+      {
+        challenged: challenged$.peek(),
+        languages: languages$.peek(),
+      },
+    ),
+    settings$.sources.autoPick.peek(),
+  );
+  const picked = sources.find((s) => s.id === id);
+  if (!picked) return;
+  void selectSource(mangaId, picked, titles, undefined, true);
+  return { picked, previous };
+}
+
+/**
  * Undoes a scan's pick only while it is still that pick: the user may have
  * picked by hand since.
  */
@@ -465,25 +492,14 @@ export async function scanSources(args: {
     }
     activity.end(Object.values(landed).filter((p) => p.matched).length);
     await recordChallenges(sources);
-    // A manga read from no source, or from one a scan picked, gets the best
-    // one, so its +N shows.
-    const previous = source$[mangaId].peek();
-    const probes = probes$[key].peek() ?? {};
-    const id = nextAutoPick(
-      readMatch(previous),
-      bestSource(sources, exclusions$[key].peek() ?? {}, probes, {
-        challenged: challenged$.peek(),
-        languages: languages$.peek(),
-      }),
-      settings$.sources.autoPick.peek(),
-    );
-    const picked = sources.find((s) => s.id === id);
-    if (picked) {
-      void selectSource(mangaId, picked, titles, undefined, true);
-      const pick = { id: picked.id, previous };
-      result.picked = pick;
+    const pick = autoPick(mangaId, sources, titles);
+    if (pick) {
+      const { picked } = pick;
+      const undo = { id: picked.id, previous: pick.previous };
+      result.picked = undo;
       if (!args.activity) {
-        const unread = unreadChapters(read(), probes[picked.id].latest);
+        const latest = probes$[key][picked.id].latest.peek();
+        const unread = unreadChapters(read(), latest);
         toast(
           unread
             ? `Now reading from ${picked.name} · +${unread}`
@@ -491,7 +507,7 @@ export async function scanSources(args: {
           {
             action: {
               label: "Undo pick",
-              onAction: () => undoPick(mangaId, pick),
+              onAction: () => undoPick(mangaId, undo),
             },
           },
         );
