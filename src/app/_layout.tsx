@@ -11,8 +11,8 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ToastHost, ToastProvider } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
-// Stamps synced stores from launch, and syncs once GitHub is connected.
 import "@/features/downloads/state/lifecycle";
+// Stamps synced stores from launch, and syncs once GitHub is connected.
 import "@/features/sync/state/connection";
 import { client } from "@/graphql/client";
 import { useCacheRestored } from "@/graphql/use-cache-restored";

@@ -23,6 +23,7 @@ import { DetailHeader } from "../detail-header";
 import { ART_HEIGHT, Hero } from "../hero";
 import { SourcePicker } from "../source-picker";
 import type { DetailListProps } from "./detail-list";
+import { useDownloadTarget } from "./hooks/use-download-target";
 
 const NO_INSETS = listRowInsets({ top: 0, leading: 0, bottom: 0, trailing: 0 });
 
@@ -43,6 +44,7 @@ export function DetailList({
   className,
 }: DetailListProps) {
   const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
+  const { downloadManga, downloadSource } = useDownloadTarget(manga);
   const sectionHeader = (
     <HStack spacing={12}>
       <Text>Chapters</Text>
@@ -113,7 +115,8 @@ export function DetailList({
               {({ item }) => (
                 <ChapterItem
                   chapter={item}
-                  mediaId={manga.id}
+                  manga={downloadManga}
+                  source={downloadSource}
                   entryId={manga.mediaListEntry?.id}
                   continue$={continue$}
                 />

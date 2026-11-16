@@ -36,6 +36,7 @@ import { DetailHeader } from "../detail-header";
 import { Hero } from "../hero";
 import { SourcePicker } from "../source-picker";
 import type { DetailListProps } from "./detail-list";
+import { useDownloadTarget } from "./hooks/use-download-target";
 
 const SHEET = Shape.RoundedCorner({
   cornerRadii: { topStart: 28, topEnd: 28 },
@@ -67,6 +68,7 @@ export function DetailList({
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
   const sheet = m3.surfaceContainerLowest;
+  const { downloadManga, downloadSource } = useDownloadTarget(manga);
 
   return (
     <Host className={cn("flex-1", className)}>
@@ -135,7 +137,8 @@ export function DetailList({
                   >
                     <ChapterItem
                       chapter={item}
-                      mediaId={manga.id}
+                      manga={downloadManga}
+                      source={downloadSource}
                       entryId={manga.mediaListEntry?.id}
                       continue$={continue$}
                       index={index}

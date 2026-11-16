@@ -1,20 +1,28 @@
+import { Computed } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
+import { memo } from "react";
 import { View } from "react-native";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
+import { Menu } from "@/components/ui/menu";
+import { ProgressRing } from "@/components/ui/progress-ring";
+import { downloadProgress$, type QueuedDownload } from "@/features/downloads";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
-import { noop } from "@/utils/utils";
 import type { Continue$ } from "../../hooks/use-continue";
+import { useChapterDownload } from "./hooks/use-chapter-download";
 import { useChapterRead } from "./hooks/use-chapter-read";
 import { useIsNext } from "./hooks/use-is-next";
+import { deleteItem, downloadLabel, STATE_ICONS } from "./utils/download-items";
 
 export interface ChapterItemProps {
   chapter: Chapter;
-  /** The AniList id the reader opens with. */
-  mediaId: number;
+  /** What a download is filed under; its id is the one the reader opens with. */
+  manga: QueuedDownload["manga"];
+  /** The matched source; no download actions without one. */
+  source: QueuedDownload["source"] | undefined;
   /** The list entry; chapters up to its progress are dimmed. */
   entryId: number | null | undefined;
   continue$: Continue$;
@@ -28,15 +36,18 @@ export interface ChapterItemProps {
 }
 
 /** One chapter row; the list around it draws the card. */
-export function ChapterItem({
+export const ChapterItem = memo(function ChapterItem({
   chapter,
-  mediaId,
+  manga,
+  source,
   entryId,
   continue$,
 }: ChapterItemProps) {
   const router = useRouter();
   const read = useChapterRead(entryId, chapter.number);
   const next = useIsNext(continue$, chapter.id);
+  const download = useChapterDownload(manga, source, chapter);
+  const { state } = download;
 
   return (
     <View>
@@ -45,14 +56,15 @@ export function ChapterItem({
           router.push({
             pathname: "/manga/[id]/reader",
             params: {
-              id: mediaId,
+              id: manga.id,
               chapter: chapter.id,
             },
           })
         }
         // Dimmed, not `disabled`: a read chapter still opens.
         className={cn(
-          next ? "pe-28.75" : "pe-17",
+          // Room for the actions: Next's badge and the download button.
+          next && source ? "pe-28.75" : next ? "pe-18.25" : source && "pe-17",
           read && "opacity-[0.64]",
           next && "shadow-[inset_3px_0_0_var(--color-primary)]",
         )}
@@ -77,15 +89,41 @@ export function ChapterItem({
       {/* Over the row, not in it: a <button> can't hold buttons. */}
       <Frame.Actions className="absolute inset-y-0 inset-e-4">
         {next && <Badge color="primary">Next</Badge>}
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={noop}
-          aria-label={`Download chapter ${chapter.title}`}
-        >
-          <Icon name={Icons.download} />
-        </Button>
+        {source &&
+          (state === "local" || state === "cloud" ? (
+            <Menu items={[deleteItem(download.actions.remove)]}>
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label={downloadLabel(state, chapter.title)}
+              >
+                <Icon name={STATE_ICONS[state]} className="text-primary" />
+              </Button>
+            </Menu>
+          ) : (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={download.press}
+              aria-label={downloadLabel(state, chapter.title)}
+            >
+              {state === "running" ? (
+                <Computed>
+                  {() => (
+                    <ProgressRing
+                      value={downloadProgress$[download.key].get() ?? 0}
+                    />
+                  )}
+                </Computed>
+              ) : (
+                <Icon
+                  name={STATE_ICONS[state]}
+                  className={cn(state === "failed" && "text-destructive")}
+                />
+              )}
+            </Button>
+          ))}
       </Frame.Actions>
     </View>
   );
-}
+});

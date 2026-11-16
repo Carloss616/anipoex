@@ -23,6 +23,7 @@ import { DetailHeader } from "../detail-header";
 import { DetailSidebar } from "../detail-sidebar";
 import { ART_HEIGHT, Hero } from "../hero";
 import { SourcePicker } from "../source-picker";
+import { useDownloadTarget } from "./hooks/use-download-target";
 import { useScrollSync } from "./hooks/use-scroll-sync";
 
 export interface DetailListProps {
@@ -75,6 +76,7 @@ export function DetailList({
   const headerHeight = useHeaderHeight();
   const wide = useBreakpoint().isAtLeast("lg");
   const entryId = manga.mediaListEntry?.id;
+  const { downloadManga, downloadSource } = useDownloadTarget(manga);
   // The source list draws over the detail, which stays in sight under it.
   const covered = sourceListMangaId(usePathname()) === manga.id;
   const last = chapters.length;
@@ -135,8 +137,9 @@ export function DetailList({
             keyExtractor={(row) => (row === HEADER ? HEADER : row.id)}
             getItemType={(row) => (row === HEADER ? HEADER : "chapter")}
             // Rows only redraw when this changes: a first save gives the
-            // entry an id, and the last row's rounding follows the count.
-            extraData={`${entryId}:${last}`}
+            // entry an id, the last row's rounding follows the count, and a
+            // known source brings the download buttons.
+            extraData={`${entryId}:${last}:${downloadSource?.id}`}
             itemLayoutAnimation={LinearTransition}
             stickyHeaderIndices={STICKY}
             stickyHeaderConfig={{ offset: headerHeight }}
@@ -172,7 +175,8 @@ export function DetailList({
                   >
                     <ChapterItem
                       chapter={item}
-                      mediaId={manga.id}
+                      manga={downloadManga}
+                      source={downloadSource}
                       entryId={entryId}
                       continue$={continue$}
                     />
