@@ -79,13 +79,14 @@ export const ChapterItem = memo(function ChapterItem({
           label fills the row. */}
       <HStack
         spacing={8}
-        modifiers={[
-          padding({ vertical: 16, horizontal: 16 }),
-          ...ROW_FILL,
-          ...(read ? [opacity(0.64)] : []),
-        ]}
+        modifiers={[padding({ vertical: 16, horizontal: 16 }), ...ROW_FILL]}
       >
-        <VStack alignment="leading" spacing={2}>
+        {/* Dims the text, not the row: the download status stays full. */}
+        <VStack
+          alignment="leading"
+          spacing={2}
+          modifiers={read ? [opacity(0.64)] : undefined}
+        >
           <HStack spacing={6}>
             {read && (
               <HStack spacing={-7}>
@@ -143,7 +144,8 @@ export const ChapterItem = memo(function ChapterItem({
           {/* No destructive role: SwiftUI would delete the row before the
               alert confirms. */}
           <Button
-            label={first.label}
+            // The row says what it deletes; the menu keeps "Delete download".
+            label={first.destructive ? "Delete" : first.label}
             systemImage={sfSymbol(first.icon)}
             modifiers={first.destructive ? [tint(destructive)] : []}
             onPress={first.onPress}

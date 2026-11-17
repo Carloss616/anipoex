@@ -44,11 +44,11 @@ export function useChapterDownload(
       );
     },
   };
-  /** What the row's button does; local and cloud open its menu instead. */
+  /** What the row's button does; running, local and cloud open its menu instead. */
   const press = {
     none: actions.download,
     queued: actions.cancel,
-    running: actions.pause,
+    running: undefined,
     paused: actions.resume,
     failed: actions.retry,
     local: undefined,

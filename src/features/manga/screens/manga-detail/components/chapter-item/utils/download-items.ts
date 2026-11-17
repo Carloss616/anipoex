@@ -11,7 +11,7 @@ export const DELETE_DIALOG: MenuItemDialogConfig = {
 const LABELS: Record<DownloadState, string> = {
   none: "Download chapter",
   queued: "Cancel download of chapter",
-  running: "Pause download of chapter",
+  running: "Downloading chapter",
   paused: "Resume download of chapter",
   failed: "Retry download of chapter",
   local: "Downloaded chapter",
