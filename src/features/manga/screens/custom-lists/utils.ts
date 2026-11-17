@@ -44,3 +44,9 @@ export function listMenuItems(
       : remove,
   ];
 }
+
+/** The sheet sits over the Manga tab's list. */
+export const isOverMangaList = (state: {
+  routes: { name: string }[];
+  index: number;
+}) => state.routes[state.index - 1]?.name === "manga/index";

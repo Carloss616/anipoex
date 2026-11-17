@@ -23,12 +23,14 @@ import {
   deleting$,
   useManageCustomLists,
 } from "@/features/manga/hooks/use-manage-custom-lists";
+import { useSheetOver } from "@/features/manga/hooks/use-sheet-over";
 import type { CustomList } from "@/features/manga/utils/to-counts";
 import { ListNameField } from "./components/list-name-field";
-import { CUSTOM_LISTS_HELP, listMenuItems } from "./utils";
+import { CUSTOM_LISTS_HELP, isOverMangaList, listMenuItems } from "./utils";
 
 /** The account's custom lists: create one, delete one. */
 export function CustomLists() {
+  useSheetOver(isOverMangaList, "/manga", "/manga/custom-lists");
   const router = useRouter();
   const [open, setOpen] = useState(false);
 

@@ -4,9 +4,6 @@ import { header } from "@/components/layout/header";
 import { mangaStackScreens } from "@/features/manga/utils/manga-stack-screens";
 import { useStackTheme, useThemeM3Colors } from "@/hooks/use-theme";
 
-// A link straight to the lists sheet still opens it over the Manga tab.
-export const unstable_settings = { anchor: "manga/index" };
-
 export default function Layout() {
   const stackTheme = useStackTheme();
   const m3 = useThemeM3Colors();

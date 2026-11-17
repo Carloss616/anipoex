@@ -38,12 +38,19 @@ import {
   deleting$,
   useManageCustomLists,
 } from "@/features/manga/hooks/use-manage-custom-lists";
+import { useSheetOver } from "@/features/manga/hooks/use-sheet-over";
 import type { CustomList } from "@/features/manga/utils/to-counts";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ListNameField } from "./components/list-name-field";
-import { CUSTOM_LISTS_HELP, deleteListDialog, listMenuItems } from "./utils";
+import {
+  CUSTOM_LISTS_HELP,
+  deleteListDialog,
+  isOverMangaList,
+  listMenuItems,
+} from "./utils";
 
 export function CustomLists() {
+  useSheetOver(isOverMangaList, "/manga", "/manga/custom-lists");
   const { lists, create, rename, remove } = useManageCustomLists();
   const renaming$ = useObservable<string | null>(null);
   const [surfaceSecondary, primary, destructive] = useThemeColor([
