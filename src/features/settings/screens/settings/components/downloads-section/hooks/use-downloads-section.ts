@@ -28,7 +28,7 @@ export function useDownloadsSection() {
     saveTo: option,
     /** Resolves false when the option didn't change (the picker was dismissed). */
     setSaveTo,
-    /** The chosen folder's row, while "Another folder" is selected. */
+    /** The chosen folder's row, while "Folder" is selected. */
     folder:
       option === "folder" ? { name: folderLabel(folder), change } : undefined,
     note: option === "sync" && !hasSyncFolder ? NO_SYNC_FOLDER : undefined,

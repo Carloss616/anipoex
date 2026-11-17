@@ -2,7 +2,7 @@ import type { SaveTo } from "./utils";
 
 export const SAVE_TO_OPTIONS: { id: SaveTo; label: string }[] = [
   { id: "sync", label: "With sync" },
-  { id: "folder", label: "Another folder" },
+  { id: "folder", label: "Folder" },
   { id: "device", label: "This device" },
 ];
 
