@@ -210,6 +210,13 @@ class ExtensionRuntimeModule : Module() {
         files.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
       }
     }
+
+    AsyncFunction("unpacked") Coroutine { key: String ->
+      withContext(Dispatchers.IO) {
+        ChapterArchive.cached(File(unpacked, ChapterArchive.checkId(key)))
+          ?.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
+      }
+    }
   }
 
   private suspend fun install(apkUrl: String, signingKey: String): Map<String, Any?> {

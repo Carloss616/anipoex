@@ -247,6 +247,10 @@ class ExtensionHost(dataDir: File) {
         return files.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
     }
 
+    fun unpacked(key: String): List<Map<String, Any?>>? =
+        ChapterArchive.cached(File(unpacked, ChapterArchive.checkId(key)))
+            ?.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
+
     // As Mihon: an extension without the lib in its metadata carries it in
     // versionName (1.4.3 -> 1.4).
     private fun libVersion(versionName: String?, metaData: Map<String, String>): Float =

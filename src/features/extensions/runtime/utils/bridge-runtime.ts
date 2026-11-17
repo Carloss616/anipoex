@@ -5,6 +5,18 @@ type Send = (
   args: Record<string, unknown>,
 ) => Promise<{ result?: unknown; error?: string }>;
 
+type FilePage = { index: number; uri: string };
+
+const localPages = (pages: FilePage[]) =>
+  pages.map(
+    (page): SourcePage => ({
+      index: page.index,
+      imageUrl: page.uri,
+      headers: {},
+      local: true,
+    }),
+  );
+
 /**
  * A `RuntimeApi` over any transport that answers `{result}` or `{error}`, so
  * the app shows the extension's own message.
@@ -50,16 +62,11 @@ export const bridgeRuntime = (send: Send): RuntimeApi => {
       (await call<{ uri: string }>("pack", { stage, comicInfo })).uri,
     dropStage: (stage) => call("dropStage", { stage }),
     unpack: async (uri, key) =>
-      (
-        await call<{ index: number; uri: string }[]>("unpack", { uri, key })
-      ).map(
-        (page): SourcePage => ({
-          index: page.index,
-          imageUrl: page.uri,
-          headers: {},
-          local: true,
-        }),
-      ),
+      localPages(await call<FilePage[]>("unpack", { uri, key })),
+    unpacked: async (key) => {
+      const pages = await call<FilePage[] | null>("unpacked", { key });
+      return pages && localPages(pages);
+    },
     getDns: () => call("getDns"),
     setDns: (dns) => call("setDns", { dns }),
     challengedHosts: () => call("challengedHosts"),

@@ -51,7 +51,9 @@ class BridgeTest {
         val packed = Bridge.call("pack", """{"stage":"s-1","comicInfo":"<ComicInfo/>"}""")
         val uri = Regex("\"uri\":\"([^\"]+)\"").find(packed)!!.groupValues[1]
         assertTrue(uri.endsWith("/s-1.cbz"), packed)
+        assertEquals("""{"result":null}""", Bridge.call("unpacked", """{"key":"s-1"}"""))
         val pages = Bridge.call("unpack", """{"uri":"$uri","key":"s-1"}""")
+        assertEquals(pages, Bridge.call("unpacked", """{"key":"s-1"}"""))
         assertEquals(2, Regex("\"index\"").findAll(pages).count(), pages)
         assertContains(pages, "\"index\":0")
         assertContains(pages, "\"index\":1")

@@ -9,6 +9,7 @@ import {
   servePage,
   stageArgs,
   unpackArgs,
+  unpackedArgs,
 } from "./pages.js";
 
 const page = (index, imageUrl = `https://example.com/${index}.png`) => ({
@@ -204,6 +205,16 @@ test("unpackArgsRejectsTheRest", () => {
   for (const key of ["", "a/b", "../x", "a".repeat(201), undefined])
     expect(unpackArgs({ uri, key })).toEqual(bad);
   expect(unpackArgs(undefined)).toEqual(bad);
+});
+
+test("unpackedArgsTakesOnlyAChapterKey", () => {
+  expect(unpackedArgs({ key: "1-2-ab", uri: "file:///etc/x.cbz" })).toEqual({
+    args: { key: "1-2-ab" },
+  });
+  const bad = { error: "Not a downloaded chapter" };
+  for (const key of ["", "a/b", "../x", "a".repeat(201), undefined])
+    expect(unpackedArgs({ key })).toEqual(bad);
+  expect(unpackedArgs(undefined)).toEqual(bad);
 });
 
 test("fileAndPageEntriesShareTheLimit", () => {

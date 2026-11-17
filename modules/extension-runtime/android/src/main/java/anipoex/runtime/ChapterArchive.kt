@@ -85,15 +85,22 @@ object ChapterArchive {
     }
 
     /**
+     * The pages of a finished unpack in `dir`, else null. Touches `dir` so
+     * `prune` keeps the latest used.
+     */
+    fun cached(dir: File): List<File>? {
+        if (!File(dir, DONE).exists()) return null
+        dir.setLastModified(System.currentTimeMillis())
+        return dir.listFiles { f -> f.isFile && f.name != DONE }.orEmpty()
+            .sortedWith { a, b -> naturalCompare(a.name, b.name) }
+    }
+
+    /**
      * The pages in `dir` when an earlier unpack finished there, without opening
-     * the CBZ; else unpacks it. Touches `dir` so `prune` keeps the latest used.
+     * the CBZ; else unpacks it.
      */
     fun unpackCached(open: () -> InputStream, dir: File): List<File> {
-        if (File(dir, DONE).exists()) {
-            dir.setLastModified(System.currentTimeMillis())
-            return dir.listFiles { f -> f.isFile && f.name != DONE }.orEmpty()
-                .sortedWith { a, b -> naturalCompare(a.name, b.name) }
-        }
+        cached(dir)?.let { return it }
         val files = open().use { unpack(it, dir) }
         // Last, so an interrupted extraction is redone.
         File(dir, DONE).createNewFile()

@@ -9,7 +9,7 @@ import { chapterHash, downloadKey, stageId } from "./paths";
 type Pages = Awaited<ReturnType<RuntimeApi["pages"]>>;
 
 interface OpenDeps {
-  runtime: Pick<RuntimeApi, "unpack">;
+  runtime: Pick<RuntimeApi, "unpack" | "unpacked">;
   stores: () => DownloadStore[];
 }
 
@@ -35,12 +35,16 @@ export async function openDownload(
   deps: OpenDeps = { runtime, stores: defaultStores },
 ): Promise<Pages | undefined> {
   const hash = chapterHash(chapterUrl);
+  const key = stageId(downloadKey(mangaId, sourceId, hash));
   let cloud: NotDownloadedError | undefined;
   for (const store of deps.stores()) {
     const entry = (await store.list(mangaId, sourceId)).find(
       (e) => e.hash === hash,
     );
     if (!entry) continue;
+    // Getting the file can copy a whole CBZ out of a bookmarked folder.
+    const cached = await deps.runtime.unpacked(key);
+    if (cached) return cached;
     let uri: string;
     try {
       uri = await store.get(entry.paths[0]);
@@ -49,10 +53,7 @@ export async function openDownload(
       cloud = error;
       continue;
     }
-    return deps.runtime.unpack(
-      uri,
-      stageId(downloadKey(mangaId, sourceId, hash)),
-    );
+    return deps.runtime.unpack(uri, key);
   }
   if (cloud) throw cloud;
   return undefined;

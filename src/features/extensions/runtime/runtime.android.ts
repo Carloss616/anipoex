@@ -3,7 +3,10 @@ import type { RuntimeApi, SourcePage } from "./runtime";
 import { nativeErrorMessage } from "./utils/native-error";
 
 const native = requireNativeModule<
-  Omit<RuntimeApi, "pageImage" | "stagePage" | "pack" | "unpack"> & {
+  Omit<
+    RuntimeApi,
+    "pageImage" | "stagePage" | "pack" | "unpack" | "unpacked"
+  > & {
     stagePage(
       sourceId: string,
       imageUrl: string,
@@ -12,7 +15,8 @@ const native = requireNativeModule<
       name: string,
     ): Promise<void>;
     pack(stage: string, comicInfo: string): Promise<{ uri: string }>;
-    unpack(uri: string, key: string): Promise<{ index: number; uri: string }[]>;
+    unpack(uri: string, key: string): Promise<FilePage[]>;
+    unpacked(key: string): Promise<FilePage[] | null>;
     image(
       sourceId: string,
       imageUrl: string,
@@ -20,6 +24,18 @@ const native = requireNativeModule<
     ): Promise<{ uri: string }>;
   }
 >("ExtensionRuntime");
+
+type FilePage = { index: number; uri: string };
+
+const localPages = (pages: FilePage[]) =>
+  pages.map(
+    (page): SourcePage => ({
+      index: page.index,
+      imageUrl: page.uri,
+      headers: {},
+      local: true,
+    }),
+  );
 
 // Toasts and empty states show the cause's message, not the bridge's wrapper.
 const clean = <T>(promise: Promise<T>): Promise<T> =>
@@ -49,15 +65,11 @@ export const runtime: RuntimeApi = {
   pack: async (stage, comicInfo) =>
     (await clean(native.pack(stage, comicInfo))).uri,
   dropStage: (stage) => clean(native.dropStage(stage)),
-  unpack: async (uri, key) =>
-    (await clean(native.unpack(uri, key))).map(
-      (page): SourcePage => ({
-        index: page.index,
-        imageUrl: page.uri,
-        headers: {},
-        local: true,
-      }),
-    ),
+  unpack: async (uri, key) => localPages(await clean(native.unpack(uri, key))),
+  unpacked: async (key) => {
+    const pages = await clean(native.unpacked(key));
+    return pages && localPages(pages);
+  },
   getDns: () => clean(native.getDns()),
   setDns: (dns) => clean(native.setDns(dns)),
   challengedHosts: () => clean(native.challengedHosts()),
