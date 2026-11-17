@@ -23,3 +23,16 @@ export function downloadStateOf(
     "none"
   );
 }
+
+/** Chapters downloaded from one source, tracked like `downloadStateOf`. */
+export const sourceDownloads = (mangaId: number, sourceId: string) =>
+  Object.keys(downloaded$[`${mangaId}/${sourceId}`].get() ?? {}).length;
+
+/** Chapters downloaded from all of a manga's sources. */
+export function mangaDownloads(mangaId: number) {
+  const prefix = `${mangaId}/`;
+  let count = 0;
+  for (const [key, files] of Object.entries(downloaded$.get()))
+    if (key.startsWith(prefix)) count += Object.keys(files).length;
+  return count;
+}

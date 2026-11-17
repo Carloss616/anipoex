@@ -22,9 +22,9 @@ const LABELS: Record<DownloadState, string> = {
 export const STATE_ICONS = {
   none: Icons.download,
   queued: Icons.hourglass,
-  failed: Icons.downloadFailed,
+  failed: Icons.error,
   local: Icons.downloaded,
-  cloud: Icons.inCloud,
+  cloud: Icons.cloud,
 };
 
 /** The row button's accessibility label. */

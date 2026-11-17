@@ -76,7 +76,7 @@ export function ToastHost({
           <Icon name={Icons.checkCircle} size={16} className="text-success" />
         ),
         info: <Icon name={Icons.info} size={16} className="text-info" />,
-        warning: <Icon name={Icons.error} size={16} className="text-warning" />,
+        warning: <Icon name={Icons.warning} size={16} className="text-warning" />,
         error: (
           <Icon name={Icons.error} size={16} className="text-destructive" />
         ),

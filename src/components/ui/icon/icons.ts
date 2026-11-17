@@ -202,17 +202,12 @@ export const Icons = {
   downloaded: Icon.select({
     ios: "checkmark.circle.fill",
     android: require("@expo/material-symbols/download_done.xml"),
-    web: "circle-check",
+    web: "check-line",
   }),
-  inCloud: Icon.select({
+  cloud: Icon.select({
     ios: "icloud",
     android: require("@expo/material-symbols/cloud.xml"),
     web: "cloud",
-  }),
-  downloadFailed: Icon.select({
-    ios: "exclamationmark.circle",
-    android: require("@expo/material-symbols/error.xml"),
-    web: "circle-alert",
   }),
 
   info: Icon.select({
@@ -220,10 +215,15 @@ export const Icons = {
     android: require("@expo/material-symbols/info.xml"),
     web: "info",
   }),
-  error: Icon.select({
+  warning: Icon.select({
     ios: "exclamationmark.triangle",
     android: require("@expo/material-symbols/warning.xml"),
     web: "triangle-alert",
+  }),
+  error: Icon.select({
+    ios: "exclamationmark.circle",
+    android: require("@expo/material-symbols/error.xml"),
+    web: "circle-alert",
   }),
 
   // Metadata

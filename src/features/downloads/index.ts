@@ -28,7 +28,13 @@ export {
   retryDownload,
 } from "./utils/download-actions";
 export { type DownloadRoot, downloadRoot } from "./utils/download-root";
-export { type DownloadState, downloadStateOf } from "./utils/download-state";
+export { downloadSegment } from "./utils/download-segment";
+export {
+  type DownloadState,
+  downloadStateOf,
+  mangaDownloads,
+  sourceDownloads,
+} from "./utils/download-state";
 export { type DownloadStore, downloadStore } from "./utils/download-store";
 export { isMoving, moveOnce, sameRoot } from "./utils/move-downloads";
 export { chapterHash, downloadKey, type StoredDownload } from "./utils/paths";

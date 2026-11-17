@@ -35,11 +35,12 @@ import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Progress } from "@/components/ui/progress";
+import { SplitBadge } from "@/components/ui/split-badge";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ramp } from "@/utils/ramp";
 import { COVER_RADIUS } from "./constants";
 import type { MangaCardProps } from "./manga-card";
-import { cornerBadge } from "./utils";
+import { cornerBadge, countSegments } from "./utils";
 
 const SCRIM = ramp("#000000");
 /** The scan loader's circle, as Android's contained indicator. */
@@ -62,6 +63,7 @@ export function MangaCard({
   titlePosition = "split",
   progress,
   unread,
+  downloads = 0,
   scanning = false,
   style,
   radius = COVER_RADIUS.ios,
@@ -71,6 +73,7 @@ export function MangaCard({
   onLongPress,
 }: MangaCardProps) {
   const corner = cornerBadge(status, mark);
+  const counts = countSegments(downloads, unread);
   const [card, overlay, solid, popover] = useThemeColor([
     "card",
     "overlay",
@@ -145,7 +148,7 @@ export function MangaCard({
           <Badge color={corner.color} icon={corner.icon} />
         </HStack>
       )}
-      {(scanning || unread != null) && (
+      {(scanning || counts.length > 0) && (
         <HStack
           modifiers={[
             padding({ all: 8 }),
@@ -167,7 +170,7 @@ export function MangaCard({
               <Loader size="sm" />
             </ZStack>
           ) : (
-            unread != null && (
+            counts.length > 0 && (
               // Secondary is see-through, made for rows: over a cover it
               // needs a solid fill behind.
               <HStack
@@ -177,9 +180,7 @@ export function MangaCard({
                     : undefined
                 }
               >
-                <Badge color={unread > 0 ? "success" : "secondary"}>
-                  {String(unread)}
-                </Badge>
+                <SplitBadge segments={counts} />
               </HStack>
             )
           )}

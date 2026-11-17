@@ -16,7 +16,7 @@ mock.module("@/state/observable-persist", () => ({
 }));
 
 const { downloaded$ } = await import("./download-queue");
-const { refreshDownloaded } = await import("./downloaded");
+const { loadDownloaded, refreshDownloaded } = await import("./downloaded");
 
 const fake = (files: { hash: string; local: boolean }[]) =>
   ({ list: async () => files.map((f) => ({ ...f, paths: [] })) }) as never;
@@ -70,5 +70,24 @@ describe("refreshDownloaded", () => {
     } as never;
     await expect(refreshDownloaded(5, "s", failing)).rejects.toThrow("boom");
     expect(downloaded$.peek()["5/s"]).toEqual({ aaaaaaaa: "local" });
+  });
+});
+
+describe("loadDownloaded", () => {
+  it("lists each manga and source that has files", async () => {
+    const listed: string[] = [];
+    await loadDownloaded({
+      listAll: async () => [
+        "downloads/A [7]/Source A [s1]/Ch 1 [aaaaaaaa].cbz",
+        "downloads/A [7]/Source A [s1]/Ch 2 [bbbbbbbb].cbz",
+        "downloads/B [8]/Source B [s2]/Ch 1 [cccccccc].cbz",
+      ],
+      list: async (mangaId: number, sourceId: string) => {
+        listed.push(`${mangaId}/${sourceId}`);
+        return [{ hash: "aaaaaaaa", paths: [], local: true }];
+      },
+    } as never);
+    expect(listed).toEqual(["7/s1", "8/s2"]);
+    expect(downloaded$.peek()["8/s2"]).toEqual({ aaaaaaaa: "local" });
   });
 });

@@ -22,11 +22,12 @@ import { Host, useIsInsideHost } from "@/components/ui/host";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Loader } from "@/components/ui/loader";
 import { Progress } from "@/components/ui/progress";
+import { SplitBadge } from "@/components/ui/split-badge";
 import { ramp } from "@/utils/ramp";
 import { COVER_RADIUS } from "./constants";
 import { CoverImage } from "./cover-image";
 import type { MangaCardProps } from "./manga-card";
-import { cornerBadge } from "./utils";
+import { cornerBadge, countSegments } from "./utils";
 
 /** Legible on any cover: a light caption over the dark wash. */
 const SHADOW = { color: "#000000b3", offsetX: 0, offsetY: 1, blurRadius: 3 };
@@ -47,6 +48,7 @@ export function MangaCard({
   titlePosition = "split",
   progress,
   unread,
+  downloads = 0,
   scanning = false,
   style,
   radius = COVER_RADIUS.android,
@@ -57,6 +59,7 @@ export function MangaCard({
 }: MangaCardProps) {
   const isInsideHost = useIsInsideHost();
   const corner = cornerBadge(status, mark);
+  const counts = countSegments(downloads, unread);
 
   // On top of the cover: takes the press and carries the name TalkBack reads.
   const overlay = (
@@ -103,17 +106,9 @@ export function MangaCard({
           <Badge color={corner.color} icon={corner.icon} />
         </Box>
       )}
-      {(scanning || unread != null) && (
+      {(scanning || counts.length > 0) && (
         <Box modifiers={[align("topEnd"), padding(8, 8, 8, 8)]}>
-          {scanning ? (
-            <Loader size="sm" />
-          ) : (
-            unread != null && (
-              <Badge color={unread > 0 ? "success" : "secondary"}>
-                {String(unread)}
-              </Badge>
-            )
-          )}
+          {scanning ? <Loader size="sm" /> : <SplitBadge segments={counts} />}
         </Box>
       )}
       {titlePosition === "split" && label && (

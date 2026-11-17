@@ -95,6 +95,7 @@ export const ChapterItem = memo(function ChapterItem({
               <Button
                 size="icon"
                 variant="ghost"
+                shape="pill"
                 aria-label={downloadLabel(state, chapter.title)}
               >
                 <Icon name={STATE_ICONS[state]} className="text-primary" />
@@ -105,6 +106,7 @@ export const ChapterItem = memo(function ChapterItem({
               size="icon"
               variant="ghost"
               onClick={download.press}
+              shape="pill"
               aria-label={downloadLabel(state, chapter.title)}
             >
               {state === "running" || state === "paused" ? (

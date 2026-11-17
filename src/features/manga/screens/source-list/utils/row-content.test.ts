@@ -1,10 +1,17 @@
-import { describe, expect, it } from "bun:test";
-import {
+import { describe, expect, it, mock } from "bun:test";
+
+// The registry requires native assets; the badges only need a name per icon.
+mock.module("@/components/ui/icon", () => ({
+  Icons: new Proxy({}, { get: (_, name) => String(name) }),
+}));
+
+const {
   excludedBy,
   excludedMenuItems,
   excludeReasons,
+  statusBadges,
   statusDetail,
-} from "./row-content";
+} = await import("./row-content");
 
 describe("row content", () => {
   it("splits chapter and age, each when present", () => {
@@ -82,5 +89,23 @@ describe("row content", () => {
       "Retry auto-excluded (off)",
       "Reset all (off)",
     ]);
+  });
+
+  it("joins downloads to a count, never to a word", () => {
+    const labels = (badges: ReturnType<typeof statusBadges>) =>
+      badges.map((b) => b.segments.map((s) => s.label));
+    const count = { label: "+12", color: "success" } as const;
+    expect(labels(statusBadges(count, false, 4))).toEqual([["4", "+12"]]);
+    expect(labels(statusBadges({ ...count, label: "-3" }, false, 4))).toEqual([
+      ["4", "-3"],
+    ]);
+    expect(labels(statusBadges(count, false, 0))).toEqual([["+12"]]);
+    expect(labels(statusBadges(count, true, 4))).toEqual([
+      ["scanning…"],
+      ["4"],
+    ]);
+    expect(
+      labels(statusBadges({ label: "no match", color: "warning" }, false, 9)),
+    ).toEqual([["no match"], ["9"]]);
   });
 });
