@@ -11,13 +11,24 @@ RELEASE="https://github.com/1Selxo/Mangatan/releases/download/embedded-openjdk-i
 JDK_ZIP_SHA=f21681caae40e508647e7f18c9082f27fa9aa67ee7f1376725eae528fa2d38cb
 BUNDLE_ZIP_SHA=15369b9bb9dfdd400c18c56b30e2f6cf316b81d4e0bae5ddd6b1fe72355c4b0b
 
-# Jars: Gradle is incremental, so this runs every time and keeps Runtime/ in step with the core.
-(cd "$ROOT" && "${GRADLEW:-android/gradlew}" -p "$JVM" installDist zstdStubJar)
-rm -rf "$IOS/Runtime" && mkdir -p "$IOS/Runtime"
-for jar in "$JVM"/build/install/extension-runtime/lib/*.jar; do
-  case "$(basename "$jar")" in okhttp-zstd-* | zstd-kmp-*) ;; *) cp "$jar" "$IOS/Runtime/" ;; esac
-done
-cp "$JVM/build/libs/zstd-stub.jar" "$JVM/build/install/extension-runtime/boot/jul-shim.jar" "$IOS/Runtime/"
+mkdir -p "$CACHE"
+
+# Jars: rebuilt only when the core's sources change, so `bun run ios` can run this every time.
+# Gradle alone is incremental too, but its startup costs seconds on each build.
+JARS_STAMP="$(cd "$ROOT" && find modules/extension-runtime/ios/scripts/prepare-runtime.sh modules/extension-runtime/jvm/src modules/extension-runtime/jvm/build.gradle.kts \
+  modules/extension-runtime/jvm/settings.gradle.kts modules/extension-runtime/android/src/main/java -type f -print0 |
+  LC_ALL=C sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1)"
+if [ -n "$(ls "$IOS/Runtime" 2>/dev/null)" ] && [ "$(cat "$CACHE/runtime.stamp" 2>/dev/null)" = "$JARS_STAMP" ]; then
+  echo "Runtime jars are up to date"
+else
+  (cd "$ROOT" && "${GRADLEW:-android/gradlew}" -p "$JVM" installDist zstdStubJar)
+  rm -rf "$IOS/Runtime" && mkdir -p "$IOS/Runtime"
+  for jar in "$JVM"/build/install/extension-runtime/lib/*.jar; do
+    case "$(basename "$jar")" in okhttp-zstd-* | zstd-kmp-*) ;; *) cp "$jar" "$IOS/Runtime/" ;; esac
+  done
+  cp "$JVM/build/libs/zstd-stub.jar" "$JVM/build/install/extension-runtime/boot/jul-shim.jar" "$IOS/Runtime/"
+  echo "$JARS_STAMP" > "$CACHE/runtime.stamp"
+fi
 
 download() { # <file> <sha256>
   if [ -f "$CACHE/$1" ] && echo "$2  $CACHE/$1" | shasum -a 256 -c -s; then return; fi
@@ -25,7 +36,6 @@ download() { # <file> <sha256>
   echo "$2  $CACHE/$1.part" | shasum -a 256 -c -s || { rm -f "$CACHE/$1.part"; echo "SHA-256 mismatch for $1" >&2; exit 1; }
   mv "$CACHE/$1.part" "$CACHE/$1"
 }
-mkdir -p "$CACHE"
 download OpenJDK.xcframework.zip "$JDK_ZIP_SHA"
 download java_bundle-device.zip "$BUNDLE_ZIP_SHA"
 
