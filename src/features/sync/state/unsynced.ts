@@ -1,19 +1,8 @@
 import { valueAt } from "../utils/records";
-import { countUnsynced } from "../utils/unsynced";
-import { plural, syncState$, type TargetKey } from "./engine";
+import { countUnsynced, formatUnsynced } from "../utils/unsynced";
+import { syncState$, type TargetKey } from "./engine";
 import { syncMeta$ } from "./sync-meta";
 import { TABLES } from "./tables";
-
-const LABELS: Record<string, string> = {
-  settings: "setting",
-  matches: "source pick",
-  "manual-matches": "manual match",
-  exclusions: "exclusion",
-  pins: "pin",
-  probes: "source check",
-  "search-history": "search history",
-  extensions: "extension",
-};
 
 /**
  * What this device changed since the target's last sync, e.g. "2 pins · 1
@@ -23,13 +12,15 @@ const LABELS: Record<string, string> = {
 export function unsyncedSummary(key: TargetKey) {
   const since = syncState$.targets[key].lastSync.get();
   if (!since) return "";
-  return TABLES.flatMap((table) => {
-    const stamps = syncMeta$[table.name].get() ?? {};
-    const n = countUnsynced(
-      stamps,
+  const counts: Record<string, number> = {};
+  for (const table of TABLES) {
+    // peek: a record's locality changes with its stamp, which is read below
+    const value = table.local ? table.obs$.peek() : undefined;
+    counts[table.name] = countUnsynced(
+      syncMeta$[table.name].get() ?? {},
       since,
-      (record) => !!table.local?.(valueAt(table.obs$.get(), record)),
+      (record) => !!table.local?.(valueAt(value, record)),
     );
-    return n ? [plural(n, LABELS[table.name])] : [];
-  }).join(" · ");
+  }
+  return formatUnsynced(counts);
 }

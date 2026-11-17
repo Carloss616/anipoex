@@ -7,7 +7,6 @@ import {
 } from "@/features/manga/state/reading-queue";
 import { unsentIds } from "../../pending/utils/state";
 
-// Task 10 drops Activity's use of it
 export { unsentIds };
 
 /** The running manga whose sources show, by manga id; not persisted. */

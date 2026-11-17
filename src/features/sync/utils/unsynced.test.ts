@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { countUnsynced } from "./unsynced";
+import { countUnsynced, formatUnsynced } from "./unsynced";
 
 describe("countUnsynced", () => {
   const stamps = {
@@ -20,5 +20,22 @@ describe("countUnsynced", () => {
 
   test("nothing after the newest stamp", () => {
     expect(countUnsynced(stamps, 60, () => false)).toBe(0);
+  });
+});
+
+describe("formatUnsynced", () => {
+  test("spells each count in its own plural", () => {
+    expect(formatUnsynced({ "manual-matches": 2 })).toBe("2 manual matches");
+    expect(formatUnsynced({ matches: 3, settings: 1 })).toBe(
+      "1 setting · 3 source picks",
+    );
+  });
+
+  test("says search history without a number", () => {
+    expect(formatUnsynced({ "search-history": 4 })).toBe("search history");
+  });
+
+  test("is empty when nothing changed", () => {
+    expect(formatUnsynced({ pins: 0 })).toBe("");
   });
 });
