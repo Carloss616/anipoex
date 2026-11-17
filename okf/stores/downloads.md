@@ -17,6 +17,9 @@ empty. Stays on the device; it is not synced.
   chapter leaves the queue.
 - **Survives restarts**: at launch a chapter left `running` goes back to `queued`, its
   half-made files dropped, and the queue goes on.
+- **Offline**: with no connection (see [Offline](../concepts/offline.md)) the queue
+  waits and starts again by itself when it returns; unlike the user's pause, nothing
+  is stored.
 - **Paused by the user**: key `downloads-paused` (`{ byUser }`, default not paused, not
   synced) keeps the user's pause across restarts until Resume. When iOS's background time
   runs out the queue pauses too, but only until the app is back: if iOS ends the app

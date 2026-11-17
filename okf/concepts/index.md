@@ -17,6 +17,10 @@ Domain ideas and rules. Read these before the [operations](../operations/) and
 * [Score format](score-format.md) - The viewer's scoring scale; scores are read and saved in it.
 * [Fuzzy date](fuzzy-date.md) - AniList's year/month/day dates, how the form reads them, and why a save leaves a partial one alone.
 
+# Offline
+
+* [Offline](offline.md) - When the app counts as offline, what that changes, and what waits until it is back.
+
 # Reading (scaffolding)
 
 * [Source](source.md) - A site chapters come from, from an installed extension in any language; each manga remembers one.

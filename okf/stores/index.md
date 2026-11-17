@@ -12,7 +12,7 @@ IndexedDB), and nothing persists during web's server render.
 
 * [Apollo cache](apollo-cache.md) - Every AniList response, persisted as one snapshot.
 * [Downloads](downloads.md) - The chapters waiting to download, and the CBZ files that make a chapter readable offline.
-* [Pending progress](pending-progress.md) - Reading progress made offline, sent to AniList later; never lowers AniList's.
+* [Pending entries](pending-progress.md) - Entry changes made offline (progress, edits, removals, additions), sent to AniList later; never lower AniList's progress.
 
 # Preferences
 

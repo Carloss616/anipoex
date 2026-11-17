@@ -2,6 +2,7 @@
 
 ## 2026-11-16
 
+* **Offline mode**: the app is offline when the device or AniList (or the sync's GitHub) can't be reached, and says so after 3 seconds; list edits and removals made offline are kept and shown at once, sent over AniList's current entry when it returns, with Retry and Discard in Settings › Pending; scans don't start offline and downloads pause. Added [Offline](concepts/offline.md); rewrote [Pending entries](stores/pending-progress.md) (formerly reading progress only); updated [Downloads](stores/downloads.md), [Tracking rules](concepts/tracking-rules.md).
 * **Undo for a reading save kept offline**: the reader's notice says "Saved on this device" and Undo restores the pending entry the keep replaced, without calling AniList; an entry already sent or changed is left alone. Updated [Pending progress](stores/pending-progress.md).
 * **A pause survives a restart**: the user's pause of the downloads holds until Resume; iOS's pause when its background time runs out does not. Updated [Downloads](stores/downloads.md).
 * **A move takes only the app's downloads; failed downloads retry all at once**: a root's own `Downloads` folder (the same folder on a disk that ignores case) keeps the user's files, and Activity's Downloads offers Retry all. Updated [Downloads](stores/downloads.md).
