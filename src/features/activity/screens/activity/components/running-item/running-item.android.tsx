@@ -18,13 +18,14 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
+import { split } from "@/features/activity/utils/state";
 import { MarkRail } from "@/features/manga/components/mark-rail";
 import { activeScans$ } from "@/features/manga/state/active-scans";
 import { orderMarks } from "@/features/manga/utils/scan-activity/utils/marks";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { scanProgress } from "../../utils/progress";
 import { runningMenu } from "../../utils/row-menu";
-import { expanded$, split, toggleExpanded } from "../../utils/state";
+import { expanded$, toggleExpanded } from "../../utils/state";
 import { SourceItem } from "../source-item";
 import type { RunningItemProps } from "./running-item";
 

@@ -5,14 +5,8 @@ import { View } from "react-native";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
-import {
-  discardPending,
-  retryUnsent,
-} from "@/features/activity/screens/activity/utils/actions";
-import {
-  DISCARD_DIALOG,
-  unsentMenu,
-} from "@/features/activity/screens/activity/utils/row-menu";
+import { discardPending, retryUnsent } from "@/features/activity/utils/actions";
+import { DISCARD_DIALOG, unsentMenu } from "@/features/activity/utils/row-menu";
 import { useUnsentItem } from "./hooks/use-unsent-item";
 
 export interface UnsentItemProps {

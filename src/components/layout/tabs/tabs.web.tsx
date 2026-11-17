@@ -18,7 +18,7 @@ import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
-import { pendingCount } from "@/features/activity/screens/pending/utils/state";
+import { pendingCount } from "@/features/activity/utils/state";
 
 const TabSlot = withUniwind(TabSlotBase);
 

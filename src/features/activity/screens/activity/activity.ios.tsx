@@ -13,6 +13,7 @@ import { Toolbar } from "@/components/layout/toolbar";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
+import { downloadsPending, split } from "@/features/activity/utils/state";
 import { downloadsPaused$ } from "@/features/downloads";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { DownloadItem } from "./components/download-item";
@@ -30,13 +31,11 @@ import { downloadActions, type HeaderAction } from "./utils/download-actions";
 import {
   downloadIds,
   downloadsFailed,
-  downloadsPending,
   hasActivity,
   hasScans,
   queuedIds,
   runningIds,
   skippedIds,
-  split,
 } from "./utils/state";
 
 /** Downloads shows this many; the rest are a count. */

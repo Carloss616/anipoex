@@ -2,7 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/native-tabs";
 import { Platform } from "react-native";
-import { pendingCount } from "@/features/activity/screens/pending/utils/state";
+import { pendingCount } from "@/features/activity/utils/state";
 import { ContinueAccessory } from "@/features/manga/components/continue-accessory";
 import { HAS_ACCESSORY } from "@/features/manga/components/continue-accessory/constants";
 import { openViewSheet } from "@/features/manga/screens/manga-list/components/view-sheet";

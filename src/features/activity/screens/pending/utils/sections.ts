@@ -1,12 +1,15 @@
 import {
+  downloadsPending,
+  pendingCount,
+  waitingIds,
+} from "@/features/activity/utils/state";
+import {
   syncing$,
   syncState$,
   type TargetKey,
 } from "@/features/sync/state/engine";
 import { unsyncedSummary } from "@/features/sync/state/unsynced";
 import { network$ } from "@/state/network";
-import { downloadsPending } from "../../activity/utils/state";
-import { pendingCount, waitingIds } from "./state";
 
 const targets = () => Object.keys(syncState$.targets.get(true)) as TargetKey[];
 

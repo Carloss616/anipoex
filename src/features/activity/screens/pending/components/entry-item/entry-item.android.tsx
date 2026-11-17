@@ -15,7 +15,7 @@ import {
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { ContextMenu } from "@/components/ui/menu";
-import { discardItem } from "@/features/activity/screens/activity/utils/row-menu";
+import { discardItem } from "@/features/activity/utils/row-menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { EntryItemProps } from "./entry-item";
 import { useEntryItem } from "./hooks/use-entry-item";

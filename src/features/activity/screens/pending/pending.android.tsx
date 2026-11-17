@@ -13,17 +13,22 @@ import { GUTTER } from "@/components/native/constants";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
+import {
+  corners,
+  downloadsPending,
+  split,
+  unsentIds,
+  waitingIds,
+} from "@/features/activity/utils/state";
 import type { TargetKey } from "@/features/sync/state/engine";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { corners, downloadsPending, split } from "../activity/utils/state";
 import { DownloadsRow } from "./components/downloads-row";
 import { EntryItem } from "./components/entry-item";
 import { StatusCard } from "./components/status-card";
 import { SyncItem } from "./components/sync-item";
 import { UnsentItem } from "./components/unsent-item";
 import { hasPending, statusMode, syncKeys } from "./utils/sections";
-import { unsentIds, waitingIds } from "./utils/state";
 
 export function Pending() {
   const pending = useValue(hasPending);

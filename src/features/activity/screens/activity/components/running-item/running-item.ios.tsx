@@ -21,6 +21,7 @@ import { Text } from "@/components/native/swift-ui/text";
 import { Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
+import { split } from "@/features/activity/utils/state";
 import { MarkRail } from "@/features/manga/components/mark-rail";
 import { activeScans$ } from "@/features/manga/state/active-scans";
 import { orderMarks } from "@/features/manga/utils/scan-activity/utils/marks";
@@ -28,7 +29,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { stopManga } from "../../utils/actions";
 import { scanProgress } from "../../utils/progress";
 import { runningMenu } from "../../utils/row-menu";
-import { expanded$, split } from "../../utils/state";
+import { expanded$ } from "../../utils/state";
 import { SourceItem } from "../source-item";
 import type { RunningItemProps } from "./running-item";
 

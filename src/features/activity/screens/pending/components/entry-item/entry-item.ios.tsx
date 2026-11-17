@@ -15,11 +15,11 @@ import { Text } from "@/components/native/swift-ui/text";
 import { Dialog } from "@/components/ui/dialog";
 import { Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
-import { discardPending } from "@/features/activity/screens/activity/utils/actions";
+import { discardPending } from "@/features/activity/utils/actions";
 import {
   DISCARD_DIALOG,
   discardItem,
-} from "@/features/activity/screens/activity/utils/row-menu";
+} from "@/features/activity/utils/row-menu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { EntryItemProps } from "./entry-item";
 import { useEntryItem } from "./hooks/use-entry-item";

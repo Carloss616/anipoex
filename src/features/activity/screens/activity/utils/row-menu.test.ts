@@ -7,24 +7,16 @@ mock.module("@/components/ui/icon", () => ({
 }));
 mock.module("./actions", () => ({
   cancelDownload() {},
-  discardPending() {},
   moveDownloadUp() {},
   removeFromQueue() {},
   retryDownload() {},
   retrySkipped() {},
-  retryUnsent() {},
   scanNext() {},
   stopManga() {},
   stopSource() {},
 }));
-const {
-  downloadRowMenu,
-  queuedMenu,
-  runningMenu,
-  skippedMenu,
-  sourceMenu,
-  unsentMenu,
-} = await import("./row-menu");
+const { downloadRowMenu, queuedMenu, runningMenu, skippedMenu, sourceMenu } =
+  await import("./row-menu");
 
 const labels = (items: MenuItem[]) =>
   items.map((i) => ("label" in i ? i.label : ""));
@@ -85,21 +77,5 @@ describe("a download's menu", () => {
     expect(
       labels(downloadRowMenu("k", { state: "failed", canMoveUp: true })),
     ).toEqual(["Retry", "Cancel"]);
-  });
-});
-
-describe("unsent progress's menu", () => {
-  test("Retry, and Discard confirmed in a dialog", () => {
-    const items = unsentMenu("9") as MenuAction[];
-    expect(labels(items)).toEqual(["Retry", "Discard"]);
-    expect(destructive(items)).toEqual(["Discard"]);
-    expect(items[1].dialogConfig).toEqual({
-      title: "Discard this progress?",
-      confirmLabel: "Discard",
-    });
-    const discard = () => {};
-    const own = unsentMenu("9", discard) as MenuAction[];
-    expect(own[1].onPress).toBe(discard);
-    expect(own[1].dialogConfig).toBeUndefined();
   });
 });

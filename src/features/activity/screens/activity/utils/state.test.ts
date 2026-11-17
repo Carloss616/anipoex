@@ -18,10 +18,8 @@ mock.module("@/state/observable-persist", () => ({
 const { downloadQueue$ } = await import("@/features/downloads");
 const {
   canMoveUp,
-  corners,
   downloadIds,
   downloadsFailed,
-  downloadsPending,
   downloadsView$,
   hasActivity,
   hasScans,
@@ -41,29 +39,12 @@ afterEach(() => {
   downloadQueue$.set({});
 });
 
-describe("corners", () => {
-  test("keeps only the first, middle, last or only row's place", () => {
-    expect(corners(0, 1)).toEqual({ index: 0, count: 1 });
-    expect(corners(0, 5)).toEqual({ index: 0, count: 2 });
-    expect(corners(2, 5)).toEqual({ index: 1, count: 3 });
-    expect(corners(3, 5)).toEqual({ index: 1, count: 3 });
-    expect(corners(4, 5)).toEqual({ index: 1, count: 2 });
-  });
-});
-
 describe("downloads", () => {
   test("count as activity on their own, not as scans", () => {
     expect(hasActivity()).toBe(false);
     downloadQueue$.k1.set(entry("k1", 0, "queued"));
     expect(hasActivity()).toBe(true);
     expect(hasScans()).toBe(false);
-  });
-
-  test("are pending while one isn't failed", () => {
-    downloadQueue$.k1.set(entry("k1", 0, "failed"));
-    expect(downloadsPending()).toBe(false);
-    downloadQueue$.k2.set(entry("k2", 1, "queued"));
-    expect(downloadsPending()).toBe(true);
   });
 
   test("have failed ones while any entry failed", () => {

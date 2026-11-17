@@ -1,4 +1,4 @@
-import { pendingCount } from "@/features/activity/screens/pending/utils/state";
+import { pendingCount } from "@/features/activity/utils/state";
 
 /** The number of changes waiting; empty when none. */
 export function countLabel() {

@@ -16,6 +16,11 @@ import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { Icons } from "@/components/ui/icon";
+import {
+  corners,
+  downloadsPending,
+  split,
+} from "@/features/activity/utils/state";
 import { downloadsPaused$ } from "@/features/downloads";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -32,16 +37,13 @@ import {
 } from "./utils/actions";
 import { downloadActions, type HeaderAction } from "./utils/download-actions";
 import {
-  corners,
   downloadIds,
   downloadsFailed,
-  downloadsPending,
   hasActivity,
   hasScans,
   queuedIds,
   runningIds,
   skippedIds,
-  split,
 } from "./utils/state";
 
 /** Up next and Downloads show this many; the rest are a count. */

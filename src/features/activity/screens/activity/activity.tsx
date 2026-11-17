@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icons } from "@/components/ui/icon";
+import { downloadsPending, split } from "@/features/activity/utils/state";
 import { downloadsPaused$ } from "@/features/downloads";
 import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
@@ -25,13 +26,11 @@ import { downloadActions } from "./utils/download-actions";
 import {
   downloadIds,
   downloadsFailed,
-  downloadsPending,
   hasActivity,
   hasScans,
   queuedIds,
   runningIds,
   skippedIds,
-  split,
 } from "./utils/state";
 
 /** Up next and Downloads show this many; the rest are a count. */

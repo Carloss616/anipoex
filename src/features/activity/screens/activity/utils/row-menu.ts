@@ -1,18 +1,12 @@
 import { Icons } from "@/components/ui/icon";
-import type {
-  MenuAction,
-  MenuItem,
-  MenuItemDialogConfig,
-} from "@/components/ui/menu";
+import type { MenuItem } from "@/components/ui/menu";
 import type { QueuedDownload } from "@/features/downloads";
 import {
   cancelDownload,
-  discardPending,
   moveDownloadUp,
   removeFromQueue,
   retryDownload,
   retrySkipped,
-  retryUnsent,
   scanNext,
   stopManga,
   stopSource,
@@ -89,35 +83,6 @@ export function downloadRowMenu(
     onPress: () => cancelDownload(key),
   });
   return items;
-}
-
-export const DISCARD_DIALOG: MenuItemDialogConfig = {
-  title: "Discard this progress?",
-  confirmLabel: "Discard",
-};
-
-/** `discard` opens the row's own dialog (an iOS swipe opens it too). */
-export function discardItem(mediaId: string, discard?: () => void): MenuAction {
-  const row = { label: "Discard", icon: Icons.trash, destructive: true };
-  return discard
-    ? { ...row, onPress: discard }
-    : {
-        ...row,
-        onPress: () => discardPending(Number(mediaId)),
-        onPressMode: "dialog",
-        dialogConfig: DISCARD_DIALOG,
-      };
-}
-
-export function unsentMenu(mediaId: string, discard?: () => void): MenuItem[] {
-  return [
-    {
-      label: "Retry",
-      icon: Icons.refresh,
-      onPress: () => retryUnsent(mediaId),
-    },
-    discardItem(mediaId, discard),
-  ];
 }
 
 export function skippedMenu(sourceId: string): MenuItem[] {

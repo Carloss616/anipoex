@@ -7,8 +7,11 @@ import { View } from "react-native";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
-import { discardPending } from "../../../activity/utils/actions";
-import { DISCARD_DIALOG, discardItem } from "../../../activity/utils/row-menu";
+import { discardPending } from "@/features/activity/utils/actions";
+import {
+  DISCARD_DIALOG,
+  discardItem,
+} from "@/features/activity/utils/row-menu";
 import { useEntryItem } from "./hooks/use-entry-item";
 
 export interface EntryItemProps {
