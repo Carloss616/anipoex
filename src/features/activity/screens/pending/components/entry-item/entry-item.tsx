@@ -14,6 +14,13 @@ import { useEntryItem } from "./hooks/use-entry-item";
 export interface EntryItemProps {
   /** The AniList media id the change is kept under. */
   id: string;
+  /**
+   * Its place in the section, for its corners.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
 /** A change to an AniList entry that waits for a connection. */

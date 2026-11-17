@@ -8,6 +8,13 @@ import { useSyncItem } from "./hooks/use-sync-item";
 
 export interface SyncItemProps {
   id: TargetKey;
+  /**
+   * Its place in the section, for its corners.
+   * @platform android
+   */
+  index?: number;
+  /** @platform android */
+  count?: number;
 }
 
 /** A sync target and what it still has to send. */
