@@ -2,6 +2,7 @@ import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
 import { toast } from "@/components/ui/toast";
 import { runtime, type SourceManga } from "@/features/extensions";
+import { network$ } from "@/state/network";
 import { ObservablePersist } from "@/state/observable-persist";
 import { pickMatch, readMatch, type Titles } from "../utils/source-match";
 import { SEARCH_TIMEOUT_MS, withTimeout } from "../utils/with-timeout";
@@ -77,7 +78,7 @@ export async function selectSource(
     return match;
   } catch (error) {
     if (ticket !== tickets[mangaId]) return;
-    toast.error(`Couldn't search ${source.name}`);
+    if (network$.online.peek()) toast.error(`Couldn't search ${source.name}`);
     return { error };
   } finally {
     if (ticket === tickets[mangaId]) matching$[mangaId].set(false);

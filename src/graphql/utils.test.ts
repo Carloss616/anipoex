@@ -40,20 +40,19 @@ describe("isNetworkError", () => {
 });
 
 describe("shouldToast", () => {
-  it("stays quiet when a dropped connection is queued for later", () => {
-    expect(shouldToast({ queueOffline: true }, offline)).toBe(false);
+  it("a query that lost the connection stays quiet", () => {
+    expect(shouldToast({}, offline, true)).toBe(false);
   });
 
-  it("toasts a dropped connection nothing queues", () => {
-    expect(shouldToast({}, offline)).toBe(true);
+  it("a mutation that lost the connection toasts unless it queues", () => {
+    expect(shouldToast({}, offline, false)).toBe(true);
+    expect(shouldToast({ queueOffline: true }, offline, false)).toBe(false);
   });
 
-  it("toasts an answer from the server even when queued", () => {
-    expect(shouldToast({ queueOffline: true }, denied)).toBe(true);
-  });
-
-  it("stays quiet when silent", () => {
-    expect(shouldToast({ silent: true }, denied)).toBe(false);
+  it("an answer with errors still toasts", () => {
+    expect(shouldToast({}, denied, true)).toBe(true);
+    expect(shouldToast({ queueOffline: true }, denied, false)).toBe(true);
+    expect(shouldToast({ silent: true }, denied, true)).toBe(false);
   });
 });
 

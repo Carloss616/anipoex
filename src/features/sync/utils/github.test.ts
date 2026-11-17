@@ -158,11 +158,14 @@ describe("createGistTarget", () => {
     const offline = (async () => {
       throw new TypeError("Network request failed");
     }) as unknown as typeof fetch;
-    await createGistTarget({ token: "t", gistId, fetchFn: offline })
-      .list()
-      .catch(() => {});
-    expect(network$.online.peek()).toBe(false);
-    networkAnswered();
+    try {
+      await createGistTarget({ token: "t", gistId, fetchFn: offline })
+        .list()
+        .catch(() => {});
+      expect(network$.online.peek()).toBe(false);
+    } finally {
+      networkAnswered();
+    }
   });
 
   it("names GitHub's rate limit instead of its status", async () => {

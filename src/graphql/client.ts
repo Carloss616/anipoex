@@ -67,7 +67,14 @@ const retryLink = new RetryLink({ attempts: { max: 2 } });
 const errorLink = new ErrorLink(({ error, operation }) => {
   const context = operation.getContext();
 
-  if (!shouldToast(context, error)) return;
+  if (
+    !shouldToast(
+      context,
+      error,
+      operation.operationType === OperationTypeNode.QUERY,
+    )
+  )
+    return;
 
   const message = context.errorMessage;
   const { operationName, operationType, query, variables } = operation;

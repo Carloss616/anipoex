@@ -11,6 +11,7 @@ import type { StoredChapters } from "@/features/manga/utils/chapter-storage";
 import { fetchChapters } from "@/features/manga/utils/fetch-chapters";
 import type { SourceMatch } from "@/features/manga/utils/source-match";
 import { type Chapter, toChapters } from "@/features/manga/utils/to-chapters";
+import { network$ } from "@/state/network";
 
 interface State {
   /** The source and page these chapters belong to. */
@@ -101,7 +102,8 @@ export function useSourceChapters(
         recordProbe(mangaId, source, { error });
         if (current !== ticket.current) return;
         const message = error instanceof Error ? error.message : String(error);
-        if (!reset) toast.error("Couldn't refresh chapters");
+        if (!reset && network$.online.peek())
+          toast.error("Couldn't refresh chapters");
         setState((prev) => ({
           key,
           chapters: reset ? [] : prev.chapters,

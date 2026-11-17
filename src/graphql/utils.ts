@@ -38,13 +38,14 @@ export function isNetworkError(error: unknown): boolean {
 
 /**
  * Whether the error link toasts a failure: not when the operation asks for
- * silence, nor when it keeps its work for later (`queueOffline`) and only the
- * connection dropped.
+ * silence, nor when only the connection dropped and a query can wait or a
+ * mutation keeps its work for later (`queueOffline`).
  */
 export function shouldToast(
   context: Readonly<Record<string, unknown>>,
   error: unknown,
+  isQuery: boolean,
 ): boolean {
   if (context.silent) return false;
-  return !(context.queueOffline && isNetworkError(error));
+  return !(isNetworkError(error) && (isQuery || context.queueOffline));
 }
