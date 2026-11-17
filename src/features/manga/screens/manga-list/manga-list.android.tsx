@@ -20,6 +20,8 @@ import {
   scanReading,
   stopReadingScan,
 } from "@/features/manga/state/library-scan";
+import { listOptions$ } from "@/features/manga/state/list-options";
+import { hasActiveFilters } from "@/features/manga/utils/list-options";
 import { parseList } from "@/features/manga/utils/parse-list";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useSearchQuery } from "@/hooks/use-search-query";
@@ -74,6 +76,25 @@ function ScanAction() {
   );
 }
 
+/** Tinted while a filter is on; the sort alone doesn't count. */
+function OptionsAction() {
+  const filtered = useValue(() => hasActiveFilters(listOptions$.filters.get()));
+  const m3 = useThemeM3Colors();
+
+  return (
+    <IconButton
+      onClick={openOptionsSheet}
+      colors={{ contentColor: filtered ? m3.primary : undefined }}
+    >
+      <Icon
+        name={Icons.filter}
+        accessibilityLabel="List options"
+        color="inherit"
+      />
+    </IconButton>
+  );
+}
+
 /**
  * Android: a search app bar over M3 tabs and a pager, drawn in the screen's own
  * Host instead of the stack header, so the bar and tabs can leave together as
@@ -118,13 +139,7 @@ export function MangaList() {
           modifiers={[fillMaxSize()]}
         >
           <TopAppBar.Actions>
-            <IconButton onClick={openOptionsSheet}>
-              <Icon
-                name={Icons.grid}
-                accessibilityLabel="View options"
-                color="inherit"
-              />
-            </IconButton>
+            <OptionsAction />
             {status === MediaListStatus.Current && <ScanAction />}
           </TopAppBar.Actions>
           {MANGA_STATUS_ENTRIES.map(([key]) =>
