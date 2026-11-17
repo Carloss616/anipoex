@@ -1,6 +1,8 @@
 fragment MangaTracking on MediaList {
   status
   progress
+  updatedAt
+  createdAt
   repeat
   score
   startedAt {

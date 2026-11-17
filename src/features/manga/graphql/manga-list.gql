@@ -8,6 +8,10 @@ query MangaList($userId: Int!, $status: MediaListStatus!) {
     lists {
       entries {
         id
+        progress
+        updatedAt
+        createdAt
+        score
         media {
           id
           ...MangaMedia @nonreactive

@@ -63,6 +63,8 @@ export type SaveMangaTrackingMutation = {
     id: number;
     status: Types.MediaListStatus | null;
     progress: number | null;
+    updatedAt: number | null;
+    createdAt: number | null;
     repeat: number | null;
     score: number | null;
     notes: string | null;
@@ -340,6 +342,8 @@ export const SaveMangaTrackingDocument = {
         selections: [
           { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "progress" } },
+          { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+          { kind: "Field", name: { kind: "Name", value: "createdAt" } },
           { kind: "Field", name: { kind: "Name", value: "repeat" } },
           { kind: "Field", name: { kind: "Name", value: "score" } },
           {

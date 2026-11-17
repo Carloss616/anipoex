@@ -50,6 +50,10 @@ export type MangaListQuery = {
       entries: Array<{
         __typename: "MediaList";
         id: number;
+        progress: number | null;
+        updatedAt: number | null;
+        createdAt: number | null;
+        score: number | null;
         media: {
           __typename: "Media";
           id: number;
@@ -168,6 +172,22 @@ export const MangaListDocument = {
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "progress" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "updatedAt" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "createdAt" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "score" },
                             },
                             {
                               kind: "Field",

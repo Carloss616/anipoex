@@ -13,6 +13,10 @@ const userId = 1;
 const entry = (id: number) => ({
   __typename: "MediaList" as const,
   id,
+  progress: 0,
+  updatedAt: null,
+  createdAt: null,
+  score: null,
   media: {
     __typename: "Media" as const,
     id: id * 10,
@@ -124,7 +128,13 @@ describe("fileEntry", () => {
 describe("refileEntry", () => {
   const refreshed = (id: number, status: MediaListStatus) => ({
     ...entry(id).media,
-    mediaListEntry: { ...entry(id).media.mediaListEntry, status },
+    mediaListEntry: {
+      ...entry(id).media.mediaListEntry,
+      status,
+      updatedAt: null,
+      createdAt: null,
+      score: null,
+    },
   });
 
   it("moves an entry whose status changed elsewhere", () => {

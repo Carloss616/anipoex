@@ -13,6 +13,13 @@ type Lists = NonNullable<
 type ListEntry = NonNullable<
   NonNullable<NonNullable<Lists[number]>["entries"]>[number]
 >;
+// A removal only needs the id, so these may be left out.
+type FiledEntry = Omit<
+  ListEntry,
+  "progress" | "updatedAt" | "createdAt" | "score"
+> &
+  Partial<ListEntry>;
+type Fields = Pick<ListEntry, "progress" | "updatedAt" | "createdAt" | "score">;
 
 const holds = (
   list: { entries: ({ id: number } | null)[] | null } | null,
@@ -36,7 +43,7 @@ const drop = <L extends { entries: ({ id: number } | null)[] | null } | null>(
 export function fileEntry(
   cache: ApolloCache,
   userId: number,
-  entry: ListEntry,
+  entry: FiledEntry,
   status: MediaListStatus | null,
 ) {
   for (const [listStatus] of MANGA_STATUS_ENTRIES) {
@@ -58,7 +65,7 @@ export function fileEntry(
                   {
                     __typename: "MediaListGroup" as const,
                     // Shown first, where the user looks for what they added.
-                    entries: [entry, ...(first?.entries ?? [])],
+                    entries: [entry as ListEntry, ...(first?.entries ?? [])],
                   },
                   ...rest,
                 ],
@@ -115,7 +122,7 @@ export function fileSaved(
   cache: ApolloCache,
   userId: number | undefined,
   mediaId: number,
-  entry: (ListEntry & { status: MediaListStatus | null }) | null | undefined,
+  entry: (FiledEntry & { status: MediaListStatus | null }) | null | undefined,
 ) {
   if (!entry || userId == null) return;
 
@@ -137,7 +144,9 @@ export function refileEntry(
   userId: number,
   priorId: number | undefined,
   media: NonNullable<ListEntry["media"]> & {
-    mediaListEntry: { id: number; status: MediaListStatus | null } | null;
+    mediaListEntry:
+      | ({ id: number; status: MediaListStatus | null } & Fields)
+      | null;
   },
 ) {
   const entry = media.mediaListEntry;
@@ -154,7 +163,15 @@ export function refileEntry(
     fileEntry(
       cache,
       userId,
-      { __typename: type, id: entry.id, media },
+      {
+        __typename: type,
+        id: entry.id,
+        progress: entry.progress,
+        updatedAt: entry.updatedAt,
+        createdAt: entry.createdAt,
+        score: entry.score,
+        media,
+      },
       entry.status,
     );
   }
