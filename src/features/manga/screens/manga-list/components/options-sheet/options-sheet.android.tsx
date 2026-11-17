@@ -18,15 +18,15 @@ const TITLES = [
 
 const open$ = observable(false);
 
-/** Opens the one `ViewSheet` the screen renders. */
-export const openViewSheet = () => open$.set(true);
+/** Opens the one `OptionsSheet` the screen renders. */
+export const openOptionsSheet = () => open$.set(true);
 
 /**
  * Android: columns and title position, as two connected button groups. Rendered
  * once by the screen, outside the grid: mounted inside the grid's header, the
  * sheet's node resized the header and the rows jumped as it opened.
  */
-export function ViewSheet() {
+export function OptionsSheet() {
   const isPresented = useValue(open$);
   const { current } = useBreakpoint();
   const m3 = useThemeM3Colors();

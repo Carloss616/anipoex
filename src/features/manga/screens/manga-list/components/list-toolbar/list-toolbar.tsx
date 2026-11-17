@@ -23,7 +23,7 @@ import {
 import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { openViewSheet } from "../view-sheet";
+import { openOptionsSheet } from "../options-sheet";
 
 const openActivity = () => router.push("/settings/activity");
 
@@ -103,7 +103,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
           icon={Icons.grid}
-          onPress={openViewSheet}
+          onPress={openOptionsSheet}
           accessibilityLabel="View options"
         />
         <Stack.Toolbar.Menu

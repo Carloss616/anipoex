@@ -14,7 +14,7 @@ import { useSearchQuery } from "@/hooks/use-search-query";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { ListGrid } from "./components/list-grid";
 import { ListToolbar } from "./components/list-toolbar";
-import { ViewSheet } from "./components/view-sheet";
+import { OptionsSheet } from "./components/options-sheet";
 
 /**
  * iOS: one list at a time, named in the large title; the toolbar switches it
@@ -53,7 +53,7 @@ export function MangaList() {
       <ListToolbar status={status} list$={list$} onSelect={select} />
       <Host className="flex-1">
         <ListGrid list={mangaList} query$={query$} genre$={genre$} />
-        <ViewSheet />
+        <OptionsSheet />
       </Host>
     </>
   );

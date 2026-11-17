@@ -24,14 +24,14 @@ const SECONDARY = [foregroundStyle("secondary")];
 
 const open$ = observable(false);
 
-/** Opens the one `ViewSheet` the screen renders. */
-export const openViewSheet = () => open$.set(true);
+/** Opens the one `OptionsSheet` the screen renders. */
+export const openOptionsSheet = () => open$.set(true);
 
 /**
  * iOS: columns and title position, as two segmented pickers. The sheet fits its
  * contents, so the grid stays in view and each pick shows as it is made.
  */
-export function ViewSheet() {
+export function OptionsSheet() {
   const isPresented = useValue(open$);
   const { current } = useBreakpoint();
   const options = columnOptions(current);

@@ -25,7 +25,7 @@ import { MediaListStatus } from "@/graphql/types.generated";
 import { useSearchQuery } from "@/hooks/use-search-query";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ListPage } from "./components/list-page";
-import { openViewSheet, ViewSheet } from "./components/view-sheet";
+import { OptionsSheet, openOptionsSheet } from "./components/options-sheet";
 
 const ACTIVITY_ITEM = {
   label: "Activity",
@@ -118,7 +118,7 @@ export function MangaList() {
           modifiers={[fillMaxSize()]}
         >
           <TopAppBar.Actions>
-            <IconButton onClick={openViewSheet}>
+            <IconButton onClick={openOptionsSheet}>
               <Icon
                 name={Icons.grid}
                 accessibilityLabel="View options"
@@ -140,7 +140,7 @@ export function MangaList() {
             ),
           )}
         </TopAppBar>
-        <ViewSheet />
+        <OptionsSheet />
       </Host>
     </>
   );

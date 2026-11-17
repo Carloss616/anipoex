@@ -18,7 +18,7 @@ import { ListGrid } from "./components/list-grid";
 import { ListHeader } from "./components/list-header";
 import { ListSidebar } from "./components/list-sidebar";
 import { ListToolbar } from "./components/list-toolbar";
-import { ViewSheet } from "./components/view-sheet";
+import { OptionsSheet } from "./components/options-sheet";
 
 /**
  * Web: the lists in a sidebar, the open one as the title. Below `md` the
@@ -80,7 +80,7 @@ export function MangaList() {
           }
         />
       </View>
-      <ViewSheet />
+      <OptionsSheet />
     </>
   );
 }

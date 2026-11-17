@@ -18,11 +18,11 @@ const TITLES = [
 
 const open$ = observable(false);
 
-/** Opens the one `ViewSheet` the screen renders. */
-export const openViewSheet = () => open$.set(true);
+/** Opens the one `OptionsSheet` the screen renders. */
+export const openOptionsSheet = () => open$.set(true);
 
 /** Web: columns and title position, as two segmented rows, like Android's. */
-export function ViewSheet() {
+export function OptionsSheet() {
   const isPresented = useValue(open$);
   const { current } = useBreakpoint();
   const columns = columnsFor(current, useValue(settings$.mangaList.density));
