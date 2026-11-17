@@ -79,4 +79,24 @@ describe("debounceNotice", () => {
     await wait(40);
     expect(shown).toEqual(["Back online · Sending 2 changes"]);
   });
+
+  it("keeps the scheduled notice when the same value repeats", async () => {
+    const { shown, change } = setup();
+    change(false, 0);
+    change(true, 2);
+    for (const pending of [1, 0]) {
+      await wait(10);
+      change(true, pending);
+    }
+    change(false, 0);
+    for (let i = 0; i < 3; i++) {
+      await wait(10);
+      change(false, 0);
+    }
+    await wait(20);
+    expect(shown).toEqual([
+      "Back online · Sending 2 changes",
+      "You're offline · Changes stay on this device",
+    ]);
+  });
 });

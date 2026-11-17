@@ -18,7 +18,8 @@ export function noticeText(
  * Returns the handler for each connection value and the count of pending
  * changes at that moment (a reconnect flush empties the queue before the
  * delay ends). The first value is the starting state, and a value shows its
- * notice after `delay` only if it still differs from the last settled one.
+ * notice after `delay` only if it still differs from the last settled one. A
+ * repeated value keeps the scheduled notice and its count.
  */
 export function debounceNotice(
   takeAnnounced: () => boolean,
@@ -27,7 +28,10 @@ export function debounceNotice(
 ) {
   let settled: boolean | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let last: boolean | undefined;
   return (online: boolean, pending: number) => {
+    if (online === last) return;
+    last = online;
     clearTimeout(timer);
     if (settled === undefined) {
       settled = online;
