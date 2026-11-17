@@ -8,6 +8,7 @@ import { languageName, languageOrder$ } from "@/features/extensions";
 import { settings$ } from "@/state/settings";
 import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "../../constants";
 import { ActivityRow } from "./activity-row";
+import { PendingRow } from "./pending-row";
 
 const SLOW_SKIP_ITEMS = SLOW_SKIP_OPTIONS.map(({ seconds, label }) => ({
   value: String(seconds),
@@ -24,6 +25,7 @@ export function SourcesSection() {
       </Frame.Header>
       <Frame.Panel data-attached="column">
         <ActivityRow />
+        <PendingRow />
         {/* A label hands its click to the switch inside. */}
         <Frame.Row
           // biome-ignore lint/a11y/noLabelWithoutControl: the Switch below is its control.

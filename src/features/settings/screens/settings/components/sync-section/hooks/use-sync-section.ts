@@ -16,7 +16,9 @@ import {
   type TargetKey,
 } from "@/features/sync/state/engine";
 import { github$ } from "@/features/sync/state/github";
+import { unsyncedSummary } from "@/features/sync/state/unsynced";
 import type { DeviceKind } from "@/features/sync/utils/sync-file";
+import { network$ } from "@/state/network";
 import { settings$ } from "@/state/settings";
 import { desktop } from "@/utils/desktop";
 import { openExternal } from "@/utils/open-external";
@@ -53,6 +55,10 @@ function useTargetStatus(key: TargetKey) {
   const error = useValue(syncState$.targets[key].error);
   // Offline isn't a failure to show: the next sync just catches up.
   const failed = !!error && error.kind !== "offline";
+  const online = useValue(network$.online);
+  const waiting = useValue(() =>
+    key === "gist" && !online ? unsyncedSummary(key) : "",
+  );
   return {
     busy,
     failed,
@@ -61,9 +67,11 @@ function useTargetStatus(key: TargetKey) {
       ? "Syncing…"
       : failed
         ? (error?.message ?? "")
-        : lastSync
-          ? `Synced ${ago(lastSync)}`
-          : "Not synced yet",
+        : waiting
+          ? `Waiting for connection · ${waiting}`
+          : lastSync
+            ? `Synced ${ago(lastSync)}`
+            : "Not synced yet",
   };
 }
 

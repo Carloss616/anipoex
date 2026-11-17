@@ -1,3 +1,4 @@
+import { Memo } from "@legendapp/state/react";
 import type Lucide from "@react-native-vector-icons/lucide";
 import { router, usePathname } from "expo-router";
 import {
@@ -15,7 +16,9 @@ import { Tabs as PanelTabs } from "panelui-web/tabs";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
+import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
+import { pendingCount } from "@/features/activity/screens/pending/utils/state";
 
 const TabSlot = withUniwind(TabSlotBase);
 
@@ -104,10 +107,11 @@ function PanelTabTrigger({
     <PanelTabs.Trigger
       value={item.name}
       onClick={popToRoot}
-      className="ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary gap-0 transition-[color,background-color] duration-300"
+      className="ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary relative gap-0 transition-[color,background-color] duration-300"
       disabled={disabled ?? false}
     >
       <Icon name={isFocused ? item.icon.selected : item.icon.default} />
+      {item.name === "settings" && <PendingBadge />}
       {/* Below sm only the active label shows; 0fr→1fr animates width. */}
       <View className="ease-sheet grid grid-cols-[0fr] opacity-0 transition-[grid-template-columns,opacity] duration-300 in-data-active:grid-cols-[1fr] in-data-active:opacity-100 motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
         <View className="overflow-hidden">
@@ -122,6 +126,22 @@ function PanelTabTrigger({
         </View>
       </View>
     </PanelTabs.Trigger>
+  );
+}
+
+function PendingBadge() {
+  return (
+    <Memo>
+      {() =>
+        pendingCount() > 0 && (
+          <View className="absolute end-0 top-0">
+            <Badge color="destructive" solid>
+              {pendingCount()}
+            </Badge>
+          </View>
+        )
+      }
+    </Memo>
   );
 }
 
