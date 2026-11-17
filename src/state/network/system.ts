@@ -11,15 +11,14 @@ const POLL_MS = 30_000;
 
 /** Asks AniList for nothing: any HTTP answer proves the way is open. */
 export async function ping() {
+  const url = process.env.EXPO_PUBLIC_ANILIST_GRAPHQL_URL;
+  if (!url) return;
   try {
-    await fetchOrNetworkError(
-      process.env.EXPO_PUBLIC_ANILIST_GRAPHQL_URL as string,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: '{"query":"{__typename}"}',
-      },
-    );
+    await fetchOrNetworkError(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: '{"query":"{__typename}"}',
+    });
     networkAnswered();
   } catch (error) {
     if (isNetworkError(error)) networkFailed();

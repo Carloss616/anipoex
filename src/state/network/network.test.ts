@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from "bun:test";
+import { beforeEach, expect, spyOn, test } from "bun:test";
 import {
   network$,
   networkAnswered,
@@ -50,17 +50,19 @@ test("onReconnect fires once per return", () => {
   expect(calls).toBe(1);
 });
 
-test("a listener that throws doesn't repeat the return", () => {
+test("a throwing reconnect listener doesn't skip the others or repeat", () => {
+  const error = spyOn(console, "error").mockImplementation(() => {});
   let calls = 0;
-  const off = onReconnect(() => {
-    calls++;
+  const offThrow = onReconnect(() => {
     throw new Error("boom");
   });
+  const offCount = onReconnect(() => calls++);
   networkFailed();
-  try {
-    networkAnswered();
-  } catch {}
+  networkAnswered();
   networkAnswered();
   expect(calls).toBe(1);
-  off();
+  expect(error).toHaveBeenCalledTimes(1);
+  offThrow();
+  offCount();
+  error.mockRestore();
 });

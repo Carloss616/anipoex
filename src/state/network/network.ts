@@ -18,9 +18,16 @@ let wasOnline = true;
 observe(() => {
   const online = network$.online.get();
   const returned = online && !wasOnline;
-  // Before the listeners: one that throws must not fire the next run again.
   wasOnline = online;
-  if (returned) for (const listener of state.listeners) listener();
+  if (!returned) return;
+  // A throw here would break Legend's batching for every observable after it.
+  for (const listener of state.listeners) {
+    try {
+      listener();
+    } catch (error) {
+      console.error("[network] a reconnect listener failed", error);
+    }
+  }
 });
 
 export function setSystem(connected: boolean) {
