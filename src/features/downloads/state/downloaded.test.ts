@@ -16,7 +16,9 @@ mock.module("@/state/observable-persist", () => ({
 }));
 
 const { downloaded$ } = await import("./download-queue");
-const { refreshDownloaded } = await import("./downloaded");
+const { downloadedPairs, refreshDownloaded, seedDownloaded } = await import(
+  "./downloaded"
+);
 
 const fake = (files: { hash: string; local: boolean }[]) =>
   ({ list: async () => files.map((f) => ({ ...f, paths: [] })) }) as never;
@@ -70,5 +72,48 @@ describe("refreshDownloaded", () => {
     } as never;
     await expect(refreshDownloaded(5, "s", failing)).rejects.toThrow("boom");
     expect(downloaded$.peek()["5/s"]).toEqual({ aaaaaaaa: "local" });
+  });
+});
+
+describe("downloadedPairs", () => {
+  it("reads each manga and source id once", () => {
+    const paths = [
+      "downloads/Title [8]/Source A [s1]/Chapter 1 [aaaaaaaa].cbz",
+      "downloads/Title [8]/Source A [s1]/Chapter 2 [bbbbbbbb].cbz",
+      "downloads/Title [8]/Source B [s2]/Chapter 1 [cccccccc].cbz",
+      "downloads/Other [9]/Source A [s1]/Chapter 1 [dddddddd].cbz",
+    ];
+    expect(downloadedPairs(paths)).toEqual([
+      [8, "s1"],
+      [8, "s2"],
+      [9, "s1"],
+    ]);
+  });
+});
+
+describe("seedDownloaded", () => {
+  it("lists the manga it doesn't hold, once per launch", async () => {
+    downloaded$["830/s"].set({ eeeeeeee: "cloud" });
+    const listed: string[] = [];
+    let listAlls = 0;
+    const store = {
+      async listAll() {
+        listAlls++;
+        return [
+          "downloads/A [830]/S [s]/C [ffffffff].cbz",
+          "downloads/B [831]/S [s]/C [aaaaaaaa].cbz",
+        ];
+      },
+      async list(mangaId: number, sourceId: string) {
+        listed.push(`${mangaId}/${sourceId}`);
+        return [{ hash: "aaaaaaaa", local: true, paths: [] }];
+      },
+    } as never;
+    await seedDownloaded(store);
+    await seedDownloaded(store);
+    expect(listAlls).toBe(1);
+    expect(listed).toEqual(["831/s"]);
+    expect(downloaded$.peek()["831/s"]).toEqual({ aaaaaaaa: "local" });
+    expect(downloaded$.peek()["830/s"]).toEqual({ eeeeeeee: "cloud" });
   });
 });

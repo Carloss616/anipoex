@@ -5,9 +5,9 @@ import {
   type Observable,
   type ObservablePrimitive,
 } from "@legendapp/state";
-import { useObservable, useValue } from "@legendapp/state/react";
+import { useObservable, useObserve, useValue } from "@legendapp/state/react";
 import { useEffect } from "react";
-import { downloaded$ } from "@/features/downloads";
+import { downloaded$, seedDownloaded } from "@/features/downloads";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
 import { MangaListDocument } from "../graphql/manga-list.generated";
@@ -71,6 +71,10 @@ export function useMangaList(
       list$.fields.set(entryFields(data));
     });
   }, [data, list$]);
+
+  useObserve(() => {
+    if (listOptions$.filters.downloaded.get() !== "any") void seedDownloaded();
+  });
 
   /**
    * Computeds under a plain root: `useObservable` deactivates only its root on
