@@ -147,18 +147,25 @@ export function toSaveVariables(
   };
 }
 
-/** The fields `after` changed, as a change queued offline keeps them. */
+/**
+ * The fields `after` changed, as a change queued offline keeps them. A change
+ * that lands late leaves out the fields `current` changed again since.
+ */
 export function toPendingEdits(
   before: TrackingForm,
   after: TrackingForm,
+  current = after,
 ): PendingEdits {
+  const differs = (field: Exclude<keyof TrackingForm, "repeat">) =>
+    after[field]?.valueOf() !== before[field]?.valueOf() &&
+    after[field]?.valueOf() === current[field]?.valueOf();
+
   const edits: PendingEdits = {};
-  if (after.status !== before.status) edits.status = after.status;
-  if (after.progress !== before.progress) edits.progress = after.progress;
-  if (after.score !== before.score) edits.score = after.score;
+  if (differs("status")) edits.status = after.status;
+  if (differs("progress")) edits.progress = after.progress;
+  if (differs("score")) edits.score = after.score;
   for (const field of ["startedAt", "completedAt"] as const) {
-    if (after[field]?.getTime() !== before[field]?.getTime())
-      edits[field] = toFuzzyDate(after[field]);
+    if (differs(field)) edits[field] = toFuzzyDate(after[field]);
   }
   return edits;
 }

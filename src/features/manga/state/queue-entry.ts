@@ -11,15 +11,18 @@ import {
 
 /**
  * Keeps an edit made offline and shows it at once. One added offline has no
- * entry to write to: the sheet keeps its form until it's sent.
+ * entry to write to: the sheet keeps its form until it's sent. `current` is
+ * the form now, for a change that failed after newer ones were made.
  */
 export function queueEdit(
   mediaId: number,
   entryId: number | undefined,
   before: TrackingForm,
   after: TrackingForm,
-): Kept {
-  const edits = toPendingEdits(before, after);
+  current = after,
+): Kept | undefined {
+  const edits = toPendingEdits(before, after, current);
+  if (!Object.keys(edits).length) return;
   // Read before the write below, so the first edit keeps what AniList had
   const kept = keepEdits(
     mediaId,

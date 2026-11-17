@@ -1,7 +1,7 @@
 import { observable } from "@legendapp/state";
 import { syncObservable } from "@legendapp/state/sync";
-import type {
-  FuzzyDateInput,
+import {
+  type FuzzyDateInput,
   MediaListStatus,
 } from "@/graphql/types.generated";
 import { isNetworkError } from "@/graphql/utils";
@@ -123,6 +123,10 @@ export function keepEdits(
     };
     delete kept.remove;
     if (edits.progress !== undefined) delete kept.progress;
+    // Added offline: the send creates it only with a status, and AniList's
+    // default for one saved without is Reading
+    if (kept.entryId === undefined && !kept.edits?.status)
+      kept.edits = { ...kept.edits, status: MediaListStatus.Current };
     return kept;
   });
 }

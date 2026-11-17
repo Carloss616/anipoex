@@ -302,6 +302,16 @@ describe("toPendingEdits", () => {
     });
   });
 
+  it("leaves out a field changed again since, for a change that lands late", () => {
+    expect(
+      toPendingEdits(
+        form(),
+        form({ score: 7, progress: 12 }),
+        form({ score: 8, progress: 12 }),
+      ),
+    ).toEqual({ progress: 12 });
+  });
+
   it("is empty when nothing changed", () => {
     expect(
       toPendingEdits(

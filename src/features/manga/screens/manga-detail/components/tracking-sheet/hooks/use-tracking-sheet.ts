@@ -1,5 +1,5 @@
 import { useValue } from "@legendapp/state/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import type { MangaTracking } from "@/features/manga/hooks/use-tracking-entry";
 import { queueEdit, queueRemoval } from "@/features/manga/state/queue-entry";
@@ -28,6 +28,11 @@ export function useTrackingSheet({
   const [form, setForm] = useState(() => toTrackingForm(tracking));
   const { save, remove, removing } = useSaveTracking(manga.id);
   const canScore = useValue(session$.user)?.scoreFormat != null;
+  // What a save that fails late is compared with
+  const shown = useRef(form);
+  useEffect(() => {
+    shown.current = form;
+  });
 
   // The sheet stays mounted while closed, so the form seeds on every open;
   // seeding once would outlive any refetch that moves the entry ahead.
@@ -57,7 +62,7 @@ export function useTrackingSheet({
       },
       (error) => {
         if (isNetworkError(error)) {
-          queueEdit(manga.id, entryId, form, next);
+          queueEdit(manga.id, entryId, form, next, shown.current);
           succeeded();
           return;
         }

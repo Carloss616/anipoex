@@ -76,6 +76,21 @@ describe("keepEdits", () => {
     });
   });
 
+  it("an entry added offline without a status gets AniList's default", () => {
+    keepEdits(1, undefined, { progress: 5 });
+    keepEdits(1, undefined, { score: 8 });
+    expect(pendingEntries$[1].get().edits).toEqual({
+      progress: 5,
+      score: 8,
+      status: MediaListStatus.Current,
+    });
+  });
+
+  it("an edit to a listed entry gets no status", () => {
+    keepEdits(1, 5, { progress: 5 });
+    expect(pendingEntries$[1].get().edits).toEqual({ progress: 5 });
+  });
+
   it("keepEdits clears the error and keeps the first before", () => {
     keepEdits(1, 5, { score: 8 }, BEFORE);
     pendingEntries$[1].error.set("boom");
