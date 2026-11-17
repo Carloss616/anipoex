@@ -13,7 +13,7 @@ query MangaDetail($id: Int!) { Media(id: $id, type: MANGA) { id ...MangaDetail }
 
 - **Returns** the detail shape of [manga](../concepts/manga.md): list fields plus
   description, banner, `averageScore`, start year, 6 staff by relevance, and the
-  [list entry](../concepts/list-entry.md) (status, progress, score, dates, notes, repeat count).
+  [list entry](../concepts/list-entry.md) (status, progress, score, dates including when it was last updated and created, notes, repeat count).
 - **Cache first**: the screen reads the `MangaDetail` fragment from the cache and only
   sends the query when that fragment is incomplete. What [MangaList](manga-list.md)
   already fetched paints at once; the query fills in the rest.

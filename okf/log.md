@@ -2,6 +2,8 @@
 
 ## 2026-11-16
 
+* **The list entry's fields for filters and sort**: the manga list query also returns each entry's `progress`, `updatedAt`, `createdAt` and `score`, and the detail's list entry carries `updatedAt` and `createdAt`. Updated [MangaList](operations/manga-list.md), [MangaDetail](operations/manga-detail.md).
+
 * **The manga list's filters and sort are kept per device**: four tri-state filters (unread, started, downloaded, completed) and a sort, stored in `device.mangaList` and absent until changed; a value from another build falls back to the defaults. Updated [Settings](stores/settings.md), [Manga list view](stores/manga-list-view.md).
 
 * **Undo for a reading save kept offline**: the reader's notice says "Saved on this device" and Undo restores the pending entry the keep replaced, without calling AniList; an entry already sent or changed is left alone. Updated [Pending progress](stores/pending-progress.md).
