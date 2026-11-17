@@ -12,8 +12,10 @@ last time it was asked. Either failing makes it offline.
 
 # What counts
 
-- **The system**: no network, or one with no internet, is offline at once. When it comes
-  back the app checks that AniList answers before it says online.
+- **The system**: no network is offline at once. When it comes back the app checks that
+  AniList answers before it says online. A network the device reports as having no internet
+  is not trusted on its own (the device's check can be blocked while AniList works): the app
+  asks AniList, and its answer decides.
 - **AniList**: a request to AniList that gets no answer at all (no server, not an error from
   one) marks the app offline. Any answer, even an error, marks it online again. While it
   can't be reached, it is asked again every 30 seconds and when the app returns to the

@@ -25,11 +25,13 @@ export async function ping() {
   }
 }
 
+// Android's "no internet" means Google's check failed, which a blocked check
+// or some VPNs and private DNS also cause: AniList's answer decides instead.
 function apply({ isConnected, isInternetReachable }: NetworkState) {
-  const connected = isConnected !== false && isInternetReachable !== false;
+  const connected = isConnected !== false;
   const wasConnected = network$.system.peek();
   setSystem(connected);
-  if (connected && !wasConnected) ping();
+  if (connected && (!wasConnected || isInternetReachable === false)) ping();
 }
 
 function retry() {
