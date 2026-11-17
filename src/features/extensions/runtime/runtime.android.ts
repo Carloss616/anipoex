@@ -1,5 +1,6 @@
 import { requireNativeModule } from "expo";
-import type { RuntimeApi, SourcePage } from "./runtime";
+import type { RuntimeApi } from "./runtime";
+import { type FilePage, localPages } from "./utils/local-pages";
 import { nativeErrorMessage } from "./utils/native-error";
 
 const native = requireNativeModule<
@@ -24,18 +25,6 @@ const native = requireNativeModule<
     ): Promise<{ uri: string }>;
   }
 >("ExtensionRuntime");
-
-type FilePage = { index: number; uri: string };
-
-const localPages = (pages: FilePage[]) =>
-  pages.map(
-    (page): SourcePage => ({
-      index: page.index,
-      imageUrl: page.uri,
-      headers: {},
-      local: true,
-    }),
-  );
 
 // Toasts and empty states show the cause's message, not the bridge's wrapper.
 const clean = <T>(promise: Promise<T>): Promise<T> =>

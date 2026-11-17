@@ -1,21 +1,10 @@
-import type { RuntimeApi, SourcePage } from "../runtime";
+import type { RuntimeApi } from "../runtime";
+import { type FilePage, localPages } from "./local-pages";
 
 type Send = (
   method: string,
   args: Record<string, unknown>,
 ) => Promise<{ result?: unknown; error?: string }>;
-
-type FilePage = { index: number; uri: string };
-
-const localPages = (pages: FilePage[]) =>
-  pages.map(
-    (page): SourcePage => ({
-      index: page.index,
-      imageUrl: page.uri,
-      headers: {},
-      local: true,
-    }),
-  );
 
 /**
  * A `RuntimeApi` over any transport that answers `{result}` or `{error}`, so
