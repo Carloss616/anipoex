@@ -20,6 +20,8 @@ import {
   scanReading,
   stopReadingScan,
 } from "@/features/manga/state/library-scan";
+import { listOptions$ } from "@/features/manga/state/list-options";
+import { hasActiveFilters } from "@/features/manga/utils/list-options";
 import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -55,6 +57,7 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
   const scanning = useValue(libraryScan$);
+  const filtered = useValue(() => hasActiveFilters(listOptions$.filters.get()));
   const reading = status === MediaListStatus.Current;
   const [refetching, setRefetching] = useState(false);
 
@@ -102,9 +105,10 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
           ))}
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Button
-          icon={Icons.grid}
+          icon={Icons.filter}
           onPress={openOptionsSheet}
-          accessibilityLabel="View options"
+          tintColor={filtered ? primary : undefined}
+          accessibilityLabel="List options"
         />
         <Stack.Toolbar.Menu
           hidden={!isRuntimeAvailable || !reading}

@@ -6,13 +6,15 @@ import {
   pickerStyle,
   tag,
 } from "@expo/ui/swift-ui/modifiers";
-import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Text } from "@/components/native/swift-ui/text";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
 import { settings$ } from "@/state/settings";
+import { open$ } from "./utils/sheet-state";
+
+export { openOptionsSheet } from "./utils/sheet-state";
 
 const TITLES = [
   ["below", "Below"],
@@ -21,11 +23,6 @@ const TITLES = [
 ] as const;
 
 const SECONDARY = [foregroundStyle("secondary")];
-
-const open$ = observable(false);
-
-/** Opens the one `OptionsSheet` the screen renders. */
-export const openOptionsSheet = () => open$.set(true);
 
 /**
  * iOS: columns and title position, as two segmented pickers. The sheet fits its

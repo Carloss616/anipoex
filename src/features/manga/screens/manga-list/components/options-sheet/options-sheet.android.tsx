@@ -1,6 +1,5 @@
 import { Column } from "@expo/ui/jetpack-compose";
 import { fillMaxWidth, padding } from "@expo/ui/jetpack-compose/modifiers";
-import { observable } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { ButtonGroup } from "@/components/native/jetpack-compose/button-group";
@@ -9,17 +8,15 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { columnOptions, columnsFor } from "@/features/manga/utils/list-view";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { settings$ } from "@/state/settings";
+import { open$ } from "./utils/sheet-state";
+
+export { openOptionsSheet } from "./utils/sheet-state";
 
 const TITLES = [
   ["below", "Below"],
   ["split", "Split"],
   ["over", "Over"],
 ] as const;
-
-const open$ = observable(false);
-
-/** Opens the one `OptionsSheet` the screen renders. */
-export const openOptionsSheet = () => open$.set(true);
 
 /**
  * Android: columns and title position, as two connected button groups. Rendered
