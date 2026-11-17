@@ -7,8 +7,8 @@ import { MangaDetailDocument } from "../graphql/manga-detail.generated";
 import { MangaMediaFragmentDoc } from "../graphql/manga-fragments.generated";
 import { SaveMangaTrackingDocument } from "../graphql/manga-tracking.generated";
 import { fileSaved, refileEntry } from "../utils/file-entry";
-import { pendingSave } from "../utils/pending-save";
-import { flushPending, type PendingProgress } from "./pending-progress";
+import { pendingWrite } from "../utils/pending-write";
+import { flushPending, type PendingEntry } from "./pending-entries";
 
 const CONTEXT = {
   queueOffline: true,
@@ -31,7 +31,7 @@ const remoteOf = (mediaId: number) =>
  * Compares with AniList's entry as it is now, never the cache: the cache can
  * predate reading on another device, and saving over it would lower progress.
  */
-async function send(mediaId: number, pending: PendingProgress) {
+async function send(mediaId: number, pending: PendingEntry) {
   const priorId = cachedEntry(mediaId)?.id;
   const { data } = await client.query({
     query: MangaDetailDocument,
@@ -43,18 +43,18 @@ async function send(mediaId: number, pending: PendingProgress) {
   const userId = session$.user.peek()?.id;
   if (media && userId != null) refileEntry(cache, userId, priorId, media);
 
-  const variables = pendingSave(
+  const write = pendingWrite(
     mediaId,
-    pending.progress,
+    pending,
     media?.mediaListEntry,
     media?.chapters,
     new Date(),
   );
-  if (!variables) return;
+  if (write?.kind !== "save") return;
 
   await client.mutate({
     mutation: SaveMangaTrackingDocument,
-    variables,
+    variables: write.variables,
     context: CONTEXT,
     update: (cache, { data }) =>
       fileSaved(

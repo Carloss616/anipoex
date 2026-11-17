@@ -1,7 +1,7 @@
 import { observable } from "@legendapp/state";
 import { downloadQueue$ } from "@/features/downloads";
 import { activeScans$ } from "@/features/manga/state/active-scans";
-import { pendingProgress$ } from "@/features/manga/state/pending-progress";
+import { pendingEntries$ } from "@/features/manga/state/pending-entries";
 import {
   readingQueue$,
   readingRun$,
@@ -26,7 +26,7 @@ export const hasActivity = () =>
 
 /** The manga whose kept progress AniList turned down, joined. */
 export const unsentIds = () =>
-  Object.entries(pendingProgress$.get())
+  Object.entries(pendingEntries$.get())
     .filter(([, pending]) => pending.error)
     .map(([id]) => id)
     .join();

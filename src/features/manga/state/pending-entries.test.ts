@@ -20,19 +20,30 @@ mock.module("@/state/observable-persist", () => ({
 const {
   effectiveProgress,
   flushPending,
+  keepEdits,
   keepIfOffline,
   keepPending,
-  pendingProgress$,
+  keepRemoval,
+  pendingEntries$,
   restorePending,
-} = await import("./pending-progress");
+} = await import("./pending-entries");
 
-beforeEach(() => pendingProgress$.set({}));
+const BEFORE = {
+  entryId: 5,
+  status: MediaListStatus.Current,
+  progress: 3,
+  score: 7,
+  startedAt: null,
+  completedAt: null,
+};
+
+beforeEach(() => pendingEntries$.set({}));
 
 describe("keepPending", () => {
   it("keeps the higher progress", () => {
     keepPending(1, { progress: 12, status: MediaListStatus.Current });
     keepPending(1, { progress: 10, status: MediaListStatus.Paused });
-    expect(pendingProgress$[1].get()).toMatchObject({
+    expect(pendingEntries$[1].get()).toMatchObject({
       progress: 12,
       status: MediaListStatus.Current,
     });
@@ -41,7 +52,7 @@ describe("keepPending", () => {
   it("takes the status of a progress that is not lower", () => {
     keepPending(1, { progress: 12, status: MediaListStatus.Current });
     keepPending(1, { progress: 14, status: MediaListStatus.Completed });
-    expect(pendingProgress$[1].get()).toMatchObject({
+    expect(pendingEntries$[1].get()).toMatchObject({
       progress: 14,
       status: MediaListStatus.Completed,
     });
@@ -49,9 +60,55 @@ describe("keepPending", () => {
 
   it("clears a previous error", () => {
     keepPending(1, { progress: 12 });
-    pendingProgress$[1].error.set("boom");
+    pendingEntries$[1].error.set("boom");
     keepPending(1, { progress: 13 });
-    expect(pendingProgress$[1].get().error).toBeUndefined();
+    expect(pendingEntries$[1].get().error).toBeUndefined();
+  });
+});
+
+describe("keepEdits", () => {
+  it("keepEdits merges per field, later wins", () => {
+    keepEdits(1, 5, { status: MediaListStatus.Paused, score: 8 });
+    keepEdits(1, 5, { score: 9 });
+    expect(pendingEntries$[1].get()).toMatchObject({
+      entryId: 5,
+      edits: { status: MediaListStatus.Paused, score: 9 },
+    });
+  });
+
+  it("keepEdits clears the error and keeps the first before", () => {
+    keepEdits(1, 5, { score: 8 }, BEFORE);
+    pendingEntries$[1].error.set("boom");
+    keepEdits(1, 5, { score: 9 }, { ...BEFORE, score: 8 });
+    expect(pendingEntries$[1].get().error).toBeUndefined();
+    expect(pendingEntries$[1].get().before).toEqual(BEFORE);
+  });
+
+  it("a hand-set progress replaces the reader's", () => {
+    keepPending(1, { progress: 12 });
+    keepEdits(1, 5, { progress: 4 });
+    expect(pendingEntries$[1].get().progress).toBeUndefined();
+    expect(pendingEntries$[1].get().edits?.progress).toBe(4);
+  });
+
+  it("the reader raises a lower hand-set progress", () => {
+    keepEdits(1, 5, { progress: 4, score: 9 });
+    keepPending(1, { progress: 6 });
+    expect(pendingEntries$[1].get().edits).toEqual({ progress: 6, score: 9 });
+    keepPending(1, { progress: 5 });
+    expect(pendingEntries$[1].get().edits?.progress).toBe(6);
+  });
+});
+
+describe("keepRemoval", () => {
+  it("a removal drops progress and edits", () => {
+    keepPending(1, { progress: 12 });
+    keepEdits(1, 5, { score: 9 }, BEFORE);
+    keepRemoval(1, 5, { ...BEFORE, score: 9 });
+    const pending = pendingEntries$[1].get();
+    expect(pending).toMatchObject({ remove: true, entryId: 5, before: BEFORE });
+    expect(pending.progress).toBeUndefined();
+    expect(pending.edits).toBeUndefined();
   });
 });
 
@@ -59,37 +116,37 @@ describe("restorePending", () => {
   it("removes an entry the keep created", () => {
     const kept = keepPending(1, { progress: 12 });
     restorePending(1, kept);
-    expect(pendingProgress$.get()).toEqual({});
+    expect(pendingEntries$.get()).toEqual({});
   });
 
   it("puts back the entry the keep replaced", () => {
     keepPending(1, { progress: 12, status: MediaListStatus.Current });
-    const before = { ...pendingProgress$[1].get() };
+    const before = { ...pendingEntries$[1].get() };
     const kept = keepPending(1, { progress: 14 });
     restorePending(1, kept);
-    expect(pendingProgress$[1].get()).toEqual(before);
+    expect(pendingEntries$[1].get()).toEqual(before);
   });
 
   it("puts back the entry a lower progress only refreshed", () => {
     keepPending(1, { progress: 12 });
-    const before = { ...pendingProgress$[1].get() };
+    const before = { ...pendingEntries$[1].get() };
     const kept = keepPending(1, { progress: 10 });
     restorePending(1, kept);
-    expect(pendingProgress$[1].get()).toEqual(before);
+    expect(pendingEntries$[1].get()).toEqual(before);
   });
 
   it("leaves a sent entry gone", () => {
     const kept = keepPending(1, { progress: 12 });
-    pendingProgress$[1].delete();
+    pendingEntries$[1].delete();
     restorePending(1, kept);
-    expect(pendingProgress$.get()).toEqual({});
+    expect(pendingEntries$.get()).toEqual({});
   });
 
   it("leaves an entry changed since the keep", () => {
     const kept = keepPending(1, { progress: 12 });
-    pendingProgress$[1].error.set("boom");
+    pendingEntries$[1].error.set("boom");
     restorePending(1, kept);
-    expect(pendingProgress$[1].get().error).toBe("boom");
+    expect(pendingEntries$[1].get().error).toBe("boom");
   });
 });
 
@@ -102,6 +159,16 @@ describe("effectiveProgress", () => {
     expect(effectiveProgress(undefined, 2)).toBe(0);
     expect(effectiveProgress(7, 2)).toBe(7);
   });
+
+  it("is 0 for a pending removal", () => {
+    keepRemoval(1, 5, BEFORE);
+    expect(effectiveProgress(9, 1)).toBe(0);
+  });
+
+  it("takes a hand-set progress over the higher one", () => {
+    keepEdits(1, 5, { progress: 4 });
+    expect(effectiveProgress(9, 1)).toBe(4);
+  });
 });
 
 describe("flushPending", () => {
@@ -110,7 +177,7 @@ describe("flushPending", () => {
     const send = mock(async () => {});
     await flushPending(() => 13, send);
     expect(send).not.toHaveBeenCalled();
-    expect(pendingProgress$.get()).toEqual({});
+    expect(pendingEntries$.get()).toEqual({});
   });
 
   it("sends an entry ahead of the remote, then drops it", async () => {
@@ -121,7 +188,7 @@ describe("flushPending", () => {
       1,
       expect.objectContaining({ progress: 12 }),
     );
-    expect(pendingProgress$.get()).toEqual({});
+    expect(pendingEntries$.get()).toEqual({});
   });
 
   it("sends an entry with no remote value", async () => {
@@ -139,8 +206,8 @@ describe("flushPending", () => {
     });
     await flushPending(() => 0, send);
     expect(send).toHaveBeenCalledTimes(1);
-    expect(pendingProgress$[1].get().error).toBeUndefined();
-    expect(pendingProgress$[2].get()).toBeDefined();
+    expect(pendingEntries$[1].get().error).toBeUndefined();
+    expect(pendingEntries$[2].get()).toBeDefined();
   });
 
   it("records other errors and goes on", async () => {
@@ -152,8 +219,8 @@ describe("flushPending", () => {
     });
     await flushPending(() => 0, send);
     expect(send).toHaveBeenCalledTimes(2);
-    expect(pendingProgress$[1].get().error).toBe("Denied");
-    expect(pendingProgress$[2].get()).toBeUndefined();
+    expect(pendingEntries$[1].get().error).toBe("Denied");
+    expect(pendingEntries$[2].get()).toBeUndefined();
   });
 
   it("keeps progress written while a send is in flight", async () => {
@@ -164,7 +231,7 @@ describe("flushPending", () => {
         keepPending(1, { progress: 14 });
       },
     );
-    expect(pendingProgress$[1].get().progress).toBe(14);
+    expect(pendingEntries$[1].get().progress).toBe(14);
   });
 
   it("records a TypeError that is not a fetch failure", async () => {
@@ -175,23 +242,23 @@ describe("flushPending", () => {
         throw new TypeError("undefined is not a function");
       },
     );
-    expect(pendingProgress$[1].get().error).toBe("undefined is not a function");
+    expect(pendingEntries$[1].get().error).toBe("undefined is not a function");
   });
 
   it("leaves an entry that failed for a retry", async () => {
     keepPending(1, { progress: 12 });
-    pendingProgress$[1].error.set("Denied");
+    pendingEntries$[1].error.set("Denied");
     const send = mock(async () => {});
     await flushPending(() => 0, send);
     expect(send).not.toHaveBeenCalled();
-    expect(pendingProgress$[1].get().error).toBe("Denied");
+    expect(pendingEntries$[1].get().error).toBe("Denied");
   });
 
   it("skips an entry cleared during the run, as by sign-out", async () => {
     keepPending(1, { progress: 12 });
     keepPending(2, { progress: 5 });
     const send = mock(async () => {
-      pendingProgress$.set({});
+      pendingEntries$.set({});
     });
     await flushPending(() => 0, send);
     expect(send).toHaveBeenCalledTimes(1);
@@ -202,11 +269,11 @@ describe("flushPending", () => {
     await flushPending(
       () => 0,
       async () => {
-        pendingProgress$.set({});
+        pendingEntries$.set({});
         throw new CombinedGraphQLErrors({ errors: [{ message: "Denied" }] });
       },
     );
-    expect(pendingProgress$.get()).toEqual({});
+    expect(pendingEntries$.get()).toEqual({});
   });
 
   it("shares one run between concurrent calls", async () => {
@@ -227,7 +294,7 @@ describe("keepIfOffline", () => {
       status: MediaListStatus.Current,
     });
     expect(kept?.kept.progress).toBe(7);
-    expect(pendingProgress$[1].get()).toMatchObject({
+    expect(pendingEntries$[1].get()).toMatchObject({
       progress: 7,
       status: MediaListStatus.Current,
     });
@@ -238,6 +305,6 @@ describe("keepIfOffline", () => {
       errors: [{ message: "Denied" }],
     });
     expect(keepIfOffline(error, 1, { progress: 7 })).toBeUndefined();
-    expect(pendingProgress$[1].get()).toBeUndefined();
+    expect(pendingEntries$[1].get()).toBeUndefined();
   });
 });

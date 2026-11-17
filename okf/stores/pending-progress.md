@@ -2,7 +2,7 @@
 type: Persisted Store
 title: Pending progress
 description: Reading progress made while AniList could not be reached, kept per manga until it is sent.
-resource: ../../src/features/manga/state/pending-progress.ts
+resource: ../../src/features/manga/state/pending-entries.ts
 tags: [tracking, offline, persistence]
 generated: { by: claude-code, at: 2026-11-16T00:00:00Z }
 ---

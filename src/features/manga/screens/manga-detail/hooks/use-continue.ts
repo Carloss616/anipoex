@@ -8,7 +8,7 @@ import {
   type ContinueReading,
   continueReading$,
 } from "@/features/manga/state/continue-reading";
-import { effectiveProgress } from "@/features/manga/state/pending-progress";
+import { effectiveProgress } from "@/features/manga/state/pending-entries";
 import type { ContinueKind } from "@/features/manga/utils/continue-label";
 import { continueChapter } from "@/features/manga/utils/next-chapter";
 import type { SourceMatch } from "@/features/manga/utils/source-match";

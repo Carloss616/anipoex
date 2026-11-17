@@ -16,8 +16,8 @@ mock.module("@/state/observable-persist", () => ({
 }));
 
 const { downloadQueue$ } = await import("@/features/downloads");
-const { pendingProgress$ } = await import(
-  "@/features/manga/state/pending-progress"
+const { pendingEntries$ } = await import(
+  "@/features/manga/state/pending-entries"
 );
 const {
   canMoveUp,
@@ -43,12 +43,12 @@ const entry = (key: string, order: number, state: State) => ({
 
 afterEach(() => {
   downloadQueue$.set({});
-  pendingProgress$.set({});
+  pendingEntries$.set({});
 });
 
 describe("progress not sent", () => {
   test("lists only the entries that failed, as activity", () => {
-    pendingProgress$.set({
+    pendingEntries$.set({
       "901": { progress: 3, at: 1 },
       "902": { progress: 5, at: 1, error: "Denied" },
     });
@@ -58,7 +58,7 @@ describe("progress not sent", () => {
   });
 
   test("is no activity while every entry waits to be sent", () => {
-    pendingProgress$.set({ "901": { progress: 3, at: 1 } });
+    pendingEntries$.set({ "901": { progress: 3, at: 1 } });
     expect(unsentIds()).toBe("");
     expect(hasActivity()).toBe(false);
   });

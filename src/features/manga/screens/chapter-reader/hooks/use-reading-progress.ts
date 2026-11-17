@@ -7,7 +7,7 @@ import {
   keepIfOffline,
   keepPending,
   restorePending,
-} from "@/features/manga/state/pending-progress";
+} from "@/features/manga/state/pending-entries";
 import {
   type ReadingSave,
   readingSave,

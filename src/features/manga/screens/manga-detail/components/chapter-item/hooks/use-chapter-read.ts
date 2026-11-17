@@ -2,7 +2,7 @@ import { useApolloClient } from "@apollo/client/react";
 import { useValue } from "@legendapp/state/react";
 import { useSyncExternalStore } from "react";
 import { MangaTrackingFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
-import { pendingProgress$ } from "@/features/manga/state/pending-progress";
+import { pendingEntries$ } from "@/features/manga/state/pending-entries";
 import { isRead } from "@/features/manga/utils/to-chapters";
 
 const FRAGMENT = {
@@ -38,7 +38,7 @@ export function useChapterRead(
   );
   // Read by either progress is read by the higher one: isRead grows with it.
   const pendingRead = useValue(() =>
-    isRead(pendingProgress$[mediaId].progress.get() ?? 0, chapter),
+    isRead(pendingEntries$[mediaId].progress.get() ?? 0, chapter),
   );
 
   return remoteRead || pendingRead;
