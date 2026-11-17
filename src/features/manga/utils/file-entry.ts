@@ -127,6 +127,24 @@ export function fileSaved(
   });
 }
 
+/** A removal's cache update: out of every list, the media's link and the cache. */
+export function fileDeleted(
+  cache: ApolloCache,
+  userId: number | undefined,
+  mediaId: number,
+  entryId: number,
+) {
+  const entry = { __typename: "MediaList" as const, id: entryId };
+  if (userId != null) fileEntry(cache, userId, { ...entry, media: null }, null);
+
+  cache.modify({
+    id: cache.identify({ __typename: "Media", id: mediaId }),
+    fields: { mediaListEntry: () => null },
+  });
+  cache.evict({ id: cache.identify(entry) });
+  cache.gc();
+}
+
 /**
  * Files a refetched media's entry where its status says, as a save does: a
  * change made outside the app only rewrites the entry, not the lists that hold

@@ -60,7 +60,9 @@ function keep(
   const stored = pendingEntries$[mediaId].peek();
   // Legend changes stored objects in place: copy both before and after the set
   const previous = stored && { ...stored };
-  const kept: PendingEntry = { ...change(previous), at: Date.now() };
+  // Always later than the stored one: the flush tells a change apart by `at`
+  const at = Math.max(Date.now(), (previous?.at ?? 0) + 1);
+  const kept: PendingEntry = { ...change(previous), at };
   delete kept.error;
   pendingEntries$[mediaId].set(kept);
   return { previous, kept: { ...kept } };
@@ -68,7 +70,7 @@ function keep(
 
 /**
  * The reader's progress: the higher one wins, and a progress that isn't lower
- * also brings its status. A lower progress set by hand rises with it.
+ * also brings its status. Over a progress set by hand, it only raises that one.
  */
 export function keepPending(
   mediaId: number,
@@ -76,13 +78,14 @@ export function keepPending(
 ): Kept {
   return keep(mediaId, (previous) => {
     const kept = { ...previous };
-    if (next.progress >= (previous?.progress ?? 0)) {
+    const edits = previous?.edits;
+    if (edits?.progress !== undefined) {
+      if (edits.progress < next.progress)
+        kept.edits = { ...edits, progress: next.progress };
+    } else if (next.progress >= (previous?.progress ?? 0)) {
       kept.progress = next.progress;
       kept.status = next.status;
     }
-    const edits = previous?.edits;
-    if (edits?.progress !== undefined && edits.progress < next.progress)
-      kept.edits = { ...edits, progress: next.progress };
     return kept;
   });
 }
@@ -185,9 +188,12 @@ async function run(
     const pending = pendingEntries$[mediaId].peek();
     if (!pending) continue;
     const remote = remoteOf(mediaId);
+    // Only the reader's progress can be judged from the cache alone
     if (
       remote !== undefined &&
       pending.progress !== undefined &&
+      !pending.edits &&
+      !pending.remove &&
       remote >= pending.progress
     ) {
       pendingEntries$[mediaId].delete();
@@ -197,8 +203,8 @@ async function run(
     if (pending.error) continue;
     try {
       await send(mediaId, pending);
-      // Progress written during the send stays for the next flush
-      if (pendingEntries$[mediaId].peek()?.progress === pending.progress) {
+      // A change written during the send stays for the next flush
+      if (pendingEntries$[mediaId].peek()?.at === pending.at) {
         pendingEntries$[mediaId].delete();
       }
     } catch (error) {

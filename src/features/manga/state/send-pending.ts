@@ -5,8 +5,11 @@ import { session$ } from "@/state/session";
 import { debouncer } from "@/utils/debouncer";
 import { MangaDetailDocument } from "../graphql/manga-detail.generated";
 import { MangaMediaFragmentDoc } from "../graphql/manga-fragments.generated";
-import { SaveMangaTrackingDocument } from "../graphql/manga-tracking.generated";
-import { fileSaved, refileEntry } from "../utils/file-entry";
+import {
+  DeleteMangaTrackingDocument,
+  SaveMangaTrackingDocument,
+} from "../graphql/manga-tracking.generated";
+import { fileDeleted, fileSaved, refileEntry } from "../utils/file-entry";
 import { pendingWrite } from "../utils/pending-write";
 import { flushPending, type PendingEntry } from "./pending-entries";
 
@@ -50,7 +53,19 @@ async function send(mediaId: number, pending: PendingEntry) {
     media?.chapters,
     new Date(),
   );
-  if (write?.kind !== "save") return;
+  if (!write) return;
+  if (write.kind === "delete") {
+    await client.mutate({
+      mutation: DeleteMangaTrackingDocument,
+      variables: { id: write.id },
+      context: CONTEXT,
+      update: (cache, { data }) => {
+        if (data?.DeleteMediaListEntry?.deleted)
+          fileDeleted(cache, session$.user.peek()?.id, mediaId, write.id);
+      },
+    });
+    return;
+  }
 
   await client.mutate({
     mutation: SaveMangaTrackingDocument,
@@ -66,7 +81,7 @@ async function send(mediaId: number, pending: PendingEntry) {
   });
 }
 
-/** Sends the progress kept offline, when signed in. */
+/** Sends the changes kept offline, when signed in. */
 export async function sendPending() {
   if (network$.online.peek() && session$.token.peek())
     await flushPending(remoteOf, send);

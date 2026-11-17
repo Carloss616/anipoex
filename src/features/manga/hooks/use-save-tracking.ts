@@ -6,7 +6,7 @@ import {
   DeleteMangaTrackingDocument,
   SaveMangaTrackingDocument,
 } from "../graphql/manga-tracking.generated";
-import { fileEntry, fileSaved } from "../utils/file-entry";
+import { fileDeleted, fileSaved } from "../utils/file-entry";
 import type { SaveVariables } from "../utils/tracking-form";
 
 /**
@@ -45,21 +45,7 @@ export function useSaveTracking(mediaId: number) {
       context: { errorMessage: "Couldn't remove this from your list" },
       update(cache, { data }, { variables }) {
         if (!data?.DeleteMediaListEntry?.deleted || variables == null) return;
-
-        const userId = session$.user.peek()?.id;
-        if (userId != null) {
-          const entry = { __typename: "MediaList" as const, id: variables.id };
-          fileEntry(cache, userId, { ...entry, media: null }, null);
-        }
-
-        cache.modify({
-          id: cache.identify({ __typename: "Media", id: mediaId }),
-          fields: { mediaListEntry: () => null },
-        });
-        cache.evict({
-          id: cache.identify({ __typename: "MediaList", id: variables.id }),
-        });
-        cache.gc();
+        fileDeleted(cache, session$.user.peek()?.id, mediaId, variables.id);
       },
     },
   );

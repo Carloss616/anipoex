@@ -93,10 +93,18 @@ describe("keepEdits", () => {
 
   it("the reader raises a lower hand-set progress", () => {
     keepEdits(1, 5, { progress: 4, score: 9 });
-    keepPending(1, { progress: 6 });
+    keepPending(1, { progress: 6, status: MediaListStatus.Current });
     expect(pendingEntries$[1].get().edits).toEqual({ progress: 6, score: 9 });
-    keepPending(1, { progress: 5 });
-    expect(pendingEntries$[1].get().edits?.progress).toBe(6);
+    expect(pendingEntries$[1].get().progress).toBeUndefined();
+    expect(pendingEntries$[1].get().status).toBeUndefined();
+  });
+
+  it("a lower reader progress leaves a hand-set progress alone", () => {
+    keepEdits(1, 5, { progress: 6 });
+    keepPending(1, { progress: 5, status: MediaListStatus.Current });
+    expect(pendingEntries$[1].get().edits).toEqual({ progress: 6 });
+    expect(pendingEntries$[1].get().progress).toBeUndefined();
+    expect(pendingEntries$[1].get().status).toBeUndefined();
   });
 });
 
@@ -172,12 +180,40 @@ describe("effectiveProgress", () => {
 });
 
 describe("flushPending", () => {
-  it("drops an entry the remote already reached, without sending", async () => {
+  it("a progress-only entry AniList already has is dropped without sending", async () => {
     keepPending(1, { progress: 12 });
     const send = mock(async () => {});
     await flushPending(() => 13, send);
     expect(send).not.toHaveBeenCalled();
     expect(pendingEntries$.get()).toEqual({});
+  });
+
+  it("a record with edits survives the shortcut", async () => {
+    keepPending(1, { progress: 12 });
+    keepEdits(1, 5, { score: 9 });
+    const send = mock(async () => {});
+    await flushPending(() => 13, send);
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it("a removal survives the shortcut", async () => {
+    keepRemoval(1, 5, BEFORE);
+    const send = mock(async () => {});
+    await flushPending(() => 13, send);
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it("a change written during the send stays for the next flush", async () => {
+    const { kept } = keepPending(1, { progress: 12 });
+    await flushPending(
+      () => 0,
+      async () => {
+        keepEdits(1, 5, { score: 9 });
+      },
+    );
+    const pending = pendingEntries$[1].get();
+    expect(pending.edits).toEqual({ score: 9 });
+    expect(pending.at).toBeGreaterThan(kept.at);
   });
 
   it("sends an entry ahead of the remote, then drops it", async () => {
