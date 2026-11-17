@@ -7,19 +7,19 @@ tags: [offline, network]
 generated: { by: claude-code, at: 2026-11-16T00:00:00Z }
 ---
 
-The app is **online** only when the device reports a connection **and** AniList (or the
-GitHub sync) answered the last time it was asked. Either failing makes it offline.
+The app is **online** only when the device reports a connection **and** AniList answered the
+last time it was asked. Either failing makes it offline.
 
 # What counts
 
 - **The system**: no network, or one with no internet, is offline at once. When it comes
   back the app checks that AniList answers before it says online.
-- **AniList and the sync**: a request to AniList, or to GitHub for the sync, that gets no
-  answer at all (no server, not an error from one) marks the app offline. Any answer, even an
-  error, marks it online again. It is checked again every 30 seconds while the app is open
-  and when it returns to the foreground.
-- **What doesn't count**: a source or a chapter page that fails. A source can be down or
-  blocked while AniList answers, and the app stays online.
+- **AniList**: a request to AniList that gets no answer at all (no server, not an error from
+  one) marks the app offline. Any answer, even an error, marks it online again. While it
+  can't be reached, it is asked again every 30 seconds and when the app returns to the
+  foreground.
+- **What doesn't count**: a source, a chapter page or the GitHub sync that fails. Any of them
+  can be down or blocked while AniList answers, and the app stays online.
 
 # What it changes
 

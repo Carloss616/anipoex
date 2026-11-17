@@ -1,4 +1,3 @@
-import { networkFailed } from "@/state/network";
 import type { SyncTarget } from "./sync-tables";
 
 const API = "https://api.github.com";
@@ -40,7 +39,6 @@ async function send(url: string, init: RequestInit, fetchFn: Fetch) {
     // A browser keeps GitHub's 60 s cache: a just-pushed file would read old.
     res = await fetchFn(url, { ...init, cache: "no-store" });
   } catch {
-    networkFailed();
     throw new SyncError("offline", "No connection to GitHub");
   }
   if (res.status === 401) {
