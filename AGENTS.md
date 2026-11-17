@@ -98,6 +98,7 @@ Legend State gotchas:
 - A query that spreads a fragment `@nonreactive` doesn't re-render on that fragment's fields, and its `data` keeps the first values: read them through `useFragment` once the cache is complete, or a save never shows (`manga/hooks/use-manga-entry.ts`).
 - `refetchQueries` by name reaches only watched queries: a cached result no screen shows (another list status) stays stale and `cache-first` serves it. A mutation updates the cached results in its `update` instead (`manga/utils/file-entry.ts`), and so does a refetch that can bring a status changed elsewhere (`refileEntry` in `manga/hooks/use-manga-entry.ts`): the cache rewrites the entry, never which lists hold it.
 - A `context` passed to a `useMutation` call replaces the hook's, not merges with it (Apollo's `mergeOptions` is shallow) and drops the hook's `errorMessage`: pass a function, `context: (base) => ({ ...base, queueOffline })` (`manga/hooks/use-save-tracking.ts`).
+- On iOS and Android a failed fetch rejects with expo/fetch's `FetchError` ("fetch failed: …UnknownHostException"), not the `TypeError` browsers throw, so an offline check on the error never matched on a device. The HttpLink's `fetch` turns any rejection into a `NetworkError` that `isNetworkError` reads (`fetchOrNetworkError` in `src/graphql/utils.ts`).
 
 # Persistence
 

@@ -32,13 +32,14 @@ export function keepPending(
   mediaId: number,
   next: { progress: number; status?: MediaListStatus },
 ): Kept {
-  const previous = pendingProgress$[mediaId].peek();
+  const stored = pendingProgress$[mediaId].peek();
+  // Legend changes stored objects in place: copy both before and after the set
+  const previous = stored && { ...stored };
   const kept: PendingProgress =
     previous && next.progress < previous.progress
       ? { ...previous, at: Date.now(), error: undefined }
       : { progress: next.progress, status: next.status, at: Date.now() };
   pendingProgress$[mediaId].set(kept);
-  // Legend changes the stored object in place, so keep a copy to compare
   return { previous, kept: { ...kept } };
 }
 

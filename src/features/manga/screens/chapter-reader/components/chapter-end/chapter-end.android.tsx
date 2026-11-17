@@ -105,7 +105,11 @@ export function ChapterEnd({
               onClick={onUndo}
               enabled={!saving}
               modifiers={[
-                semantics({ contentDescription: "Undo the AniList save" }),
+                semantics({
+                  contentDescription: save.onDevice
+                    ? "Undo the save on this device"
+                    : "Undo the AniList save",
+                }),
               ]}
             >
               <Text style={LABEL}>Undo</Text>

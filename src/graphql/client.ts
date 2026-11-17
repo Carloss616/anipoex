@@ -13,7 +13,7 @@ import { OperationTypeNode } from "graphql";
 import { createMMKV } from "react-native-mmkv";
 import { toast } from "@/components/ui/toast";
 import { session$ } from "@/state/session";
-import { shouldToast } from "./utils";
+import { fetchOrNetworkError, shouldToast } from "./utils";
 
 const GRAPHQL_URL = process.env.EXPO_PUBLIC_ANILIST_GRAPHQL_URL;
 
@@ -131,7 +131,7 @@ export const client = new ApolloClient({
     errorLink,
     answeredLink,
     retryLink,
-    new HttpLink({ uri: GRAPHQL_URL }),
+    new HttpLink({ uri: GRAPHQL_URL, fetch: fetchOrNetworkError }),
   ]),
   cache,
   devtools: { enabled: __DEV__, name: "anipoex" },
