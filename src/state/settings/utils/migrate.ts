@@ -7,6 +7,10 @@ import {
 } from "@/features/home/utils/home-layout";
 import type { TitlePosition } from "@/features/manga/components/manga-card";
 import {
+  type ListOptions,
+  normalizeListOptions,
+} from "@/features/manga/utils/list-options";
+import {
   DEFAULT_DENSITY,
   type Density,
 } from "@/features/manga/utils/list-view";
@@ -42,6 +46,11 @@ export interface Settings {
     downloadsIn?: "sync" | "folder" | "device";
     /** Same format as `folder`; used when `downloadsIn` is "folder". */
     downloadsFolder?: string;
+    /**
+     * The manga list's filters and sort, kept per device: unread and
+     * downloads differ by device.
+     */
+    mangaList?: ListOptions;
   };
 }
 
@@ -82,6 +91,7 @@ export function normalizeSettings(raw: unknown): Settings {
     typeof device?.downloadsFolder === "string"
       ? device.downloadsFolder
       : undefined;
+  const listOptions = normalizeListOptions(device?.mangaList);
   return {
     version: typeof root?.version === "number" ? root.version : 0,
     theme: {
@@ -111,6 +121,7 @@ export function normalizeSettings(raw: unknown): Settings {
       ...(syncInterval !== undefined && { syncInterval }),
       ...(downloadsIn && { downloadsIn }),
       ...(downloadsFolder && { downloadsFolder }),
+      ...(listOptions && { mangaList: listOptions }),
     },
   };
 }

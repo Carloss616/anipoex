@@ -2,6 +2,8 @@
 
 ## 2026-11-16
 
+* **The manga list's filters and sort are kept per device**: four tri-state filters (unread, started, downloaded, completed) and a sort, stored in `device.mangaList` and absent until changed; a value from another build falls back to the defaults. Updated [Settings](stores/settings.md), [Manga list view](stores/manga-list-view.md).
+
 * **Undo for a reading save kept offline**: the reader's notice says "Saved on this device" and Undo restores the pending entry the keep replaced, without calling AniList; an entry already sent or changed is left alone. Updated [Pending progress](stores/pending-progress.md).
 * **A pause survives a restart**: the user's pause of the downloads holds until Resume; iOS's pause when its background time runs out does not. Updated [Downloads](stores/downloads.md).
 * **A move takes only the app's downloads; failed downloads retry all at once**: a root's own `Downloads` folder (the same folder on a disk that ignores case) keeps the user's files, and Activity's Downloads offers Retry all. Updated [Downloads](stores/downloads.md).

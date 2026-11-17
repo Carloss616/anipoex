@@ -46,6 +46,22 @@ test("normalizeSettings fills defaults", () => {
   expect(settings.device).toEqual({});
 });
 
+test("normalizeSettings keeps the manga list options per device", () => {
+  const { device } = normalizeSettings({
+    device: { mangaList: { sort: { by: "unread" } } },
+  });
+  expect(device.mangaList).toEqual({
+    filters: {
+      unread: "any",
+      started: "any",
+      downloaded: "any",
+      completed: "any",
+    },
+    sort: { by: "unread", ascending: false },
+  });
+  expect(normalizeSettings({ device: { mangaList: 3 } }).device).toEqual({});
+});
+
 test("normalizeSettings keeps valid download settings", () => {
   const { device } = normalizeSettings({
     device: { downloadsIn: "folder", downloadsFolder: "/d" },
