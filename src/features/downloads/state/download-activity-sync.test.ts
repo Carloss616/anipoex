@@ -32,6 +32,7 @@ const {
   downloaded$,
   downloadProgress$,
   downloadQueue$,
+  downloadsOffline$,
   downloadsPaused$,
   downloadsSuspended$,
   enqueue,
@@ -64,6 +65,7 @@ afterAll(() => {
     downloaded$[`77/${SOURCE}`].delete();
     downloadsPaused$.set(false);
     downloadsSuspended$.set(false);
+    downloadsOffline$.set(false);
   });
 });
 
@@ -115,6 +117,12 @@ describe("syncDownloadActivity", () => {
     downloadsSuspended$.set(true);
     expect(take()).toEqual([["end", { done: 1, failed: 0, paused: true }]]);
     downloadsSuspended$.set(false);
+    take();
+
+    // So does losing the connection.
+    downloadsOffline$.set(true);
+    expect(take()).toEqual([["end", { done: 1, failed: 0, paused: true }]]);
+    downloadsOffline$.set(false);
     take();
 
     finish("b");

@@ -13,6 +13,7 @@ import {
   downloaded$,
   downloadProgress$,
   downloadQueue$,
+  downloadsOffline$,
   downloadsPaused$,
   downloadsSuspended$,
 } from "./download-queue";
@@ -26,7 +27,8 @@ const isDownloaded = (key: string) => {
 
 /**
  * Keeps one activity outside the app while a chapter runs or waits and the
- * queue isn't paused; a pause ends it but keeps the count for the resume.
+ * queue isn't paused (by hand, by iOS or offline); a pause ends it but keeps
+ * the count for the resume.
  */
 export function syncDownloadActivity() {
   let activity: DownloadActivity | undefined;
@@ -34,7 +36,10 @@ export function syncDownloadActivity() {
   return observe(() => {
     const queue = downloadQueue$.get();
     const progress = downloadProgress$.get();
-    const paused = downloadsPaused$.get() || downloadsSuspended$.get();
+    const paused =
+      downloadsPaused$.get() ||
+      downloadsSuspended$.get() ||
+      downloadsOffline$.get();
     tally = tally ? tallyQueue(tally, queue, isDownloaded) : startTally(queue);
     const view = activityView(tally, queue, progress);
     if (view && !paused) {
