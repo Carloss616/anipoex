@@ -1,6 +1,28 @@
 import { describe, expect, test } from "bun:test";
 import { MediaListStatus } from "@/graphql/types.generated";
-import { pendingSummary } from "./summary";
+import { pendingSummary, remoteProgress } from "./summary";
+
+describe("remoteProgress", () => {
+  const before = {
+    entryId: 1,
+    status: null,
+    progress: 45,
+    score: null,
+    startedAt: null,
+    completedAt: null,
+  };
+
+  test("a hand-set progress compares with what AniList had", () => {
+    const edits = { progress: 47 };
+    expect(remoteProgress({ edits, before, at: 1 }, 47)).toBe(45);
+    const none = { ...before, progress: null };
+    expect(remoteProgress({ edits, before: none, at: 1 }, 47)).toBeUndefined();
+  });
+
+  test("the reader's progress compares with the cache", () => {
+    expect(remoteProgress({ progress: 47, at: 1 }, 45)).toBe(45);
+  });
+});
 
 describe("pendingSummary", () => {
   test("the reader's progress against what AniList has", () => {

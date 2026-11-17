@@ -1,6 +1,13 @@
 import { MANGA_STATUSES } from "@/features/manga/constants";
 import type { PendingEntry } from "@/features/manga/state/pending-entries";
 
+/**
+ * What AniList had, for a change queued by hand: the cache already holds the
+ * queued edit, so the record's `before` is the only copy of the old value.
+ */
+export const remoteProgress = (p: PendingEntry, cached?: number) =>
+  p.before ? (p.before.progress ?? undefined) : cached;
+
 /** One line for what a pending change does; `remoteProgress` is AniList's. */
 export function pendingSummary(p: PendingEntry, remoteProgress?: number) {
   if (p.remove) return "Removed from list";

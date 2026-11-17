@@ -3,13 +3,17 @@ import { useValue } from "@legendapp/state/react";
 import { MangaBaseFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { pendingEntries$ } from "@/features/manga/state/pending-entries";
 import { remoteOf } from "@/features/manga/state/send-pending";
-import { pendingSummary } from "../../../utils/summary";
+import { pendingSummary, remoteProgress } from "../../../utils/summary";
 
 /** The manga's cached title and cover, and one line for what waits. */
 export function useEntryItem(mediaId: string) {
   const summary = useValue(() => {
     const pending = pendingEntries$[mediaId].get();
-    return pending ? pendingSummary(pending, remoteOf(Number(mediaId))) : "";
+    if (!pending) return "";
+    return pendingSummary(
+      pending,
+      remoteProgress(pending, remoteOf(Number(mediaId))),
+    );
   });
   const { data } = useFragment({
     fragment: MangaBaseFragmentDoc,
