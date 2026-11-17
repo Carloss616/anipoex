@@ -167,6 +167,21 @@ describe("applyListOptions", () => {
     expect(ids(result)).toEqual([1, 2, 3]);
   });
 
+  it("reads the latest chapter only where the options need it", () => {
+    const list = [entry(1, { chapters: 5 }), entry(2), entry(3)];
+    const asked: number[] = [];
+    const latest = (id: number) => {
+      asked.push(id);
+      return 10;
+    };
+    const chapters = options({ sort: { by: "chapters", ascending: false } });
+    applyListOptions(list, chapters, lookups({ latest }));
+    expect(asked).toEqual([2, 3]);
+    asked.length = 0;
+    applyListOptions(list, DEFAULT_LIST_OPTIONS, lookups({ latest }));
+    expect(asked).toEqual([]);
+  });
+
   it("returns the same objects and leaves the input alone", () => {
     const list = [
       entry(2, { title: "Title B" }),

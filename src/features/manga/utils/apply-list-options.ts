@@ -30,26 +30,38 @@ export function downloadedIds(
 const passes = (state: TriState, value: boolean) =>
   state === "any" || (state === "include") === value;
 
+const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+
+interface Row {
+  entry: MangaEntry;
+  title: string | undefined;
+  value: number | string | undefined;
+}
+
 export function applyListOptions(
   entries: MangaEntry[],
   { filters, sort }: ListOptions,
   { fields, latest, downloaded }: ListLookups,
 ): MangaEntry[] {
+  const needsUnread = filters.unread !== "any" || sort.by === "unread";
   const progress = (entry: MangaEntry) => fields[entry.id]?.progress ?? 0;
-  const unread = (entry: MangaEntry) => {
+  const unreadOf = (entry: MangaEntry) => {
     const last = latest(entry.id);
     return last === undefined
       ? undefined
       : unreadChapters(progress(entry), last);
   };
-  const title = (entry: MangaEntry) => entry.title?.userPreferred || undefined;
 
-  const value = (entry: MangaEntry): number | string | undefined => {
+  const value = (
+    entry: MangaEntry,
+    title: string | undefined,
+    unread: number | undefined,
+  ) => {
     switch (sort.by) {
       case "title":
-        return title(entry);
+        return title;
       case "unread":
-        return unread(entry);
+        return unread;
       case "chapters":
         return entry.chapters ?? latest(entry.id);
       case "updated":
@@ -61,16 +73,26 @@ export function applyListOptions(
     }
   };
 
-  const compareTitles = (a: MangaEntry, b: MangaEntry) => {
-    const [x, y] = [title(a), title(b)];
-    if (x === undefined || y === undefined) {
-      return Number(x === undefined) - Number(y === undefined);
-    }
-    return x.localeCompare(y, undefined, { sensitivity: "base" });
-  };
+  // Each value once per pass: a comparison runs O(n log n) times.
+  const rows = entries.flatMap((entry): Row[] => {
+    const unread = needsUnread ? unreadOf(entry) : undefined;
+    const kept =
+      passes(filters.unread, (unread ?? 0) > 0) &&
+      passes(filters.started, progress(entry) > 0) &&
+      passes(filters.downloaded, downloaded.has(entry.id)) &&
+      passes(filters.completed, entry.status === MediaStatus.Finished);
+    if (!kept) return [];
+    const title = entry.title?.userPreferred || undefined;
+    return [{ entry, title, value: value(entry, title, unread) }];
+  });
 
-  const compare = (a: MangaEntry, b: MangaEntry) => {
-    const [x, y] = [value(a), value(b)];
+  const compareTitles = (x?: string, y?: string) =>
+    x === undefined || y === undefined
+      ? Number(x === undefined) - Number(y === undefined)
+      : collator.compare(x, y);
+
+  const compare = (a: Row, b: Row) => {
+    const [x, y] = [a.value, b.value];
     // Missing data goes last in both directions, so it ignores the direction.
     if (x === undefined || y === undefined) {
       const missing = Number(x === undefined) - Number(y === undefined);
@@ -78,20 +100,12 @@ export function applyListOptions(
     } else {
       const order =
         typeof x === "string" && typeof y === "string"
-          ? x.localeCompare(y, undefined, { sensitivity: "base" })
+          ? collator.compare(x, y)
           : Number(x) - Number(y);
       if (order !== 0) return sort.ascending ? order : -order;
     }
-    return compareTitles(a, b) || a.id - b.id;
+    return compareTitles(a.title, b.title) || a.entry.id - b.entry.id;
   };
 
-  return entries
-    .filter(
-      (entry) =>
-        passes(filters.unread, (unread(entry) ?? 0) > 0) &&
-        passes(filters.started, progress(entry) > 0) &&
-        passes(filters.downloaded, downloaded.has(entry.id)) &&
-        passes(filters.completed, entry.status === MediaStatus.Finished),
-    )
-    .toSorted(compare);
+  return rows.sort(compare).map((row) => row.entry);
 }
