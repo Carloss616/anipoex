@@ -1,8 +1,21 @@
-import { Button, HStack, SwipeActions, VStack } from "@expo/ui/swift-ui";
-import { foregroundStyle, lineLimit, tint } from "@expo/ui/swift-ui/modifiers";
+import {
+  Button,
+  HStack,
+  Spacer,
+  SwipeActions,
+  VStack,
+} from "@expo/ui/swift-ui";
+import {
+  accessibilityLabel,
+  buttonStyle,
+  controlSize,
+  foregroundStyle,
+  lineLimit,
+  tint,
+} from "@expo/ui/swift-ui/modifiers";
 import { memo, useState } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
-import { Text } from "@/components/native/swift-ui/text";
+import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Dialog } from "@/components/ui/dialog";
 import { Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
@@ -21,6 +34,7 @@ import type { UnsentItemProps } from "./unsent-item";
 export const UnsentItem = memo(function UnsentItem({ id }: UnsentItemProps) {
   const { title, error } = useUnsentItem(id);
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
+  const font = useFont("subheadline", "semibold");
   // Discard confirms in the row's alert, which the swipe opens too.
   const [discarding, setDiscarding] = useState(false);
   const discard = () => setDiscarding(true);
@@ -38,6 +52,17 @@ export const UnsentItem = memo(function UnsentItem({ id }: UnsentItemProps) {
               {error}
             </Text>
           </VStack>
+          <Spacer />
+          <Button
+            label="Retry"
+            onPress={() => retryUnsent(id)}
+            modifiers={[
+              buttonStyle("borderless"),
+              controlSize("small"),
+              font,
+              accessibilityLabel(`Retry ${title}`),
+            ]}
+          />
           <Dialog
             {...DISCARD_DIALOG}
             alert

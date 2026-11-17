@@ -204,6 +204,16 @@ export const Icons = {
     android: require("@expo/material-symbols/cloud.xml"),
     web: "cloud",
   }),
+  offline: Icon.select({
+    ios: "icloud.slash",
+    android: require("@expo/material-symbols/cloud_off.xml"),
+    web: "cloud-off",
+  }),
+  uploading: Icon.select({
+    ios: "icloud.and.arrow.up",
+    android: require("@expo/material-symbols/cloud_upload.xml"),
+    web: "cloud-upload",
+  }),
   downloadFailed: Icon.select({
     ios: "exclamationmark.circle",
     android: require("@expo/material-symbols/error.xml"),

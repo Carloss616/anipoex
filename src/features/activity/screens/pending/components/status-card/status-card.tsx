@@ -1,23 +1,10 @@
 import { Frame } from "panelui-web/frame";
 import { Icon } from "@/components/ui/icon";
+import { COPY } from "./constants";
 
 export interface StatusCardProps {
   mode: "offline" | "sending";
 }
-
-const COPY = {
-  offline: {
-    icon: "cloud-off",
-    title: "You're offline",
-    description:
-      "These changes are kept on this device and go out when you're back online.",
-  },
-  sending: {
-    icon: "cloud-upload",
-    title: "Back online",
-    description: "Sending…",
-  },
-} as const;
 
 /** Whether what waits is being kept or sent. */
 export function StatusCard({ mode }: StatusCardProps) {
