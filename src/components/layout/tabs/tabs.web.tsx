@@ -132,15 +132,23 @@ function PanelTabTrigger({
 function PendingBadge() {
   return (
     <Memo>
-      {() =>
-        pendingCount() > 0 && (
-          <View className="absolute end-0 top-0">
-            <Badge color="destructive" solid>
-              {pendingCount()}
-            </Badge>
-          </View>
-        )
-      }
+      {() => {
+        const count = pendingCount();
+        return (
+          count > 0 && (
+            // An image role so the label reads in the tab's name.
+            <View
+              role="img"
+              aria-label={`${count} pending`}
+              className="absolute end-0 top-0"
+            >
+              <Badge color="destructive" solid>
+                {count}
+              </Badge>
+            </View>
+          )
+        );
+      }}
     </Memo>
   );
 }
