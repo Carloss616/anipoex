@@ -9,6 +9,8 @@ import {
   scanReading,
   stopReadingScan,
 } from "@/features/manga/state/library-scan";
+import { listOptions$ } from "@/features/manga/state/list-options";
+import { hasActiveFilters } from "@/features/manga/utils/list-options";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { LIST_SYMBOLS } from "../../constants";
@@ -19,8 +21,8 @@ const openActivity = () => router.push("/settings/activity");
 
 /**
  * iOS: one menu switches the list and picks the genre; a second button opens
- * the view sheet. The menus sit inline: `Stack.Toolbar` only reads its direct
- * children, so a wrapper component would be dropped.
+ * the options sheet. The menus sit inline: `Stack.Toolbar` only reads its
+ * direct children, so a wrapper component would be dropped.
  */
 export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const counts = useMangaListCounts();
@@ -28,12 +30,13 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
   const scanning = useValue(libraryScan$);
+  const filtered = useValue(() => hasActiveFilters(listOptions$.filters.get()));
   const reading = status === MediaListStatus.Current;
 
   return (
     <Stack.Toolbar placement="right">
       <Stack.Toolbar.Menu
-        icon={Icons.filter}
+        icon={Icons.list}
         tintColor={genre !== ALL ? primary : undefined}
         accessibilityLabel="List and genre"
       >
@@ -66,9 +69,10 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
         </Stack.Toolbar.Menu>
       </Stack.Toolbar.Menu>
       <Stack.Toolbar.Button
-        icon={Icons.grid}
+        icon={Icons.filter}
         onPress={openOptionsSheet}
-        accessibilityLabel="View options"
+        tintColor={filtered ? primary : undefined}
+        accessibilityLabel="List options"
       />
       <Stack.Toolbar.Menu
         hidden={!reading}
