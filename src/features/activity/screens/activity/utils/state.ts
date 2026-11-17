@@ -1,11 +1,14 @@
 import { observable } from "@legendapp/state";
 import { downloadQueue$ } from "@/features/downloads";
 import { activeScans$ } from "@/features/manga/state/active-scans";
-import { pendingEntries$ } from "@/features/manga/state/pending-entries";
 import {
   readingQueue$,
   readingRun$,
 } from "@/features/manga/state/reading-queue";
+import { unsentIds } from "../../pending/utils/state";
+
+// Task 10 drops Activity's use of it
+export { unsentIds };
 
 /** The running manga whose sources show, by manga id; not persisted. */
 export const expanded$ = observable<Record<string, boolean>>({});
@@ -23,13 +26,6 @@ export const hasActivity = () =>
   hasScans() ||
   Object.keys(downloadQueue$.get(true)).length > 0 ||
   unsentIds() !== "";
-
-/** The manga whose kept progress AniList turned down, joined. */
-export const unsentIds = () =>
-  Object.entries(pendingEntries$.get())
-    .filter(([, pending]) => pending.error)
-    .map(([id]) => id)
-    .join();
 
 const downloads = () =>
   Object.values(downloadQueue$.get()).sort((a, b) => a.order - b.order);

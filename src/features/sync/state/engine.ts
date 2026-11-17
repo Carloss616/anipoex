@@ -54,7 +54,8 @@ export const DEVICE_KIND: DeviceKind =
       ? "tablet"
       : "phone";
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+export const plural = (n: number, word: string) =>
+  `${n} ${word}${n === 1 ? "" : "s"}`;
 
 /** Where a device syncs: GitHub's gist, a synced folder, or both. */
 export type TargetKey = "gist" | "folder";

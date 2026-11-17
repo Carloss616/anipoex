@@ -1,0 +1,22 @@
+import { MANGA_STATUSES } from "@/features/manga/constants";
+import type { PendingEntry } from "@/features/manga/state/pending-entries";
+
+/** One line for what a pending change does; `remoteProgress` is AniList's. */
+export function pendingSummary(p: PendingEntry, remoteProgress?: number) {
+  if (p.remove) return "Removed from list";
+  const { edits } = p;
+  const progress = edits?.progress ?? p.progress;
+  const parts = [
+    // The reader's progress has no entry id either: only edits can add one
+    edits && p.entryId === undefined && !p.before && "Added to list",
+    edits?.status && MANGA_STATUSES[edits.status],
+    progress !== undefined &&
+      (remoteProgress === undefined
+        ? `Chapter ${progress}`
+        : `Chapter ${remoteProgress} → ${progress}`),
+    edits?.score !== undefined && `Score ${edits.score}`,
+    edits?.startedAt && "Start date",
+    edits?.completedAt && "Finish date",
+  ];
+  return parts.filter(Boolean).join(" · ");
+}
