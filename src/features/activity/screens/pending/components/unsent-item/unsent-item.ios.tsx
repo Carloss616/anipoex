@@ -53,6 +53,14 @@ export const UnsentItem = memo(function UnsentItem({ id }: UnsentItemProps) {
             </Text>
           </VStack>
           <Spacer />
+          <Dialog
+            {...DISCARD_DIALOG}
+            alert
+            role="destructive"
+            open={discarding}
+            onOpenChange={setDiscarding}
+            onConfirm={() => discardPending(Number(id))}
+          />
           <Button
             label="Retry"
             onPress={() => retryUnsent(id)}
@@ -62,14 +70,6 @@ export const UnsentItem = memo(function UnsentItem({ id }: UnsentItemProps) {
               font,
               accessibilityLabel(`Retry ${title}`),
             ]}
-          />
-          <Dialog
-            {...DISCARD_DIALOG}
-            alert
-            role="destructive"
-            open={discarding}
-            onOpenChange={setDiscarding}
-            onConfirm={() => discardPending(Number(id))}
           />
         </HStack>
       </ContextMenu>
