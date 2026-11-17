@@ -15,6 +15,7 @@ import {
 } from "@/features/manga/state/library-scan";
 import { pendingEntries$ } from "@/features/manga/state/pending-entries";
 import { stopScan, stopScanAll } from "@/features/manga/state/probes";
+import { discardPending } from "@/features/manga/state/queue-entry";
 import {
   clearQueue,
   removeFromQueue,
@@ -26,6 +27,7 @@ import { mediaKey } from "@/features/manga/utils/msu";
 export {
   cancelDownload,
   clearQueue,
+  discardPending,
   moveDownloadUp,
   pauseDownloads,
   removeFromQueue,
@@ -55,6 +57,3 @@ export function retryUnsent(mediaId: string) {
   pendingEntries$[mediaId].error.delete();
   void sendPending();
 }
-
-export const discardUnsent = (mediaId: string) =>
-  pendingEntries$[mediaId].delete();

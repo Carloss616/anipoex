@@ -4,6 +4,7 @@ import {
   MediaListStatus,
 } from "@/graphql/types.generated";
 import { formatDate } from "@/utils/utils";
+import type { PendingEdits } from "../state/pending-entries";
 import {
   fromFuzzyDate,
   type PartialFuzzyDate,
@@ -144,6 +145,22 @@ export function toSaveVariables(
       ? { completedAt: toFuzzyDate(form.completedAt) }
       : undefined),
   };
+}
+
+/** The fields `after` changed, as a change queued offline keeps them. */
+export function toPendingEdits(
+  before: TrackingForm,
+  after: TrackingForm,
+): PendingEdits {
+  const edits: PendingEdits = {};
+  if (after.status !== before.status) edits.status = after.status;
+  if (after.progress !== before.progress) edits.progress = after.progress;
+  if (after.score !== before.score) edits.score = after.score;
+  for (const field of ["startedAt", "completedAt"] as const) {
+    if (after[field]?.getTime() !== before[field]?.getTime())
+      edits[field] = toFuzzyDate(after[field]);
+  }
+  return edits;
 }
 
 /** The fields the auto-rules touch, in the order the sheet lists them. */

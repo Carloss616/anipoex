@@ -7,7 +7,7 @@ mock.module("@/components/ui/icon", () => ({
 }));
 mock.module("./actions", () => ({
   cancelDownload() {},
-  discardUnsent() {},
+  discardPending() {},
   moveDownloadUp() {},
   removeFromQueue() {},
   retryDownload() {},

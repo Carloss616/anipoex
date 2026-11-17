@@ -108,6 +108,32 @@ describe("keepEdits", () => {
   });
 });
 
+describe("after a removal", () => {
+  it("edits after a removal start a fresh entry", () => {
+    keepEdits(1, 5, { progress: 8 }, BEFORE);
+    keepRemoval(1, 5, BEFORE);
+    keepEdits(1, undefined, { status: MediaListStatus.Planning });
+    const pending = pendingEntries$[1].get();
+    expect(pending.remove).toBeUndefined();
+    expect(pending).toMatchObject({ entryId: 5, before: BEFORE });
+    expect(pending.edits).toEqual({
+      progress: 0,
+      score: 0,
+      startedAt: { year: null, month: null, day: null },
+      completedAt: { year: null, month: null, day: null },
+      status: MediaListStatus.Planning,
+    });
+  });
+
+  it("reading after a removal keeps the entry", () => {
+    keepRemoval(1, 5, BEFORE);
+    keepPending(1, { progress: 4, status: MediaListStatus.Current });
+    const pending = pendingEntries$[1].get();
+    expect(pending.remove).toBeUndefined();
+    expect(pending).toMatchObject({ progress: 4, entryId: 5, before: BEFORE });
+  });
+});
+
 describe("keepRemoval", () => {
   it("a removal drops progress and edits", () => {
     keepPending(1, { progress: 12 });

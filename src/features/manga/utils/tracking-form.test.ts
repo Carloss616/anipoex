@@ -6,6 +6,7 @@ import {
   setProgress,
   setStatus,
   type TrackingForm,
+  toPendingEdits,
   toSaveVariables,
   toTrackingForm,
 } from "./tracking-form";
@@ -276,6 +277,38 @@ describe("toSaveVariables", () => {
       month: null,
       day: null,
     });
+  });
+});
+
+describe("toPendingEdits", () => {
+  it("keeps only the fields that changed", () => {
+    expect(
+      toPendingEdits(
+        form(),
+        form({ status: MediaListStatus.Paused, score: 8 }),
+      ),
+    ).toEqual({ status: MediaListStatus.Paused, score: 8 });
+  });
+
+  it("keeps a changed date as AniList takes it, a cleared one as nulls", () => {
+    expect(
+      toPendingEdits(
+        form({ completedAt: TODAY }),
+        form({ startedAt: new Date(2025, 5, 10) }),
+      ),
+    ).toEqual({
+      startedAt: { year: 2025, month: 6, day: 10 },
+      completedAt: { year: null, month: null, day: null },
+    });
+  });
+
+  it("is empty when nothing changed", () => {
+    expect(
+      toPendingEdits(
+        form({ startedAt: TODAY }),
+        form({ startedAt: new Date(TODAY) }),
+      ),
+    ).toEqual({});
   });
 });
 

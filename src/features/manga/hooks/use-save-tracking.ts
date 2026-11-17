@@ -53,7 +53,7 @@ export function useSaveTracking(mediaId: number) {
   return {
     saving,
     removing,
-    /** `queueOffline`: the caller keeps the save when the connection drops. */
+    /** `queueOffline`: the caller keeps the change when the connection drops. */
     save: async (variables: SaveVariables, { queueOffline = false } = {}) => {
       const result = await felt(
         saveEntry({
@@ -64,8 +64,14 @@ export function useSaveTracking(mediaId: number) {
       );
       return result.data?.SaveMediaListEntry;
     },
-    remove: async (entryId: number) => {
-      await felt(deleteEntry({ variables: { id: entryId } }));
+    remove: async (entryId: number, { queueOffline = false } = {}) => {
+      await felt(
+        deleteEntry({
+          variables: { id: entryId },
+          context: (base) => ({ ...base, queueOffline }),
+        }),
+        queueOffline,
+      );
     },
   };
 }

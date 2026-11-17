@@ -2,11 +2,21 @@ import { describe, expect, it } from "bun:test";
 import { InMemoryCache } from "@apollo/client";
 import { MediaListStatus } from "@/graphql/types.generated";
 import {
+  MangaMediaFragmentDoc,
+  MangaTrackingFragmentDoc,
+} from "../graphql/manga-fragments.generated";
+import {
   MangaListDocument,
   type MangaListQuery,
 } from "../graphql/manga-list.generated";
 import { MangaListCountsDocument } from "../graphql/manga-list-counts.generated";
-import { fileEntry, refileEntry } from "./file-entry";
+import {
+  cachedFields,
+  fileEdited,
+  fileEntry,
+  fileRemoved,
+  refileEntry,
+} from "./file-entry";
 
 const userId = 1;
 
@@ -142,5 +152,85 @@ describe("refileEntry", () => {
 
     expect(ids(MediaListStatus.Current)).toEqual([]);
     expect(ids(MediaListStatus.Planning)).toEqual([3]);
+  });
+});
+
+describe("queued changes", () => {
+  const NO_DATE = { year: null, month: null, day: null };
+  const SHOWN = {
+    entryId: 1,
+    status: MediaListStatus.Current,
+    progress: 3,
+    score: 7,
+    startedAt: { year: 2024, month: 1, day: 2 },
+    completedAt: NO_DATE,
+  };
+  const { entryId: _, ...FIELDS } = SHOWN;
+
+  function tracked() {
+    const shown = setup();
+    shown.cache.writeFragment({
+      fragment: MangaTrackingFragmentDoc,
+      fragmentName: "MangaTracking",
+      id: "MediaList:1",
+      data: {
+        __typename: "MediaList",
+        status: MediaListStatus.Current,
+        progress: 3,
+        repeat: 0,
+        score: 7,
+        startedAt: { __typename: "FuzzyDate", year: 2024, month: 1, day: 2 },
+        completedAt: { __typename: "FuzzyDate", ...NO_DATE },
+        notes: null,
+      },
+    });
+    const link = () =>
+      shown.cache.readFragment({
+        fragment: MangaMediaFragmentDoc,
+        fragmentName: "MangaMedia",
+        id: "Media:10",
+      })?.mediaListEntry?.id;
+    return { ...shown, link };
+  }
+
+  it("reads what the entry shows", () => {
+    expect(cachedFields(tracked().cache, 1)).toEqual(SHOWN);
+  });
+
+  it("an edit shows on the entry and moves it to its new status", () => {
+    const { cache, ids } = tracked();
+    fileEdited(cache, userId, 10, 1, {
+      status: MediaListStatus.Planning,
+      score: 8,
+      startedAt: { year: 2025, month: 6, day: 10 },
+    });
+
+    expect(cachedFields(cache, 1)).toEqual({
+      ...SHOWN,
+      status: MediaListStatus.Planning,
+      score: 8,
+      startedAt: { year: 2025, month: 6, day: 10 },
+    });
+    expect(ids(MediaListStatus.Current)).toEqual([2]);
+    expect(ids(MediaListStatus.Planning)).toEqual([1]);
+  });
+
+  it("a removal unlinks the entry but keeps it to put back", () => {
+    const { cache, ids, link } = tracked();
+    fileRemoved(cache, userId, 10, 1);
+
+    expect(ids(MediaListStatus.Current)).toEqual([2]);
+    expect(link()).toBeUndefined();
+    expect(cachedFields(cache, 1)).toEqual(SHOWN);
+  });
+
+  it("putting the fields back undoes a removal", () => {
+    const { cache, ids, link } = tracked();
+    fileRemoved(cache, userId, 10, 1);
+    fileEdited(cache, userId, 10, 1, FIELDS);
+
+    expect(ids(MediaListStatus.Current)).toEqual([1, 2]);
+    expect(link()).toBe(1);
+    expect(cachedFields(cache, 1)).toEqual(SHOWN);
   });
 });

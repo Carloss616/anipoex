@@ -15,7 +15,7 @@ import { flushPending, type PendingEntry } from "./pending-entries";
 
 const CONTEXT = {
   queueOffline: true,
-  errorMessage: "Couldn't send your reading progress",
+  errorMessage: "Couldn't send your changes",
 };
 
 // Partial: any query that shows the manga caches its entry's progress.

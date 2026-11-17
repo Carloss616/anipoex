@@ -2,13 +2,17 @@ import { useValue } from "@legendapp/state/react";
 import { useState } from "react";
 import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import type { MangaTracking } from "@/features/manga/hooks/use-tracking-entry";
+import { queueEdit, queueRemoval } from "@/features/manga/state/queue-entry";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import {
   toSaveVariables,
   toTrackingForm,
 } from "@/features/manga/utils/tracking-form";
+import { isNetworkError } from "@/graphql/utils";
+import { network$ } from "@/state/network";
 import { session$ } from "@/state/session";
+import { succeeded } from "@/utils/haptics";
 
 /** The entry the tracking sheet edits, however the platform swaps its views. */
 export function useTrackingSheet({
@@ -36,7 +40,14 @@ export function useTrackingSheet({
   /** Every field saves as it is confirmed, so there is no draft to discard. */
   const commit = (next: TrackingForm) => {
     setForm(next);
-    save(toSaveVariables(form, next, { mediaId: manga.id, entryId })).then(
+    if (!network$.online.peek()) {
+      queueEdit(manga.id, entryId, form, next);
+      succeeded();
+      return;
+    }
+    save(toSaveVariables(form, next, { mediaId: manga.id, entryId }), {
+      queueOffline: true,
+    }).then(
       (entry) => {
         // A new entry saved with no status gets AniList's default (Reading).
         const status = entry?.status ?? undefined;
@@ -44,7 +55,12 @@ export function useTrackingSheet({
           current.status || !status ? current : { ...current, status },
         );
       },
-      () => {
+      (error) => {
+        if (isNetworkError(error)) {
+          queueEdit(manga.id, entryId, form, next);
+          succeeded();
+          return;
+        }
         // Put back what AniList has, unless another field was confirmed since.
         setForm((current) => (current === next ? form : current));
       },
@@ -54,11 +70,19 @@ export function useTrackingSheet({
   /** Whether the entry is gone; on a failure the error link toasts it. */
   const removeEntry = async () => {
     if (entryId == null) return false;
-    try {
-      await remove(entryId);
+    if (!network$.online.peek()) {
+      queueRemoval(manga.id, entryId);
+      succeeded();
       return true;
-    } catch {
-      return false;
+    }
+    try {
+      await remove(entryId, { queueOffline: true });
+      return true;
+    } catch (error) {
+      if (!isNetworkError(error)) return false;
+      queueRemoval(manga.id, entryId);
+      succeeded();
+      return true;
     }
   };
 

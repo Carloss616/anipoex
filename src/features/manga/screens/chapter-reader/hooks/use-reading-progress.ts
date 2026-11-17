@@ -8,12 +8,14 @@ import {
   keepPending,
   restorePending,
 } from "@/features/manga/state/pending-entries";
+import { queueEdit } from "@/features/manga/state/queue-entry";
 import {
   type ReadingSave,
   readingSave,
 } from "@/features/manga/utils/reading-save";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { toSaveVariables } from "@/features/manga/utils/tracking-form";
+import { isNetworkError } from "@/graphql/utils";
 import { markOfflineAnnounced, network$ } from "@/state/network";
 import type { ChapterEndProps } from "../components/chapter-end";
 
@@ -107,11 +109,26 @@ export function useReadingProgress(
     busy.current = true;
     const saving: Notice = { ...notice, state: "saving" };
     setNotice(saving);
-    save(toSaveVariables(notice.result.before, notice.result.after, ids))
+    const { before, after } = notice.result;
+    const queue = () => {
+      const kept = queueEdit(manga.id, undefined, before, after);
+      settle(saving, { ...saving, state: "saved", kept });
+    };
+    if (!network$.online.peek()) {
+      queue();
+      busy.current = false;
+      return;
+    }
+    save(toSaveVariables(before, after, ids), { queueOffline: true })
       .then(
         (entry) =>
           settle(saving, { ...saving, state: "saved", createdId: entry?.id }),
-        () => settle(saving, notice),
+        (error) => {
+          if (!isNetworkError(error)) return settle(saving, notice);
+          markOfflineAnnounced();
+          toast(OFFLINE);
+          queue();
+        },
       )
       .finally(() => {
         busy.current = false;

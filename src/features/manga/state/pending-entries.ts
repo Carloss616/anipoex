@@ -6,6 +6,7 @@ import type {
 } from "@/graphql/types.generated";
 import { isNetworkError } from "@/graphql/utils";
 import { ObservablePersist } from "@/state/observable-persist";
+import { toFuzzyDate } from "../utils/fuzzy-date";
 import type { SaveVariables } from "../utils/tracking-form";
 
 /** Fields edited by hand; dates as AniList takes them, so they persist. */
@@ -86,13 +87,24 @@ export function keepPending(
       kept.progress = next.progress;
       kept.status = next.status;
     }
+    // Reading it means it stays listed
+    delete kept.remove;
     return kept;
   });
 }
 
+/** What AniList gives an entry added afresh, under the fields set by hand. */
+const FRESH: PendingEdits = {
+  progress: 0,
+  score: 0,
+  startedAt: toFuzzyDate(undefined),
+  completedAt: toFuzzyDate(undefined),
+};
+
 /**
  * Fields edited by hand, merged over earlier ones; `before` is kept from the
- * first change. A progress set by hand replaces the reader's.
+ * first change. A progress set by hand replaces the reader's. After a removal
+ * it's added again, so the old entry's fields don't carry over.
  */
 export function keepEdits(
   mediaId: number,
@@ -103,7 +115,9 @@ export function keepEdits(
   return keep(mediaId, (previous) => {
     const kept: Omit<PendingEntry, "at"> = {
       ...previous,
-      edits: { ...previous?.edits, ...edits },
+      edits: previous?.remove
+        ? { ...FRESH, ...edits }
+        : { ...previous?.edits, ...edits },
       entryId: entryId ?? previous?.entryId,
       before: previous?.before ?? before,
     };
@@ -117,7 +131,7 @@ export function keepEdits(
 export function keepRemoval(
   mediaId: number,
   entryId: number,
-  before: CachedFields,
+  before?: CachedFields,
 ): Kept {
   return keep(mediaId, (previous) => ({
     remove: true,

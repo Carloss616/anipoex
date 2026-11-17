@@ -5,7 +5,7 @@ import { View } from "react-native";
 import { Dialog } from "@/components/ui/dialog";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
-import { discardUnsent, retryUnsent } from "../../utils/actions";
+import { discardPending, retryUnsent } from "../../utils/actions";
 import { DISCARD_DIALOG, unsentMenu } from "../../utils/row-menu";
 import { useUnsentItem } from "./hooks/use-unsent-item";
 
@@ -61,7 +61,7 @@ export const UnsentItem = memo(function UnsentItem({ id }: UnsentItemProps) {
         role="destructive"
         open={discarding}
         onOpenChange={setDiscarding}
-        onConfirm={() => discardUnsent(id)}
+        onConfirm={() => discardPending(Number(id))}
       />
     </View>
   );

@@ -1,11 +1,19 @@
 import type { ApolloCache } from "@apollo/client";
-import type { MediaListStatus } from "@/graphql/types.generated";
+import type {
+  FuzzyDateInput,
+  MediaListStatus,
+} from "@/graphql/types.generated";
 import { MANGA_STATUS_ENTRIES } from "../constants";
+import {
+  MangaMediaFragmentDoc,
+  MangaTrackingFragmentDoc,
+} from "../graphql/manga-fragments.generated";
 import {
   MangaListDocument,
   type MangaListQuery,
 } from "../graphql/manga-list.generated";
 import { MangaListCountsDocument } from "../graphql/manga-list-counts.generated";
+import type { CachedFields } from "../state/pending-entries";
 
 type Lists = NonNullable<
   NonNullable<MangaListQuery["MediaListCollection"]>["lists"]
@@ -134,15 +142,88 @@ export function fileDeleted(
   mediaId: number,
   entryId: number,
 ) {
-  const entry = { __typename: "MediaList" as const, id: entryId };
-  if (userId != null) fileEntry(cache, userId, { ...entry, media: null }, null);
+  fileRemoved(cache, userId, mediaId, entryId);
+  cache.evict({ id: cache.identify({ __typename: "MediaList", id: entryId }) });
+  cache.gc();
+}
+
+/** Out of every list and the media's link, kept in the cache to put back. */
+export function fileRemoved(
+  cache: ApolloCache,
+  userId: number | undefined,
+  mediaId: number,
+  entryId: number,
+) {
+  const entry = { __typename: "MediaList" as const, id: entryId, media: null };
+  if (userId != null) fileEntry(cache, userId, entry, null);
 
   cache.modify({
     id: cache.identify({ __typename: "Media", id: mediaId }),
     fields: { mediaListEntry: () => null },
   });
-  cache.evict({ id: cache.identify(entry) });
-  cache.gc();
+}
+
+const fuzzy = (date: FuzzyDateInput | null) =>
+  date && { year: date.year, month: date.month, day: date.day };
+
+/** What the cached entry shows, for a queued change to put back. */
+export function cachedFields(
+  cache: ApolloCache,
+  entryId: number,
+): CachedFields | undefined {
+  const entry = cache.readFragment({
+    fragment: MangaTrackingFragmentDoc,
+    fragmentName: "MangaTracking",
+    id: `MediaList:${entryId}`,
+  });
+  if (!entry) return undefined;
+  return {
+    entryId,
+    status: entry.status,
+    progress: entry.progress,
+    score: entry.score,
+    startedAt: fuzzy(entry.startedAt),
+    completedAt: fuzzy(entry.completedAt),
+  };
+}
+
+/**
+ * Shows a change made offline: writes the fields on the entry, links the
+ * media to it and, when the status is among them, files it there.
+ */
+export function fileEdited(
+  cache: ApolloCache,
+  userId: number | undefined,
+  mediaId: number,
+  entryId: number,
+  fields: Partial<Omit<CachedFields, "entryId">>,
+) {
+  const ref = `MediaList:${entryId}`;
+  cache.modify({
+    id: ref,
+    fields: Object.fromEntries(
+      Object.entries(fields).map(([name, value]) => [name, () => value]),
+    ),
+  });
+  cache.modify({
+    id: `Media:${mediaId}`,
+    fields: { mediaListEntry: () => ({ __ref: ref }) },
+  });
+
+  if (userId == null || !("status" in fields)) return;
+  const media = cache.readFragment({
+    fragment: MangaMediaFragmentDoc,
+    fragmentName: "MangaMedia",
+    id: `Media:${mediaId}`,
+  });
+  // A list row shows its media: without it cached, the lists stay as they are
+  if (!media) return;
+  fileEntry(
+    cache,
+    userId,
+    { __typename: "MediaList", id: entryId, media: { ...media, id: mediaId } },
+    fields.status ?? null,
+  );
 }
 
 /**

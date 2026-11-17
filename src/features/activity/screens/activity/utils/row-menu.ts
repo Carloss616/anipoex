@@ -7,7 +7,7 @@ import type {
 import type { QueuedDownload } from "@/features/downloads";
 import {
   cancelDownload,
-  discardUnsent,
+  discardPending,
   moveDownloadUp,
   removeFromQueue,
   retryDownload,
@@ -103,7 +103,7 @@ export function unsentMenu(mediaId: string, discard?: () => void): MenuItem[] {
     ? { ...row, onPress: discard }
     : {
         ...row,
-        onPress: () => discardUnsent(mediaId),
+        onPress: () => discardPending(Number(mediaId)),
         onPressMode: "dialog",
         dialogConfig: DISCARD_DIALOG,
       };
