@@ -59,8 +59,6 @@ export const ChapterItem = memo(function ChapterItem({
         false,
       )
     : [];
-  // The swipe takes the menu's first row.
-  const [first] = items;
 
   const row = (
     <Button
@@ -139,17 +137,20 @@ export const ChapterItem = memo(function ChapterItem({
   return (
     <SwipeActions>
       {items.length > 0 ? <ContextMenu items={items}>{row}</ContextMenu> : row}
-      {first && (
+      {items.length > 0 && (
         <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
-          {/* No destructive role: SwiftUI would delete the row before the
+          {/* The menu's rows by their verb alone: the row says what they act
+              on. No destructive role: SwiftUI would delete the row before the
               alert confirms. */}
-          <Button
-            // The row says what it deletes; the menu keeps "Delete download".
-            label={first.destructive ? "Delete" : first.label}
-            systemImage={sfSymbol(first.icon)}
-            modifiers={first.destructive ? [tint(destructive)] : []}
-            onPress={first.onPress}
-          />
+          {items.map((item) => (
+            <Button
+              key={item.label}
+              label={item.label.split(" ")[0]}
+              systemImage={sfSymbol(item.icon)}
+              modifiers={item.destructive ? [tint(destructive)] : []}
+              onPress={item.onPress}
+            />
+          ))}
         </SwipeActions.Actions>
       )}
     </SwipeActions>
@@ -182,7 +183,7 @@ function DownloadStatus({
         {() => (
           <ProgressRing
             value={downloadFraction(progressKey)}
-            icon={state === "paused" ? Icons.pause : undefined}
+            icon={state === "paused" ? Icons.pause : Icons.download}
           />
         )}
       </Computed>
@@ -192,7 +193,6 @@ function DownloadStatus({
   return (
     <Icon
       name={STATE_ICONS[state]}
-      size={16}
       color={
         state === "failed"
           ? destructive

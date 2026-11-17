@@ -134,7 +134,6 @@ function DownloadButton({
           {() => (
             <ProgressRing
               value={downloadFraction(progressKey)}
-              size={24}
               icon={state === "running" ? Icons.pause : Icons.play}
               paused={state === "paused"}
             />

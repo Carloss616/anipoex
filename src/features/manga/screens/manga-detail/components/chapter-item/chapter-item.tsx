@@ -61,8 +61,8 @@ export const ChapterItem = memo(function ChapterItem({
           {() => (
             <ProgressRing
               value={downloadFraction(download.key)}
-              size={24}
               icon={state === "running" ? Icons.pause : Icons.play}
+              stroke={1.5}
             />
           )}
         </Computed>

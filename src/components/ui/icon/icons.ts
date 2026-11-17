@@ -200,7 +200,7 @@ export const Icons = {
     web: "hourglass",
   }),
   downloaded: Icon.select({
-    ios: "checkmark.circle.fill",
+    ios: "arrow.down.circle.fill",
     android: require("@expo/material-symbols/download_done.xml"),
     web: "check-line",
   }),
