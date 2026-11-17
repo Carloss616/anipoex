@@ -1,6 +1,6 @@
 import { observable } from "@legendapp/state";
 import { toast } from "@/components/ui/toast";
-import { network$ } from "@/state/network";
+import { network$, onReconnect } from "@/state/network";
 import { settings$ } from "@/state/settings";
 import { type InstalledExtension, runtime } from "../runtime";
 import { type Extension, hasUpdate, keepUnchanged } from "../utils/extension";
@@ -186,3 +186,5 @@ export const updateAllExtensions = () =>
   );
 
 export const checkForUpdates = loadExtensions;
+
+onReconnect(() => void loadExtensions());

@@ -3,6 +3,7 @@ import { syncObservable } from "@legendapp/state/sync";
 import * as Device from "expo-device";
 import { AppState, Platform } from "react-native";
 import { toast } from "@/components/ui/toast";
+import { network$, onReconnect } from "@/state/network";
 import { ObservablePersist } from "@/state/observable-persist";
 import { settings$ } from "@/state/settings";
 import { desktop } from "@/utils/desktop";
@@ -173,6 +174,10 @@ export const requestSync = serial(async () => {
       failed = true;
       continue;
     }
+    if (key === "gist" && !network$.online.peek()) {
+      failed = true;
+      continue;
+    }
     const found = await syncWith(key, target, device);
     if (found) seen.push(found);
     else failed = true;
@@ -243,6 +248,4 @@ observe((e) => {
   e.onCleanup = () => clearInterval(timer);
 });
 
-if (typeof window !== "undefined" && "addEventListener" in window) {
-  window.addEventListener("online", () => void requestSync());
-}
+onReconnect(() => void requestSync());

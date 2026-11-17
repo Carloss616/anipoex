@@ -1,5 +1,6 @@
 import { AppState } from "react-native";
 import { cache, cacheRestored, client, onAnswered } from "@/graphql/client";
+import { network$, onReconnect } from "@/state/network";
 import { session$ } from "@/state/session";
 import { debouncer } from "@/utils/debouncer";
 import { MangaDetailDocument } from "../graphql/manga-detail.generated";
@@ -67,7 +68,8 @@ async function send(mediaId: number, pending: PendingProgress) {
 
 /** Sends the progress kept offline, when signed in. */
 export async function sendPending() {
-  if (session$.token.peek()) await flushPending(remoteOf, send);
+  if (network$.online.peek() && session$.token.peek())
+    await flushPending(remoteOf, send);
 }
 
 const later = debouncer<void>(() => void sendPending(), 2_000);
@@ -77,3 +79,4 @@ AppState.addEventListener("change", (state) => {
   if (state === "active") void sendPending();
 });
 onAnswered(() => later.run());
+onReconnect(() => void sendPending());

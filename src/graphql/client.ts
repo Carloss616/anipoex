@@ -12,7 +12,7 @@ import { CachePersistor } from "apollo3-cache-persist";
 import { OperationTypeNode } from "graphql";
 import { createMMKV } from "react-native-mmkv";
 import { toast } from "@/components/ui/toast";
-import { networkAnswered, networkFailed } from "@/state/network";
+import { networkAnswered, networkFailed, onReconnect } from "@/state/network";
 import { session$ } from "@/state/session";
 import { fetchOrNetworkError, isNetworkError, shouldToast } from "./utils";
 
@@ -157,6 +157,8 @@ export const client = new ApolloClient({
   cache,
   devtools: { enabled: __DEV__, name: "anipoex" },
 });
+
+onReconnect(() => void client.refetchQueries({ include: "active" }));
 
 // MMKV's localStorage shim throws in web's Node render, which persists nothing.
 const hasStorage = typeof window !== "undefined";
