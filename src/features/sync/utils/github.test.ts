@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { network$, networkAnswered } from "@/state/network";
 import { pollForToken, requestDeviceCode } from "./device-flow";
 import { createGistTarget, MANIFEST, type SyncError } from "./github";
 
@@ -149,6 +150,19 @@ describe("createGistTarget", () => {
         createGistTarget({ token: "t", gistId, fetchFn: offline }).list(),
       ),
     ).toBe("offline");
+  });
+
+  it("an offline GitHub call marks the network offline", async () => {
+    const gistId = id();
+    gistId.set("g1");
+    const offline = (async () => {
+      throw new TypeError("Network request failed");
+    }) as unknown as typeof fetch;
+    await createGistTarget({ token: "t", gistId, fetchFn: offline })
+      .list()
+      .catch(() => {});
+    expect(network$.online.peek()).toBe(false);
+    networkAnswered();
   });
 
   it("names GitHub's rate limit instead of its status", async () => {

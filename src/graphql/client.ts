@@ -12,8 +12,9 @@ import { CachePersistor } from "apollo3-cache-persist";
 import { OperationTypeNode } from "graphql";
 import { createMMKV } from "react-native-mmkv";
 import { toast } from "@/components/ui/toast";
+import { networkAnswered, networkFailed } from "@/state/network";
 import { session$ } from "@/state/session";
-import { fetchOrNetworkError, shouldToast } from "./utils";
+import { fetchOrNetworkError, isNetworkError, shouldToast } from "./utils";
 
 const GRAPHQL_URL = process.env.EXPO_PUBLIC_ANILIST_GRAPHQL_URL;
 
@@ -34,6 +35,19 @@ export const cache = new InMemoryCache({
     Page: { merge: true },
   },
 });
+
+// Reports before the error reaches the error link, which reads the state.
+const reportingFetch = ((input, init) =>
+  fetchOrNetworkError(input, init).then(
+    (res) => {
+      networkAnswered();
+      return res;
+    },
+    (error: unknown) => {
+      if (isNetworkError(error)) networkFailed();
+      throw error;
+    },
+  )) as typeof fetch;
 
 const authLink = new SetContextLink((prevContext) => {
   const token = session$.token.peek();
@@ -131,7 +145,7 @@ export const client = new ApolloClient({
     errorLink,
     answeredLink,
     retryLink,
-    new HttpLink({ uri: GRAPHQL_URL, fetch: fetchOrNetworkError }),
+    new HttpLink({ uri: GRAPHQL_URL, fetch: reportingFetch }),
   ]),
   cache,
   devtools: { enabled: __DEV__, name: "anipoex" },

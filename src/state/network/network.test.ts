@@ -49,3 +49,18 @@ test("onReconnect fires once per return", () => {
   networkAnswered();
   expect(calls).toBe(1);
 });
+
+test("a listener that throws doesn't repeat the return", () => {
+  let calls = 0;
+  const off = onReconnect(() => {
+    calls++;
+    throw new Error("boom");
+  });
+  networkFailed();
+  try {
+    networkAnswered();
+  } catch {}
+  networkAnswered();
+  expect(calls).toBe(1);
+  off();
+});

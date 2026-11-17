@@ -17,8 +17,10 @@ const state = shared.__networkState;
 let wasOnline = true;
 observe(() => {
   const online = network$.online.get();
-  if (online && !wasOnline) for (const listener of state.listeners) listener();
+  const returned = online && !wasOnline;
+  // Before the listeners: one that throws must not fire the next run again.
   wasOnline = online;
+  if (returned) for (const listener of state.listeners) listener();
 });
 
 export function setSystem(connected: boolean) {
