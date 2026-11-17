@@ -36,10 +36,14 @@ export function useChapterRead(
         chapter,
       ),
   );
-  // Read by either progress is read by the higher one: isRead grows with it.
-  const pendingRead = useValue(() =>
-    isRead(pendingEntries$[mediaId].progress.get() ?? 0, chapter),
-  );
+  // As in effectiveProgress: a hand-set progress or a removal replaces
+  // AniList's; reading only raises it, so read by either is read.
+  const pendingRead = useValue(() => {
+    const pending = pendingEntries$[mediaId].get();
+    const set = pending?.remove ? 0 : pending?.edits?.progress;
+    if (set !== undefined) return isRead(set, chapter) ? "read" : "unread";
+    return isRead(pending?.progress ?? 0, chapter) ? "read" : "";
+  });
 
-  return remoteRead || pendingRead;
+  return pendingRead ? pendingRead === "read" : remoteRead;
 }
