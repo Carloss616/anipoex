@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { Platform } from "react-native";
 import { MangaGrid } from "@/features/manga/components/manga-grid";
 import type { MangaListState } from "@/features/manga/hooks/use-manga-list";
+import { listOptions$ } from "@/features/manga/state/list-options";
 import { ListEmpty } from "./list-empty";
 
 /** The grid for one list; the caller owns the data (`useMangaList`). */
@@ -22,6 +23,7 @@ export function ListGrid({
 }) {
   const client = useApolloClient();
   const genre = useValue(genre$);
+  const options = useValue(() => JSON.stringify(listOptions$.get()));
 
   return (
     <MangaGrid
@@ -31,7 +33,7 @@ export function ListGrid({
       empty={<ListEmpty genre$={genre$} query$={query$} />}
       header={header}
       // Android's lazy column keeps its scroll across filters; others animate.
-      scrollKey={Platform.OS === "android" ? genre : undefined}
+      scrollKey={Platform.OS === "android" ? genre + options : undefined}
       refreshing={list.refetching}
       onRefresh={() =>
         Promise.all([
