@@ -181,7 +181,7 @@ function RepoListBody() {
         keyExtractor={(repo) => repo.indexUrl}
         keyboardShouldPersistTaps="handled"
         className="flex-1"
-        contentContainerClassName="px-4 pb-8"
+        contentContainerClassName="p-4 pb-8"
         ListEmptyComponent={
           <EmptyState
             title="No repositories"

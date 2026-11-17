@@ -3,7 +3,7 @@ import {
   type MangaListStore,
   useMangaList,
 } from "@/features/manga/hooks/use-manga-list";
-import type { MediaListStatus } from "@/graphql/types.generated";
+import type { ListKey } from "@/features/manga/utils/parse-list";
 import { ListGrid } from "./list-grid";
 import { ListHeader } from "./list-header";
 
@@ -13,7 +13,7 @@ export function ListPage({
   query$,
   list$,
 }: {
-  status: MediaListStatus;
+  status: ListKey;
   query$: ObservablePrimitive<string>;
   list$: Observable<MangaListStore>;
 }) {

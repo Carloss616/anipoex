@@ -42,6 +42,7 @@ export type MangaTrackingFragment = {
   repeat: number | null;
   score: number | null;
   notes: string | null;
+  customLists: unknown;
   startedAt: {
     __typename: "FuzzyDate";
     year: number | null;
@@ -124,6 +125,7 @@ export type MangaDetailFragment = {
     repeat: number | null;
     score: number | null;
     notes: string | null;
+    customLists: unknown;
     startedAt: {
       __typename: "FuzzyDate";
       year: number | null;
@@ -337,6 +339,7 @@ export const MangaTrackingFragmentDoc = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "notes" } },
+          { kind: "Field", name: { kind: "Name", value: "customLists" } },
         ],
       },
     },
@@ -547,6 +550,7 @@ export const MangaDetailFragmentDoc = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "notes" } },
+          { kind: "Field", name: { kind: "Name", value: "customLists" } },
         ],
       },
     },

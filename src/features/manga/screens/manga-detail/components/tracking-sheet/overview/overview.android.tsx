@@ -189,15 +189,24 @@ export function Overview({
               label="Started"
               icon={Icons.calendar}
               value={formatDate(form.startedAt)}
-              corners={{ bottomStart: true }}
+              corners={{}}
               onPress={() => onEdit("startedAt")}
             />
             <Field
               label="Finished"
               icon={Icons.calendar}
               value={formatDate(form.completedAt)}
-              corners={{ bottomEnd: true }}
+              corners={{}}
               onPress={() => onEdit("completedAt")}
+            />
+          </Row>
+          <Row modifiers={[fillMaxWidth()]}>
+            <Field
+              label="Custom lists"
+              icon={Icons.listEdit}
+              value={form.customLists.join(", ")}
+              corners={{ bottomStart: true, bottomEnd: true }}
+              onPress={() => onEdit("lists")}
             />
           </Row>
         </Column>

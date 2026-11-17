@@ -6,7 +6,9 @@ import { useEffect } from "react";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
 import { MangaListDocument } from "../graphql/manga-list.generated";
+import { wholeCollection } from "../utils/file-entry";
 import { matchesQuery } from "../utils/matches-query";
+import { customName, type ListKey } from "../utils/parse-list";
 import { type MangaEntry, toEntries } from "../utils/to-entries";
 
 /** No genre filter; also its label, first in every genre menu. */
@@ -28,25 +30,30 @@ export const emptyMangaList = (): MangaListStore => ({
 
 /** Loads into the caller's `list$`, filtered by the search and its genre. */
 export function useMangaList(
-  status: MediaListStatus,
+  key: ListKey,
   query$: ObservablePrimitive<string>,
   list$: Observable<MangaListStore>,
 ) {
   const userId = useValue(session$.user)?.id;
+  const custom = customName(key) ?? undefined;
 
+  const context = { errorMessage: "Couldn't load this list" };
   const { data, loading, networkStatus, refetch } = useQuery(
     MangaListDocument,
     userId == null
       ? skipToken
       : {
-          variables: { userId, status },
-          context: { errorMessage: "Couldn't load this list" },
+          variables:
+            custom == null
+              ? { userId, status: key as MediaListStatus }
+              : wholeCollection(userId),
+          context,
         },
   );
 
   useEffect(() => {
-    list$.entries.set(toEntries(data));
-  }, [data, list$]);
+    list$.entries.set(toEntries(data, custom));
+  }, [data, custom, list$]);
 
   /**
    * Computeds under a plain root: `useObservable` deactivates only its root on

@@ -12,13 +12,18 @@ import {
 import { useState } from "react";
 import { Text } from "@/components/native/swift-ui/text";
 import { Icon, Icons } from "@/components/ui/icon";
-import { HELP_HOW, HELP_TITLE } from "../constants";
-import type { SyncHelpProps } from "./sync-help";
+import type { InfoPopoverProps } from "./info-popover";
 
 const WRAP = [fixedSize({ horizontal: false, vertical: true })];
 
 /** A popover bubble (not a sheet) from an info button in the header. */
-export function SyncHelp({ moments }: SyncHelpProps) {
+export function InfoPopover({
+  label,
+  title,
+  text,
+  items,
+  note,
+}: InfoPopoverProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -26,10 +31,7 @@ export function SyncHelp({ moments }: SyncHelpProps) {
       <Popover.Trigger>
         <Button
           onPress={() => setOpen(true)}
-          modifiers={[
-            buttonStyle("borderless"),
-            accessibilityLabel(HELP_TITLE),
-          ]}
+          modifiers={[buttonStyle("borderless"), accessibilityLabel(label)]}
         >
           {/* A plain glyph only takes taps on its strokes. */}
           <Icon
@@ -49,22 +51,33 @@ export function SyncHelp({ moments }: SyncHelpProps) {
           spacing={8}
           modifiers={[frame({ width: 280, alignment: "leading" }), padding()]}
         >
-          <Text weight="semibold" modifiers={WRAP}>
-            {HELP_TITLE}
-          </Text>
-          <VStack alignment="leading" spacing={4}>
-            {moments.map((moment) => (
-              <Text key={moment} textStyle="subheadline" modifiers={WRAP}>
-                {`• ${moment}`}
-              </Text>
-            ))}
-          </VStack>
-          <Text
-            textStyle="subheadline"
-            modifiers={[foregroundStyle("secondary"), ...WRAP]}
-          >
-            {HELP_HOW}
-          </Text>
+          {title && (
+            <Text weight="semibold" modifiers={WRAP}>
+              {title}
+            </Text>
+          )}
+          {text && (
+            <Text textStyle="subheadline" modifiers={WRAP}>
+              {text}
+            </Text>
+          )}
+          {items && (
+            <VStack alignment="leading" spacing={4}>
+              {items.map((item) => (
+                <Text key={item} textStyle="subheadline" modifiers={WRAP}>
+                  {`• ${item}`}
+                </Text>
+              ))}
+            </VStack>
+          )}
+          {note && (
+            <Text
+              textStyle="subheadline"
+              modifiers={[foregroundStyle("secondary"), ...WRAP]}
+            >
+              {note}
+            </Text>
+          )}
         </VStack>
       </Popover.Content>
     </Popover>

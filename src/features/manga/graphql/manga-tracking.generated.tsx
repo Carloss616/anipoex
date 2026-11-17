@@ -55,6 +55,7 @@ export type SaveMangaTrackingMutationVariables = Exact<{
   score?: number | null | undefined;
   startedAt?: Types.FuzzyDateInput | null | undefined;
   completedAt?: Types.FuzzyDateInput | null | undefined;
+  customLists?: Array<string | null | undefined> | string | null | undefined;
 }>;
 
 export type SaveMangaTrackingMutation = {
@@ -66,6 +67,7 @@ export type SaveMangaTrackingMutation = {
     repeat: number | null;
     score: number | null;
     notes: string | null;
+    customLists: unknown;
     media: {
       __typename: "Media";
       id: number;
@@ -189,6 +191,20 @@ export const SaveMangaTrackingDocument = {
             name: { kind: "Name", value: "FuzzyDateInput" },
           },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "customLists" },
+          },
+          type: {
+            kind: "ListType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -251,6 +267,14 @@ export const SaveMangaTrackingDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "completedAt" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "customLists" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "customLists" },
                 },
               },
             ],
@@ -367,6 +391,7 @@ export const SaveMangaTrackingDocument = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "notes" } },
+          { kind: "Field", name: { kind: "Name", value: "customLists" } },
         ],
       },
     },

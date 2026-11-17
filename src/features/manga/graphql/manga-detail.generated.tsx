@@ -62,6 +62,7 @@ export type MangaDetailQuery = {
       repeat: number | null;
       score: number | null;
       notes: string | null;
+      customLists: unknown;
       startedAt: {
         __typename: "FuzzyDate";
         year: number | null;
@@ -247,6 +248,7 @@ export const MangaDetailDocument = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "notes" } },
+          { kind: "Field", name: { kind: "Name", value: "customLists" } },
         ],
       },
     },

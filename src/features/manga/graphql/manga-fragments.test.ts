@@ -26,6 +26,7 @@ function seed() {
       startedAt: null,
       completedAt: null,
       notes: null,
+      customLists: null,
     },
   });
 
@@ -95,6 +96,7 @@ test("a progress write notifies the entry watchers but not the screen's", () => 
       startedAt: null,
       completedAt: null,
       notes: null,
+      customLists: null,
     },
   });
 

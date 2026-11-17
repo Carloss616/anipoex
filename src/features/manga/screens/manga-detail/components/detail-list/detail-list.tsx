@@ -16,6 +16,7 @@ import { sourceListMangaId } from "@/features/manga/utils/source-list-href";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
+import { useScrollSync } from "@/hooks/use-scroll-sync";
 import type { Continue$ } from "../../hooks/use-continue";
 import { ChapterItem } from "../chapter-item";
 import { ContinueButton } from "../continue-button";
@@ -24,7 +25,6 @@ import { DetailSidebar } from "../detail-sidebar";
 import { ART_HEIGHT, Hero } from "../hero";
 import { SourcePicker } from "../source-picker";
 import { useDownloadTarget } from "./hooks/use-download-target";
-import { useScrollSync } from "./hooks/use-scroll-sync";
 
 export interface DetailListProps {
   manga: MangaDetail;

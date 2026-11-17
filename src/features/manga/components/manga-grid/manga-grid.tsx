@@ -9,6 +9,7 @@ import { LegendList } from "@/components/layout/legend-list";
 import { columnsFor } from "@/features/manga/utils/list-view";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
+import type { useScrollSync } from "@/hooks/use-scroll-sync";
 import { settings$ } from "@/state/settings";
 import { GridItem } from "./grid-item";
 
@@ -37,6 +38,16 @@ export interface MangaGridProps {
   onEndReached?: () => void;
   /** @platform web */
   className?: string;
+  /**
+   * Stays drawn while a sheet route covers its screen.
+   * @platform web
+   */
+  visibleWhenBlurred?: boolean;
+  /**
+   * Scrolls together with another scroller of the same key (a sidebar).
+   * @platform web
+   */
+  scrollSync?: ReturnType<typeof useScrollSync>;
 }
 
 /** A grid of manga cards, in the list's density and title position. */
@@ -48,6 +59,8 @@ export function MangaGrid({
   scrollKey,
   onEndReached,
   className,
+  visibleWhenBlurred,
+  scrollSync,
 }: MangaGridProps) {
   const { current } = useBreakpoint();
   const headerScroll = useHeaderScroll();
@@ -65,6 +78,7 @@ export function MangaGrid({
       key={scrollKey}
       recycleItems
       itemLayoutAnimation={LinearTransition}
+      visibleWhenBlurred={visibleWhenBlurred}
       data={manga}
       numColumns={numColumns}
       // Recycled cells only redraw when this changes; the title mode lives in
@@ -85,6 +99,12 @@ export function MangaGrid({
       ListEmptyComponent={empty}
       onEndReached={onEndReached}
       {...headerScroll}
+      refScrollView={scrollSync?.ref}
+      onScroll={(event) => {
+        headerScroll.onScroll?.(event);
+        scrollSync?.onScroll?.(event);
+      }}
+      onScrollBeginDrag={scrollSync?.setActive}
     />
   );
 }

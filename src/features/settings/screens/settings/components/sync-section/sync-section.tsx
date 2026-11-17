@@ -3,17 +3,19 @@ import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { Select } from "panelui-web/select";
 import { Icon, Icons } from "@/components/ui/icon";
+import { InfoPopover } from "@/components/ui/info-popover";
 import type { MenuItem } from "@/components/ui/menu";
 import { Menu } from "@/components/ui/menu";
 import { ConnectSheet } from "./connect-sheet";
 import {
   FOLDER_HINT,
+  HELP_HOW,
+  HELP_TITLE,
   INTERVAL_HINT,
   SYNC_FOOTER,
   SYNC_INTERVAL_OPTIONS,
 } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
-import { SyncHelp } from "./sync-help";
 
 const INTERVAL_ITEMS = SYNC_INTERVAL_OPTIONS.map(({ minutes, label }) => ({
   value: String(minutes),
@@ -40,7 +42,12 @@ export function SyncSection() {
       <Frame.Header>
         <Frame.Title>Sync</Frame.Title>
         <Frame.Action className="flex items-center gap-1">
-          <SyncHelp moments={sync.moments} />
+          <InfoPopover
+            label={HELP_TITLE}
+            title={HELP_TITLE}
+            items={sync.moments}
+            note={HELP_HOW}
+          />
           {sync.connected && (
             <Button
               variant="ghost"

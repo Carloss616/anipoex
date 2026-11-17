@@ -13,4 +13,5 @@ that have that status and are **not custom**.
 
 - **Null, not 0, until loaded**, so the picker can tell "empty" from "not fetched".
 - **Custom lists never add**: their entries are already filed under a status.
-- Shown next to each status in the Manga tab's list picker.
+- Shown next to each status in the Manga tab's list picker. Each custom list shows its own
+  total, the size of its group.

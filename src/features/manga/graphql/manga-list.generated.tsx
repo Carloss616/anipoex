@@ -39,7 +39,8 @@ export type MediaStatus =
 
 export type MangaListQueryVariables = Exact<{
   userId: number;
-  status: Types.MediaListStatus;
+  status?: Types.MediaListStatus | null | undefined;
+  forceSingleCompletedList?: boolean | null | undefined;
 }>;
 
 export type MangaListQuery = {
@@ -47,6 +48,8 @@ export type MangaListQuery = {
     __typename: "MediaListCollection";
     lists: Array<{
       __typename: "MediaListGroup";
+      name: string | null;
+      isCustomList: boolean | null;
       entries: Array<{
         __typename: "MediaList";
         id: number;
@@ -82,6 +85,52 @@ export type MangaListQuery = {
   } | null;
 };
 
+export type MangaListCountsQueryVariables = Exact<{
+  userId: number;
+}>;
+
+export type MangaListCountsQuery = {
+  MediaListCollection: {
+    __typename: "MediaListCollection";
+    lists: Array<{
+      __typename: "MediaListGroup";
+      name: string | null;
+      status: Types.MediaListStatus | null;
+      isCustomList: boolean | null;
+      entries: Array<{ __typename: "MediaList"; id: number } | null> | null;
+    } | null> | null;
+    user: {
+      __typename: "User";
+      id: number;
+      mediaListOptions: {
+        __typename: "MediaListOptions";
+        mangaList: {
+          __typename: "MediaListTypeOptions";
+          customLists: Array<string | null> | null;
+        } | null;
+      } | null;
+    } | null;
+  } | null;
+};
+
+export type UpdateMangaCustomListsMutationVariables = Exact<{
+  customLists?: Array<string | null | undefined> | string | null | undefined;
+}>;
+
+export type UpdateMangaCustomListsMutation = {
+  UpdateUser: {
+    __typename: "User";
+    id: number;
+    mediaListOptions: {
+      __typename: "MediaListOptions";
+      mangaList: {
+        __typename: "MediaListTypeOptions";
+        customLists: Array<string | null> | null;
+      } | null;
+    } | null;
+  } | null;
+};
+
 export const MangaListDocument = {
   kind: "Document",
   definitions: [
@@ -108,12 +157,18 @@ export const MangaListDocument = {
             name: { kind: "Name", value: "status" },
           },
           type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "MediaListStatus" },
-            },
+            kind: "NamedType",
+            name: { kind: "Name", value: "MediaListStatus" },
           },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "forceSingleCompletedList" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+          defaultValue: { kind: "BooleanValue", value: true },
         },
       ],
       selectionSet: {
@@ -147,7 +202,10 @@ export const MangaListDocument = {
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "forceSingleCompletedList" },
-                value: { kind: "BooleanValue", value: true },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "forceSingleCompletedList" },
+                },
               },
             ],
             selectionSet: {
@@ -159,6 +217,11 @@ export const MangaListDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "isCustomList" },
+                      },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "entries" },
@@ -283,3 +346,214 @@ export const MangaListDocument = {
     },
   ],
 } as unknown as DocumentNode<MangaListQuery, MangaListQueryVariables>;
+export const MangaListCountsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "MangaListCounts" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "userId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "MediaListCollection" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "userId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "userId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "type" },
+                value: { kind: "EnumValue", value: "MANGA" },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "forceSingleCompletedList" },
+                value: { kind: "BooleanValue", value: true },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "lists" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "isCustomList" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "entries" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "user" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "mediaListOptions" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "mangaList" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: {
+                                      kind: "Name",
+                                      value: "customLists",
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  MangaListCountsQuery,
+  MangaListCountsQueryVariables
+>;
+export const UpdateMangaCustomListsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "UpdateMangaCustomLists" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "customLists" },
+          },
+          type: {
+            kind: "ListType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "UpdateUser" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "mangaListOptions" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "customLists" },
+                      value: {
+                        kind: "Variable",
+                        name: { kind: "Name", value: "customLists" },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "mediaListOptions" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "mangaList" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "customLists" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateMangaCustomListsMutation,
+  UpdateMangaCustomListsMutationVariables
+>;

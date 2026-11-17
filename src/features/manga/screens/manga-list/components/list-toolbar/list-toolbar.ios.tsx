@@ -3,7 +3,10 @@ import { router, Stack } from "expo-router";
 import { Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES, mangaCount } from "@/features/manga/constants";
 import { ALL, genresOf } from "@/features/manga/hooks/use-manga-list";
-import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
+import {
+  useCustomLists,
+  useMangaListCounts,
+} from "@/features/manga/hooks/use-manga-list-counts";
 import {
   libraryScan$,
   scanReading,
@@ -11,11 +14,12 @@ import {
 } from "@/features/manga/state/library-scan";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { LIST_SYMBOLS } from "../../constants";
+import { CUSTOM_LIST_SYMBOL, LIST_SYMBOLS } from "../../constants";
 import { openViewSheet } from "../view-sheet";
 import type { ListToolbarProps } from "./list-toolbar";
 
 const openActivity = () => router.push("/settings/activity");
+const openCustomLists = () => router.push("/manga/custom-lists");
 
 /**
  * iOS: one menu switches the list and picks the genre; a second button opens
@@ -24,6 +28,7 @@ const openActivity = () => router.push("/settings/activity");
  */
 export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const counts = useMangaListCounts();
+  const customLists = useCustomLists();
   const primary = useThemeColor("primary");
   const genre = useValue(list$.genre);
   const genres = genresOf(useValue(list$.entries));
@@ -52,6 +57,25 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
               </Stack.Toolbar.MenuAction>
             );
           })}
+        </Stack.Toolbar.Menu>
+        <Stack.Toolbar.Menu inline title="Custom lists">
+          {customLists?.map(({ key, name, count }) => (
+            <Stack.Toolbar.MenuAction
+              key={key}
+              icon={CUSTOM_LIST_SYMBOL}
+              isOn={key === status}
+              subtitle={mangaCount(count)}
+              onPress={() => onSelect(key)}
+            >
+              {name}
+            </Stack.Toolbar.MenuAction>
+          ))}
+          <Stack.Toolbar.MenuAction
+            icon={Icons.listEdit}
+            onPress={openCustomLists}
+          >
+            Manage lists…
+          </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Menu title="Genre" icon={Icons.tag}>
           {genres.map((name) => (

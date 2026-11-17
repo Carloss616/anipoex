@@ -17,6 +17,7 @@ Wraps AniList's `SaveMediaListEntry`.
 | `progress` | Chapters read. |
 | `score` | In the viewer's [score format](../concepts/score-format.md). |
 | `startedAt`, `completedAt` | [Fuzzy dates](../concepts/fuzzy-date.md), each only when the user changed it; a cleared one is the null triple, which erases. |
+| `customLists` | The names of the [custom lists](../concepts/custom-list.md) holding it, only when the user changed them; it replaces the entry's lists. |
 
 - Returns the entry's `MangaTracking` fields and its media in the list shape
   (`MangaMedia`); Apollo merges both by id. The media's `mediaListEntry` comes back
@@ -24,6 +25,7 @@ Wraps AniList's `SaveMediaListEntry`.
 - Nothing is refetched: the app files the entry under its status in the cached
   [MangaList](manga-list.md) and [MangaListCounts](manga-list-counts.md) results, first
   in its list, and takes it out of the others. A list not cached yet fetches it when opened.
+  It moves between the cached custom lists by the `customLists` AniList returns.
 - Success and failure each get a haptic; failure also toasts "Couldn't save your changes"
   and puts the field back to what AniList still has.
 - `notes` is never sent, so AniList keeps it.

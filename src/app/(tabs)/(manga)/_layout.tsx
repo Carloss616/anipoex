@@ -1,7 +1,11 @@
 import { Stack } from "expo-router";
+import { Platform } from "react-native";
 import { header } from "@/components/layout/header";
 import { mangaStackScreens } from "@/features/manga/utils/manga-stack-screens";
 import { useStackTheme, useThemeM3Colors } from "@/hooks/use-theme";
+
+// A link straight to the lists sheet still opens it over the Manga tab.
+export const unstable_settings = { anchor: "manga/index" };
 
 export default function Layout() {
   const stackTheme = useStackTheme();
@@ -11,6 +15,28 @@ export default function Layout() {
   return (
     <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="manga/index" />
+      <Stack.Screen
+        name="manga/custom-lists"
+        options={Platform.select({
+          web: {
+            presentation: "transparentModal",
+            headerShown: false,
+          },
+          ios: {
+            presentation: "formSheet",
+            headerShown: false,
+            sheetGrabberVisible: true,
+            sheetAllowedDetents: [0.5, 1],
+          },
+          default: {
+            presentation: "formSheet",
+            headerShown: false,
+            sheetAllowedDetents: [0.5, 1],
+            sheetCornerRadius: 28,
+            contentStyle: { backgroundColor: m3?.surfaceContainerLow },
+          },
+        })}
+      />
       {mangaStackScreens(m3)}
     </Stack>
   );

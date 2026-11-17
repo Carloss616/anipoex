@@ -4,6 +4,11 @@ import { Icon } from "./icon";
 // `sf`/`md`) stay in their platform file.
 export const Icons = {
   // Actions
+  edit: Icon.select({
+    ios: "pencil",
+    android: require("@expo/material-symbols/edit.xml"),
+    web: "pencil",
+  }),
   add: Icon.select({
     ios: "plus",
     android: require("@expo/material-symbols/add.xml"),
@@ -253,6 +258,11 @@ export const Icons = {
     ios: "list.bullet",
     android: require("@expo/material-symbols/list.xml"),
     web: "list",
+  }),
+  listEdit: Icon.select({
+    ios: "list.bullet.rectangle",
+    android: require("@expo/material-symbols/edit_note.xml"),
+    web: "list-plus",
   }),
   grid: Icon.select({
     ios: "square.grid.2x2",

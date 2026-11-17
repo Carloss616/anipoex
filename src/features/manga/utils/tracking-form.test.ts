@@ -19,6 +19,7 @@ const form = (over: Partial<TrackingForm> = {}): TrackingForm => ({
   startedAt: undefined,
   completedAt: undefined,
   repeat: 0,
+  customLists: [],
   ...over,
 });
 
@@ -48,6 +49,17 @@ describe("toTrackingForm", () => {
     expect(result.score).toBe(8.5);
     expect(result.startedAt?.getFullYear()).toBe(2025);
     expect(result.completedAt).toBeUndefined();
+  });
+
+  it("drops lists no longer on the account", () => {
+    const customLists = { "List A": true, Gone: true, "List B": false };
+    expect(toTrackingForm({ customLists }, ["List A"]).customLists).toEqual([
+      "List A",
+    ]);
+    expect(toTrackingForm({ customLists }).customLists).toEqual([
+      "List A",
+      "Gone",
+    ]);
   });
 });
 
@@ -223,6 +235,27 @@ describe("toSaveVariables", () => {
       progress: 10,
       score: 8.5,
     });
+  });
+
+  it("omits customLists when unchanged", () => {
+    const before = form({ customLists: ["List A", "List B"] });
+    const after = form({ customLists: ["List B", "List A"], progress: 11 });
+    const variables = toSaveVariables(before, after, { mediaId: 30002 });
+
+    expect(variables).not.toHaveProperty("customLists");
+  });
+
+  it("sends the whole set when it changed", () => {
+    const send = (from: string[], to: string[]) =>
+      toSaveVariables(form({ customLists: from }), form({ customLists: to }), {
+        mediaId: 30002,
+      }).customLists;
+
+    expect(send(["List A"], ["List A", "List B"])).toEqual([
+      "List A",
+      "List B",
+    ]);
+    expect(send(["List A"], [])).toEqual([]);
   });
 
   it("omits the id when creating", () => {
