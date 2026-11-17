@@ -97,9 +97,9 @@ export const DISCARD_DIALOG: MenuItemDialogConfig = {
 };
 
 /** `discard` opens the row's own dialog (an iOS swipe opens it too). */
-export function unsentMenu(mediaId: string, discard?: () => void): MenuItem[] {
+export function discardItem(mediaId: string, discard?: () => void): MenuAction {
   const row = { label: "Discard", icon: Icons.trash, destructive: true };
-  const discardRow: MenuAction = discard
+  return discard
     ? { ...row, onPress: discard }
     : {
         ...row,
@@ -107,13 +107,16 @@ export function unsentMenu(mediaId: string, discard?: () => void): MenuItem[] {
         onPressMode: "dialog",
         dialogConfig: DISCARD_DIALOG,
       };
+}
+
+export function unsentMenu(mediaId: string, discard?: () => void): MenuItem[] {
   return [
     {
       label: "Retry",
       icon: Icons.refresh,
       onPress: () => retryUnsent(mediaId),
     },
-    discardRow,
+    discardItem(mediaId, discard),
   ];
 }
 

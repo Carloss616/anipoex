@@ -9,9 +9,9 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
+import { retryUnsent } from "@/features/activity/screens/activity/utils/actions";
+import { unsentMenu } from "@/features/activity/screens/activity/utils/row-menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { retryUnsent } from "../../utils/actions";
-import { unsentMenu } from "../../utils/row-menu";
 import { useUnsentItem } from "./hooks/use-unsent-item";
 import type { UnsentItemProps } from "./unsent-item";
 

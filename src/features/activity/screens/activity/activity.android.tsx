@@ -24,7 +24,6 @@ import { Overview } from "./components/overview";
 import { QueueItem } from "./components/queue-item";
 import { RunningItem } from "./components/running-item";
 import { SkippedItem } from "./components/skipped-item";
-import { UnsentItem } from "./components/unsent-item";
 import {
   clearQueue,
   retryAllSkipped,
@@ -43,7 +42,6 @@ import {
   runningIds,
   skippedIds,
   split,
-  unsentIds,
 } from "./utils/state";
 
 /** Up next and Downloads show this many; the rest are a count. */
@@ -101,7 +99,6 @@ function ActivityList() {
           <RunningSection />
           <QueueSection />
           <DownloadsSection />
-          <UnsentSection />
           <SkippedSection />
         </Column>
       </Box>
@@ -176,20 +173,6 @@ function DownloadsSection() {
           {`${more} more`}
         </Text>
       )}
-    </>
-  );
-}
-
-function UnsentSection() {
-  const ids = split(useValue(unsentIds));
-  if (!ids.length) return null;
-
-  return (
-    <>
-      <Label title="Progress not sent" />
-      {ids.map((id, i) => (
-        <UnsentItem key={id} id={id} {...corners(i, ids.length)} />
-      ))}
     </>
   );
 }

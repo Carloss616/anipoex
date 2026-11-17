@@ -20,7 +20,6 @@ import { Overview } from "./components/overview";
 import { QueueItem } from "./components/queue-item";
 import { RunningItem } from "./components/running-item";
 import { SkippedItem } from "./components/skipped-item";
-import { UnsentItem } from "./components/unsent-item";
 import {
   clearQueue,
   retryAllSkipped,
@@ -38,7 +37,6 @@ import {
   runningIds,
   skippedIds,
   split,
-  unsentIds,
 } from "./utils/state";
 
 /** Downloads shows this many; the rest are a count. */
@@ -95,7 +93,6 @@ function ActivityList() {
         <RunningSection modifiers={modifiers} />
         <QueueSection modifiers={modifiers} />
         <DownloadsSection modifiers={modifiers} />
-        <UnsentSection modifiers={modifiers} />
         <SkippedSection modifiers={modifiers} />
       </List>
     </Host>
@@ -162,19 +159,6 @@ function DownloadsSection({ modifiers }: Row) {
         recycling={false}
       >
         {({ item }) => <DownloadItem id={item} />}
-      </List.ForEach>
-    </Section>
-  );
-}
-
-function UnsentSection({ modifiers }: Row) {
-  const ids = split(useValue(unsentIds));
-  if (!ids.length) return null;
-
-  return (
-    <Section title="Progress not sent" modifiers={modifiers}>
-      <List.ForEach data={ids} keyExtractor={(id) => id} recycling={false}>
-        {({ item }) => <UnsentItem id={item} />}
       </List.ForEach>
     </Section>
   );

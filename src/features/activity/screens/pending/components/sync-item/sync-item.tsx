@@ -1,0 +1,34 @@
+import { router } from "expo-router";
+import { Frame } from "panelui-web/frame";
+import { memo } from "react";
+import { Icon, Icons } from "@/components/ui/icon";
+import type { TargetKey } from "@/features/sync/state/engine";
+import { useSyncItem } from "./hooks/use-sync-item";
+
+export interface SyncItemProps {
+  id: TargetKey;
+}
+
+const TARGETS = {
+  gist: { title: "GitHub gist", icon: Icons.inCloud },
+  folder: { title: "Sync folder", icon: Icons.folder },
+} as const;
+
+/** A sync target and what it still has to send. */
+export const SyncItem = memo(function SyncItem({ id }: SyncItemProps) {
+  const { line, unsynced } = useSyncItem(id);
+  const { title, icon } = TARGETS[id];
+
+  return (
+    <Frame.Row onClick={() => router.navigate("/settings")}>
+      <Frame.Media>
+        <Icon name={icon} size={20} />
+      </Frame.Media>
+      <Frame.Content>
+        <Frame.Title as="p">{title}</Frame.Title>
+        {line !== "" && <Frame.Description>{line}</Frame.Description>}
+        {unsynced !== "" && <Frame.Description>{unsynced}</Frame.Description>}
+      </Frame.Content>
+    </Frame.Row>
+  );
+});

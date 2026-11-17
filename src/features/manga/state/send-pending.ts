@@ -27,7 +27,7 @@ const cachedEntry = (mediaId: number) =>
     returnPartialData: true,
   })?.mediaListEntry;
 
-const remoteOf = (mediaId: number) =>
+export const remoteOf = (mediaId: number) =>
   cachedEntry(mediaId)?.progress ?? undefined;
 
 /**
