@@ -19,38 +19,64 @@ describe("noticeText", () => {
 });
 
 describe("debounceNotice", () => {
-  const setup = () => {
+  const setup = (announced = false) => {
     const shown: string[] = [];
+    let taken = 0;
     const change = debounceNotice(
-      (online) => (online ? "on" : "off"),
+      () => {
+        taken++;
+        return announced;
+      },
       (text) => shown.push(text),
       20,
     );
-    return { shown, change };
+    return { shown, change, taken: () => taken };
   };
 
   it("ignores the first value", async () => {
     const { shown, change } = setup();
-    change(true);
+    change(true, 0);
     await wait(40);
     expect(shown).toEqual([]);
   });
 
   it("shows nothing for a flap shorter than the delay", async () => {
-    const { shown, change } = setup();
-    change(true);
-    change(false);
+    const { shown, change, taken } = setup();
+    change(true, 0);
+    change(false, 0);
     await wait(5);
-    change(true);
+    change(true, 0);
     await wait(40);
-    expect(shown).toEqual(["on"]);
+    expect(shown).toEqual([]);
+    expect(taken()).toBe(1);
   });
 
-  it("shows a change that lasts", async () => {
+  it("shows a lasting offline and a lasting return", async () => {
     const { shown, change } = setup();
-    change(true);
-    change(false);
+    change(true, 0);
+    change(false, 0);
     await wait(40);
-    expect(shown).toEqual(["off"]);
+    change(true, 0);
+    await wait(40);
+    expect(shown).toEqual([
+      "You're offline · Changes stay on this device",
+      "Back online",
+    ]);
+  });
+
+  it("stays quiet offline when a toast already said so", async () => {
+    const { shown, change } = setup(true);
+    change(true, 0);
+    change(false, 0);
+    await wait(40);
+    expect(shown).toEqual([]);
+  });
+
+  it("uses the pending count from the change", async () => {
+    const { shown, change } = setup();
+    change(false, 0);
+    change(true, 2);
+    await wait(40);
+    expect(shown).toEqual(["Back online · Sending 2 changes"]);
   });
 });

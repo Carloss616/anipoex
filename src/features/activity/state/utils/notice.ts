@@ -15,24 +15,29 @@ export function noticeText(
 }
 
 /**
- * Returns the handler for each connection value: the first is ignored, and a
- * value shows its notice after `delay` unless another value comes first.
+ * Returns the handler for each connection value and the count of pending
+ * changes at that moment (a reconnect flush empties the queue before the
+ * delay ends). The first value is the starting state, and a value shows its
+ * notice after `delay` only if it still differs from the last settled one.
  */
 export function debounceNotice(
-  decide: (online: boolean) => string | undefined,
+  takeAnnounced: () => boolean,
   show: (text: string) => void,
   delay = NOTICE_DELAY_MS,
 ) {
-  let first = true;
+  let settled: boolean | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  return (online: boolean) => {
+  return (online: boolean, pending: number) => {
     clearTimeout(timer);
-    if (first) {
-      first = false;
+    if (settled === undefined) {
+      settled = online;
       return;
     }
     timer = setTimeout(() => {
-      const text = decide(online);
+      const announced = takeAnnounced();
+      if (online === settled) return;
+      settled = online;
+      const text = noticeText(online, announced, pending);
       if (text) show(text);
     }, delay);
   };
