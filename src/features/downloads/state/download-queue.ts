@@ -46,6 +46,9 @@ export const downloadsPaused$ = pause$.byUser;
 /** iOS's pause as its background time runs out: it ends with the app. */
 export const downloadsSuspended$ = observable(false);
 
+/** No connection: the queue waits and starts again by itself when it returns. */
+export const downloadsOffline$ = observable(false);
+
 /** Callbacks stay out of observables: a function with no arguments would run as a computed. */
 export const downloadStops = new Map<string, () => void>();
 

@@ -21,6 +21,7 @@ const {
   downloadQueue$,
   downloadStops,
   downloaded$,
+  downloadsOffline$,
   downloadsPaused$,
   downloadsSuspended$,
   enqueue,
@@ -29,9 +30,11 @@ const {
   downloadDeps,
   pauseDownloads,
   resumeDownloads,
+  resumeOnline,
   resumeQueue,
   startDownloads,
   suspendDownloads,
+  suspendOffline,
   unsuspendDownloads,
 } = await import("./run-downloads");
 const { chapterHash, downloadKey, stageId } = await import("../utils/paths");
@@ -97,6 +100,7 @@ afterEach(async () => {
   put.mockClear();
   downloadsPaused$.set(false);
   downloadsSuspended$.set(false);
+  downloadsOffline$.set(false);
   downloadQueue$.set({});
   downloadProgress$.set({});
   downloaded$.set({});
@@ -237,6 +241,42 @@ describe("suspendDownloads", () => {
     unsuspendDownloads();
     await flush();
     expect(downloadsPaused$.get()).toBe(true);
+    expect(pages.fn).not.toHaveBeenCalled();
+  });
+});
+
+describe("suspendOffline", () => {
+  it("going offline requeues running chapters and resumes when back", async () => {
+    enqueue([item("a")]);
+    startDownloads();
+    await flush();
+    suspendOffline();
+    expect(downloadQueue$.get()[keyOf("a")].state).toBe("queued");
+    startDownloads();
+    await flush();
+    expect(urlsAsked()).toEqual(["a"]);
+    pages.calls[0].reject(new DOMException("stopped", "AbortError"));
+    resumeOnline();
+    await flush();
+    expect(downloadQueue$.get()[keyOf("a")].state).toBe("running");
+    expect(urlsAsked()).toEqual(["a", "a"]);
+  });
+
+  it("a background unsuspend doesn't start anything while offline", async () => {
+    enqueue([item("a")]);
+    suspendOffline();
+    suspendDownloads();
+    unsuspendDownloads();
+    await flush();
+    expect(pages.fn).not.toHaveBeenCalled();
+  });
+
+  it("leaves a user's pause in place once back", async () => {
+    enqueue([item("a")]);
+    pauseDownloads();
+    suspendOffline();
+    resumeOnline();
+    await flush();
     expect(pages.fn).not.toHaveBeenCalled();
   });
 });

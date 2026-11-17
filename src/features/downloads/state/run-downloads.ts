@@ -8,6 +8,7 @@ import {
   downloadProgress$,
   downloadQueue$,
   downloadStops,
+  downloadsOffline$,
   downloadsPaused$,
   downloadsSuspended$,
   queuedOf,
@@ -27,7 +28,12 @@ const running = () =>
 
 /** One loop per source with queued chapters, until it has none left. */
 export function startDownloads() {
-  if (downloadsPaused$.peek() || downloadsSuspended$.peek()) return;
+  if (
+    downloadsPaused$.peek() ||
+    downloadsSuspended$.peek() ||
+    downloadsOffline$.peek()
+  )
+    return;
   for (const entry of Object.values(downloadQueue$.peek())) {
     const id = entry.source.id;
     if (entry.state !== "queued" || loops.has(id)) continue;
@@ -118,6 +124,14 @@ export const suspendDownloads = () => stopDownloads(downloadsSuspended$);
 /** Leaves a user's pause in place. */
 export function unsuspendDownloads() {
   downloadsSuspended$.set(false);
+  startDownloads();
+}
+
+export const suspendOffline = () => stopDownloads(downloadsOffline$);
+
+/** Leaves a user's pause or a background suspension in place. */
+export function resumeOnline() {
+  downloadsOffline$.set(false);
   startDownloads();
 }
 
