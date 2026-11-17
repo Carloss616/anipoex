@@ -1,6 +1,6 @@
 export {
-  cancel,
   downloaded$,
+  downloadFraction,
   downloadProgress$,
   downloadQueue$,
   downloadsPaused$,
@@ -12,7 +12,10 @@ export {
 } from "./state/download-queue";
 export { refreshDownloaded } from "./state/downloaded";
 export {
+  cancelDownload,
+  pauseDownload,
   pauseDownloads,
+  resumeDownload,
   resumeDownloads,
   startDownloads,
 } from "./state/run-downloads";

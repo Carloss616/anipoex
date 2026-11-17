@@ -2,7 +2,7 @@ import { describe, expect, it, mock } from "bun:test";
 import type { SourcePage } from "@/features/extensions";
 import type { QueuedDownload } from "../state/download-queue";
 import { comicInfo } from "./comic-info";
-import { type DownloadDeps, downloadChapter } from "./download-chapter";
+import { type DownloadDeps, downloadChapter, PAUSE } from "./download-chapter";
 import type { DownloadStore } from "./download-store";
 import { chapterPath, stageId } from "./paths";
 
@@ -59,7 +59,7 @@ function setup(fails: number[] = []) {
   const deps: DownloadDeps = {
     runtime: { pages, stagePage, pack, dropStage },
     store: () => store,
-    onProgress: (f) => progress.push(f),
+    onProgress: (done, count) => progress.push(done / count),
     signal: controller.signal,
   };
   return {
@@ -123,6 +123,26 @@ describe("downloadChapter", () => {
     expect(s.stagePage).toHaveBeenCalledTimes(1);
     expect(s.dropStage).toHaveBeenCalledWith(stage);
     expect(s.put).not.toHaveBeenCalled();
+  });
+
+  it("keeps the stage on a pause and resumes after its pages", async () => {
+    const s = setup();
+    s.stagePage.mockImplementationOnce(async () => s.controller.abort(PAUSE));
+    await downloadChapter(item, s.deps).catch(() => {});
+    expect(s.dropStage).not.toHaveBeenCalled();
+
+    const next = setup();
+    await downloadChapter(item, { ...next.deps, from: { done: 1, count: 2 } });
+    expect(next.stagePage.mock.calls.map((c) => c[3])).toEqual(["002"]);
+    expect(next.dropStage).toHaveBeenCalledTimes(1);
+  });
+
+  it("starts over when the chapter has another page count", async () => {
+    const s = setup();
+    await downloadChapter(item, { ...s.deps, from: { done: 1, count: 3 } });
+    expect(s.stagePage.mock.calls.map((c) => c[3])).toEqual(["001", "002"]);
+    // Once for the old stage, once when done.
+    expect(s.dropStage).toHaveBeenCalledTimes(2);
   });
 
   it("doesn't put a chapter aborted while packing", async () => {

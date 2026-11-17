@@ -11,13 +11,14 @@ export const DELETE_DIALOG: MenuItemDialogConfig = {
 const LABELS: Record<DownloadState, string> = {
   none: "Download chapter",
   queued: "Cancel download of chapter",
-  running: "Cancel download of chapter",
+  running: "Pause download of chapter",
+  paused: "Resume download of chapter",
   failed: "Retry download of chapter",
   local: "Downloaded chapter",
   cloud: "In the cloud: chapter",
 };
 
-/** Running draws its progress instead. */
+/** Running and paused draw their progress instead. */
 export const STATE_ICONS = {
   none: Icons.download,
   queued: Icons.hourglass,
@@ -34,6 +35,8 @@ export interface DownloadActions {
   download: () => void;
   cancel: () => void;
   retry: () => void;
+  pause: () => void;
+  resume: () => void;
   remove: () => void;
 }
 
@@ -67,8 +70,17 @@ export function downloadItems(
         { label: "Download", icon: Icons.download, onPress: actions.download },
       ];
     case "queued":
-    case "running":
       return [cancel];
+    case "running":
+      return [
+        { label: "Pause download", icon: Icons.pause, onPress: actions.pause },
+        cancel,
+      ];
+    case "paused":
+      return [
+        { label: "Resume download", icon: Icons.play, onPress: actions.resume },
+        cancel,
+      ];
     case "failed":
       return [
         {

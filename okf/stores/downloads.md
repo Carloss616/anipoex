@@ -9,14 +9,19 @@ generated: { by: claude-code, at: 2026-11-16T00:00:00Z }
 
 Key `download-queue`: a record by `anilistId/sourceId/hash` of a chapter waiting to be
 downloaded: the manga (id, title, cover), the source (id, name), the chapter (url, name,
-number, scanlator, memo), its place in the queue, its `state` and the last error. Default
-empty. Stays on the device; it is not synced.
+number, scanlator, memo), its place in the queue, its `state`, the last error and, while
+paused, the fraction it reached. Default empty. Stays on the device; it is not synced.
 
 - **States**: `queued`, `running` (one chapter at a time per source, sources in
-  parallel) and `failed`, which waits for Retry, one by one or all at once. A finished
-  chapter leaves the queue.
+  parallel), `paused` and `failed`, which waits for Retry, one by one or all at once. A
+  finished chapter leaves the queue.
+- **One chapter paused**: a running chapter can be paused on its own; it keeps its
+  progress and the pages it fetched, the next chapter of that source starts, and a resume
+  queues it again to go on from its last page. A paused chapter doesn't count as left to
+  download.
 - **Survives restarts**: at launch a chapter left `running` goes back to `queued`, its
-  half-made files dropped, and the queue goes on.
+  half-made files dropped, and the queue goes on. A paused chapter stays paused, but its
+  fetched pages are dropped, so a resume starts it over.
 - **Paused by the user**: key `downloads-paused` (`{ byUser }`, default not paused, not
   synced) keeps the user's pause across restarts until Resume. When iOS's background time
   runs out the queue pauses too, but only until the app is back: if iOS ends the app

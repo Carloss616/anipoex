@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu, Menu } from "@/components/ui/menu";
 import { ProgressRing } from "@/components/ui/progress-ring";
-import { type DownloadState, downloadProgress$ } from "@/features/downloads";
+import { type DownloadState, downloadFraction } from "@/features/downloads";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ChapterItemProps } from "./chapter-item";
 import { useChapterDownload } from "./hooks/use-chapter-download";
@@ -95,7 +95,10 @@ export const ChapterItem = memo(function ChapterItem({
   );
 });
 
-/** An icon per state; a ring of the pages downloaded while it runs. */
+/**
+ * An icon per state; while it runs or is paused, a ring of the pages
+ * downloaded with what a press does in the middle.
+ */
 function DownloadButton({
   state,
   label,
@@ -115,10 +118,15 @@ function DownloadButton({
       onClick={onPress}
       modifiers={[semantics({ contentDescription: label })]}
     >
-      {state === "running" ? (
+      {state === "running" || state === "paused" ? (
         <Computed>
           {() => (
-            <ProgressRing value={downloadProgress$[progressKey].get() ?? 0} />
+            <ProgressRing
+              value={downloadFraction(progressKey)}
+              size={24}
+              icon={state === "running" ? Icons.pause : Icons.play}
+              paused={state === "paused"}
+            />
           )}
         </Computed>
       ) : (

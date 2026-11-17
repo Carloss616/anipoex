@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { ProgressRing } from "@/components/ui/progress-ring";
-import { downloadProgress$, type QueuedDownload } from "@/features/downloads";
+import { downloadFraction, type QueuedDownload } from "@/features/downloads";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import type { Continue$ } from "../../hooks/use-continue";
 import { useChapterDownload } from "./hooks/use-chapter-download";
@@ -107,11 +107,13 @@ export const ChapterItem = memo(function ChapterItem({
               onClick={download.press}
               aria-label={downloadLabel(state, chapter.title)}
             >
-              {state === "running" ? (
+              {state === "running" || state === "paused" ? (
                 <Computed>
                   {() => (
                     <ProgressRing
-                      value={downloadProgress$[download.key].get() ?? 0}
+                      value={downloadFraction(download.key)}
+                      size={24}
+                      icon={state === "running" ? Icons.pause : Icons.play}
                     />
                   )}
                 </Computed>

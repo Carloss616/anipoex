@@ -11,6 +11,8 @@ const actions = {
   download: () => {},
   cancel: () => {},
   retry: () => {},
+  pause: () => {},
+  resume: () => {},
   remove: () => {},
 };
 const labels = (state: Parameters<typeof downloadItems>[0]) =>
@@ -20,7 +22,8 @@ describe("downloadItems", () => {
   it("offers what each state can do", () => {
     expect(labels("none")).toEqual(["Download"]);
     expect(labels("queued")).toEqual(["Cancel download"]);
-    expect(labels("running")).toEqual(["Cancel download"]);
+    expect(labels("running")).toEqual(["Pause download", "Cancel download"]);
+    expect(labels("paused")).toEqual(["Resume download", "Cancel download"]);
     expect(labels("failed")).toEqual(["Retry download", "Cancel download"]);
     expect(labels("local")).toEqual(["Delete download"]);
     expect(labels("cloud")).toEqual(["Delete download"]);

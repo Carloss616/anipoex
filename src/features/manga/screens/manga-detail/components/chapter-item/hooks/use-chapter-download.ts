@@ -1,13 +1,15 @@
 import { useValue } from "@legendapp/state/react";
 import { toast } from "@/components/ui/toast";
 import {
-  cancel,
+  cancelDownload,
   chapterHash,
   deleteDownloads,
   downloadKey,
   downloadOne,
   downloadStateOf,
+  pauseDownload,
   type QueuedDownload,
+  resumeDownload,
   retryDownload,
 } from "@/features/downloads";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
@@ -31,8 +33,10 @@ export function useChapterDownload(
     download: () => {
       if (source) downloadOne(manga, source, chapter);
     },
-    cancel: () => cancel(key),
+    cancel: () => cancelDownload(key),
     retry: () => retryDownload(key),
+    pause: () => pauseDownload(key),
+    resume: () => resumeDownload(key),
     remove: () => {
       if (!source) return;
       deleteDownloads(manga.id, source.id, [hash]).catch(() =>
@@ -41,12 +45,15 @@ export function useChapterDownload(
     },
   };
   /** What the row's button does; local and cloud open its menu instead. */
-  const press =
-    state === "none"
-      ? actions.download
-      : state === "failed"
-        ? actions.retry
-        : actions.cancel;
+  const press = {
+    none: actions.download,
+    queued: actions.cancel,
+    running: actions.pause,
+    paused: actions.resume,
+    failed: actions.retry,
+    local: undefined,
+    cloud: undefined,
+  }[state];
 
   return {
     state,

@@ -8,5 +8,5 @@ export function downloadLine(
   paused: boolean,
 ) {
   if (state === "failed") return `${source} · ${error || "Failed"}`;
-  return `${source} · ${paused ? "Paused" : "Queued"}`;
+  return `${source} · ${state === "paused" || paused ? "Paused" : "Queued"}`;
 }

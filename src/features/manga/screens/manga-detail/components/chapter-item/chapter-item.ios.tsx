@@ -25,7 +25,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { ProgressRing } from "@/components/ui/progress-ring";
-import { type DownloadState, downloadProgress$ } from "@/features/downloads";
+import { type DownloadState, downloadFraction } from "@/features/downloads";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { ChapterItemProps } from "./chapter-item";
 import { useChapterDownload } from "./hooks/use-chapter-download";
@@ -155,7 +155,7 @@ export const ChapterItem = memo(function ChapterItem({
 });
 
 const STATUS_LABELS: Record<
-  Exclude<DownloadState, "none" | "running">,
+  Exclude<DownloadState, "none" | "running" | "paused">,
   string
 > = {
   queued: "Download queued",
@@ -174,11 +174,14 @@ function DownloadStatus({
 }) {
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
   if (state === "none") return null;
-  if (state === "running") {
+  if (state === "running" || state === "paused") {
     return (
       <Computed>
         {() => (
-          <ProgressRing value={downloadProgress$[progressKey].get() ?? 0} />
+          <ProgressRing
+            value={downloadFraction(progressKey)}
+            icon={state === "paused" ? Icons.pause : undefined}
+          />
         )}
       </Computed>
     );

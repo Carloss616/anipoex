@@ -5,6 +5,7 @@ export type DownloadState =
   | "none"
   | "queued"
   | "running"
+  | "paused"
   | "failed"
   | "local"
   | "cloud";
