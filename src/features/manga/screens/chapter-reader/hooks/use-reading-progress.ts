@@ -5,6 +5,7 @@ import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import {
   type Kept,
   keepIfOffline,
+  keepPending,
   restorePending,
 } from "@/features/manga/state/pending-progress";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/features/manga/utils/reading-save";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { toSaveVariables } from "@/features/manga/utils/tracking-form";
+import { markOfflineAnnounced, network$ } from "@/state/network";
 import type { ChapterEndProps } from "../components/chapter-end";
 
 interface Notice {
@@ -80,6 +82,11 @@ export function useReadingProgress(
     // Shown before the write lands, so leaving early never hides it.
     const saving: Notice = { chapterId: chapter.id, state: "saving", result };
     setNotice(saving);
+    // Offline already: the network notice says so, so no request or toast.
+    if (!network$.online.peek()) {
+      const kept = keepPending(manga.id, result.after);
+      return settle(saving, { ...saving, state: "saved", kept });
+    }
     save(toSaveVariables(result.before, result.after, ids), {
       queueOffline: true,
     }).then(
@@ -88,6 +95,7 @@ export function useReadingProgress(
         // Any other failure: useSaveTracking already toasted it.
         const kept = keepIfOffline(error, manga.id, result.after);
         if (!kept) return settle(saving);
+        markOfflineAnnounced();
         toast(OFFLINE);
         settle(saving, { ...saving, state: "saved", kept });
       },
