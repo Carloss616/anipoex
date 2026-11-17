@@ -39,6 +39,7 @@ import {
 } from "@/features/manga/utils/source-exclusions";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
+import { network$ } from "@/state/network";
 import { openExternal } from "@/utils/open-external";
 
 /** The sheet's actions on a manga's sources; none runs until the user acts. */
@@ -61,8 +62,12 @@ export function useSourceActions({
     readRef.current = read;
   }, [read]);
 
-  const scan = (only?: string[]) =>
-    scanSources({
+  const scan = (only?: string[]) => {
+    if (!network$.online.peek()) {
+      toast("You're offline");
+      return Promise.resolve(undefined);
+    }
+    return scanSources({
       mangaId: manga.id,
       sources,
       titles: searchTitles(manga, manualTitles(manga.id)),
@@ -72,6 +77,7 @@ export function useSourceActions({
       name: manga.title?.userPreferred ?? undefined,
       cover: manga.coverImage?.medium ?? undefined,
     });
+  };
   const scanAll = () => void scan();
   const rescan = (id: string) => void scan([id]);
   // While the source scans, its rescan control stops it.

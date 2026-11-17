@@ -13,6 +13,7 @@ import { ToastHost, ToastProvider } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
 import "@/features/downloads/state/lifecycle";
 import "@/features/manga/state/send-pending";
+import "@/features/manga/state/offline-scans";
 import "@/features/activity/state/network-notices";
 import "@/state/network/system";
 // Stamps synced stores from launch, and syncs once GitHub is connected.

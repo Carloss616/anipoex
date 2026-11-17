@@ -9,6 +9,7 @@ import {
 } from "@/features/extensions";
 import { client } from "@/graphql/client";
 import { MediaListStatus } from "@/graphql/types.generated";
+import { network$ } from "@/state/network";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
 import { MangaListDocument } from "../graphql/manga-list.generated";
@@ -63,6 +64,10 @@ export async function scanManga(
   read: number,
   { everything = false } = {},
 ) {
+  if (!network$.online.peek()) {
+    toast("You're offline");
+    return;
+  }
   // Unpersisted: the list can be the first screen to scan.
   if (!installedLoaded$.peek()) await refreshInstalled();
   if (!installed$.peek().length) {
@@ -143,6 +148,10 @@ function missed(sourceId: string, mangaId: number) {
 export async function scanReading({ everything = false } = {}) {
   // Set before the list loads, so a second tap during the query is dropped too.
   if (libraryScan$.peek()) return;
+  if (!network$.online.peek()) {
+    toast("You're offline");
+    return;
+  }
   libraryScan$.set(true);
   stopped = false;
   const run = ++runId;
