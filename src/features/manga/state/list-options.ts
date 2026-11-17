@@ -12,7 +12,11 @@ import {
 } from "../utils/list-options";
 
 export const listOptions$ = observable<ListOptions>(
-  () => settings$.device.mangaList.get() ?? DEFAULT_LIST_OPTIONS,
+  () =>
+    settings$.device.mangaList.get() ?? {
+      filters: { ...DEFAULT_LIST_OPTIONS.filters },
+      sort: { ...DEFAULT_LIST_OPTIONS.sort },
+    },
 );
 
 // Always the whole object: a child set under an absent parent makes a partial one.

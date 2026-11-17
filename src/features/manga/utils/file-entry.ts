@@ -122,7 +122,7 @@ export function fileSaved(
   cache: ApolloCache,
   userId: number | undefined,
   mediaId: number,
-  entry: (FiledEntry & { status: MediaListStatus | null }) | null | undefined,
+  entry: (ListEntry & { status: MediaListStatus | null }) | null | undefined,
 ) {
   if (!entry || userId == null) return;
 

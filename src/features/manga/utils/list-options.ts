@@ -88,5 +88,5 @@ export const hasActiveFilters = (filters: ListFilters) =>
 
 export const withoutFilters = (options: ListOptions): ListOptions => ({
   ...options,
-  filters: DEFAULT_LIST_OPTIONS.filters,
+  filters: { ...DEFAULT_LIST_OPTIONS.filters },
 });

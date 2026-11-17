@@ -22,8 +22,12 @@ export function ListGrid({
   header?: ReactElement;
 }) {
   const client = useApolloClient();
-  const genre = useValue(genre$);
-  const options = useValue(() => JSON.stringify(listOptions$.get()));
+  // Android's lazy column keeps its scroll across genres and options.
+  const scrollKey = useValue(() =>
+    Platform.OS === "android"
+      ? genre$.get() + JSON.stringify(listOptions$.get())
+      : undefined,
+  );
 
   return (
     <MangaGrid
@@ -32,8 +36,7 @@ export function ListGrid({
       loading={list.loading && !list.refetching}
       empty={<ListEmpty genre$={genre$} query$={query$} />}
       header={header}
-      // Android's lazy column keeps its scroll across filters; others animate.
-      scrollKey={Platform.OS === "android" ? genre + options : undefined}
+      scrollKey={scrollKey}
       refreshing={list.refetching}
       onRefresh={() =>
         Promise.all([

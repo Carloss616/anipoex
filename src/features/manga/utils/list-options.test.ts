@@ -60,4 +60,5 @@ test("hasActiveFilters and withoutFilters", () => {
     ...DEFAULT_LIST_OPTIONS,
     sort: sorted.sort,
   });
+  expect(withoutFilters(sorted).filters).not.toBe(DEFAULT_LIST_OPTIONS.filters);
 });

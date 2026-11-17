@@ -131,9 +131,10 @@ describe("refileEntry", () => {
     mediaListEntry: {
       ...entry(id).media.mediaListEntry,
       status,
-      updatedAt: null,
-      createdAt: null,
-      score: null,
+      progress: 4,
+      updatedAt: 1,
+      createdAt: 2,
+      score: 3,
     },
   });
 
@@ -143,6 +144,16 @@ describe("refileEntry", () => {
 
     expect(ids(MediaListStatus.Current)).toEqual([2]);
     expect(ids(MediaListStatus.Planning)).toEqual([1]);
+    const filed = cache.readQuery<MangaListQuery>({
+      query: MangaListDocument,
+      variables: { userId, status: MediaListStatus.Planning },
+    })?.MediaListCollection?.lists?.[0]?.entries?.[0];
+    expect(filed).toMatchObject({
+      progress: 4,
+      updatedAt: 1,
+      createdAt: 2,
+      score: 3,
+    });
   });
 
   it("drops an entry removed or replaced elsewhere", () => {
