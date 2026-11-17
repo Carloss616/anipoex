@@ -57,6 +57,30 @@ describe("deleteDownloads", () => {
     expect(downloaded$.peek()["314/1234"]).toEqual({ bbbbbbbb: "local" });
   });
 
+  it("clears the rows before any file goes", async () => {
+    const { store } = fakeStore();
+    downloaded$["314/1234"].set({ aaaaaaaa: "local", bbbbbbbb: "local" });
+
+    const done = deleteDownloads(314, "1234", ["aaaaaaaa"], store as never);
+    expect(downloaded$.peek()["314/1234"]).toEqual({ bbbbbbbb: "local" });
+    await done;
+  });
+
+  it("puts the rows back when the folder can't be listed", async () => {
+    const store = {
+      list: async () => {
+        throw new Error("no access");
+      },
+      remove: async () => {},
+    };
+    downloaded$["314/1234"].set({ aaaaaaaa: "local" });
+
+    await expect(
+      deleteDownloads(314, "1234", ["aaaaaaaa"], store as never),
+    ).rejects.toThrow("no access");
+    expect(downloaded$.peek()["314/1234"]).toEqual({ aaaaaaaa: "local" });
+  });
+
   it("relists what is left when a removal fails", async () => {
     const { store } = fakeStore();
     downloaded$["314/1234"].set({ aaaaaaaa: "local", bbbbbbbb: "local" });

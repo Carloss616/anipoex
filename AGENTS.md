@@ -104,6 +104,7 @@ Legend State gotchas:
 
 - Legend's MMKV and localStorage persist plugins load a whole table at startup and rewrite all of it on every change. Data that grows per item (chapter lists) goes in a lookup observable whose `synced` get/set reads and writes one entry (`src/features/manga/state/chapters.ts`).
 - A setting goes in `settings$` (`src/state/settings/`), one table so a sync carries it as one object: read and write its section where it's used (`settings$.extensions.repos`), with no per-feature alias. Per-item data and the session keep their own tables, and a device-only value goes under `device`.
+- expo-file-system's `Directory.list()` and `delete()` run synchronously on the JS thread, and on a SAF folder `list()` also looks up each entry's type: 280 ms for a 31-folder `downloads/` and 280 ms for one delete on an emulator, so a chapter delete froze the UI. SAF folders go through the native `listFolder`/`deleteDocument` (`src/features/downloads/utils/saf/`), which also give the real display names.
 
 # Sync
 

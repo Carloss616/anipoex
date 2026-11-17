@@ -1,6 +1,18 @@
 import { type Chapter, isRead } from "@/features/manga/utils/to-chapters";
 import { chapterHash } from "./paths";
 
+// The menu rebuilds on each finished or deleted download and hashed every
+// chapter six times a build (~100 ms of a dev build's toolbar for 201 chapters).
+const hashes = new WeakMap<Chapter, string>();
+const hashOf = (chapter: Chapter) => {
+  let hash = hashes.get(chapter);
+  if (hash === undefined) {
+    hash = chapterHash(chapter.id);
+    hashes.set(chapter, hash);
+  }
+  return hash;
+};
+
 export type DownloadPick = "next" | "next5" | "next10" | "unread" | "all";
 
 const COUNT: Record<DownloadPick, number> = {
@@ -33,7 +45,7 @@ export function pickChapters(
 
   const picked: Chapter[] = [];
   for (const group of groups.values()) {
-    if (group.some((c) => downloadedHashes.has(chapterHash(c.id)))) continue;
+    if (group.some((c) => downloadedHashes.has(hashOf(c)))) continue;
     if (pick !== "all" && !(group[0].number >= 0 && group[0].number > progress))
       continue;
     picked.push(
@@ -61,8 +73,7 @@ export function preferredScanlator(
   let best: Chapter | null = null;
   for (const c of chapters) {
     if (c.number < 0) continue;
-    const used =
-      isRead(progress, c.number) || downloadedHashes.has(chapterHash(c.id));
+    const used = isRead(progress, c.number) || downloadedHashes.has(hashOf(c));
     if (used && (!best || c.number > best.number)) best = c;
   }
   return best?.scanlator ?? null;

@@ -1,5 +1,7 @@
+import { batch } from "@legendapp/state";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import {
+  downloaded$,
   enqueue,
   type QueuedDownload,
   retry,
@@ -57,6 +59,13 @@ export async function deleteDownloads(
 ) {
   if (!store) return;
   const wanted = new Set(hashes);
+  const rows$ = downloaded$[`${mangaId}/${sourceId}`];
+  const shown = rows$.peek();
+  const before = shown && { ...shown };
+  // The rows change now; the files go after, and the refresh corrects a failure.
+  batch(() => {
+    for (const hash of hashes) rows$[hash].delete();
+  });
   try {
     const files = await store.list(mangaId, sourceId);
     for (const file of files) {
@@ -64,7 +73,11 @@ export async function deleteDownloads(
       for (const path of file.paths) await store.remove(path);
     }
   } finally {
-    // A removal that failed partway still shows what is left.
-    await refreshDownloaded(mangaId, sourceId, store);
+    // A removal that failed partway still shows what is left; a folder that
+    // can't be listed keeps the rows as they were.
+    await refreshDownloaded(mangaId, sourceId, store).catch((error) => {
+      if (before) rows$.set(before);
+      throw error;
+    });
   }
 }
