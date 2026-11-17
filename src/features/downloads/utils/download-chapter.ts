@@ -34,11 +34,19 @@ export async function downloadChapter(
     // A reload can change the count: keep every name the same width.
     const count = pages.length;
     let retried = false;
+    const stagePage = (i: number) =>
+      runtime
+        .stagePage(source.id, pages[i], stage, pageName(i, count))
+        .catch((error: unknown) => {
+          const message = error instanceof Error ? error.message : error;
+          throw new Error(`Page ${i + 1} of ${pages.length}: ${message}`, {
+            cause: error,
+          });
+        });
     for (let i = 0; i < pages.length; i++) {
       if (signal.aborted) throw abortError();
-      const name = pageName(i, count);
       try {
-        await runtime.stagePage(source.id, pages[i], stage, name);
+        await stagePage(i);
       } catch (error) {
         if (retried) throw error;
         retried = true;
@@ -46,7 +54,7 @@ export async function downloadChapter(
         pages = await load();
         if (i >= pages.length) throw error;
         if (signal.aborted) throw abortError();
-        await runtime.stagePage(source.id, pages[i], stage, name);
+        await stagePage(i);
       }
       onProgress((i + 1) / pages.length);
     }

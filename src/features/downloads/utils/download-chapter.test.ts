@@ -108,7 +108,9 @@ describe("downloadChapter", () => {
 
   it("rejects on a second failure and still drops the stage", async () => {
     const s = setup([1, 1]);
-    await expect(downloadChapter(item, s.deps)).rejects.toThrow("page failed");
+    await expect(downloadChapter(item, s.deps)).rejects.toThrow(
+      "Page 2 of 2: page failed",
+    );
     expect(s.dropStage).toHaveBeenCalledWith(stage);
     expect(s.put).not.toHaveBeenCalled();
   });
