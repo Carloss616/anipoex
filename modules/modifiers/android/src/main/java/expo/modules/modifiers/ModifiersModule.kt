@@ -1,17 +1,23 @@
 package expo.modules.modifiers
 
 import android.graphics.Color
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -20,6 +26,9 @@ import expo.modules.kotlin.records.Record
 import expo.modules.kotlin.records.recordFromMap
 import expo.modules.ui.ModifierRegistry
 import expo.modules.ui.compose
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /** Compose modifiers @expo/ui lacks, for any of its components. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,11 +68,38 @@ class ModifiersModule : Module() {
       ModifierRegistry.register("nestedScrollInteropConnection") { _, _, _, _ ->
         Modifier.nestedScroll(rememberNestedScrollInteropConnection())
       }
+
+      // Compose has no SwiftUI `buttonRepeatBehavior`: this sends `start` when a
+      // press begins, then `repeat` every 80ms once held 400ms, and nothing
+      // after release.
+      ModifierRegistry.register("buttonRepeatBehavior") { _, _, _, eventDispatcher ->
+        val dispatch by rememberUpdatedState(eventDispatcher)
+        Modifier.pointerInput(Unit) {
+          coroutineScope {
+            awaitEachGesture {
+              // Initial pass: watch the press before the button's own clickable
+              // consumes it.
+              awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+              dispatch("buttonRepeatBehavior", mapOf("type" to "start"))
+              val repeat = launch {
+                delay(400)
+                while (true) {
+                  dispatch("buttonRepeatBehavior", mapOf("type" to "repeat"))
+                  delay(80)
+                }
+              }
+              waitForUpOrCancellation(PointerEventPass.Initial)
+              repeat.cancel()
+            }
+          }
+        }
+      }
     }
     OnDestroy {
       ModifierRegistry.unregister("linearGradient")
       ModifierRegistry.unregister("pinnedScrollBehavior")
       ModifierRegistry.unregister("nestedScrollInteropConnection")
+      ModifierRegistry.unregister("buttonRepeatBehavior")
     }
   }
 }

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
-  s.name           = 'PressRepeat'
+  s.name           = 'Modifiers'
   s.version        = '1.0.0'
-  s.summary        = 'onPressRepeat modifier for @expo/ui'
+  s.summary        = 'SwiftUI modifiers @expo/ui lacks'
   s.author         = ''
   s.homepage       = 'https://github.com/expo/expo'
   s.license        = 'MIT'

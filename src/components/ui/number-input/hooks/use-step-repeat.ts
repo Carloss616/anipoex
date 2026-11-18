@@ -1,18 +1,14 @@
-import type { ModifierConfig } from "@expo/ui/swift-ui/modifiers";
 import { useRef } from "react";
-
-type PressRepeatEvent = { type: "start" | "repeat" };
-
-// Type-only import; Compose's ModifierConfig has the same shape.
-const onPressRepeat = (
-  handler: (event: PressRepeatEvent) => void,
-): ModifierConfig => ({ $type: "onPressRepeat", eventListener: handler });
+import { Platform } from "react-native";
+import { buttonRepeatBehavior as composeRepeat } from "@/components/native/jetpack-compose/button-repeat-behavior";
+import { buttonRepeatBehavior as swiftUIRepeat } from "@/components/native/swift-ui/button-repeat-behavior";
 
 /**
- * Step buttons that repeat while held. A tap steps once through the button's
- * own `onPress`; holding it repeats through the native `onPressRepeat`
- * modifier (modules/press-repeat), and the `onPress` that ends a hold is
- * skipped so the release doesn't add one more step.
+ * Step buttons that repeat while held, through `buttonRepeatBehavior`. On iOS
+ * SwiftUI runs the button's `onPress` again on each repeat. On Android it
+ * sends events instead: a tap steps through `onPress`, holding repeats through
+ * the events, and the `onPress` that ends a hold is skipped so the release
+ * doesn't add one more step.
  */
 export function useStepRepeat(
   value: number,
@@ -32,14 +28,19 @@ export function useStepRepeat(
     emit(next);
   };
 
-  return (delta: number) => ({
-    onPress: () => {
-      if (held.current) held.current = false;
-      else stepBy(delta);
-    },
-    modifier: onPressRepeat(({ type }) => {
-      held.current = type === "repeat";
-      if (held.current) stepBy(delta);
-    }),
-  });
+  return Platform.OS === "ios"
+    ? (delta: number) => ({
+        onPress: () => stepBy(delta),
+        modifier: swiftUIRepeat(),
+      })
+    : (delta: number) => ({
+        onPress: () => {
+          if (held.current) held.current = false;
+          else stepBy(delta);
+        },
+        modifier: composeRepeat((type) => {
+          held.current = type === "repeat";
+          if (held.current) stepBy(delta);
+        }),
+      });
 }
