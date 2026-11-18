@@ -106,6 +106,17 @@ test("put replaces through a temp file", async () => {
   expect(existsSync(temp)).toBe(false);
 });
 
+test("put keeps new chapters in a renamed manga folder", async () => {
+  await put(root, REL, await pack("a.cbz", "x"), packedDir);
+  const rel = "downloads/Title [21]/Source A [1234]/Ch 2 [b1b2c3d4].cbz";
+  await put(root, rel, await pack("b.cbz", "y"), packedDir);
+  expect(existsSync(path.join(root, "downloads/Title [21]"))).toBe(false);
+  expect((await list(root, 21, "1234")).map((d) => d.hash).sort()).toEqual([
+    "a1b2c3d4",
+    "b1b2c3d4",
+  ]);
+});
+
 test("get returns a file url", async () => {
   await put(root, REL, await pack("a.cbz", "x"), packedDir);
   expect(await get(root, REL)).toBe(

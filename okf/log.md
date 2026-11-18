@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-18
+
+* **Renamed download folders keep their chapters**: a new chapter of a manga whose folder the user renamed goes into that folder, found by its id, instead of a second folder whose chapters the app ignored. Updated [Downloads](stores/downloads.md).
+
 ## 2026-11-16
 
 * **Custom lists**: the Manga tab opens the account's custom lists after the statuses, the tracking sheet puts a manga in any of them, and Manage lists makes, renames and deletes them. AniList keeps membership by position, so deleting a list saves its entries and its later lists' again. The counts and list names are read again on mount and when the app returns, so lists made on another device show up. Added [Custom list](concepts/custom-list.md), [UpdateMangaCustomLists](operations/update-manga-custom-lists.md); updated [MangaList](operations/manga-list.md) (custom groups skipped, the whole collection for a custom list), [MangaListCounts](operations/manga-list-counts.md), [SaveMangaTracking](operations/save-manga-tracking.md), [List entry](concepts/list-entry.md), [List status](concepts/list-status.md), [List counts](metrics/list-counts.md).

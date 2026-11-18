@@ -30,3 +30,23 @@ export function treeDownloads(
       })),
   );
 }
+
+/**
+ * `path` moved into the manga and source folders of `tree` with the same
+ * [id]s, the ones treeDownloads lists: a renamed folder keeps its chapters.
+ */
+export function intoExisting(tree: TreeFile[], path: string) {
+  const parts = path.split("/");
+  const rows = tree.map((file) => file.path.split("/"));
+  for (const at of [1, 2]) {
+    if (at >= parts.length - 1) break;
+    const found = rows.find(
+      (row) =>
+        row.length > at + 1 &&
+        row.slice(0, at).every((part, i) => part === parts[i]) &&
+        idOf(row[at]) === idOf(parts[at]),
+    );
+    if (found) parts[at] = found[at];
+  }
+  return parts.join("/");
+}

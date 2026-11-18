@@ -54,6 +54,11 @@ export function fileSystemStore(root: Directory): DownloadStore {
     listings.delete(entry.uri);
   };
   const named = (name: string) => (n: string) => n === name;
+  /** A manga or source folder by its [id], so a renamed one keeps its chapters. */
+  const sameId = (name: string) => {
+    const id = idOf(name);
+    return id ? (n: string) => idOf(n) === id : named(name);
+  };
   /** The folders down to `parts`, root first; shorter when one is missing. */
   const dirsAt = async (parts: string[]) => {
     const dirs = [root];
@@ -112,7 +117,7 @@ export function fileSystemStore(root: Directory): DownloadStore {
       const name = parts.pop() as string;
       let dir = root;
       for (const part of parts) {
-        const next = await subdir(dir, named(part));
+        const next = await subdir(dir, sameId(part));
         if (!next) listings.delete(dir.uri);
         dir = next ?? dir.createDirectory(part);
       }

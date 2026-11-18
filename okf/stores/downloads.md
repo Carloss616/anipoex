@@ -55,6 +55,11 @@ cut to 120 characters.
 
 - **One CBZ per chapter**: the pages as the source's client fetched them, stored without
   recompressing, in reading order, plus a `ComicInfo.xml`.
+- **Found by id, not by name**: the app finds each manga, source and chapter by the id in
+  the last brackets of its name, so the user may rename what comes before. A new chapter
+  goes into the existing folders with its ids, not a second folder named after the
+  current title. A name that loses its id is no longer the app's: its chapters stop
+  counting and read from the source, and they come back once the id does.
 - **Deleted only by hand**: from a chapter's menu. The app never deletes a file on its
   own in a folder the user picked.
 - **Changing the root moves the downloads**: each file is copied into the new root and
