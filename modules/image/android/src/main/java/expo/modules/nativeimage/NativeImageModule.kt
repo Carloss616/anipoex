@@ -44,7 +44,7 @@ import kotlinx.coroutines.runInterruptible
 
 class NativeImageModule : Module() {
   override fun definition() = ModuleDefinition {
-    Name("NativeImage")
+    Name("Image")
 
     ExpoUIView<ImageViewProps>("ImageView") {
       val onLoad by Event<LoadEvent>()

@@ -78,7 +78,7 @@ class ExtensionRuntimeModule : Module() {
       Injekt.addSingleton<Application>(app)
       val network = NetworkHelper(app)
       Injekt.addSingleton(network)
-      // Covers (modules/native-image) load through the runtime's client, as
+      // Covers (modules/image) load through the runtime's client, as
       // Mihon's do: DNS over HTTPS, cookies, Cloudflare. expo-image's own views
       // keep their own model and loader.
       Glide.get(app).registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(network.client))

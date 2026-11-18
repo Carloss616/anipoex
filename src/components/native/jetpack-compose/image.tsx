@@ -16,18 +16,18 @@ type NativeProps = Omit<ImageProps, "onLoad" | "onError"> & {
   onError?: (event: { nativeEvent: ImageErrorEventData }) => void;
 };
 
-const NativeImage = requireNativeView<NativeProps>("NativeImage", "ImageView");
+const ImageView = requireNativeView<NativeProps>("Image", "ImageView");
 
 /**
  * A Compose image that fills its frame, loaded and cached by Glide
- * (expo-image's engine) from the local `modules/native-image`, at the size
+ * (expo-image's engine) from the local `modules/image`, at the size
  * it's drawn, and fades in. Must sit inside a Host. Use it over @expo/ui's
  * `Image` for remote images: that decodes at full size and crashes on an
  * oversized one.
  */
 export function Image({ modifiers, onLoad, onError, ...props }: ImageProps) {
   return (
-    <NativeImage
+    <ImageView
       {...props}
       onLoad={onLoad && ((event) => onLoad(event.nativeEvent))}
       onError={onError && ((event) => onError(event.nativeEvent))}

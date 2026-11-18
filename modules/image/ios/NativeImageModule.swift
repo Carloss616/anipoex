@@ -5,7 +5,7 @@ import SwiftUI
 
 public class NativeImageModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("NativeImage")
+    Name("Image")
 
     ExpoUIView(ImageView.self)
   }
