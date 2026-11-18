@@ -1,7 +1,7 @@
 import { Typography } from "panelui-native/components/typography";
 import { Sheet } from "panelui-web/sheet";
 import { View } from "react-native";
-import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Rating } from "@/components/ui/rating";
 import { Slider } from "@/components/ui/slider";
 import { Footer } from "../footer";
@@ -19,7 +19,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
 
   return (
     <>
-      <Sheet.Header className={SHEET_INSET.header}>
+      <Sheet.Header className="p-4">
         <View className="flex-row items-center justify-between gap-2">
           <Sheet.Title>Score</Sheet.Title>
           <Typography.Code className="ms-auto">
@@ -28,7 +28,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
         </View>
       </Sheet.Header>
 
-      <Sheet.Body className={SHEET_INSET.body}>
+      <Sheet.Body className="px-4 pb-0">
         <BottomSheet.LockDrag className="items-center">
           {scale.max > 10 ? (
             <Slider

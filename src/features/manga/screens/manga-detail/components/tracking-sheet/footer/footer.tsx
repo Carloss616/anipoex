@@ -1,7 +1,5 @@
-import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { Sheet } from "panelui-web/sheet";
-import { SHEET_INSET } from "@/components/ui/bottom-sheet";
 
 export interface FooterProps {
   onCancel: () => void;
@@ -26,9 +24,7 @@ export function Footer({
 }: FooterProps) {
   return (
     // A row, not Sheet.Footer's stack: Remove leads, Cancel and OK trail.
-    <Sheet.Footer
-      className={cn(SHEET_INSET.footer, "flex-row items-center gap-4")}
-    >
+    <Sheet.Footer className="flex-row items-center gap-4 p-4">
       {onRemove && (
         <Sheet.Close
           render={<Button variant="destructive" />}

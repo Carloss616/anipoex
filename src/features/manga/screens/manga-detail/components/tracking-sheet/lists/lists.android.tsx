@@ -6,29 +6,28 @@ import {
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { EmptyState } from "@/components/blocks/empty-state";
 import {
   SEGMENTED_GAP,
   SegmentedListItem,
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { NewListField } from "@/features/manga/components/new-list-field";
-import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { Footer } from "../footer";
 import { useLists } from "./hooks/use-lists";
 import type { ListsProps } from "./lists";
 
 export function Lists({ form, onCancel, onConfirm }: ListsProps) {
   const { isLandscape } = useBreakpoint();
-  const m3 = useThemeM3Colors();
   const { names, selected, toggle, next, dirty, create } = useLists(form);
 
   return (
-    <Column modifiers={[padding(0, 0, 0, 16)]}>
+    <Column>
       <Text
         style={{ typography: "titleLarge" }}
         maxLines={1}
         overflow="ellipsis"
-        modifiers={[padding(16, 0, 16, 0)]}
+        modifiers={[padding(16, 16, 16, 16)]}
       >
         Custom lists
       </Text>
@@ -39,7 +38,7 @@ export function Lists({ form, onCancel, onConfirm }: ListsProps) {
           fillMaxWidth(),
           ...(isLandscape ? [weight(1)] : []),
           verticalScroll(),
-          padding(16, 16, 16, 16),
+          padding(16, 0, 16, 0),
         ]}
       >
         {names.length > 0 ? (
@@ -60,7 +59,10 @@ export function Lists({ form, onCancel, onConfirm }: ListsProps) {
             ))}
           </Column>
         ) : (
-          <Text color={m3.onSurfaceVariant}>No custom lists yet.</Text>
+          <EmptyState
+            title="No custom lists yet"
+            description="Name one above, then add this manga to it."
+          />
         )}
         <NewListField names={names} onSubmit={create} />
       </Column>

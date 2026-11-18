@@ -14,11 +14,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
   const RatingOrSlider = scale.max > 10 ? Slider : Rating;
 
   return (
-    <VStack
-      alignment="leading"
-      spacing={0}
-      modifiers={[padding({ vertical: 16 })]}
-    >
+    <VStack alignment="leading" spacing={0}>
       <Header
         title="Score"
         subtitle={`${score || "_"}/${scale.max}`}
@@ -30,7 +26,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
       <ScrollView
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
       >
-        <VStack modifiers={[padding({ all: 16 })]}>
+        <VStack modifiers={[padding({ horizontal: 16, bottom: 16 })]}>
           <BottomSheet.LockDrag>
             <RatingOrSlider
               value={score}

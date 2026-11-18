@@ -64,12 +64,14 @@ export function CustomLists() {
   return (
     <>
       <Host className="flex-1">
-        <VStack alignment="leading" spacing={16}>
+        <VStack alignment="leading" spacing={0}>
           <VStack
             alignment="leading"
             spacing={16}
             // 10: the grabber's room, as `BottomSheet` leaves it.
-            modifiers={[padding({ top: 10 + GUTTER, horizontal: GUTTER })]}
+            modifiers={[
+              padding({ top: 10 + GUTTER, horizontal: GUTTER, bottom: GUTTER }),
+            ]}
           >
             <HStack spacing={8}>
               <Text textStyle="title3">Custom lists</Text>

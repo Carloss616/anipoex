@@ -33,7 +33,7 @@ export function Header({
   canConfirm,
 }: HeaderProps) {
   return (
-    <HStack spacing={8} modifiers={[padding({ horizontal: 16 })]}>
+    <HStack spacing={8} modifiers={[padding({ all: 16 })]}>
       <Button
         onPress={onCancel}
         modifiers={[

@@ -1,9 +1,8 @@
-import { Typography } from "panelui-native/components/typography";
+import { Checkbox } from "panelui-web/checkbox";
 import { Frame } from "panelui-web/frame";
 import { Sheet } from "panelui-web/sheet";
 import { View } from "react-native";
-import { SHEET_INSET } from "@/components/ui/bottom-sheet";
-import { Icon, Icons } from "@/components/ui/icon";
+import { EmptyState } from "@/components/blocks/empty-state";
 import { NewListField } from "@/features/manga/components/new-list-field";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { Footer } from "../footer";
@@ -21,8 +20,8 @@ export function Lists({ form, onCancel, onConfirm }: ListsProps) {
 
   return (
     <>
-      <Sheet.Header title="Custom lists" className={SHEET_INSET.header} />
-      <Sheet.Body className={SHEET_INSET.body}>
+      <Sheet.Header title="Custom lists" className="p-4" />
+      <Sheet.Body className="px-4 pb-0">
         {/* The body is a scroll area's content, not a flex column. */}
         <View className="gap-4">
           {names.length > 0 ? (
@@ -31,24 +30,28 @@ export function Lists({ form, onCancel, onConfirm }: ListsProps) {
                 {names.map((name) => (
                   <Frame.Row
                     key={name}
-                    role="checkbox"
-                    aria-checked={selected.includes(name)}
-                    onClick={() => toggle(name)}
+                    // biome-ignore lint/a11y/noLabelWithoutControl: the Checkbox below is its control.
+                    render={<label />}
                   >
+                    <Frame.Media>
+                      <Checkbox
+                        label={name}
+                        checked={selected.includes(name)}
+                        onCheckedChange={() => toggle(name)}
+                      />
+                    </Frame.Media>
                     <Frame.Content>
                       <Frame.Title as="p">{name}</Frame.Title>
                     </Frame.Content>
-                    {selected.includes(name) && (
-                      <Frame.Actions>
-                        <Icon name={Icons.check} className="text-primary" />
-                      </Frame.Actions>
-                    )}
                   </Frame.Row>
                 ))}
               </Frame.Panel>
             </Frame>
           ) : (
-            <Typography muted>No custom lists yet.</Typography>
+            <EmptyState
+              title="No custom lists yet"
+              description="Name one above, then add this manga to it."
+            />
           )}
           <NewListField names={names} onSubmit={create} />
         </View>

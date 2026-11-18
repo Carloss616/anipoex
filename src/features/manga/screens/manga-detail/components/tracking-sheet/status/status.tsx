@@ -1,9 +1,9 @@
 import { Frame } from "panelui-web/frame";
+import { Radio, RadioGroup } from "panelui-web/radio-group";
 import { Sheet } from "panelui-web/sheet";
-import { SHEET_INSET } from "@/components/ui/bottom-sheet";
-import { Icon, Icons } from "@/components/ui/icon";
 import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
+import type { MediaListStatus } from "@/graphql/types.generated";
 import { ChangesPreview } from "../changes-preview";
 import { Footer } from "../footer";
 import { useStatus } from "./hooks/use-status";
@@ -33,33 +33,37 @@ export function Status({
   );
 
   const options = (
-    <Frame variant="plain" role="radiogroup" aria-label="Status">
-      <Frame.Panel data-attached="column">
+    <Frame variant="plain">
+      <RadioGroup
+        aria-label="Status"
+        // "" picks no radio and keeps the group controlled.
+        value={selected ?? ""}
+        onValueChange={(value) => setSelected(value as MediaListStatus)}
+        render={<Frame.Panel data-attached="column" />}
+        className="gap-0"
+      >
         {MANGA_STATUS_ENTRIES.map(([status, title]) => (
           <Frame.Row
             key={status}
-            role="radio"
-            aria-checked={status === selected}
-            onClick={() => setSelected(status)}
+            // biome-ignore lint/a11y/noLabelWithoutControl: the Radio below is its control.
+            render={<label />}
           >
+            <Frame.Media>
+              <Radio value={status} label={title} />
+            </Frame.Media>
             <Frame.Content>
               <Frame.Title as="p">{title}</Frame.Title>
             </Frame.Content>
-            {status === selected && (
-              <Frame.Actions>
-                <Icon name={Icons.check} className="text-primary" />
-              </Frame.Actions>
-            )}
           </Frame.Row>
         ))}
-      </Frame.Panel>
+      </RadioGroup>
     </Frame>
   );
 
   return (
     <>
-      <Sheet.Header title="Status" className={SHEET_INSET.header} />
-      <Sheet.Body className={SHEET_INSET.body}>
+      <Sheet.Header title="Status" className="p-4" />
+      <Sheet.Body className="px-4 pb-0">
         {options}
         <ChangesPreview changes={changes} />
       </Sheet.Body>

@@ -26,11 +26,16 @@ export function ConnectSheet() {
 
   return (
     <BottomSheet isPresented={open} onDismiss={closeConnect}>
+      <Text
+        style={{ typography: "titleLarge" }}
+        modifiers={[padding(16, 16, 16, 16)]}
+      >
+        Connect GitHub
+      </Text>
       <Column
         verticalArrangement={{ spacedBy: 14 }}
-        modifiers={[fillMaxWidth(), padding(24, 0, 24, 32)]}
+        modifiers={[fillMaxWidth(), padding(16, 0, 16, 16)]}
       >
-        <Text style={{ typography: "titleLarge" }}>Connect GitHub</Text>
         <Text style={{ typography: "bodyMedium" }} color={m3.onSurfaceVariant}>
           Enter this code on GitHub. It connects here by itself.
         </Text>

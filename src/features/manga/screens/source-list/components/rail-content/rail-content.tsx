@@ -1,5 +1,6 @@
 import { Skeleton } from "panelui-native/components/skeleton";
 import { Typography } from "panelui-native/components/typography";
+import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { View } from "react-native";
 import { LegendList } from "@/components/layout/legend-list";
@@ -30,7 +31,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
           <Skeleton
             key={i}
             style={{ width: COVER.width }}
-            className={`aspect-2/3 ${COVER_ROUNDED}`}
+            className={cn("aspect-2/3", COVER_ROUNDED)}
           />
         ))}
       </View>
@@ -82,7 +83,7 @@ export function RailContent({ mangaKey, mangaId, source, actions }: RailProps) {
                 variant="secondary"
                 loading={rail.loadingMore}
                 onClick={loadMore}
-                className={`aspect-2/3 h-auto text-xs ${COVER_ROUNDED}`}
+                className={cn("aspect-2/3 h-auto text-xs", COVER_ROUNDED)}
                 style={{ width: COVER.width }}
               >
                 More

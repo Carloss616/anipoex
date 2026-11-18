@@ -44,12 +44,18 @@ function BottomSheetRoot({
   }
 
   const detents = snapPoints?.map(snapPointToDetent);
+  const snaps = JSON.stringify(snapPoints);
   const [detent, setDetent] = useState(detents?.[0]);
-  // Raised when `expanded` turns true; back to the first detent once closed.
-  const [last, setLast] = useState({ expanded, isPresented });
-  if (expanded !== last.expanded || isPresented !== last.isPresented) {
-    setLast({ expanded, isPresented });
-    if (!isPresented) setDetent(detents?.[0]);
+  // Raised when `expanded` turns true; back to the first detent once closed
+  // or when the content swaps in other snap points (a tracking sheet's view).
+  const [last, setLast] = useState({ expanded, isPresented, snaps });
+  if (
+    expanded !== last.expanded ||
+    isPresented !== last.isPresented ||
+    snaps !== last.snaps
+  ) {
+    setLast({ expanded, isPresented, snaps });
+    if (!isPresented || snaps !== last.snaps) setDetent(detents?.[0]);
     else if (expanded && !last.expanded) setDetent(detents?.at(-1));
   }
 

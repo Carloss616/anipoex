@@ -126,7 +126,7 @@ export function Overview({
       <Row
         verticalAlignment="center"
         horizontalArrangement={{ spacedBy: 8 }}
-        modifiers={[padding(16, 0, 16, 0)]}
+        modifiers={[padding(16, 16, 16, 16)]}
       >
         <Text
           style={{ typography: "titleLarge" }}
@@ -151,7 +151,7 @@ export function Overview({
       >
         <Column
           verticalArrangement={{ spacedBy: SEGMENTED_GAP }}
-          modifiers={[padding(16, 16, 16, 16), fillMaxWidth()]}
+          modifiers={[padding(16, 0, 16, 16), fillMaxWidth()]}
         >
           <Row
             horizontalArrangement={{ spacedBy: SEGMENTED_GAP }}

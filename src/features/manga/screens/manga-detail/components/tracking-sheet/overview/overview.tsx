@@ -4,7 +4,6 @@ import { ButtonGroup } from "panelui-web/button-group";
 import { Sheet } from "panelui-web/sheet";
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { MANGA_STATUSES } from "@/features/manga/constants";
@@ -70,7 +69,7 @@ export function Overview({
 
   return (
     <>
-      <Sheet.Header className={SHEET_INSET.header}>
+      <Sheet.Header className="p-4">
         <View className="flex-row items-center gap-2">
           <Sheet.Title className="min-w-0 truncate">{title}</Sheet.Title>
           <ButtonGroup
@@ -86,7 +85,7 @@ export function Overview({
         </View>
       </Sheet.Header>
 
-      <Sheet.Body className={SHEET_INSET.body}>
+      <Sheet.Body className="px-4 pb-4">
         <ButtonGroup orientation="vertical" className="w-full">
           <ButtonGroup
             aria-label="Status, progress and score"

@@ -9,11 +9,7 @@ import { View } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
-import {
-  BottomSheet,
-  SHEET_CLOSE_MS,
-  SHEET_INSET,
-} from "@/components/ui/bottom-sheet";
+import { BottomSheet, SHEET_CLOSE_MS } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { Loader } from "@/components/ui/loader";
@@ -59,7 +55,7 @@ function CustomListsBody() {
 
   return (
     <>
-      <Sheet.Header className={SHEET_INSET.header}>
+      <Sheet.Header className="p-4">
         <View className="flex-row items-center justify-between gap-1">
           <Sheet.Title>
             Custom lists <Badge>{names.length}</Badge>
@@ -67,7 +63,7 @@ function CustomListsBody() {
           <InfoPopover {...CUSTOM_LISTS_HELP} />
         </View>
       </Sheet.Header>
-      <View className="gap-2 px-4 pt-4">
+      <View className="gap-2 px-4">
         <ListNameField
           names={names}
           renaming$={renaming$}
@@ -81,7 +77,7 @@ function CustomListsBody() {
         keyExtractor={(list) => list.key}
         keyboardShouldPersistTaps="handled"
         className="flex-1"
-        contentContainerClassName="p-4 pb-8"
+        contentContainerClassName="p-4"
         ListEmptyComponent={
           <EmptyState
             title="No custom lists yet"

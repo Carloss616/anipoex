@@ -66,7 +66,10 @@ export function CustomLists() {
             <Row
               verticalAlignment="center"
               horizontalArrangement={{ spacedBy: 8 }}
-              modifiers={[fillMaxWidth(), padding(GUTTER, 0, GUTTER, 8)]}
+              modifiers={[
+                fillMaxWidth(),
+                padding(GUTTER, GUTTER, GUTTER, GUTTER),
+              ]}
             >
               <Text style={{ typography: "titleLarge" }}>Custom lists</Text>
               {/* M3's badge reads high against a centered title. */}
@@ -91,7 +94,11 @@ export function CustomLists() {
         <Column modifiers={[fillMaxSize(), nestedScrollInteropConnection()]}>
           <LazyColumn
             modifiers={[weight(1)]}
-            contentPadding={{ start: insets.left, end: insets.right }}
+            contentPadding={{
+              start: insets.left,
+              end: insets.right,
+              bottom: GUTTER,
+            }}
           >
             <LazyColumn.Items
               data={lists ?? []}

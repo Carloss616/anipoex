@@ -18,12 +18,12 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
   const { isLandscape } = useBreakpoint();
 
   return (
-    <Column modifiers={[padding(0, 0, 0, 16)]}>
+    <Column>
       <Text
         style={{ typography: "titleLarge" }}
         maxLines={1}
         overflow="ellipsis"
-        modifiers={[padding(16, 0, 16, 0)]}
+        modifiers={[padding(16, 16, 16, 16)]}
       >
         {title}
       </Text>
@@ -32,9 +32,8 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
         modifiers={[
           fillMaxWidth(),
           ...(isLandscape ? [weight(1)] : []),
+          // No padding: the picker brings its own side margins.
           verticalScroll(),
-          // The picker brings its own side margins.
-          padding(0, 16, 0, 16),
         ]}
       >
         <Calendar selected={date} onSelect={setDate} captionLayout="dropdown" />

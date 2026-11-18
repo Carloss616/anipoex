@@ -28,19 +28,19 @@ export function Progress({
   return (
     // The whole view scrolls: in landscape the keyboard leaves no room
     // for a pinned title and footer around the field.
-    <Column modifiers={[verticalScroll(), padding(0, 0, 0, 16)]}>
+    <Column modifiers={[verticalScroll()]}>
       <Text
         style={{ typography: "titleLarge" }}
         maxLines={1}
         overflow="ellipsis"
-        modifiers={[padding(16, 0, 16, 0)]}
+        modifiers={[padding(16, 16, 16, 16)]}
       >
         Progress
       </Text>
 
       <Column
         verticalArrangement={{ spacedBy: 16 }}
-        modifiers={[fillMaxWidth(), padding(16, 16, 16, 16)]}
+        modifiers={[fillMaxWidth(), padding(16, 0, 16, 0)]}
       >
         <NumberInput
           variant="display"

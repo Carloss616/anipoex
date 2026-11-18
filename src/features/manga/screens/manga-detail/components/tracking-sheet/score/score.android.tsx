@@ -22,12 +22,12 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
   const RatingOrSlider = scale.max > 10 ? Slider : Rating;
 
   return (
-    <Column modifiers={[padding(0, 0, 0, 16)]}>
+    <Column>
       <Text
         style={{ typography: "titleLarge" }}
         maxLines={1}
         overflow="ellipsis"
-        modifiers={[padding(16, 0, 16, 0)]}
+        modifiers={[padding(16, 16, 16, 16)]}
       >
         Score
       </Text>
@@ -39,7 +39,7 @@ export function Score({ value, onCancel, onConfirm }: ScoreProps) {
           fillMaxWidth(),
           ...(isLandscape ? [weight(1)] : []),
           verticalScroll(),
-          padding(16, 16, 16, 16),
+          padding(16, 0, 16, 0),
         ]}
       >
         <Text style={{ typography: "displayLarge" }}>{score || "–"}</Text>

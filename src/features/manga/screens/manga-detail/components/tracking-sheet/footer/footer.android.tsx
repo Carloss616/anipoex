@@ -19,7 +19,7 @@ export function Footer({
     <Row
       verticalAlignment="center"
       horizontalArrangement={{ spacedBy: 16 }}
-      modifiers={[padding(16, 0, 16, 0)]}
+      modifiers={[padding(16, 16, 16, 16)]}
     >
       {onRemove && (
         <TextButton

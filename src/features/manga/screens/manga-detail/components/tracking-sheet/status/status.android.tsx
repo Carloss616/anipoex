@@ -48,12 +48,12 @@ export function Status({
   );
 
   return (
-    <Column modifiers={[padding(0, 0, 0, 16)]}>
+    <Column>
       <Text
         style={{ typography: "titleLarge" }}
         maxLines={1}
         overflow="ellipsis"
-        modifiers={[padding(16, 0, 16, 0)]}
+        modifiers={[padding(16, 16, 16, 16)]}
       >
         Status
       </Text>
@@ -63,7 +63,7 @@ export function Status({
           fillMaxWidth(),
           ...(isLandscape ? [weight(1)] : []),
           verticalScroll(),
-          padding(16, 16, 16, 16),
+          padding(16, 0, 16, 0),
         ]}
       >
         {/* M3 single-select list: each row is a radio, the group one choice. */}
