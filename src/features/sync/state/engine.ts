@@ -98,6 +98,9 @@ for (const key of ["pushed", "lastSync", "error"]) {
 /** The targets a sync is running against now. */
 export const syncing$ = observable<Partial<Record<TargetKey, boolean>>>({});
 
+/** When the sync a local change asked for runs, in ms; null when none waits. */
+export const nextSync$ = observable<number | null>(null);
+
 const targets = new Map<TargetKey, SyncTarget>();
 
 /** Targets that asked to wait, until when; asking again only adds refusals. */
@@ -164,6 +167,7 @@ async function syncWith(key: TargetKey, target: SyncTarget, device: string) {
 /** Syncs with every target now, or once more right after the sync running. */
 export const requestSync = serial(async () => {
   const device = settings$.device.id.peek();
+  nextSync$.set(null);
   if (!device || !targets.size) return;
   lastRun = Date.now();
   const seen: SyncDevice[][] = [];
@@ -231,6 +235,7 @@ syncMeta$.onChange(({ isFromPersist }) => {
   clearTimeout(debounce);
   const gap = targets.has("gist") ? lastRun + MIN_GAP_MS - Date.now() : 0;
   const wait = Math.max(DEBOUNCE_MS, gap);
+  nextSync$.set(Date.now() + wait);
   debounce = setTimeout(() => void requestSync(), wait);
 });
 

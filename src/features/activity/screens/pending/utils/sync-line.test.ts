@@ -16,4 +16,11 @@ describe("syncLine", () => {
     expect(syncLine({ ...base, online: false })).toBe("Waiting for connection");
     expect(syncLine(base)).toBe("");
   });
+
+  test("counts down to a sync set to run, unless it can't reach", () => {
+    expect(syncLine({ ...base, inSeconds: 42 })).toBe("Syncs in 42s");
+    expect(syncLine({ ...base, inSeconds: 42, online: false })).toBe(
+      "Waiting for connection",
+    );
+  });
 });
