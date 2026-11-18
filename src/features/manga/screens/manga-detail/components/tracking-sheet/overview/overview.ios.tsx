@@ -153,7 +153,7 @@ export function Overview({
           <Cell
             value={form.customLists.join(", ")}
             placeholder="Custom lists"
-            onPress={() => onEdit("lists")}
+            onPress={() => onEdit("customLists")}
           />
         </VStack>
       </ScrollView>

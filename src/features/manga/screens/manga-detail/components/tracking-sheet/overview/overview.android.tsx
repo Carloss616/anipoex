@@ -206,7 +206,7 @@ export function Overview({
               icon={Icons.listEdit}
               value={form.customLists.join(", ")}
               corners={{ bottomStart: true, bottomEnd: true }}
-              onPress={() => onEdit("lists")}
+              onPress={() => onEdit("customLists")}
             />
           </Row>
         </Column>

@@ -3,7 +3,7 @@ import { useManageCustomLists } from "@/features/manga/hooks/use-manage-custom-l
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 
 /** The lists picked for the manga; a list made here starts picked. */
-export function useLists(form: TrackingForm) {
+export function useCustomLists(form: TrackingForm) {
   const { lists, create } = useManageCustomLists();
   const names = lists?.map((list) => list.name) ?? [];
   const [selected, setSelected] = useState(form.customLists);

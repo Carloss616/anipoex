@@ -1,9 +1,9 @@
 import { Sheet } from "panelui-web/sheet";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { noop } from "@/utils/utils";
+import { CustomLists } from "./custom-lists";
 import { DateView } from "./date-view";
 import { useTrackingSheet } from "./hooks/use-tracking-sheet";
-import { Lists } from "./lists";
 import { Overview } from "./overview";
 import { Progress } from "./progress";
 import { Score } from "./score";
@@ -78,8 +78,8 @@ export function TrackingSheet({
       <Sheet.Next name="completedAt" showClose={false}>
         {dateView("completedAt")}
       </Sheet.Next>
-      <Sheet.Next name="lists" showClose={false}>
-        <Lists form={form} onCancel={noop} onConfirm={commit} />
+      <Sheet.Next name="customLists" showClose={false}>
+        <CustomLists form={form} onCancel={noop} onConfirm={commit} />
       </Sheet.Next>
     </BottomSheet>
   );

@@ -6,17 +6,17 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { NewListField } from "@/features/manga/components/new-list-field";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { Footer } from "../footer";
-import { useLists } from "./hooks/use-lists";
+import { useCustomLists } from "./hooks/use-custom-lists";
 
-export interface ListsProps {
+export interface CustomListsProps {
   form: TrackingForm;
   onCancel: () => void;
   onConfirm: (next: TrackingForm) => void;
 }
 
 /** The custom lists holding the manga, any number of them. */
-export function Lists({ form, onCancel, onConfirm }: ListsProps) {
-  const { names, selected, toggle, next, dirty, create } = useLists(form);
+export function CustomLists({ form, onCancel, onConfirm }: CustomListsProps) {
+  const { names, selected, toggle, next, dirty, create } = useCustomLists(form);
 
   return (
     <>

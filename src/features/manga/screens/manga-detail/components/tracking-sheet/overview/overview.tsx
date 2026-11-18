@@ -18,7 +18,7 @@ export type Field =
   | "score"
   | "startedAt"
   | "completedAt"
-  | "lists";
+  | "customLists";
 
 export interface OverviewProps {
   title: string;
@@ -110,7 +110,7 @@ export function Overview({
             </Cell>
           </ButtonGroup>
           <ButtonGroup aria-label="Custom lists" className="w-full">
-            <Cell field="lists">
+            <Cell field="customLists">
               {form.customLists.join(", ") || <Muted>Custom lists</Muted>}
             </Cell>
           </ButtonGroup>

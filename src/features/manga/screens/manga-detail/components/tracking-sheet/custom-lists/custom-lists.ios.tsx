@@ -21,12 +21,12 @@ import { Icon } from "@/components/ui/icon";
 import { NewListField } from "@/features/manga/components/new-list-field";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Header } from "../header.ios";
-import { useLists } from "./hooks/use-lists";
-import type { ListsProps } from "./lists";
+import type { CustomListsProps } from "./custom-lists";
+import { useCustomLists } from "./hooks/use-custom-lists";
 
 /** The custom lists as rows, like the manga list's Filter options. */
-export function Lists({ form, onCancel, onConfirm }: ListsProps) {
-  const { names, selected, toggle, next, dirty, create } = useLists(form);
+export function CustomLists({ form, onCancel, onConfirm }: CustomListsProps) {
+  const { names, selected, toggle, next, dirty, create } = useCustomLists(form);
   const [primary, cell] = useThemeColor(["primary", "muted"]);
   const font = useFont();
 

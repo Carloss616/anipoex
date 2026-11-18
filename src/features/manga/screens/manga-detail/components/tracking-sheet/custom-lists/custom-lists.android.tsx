@@ -14,12 +14,12 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { NewListField } from "@/features/manga/components/new-list-field";
 import { Footer } from "../footer";
-import { useLists } from "./hooks/use-lists";
-import type { ListsProps } from "./lists";
+import type { CustomListsProps } from "./custom-lists";
+import { useCustomLists } from "./hooks/use-custom-lists";
 
-export function Lists({ form, onCancel, onConfirm }: ListsProps) {
+export function CustomLists({ form, onCancel, onConfirm }: CustomListsProps) {
   const { isLandscape } = useBreakpoint();
-  const { names, selected, toggle, next, dirty, create } = useLists(form);
+  const { names, selected, toggle, next, dirty, create } = useCustomLists(form);
 
   return (
     <Column>

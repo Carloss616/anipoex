@@ -5,9 +5,9 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import type { MangaTracking } from "@/features/manga/hooks/use-tracking-entry";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
+import { CustomLists } from "./custom-lists";
 import { DateView } from "./date-view";
 import { useTrackingSheet } from "./hooks/use-tracking-sheet";
-import { Lists } from "./lists";
 import type { Field } from "./overview";
 import { Overview } from "./overview";
 import { Progress } from "./progress";
@@ -16,7 +16,7 @@ import { Status } from "./status";
 
 // iOS draws these as a List, which has no height of its own to fit to.
 const LIST_VIEWS: ReadonlySet<Field> = new Set(
-  Platform.OS === "ios" ? ["status", "lists"] : [],
+  Platform.OS === "ios" ? ["status", "customLists"] : [],
 );
 
 export interface TrackingSheetProps {
@@ -88,7 +88,9 @@ export function TrackingSheet({
     ),
     startedAt: () => dateView("startedAt"),
     completedAt: () => dateView("completedAt"),
-    lists: () => <Lists form={form} onCancel={back} onConfirm={commit} />,
+    customLists: () => (
+      <CustomLists form={form} onCancel={back} onConfirm={commit} />
+    ),
   };
 
   return (
