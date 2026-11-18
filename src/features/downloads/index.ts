@@ -10,7 +10,7 @@ export {
   queuedOf,
   retry,
 } from "./state/download-queue";
-export { refreshDownloaded } from "./state/downloaded";
+export { loadDownloaded, refreshDownloaded } from "./state/downloaded";
 export {
   cancelDownload,
   pauseDownload,

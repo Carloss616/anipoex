@@ -7,6 +7,7 @@ import { Platform } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { Host } from "@/components/ui/host";
+import { refreshDownloaded } from "@/features/downloads";
 import {
   installedLoaded$,
   isRuntimeAvailable,
@@ -22,6 +23,7 @@ import { startTitleSearch } from "@/features/manga/state/title-search";
 import { sourceListHref } from "@/features/manga/utils/source-list-href";
 import { searchTitles } from "@/features/manga/utils/source-match";
 import { useMaxHeaderHeight } from "@/hooks/use-max-header-height";
+import { noop } from "@/utils/utils";
 import { ContinueSync } from "./components/continue-sync";
 import { DetailList } from "./components/detail-list";
 import { DetailToolbar } from "./components/detail-toolbar";
@@ -87,6 +89,8 @@ export function MangaDetail() {
       refreshChapters(),
       refreshInstalled(),
       pendingId && resume(pendingId),
+      // Picks up folders and files changed by hand.
+      match && refreshDownloaded(Number(id), match.sourceId).catch(noop),
     ]);
   const sourceName =
     sources.find((entry) => entry.id === match?.sourceId)?.name ??

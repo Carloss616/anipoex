@@ -3,9 +3,11 @@ import type { ObservablePrimitive } from "@legendapp/state";
 import { useValue } from "@legendapp/state/react";
 import type { ReactElement } from "react";
 import { Platform } from "react-native";
+import { loadDownloaded } from "@/features/downloads";
 import { MangaGrid } from "@/features/manga/components/manga-grid";
 import type { MangaListState } from "@/features/manga/hooks/use-manga-list";
 import type { useScrollSync } from "@/hooks/use-scroll-sync";
+import { noop } from "@/utils/utils";
 import { ListEmpty } from "./list-empty";
 
 /** The grid for one list; the caller owns the data (`useMangaList`). */
@@ -48,12 +50,14 @@ export function ListGrid({
       // Android's lazy column keeps its scroll across filters; others animate.
       scrollKey={Platform.OS === "android" ? genre : undefined}
       refreshing={list.refetching}
-      onRefresh={() =>
-        Promise.all([
+      onRefresh={() => {
+        // Not awaited: a picked folder walks its whole tree per manga.
+        loadDownloaded().catch(noop);
+        return Promise.all([
           list.refetch(),
           client.refetchQueries({ include: ["MangaListCounts"] }),
-        ])
-      }
+        ]);
+      }}
     />
   );
 }

@@ -33,7 +33,9 @@ paused, the fraction it reached. Default empty. Stays on the device; it is not s
 
 What is downloaded (by manga and source, each chapter `local` or `cloud` when its file is
 a placeholder the sync app has not fetched yet) and each running chapter's progress are
-read from the files and rebuilt at launch; they are not persisted.
+read from the files and rebuilt at launch; they are not persisted. A pull to refresh reads
+them again, for the whole library from the manga list or one manga from its detail, so
+files changed by hand show up.
 
 # Where the files live
 

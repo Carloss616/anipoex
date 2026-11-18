@@ -3,6 +3,7 @@
 ## 2026-11-18
 
 * **Renamed download folders keep their chapters**: a new chapter of a manga whose folder the user renamed goes into that folder, found by its id, instead of a second folder whose chapters the app ignored. Updated [Downloads](stores/downloads.md).
+* **A pull to refresh reads the downloads again**: the manga list's for the whole library, a detail's for its manga, so folders and files changed by hand show without a restart. Updated [Downloads](stores/downloads.md).
 
 ## 2026-11-16
 

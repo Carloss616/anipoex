@@ -36,19 +36,21 @@ export async function refreshDownloaded(
 }
 
 /**
- * Lists every manga and source with files into downloaded$, at startup: the
- * cards and source rows count them before any detail opens.
+ * Lists every manga and source with files into downloaded$, at startup and on
+ * a list's refresh: the cards and source rows count them before any detail
+ * opens. The ones already shown are listed too, so a folder gone since clears.
  */
 export async function loadDownloaded(
   store: DownloadStore | undefined = currentStore(),
 ) {
   if (!store) return;
-  const pairs = new Set(
-    (await store.listAll()).map((path) => {
+  const pairs = new Set([
+    ...(await store.listAll()).map((path) => {
       const [, manga, source] = path.split("/");
       return `${idOf(manga)}/${idOf(source)}`;
     }),
-  );
+    ...Object.keys(downloaded$.peek() ?? {}),
+  ]);
   // One at a time: a picked iOS folder walks its whole tree per listing.
   for (const pair of pairs) {
     const at = pair.indexOf("/");

@@ -75,6 +75,7 @@ describe("refreshDownloaded", () => {
 
 describe("loadDownloaded", () => {
   it("lists each manga and source that has files", async () => {
+    downloaded$.set({});
     const listed: string[] = [];
     await loadDownloaded({
       listAll: async () => [
@@ -89,5 +90,14 @@ describe("loadDownloaded", () => {
     } as never);
     expect(listed).toEqual(["7/s1", "8/s2"]);
     expect(downloaded$.peek()["8/s2"]).toEqual({ aaaaaaaa: "local" });
+  });
+
+  it("clears a manga whose folder is gone", async () => {
+    downloaded$["9/s3"].set({ dddddddd: "local" });
+    await loadDownloaded({
+      listAll: async () => [],
+      list: async () => [],
+    } as never);
+    expect(downloaded$.peek()["9/s3"]).toBeUndefined();
   });
 });
