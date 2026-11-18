@@ -26,6 +26,7 @@ import {
   type SectionId,
 } from "../../constants";
 import { moved, toggled, withPreset } from "../../utils/home-layout";
+import { useSectionOrder } from "./hooks/use-section-order";
 
 const PRESETS: Preset[] = ["balanced", "discover", "personal"];
 
@@ -42,9 +43,7 @@ export function HomeLayout() {
   const headerScroll = useHeaderScroll();
   const drag$ = useDragList();
   const preset = useValue(settings$.home.preset);
-  const order = useValue(() => settings$.home.order.get().join()).split(
-    ",",
-  ) as SectionId[];
+  const order = useSectionOrder();
 
   return (
     <>

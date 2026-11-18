@@ -27,23 +27,24 @@ import {
   type SectionId,
 } from "../../constants";
 import { moved, toggled, withPreset } from "../../utils/home-layout";
+import { useSectionOrder } from "./hooks/use-section-order";
 
 /**
  * The List stays in edit mode, so every section shows its reorder handle; a
  * custom layout leaves the picker with no segment selected.
  */
 export function HomeLayout() {
-  const { preset, order, on } = useValue(settings$.home);
+  const preset = useValue(settings$.home.preset);
+  const order = useSectionOrder();
   // The theme's surfaces, not the system's grouped grays.
   const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
 
   const move = (sources: number[], destination: number) => {
     const from = sources[0];
     if (from === undefined) return;
-    const layout = settings$.home.peek();
     // SwiftUI's destination counts the moved row in place.
     const to = destination > from ? destination - 1 : destination;
-    settings$.home.set(moved(layout, layout.order[from], to));
+    settings$.home.set(moved(settings$.home.peek(), order[from], to));
   };
 
   return (
@@ -84,7 +85,7 @@ export function HomeLayout() {
               recycling={false}
               onMove={move}
             >
-              {({ item: id }) => <SectionRow id={id} on={on.includes(id)} />}
+              {({ item: id }) => <SectionRow id={id} />}
             </List.ForEach>
           </Section>
         </List>
@@ -93,13 +94,8 @@ export function HomeLayout() {
   );
 }
 
-const SectionRow = memo(function SectionRow({
-  id,
-  on,
-}: {
-  id: SectionId;
-  on: boolean;
-}) {
+const SectionRow = memo(function SectionRow({ id }: { id: SectionId }) {
+  const on = useValue(() => settings$.home.on.get().includes(id));
   const toggle = () => settings$.home.set(toggled(settings$.home.peek(), id));
 
   return (

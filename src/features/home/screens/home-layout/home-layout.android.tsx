@@ -9,6 +9,7 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
+import { memo } from "react";
 import { GUTTER } from "@/components/native/constants";
 import { ButtonGroup } from "@/components/native/jetpack-compose/button-group";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
@@ -30,8 +31,10 @@ import {
   PRESETS,
   type Preset,
   SECTIONS,
+  type SectionId,
 } from "../../constants";
 import { moved, toggled, withPreset } from "../../utils/home-layout";
+import { useSectionOrder } from "./hooks/use-section-order";
 
 const PRESET_KEYS = Object.keys(PRESETS) as Preset[];
 
@@ -40,12 +43,12 @@ const PRESET_KEYS = Object.keys(PRESETS) as Preset[];
  * drag to reorder a lazy list: a row's long-press menu moves it.
  */
 export function HomeLayout() {
-  const layout = useValue(settings$.home);
+  const preset = useValue(settings$.home.preset);
+  const order = useSectionOrder();
   const headerHeight = useHeaderHeight();
   const setHeaderScrolled = useSetHeaderScrolled();
   const m3 = useThemeM3Colors();
-  const preset = PRESET_KEYS.indexOf(layout.preset as Preset);
-  const { order } = layout;
+  const selected = PRESET_KEYS.indexOf(preset as Preset);
 
   return (
     <>
@@ -63,7 +66,7 @@ export function HomeLayout() {
           >
             <ButtonGroup
               options={PRESET_KEYS.map((key) => PRESET_LABELS[key])}
-              selected={preset < 0 ? [] : [preset]}
+              selected={selected < 0 ? [] : [selected]}
               onChange={(index) =>
                 settings$.home.set(withPreset(PRESET_KEYS[index]))
               }
@@ -74,7 +77,7 @@ export function HomeLayout() {
               color={m3.onSurfaceVariant}
               modifiers={[padding(4, 8, 4, 0)]}
             >
-              {PRESET_NOTES[layout.preset]}
+              {PRESET_NOTES[preset]}
             </Text>
             <Text
               style={{ typography: "titleSmall" }}
@@ -84,64 +87,9 @@ export function HomeLayout() {
               Sections
             </Text>
             <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
-              {order.map((id, i) => {
-                const on = layout.on.includes(id);
-                const toggle = () => settings$.home.set(toggled(layout, id));
-                const move = (to: number) =>
-                  settings$.home.set(moved(layout, id, to));
-                return (
-                  <ContextMenu
-                    key={id}
-                    items={[
-                      {
-                        label: "Move up",
-                        icon: Icons.moveUp,
-                        disabled: i === 0,
-                        onPress: () => move(i - 1),
-                      },
-                      {
-                        label: "Move down",
-                        icon: Icons.moveDown,
-                        disabled: i === order.length - 1,
-                        onPress: () => move(i + 1),
-                      },
-                      {
-                        label: "Move to top",
-                        icon: Icons.moveToTop,
-                        disabled: i === 0,
-                        onPress: () => move(0),
-                      },
-                    ]}
-                  >
-                    <SegmentedListItem
-                      index={i}
-                      count={order.length}
-                      colors={{ containerColor: m3.surfaceContainerLow }}
-                      onPress={toggle}
-                    >
-                      <Text>{SECTIONS[id].title}</Text>
-                      {ACCOUNT_SECTIONS.includes(id) && (
-                        <SegmentedListItem.Supporting>
-                          <Text style={{ typography: "bodyMedium" }}>
-                            AniList account
-                          </Text>
-                        </SegmentedListItem.Supporting>
-                      )}
-                      <SegmentedListItem.Trailing>
-                        <Switch
-                          value={on}
-                          onCheckedChange={toggle}
-                          modifiers={[
-                            semantics({
-                              contentDescription: `Show ${SECTIONS[id].title}`,
-                            }),
-                          ]}
-                        />
-                      </SegmentedListItem.Trailing>
-                    </SegmentedListItem>
-                  </ContextMenu>
-                );
-              })}
+              {order.map((id, i) => (
+                <SectionRow key={id} id={id} index={i} count={order.length} />
+              ))}
             </Column>
             <Text
               style={{ typography: "bodySmall" }}
@@ -156,3 +104,67 @@ export function HomeLayout() {
     </>
   );
 }
+
+const SectionRow = memo(function SectionRow({
+  id,
+  index: i,
+  count,
+}: {
+  id: SectionId;
+  index: number;
+  count: number;
+}) {
+  const on = useValue(() => settings$.home.on.get().includes(id));
+  const m3 = useThemeM3Colors();
+  const toggle = () => settings$.home.set(toggled(settings$.home.peek(), id));
+  const move = (to: number) =>
+    settings$.home.set(moved(settings$.home.peek(), id, to));
+
+  return (
+    <ContextMenu
+      items={[
+        {
+          label: "Move up",
+          icon: Icons.moveUp,
+          disabled: i === 0,
+          onPress: () => move(i - 1),
+        },
+        {
+          label: "Move down",
+          icon: Icons.moveDown,
+          disabled: i === count - 1,
+          onPress: () => move(i + 1),
+        },
+        {
+          label: "Move to top",
+          icon: Icons.moveToTop,
+          disabled: i === 0,
+          onPress: () => move(0),
+        },
+      ]}
+    >
+      <SegmentedListItem
+        index={i}
+        count={count}
+        colors={{ containerColor: m3.surfaceContainerLow }}
+        onPress={toggle}
+      >
+        <Text>{SECTIONS[id].title}</Text>
+        {ACCOUNT_SECTIONS.includes(id) && (
+          <SegmentedListItem.Supporting>
+            <Text style={{ typography: "bodyMedium" }}>AniList account</Text>
+          </SegmentedListItem.Supporting>
+        )}
+        <SegmentedListItem.Trailing>
+          <Switch
+            value={on}
+            onCheckedChange={toggle}
+            modifiers={[
+              semantics({ contentDescription: `Show ${SECTIONS[id].title}` }),
+            ]}
+          />
+        </SegmentedListItem.Trailing>
+      </SegmentedListItem>
+    </ContextMenu>
+  );
+});
