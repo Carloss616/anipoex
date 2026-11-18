@@ -4,6 +4,7 @@ import "@/global.css";
 
 import { observable, observe } from "@legendapp/state";
 import { synced } from "@legendapp/state/sync";
+import { startTransition } from "react";
 import { Appearance, Platform } from "react-native";
 import { Uniwind } from "uniwind";
 import { settings$ } from "../settings";
@@ -43,14 +44,13 @@ observe(() => {
   const theme = familyTheme(settings$.theme.family.get(), mode);
 
   // `ink` is Uniwind's own adaptive pair, so hand `system` straight to it.
-  if (
+  const next =
     settings$.theme.preference.get() === "system" &&
     (theme === "light" || theme === "dark")
-  ) {
-    Uniwind.setTheme("system");
-  } else {
-    Uniwind.setTheme(theme);
-  }
+      ? "system"
+      : theme;
+  // Uniwind re-renders by useReducer: in a transition, the pick shows first.
+  startTransition(() => Uniwind.setTheme(next));
 
   // Uniwind pins Appearance only for `light`/`dark`; native sheets follow it.
   if (Platform.OS !== "web" && settings$.theme.preference.get() !== "system")
