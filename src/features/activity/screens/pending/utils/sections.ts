@@ -13,15 +13,20 @@ import { network$ } from "@/state/network";
 
 const targets = () => Object.keys(syncState$.targets.get(true)) as TargetKey[];
 
-/** The connected sync targets, joined. */
-export const syncKeys = () => targets().join();
+const waits = (key: TargetKey) =>
+  !!syncing$[key].get() || unsyncedSummary(key) !== "";
 
-const syncWaits = () =>
-  targets().some((key) => syncing$[key].get() || unsyncedSummary(key) !== "");
+/** The sync targets with something to send or a sync running, joined. */
+export const syncKeys = () => targets().filter(waits).join();
+
+const syncWaits = () => targets().some(waits);
+
+/** Downloads wait only offline: online they run, and Activity shows them. */
+export const downloadsWait = () => !network$.online.get() && downloadsPending();
 
 /** Whether anything waits: a change, a sync or a download. */
 export const hasPending = () =>
-  pendingCount() > 0 || syncWaits() || downloadsPending();
+  pendingCount() > 0 || syncWaits() || downloadsWait();
 
 /** What the status card says; empty when online with nothing to send. */
 export const statusMode = () => {

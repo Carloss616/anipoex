@@ -15,7 +15,6 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import {
   corners,
-  downloadsPending,
   split,
   unsentIds,
   waitingIds,
@@ -28,7 +27,12 @@ import { EntryItem } from "./components/entry-item";
 import { StatusCard } from "./components/status-card";
 import { SyncItem } from "./components/sync-item";
 import { UnsentItem } from "./components/unsent-item";
-import { hasPending, statusMode, syncKeys } from "./utils/sections";
+import {
+  downloadsWait,
+  hasPending,
+  statusMode,
+  syncKeys,
+} from "./utils/sections";
 
 export function Pending() {
   const pending = useValue(hasPending);
@@ -132,7 +136,7 @@ function SyncSection() {
 }
 
 function DownloadsSection() {
-  const pending = useValue(downloadsPending);
+  const pending = useValue(downloadsWait);
   if (!pending) return null;
 
   return (

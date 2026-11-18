@@ -2,6 +2,7 @@
 
 ## 2026-11-18
 
+* **A folder alone syncs 3 seconds after each change**: the once-a-minute limit for changes that keep coming applies only while a gist is connected, since it exists for GitHub's write limit. Updated [Sync state](stores/sync-state.md).
 * **Custom lists offline**: a change to a manga's custom lists made offline is kept with its other changes and sent later, without lists the account no longer has; making, renaming and deleting lists needs a connection. Updated [Offline](concepts/offline.md), [Pending entries](stores/pending-progress.md), [Custom list](concepts/custom-list.md).
 * **The list entry's fields for filters and sort**: the manga list query also returns each entry's `progress`, `updatedAt`, `createdAt` and `score`, and the detail's list entry carries `updatedAt` and `createdAt`. Updated [MangaList](operations/manga-list.md), [MangaDetail](operations/manga-detail.md).
 * **The manga list's filters and sort are kept per device**: four tri-state filters (unread, started, downloaded, completed) and a sort, stored in `device.mangaList` and absent until changed; a value from another build falls back to the defaults. Updated [Settings](stores/settings.md), [Manga list view](stores/manga-list-view.md).

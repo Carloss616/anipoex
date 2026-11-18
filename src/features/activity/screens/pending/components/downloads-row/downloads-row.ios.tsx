@@ -7,7 +7,7 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { useDownloadsRow } from "./hooks/use-downloads-row";
 
 export function DownloadsRow() {
-  const { label, offline } = useDownloadsRow();
+  const { label } = useDownloadsRow();
 
   return (
     <Button onPress={() => router.navigate("/settings/activity")}>
@@ -15,14 +15,12 @@ export function DownloadsRow() {
         <Icon name={Icons.download} size={20} />
         <VStack alignment="leading" spacing={2}>
           <Text modifiers={[foregroundStyle("primary")]}>{label}</Text>
-          {offline && (
-            <Text
-              textStyle="subheadline"
-              modifiers={[foregroundStyle("secondary")]}
-            >
-              Paused until you're back online
-            </Text>
-          )}
+          <Text
+            textStyle="subheadline"
+            modifiers={[foregroundStyle("secondary")]}
+          >
+            Paused until you're back online
+          </Text>
         </VStack>
         <Spacer />
         <Icon name={Icons.chevronRight} size={13} muted />

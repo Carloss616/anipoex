@@ -4,12 +4,7 @@ import { Frame } from "panelui-web/frame";
 import { ScrollView } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
-import {
-  downloadsPending,
-  split,
-  unsentIds,
-  waitingIds,
-} from "@/features/activity/utils/state";
+import { split, unsentIds, waitingIds } from "@/features/activity/utils/state";
 import type { TargetKey } from "@/features/sync/state/engine";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { DownloadsRow } from "./components/downloads-row";
@@ -17,7 +12,12 @@ import { EntryItem } from "./components/entry-item";
 import { StatusCard } from "./components/status-card";
 import { SyncItem } from "./components/sync-item";
 import { UnsentItem } from "./components/unsent-item";
-import { hasPending, statusMode, syncKeys } from "./utils/sections";
+import {
+  downloadsWait,
+  hasPending,
+  statusMode,
+  syncKeys,
+} from "./utils/sections";
 
 /** What waits for a connection, or that AniList turned down. */
 export function Pending() {
@@ -103,7 +103,7 @@ function SyncSection() {
 }
 
 function DownloadsSection() {
-  const pending = useValue(downloadsPending);
+  const pending = useValue(downloadsWait);
   if (!pending) return null;
 
   return (

@@ -14,9 +14,9 @@ export function useSyncItem(key: TargetKey) {
   const line = useValue(() =>
     syncLine({
       syncing: !!syncing$[key].get(),
-      online: network$.online.get(),
+      // Only the gist needs the network; a folder syncs offline too
+      online: key !== "gist" || network$.online.get(),
       synced: !!syncState$.targets[key].lastSync.get(),
-      unsynced: unsyncedSummary(key),
     }),
   );
 

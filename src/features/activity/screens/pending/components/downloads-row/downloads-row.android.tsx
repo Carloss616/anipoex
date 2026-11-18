@@ -9,7 +9,7 @@ import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useDownloadsRow } from "./hooks/use-downloads-row";
 
 export function DownloadsRow() {
-  const { label, offline } = useDownloadsRow();
+  const { label } = useDownloadsRow();
   const m3 = useThemeM3Colors();
 
   return (
@@ -24,13 +24,11 @@ export function DownloadsRow() {
           <Icon name={Icons.download} color="inherit" />
         </SegmentedListItem.Leading>
         <Text>{label}</Text>
-        {offline && (
-          <SegmentedListItem.Supporting>
-            <Text style={{ typography: "bodyMedium" }}>
-              Paused until you're back online
-            </Text>
-          </SegmentedListItem.Supporting>
-        )}
+        <SegmentedListItem.Supporting>
+          <Text style={{ typography: "bodyMedium" }}>
+            Paused until you're back online
+          </Text>
+        </SegmentedListItem.Supporting>
         <SegmentedListItem.Trailing>
           <Icon name={Icons.chevronRight} color="inherit" />
         </SegmentedListItem.Trailing>

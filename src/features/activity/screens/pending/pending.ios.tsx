@@ -9,12 +9,7 @@ import { Stack } from "expo-router";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
-import {
-  downloadsPending,
-  split,
-  unsentIds,
-  waitingIds,
-} from "@/features/activity/utils/state";
+import { split, unsentIds, waitingIds } from "@/features/activity/utils/state";
 import type { TargetKey } from "@/features/sync/state/engine";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { DownloadsRow } from "./components/downloads-row";
@@ -22,7 +17,12 @@ import { EntryItem } from "./components/entry-item";
 import { StatusCard } from "./components/status-card";
 import { SyncItem } from "./components/sync-item";
 import { UnsentItem } from "./components/unsent-item";
-import { hasPending, statusMode, syncKeys } from "./utils/sections";
+import {
+  downloadsWait,
+  hasPending,
+  statusMode,
+  syncKeys,
+} from "./utils/sections";
 
 type Row = { modifiers: ReturnType<typeof listRowBackground>[] };
 
@@ -122,7 +122,7 @@ function SyncSection({ modifiers }: Row) {
 }
 
 function DownloadsSection({ modifiers }: Row) {
-  const pending = useValue(downloadsPending);
+  const pending = useValue(downloadsWait);
   if (!pending) return null;
 
   return (

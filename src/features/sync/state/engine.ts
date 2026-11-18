@@ -25,7 +25,7 @@ const DEBOUNCE_MS = 3000;
 
 /**
  * GitHub limits writes per user, so every device shares one budget: a scan's
- * stream of changes pushes at most once a minute.
+ * stream of changes pushes at most once a minute. A folder alone has no limit.
  */
 const MIN_GAP_MS = 60_000;
 
@@ -229,7 +229,8 @@ let debounce: ReturnType<typeof setTimeout> | undefined;
 syncMeta$.onChange(({ isFromPersist }) => {
   if (isFromPersist || applying.current || !targets.size) return;
   clearTimeout(debounce);
-  const wait = Math.max(DEBOUNCE_MS, lastRun + MIN_GAP_MS - Date.now());
+  const gap = targets.has("gist") ? lastRun + MIN_GAP_MS - Date.now() : 0;
+  const wait = Math.max(DEBOUNCE_MS, gap);
   debounce = setTimeout(() => void requestSync(), wait);
 });
 

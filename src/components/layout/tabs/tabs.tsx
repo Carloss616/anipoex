@@ -91,8 +91,9 @@ export function Tabs() {
           md={{ default: "settings", selected: "settings" }}
           renderingMode="template"
         />
+        {/* expo-router drops `hidden` while the badge has text */}
         <NativeTabs.Trigger.Badge hidden={pending === "0"}>
-          {pending}
+          {pending === "0" ? undefined : pending}
         </NativeTabs.Trigger.Badge>
       </NativeTabs.Trigger>
     </NativeTabs>
