@@ -11,6 +11,8 @@ import { downloadProgress$ } from "@/features/downloads";
 import {
   cancelDownload,
   moveDownloadUp,
+  pauseDownload,
+  resumeDownload,
   retryDownload,
 } from "../../utils/actions";
 import { downloadRowMenu } from "../../utils/row-menu";
@@ -34,11 +36,16 @@ export const DownloadItem = memo(function DownloadItem({
 }: DownloadItemProps) {
   const { title, cover, source, state, line, canMoveUp } = useDownloadItem(id);
   const moves = state === "queued" && canMoveUp;
+  const pausable = state === "running" || state === "paused";
 
   return (
     <View>
       <ContextMenu items={downloadRowMenu(id, { state, canMoveUp })}>
-        <Frame.Row className={moves || state === "failed" ? "pe-27" : "pe-17"}>
+        <Frame.Row
+          className={
+            moves || pausable || state === "failed" ? "pe-27" : "pe-17"
+          }
+        >
           <Frame.Media>
             <Image
               source={cover}
@@ -81,6 +88,18 @@ export const DownloadItem = memo(function DownloadItem({
             aria-label={`Move ${title} up`}
           >
             <Icon name={Icons.moveUp} />
+          </Button>
+        )}
+        {pausable && (
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() =>
+              state === "running" ? pauseDownload(id) : resumeDownload(id)
+            }
+            aria-label={`${state === "running" ? "Pause" : "Resume"} ${title}`}
+          >
+            <Icon name={state === "running" ? Icons.pause : Icons.play} />
           </Button>
         )}
         {state === "failed" && (

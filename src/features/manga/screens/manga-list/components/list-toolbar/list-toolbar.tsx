@@ -14,7 +14,10 @@ import {
   type MangaListStore,
   REFRESH_QUERIES,
 } from "@/features/manga/hooks/use-manga-list";
-import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
+import {
+  useCustomLists,
+  useMangaListCounts,
+} from "@/features/manga/hooks/use-manga-list-counts";
 import {
   libraryScan$,
   scanReading,
@@ -22,12 +25,14 @@ import {
 } from "@/features/manga/state/library-scan";
 import { listOptions$ } from "@/features/manga/state/list-options";
 import { hasActiveFilters } from "@/features/manga/utils/list-options";
+import type { ListKey } from "@/features/manga/utils/parse-list";
 import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openOptionsSheet } from "../options-sheet";
 
 const openActivity = () => router.push("/settings/activity");
+const openCustomLists = () => router.push("/manga/custom-lists");
 
 const scanWithNotice = (everything: boolean) => {
   askToNotify();
@@ -35,10 +40,10 @@ const scanWithNotice = (everything: boolean) => {
 };
 
 export interface ListToolbarProps {
-  status: MediaListStatus;
+  status: ListKey;
   /** The shown list: its genre is picked here, from the genres it holds. */
   list$: Observable<MangaListStore>;
-  onSelect: (status: MediaListStatus) => void;
+  onSelect: (key: ListKey) => void;
 }
 
 /**
@@ -49,6 +54,7 @@ export interface ListToolbarProps {
 export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
   const client = useApolloClient();
   const counts = useMangaListCounts();
+  const customLists = useCustomLists();
   const wide = useBreakpoint().isAtLeast("md");
   const [primary, mutedForeground] = useThemeColor([
     "primary",
@@ -87,6 +93,18 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
               {counts[key] == null ? name : `${name} (${counts[key]})`}
             </Stack.Toolbar.MenuAction>
           ))}
+          {customLists?.map(({ key, name, count }) => (
+            <Stack.Toolbar.MenuAction
+              key={key}
+              isOn={key === status}
+              onPress={() => onSelect(key)}
+            >
+              {`${name} (${count})`}
+            </Stack.Toolbar.MenuAction>
+          ))}
+          <Stack.Toolbar.MenuAction onPress={openCustomLists}>
+            Manage lists…
+          </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
         <Stack.Toolbar.Menu
           hidden={wide}

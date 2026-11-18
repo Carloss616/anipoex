@@ -66,7 +66,10 @@ export function Tabs() {
       <TabList asChild>
         <PanelTabList
           className={cn(
-            !["/", "/manga", "/search"].includes(pathname) && "glass-muted",
+            !(
+              ["/", "/search"].includes(pathname) ||
+              pathname.startsWith("/manga")
+            ) && "glass-muted",
             pathname.endsWith("/reader") && "hidden",
           )}
         >

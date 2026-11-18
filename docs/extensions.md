@@ -39,7 +39,7 @@ flowchart TD
     style IOS fill:#8b6fb31a,stroke:#8b6fb3
 ```
 
-1. **RuntimeApi**: `install` · `installed` · `uninstall` · `search` · `chapters` · `pages` · `pageImage` · `mangaWebUrl` · `stagePage` · `pack` · `dropStage` · `unpack`, the same on every platform.
+1. **RuntimeApi**: `install` · `installed` · `uninstall` · `search` · `chapters` · `pages` · `pageImage` · `mangaWebUrl` · `stagePage` · `pack` · `dropStage` · `unpack` · `unpacked`, the same on every platform.
 2. **Expo module** `ExtensionRuntimeModule.kt`.
 3. **ART class loader**: loads the APK as is.
 4. **preload + IPC**: the renderer's `window.anipoex`, answered by `main.js`.
@@ -80,7 +80,7 @@ Grey stays in JavaScript; blue crosses into the runtime.
 
 Repos, the catalog and the picked source are JavaScript (`src/features/extensions`, `src/features/manga`); only installing and calling a source cross into the runtime.
 
-`pages(sourceId, chapterUrl, memo?)` returns `[{ index, imageUrl, headers }]`: the chapter's images with the headers each one needs (Referer, for example). `pageImage` fetches one through the source's own client, so its interceptors run (some unscramble the image), and the reader shows that file. `memo` is the chapter's `SChapter.memo` from `chapters`, as an opaque JSON string (null when empty): lib 1.6 sources store data there while listing and read it back in `getPageList`, so the reader passes it along. Downloads use the same client: `stagePage(sourceId, page, stage, name)` fetches a page into a chapter's staging folder, `pack(stage, comicInfo)` zips the staged pages (stored as fetched) and `ComicInfo.xml` into one CBZ and returns its URI, `dropStage(stage)` discards a staging folder, and `unpack(cbzUri, key)` extracts a CBZ's pages as local pages for the reader, keeping the last 3 chapters unpacked. A staging id is the chapter's key with `-` for `/`.
+`pages(sourceId, chapterUrl, memo?)` returns `[{ index, imageUrl, headers }]`: the chapter's images with the headers each one needs (Referer, for example). `pageImage` fetches one through the source's own client, so its interceptors run (some unscramble the image), and the reader shows that file. `memo` is the chapter's `SChapter.memo` from `chapters`, as an opaque JSON string (null when empty): lib 1.6 sources store data there while listing and read it back in `getPageList`, so the reader passes it along. Downloads use the same client: `stagePage(sourceId, page, stage, name)` fetches a page into a chapter's staging folder, `pack(stage, comicInfo)` zips the staged pages (stored as fetched) and `ComicInfo.xml` into one CBZ and returns its URI, `dropStage(stage)` discards a staging folder, and `unpack(cbzUri, key)` extracts a CBZ's pages as local pages for the reader, keeping the last 3 chapters unpacked, and `unpacked(key)` returns those pages without opening the CBZ (null when the chapter isn't unpacked). A staging id is the chapter's key with `-` for `/`.
 
 ## Installing an APK on the JVM (desktop and iOS)
 

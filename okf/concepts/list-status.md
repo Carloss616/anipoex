@@ -19,8 +19,9 @@ AniList's `MediaListStatus`, with the label the app shows:
 
 # How the Manga tab uses it
 
-- One status at a time, from the `?list=` route param. Anything that is not one of the
-  six values (a typo, a stale deep link) opens **Reading**.
+- One list at a time, from the `?list=` route param: a status, or `custom:<name>` for a
+  [custom list](custom-list.md). Anything else (a typo, a stale deep link, a deleted
+  custom list) opens **Reading**.
 - **Custom lists are ignored for counting**: on AniList they hold entries already filed
   under a status, so counting them would count twice (see [list counts](../metrics/list-counts.md)).
 - **Completed is one list**: the queries pass `forceSingleCompletedList`, overriding a

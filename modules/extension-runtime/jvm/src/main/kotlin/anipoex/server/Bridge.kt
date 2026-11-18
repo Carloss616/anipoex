@@ -65,6 +65,7 @@ object Bridge {
             "pack" -> host.pack(string("stage"), string("comicInfo"))
             "dropStage" -> host.dropStage(string("stage"))
             "unpack" -> host.unpack(string("uri"), string("key"))
+            "unpacked" -> host.unpacked(string("key"))
             else -> error("Unknown method $method")
         }
     }

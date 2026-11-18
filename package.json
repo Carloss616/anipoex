@@ -73,7 +73,7 @@
     "start": "expo start --dev-client",
     "prebuild": "expo prebuild --clean",
     "android": "expo run:android",
-    "ios": "expo run:ios",
+    "ios": "bun run extensions:ios-runtime && expo run:ios",
     "web": "expo start --dev-client --web",
     "desktop": "bun run --cwd desktop start --remote-debugging-port=9222",
     "codegen": "graphql-codegen",

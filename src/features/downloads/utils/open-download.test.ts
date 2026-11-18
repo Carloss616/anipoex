@@ -43,8 +43,13 @@ const store = (
     get: mock(get),
   }) as unknown as DownloadStore;
 
-function setup(stores: DownloadStore[], unpackFails?: Error) {
+function setup(
+  stores: DownloadStore[],
+  unpackFails?: Error,
+  unpacked: SourcePage[] | null = null,
+) {
   const runtime = {
+    unpacked: mock(async (_key: string) => unpacked),
     unpack: mock(async (_uri: string, _key: string) => {
       if (unpackFails) throw unpackFails;
       return local;
@@ -67,6 +72,30 @@ describe("openDownload", () => {
       `file:///${path}`,
       stageId(key),
     );
+  });
+
+  it("serves an unpacked chapter without getting its file", async () => {
+    const listed = store([path]);
+    const { deps, runtime } = setup([listed], undefined, local);
+    expect(await openDownload(21, "1234", url, deps)).toEqual(local);
+    expect(runtime.unpacked).toHaveBeenCalledWith(stageId(key));
+    expect(listed.get).not.toHaveBeenCalled();
+    expect(runtime.unpack).not.toHaveBeenCalled();
+  });
+
+  it("gets and unpacks the file when it isn't unpacked", async () => {
+    const listed = store([path]);
+    const { deps, runtime } = setup([listed]);
+    expect(await openDownload(21, "1234", url, deps)).toEqual(local);
+    expect(runtime.unpacked).toHaveBeenCalledWith(stageId(key));
+    expect(listed.get).toHaveBeenCalledWith(path);
+    expect(runtime.unpack).toHaveBeenCalled();
+  });
+
+  it("doesn't serve the unpacked pages of a deleted download", async () => {
+    const { deps, runtime } = setup([store([])], undefined, local);
+    expect(await openDownload(21, "1234", url, deps)).toBeUndefined();
+    expect(runtime.unpacked).not.toHaveBeenCalled();
   });
 
   it("tries the next store when one only has a cloud placeholder", async () => {

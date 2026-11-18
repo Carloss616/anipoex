@@ -1,11 +1,21 @@
-query MangaList($userId: Int!, $status: MediaListStatus!) {
+# One status's groups, or with no status the whole collection, where each
+# custom list is a group (AniList can't filter by one). The whole collection
+# passes forceSingleCompletedList: false, so its cache key differs from
+# MangaListCounts', whose groups it would overwrite.
+query MangaList(
+  $userId: Int!
+  $status: MediaListStatus
+  $forceSingleCompletedList: Boolean = true
+) {
   MediaListCollection(
     userId: $userId
     type: MANGA
     status: $status
-    forceSingleCompletedList: true
+    forceSingleCompletedList: $forceSingleCompletedList
   ) {
     lists {
+      name
+      isCustomList
       entries {
         id
         progress
@@ -16,6 +26,43 @@ query MangaList($userId: Int!, $status: MediaListStatus!) {
           id
           ...MangaMedia @nonreactive
         }
+      }
+    }
+  }
+}
+
+query MangaListCounts($userId: Int!) {
+  MediaListCollection(
+    userId: $userId
+    type: MANGA
+    forceSingleCompletedList: true
+  ) {
+    lists {
+      name
+      status
+      isCustomList
+      entries {
+        id
+      }
+    }
+    user {
+      id
+      mediaListOptions {
+        mangaList {
+          customLists
+        }
+      }
+    }
+  }
+}
+
+# Replaces every name. AniList keeps membership by position, not by name.
+mutation UpdateMangaCustomLists($customLists: [String]) {
+  UpdateUser(mangaListOptions: { customLists: $customLists }) {
+    id
+    mediaListOptions {
+      mangaList {
+        customLists
       }
     }
   }

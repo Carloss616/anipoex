@@ -1,4 +1,5 @@
-import type { RuntimeApi, SourcePage } from "../runtime";
+import type { RuntimeApi } from "../runtime";
+import { type FilePage, localPages } from "./local-pages";
 
 type Send = (
   method: string,
@@ -50,16 +51,11 @@ export const bridgeRuntime = (send: Send): RuntimeApi => {
       (await call<{ uri: string }>("pack", { stage, comicInfo })).uri,
     dropStage: (stage) => call("dropStage", { stage }),
     unpack: async (uri, key) =>
-      (
-        await call<{ index: number; uri: string }[]>("unpack", { uri, key })
-      ).map(
-        (page): SourcePage => ({
-          index: page.index,
-          imageUrl: page.uri,
-          headers: {},
-          local: true,
-        }),
-      ),
+      localPages(await call<FilePage[]>("unpack", { uri, key })),
+    unpacked: async (key) => {
+      const pages = await call<FilePage[] | null>("unpacked", { key });
+      return pages && localPages(pages);
+    },
     getDns: () => call("getDns"),
     setDns: (dns) => call("setDns", { dns }),
     challengedHosts: () => call("challengedHosts"),

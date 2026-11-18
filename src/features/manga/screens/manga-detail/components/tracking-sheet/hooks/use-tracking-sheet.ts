@@ -1,5 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { useState } from "react";
+import { useCustomLists } from "@/features/manga/hooks/use-manga-list-counts";
 import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import type { MangaTracking } from "@/features/manga/hooks/use-tracking-entry";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
@@ -21,7 +22,8 @@ export function useTrackingSheet({
   tracking: MangaTracking;
 }) {
   const entryId = manga.mediaListEntry?.id;
-  const [form, setForm] = useState(() => toTrackingForm(tracking));
+  const names = useCustomLists()?.map((list) => list.name);
+  const [form, setForm] = useState(() => toTrackingForm(tracking, names));
   const { save, remove, removing } = useSaveTracking(manga.id);
   const canScore = useValue(session$.user)?.scoreFormat != null;
 
@@ -30,7 +32,16 @@ export function useTrackingSheet({
   const [wasPresented, setWasPresented] = useState(isPresented);
   if (isPresented !== wasPresented) {
     setWasPresented(isPresented);
-    if (isPresented) setForm(toTrackingForm(tracking));
+    if (isPresented) setForm(toTrackingForm(tracking, names));
+  }
+  // Seeded before the names loaded, the form may hold a deleted list.
+  const [hadNames, setHadNames] = useState(names != null);
+  if (names != null && !hadNames) {
+    setHadNames(true);
+    setForm((current) => ({
+      ...current,
+      customLists: current.customLists.filter((name) => names.includes(name)),
+    }));
   }
 
   /** Every field saves as it is confirmed, so there is no draft to discard. */

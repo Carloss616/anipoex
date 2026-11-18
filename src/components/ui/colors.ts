@@ -44,3 +44,11 @@ export const SEMANTIC_COLOR = {
 >;
 
 export type SemanticColor = keyof typeof SEMANTIC_COLOR;
+
+/** Badge tints (`-subtle`) and the darker text that reads on them, for rows. */
+export const BADGE_TINT: Partial<Record<SemanticColor, string>> = {
+  success: "bg-success-subtle text-success-foreground",
+  info: "bg-info-subtle text-info-foreground",
+  warning: "bg-warning-subtle text-warning-foreground",
+  destructive: "bg-destructive-subtle text-destructive-foreground",
+};

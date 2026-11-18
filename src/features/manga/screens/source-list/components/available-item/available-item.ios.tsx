@@ -23,13 +23,20 @@ import { Badge } from "@/components/ui/badge";
 import { RNHostView } from "@/components/ui/host";
 import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
+import { SplitBadge } from "@/components/ui/split-badge";
+import { sourceDownloads } from "@/features/downloads";
 import { challenged$ } from "@/features/manga/state/challenged";
 import { FAR_BEHIND_GAP } from "@/features/manga/utils/msu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useMatchUrl } from "../../hooks/use-match-url";
 import { useSearching } from "../../hooks/use-searching";
 import { useSourceScan } from "../../hooks/use-source-scan";
-import { searchItem, statusDetail } from "../../utils/row-content";
+import {
+  badgeKey,
+  searchItem,
+  statusBadges,
+  statusDetail,
+} from "../../utils/row-content";
 import { availableRowMenu } from "../../utils/row-menu";
 import { sourceStatus } from "../../utils/source-status";
 import { CloudflareLogo } from "../cloudflare-logo";
@@ -64,6 +71,10 @@ export const AvailableItem = memo(function AvailableItem({
     openedAt,
   );
   const detail = statusDetail(status);
+  const downloads = useValue(() =>
+    sourceDownloads(Number(mangaKey), source.id),
+  );
+  const badges = statusBadges(status, scanning, downloads);
   // The last read's failure, hidden while the source is read again.
   const error = scanning ? undefined : probe?.error;
   const searching = useSearching(mangaKey, source.id);
@@ -128,11 +139,9 @@ export const AvailableItem = memo(function AvailableItem({
                         <CloudflareLogo />
                       </RNHostView>
                     )}
-                    {scanning ? (
-                      <Badge>scanning…</Badge>
-                    ) : (
-                      <Badge color={status.color}>{status.label}</Badge>
-                    )}
+                    {badges.map((badge) => (
+                      <SplitBadge key={badgeKey(badge)} {...badge} />
+                    ))}
                     {detail.chapter && <Badge>{detail.chapter}</Badge>}
                     {detail.age && (
                       <Text

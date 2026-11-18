@@ -16,9 +16,10 @@ import { Loader } from "@/components/ui/loader";
 import { PRESS } from "@/components/ui/press";
 import { Progress } from "@/components/ui/progress";
 import { ScrimGradient } from "@/components/ui/scrim";
+import { SplitBadge } from "@/components/ui/split-badge";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { CoverImage } from "./cover-image";
-import { type CornerMark, cornerBadge } from "./utils";
+import { type CornerMark, cornerBadge, countSegments } from "./utils";
 
 /** The cover's corners as a theme token, also for its placeholders. */
 export const COVER_ROUNDED = "rounded-lg";
@@ -46,6 +47,8 @@ export interface MangaCardProps {
   progress?: number;
   /** Chapters left, a top-right badge: green above 0, neutral at 0. */
   unread?: number;
+  /** Chapters on the device, joined before `unread` in its badge. */
+  downloads?: number;
   /** Its sources are being scanned: a loader in the unread badge's place. */
   scanning?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -156,6 +159,7 @@ export function MangaCard({
   titlePosition = "split",
   progress,
   unread,
+  downloads = 0,
   scanning = false,
   style,
   radius,
@@ -173,6 +177,7 @@ export function MangaCard({
   const split = titlePosition === "split" && !!label;
   const css = cardStyles({ position: below ? "below" : "over", tilt });
   const corner = cornerBadge(status, mark);
+  const counts = countSegments(downloads, unread);
   const pressable = !!(onPress || onLongPress);
   const flatStyle = {
     "--glare": `color-mix(in oklab, ${coverColor ?? "var(--color-primary)"} 36%, transparent)`,
@@ -216,18 +221,16 @@ export function MangaCard({
             <Loader size="sm" />
           </View>
         ) : (
-          unread != null && (
-            <Badge
-              color={unread > 0 ? "success" : "secondary"}
+          counts.length > 0 && (
+            <SplitBadge
+              segments={counts}
               solid
               // Secondary is see-through (made for rows); a cover needs it solid.
               className={cn(
                 "absolute top-2 right-2",
                 unread === 0 && "bg-surface-secondary",
               )}
-            >
-              {String(unread)}
-            </Badge>
+            />
           )
         )}
         {split && (

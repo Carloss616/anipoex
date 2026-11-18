@@ -158,7 +158,7 @@ Create the AniList clients at [anilist.co/settings/developer](https://anilist.co
 
 - **Web**: `bun run web`.
 - **Desktop (macOS, Windows)**: start Metro, then `bun run desktop`. See [desktop/README.md](desktop/README.md) for building the JVM sidecar.
-- **iOS extension runtime**: `bun run extensions:ios-runtime` downloads and packages the embedded JDK before the first iOS build.
+- **iOS extension runtime**: `bun run extensions:ios-runtime` downloads and packages the embedded JDK and the extension runtime's jars; `bun run ios` runs it first, and it skips what hasn't changed.
 
 </details>
 

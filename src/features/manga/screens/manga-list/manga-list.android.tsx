@@ -14,7 +14,10 @@ import {
   emptyMangaList,
   type MangaListStore,
 } from "@/features/manga/hooks/use-manga-list";
-import { useMangaListCounts } from "@/features/manga/hooks/use-manga-list-counts";
+import {
+  useCustomLists,
+  useMangaListCounts,
+} from "@/features/manga/hooks/use-manga-list-counts";
 import {
   libraryScan$,
   scanReading,
@@ -22,12 +25,15 @@ import {
 } from "@/features/manga/state/library-scan";
 import { listOptions$ } from "@/features/manga/state/list-options";
 import { hasActiveFilters } from "@/features/manga/utils/list-options";
-import { parseList } from "@/features/manga/utils/parse-list";
+import { type ListKey, parseList } from "@/features/manga/utils/parse-list";
 import { MediaListStatus } from "@/graphql/types.generated";
 import { useSearchQuery } from "@/hooks/use-search-query";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { ListPage } from "./components/list-page";
+import { ListRedirect } from "./components/list-redirect";
 import { OptionsSheet, openOptionsSheet } from "./components/options-sheet";
+
+const openCustomLists = () => router.push("/manga/custom-lists");
 
 const ACTIVITY_ITEM = {
   label: "Activity",
@@ -105,21 +111,42 @@ export function MangaList() {
   const insets = useSafeAreaInsets();
   const { list } = useLocalSearchParams<{ list?: string }>();
   const status = parseList(list);
-  const page = MANGA_STATUS_ENTRIES.findIndex(([key]) => key === status);
   const counts = useMangaListCounts();
+  const customLists = useCustomLists();
+  const tabs = [
+    ...MANGA_STATUS_ENTRIES.map(([key, title]) => ({
+      key: key as ListKey,
+      title,
+      count: counts[key] ?? undefined,
+    })),
+    ...(customLists ?? []).map(({ key, name, count }) => ({
+      key,
+      title: name,
+      count,
+    })),
+  ];
+  // A custom list shows Reading's page until the lists load.
+  const page = Math.max(
+    0,
+    tabs.findIndex(({ key }) => key === status),
+  );
   const { query$, setQuery } = useSearchQuery();
   const [visited, setVisited] = useState(() => new Set([status]));
   const lists$ = useObservable(
     Object.fromEntries(
-      MANGA_STATUS_ENTRIES.map(([key]) => [key, emptyMangaList()]),
-    ) as Record<MediaListStatus, MangaListStore>,
+      [...MANGA_STATUS_ENTRIES.map(([key]) => key), status].map((key) => [
+        key,
+        emptyMangaList(),
+      ]),
+    ) as Record<ListKey, MangaListStore>,
   );
 
-  const select = (key: MediaListStatus) => router.setParams({ list: key });
+  const select = (key: ListKey) => router.setParams({ list: key });
 
   useEffect(() => {
+    if (!lists$[status].peek()) lists$[status].set(emptyMangaList());
     setVisited((seen) => (seen.has(status) ? seen : new Set(seen).add(status)));
-  }, [status]);
+  }, [status, lists$]);
 
   return (
     <>
@@ -128,21 +155,28 @@ export function MangaList() {
         <TopAppBar
           search={{ placeholder: "Search manga", onChangeText: setQuery }}
           scrollBehavior="enterAlways"
-          tabs={MANGA_STATUS_ENTRIES.map(([key, title]) => ({
-            title,
-            count: counts[key] ?? undefined,
-          }))}
+          tabs={tabs}
           page={page}
           // Not M3's 52dp: the labels line up with the search bar and covers.
           tabsEdgePadding={Math.max(insets.left, insets.right)}
-          onPageChange={(index) => select(MANGA_STATUS_ENTRIES[index][0])}
+          onPageChange={(index) => {
+            const tab = tabs[index];
+            if (index !== page && tab) select(tab.key);
+          }}
           modifiers={[fillMaxSize()]}
         >
           <TopAppBar.Actions>
+            <IconButton onClick={openCustomLists}>
+              <Icon
+                name={Icons.listEdit}
+                accessibilityLabel="Manage lists"
+                color="inherit"
+              />
+            </IconButton>
             <OptionsAction />
             {status === MediaListStatus.Current && <ScanAction />}
           </TopAppBar.Actions>
-          {MANGA_STATUS_ENTRIES.map(([key]) =>
+          {tabs.map(({ key }) =>
             visited.has(key) ? (
               <ListPage
                 key={key}
@@ -157,6 +191,7 @@ export function MangaList() {
         </TopAppBar>
         <OptionsSheet />
       </Host>
+      <ListRedirect list={status} />
     </>
   );
 }

@@ -17,6 +17,7 @@ import {
   servePage,
   stageArgs,
   unpackArgs,
+  unpackedArgs,
 } from "./assets/pages.js";
 import { resolveAsset } from "./assets/serve.js";
 import { authRedirect } from "./auth.js";
@@ -81,6 +82,7 @@ const METHODS = new Set([
   "pack",
   "dropStage",
   "unpack",
+  "unpacked",
 ]);
 
 // Not `URL.origin`: a custom scheme's origin is the opaque "null", which
@@ -198,9 +200,13 @@ app.whenReady().then(() => {
   ipcMain.handle("runtime", async (event, method, args) => {
     if (originOf(event.senderFrame?.url) !== APP_ORIGIN || !METHODS.has(method))
       return { error: "Not allowed" };
-    if (method === "stagePage" || method === "unpack") {
-      const checked =
-        method === "stagePage" ? stageArgs(pages, args) : unpackArgs(args);
+    const check = {
+      stagePage: (args) => stageArgs(pages, args),
+      unpack: unpackArgs,
+      unpacked: unpackedArgs,
+    }[method];
+    if (check) {
+      const checked = check(args);
       if (checked.error) return checked;
       args = checked.args;
     }
@@ -209,7 +215,7 @@ app.whenReady().then(() => {
     if (method === "search") covers.learnCovers(args?.sourceId, reply?.result);
     if (method === "pages" && reply?.result)
       return { result: pages.rewrite(args.sourceId, reply.result) };
-    if (method === "unpack" && reply?.result)
+    if ((method === "unpack" || method === "unpacked") && reply?.result)
       return { result: pages.rewriteFiles(reply.result) };
     return reply;
   });

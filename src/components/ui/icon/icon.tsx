@@ -7,6 +7,7 @@ import type {
 import { Lucide } from "@react-native-vector-icons/lucide";
 import type { SFSymbol } from "expo-symbols";
 import type { ImageSourcePropType } from "react-native";
+import TextAncestorContext from "react-native-web/dist/exports/Text/TextAncestorContext";
 import { withUniwind } from "uniwind";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
@@ -23,6 +24,11 @@ export type IconName =
 
 export interface IconExtendProps {
   muted?: boolean;
+  /**
+   * Renders a `span`, for an icon inside a `<p>` (a badge in a description).
+   * @platform web
+   */
+  inline?: boolean;
 }
 
 export interface IconProps
@@ -32,10 +38,16 @@ export interface IconProps
 }
 
 /** 18 by default, as on iOS; Android keeps Material's 24dp. */
-function IconRootBase({ name, muted, color, size = 18, ...props }: IconProps) {
+function IconRootBase({
+  name,
+  muted,
+  inline,
+  color,
+  size = 18,
+  ...props
+}: IconProps) {
   const mutedForeground = useThemeColor("muted-foreground");
-
-  return (
+  const glyph = (
     <Lucide
       name={
         typeof name === "object" && "web" in name
@@ -46,6 +58,13 @@ function IconRootBase({ name, muted, color, size = 18, ...props }: IconProps) {
       size={size}
       {...props}
     />
+  );
+
+  // react-native-web's Text is a div unless it sits in another Text.
+  return inline ? (
+    <TextAncestorContext value>{glyph}</TextAncestorContext>
+  ) : (
+    glyph
   );
 }
 

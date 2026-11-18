@@ -19,7 +19,12 @@ import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
 import { downloadProgress$ } from "@/features/downloads";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { cancelDownload, retryDownload } from "../../utils/actions";
+import {
+  cancelDownload,
+  pauseDownload,
+  resumeDownload,
+  retryDownload,
+} from "../../utils/actions";
 import { downloadRowMenu } from "../../utils/row-menu";
 import type { DownloadItemProps } from "./download-item";
 import { useDownloadItem } from "./hooks/use-download-item";
@@ -32,6 +37,27 @@ export const DownloadItem = memo(function DownloadItem({
   const { title, cover, source, state, line, canMoveUp } = useDownloadItem(id);
   const m3 = useThemeM3Colors();
   const failed = state === "failed";
+  // One button: the state's own action, else Cancel (also in the menu).
+  const button =
+    state === "running"
+      ? { label: "Pause", icon: Icons.pause, onPress: () => pauseDownload(id) }
+      : state === "paused"
+        ? {
+            label: "Resume",
+            icon: Icons.play,
+            onPress: () => resumeDownload(id),
+          }
+        : failed
+          ? {
+              label: "Retry",
+              icon: Icons.refresh,
+              onPress: () => retryDownload(id),
+            }
+          : {
+              label: "Cancel",
+              icon: Icons.close,
+              onPress: () => cancelDownload(id),
+            };
 
   return (
     <Box
@@ -84,14 +110,10 @@ export const DownloadItem = memo(function DownloadItem({
           </SegmentedListItem.Supporting>
           {/* Kept mounted: a Compose slot added later doesn't show. */}
           <SegmentedListItem.Trailing>
-            <IconButton
-              onClick={() => (failed ? retryDownload(id) : cancelDownload(id))}
-            >
+            <IconButton onClick={button.onPress}>
               <Icon
-                name={failed ? Icons.refresh : Icons.close}
-                accessibilityLabel={
-                  failed ? `Retry ${title}` : `Cancel ${title}`
-                }
+                name={button.icon}
+                accessibilityLabel={`${button.label} ${title}`}
                 color="inherit"
               />
             </IconButton>

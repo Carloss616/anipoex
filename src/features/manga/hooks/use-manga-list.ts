@@ -5,9 +5,9 @@ import {
   type Observable,
   type ObservablePrimitive,
 } from "@legendapp/state";
-import { useObservable, useObserve, useValue } from "@legendapp/state/react";
+import { useObservable, useValue } from "@legendapp/state/react";
 import { useEffect } from "react";
-import { downloaded$, seedDownloaded } from "@/features/downloads";
+import { downloaded$ } from "@/features/downloads";
 import type { MediaListStatus } from "@/graphql/types.generated";
 import { session$ } from "@/state/session";
 import { MangaListDocument } from "../graphql/manga-list.generated";
@@ -17,8 +17,10 @@ import {
   downloadedIds,
   needsLatest,
 } from "../utils/apply-list-options";
+import { wholeCollection } from "../utils/file-entry";
 import { latestChapterOf } from "../utils/latest-chapter";
 import { matchesQuery } from "../utils/matches-query";
+import { customName, type ListKey } from "../utils/parse-list";
 import {
   type EntryFields,
   entryFields,
@@ -49,32 +51,33 @@ export const emptyMangaList = (): MangaListStore => ({
 
 /** Loads into the caller's `list$`, filtered by the search and its genre. */
 export function useMangaList(
-  status: MediaListStatus,
+  key: ListKey,
   query$: ObservablePrimitive<string>,
   list$: Observable<MangaListStore>,
 ) {
   const userId = useValue(session$.user)?.id;
+  const custom = customName(key) ?? undefined;
 
+  const context = { errorMessage: "Couldn't load this list" };
   const { data, loading, networkStatus, refetch } = useQuery(
     MangaListDocument,
     userId == null
       ? skipToken
       : {
-          variables: { userId, status },
-          context: { errorMessage: "Couldn't load this list" },
+          variables:
+            custom == null
+              ? { userId, status: key as MediaListStatus }
+              : wholeCollection(userId),
+          context,
         },
   );
 
   useEffect(() => {
     batch(() => {
-      list$.entries.set(toEntries(data));
+      list$.entries.set(toEntries(data, custom));
       list$.fields.set(entryFields(data));
     });
-  }, [data, list$]);
-
-  useObserve(() => {
-    if (listOptions$.filters.downloaded.get() !== "any") void seedDownloaded();
-  });
+  }, [data, custom, list$]);
 
   /**
    * Computeds under a plain root: `useObservable` deactivates only its root on

@@ -50,6 +50,7 @@ function Cell({ value, placeholder, onPress, isDisabled = false }: CellProps) {
       <Text
         modifiers={[
           ...(value ? [] : [foregroundStyle("secondary")]),
+          lineLimit(1),
           padding({ vertical: 12 }),
         ]}
       >
@@ -148,6 +149,12 @@ export function Overview({
               onPress={() => onEdit("completedAt")}
             />
           </HStack>
+          <Divider />
+          <Cell
+            value={form.customLists.join(", ")}
+            placeholder="Custom lists"
+            onPress={() => onEdit("lists")}
+          />
         </VStack>
       </ScrollView>
     </VStack>

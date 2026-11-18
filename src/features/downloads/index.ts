@@ -1,6 +1,6 @@
 export {
-  cancel,
   downloaded$,
+  downloadFraction,
   downloadProgress$,
   downloadQueue$,
   downloadsPaused$,
@@ -10,9 +10,12 @@ export {
   queuedOf,
   retry,
 } from "./state/download-queue";
-export { refreshDownloaded, seedDownloaded } from "./state/downloaded";
+export { loadDownloaded, refreshDownloaded } from "./state/downloaded";
 export {
+  cancelDownload,
+  pauseDownload,
   pauseDownloads,
+  resumeDownload,
   resumeDownloads,
   startDownloads,
 } from "./state/run-downloads";
@@ -25,7 +28,12 @@ export {
   retryDownload,
 } from "./utils/download-actions";
 export { type DownloadRoot, downloadRoot } from "./utils/download-root";
-export { type DownloadState, downloadStateOf } from "./utils/download-state";
+export {
+  type DownloadState,
+  downloadStateOf,
+  mangaDownloads,
+  sourceDownloads,
+} from "./utils/download-state";
 export { type DownloadStore, downloadStore } from "./utils/download-store";
 export { isMoving, moveOnce, sameRoot } from "./utils/move-downloads";
 export { chapterHash, downloadKey, type StoredDownload } from "./utils/paths";

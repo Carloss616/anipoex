@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { View } from "react-native";
-import { useThemeM3Colors } from "@/hooks/use-theme";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export interface ReaderTitleProps {
   title?: string | null;
@@ -11,7 +11,8 @@ export interface ReaderTitleProps {
 
 /** The header's two lines: the manga, then the chapter. */
 export function ReaderTitle({ title, chapter }: ReaderTitleProps) {
-  const m3 = useThemeM3Colors();
+  // A value, not a class: in iOS's native header the theme's classes don't reach it.
+  const [foreground, muted] = useThemeColor(["foreground", "muted-foreground"]);
 
   return (
     <Stack.Title asChild>
@@ -20,7 +21,7 @@ export function ReaderTitle({ title, chapter }: ReaderTitleProps) {
           type="body-sm"
           weight="semibold"
           numberOfLines={1}
-          style={{ color: m3?.onSurface }}
+          style={{ color: foreground }}
         >
           {title}
         </Typography>
@@ -28,7 +29,7 @@ export function ReaderTitle({ title, chapter }: ReaderTitleProps) {
           type="body-xs"
           muted
           numberOfLines={1}
-          style={{ color: m3?.onSurfaceVariant }}
+          style={{ color: muted }}
         >
           {chapter}
         </Typography>

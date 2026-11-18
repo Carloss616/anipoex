@@ -43,6 +43,22 @@ describe("toEntries", () => {
     ]);
     expect(toEntries(data)).toEqual([berserk, berserk]);
   });
+
+  const other = { ...berserk, id: 2 } as MangaEntry;
+  const withCustom = query([
+    { name: "Reading", isCustomList: false, entries: [{ media: berserk }] },
+    { name: "List A", isCustomList: false, entries: [{ media: other }] },
+    { name: "List A", isCustomList: true, entries: [{ media: berserk }] },
+  ]);
+
+  it("skips custom groups, which repeat a status's entries", () => {
+    expect(toEntries(withCustom)).toEqual([berserk, other]);
+  });
+
+  it("takes only the custom group with that name", () => {
+    expect(toEntries(withCustom, "List A")).toEqual([berserk]);
+    expect(toEntries(withCustom, "Gone")).toEqual([]);
+  });
 });
 
 describe("entryFields", () => {

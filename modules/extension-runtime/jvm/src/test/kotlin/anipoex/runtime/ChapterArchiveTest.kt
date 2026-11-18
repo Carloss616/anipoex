@@ -11,6 +11,7 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ChapterArchiveTest {
@@ -105,6 +106,19 @@ class ChapterArchiveTest {
         assertEquals(1, opens)
         assertEquals(listOf("p1.jpg", "p2.jpg"), second.map { it.name })
         assertEquals(first, second)
+    }
+
+    @Test
+    fun cachedOnlyAfterAFinishedUnpack() {
+        val dir = File(tmp, "only")
+        assertNull(ChapterArchive.cached(dir))
+        dir.mkdirs()
+        File(dir, "p1.jpg").writeText("1")
+        assertNull(ChapterArchive.cached(dir))
+        ChapterArchive.unpackCached({ zip("p2.jpg" to "2", "p1.jpg" to "1").inputStream() }, dir)
+        dir.setLastModified(1000L)
+        assertEquals(listOf("p1.jpg", "p2.jpg"), ChapterArchive.cached(dir)?.map { it.name })
+        assertTrue(dir.lastModified() > 1000L)
     }
 
     @Test

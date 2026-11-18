@@ -18,7 +18,8 @@ export type Field =
   | "progress"
   | "score"
   | "startedAt"
-  | "completedAt";
+  | "completedAt"
+  | "lists";
 
 export interface OverviewProps {
   title: string;
@@ -107,6 +108,11 @@ export function Overview({
             </Cell>
             <Cell field="completedAt">
               {formatDate(form.completedAt) || <Muted>Finish date</Muted>}
+            </Cell>
+          </ButtonGroup>
+          <ButtonGroup aria-label="Custom lists" className="w-full">
+            <Cell field="lists">
+              {form.customLists.join(", ") || <Muted>Custom lists</Muted>}
             </Cell>
           </ButtonGroup>
         </ButtonGroup>

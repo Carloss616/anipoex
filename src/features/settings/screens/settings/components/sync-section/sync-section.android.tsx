@@ -9,11 +9,12 @@ import {
 import {
   background,
   clip,
+  fillMaxWidth,
   matchParentSize,
-  offset,
   padding,
   Shapes,
   size,
+  weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { Image } from "@/components/native/jetpack-compose/image";
 import {
@@ -22,15 +23,21 @@ import {
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { Loader } from "@/components/ui/loader";
 import { ContextMenu, Menu } from "@/components/ui/menu";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { useRowProps } from "../../hooks/use-row-props";
 import { Label } from "../label";
 import { LeadingIcon } from "../leading-icon";
-import { INTERVAL_HINT, SYNC_FOOTER, SYNC_INTERVAL_OPTIONS } from "./constants";
+import {
+  HELP_HOW,
+  HELP_TITLE,
+  INTERVAL_HINT,
+  SYNC_FOOTER,
+  SYNC_INTERVAL_OPTIONS,
+} from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
-import { SyncHelp } from "./sync-help";
 
 const FOLDER_DETAIL = "A folder a sync app keeps in your cloud";
 
@@ -48,13 +55,7 @@ export function SyncSection() {
 
   return (
     <>
-      {/* Bottom-aligned, the button's glyph sits 6dp above the label's text. */}
-      <Row verticalAlignment="bottom">
-        <Label>Sync</Label>
-        <Box modifiers={[offset(0, 6)]}>
-          <SyncHelp moments={sync.moments} />
-        </Box>
-      </Row>
+      <Label>Sync</Label>
       <Column verticalArrangement={{ spacedBy: SEGMENTED_GAP }}>
         {account ? (
           <ContextMenu items={gist.menu}>
@@ -221,13 +222,24 @@ export function SyncSection() {
           </SegmentedListItem>
         ))}
       </Column>
-      <Text
-        style={{ typography: "bodySmall" }}
-        color={m3.onSurfaceVariant}
-        modifiers={[padding(16, 8, 16, 0)]}
+      <Row
+        verticalAlignment="center"
+        modifiers={[fillMaxWidth(), padding(16, 0, 0, 0)]}
       >
-        {SYNC_FOOTER}
-      </Text>
+        <InfoPopover
+          label={HELP_TITLE}
+          title={HELP_TITLE}
+          items={sync.moments}
+          note={HELP_HOW}
+        />
+        <Text
+          style={{ typography: "bodySmall" }}
+          color={m3.onSurfaceVariant}
+          modifiers={[weight(1)]}
+        >
+          {SYNC_FOOTER}
+        </Text>
+      </Row>
     </>
   );
 }

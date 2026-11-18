@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { memo } from "react";
 import { Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
+import { mangaDownloads } from "@/features/downloads";
 import { isRuntimeAvailable } from "@/features/extensions";
 import {
   MangaCard,
@@ -64,6 +65,7 @@ export const GridItem = memo(function GridItem({
   const progress = useProgress(item);
   // Any scan of the manga: a Scan all, a rescan or a title match.
   const scanning = useValue(() => isScanBusy(mediaKey(item.id)));
+  const downloads = useValue(() => mangaDownloads(item.id));
   const title = item.title?.userPreferred;
 
   const card = (
@@ -77,6 +79,7 @@ export const GridItem = memo(function GridItem({
       label={progress.label}
       progress={progress.fraction}
       unread={progress.unread}
+      downloads={downloads}
       scanning={scanning}
       titlePosition={titlePosition}
       tilt
@@ -88,6 +91,7 @@ export const GridItem = memo(function GridItem({
         progress.unread === 0
           ? "up to date"
           : progress.unread && `${progress.unread} unread`,
+        downloads > 0 && `${downloads} downloaded`,
         scanning && "scanning sources",
       ]
         .filter(Boolean)

@@ -1,6 +1,7 @@
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect } from "react";
 import { useMangaEntry } from "@/features/manga/hooks/use-manga-entry";
+import { useSheetOver } from "@/features/manga/hooks/use-sheet-over";
 import { useSourceMatch } from "@/features/manga/hooks/use-source-match";
 import { useSourceSearch } from "@/features/manga/hooks/use-source-search";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
@@ -21,20 +22,17 @@ export function useSourceList() {
   }>();
   const mangaId = Number(id);
   const navigation = useNavigation();
-  const router = useRouter();
   // Read from the cache the detail filled; a cold link fetches it.
   const { manga } = useMangaEntry(id);
   const { match } = useSourceMatch(mangaId);
   const search = useSourceSearch(manga);
   const read = useTrackingEntry(manga?.mediaListEntry?.id)?.progress ?? 0;
 
-  // A link straight to the list (or a web reload) puts the detail under it.
-  useEffect(() => {
-    const state = navigation.getState();
-    if (!state || isOverDetail(state, id)) return;
-    router.replace(`/manga/${id}`);
-    router.push(sourceListHref(id, expanded === "1"));
-  }, [navigation, router, id, expanded]);
+  useSheetOver(
+    (state) => isOverDetail(state, id),
+    `/manga/${id}`,
+    sourceListHref(id, expanded === "1"),
+  );
 
   // Title results live while the list is open, however it closes.
   useEffect(() => () => stopTitleSearch(mangaId), [mangaId]);

@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PAGE_SCHEME = "anipoex-page";
+const CHAPTER_KEY = /^[A-Za-z0-9-]{1,200}$/;
 
 const isWeb = (url) => ["http:", "https:"].includes(URL.parse(url)?.protocol);
 
@@ -115,8 +116,15 @@ export function unpackArgs(args) {
     !segments.at(-1)?.toLowerCase().endsWith(".cbz") ||
     !segments.slice(0, -1).includes("downloads") ||
     segments.includes("..") ||
-    !/^[A-Za-z0-9-]{1,200}$/.test(args.key ?? "")
+    !CHAPTER_KEY.test(args.key ?? "")
   )
     return { error: "Not a downloaded chapter" };
   return { args };
+}
+
+/** The args for `unpacked`, which takes only a chapter key, or an error. */
+export function unpackedArgs(args) {
+  if (!CHAPTER_KEY.test(args?.key ?? ""))
+    return { error: "Not a downloaded chapter" };
+  return { args: { key: args.key } };
 }

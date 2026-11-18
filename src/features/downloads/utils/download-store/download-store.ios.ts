@@ -6,7 +6,11 @@ import { fileSystemStore } from "../file-system-store";
 import { idOf, isDownloadPath } from "../paths";
 import type { DownloadStore } from "./download-store";
 import { NotDownloadedError } from "./utils/errors";
-import { type TreeFile, treeDownloads } from "./utils/tree-downloads";
+import {
+  intoExisting,
+  type TreeFile,
+  treeDownloads,
+} from "./utils/tree-downloads";
 
 export { NotDownloadedError } from "./utils/errors";
 
@@ -24,6 +28,7 @@ const isNotDownloaded = (error: unknown) =>
 
 function folderStore(location: string): DownloadStore {
   const bookmark = bookmarkOf(location);
+  let tree: TreeFile[] | undefined;
   return {
     async list(mangaId, sourceId) {
       return treeDownloads(
@@ -36,7 +41,13 @@ function folderStore(location: string): DownloadStore {
       const tree = await folder.listTree(bookmark, "downloads");
       return tree.map((file) => file.path).filter(isDownloadPath);
     },
-    put: (path, fileUri) => folder.copyIn(bookmark, path, fileUri),
+    async put(path, fileUri) {
+      // Walked once per store: a move puts every file through the same one.
+      tree ??= await folder.listTree(bookmark, "downloads");
+      const target = intoExisting(tree, path);
+      await folder.copyIn(bookmark, target, fileUri);
+      tree.push({ path: target, placeholder: false });
+    },
     async get(path) {
       const name = path.split("/").at(-1) as string;
       // Only the last copy stays: the reader unpacks it at once.

@@ -1,4 +1,5 @@
 import { batch } from "@legendapp/state";
+import { noop } from "@/utils/utils";
 import { currentStore } from "../utils/current-store";
 import type { DownloadStore } from "../utils/download-store";
 import { idOf } from "../utils/paths";
@@ -34,33 +35,29 @@ export async function refreshDownloaded(
   });
 }
 
-/** The `[mangaId, sourceId]` pairs of `listAll`'s paths, each once. */
-export function downloadedPairs(paths: string[]): [number, string][] {
-  const pairs = new Map<string, [number, string]>();
-  for (const path of paths) {
-    const [, manga, source] = path.split("/");
-    const mangaId = Number(idOf(manga));
-    const sourceId = idOf(source) as string;
-    pairs.set(`${mangaId}/${sourceId}`, [mangaId, sourceId]);
-  }
-  return [...pairs.values()];
-}
-
-let seeding: Promise<void> | undefined;
-
 /**
- * Refreshes each manga with downloads that downloaded$ lacks, once per launch:
- * it starts empty, and otherwise fills only as a manga is opened or downloaded.
+ * Lists every manga and source with files into downloaded$, at startup and on
+ * a list's refresh: the cards and source rows count them before any detail
+ * opens. The ones already shown are listed too, so a folder gone since clears.
  */
-export function seedDownloaded(store = currentStore()) {
+export async function loadDownloaded(
+  store: DownloadStore | undefined = currentStore(),
+) {
   if (!store) return;
-  seeding ??= (async () => {
-    for (const [mangaId, sourceId] of downloadedPairs(await store.listAll())) {
-      if (downloaded$[`${mangaId}/${sourceId}`].peek()) continue;
-      await refreshDownloaded(mangaId, sourceId, store);
-    }
-  })().catch(() => {
-    seeding = undefined;
-  });
-  return seeding;
+  const pairs = new Set([
+    ...(await store.listAll()).map((path) => {
+      const [, manga, source] = path.split("/");
+      return `${idOf(manga)}/${idOf(source)}`;
+    }),
+    ...Object.keys(downloaded$.peek() ?? {}),
+  ]);
+  // One at a time: a picked iOS folder walks its whole tree per listing.
+  for (const pair of pairs) {
+    const at = pair.indexOf("/");
+    await refreshDownloaded(
+      Number(pair.slice(0, at)),
+      pair.slice(at + 1),
+      store,
+    ).catch(noop);
+  }
 }

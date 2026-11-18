@@ -20,6 +20,7 @@ export const unavailableRuntime: RuntimeApi = {
   pack: unavailable,
   dropStage: unavailable,
   unpack: unavailable,
+  unpacked: async () => null,
   getDns: unavailable,
   setDns: unavailable,
   challengedHosts: async () => [],

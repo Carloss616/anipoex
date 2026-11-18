@@ -6,6 +6,7 @@ import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { DateView } from "./date-view";
 import { useTrackingSheet } from "./hooks/use-tracking-sheet";
+import { Lists } from "./lists";
 import type { Field } from "./overview";
 import { Overview } from "./overview";
 import { Progress } from "./progress";
@@ -81,6 +82,7 @@ export function TrackingSheet({
     ),
     startedAt: () => dateView("startedAt"),
     completedAt: () => dateView("completedAt"),
+    lists: () => <Lists form={form} onCancel={back} onConfirm={commit} />,
   };
 
   return (

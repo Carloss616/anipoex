@@ -34,9 +34,9 @@ export const unsentIds = () =>
 const downloads = () =>
   Object.values(downloadQueue$.get()).sort((a, b) => a.order - b.order);
 
-/** Whether a download is left to run: queued or running, not only failed ones. */
+/** Whether a download is left to run: queued or running, not only failed or paused ones. */
 export const downloadsPending = () =>
-  downloads().some((d) => d.state !== "failed");
+  downloads().some((d) => d.state === "queued" || d.state === "running");
 
 export const downloadsFailed = () =>
   downloads().some((d) => d.state === "failed");

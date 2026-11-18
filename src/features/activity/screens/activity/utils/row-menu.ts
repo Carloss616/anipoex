@@ -9,7 +9,9 @@ import {
   cancelDownload,
   discardUnsent,
   moveDownloadUp,
+  pauseDownload,
   removeFromQueue,
+  resumeDownload,
   retryDownload,
   retrySkipped,
   retryUnsent,
@@ -75,6 +77,18 @@ export function downloadRowMenu(
       label: "Move up",
       icon: Icons.moveUp,
       onPress: () => moveDownloadUp(key),
+    });
+  if (state === "running")
+    items.push({
+      label: "Pause",
+      icon: Icons.pause,
+      onPress: () => pauseDownload(key),
+    });
+  if (state === "paused")
+    items.push({
+      label: "Resume",
+      icon: Icons.play,
+      onPress: () => resumeDownload(key),
     });
   if (state === "failed")
     items.push({

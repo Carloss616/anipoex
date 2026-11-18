@@ -124,7 +124,7 @@ function ToastContent({
   const icons: Partial<Record<ToastVariant, React.ReactNode>> = {
     info: <Icon name={Icons.info} color={info} />,
     success: <Icon name={Icons.checkCircle} color={success} />,
-    warning: <Icon name={Icons.error} color={warning} />,
+    warning: <Icon name={Icons.warning} color={warning} />,
     error: <Icon name={Icons.error} color={destructive} />,
   };
 

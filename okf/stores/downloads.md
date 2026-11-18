@@ -9,14 +9,19 @@ generated: { by: claude-code, at: 2026-11-16T00:00:00Z }
 
 Key `download-queue`: a record by `anilistId/sourceId/hash` of a chapter waiting to be
 downloaded: the manga (id, title, cover), the source (id, name), the chapter (url, name,
-number, scanlator, memo), its place in the queue, its `state` and the last error. Default
-empty. Stays on the device; it is not synced.
+number, scanlator, memo), its place in the queue, its `state`, the last error and, while
+paused, the fraction it reached. Default empty. Stays on the device; it is not synced.
 
 - **States**: `queued`, `running` (one chapter at a time per source, sources in
-  parallel) and `failed`, which waits for Retry, one by one or all at once. A finished
-  chapter leaves the queue.
+  parallel), `paused` and `failed`, which waits for Retry, one by one or all at once. A
+  finished chapter leaves the queue.
+- **One chapter paused**: a running chapter can be paused on its own; it keeps its
+  progress and the pages it fetched, the next chapter of that source starts, and a resume
+  queues it again to go on from its last page. A paused chapter doesn't count as left to
+  download.
 - **Survives restarts**: at launch a chapter left `running` goes back to `queued`, its
-  half-made files dropped, and the queue goes on.
+  half-made files dropped, and the queue goes on. A paused chapter stays paused, but its
+  fetched pages are dropped, so a resume starts it over.
 - **Paused by the user**: key `downloads-paused` (`{ byUser }`, default not paused, not
   synced) keeps the user's pause across restarts until Resume. When iOS's background time
   runs out the queue pauses too, but only until the app is back: if iOS ends the app
@@ -28,7 +33,9 @@ empty. Stays on the device; it is not synced.
 
 What is downloaded (by manga and source, each chapter `local` or `cloud` when its file is
 a placeholder the sync app has not fetched yet) and each running chapter's progress are
-read from the files and rebuilt at launch; they are not persisted.
+read from the files and rebuilt at launch; they are not persisted. A pull to refresh reads
+them again, for the whole library from the manga list or one manga from its detail, so
+files changed by hand show up.
 
 # Where the files live
 
@@ -50,6 +57,11 @@ cut to 120 characters.
 
 - **One CBZ per chapter**: the pages as the source's client fetched them, stored without
   recompressing, in reading order, plus a `ComicInfo.xml`.
+- **Found by id, not by name**: the app finds each manga, source and chapter by the id in
+  the last brackets of its name, so the user may rename what comes before. A new chapter
+  goes into the existing folders with its ids, not a second folder named after the
+  current title. A name that loses its id is no longer the app's: its chapters stop
+  counting and read from the source, and they come back once the id does.
 - **Deleted only by hand**: from a chapter's menu. The app never deletes a file on its
   own in a folder the user picked.
 - **Changing the root moves the downloads**: each file is copied into the new root and

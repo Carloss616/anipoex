@@ -13,7 +13,7 @@ all of them:
 # Queries
 
 * [Viewer](viewer.md) - The signed-in user and their score format.
-* [MangaList](manga-list.md) - One list status of the viewer's manga, as cards.
+* [MangaList](manga-list.md) - One list status of the viewer's manga, or the whole collection for a custom list, as cards.
 * [MangaListCounts](manga-list-counts.md) - Entry ids per list, to count each status.
 * [MangaDetail](manga-detail.md) - One manga with its detail fields and full list entry.
 * [HomeSections](home-sections.md) - Every visible Home section in one request.
@@ -24,3 +24,4 @@ all of them:
 
 * [SaveMangaTracking](save-manga-tracking.md) - Create or edit the viewer's list entry for a manga.
 * [DeleteMangaTracking](delete-manga-tracking.md) - Remove a list entry.
+* [UpdateMangaCustomLists](update-manga-custom-lists.md) - Replace the custom list names, to make or delete one.

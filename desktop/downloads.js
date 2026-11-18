@@ -117,6 +117,21 @@ const isDownload = (file) => {
   }
 };
 
+/** `rel` moved into the manga and source folders of the same [id]s, as `list` finds them. */
+async function intoExisting(root, rel) {
+  const parts = rel.split("/");
+  for (const at of [1, 2]) {
+    if (at >= parts.length - 1) break;
+    const id = idOf(parts[at]);
+    if (!id) continue;
+    const found = (await folders(path.join(root, ...parts.slice(0, at)))).find(
+      (entry) => idOf(entry.name) === id,
+    );
+    if (found) parts[at] = found.name;
+  }
+  return parts.join("/");
+}
+
 /**
  * Copies a packed chapter, or another root's download, in through a temp file
  * and a rename, replacing.
@@ -134,7 +149,7 @@ export async function put(root, rel, fromUri, packedDir) {
   ) {
     throw new Error("Not a packed chapter");
   }
-  const file = path.join(root, rel);
+  const file = path.join(root, await intoExisting(root, rel));
   await mkdir(path.dirname(file), { recursive: true });
   // So a cloud client never uploads half a file.
   const temp = path.join(path.dirname(file), `.${path.basename(file)}.tmp`);
