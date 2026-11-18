@@ -134,14 +134,16 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
       <Host className="flex-1">
         <VStack
           alignment="leading"
-          spacing={16}
-          // 10: the grabber's room, as `BottomSheet` leaves it.
-          modifiers={[padding({ top: 10 + GUTTER, bottom: GUTTER })]}
+          spacing={0}
+          modifiers={[padding({ bottom: GUTTER })]}
         >
           <VStack
             alignment="leading"
             spacing={16}
-            modifiers={[padding({ horizontal: GUTTER })]}
+            // 10: the grabber's room, as `BottomSheet` leaves it.
+            modifiers={[
+              padding({ top: 10 + GUTTER, horizontal: GUTTER, bottom: GUTTER }),
+            ]}
           >
             {/* The reason and error dialogs hang off the header: `.alert`
               needs a view that outlives the swiped row. */}

@@ -126,7 +126,7 @@ export function Overview({
       <Row
         verticalAlignment="center"
         horizontalArrangement={{ spacedBy: 8 }}
-        modifiers={[padding(16, 0, 16, 0)]}
+        modifiers={[padding(16, 16, 16, 16)]}
       >
         <Text
           style={{ typography: "titleLarge" }}
@@ -151,7 +151,7 @@ export function Overview({
       >
         <Column
           verticalArrangement={{ spacedBy: SEGMENTED_GAP }}
-          modifiers={[padding(16, 16, 16, 16), fillMaxWidth()]}
+          modifiers={[padding(16, 0, 16, 16), fillMaxWidth()]}
         >
           <Row
             horizontalArrangement={{ spacedBy: SEGMENTED_GAP }}
@@ -189,15 +189,24 @@ export function Overview({
               label="Started"
               icon={Icons.calendar}
               value={formatDate(form.startedAt)}
-              corners={{ bottomStart: true }}
+              corners={{}}
               onPress={() => onEdit("startedAt")}
             />
             <Field
               label="Finished"
               icon={Icons.calendar}
               value={formatDate(form.completedAt)}
-              corners={{ bottomEnd: true }}
+              corners={{}}
               onPress={() => onEdit("completedAt")}
+            />
+          </Row>
+          <Row modifiers={[fillMaxWidth()]}>
+            <Field
+              label="Custom lists"
+              icon={Icons.listEdit}
+              value={form.customLists.join(", ")}
+              corners={{ bottomStart: true, bottomEnd: true }}
+              onPress={() => onEdit("customLists")}
             />
           </Row>
         </Column>

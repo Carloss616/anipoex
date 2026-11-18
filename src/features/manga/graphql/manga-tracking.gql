@@ -6,6 +6,7 @@ mutation SaveMangaTracking(
   $score: Float
   $startedAt: FuzzyDateInput
   $completedAt: FuzzyDateInput
+  $customLists: [String]
 ) {
   SaveMediaListEntry(
     id: $id
@@ -15,6 +16,7 @@ mutation SaveMangaTracking(
     score: $score
     startedAt: $startedAt
     completedAt: $completedAt
+    customLists: $customLists
   ) {
     id
     ...MangaTracking

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { MediaListStatus } from "@/graphql/types.generated";
-import type { MangaListCountsQuery } from "../graphql/manga-list-counts.generated";
-import { toCounts } from "./to-counts";
+import type { MangaListCountsQuery } from "../graphql/manga-list.generated";
+import { toCounts, toCustomLists } from "./to-counts";
 
 const list = (
   status: MediaListStatus | null,
@@ -55,5 +55,35 @@ describe("toCounts", () => {
       ]),
     );
     expect(counts[MediaListStatus.Completed]).toBe(10);
+  });
+});
+
+describe("toCustomLists", () => {
+  const withNames = (names: (string | null)[] | null) =>
+    ({
+      MediaListCollection: {
+        lists: [
+          { ...list(null, 3, true), name: "List B" },
+          { ...list(MediaListStatus.Current, 5), name: "List A" },
+        ],
+        user: { mediaListOptions: { mangaList: { customLists: names } } },
+      },
+    }) as MangaListCountsQuery;
+
+  it("keeps the account's order and counts an empty list 0", () => {
+    expect(toCustomLists(withNames(["List A", "List B"]))).toEqual([
+      { name: "List A", key: "custom:List A", count: 0 },
+      { name: "List B", key: "custom:List B", count: 3 },
+    ]);
+  });
+
+  it("keeps one of a repeated name", () => {
+    const names = toCustomLists(withNames(["List A", "List A", null]));
+    expect(names?.map((list) => list.name)).toEqual(["List A"]);
+  });
+
+  it("is null until loaded", () => {
+    expect(toCustomLists(undefined)).toBeNull();
+    expect(toCustomLists(withNames(null))).toBeNull();
   });
 });

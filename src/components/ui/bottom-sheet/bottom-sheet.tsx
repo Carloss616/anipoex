@@ -15,16 +15,6 @@ import { View, type ViewProps } from "react-native";
  */
 export const SHEET_CLOSE_MS = 450;
 
-/**
- * One 16px inset for every sheet, tighter than panelui-web's 24px.
- * @platform web
- */
-export const SHEET_INSET = {
-  header: "p-4 pb-0",
-  body: "px-4 pt-4",
-  footer: "px-4 pb-4",
-} as const;
-
 export interface BottomSheetProps
   extends BottomSheetBaseProps,
     Pick<ModalBottomSheetProps, "containerColor" | "scrimColor"> {

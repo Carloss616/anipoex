@@ -5,6 +5,7 @@ import {
 } from "@/graphql/types.generated";
 import { formatDate } from "@/utils/utils";
 import type { PendingEdits } from "../state/pending-entries";
+import { enabledLists } from "./enabled-lists";
 import {
   fromFuzzyDate,
   type PartialFuzzyDate,
@@ -20,6 +21,8 @@ export interface TrackingForm {
   completedAt?: Date;
   /** Times the manga was read again; only read, never saved from here. */
   repeat: number;
+  /** The custom lists holding it, by name. */
+  customLists: string[];
 }
 
 export interface PartialEntry {
@@ -29,6 +32,7 @@ export interface PartialEntry {
   score?: number | null;
   startedAt?: PartialFuzzyDate;
   completedAt?: PartialFuzzyDate;
+  customLists?: unknown;
 }
 
 export interface SaveVariables {
@@ -39,16 +43,24 @@ export interface SaveVariables {
   score: number;
   startedAt?: FuzzyDateInput;
   completedAt?: FuzzyDateInput;
+  customLists?: string[];
 }
+
+export const sameSet = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((name) => b.includes(name));
 
 /** The statuses the auto-rules may move the entry into. */
 const READING = MediaListStatus.Current;
 const FINISHED = MediaListStatus.Completed;
 
+/** `names`, the account's lists, drops any the cached entry still holds. */
 export function toTrackingForm(
   entry: PartialEntry | null | undefined,
+  names?: string[] | null,
 ): TrackingForm {
+  const lists = enabledLists(entry?.customLists);
   return {
+    customLists: names ? lists.filter((name) => names.includes(name)) : lists,
     status: entry?.status ?? undefined,
     progress: entry?.progress ?? 0,
     score: entry?.score ?? 0,
@@ -122,7 +134,7 @@ export function setProgress(
 /**
  * Dates go out only when they changed: AniList leaves an omitted date alone,
  * while an untouched partial date (read as unset) would go out as the null
- * triple that erases it.
+ * triple that erases it. So do custom lists, which a save replaces whole.
  */
 export function toSaveVariables(
   before: TrackingForm,
@@ -144,6 +156,9 @@ export function toSaveVariables(
     ...(changed("completedAt")
       ? { completedAt: toFuzzyDate(form.completedAt) }
       : undefined),
+    ...(sameSet(before.customLists, form.customLists)
+      ? undefined
+      : { customLists: form.customLists }),
   };
 }
 
@@ -156,7 +171,9 @@ export function toPendingEdits(
   after: TrackingForm,
   current = after,
 ): PendingEdits {
-  const differs = (field: Exclude<keyof TrackingForm, "repeat">) =>
+  const differs = (
+    field: Exclude<keyof TrackingForm, "repeat" | "customLists">,
+  ) =>
     after[field]?.valueOf() !== before[field]?.valueOf() &&
     after[field]?.valueOf() === current[field]?.valueOf();
 
@@ -167,6 +184,11 @@ export function toPendingEdits(
   for (const field of ["startedAt", "completedAt"] as const) {
     if (differs(field)) edits[field] = toFuzzyDate(after[field]);
   }
+  if (
+    !sameSet(before.customLists, after.customLists) &&
+    sameSet(after.customLists, current.customLists)
+  )
+    edits.customLists = after.customLists;
   return edits;
 }
 

@@ -53,7 +53,7 @@ export function activityView(
   progress: Record<string, number>,
 ) {
   const left = Object.values(queue)
-    .filter((e) => e.state !== "failed")
+    .filter((e) => e.state === "queued" || e.state === "running")
     .sort((a, b) => a.order - b.order);
   const current = left.find((e) => e.state === "running") ?? left[0];
   if (!current) return undefined;

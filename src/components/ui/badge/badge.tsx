@@ -1,6 +1,6 @@
 import { cn } from "panelui-native/utils/cn";
 import type { ReactNode } from "react";
-import { SEMANTIC_COLOR, type SemanticColor } from "../colors";
+import { BADGE_TINT, SEMANTIC_COLOR, type SemanticColor } from "../colors";
 import { Icon, type IconName } from "../icon";
 
 export interface BadgeProps {
@@ -26,14 +26,6 @@ export interface BadgeProps {
   testID?: string;
 }
 
-/** Badge tints (`-subtle`) and the darker text that reads on them. */
-const TINT: Partial<Record<SemanticColor, string>> = {
-  success: "bg-success-subtle text-success-foreground",
-  info: "bg-info-subtle text-info-foreground",
-  warning: "bg-warning-subtle text-warning-foreground",
-  destructive: "bg-destructive-subtle text-destructive-foreground",
-};
-
 /** A small, non-interactive status marker — a count, a state, or a bare dot. */
 export function Badge({
   children,
@@ -46,7 +38,7 @@ export function Badge({
   const semantic = color === "inherit" ? "destructive" : color;
   const semanticCss = SEMANTIC_COLOR[semantic].className;
   // A dot or a glyph at 8% would vanish: only text badges take the tint.
-  const tint = !solid && !dot && !icon ? TINT[semantic] : undefined;
+  const tint = !solid && !dot && !icon ? BADGE_TINT[semantic] : undefined;
 
   // A span: it sits inline in <p> titles, which can't hold the div of a View.
   return (
@@ -58,7 +50,7 @@ export function Badge({
         className,
       )}
     >
-      {icon ? <Icon name={icon} size={12} /> : dot ? null : children}
+      {icon ? <Icon name={icon} size={12} inline /> : dot ? null : children}
     </span>
   );
 }

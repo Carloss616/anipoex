@@ -9,11 +9,18 @@ import {
   MangaTrackingFragmentDoc,
 } from "../graphql/manga-fragments.generated";
 import {
+  MangaListCountsDocument,
   MangaListDocument,
   type MangaListQuery,
 } from "../graphql/manga-list.generated";
-import { MangaListCountsDocument } from "../graphql/manga-list-counts.generated";
 import type { CachedFields } from "../state/pending-entries";
+import { enabledLists, renameList } from "./enabled-lists";
+
+/** MangaList's variables for the whole collection, custom groups included. */
+export const wholeCollection = (userId: number) => ({
+  userId,
+  forceSingleCompletedList: false,
+});
 
 type Lists = NonNullable<
   NonNullable<MangaListQuery["MediaListCollection"]>["lists"]
@@ -21,6 +28,13 @@ type Lists = NonNullable<
 type ListEntry = NonNullable<
   NonNullable<NonNullable<Lists[number]>["entries"]>[number]
 >;
+// A removal only needs the id, so these may be left out.
+type FiledEntry = Omit<
+  ListEntry,
+  "progress" | "updatedAt" | "createdAt" | "score"
+> &
+  Partial<ListEntry>;
+type Fields = Pick<ListEntry, "progress" | "updatedAt" | "createdAt" | "score">;
 
 const holds = (
   list: { entries: ({ id: number } | null)[] | null } | null,
@@ -36,17 +50,94 @@ const drop = <L extends { entries: ({ id: number } | null)[] | null } | null>(
     entries: list.entries?.filter((e) => e?.id !== id) ?? null,
   };
 
+type Group = {
+  name: string | null;
+  isCustomList: boolean | null;
+  entries: ({ id: number } | null)[] | null;
+};
+
+/**
+ * Puts `item` in the custom groups named in `names` and takes it out of the
+ * others; a named list with no group yet (empty) gets one. Undefined when
+ * nothing changes.
+ */
+function fileCustom<G extends Group>(
+  lists: (G | null)[],
+  item: NonNullable<NonNullable<G["entries"]>[number]>,
+  names: string[],
+  blank: Omit<G, keyof Group>,
+) {
+  let changed = false;
+  const next = lists.map((list) => {
+    if (!list?.isCustomList) return list;
+    const on = names.includes(list.name ?? "");
+    if (on === holds(list, item.id)) return list;
+    changed = true;
+    return on
+      ? { ...list, entries: [item, ...(list.entries ?? [])] }
+      : drop(list, item.id);
+  });
+  for (const name of names) {
+    if (lists.some((list) => list?.isCustomList && list.name === name))
+      continue;
+    changed = true;
+    next.push({ ...blank, name, isCustomList: true, entries: [item] } as G);
+  }
+  return changed ? next : undefined;
+}
+
 /**
  * Files an entry under `status` in the cached lists and counts and takes it out
  * of the others, so a save shows everywhere without a refetch. `null` removes
- * it. A list not cached yet loads with it when opened.
+ * it. A list not cached yet loads with it when opened. An entry that carries
+ * `customLists` also moves between the custom lists it names.
  */
 export function fileEntry(
   cache: ApolloCache,
   userId: number,
-  entry: ListEntry,
+  entry: FiledEntry & { customLists?: unknown },
   status: MediaListStatus | null,
 ) {
+  const names =
+    status === null
+      ? []
+      : entry.customLists === undefined
+        ? undefined
+        : enabledLists(entry.customLists);
+  if (names) {
+    const group = { __typename: "MediaListGroup" as const };
+    cache.updateQuery(
+      { query: MangaListDocument, variables: wholeCollection(userId) },
+      (data) => {
+        const collection = data?.MediaListCollection;
+        const { customLists: _, ...item } = entry;
+        const lists = fileCustom(
+          collection?.lists ?? [],
+          item as ListEntry,
+          names,
+          group,
+        );
+        return collection && lists
+          ? { MediaListCollection: { ...collection, lists } }
+          : undefined;
+      },
+    );
+    cache.updateQuery(
+      { query: MangaListCountsDocument, variables: { userId } },
+      (data) => {
+        const collection = data?.MediaListCollection;
+        const ref = { __typename: "MediaList" as const, id: entry.id };
+        const lists = fileCustom(collection?.lists ?? [], ref, names, {
+          ...group,
+          status: null,
+        });
+        return collection && lists
+          ? { MediaListCollection: { ...collection, lists } }
+          : undefined;
+      },
+    );
+  }
+
   for (const [listStatus] of MANGA_STATUS_ENTRIES) {
     cache.updateQuery(
       { query: MangaListDocument, variables: { userId, status: listStatus } },
@@ -56,6 +147,7 @@ export function fileEntry(
         const present = lists.some((list) => holds(list, entry.id));
         if (!collection || present === (listStatus === status)) return;
 
+        // Custom groups come after the status's own, so `first` is that one.
         const [first = null, ...rest] = lists;
         return {
           MediaListCollection: {
@@ -65,8 +157,10 @@ export function fileEntry(
               : [
                   {
                     __typename: "MediaListGroup" as const,
+                    name: first?.name ?? null,
+                    isCustomList: false,
                     // Shown first, where the user looks for what they added.
-                    entries: [entry, ...(first?.entries ?? [])],
+                    entries: [entry as ListEntry, ...(first?.entries ?? [])],
                   },
                   ...rest,
                 ],
@@ -104,6 +198,7 @@ export function fileEntry(
       } else if (status) {
         lists.push({
           __typename: "MediaListGroup",
+          name: null,
           status,
           isCustomList: false,
           entries: [ref],
@@ -112,6 +207,71 @@ export function fileEntry(
       return { MediaListCollection: { ...collection, lists } };
     },
   );
+}
+
+/** Edits the groups of the cached collection and counts, as a list changes. */
+function editGroups(
+  cache: ApolloCache,
+  userId: number,
+  edit: <G extends Group>(lists: (G | null)[]) => (G | null)[],
+) {
+  cache.updateQuery(
+    { query: MangaListDocument, variables: wholeCollection(userId) },
+    (data) =>
+      data?.MediaListCollection && {
+        MediaListCollection: {
+          ...data.MediaListCollection,
+          lists: edit(data.MediaListCollection.lists ?? []),
+        },
+      },
+  );
+  cache.updateQuery(
+    { query: MangaListCountsDocument, variables: { userId } },
+    (data) =>
+      data?.MediaListCollection && {
+        MediaListCollection: {
+          ...data.MediaListCollection,
+          lists: edit(data.MediaListCollection.lists ?? []),
+        },
+      },
+  );
+}
+
+/** Takes a deleted custom list's group out of the cached collection and counts. */
+export function dropCustomList(
+  cache: ApolloCache,
+  userId: number,
+  name: string,
+) {
+  editGroups(cache, userId, (lists) =>
+    lists.filter((list) => !(list?.isCustomList && list.name === name)),
+  );
+}
+
+/**
+ * Renames a custom list's groups and the flag every cached entry keeps under
+ * its name, which the tracking form reads.
+ */
+export function renameCustomList(
+  cache: ApolloCache,
+  userId: number,
+  from: string,
+  to: string,
+) {
+  editGroups(cache, userId, (lists) =>
+    lists.map((list) =>
+      list?.isCustomList && list.name === from ? { ...list, name: to } : list,
+    ),
+  );
+  for (const id of Object.keys(cache.extract() as object)) {
+    if (!id.startsWith("MediaList:")) continue;
+    cache.modify({
+      id,
+      fields: {
+        customLists: (value) => renameList(value, from, to) as typeof value,
+      },
+    });
+  }
 }
 
 /**
@@ -123,7 +283,10 @@ export function fileSaved(
   cache: ApolloCache,
   userId: number | undefined,
   mediaId: number,
-  entry: (ListEntry & { status: MediaListStatus | null }) | null | undefined,
+  entry:
+    | (ListEntry & { status: MediaListStatus | null; customLists?: unknown })
+    | null
+    | undefined,
 ) {
   if (!entry || userId == null) return;
 
@@ -131,7 +294,11 @@ export function fileSaved(
   // Last: filing it writes the returned media, whose link is null.
   cache.modify({
     id: cache.identify({ __typename: "Media", id: mediaId }),
-    fields: { mediaListEntry: () => ({ __ref: cache.identify(entry) }) },
+    fields: {
+      mediaListEntry: () => ({
+        __ref: cache.identify({ __typename: "MediaList", id: entry.id }),
+      }),
+    },
   });
 }
 
@@ -184,12 +351,13 @@ export function cachedFields(
     score: entry.score,
     startedAt: fuzzy(entry.startedAt),
     completedAt: fuzzy(entry.completedAt),
+    customLists: enabledLists(entry.customLists),
   };
 }
 
 /**
  * Shows a change made offline: writes the fields on the entry, links the
- * media to it and, when the status is among them, files it there.
+ * media to it and, when the status or lists are among them, files it there.
  */
 export function fileEdited(
   cache: ApolloCache,
@@ -199,10 +367,15 @@ export function fileEdited(
   fields: Partial<Omit<CachedFields, "entryId">>,
 ) {
   const ref = `MediaList:${entryId}`;
+  const lists =
+    fields.customLists &&
+    Object.fromEntries(fields.customLists.map((name) => [name, true]));
   cache.modify({
     id: ref,
     fields: Object.fromEntries(
-      Object.entries(fields).map(([name, value]) => [name, () => value]),
+      Object.entries({ ...fields, ...(lists && { customLists: lists }) }).map(
+        ([name, value]) => [name, () => value],
+      ),
     ),
   });
   cache.modify({
@@ -210,7 +383,7 @@ export function fileEdited(
     fields: { mediaListEntry: () => ({ __ref: ref }) },
   });
 
-  if (userId == null || !("status" in fields)) return;
+  if (userId == null || (!("status" in fields) && !lists)) return;
   const media = cache.readFragment({
     fragment: MangaMediaFragmentDoc,
     fragmentName: "MangaMedia",
@@ -221,8 +394,15 @@ export function fileEdited(
   fileEntry(
     cache,
     userId,
-    { __typename: "MediaList", id: entryId, media: { ...media, id: mediaId } },
-    fields.status ?? null,
+    {
+      __typename: "MediaList",
+      id: entryId,
+      media: { ...media, id: mediaId },
+      customLists: lists,
+    },
+    "status" in fields
+      ? (fields.status ?? null)
+      : (cachedFields(cache, entryId)?.status ?? null),
   );
 }
 
@@ -236,7 +416,13 @@ export function refileEntry(
   userId: number,
   priorId: number | undefined,
   media: NonNullable<ListEntry["media"]> & {
-    mediaListEntry: { id: number; status: MediaListStatus | null } | null;
+    mediaListEntry:
+      | ({
+          id: number;
+          status: MediaListStatus | null;
+          customLists?: unknown;
+        } & Fields)
+      | null;
   },
 ) {
   const entry = media.mediaListEntry;
@@ -253,7 +439,16 @@ export function refileEntry(
     fileEntry(
       cache,
       userId,
-      { __typename: type, id: entry.id, media },
+      {
+        __typename: type,
+        id: entry.id,
+        progress: entry.progress,
+        updatedAt: entry.updatedAt,
+        createdAt: entry.createdAt,
+        score: entry.score,
+        media,
+        customLists: entry.customLists,
+      },
       entry.status,
     );
   }

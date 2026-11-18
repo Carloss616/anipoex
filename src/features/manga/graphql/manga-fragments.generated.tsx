@@ -39,9 +39,12 @@ export type MangaTrackingFragment = {
   __typename: "MediaList";
   status: Types.MediaListStatus | null;
   progress: number | null;
+  updatedAt: number | null;
+  createdAt: number | null;
   repeat: number | null;
   score: number | null;
   notes: string | null;
+  customLists: unknown;
   startedAt: {
     __typename: "FuzzyDate";
     year: number | null;
@@ -121,9 +124,12 @@ export type MangaDetailFragment = {
     id: number;
     status: Types.MediaListStatus | null;
     progress: number | null;
+    updatedAt: number | null;
+    createdAt: number | null;
     repeat: number | null;
     score: number | null;
     notes: string | null;
+    customLists: unknown;
     startedAt: {
       __typename: "FuzzyDate";
       year: number | null;
@@ -310,6 +316,8 @@ export const MangaTrackingFragmentDoc = {
         selections: [
           { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "progress" } },
+          { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+          { kind: "Field", name: { kind: "Name", value: "createdAt" } },
           { kind: "Field", name: { kind: "Name", value: "repeat" } },
           { kind: "Field", name: { kind: "Name", value: "score" } },
           {
@@ -337,6 +345,7 @@ export const MangaTrackingFragmentDoc = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "notes" } },
+          { kind: "Field", name: { kind: "Name", value: "customLists" } },
         ],
       },
     },
@@ -520,6 +529,8 @@ export const MangaDetailFragmentDoc = {
         selections: [
           { kind: "Field", name: { kind: "Name", value: "status" } },
           { kind: "Field", name: { kind: "Name", value: "progress" } },
+          { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+          { kind: "Field", name: { kind: "Name", value: "createdAt" } },
           { kind: "Field", name: { kind: "Name", value: "repeat" } },
           { kind: "Field", name: { kind: "Name", value: "score" } },
           {
@@ -547,6 +558,7 @@ export const MangaDetailFragmentDoc = {
             },
           },
           { kind: "Field", name: { kind: "Name", value: "notes" } },
+          { kind: "Field", name: { kind: "Name", value: "customLists" } },
         ],
       },
     },

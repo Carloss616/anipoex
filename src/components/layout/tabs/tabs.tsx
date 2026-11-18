@@ -5,7 +5,7 @@ import { Platform } from "react-native";
 import { pendingCount } from "@/features/activity/utils/state";
 import { ContinueAccessory } from "@/features/manga/components/continue-accessory";
 import { HAS_ACCESSORY } from "@/features/manga/components/continue-accessory/constants";
-import { openViewSheet } from "@/features/manga/screens/manga-list/components/view-sheet";
+import { openOptionsSheet } from "@/features/manga/screens/manga-list/components/options-sheet";
 import { continueReading$ } from "@/features/manga/state/continue-reading";
 import { useNativeTabsTheme } from "@/hooks/use-theme";
 
@@ -53,7 +53,7 @@ export function Tabs() {
         listeners={{
           tabPress: () => {
             if (Platform.OS === "android" && pathname === "/manga") {
-              openViewSheet();
+              openOptionsSheet();
             }
           },
         }}

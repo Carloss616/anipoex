@@ -1,9 +1,13 @@
 import { requireNativeModule } from "expo";
-import type { RuntimeApi, SourcePage } from "./runtime";
+import type { RuntimeApi } from "./runtime";
+import { type FilePage, localPages } from "./utils/local-pages";
 import { nativeErrorMessage } from "./utils/native-error";
 
 const native = requireNativeModule<
-  Omit<RuntimeApi, "pageImage" | "stagePage" | "pack" | "unpack"> & {
+  Omit<
+    RuntimeApi,
+    "pageImage" | "stagePage" | "pack" | "unpack" | "unpacked"
+  > & {
     stagePage(
       sourceId: string,
       imageUrl: string,
@@ -12,7 +16,8 @@ const native = requireNativeModule<
       name: string,
     ): Promise<void>;
     pack(stage: string, comicInfo: string): Promise<{ uri: string }>;
-    unpack(uri: string, key: string): Promise<{ index: number; uri: string }[]>;
+    unpack(uri: string, key: string): Promise<FilePage[]>;
+    unpacked(key: string): Promise<FilePage[] | null>;
     image(
       sourceId: string,
       imageUrl: string,
@@ -49,15 +54,11 @@ export const runtime: RuntimeApi = {
   pack: async (stage, comicInfo) =>
     (await clean(native.pack(stage, comicInfo))).uri,
   dropStage: (stage) => clean(native.dropStage(stage)),
-  unpack: async (uri, key) =>
-    (await clean(native.unpack(uri, key))).map(
-      (page): SourcePage => ({
-        index: page.index,
-        imageUrl: page.uri,
-        headers: {},
-        local: true,
-      }),
-    ),
+  unpack: async (uri, key) => localPages(await clean(native.unpack(uri, key))),
+  unpacked: async (key) => {
+    const pages = await clean(native.unpacked(key));
+    return pages && localPages(pages);
+  },
   getDns: () => clean(native.getDns()),
   setDns: (dns) => clean(native.setDns(dns)),
   challengedHosts: () => clean(native.challengedHosts()),

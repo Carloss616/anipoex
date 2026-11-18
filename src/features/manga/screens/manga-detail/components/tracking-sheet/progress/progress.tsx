@@ -1,5 +1,4 @@
 import { Sheet } from "panelui-web/sheet";
-import { SHEET_INSET } from "@/components/ui/bottom-sheet";
 import { NumberInput } from "@/components/ui/number-input";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
 import { ChangesPreview } from "../changes-preview";
@@ -32,9 +31,9 @@ export function Progress({
 
   return (
     <>
-      <Sheet.Header title="Progress" className={SHEET_INSET.header} />
+      <Sheet.Header title="Progress" className="p-4" />
 
-      <Sheet.Body className={SHEET_INSET.body}>
+      <Sheet.Body className="px-4 pb-0">
         <NumberInput
           label="Chapters read"
           suffix={total ? `/${total}` : undefined}

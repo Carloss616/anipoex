@@ -20,6 +20,7 @@ when the manga is not on the list.
 | `startedAt`, `completedAt` | [Fuzzy dates](fuzzy-date.md). |
 | `notes` | Read but never written: the app sends no `notes`, so AniList keeps them. |
 | `repeat` | Times the manga was read again. Read but never written; it tells a reread apart when [dating a Completed](tracking-rules.md). |
+| `customLists` | The [custom lists](custom-list.md) holding it, a map of each name on the account to whether it is in it. Sent only when the user changed them. |
 
 # Lifecycle
 

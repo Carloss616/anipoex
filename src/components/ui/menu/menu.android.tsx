@@ -86,7 +86,8 @@ function DropdownFor({
                   checked={item.checked}
                   selection={mode}
                   enabled={!item.disabled}
-                  destructive={item.destructive}
+                  // Disabled, it takes M3's disabled color like any row.
+                  destructive={item.destructive && !item.disabled}
                   onPress={() => {
                     // A checkbox row stays open so several can be toggled.
                     if (item.checked === undefined || mode === "radio") {
@@ -98,7 +99,11 @@ function DropdownFor({
                   {item.icon && (
                     <Icon
                       name={item.icon}
-                      color={item.destructive ? m3.error : "inherit"}
+                      color={
+                        item.destructive && !item.disabled
+                          ? m3.error
+                          : "inherit"
+                      }
                     />
                   )}
                 </DropdownMenu.Item>

@@ -50,6 +50,7 @@ function Cell({ value, placeholder, onPress, isDisabled = false }: CellProps) {
       <Text
         modifiers={[
           ...(value ? [] : [foregroundStyle("secondary")]),
+          lineLimit(1),
           padding({ vertical: 12 }),
         ]}
       >
@@ -73,8 +74,8 @@ export function Overview({
   const muted = useThemeColor("muted");
 
   return (
-    <VStack alignment="leading" spacing={0} modifiers={[padding({ top: 16 })]}>
-      <HStack spacing={8} modifiers={[padding({ horizontal: 16 })]}>
+    <VStack alignment="leading" spacing={0}>
+      <HStack spacing={8} modifiers={[padding({ all: 16 })]}>
         <Text textStyle="title3" modifiers={[lineLimit(1)]}>
           {title}
         </Text>
@@ -111,7 +112,7 @@ export function Overview({
               shape: "roundedRectangle",
               cornerRadius: 24,
             }),
-            padding({ all: 16 }),
+            padding({ horizontal: 16, bottom: 16 }),
           ]}
         >
           <HStack spacing={0}>
@@ -148,6 +149,12 @@ export function Overview({
               onPress={() => onEdit("completedAt")}
             />
           </HStack>
+          <Divider />
+          <Cell
+            value={form.customLists.join(", ")}
+            placeholder="Custom lists"
+            onPress={() => onEdit("customLists")}
+          />
         </VStack>
       </ScrollView>
     </VStack>

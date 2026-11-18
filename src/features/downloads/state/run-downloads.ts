@@ -1,9 +1,14 @@
 import { batch } from "@legendapp/state";
 import { runtime } from "@/features/extensions/runtime";
 import { currentStore } from "../utils/current-store";
-import { type DownloadDeps, downloadChapter } from "../utils/download-chapter";
+import {
+  type DownloadDeps,
+  downloadChapter,
+  PAUSE,
+} from "../utils/download-chapter";
 import { chapterHash, stageId } from "../utils/paths";
 import {
+  cancel,
   downloaded$,
   downloadProgress$,
   downloadQueue$,
@@ -22,6 +27,8 @@ export const downloadDeps: Pick<DownloadDeps, "runtime" | "store"> = {
 
 const loops = new Map<string, Promise<void>>();
 let runId = 0;
+/** Pages each paused chapter staged; the stage is a cache, so only this session's. */
+const staged = new Map<string, { done: number; count: number }>();
 
 const running = () =>
   Object.values(downloadQueue$.peek()).filter((e) => e.state === "running");
@@ -57,17 +64,24 @@ async function runSource(sourceId: string, run: number) {
     if (!item) return;
     const { key } = item;
     const controller = new AbortController();
-    downloadStops.set(key, () => controller.abort());
+    downloadStops.set(key, (reason) => controller.abort(reason));
+    const from = staged.get(key);
+    staged.delete(key);
+    let at = from;
     batch(() => {
       downloadQueue$[key].state.set("running");
-      downloadProgress$[key].set(0);
+      downloadQueue$[key].progress.delete();
+      downloadProgress$[key].set(from ? from.done / from.count : 0);
     });
     try {
       await downloadChapter(item, {
         ...downloadDeps,
         signal: controller.signal,
-        onProgress: (fraction) => {
-          if (live(key)) downloadProgress$[key].set(fraction);
+        from,
+        onProgress: (done, count) => {
+          at = { done, count };
+          if (run === runId && downloadQueue$[key].state.peek() === "running")
+            downloadProgress$[key].set(done / count);
         },
       });
       if (!live(key)) continue;
@@ -79,6 +93,13 @@ async function runSource(sourceId: string, run: number) {
         ].set("local");
       });
     } catch (error) {
+      if (controller.signal.reason === PAUSE) {
+        // Cancelled while its last page landed: nothing will resume it.
+        if (!downloadQueue$[key].peek())
+          await downloadDeps.runtime.dropStage(stageId(key)).catch(() => {});
+        else if (at) staged.set(key, at);
+        continue;
+      }
       if (!live(key)) continue;
       const aborted = error instanceof Error && error.name === "AbortError";
       batch(() => {
@@ -135,7 +156,38 @@ export function resumeOnline() {
   startDownloads();
 }
 
-/** At app start: a chapter left running by a killed app starts over. */
+/** Stops a running chapter where it is; its ring keeps that value. */
+export function pauseDownload(key: string) {
+  if (downloadQueue$[key].state.peek() !== "running") return;
+  batch(() => {
+    downloadQueue$[key].assign({
+      state: "paused",
+      progress: downloadProgress$[key].peek() ?? 0,
+    });
+    downloadProgress$[key].delete();
+  });
+  downloadStops.get(key)?.(PAUSE);
+}
+
+export function resumeDownload(key: string) {
+  if (downloadQueue$[key].state.peek() !== "paused") return;
+  downloadQueue$[key].state.set("queued");
+  startDownloads();
+}
+
+/** Removes a chapter from the queue; a paused one also drops its staged pages. */
+export function cancelDownload(key: string) {
+  const paused = downloadQueue$[key].state.peek() === "paused";
+  cancel(key);
+  if (!paused) return;
+  staged.delete(key);
+  void downloadDeps.runtime.dropStage(stageId(key)).catch(() => {});
+}
+
+/**
+ * At app start: a chapter left running by a killed app starts over, and a
+ * paused one's stage, in a cache, is dropped.
+ */
 export async function resumeQueue() {
   // A running loop owns its "running" entry and its stage.
   if (loops.size > 0) return;
@@ -143,8 +195,11 @@ export async function resumeQueue() {
   batch(() => {
     for (const { key } of stale) downloadQueue$[key].state.set("queued");
   });
+  const paused = Object.values(downloadQueue$.peek()).filter(
+    (e) => e.state === "paused",
+  );
   await Promise.all(
-    stale.map(({ key }) =>
+    [...stale, ...paused].map(({ key }) =>
       downloadDeps.runtime.dropStage(stageId(key)).catch(() => {}),
     ),
   );

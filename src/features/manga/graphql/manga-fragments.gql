@@ -1,6 +1,8 @@
 fragment MangaTracking on MediaList {
   status
   progress
+  updatedAt
+  createdAt
   repeat
   score
   startedAt {
@@ -14,6 +16,7 @@ fragment MangaTracking on MediaList {
     day
   }
   notes
+  customLists
 }
 
 fragment MangaBase on Media {

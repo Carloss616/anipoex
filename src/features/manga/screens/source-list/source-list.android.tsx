@@ -144,25 +144,19 @@ function ListBody({ manga, read, selectedId, onSelect }: ListBodyProps) {
       {/* Two Hosts: the sheet drags from the header, while the list's Host
           hands it only the scroll the list leaves. */}
       <Host matchContents={{ vertical: true }}>
-        <Column
-          verticalArrangement={{ spacedBy: 16 }}
-          modifiers={[padding(insets.left, 0, insets.right, 16)]}
-        >
-          {/* M3's drag handle, as the other sheets draw it; 6 + the gap is 22. */}
+        <Column modifiers={[padding(insets.left, 0, insets.right, 16)]}>
+          {/* M3's drag handle, as the other sheets draw it. */}
           <Box
             modifiers={[
               align("centerHorizontally"),
-              padding(0, 22, 0, 6),
+              padding(0, 22, 0, 22),
               size(32, 4),
               clip(Shapes.RoundedCorner(2)),
               background(m3.onSurfaceVariant),
             ]}
           />
-          <Column
-            verticalArrangement={{ spacedBy: 16 }}
-            modifiers={[padding(GUTTER, 0, GUTTER, 0)]}
-          >
-            <Column>
+          <Column modifiers={[padding(GUTTER, 0, GUTTER, 0)]}>
+            <Column modifiers={[padding(0, GUTTER, 0, GUTTER)]}>
               <Row
                 verticalAlignment="center"
                 horizontalArrangement={{ spacedBy: 8 }}

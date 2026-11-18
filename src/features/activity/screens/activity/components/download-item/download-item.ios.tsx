@@ -19,6 +19,8 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import {
   cancelDownload,
   moveDownloadUp,
+  pauseDownload,
+  resumeDownload,
   retryDownload,
 } from "../../utils/actions";
 import { downloadRowMenu } from "../../utils/row-menu";
@@ -86,6 +88,18 @@ export const DownloadItem = memo(function DownloadItem({
           modifiers={[tint(destructive)]}
           onPress={() => cancelDownload(id)}
         />
+        {state === "running" || state === "paused" ? (
+          <Button
+            label={state === "running" ? "Pause" : "Resume"}
+            systemImage={sfSymbol(
+              state === "running" ? Icons.pause : Icons.play,
+            )}
+            modifiers={[tint(primary)]}
+            onPress={() =>
+              state === "running" ? pauseDownload(id) : resumeDownload(id)
+            }
+          />
+        ) : null}
         {state === "failed" ? (
           <Button
             label="Retry"

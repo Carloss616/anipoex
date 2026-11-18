@@ -73,6 +73,14 @@ describe("bridgeRuntime", () => {
     ]);
   });
 
+  it("unpacked returns local pages, or null when not unpacked", async () => {
+    const page = { index: 0, uri: "file:///u/001.jpg" };
+    expect(await recorder({ result: [page] }).runtime.unpacked("k")).toEqual([
+      { index: 0, imageUrl: "file:///u/001.jpg", headers: {}, local: true },
+    ]);
+    expect(await recorder({ result: null }).runtime.unpacked("k")).toBeNull();
+  });
+
   it("errorRejects", async () => {
     const { runtime } = recorder({ error: "nope" });
     await expect(runtime.search("1", "q", 1)).rejects.toThrow("nope");

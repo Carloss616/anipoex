@@ -3,6 +3,8 @@ import type {
   MenuItemDialogConfig,
   MenuSubmenu,
 } from "@/components/ui/menu";
+import type { SplitBadgeProps } from "@/components/ui/split-badge";
+import { downloadSegment } from "@/features/downloads/utils/download-segment";
 import { type ExcludeReason, REASONS } from "@/features/manga/utils/msu";
 import type { SourceActions } from "../hooks/use-source-actions";
 import type { SourceStatus } from "./source-status";
@@ -117,3 +119,33 @@ export const searchItem = (
         label: `Search on ${source.name}`,
         onPress: () => actions.searchOn(source.id),
       };
+
+/**
+ * An available row's status badge with its downloads: one pill when the
+ * status is a count (`+12`, `-3`), else the word and a pill of its own.
+ */
+export function statusBadges(
+  { label, color }: Pick<SourceStatus, "label" | "color">,
+  scanning: boolean,
+  downloads: number,
+): SplitBadgeProps[] {
+  const status = scanning
+    ? { label: "scanning…", color: "secondary" as const }
+    : { label, color };
+  if (downloads === 0) return [{ segments: [status] }];
+  const saved = {
+    segments: [downloadSegment(downloads)],
+    accessibilityLabel: `${downloads} downloaded`,
+  };
+  return !scanning && /^[+-]\d/.test(label)
+    ? [
+        {
+          segments: [...saved.segments, status],
+          accessibilityLabel: `${saved.accessibilityLabel}, ${label}`,
+        },
+      ]
+    : [{ segments: [status] }, saved];
+}
+
+export const badgeKey = ({ segments }: SplitBadgeProps) =>
+  segments.map((s) => s.label).join("|");

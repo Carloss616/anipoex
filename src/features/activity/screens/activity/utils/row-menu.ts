@@ -4,7 +4,9 @@ import type { QueuedDownload } from "@/features/downloads";
 import {
   cancelDownload,
   moveDownloadUp,
+  pauseDownload,
   removeFromQueue,
+  resumeDownload,
   retryDownload,
   retrySkipped,
   scanNext,
@@ -69,6 +71,18 @@ export function downloadRowMenu(
       label: "Move up",
       icon: Icons.moveUp,
       onPress: () => moveDownloadUp(key),
+    });
+  if (state === "running")
+    items.push({
+      label: "Pause",
+      icon: Icons.pause,
+      onPress: () => pauseDownload(key),
+    });
+  if (state === "paused")
+    items.push({
+      label: "Resume",
+      icon: Icons.play,
+      onPress: () => resumeDownload(key),
     });
   if (state === "failed")
     items.push({

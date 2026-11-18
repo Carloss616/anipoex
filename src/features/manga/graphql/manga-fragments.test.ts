@@ -21,11 +21,14 @@ function seed() {
       __typename: "MediaList",
       status: MediaListStatus.Current,
       progress: 1,
+      updatedAt: 1,
+      createdAt: 1,
       repeat: 0,
       score: 0,
       startedAt: null,
       completedAt: null,
       notes: null,
+      customLists: null,
     },
   });
 
@@ -90,11 +93,14 @@ test("a progress write notifies the entry watchers but not the screen's", () => 
       __typename: "MediaList",
       status: MediaListStatus.Current,
       progress: 2,
+      updatedAt: 1,
+      createdAt: 1,
       repeat: 0,
       score: 0,
       startedAt: null,
       completedAt: null,
       notes: null,
+      customLists: null,
     },
   });
 

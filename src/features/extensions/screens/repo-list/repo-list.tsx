@@ -13,11 +13,7 @@ import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Badge } from "@/components/ui/badge";
-import {
-  BottomSheet,
-  SHEET_CLOSE_MS,
-  SHEET_INSET,
-} from "@/components/ui/bottom-sheet";
+import { BottomSheet, SHEET_CLOSE_MS } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { extensions$, type Repo, repoSummary } from "@/features/extensions";
@@ -68,7 +64,7 @@ function RepoListBody() {
 
   return (
     <>
-      <Sheet.Header className={SHEET_INSET.header}>
+      <Sheet.Header className="p-4">
         <View className="flex-row items-center justify-between">
           <Sheet.Title>
             Repositories <Badge>{repos.length}</Badge>
@@ -116,7 +112,7 @@ function RepoListBody() {
                 <form
                   noValidate
                   inert={!open}
-                  className="flex flex-col gap-2 pt-4"
+                  className="flex flex-col gap-2 pb-4"
                   onSubmit={(event) => {
                     event.preventDefault();
                     void add();
@@ -181,7 +177,7 @@ function RepoListBody() {
         keyExtractor={(repo) => repo.indexUrl}
         keyboardShouldPersistTaps="handled"
         className="flex-1"
-        contentContainerClassName="px-4 pb-8"
+        contentContainerClassName="px-4 pb-4"
         ListEmptyComponent={
           <EmptyState
             title="No repositories"

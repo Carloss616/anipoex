@@ -1,7 +1,9 @@
 import {
-  cancel as cancelDownload,
+  cancelDownload,
   moveUp as moveDownloadUp,
+  pauseDownload,
   pauseDownloads,
+  resumeDownload,
   resumeDownloads,
   retryDownload,
 } from "@/features/downloads";
@@ -25,8 +27,10 @@ export {
   cancelDownload,
   clearQueue,
   moveDownloadUp,
+  pauseDownload,
   pauseDownloads,
   removeFromQueue,
+  resumeDownload,
   resumeDownloads,
   retryAllSkipped,
   retryDownload,

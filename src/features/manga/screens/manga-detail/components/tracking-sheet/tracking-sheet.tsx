@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { Platform } from "react-native";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import type { MangaTracking } from "@/features/manga/hooks/use-tracking-entry";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
 import type { TrackingForm } from "@/features/manga/utils/tracking-form";
+import { CustomLists } from "./custom-lists";
 import { DateView } from "./date-view";
 import { useTrackingSheet } from "./hooks/use-tracking-sheet";
 import type { Field } from "./overview";
@@ -11,6 +13,11 @@ import { Overview } from "./overview";
 import { Progress } from "./progress";
 import { Score } from "./score";
 import { Status } from "./status";
+
+// iOS draws these as a List, which has no height of its own to fit to.
+const LIST_VIEWS: ReadonlySet<Field> = new Set(
+  Platform.OS === "ios" ? ["status", "customLists"] : [],
+);
 
 export interface TrackingSheetProps {
   isPresented: boolean;
@@ -81,12 +88,18 @@ export function TrackingSheet({
     ),
     startedAt: () => dateView("startedAt"),
     completedAt: () => dateView("completedAt"),
+    customLists: () => (
+      <CustomLists form={form} onCancel={back} onConfirm={commit} />
+    ),
   };
 
   return (
     <BottomSheet
       isPresented={isPresented}
       contentKey={editing ?? "overview"}
+      snapPoints={
+        editing && LIST_VIEWS.has(editing) ? ["half", "full"] : undefined
+      }
       onDismiss={() => {
         back();
         onDismiss();

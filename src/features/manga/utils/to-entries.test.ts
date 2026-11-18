@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { MangaListQuery } from "../graphql/manga-list.generated";
-import { type MangaEntry, toEntries } from "./to-entries";
+import { entryFields, type MangaEntry, toEntries } from "./to-entries";
 
 const berserk = {
   id: 30002,
@@ -42,5 +42,57 @@ describe("toEntries", () => {
       { entries: [{ id: 2, media: berserk }] },
     ]);
     expect(toEntries(data)).toEqual([berserk, berserk]);
+  });
+
+  const other = { ...berserk, id: 2 } as MangaEntry;
+  const withCustom = query([
+    { name: "Reading", isCustomList: false, entries: [{ media: berserk }] },
+    { name: "List A", isCustomList: false, entries: [{ media: other }] },
+    { name: "List A", isCustomList: true, entries: [{ media: berserk }] },
+  ]);
+
+  it("skips custom groups, which repeat a status's entries", () => {
+    expect(toEntries(withCustom)).toEqual([berserk, other]);
+  });
+
+  it("takes only the custom group with that name", () => {
+    expect(toEntries(withCustom, "List A")).toEqual([berserk]);
+    expect(toEntries(withCustom, "Gone")).toEqual([]);
+  });
+});
+
+describe("entryFields", () => {
+  it("maps the list fields by media id, dropping nulls and a zero score", () => {
+    const data = query([
+      {
+        entries: [
+          {
+            id: 1,
+            progress: 12,
+            updatedAt: 1700,
+            createdAt: 1600,
+            score: 85,
+            media: berserk,
+          },
+          {
+            id: 2,
+            progress: null,
+            updatedAt: null,
+            createdAt: null,
+            score: 0,
+            media: { ...berserk, id: 2 },
+          },
+          { id: 3, media: null },
+        ],
+      },
+    ]);
+    expect(entryFields(data)).toEqual({
+      30002: { progress: 12, updatedAt: 1700, createdAt: 1600, score: 85 },
+      2: { progress: 0 },
+    });
+  });
+
+  it("is empty without data", () => {
+    expect(entryFields(undefined)).toEqual({});
   });
 });

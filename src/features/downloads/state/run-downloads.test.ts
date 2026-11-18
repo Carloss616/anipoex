@@ -17,6 +17,7 @@ mock.module("@/state/observable-persist", () => ({
 }));
 
 const {
+  downloadFraction,
   downloadProgress$,
   downloadQueue$,
   downloadStops,
@@ -27,8 +28,11 @@ const {
   enqueue,
 } = await import("./download-queue");
 const {
+  cancelDownload,
   downloadDeps,
+  pauseDownload,
   pauseDownloads,
+  resumeDownload,
   resumeDownloads,
   resumeOnline,
   resumeQueue,
@@ -297,5 +301,63 @@ describe("resumeQueue", () => {
     await resumeQueue();
     expect(downloadQueue$.get()[keyOf("a")].state).toBe("running");
     expect(dropStage).not.toHaveBeenCalled();
+  });
+});
+
+describe("pauseDownload", () => {
+  const four = [0, 1, 2, 3].map((index) => ({ ...page, index }));
+
+  /** Runs chapter "a" with held page stages, pauses it after two pages. */
+  async function pausedAfterTwo() {
+    const stages = held<void>();
+    Object.assign(downloadDeps.runtime, { stagePage: stages.fn });
+    enqueue([item("a")]);
+    startDownloads();
+    await flush();
+    pages.calls[0].resolve(four);
+    await flush();
+    stages.calls[0].resolve();
+    await flush();
+    pauseDownload(keyOf("a"));
+    // The page in flight still lands before the run stops.
+    stages.calls[1].resolve();
+    await flush();
+    return stages;
+  }
+
+  afterEach(() => {
+    // A paused chapter's staged pages outlive the queue reset otherwise.
+    cancelDownload(keyOf("a"));
+    Object.assign(downloadDeps.runtime, { stagePage: async () => {} });
+  });
+
+  it("keeps the ring where it stopped and the staged pages", async () => {
+    const stages = await pausedAfterTwo();
+    expect(downloadQueue$.get()[keyOf("a")]).toMatchObject({
+      state: "paused",
+      progress: 0.25,
+    });
+    expect(downloadFraction(keyOf("a"))).toBe(0.25);
+    expect(stages.calls).toHaveLength(2);
+    expect(dropStage).not.toHaveBeenCalled();
+  });
+
+  it("resumes after the pages it staged", async () => {
+    const stages = await pausedAfterTwo();
+    resumeDownload(keyOf("a"));
+    await flush();
+    expect(downloadProgress$.get()[keyOf("a")]).toBe(0.5);
+    pages.calls[1].resolve(four);
+    await flush();
+    expect(stages.calls[2].args[3]).toBe("003");
+    for (const call of stages.calls.slice(2)) call.reject(new Error("over"));
+  });
+
+  it("drops a paused chapter's stage when it is cancelled", async () => {
+    await pausedAfterTwo();
+    cancelDownload(keyOf("a"));
+    await flush();
+    expect(downloadQueue$.get()[keyOf("a")]).toBeUndefined();
+    expect(dropStage).toHaveBeenCalledWith(stageId(keyOf("a")));
   });
 });

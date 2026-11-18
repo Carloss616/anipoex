@@ -6,8 +6,10 @@ import { chapterHash, downloadKey } from "../utils/paths";
 export interface QueuedDownload {
   key: string;
   order: number;
-  state: "queued" | "running" | "failed";
+  state: "queued" | "running" | "paused" | "failed";
   error?: string;
+  /** The fraction a paused chapter stopped at. */
+  progress?: number;
   manga: { id: number; title: string; cover?: string };
   source: { id: string; name: string };
   chapter: {
@@ -49,8 +51,11 @@ export const downloadsSuspended$ = observable(false);
 /** No connection: the queue waits and starts again by itself when it returns. */
 export const downloadsOffline$ = observable(false);
 
-/** Callbacks stay out of observables: a function with no arguments would run as a computed. */
-export const downloadStops = new Map<string, () => void>();
+/**
+ * Callbacks stay out of observables: a function with no arguments would run as a computed.
+ * The reason is the abort's.
+ */
+export const downloadStops = new Map<string, (reason?: unknown) => void>();
 
 const sorted = () =>
   Object.values(downloadQueue$.peek()).sort((a, b) => a.order - b.order);
@@ -114,6 +119,10 @@ export function retryFailed() {
       if (entry.state === "failed") retry(entry.key);
   });
 }
+
+/** A running chapter's progress, or where a paused one stopped. */
+export const downloadFraction = (key: string) =>
+  downloadProgress$[key].get() ?? downloadQueue$[key].progress.get() ?? 0;
 
 export const queuedOf = (sourceId: string) =>
   sorted().filter((e) => e.source.id === sourceId && e.state === "queued");

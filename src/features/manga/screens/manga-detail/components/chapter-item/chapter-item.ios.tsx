@@ -25,7 +25,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Icon, Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { ProgressRing } from "@/components/ui/progress-ring";
-import { type DownloadState, downloadProgress$ } from "@/features/downloads";
+import { type DownloadState, downloadFraction } from "@/features/downloads";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { ChapterItemProps } from "./chapter-item";
 import { useChapterDownload } from "./hooks/use-chapter-download";
@@ -59,8 +59,6 @@ export const ChapterItem = memo(function ChapterItem({
         false,
       )
     : [];
-  // The swipe takes the menu's first row.
-  const [first] = items;
 
   const row = (
     <Button
@@ -79,13 +77,14 @@ export const ChapterItem = memo(function ChapterItem({
           label fills the row. */}
       <HStack
         spacing={8}
-        modifiers={[
-          padding({ vertical: 16, horizontal: 16 }),
-          ...ROW_FILL,
-          ...(read ? [opacity(0.64)] : []),
-        ]}
+        modifiers={[padding({ vertical: 16, horizontal: 16 }), ...ROW_FILL]}
       >
-        <VStack alignment="leading" spacing={2}>
+        {/* Dims the text, not the row: the download status stays full. */}
+        <VStack
+          alignment="leading"
+          spacing={2}
+          modifiers={read ? [opacity(0.64)] : undefined}
+        >
           <HStack spacing={6}>
             {read && (
               <HStack spacing={-7}>
@@ -138,16 +137,20 @@ export const ChapterItem = memo(function ChapterItem({
   return (
     <SwipeActions>
       {items.length > 0 ? <ContextMenu items={items}>{row}</ContextMenu> : row}
-      {first && (
+      {items.length > 0 && (
         <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
-          {/* No destructive role: SwiftUI would delete the row before the
+          {/* The menu's rows by their verb alone: the row says what they act
+              on. No destructive role: SwiftUI would delete the row before the
               alert confirms. */}
-          <Button
-            label={first.label}
-            systemImage={sfSymbol(first.icon)}
-            modifiers={first.destructive ? [tint(destructive)] : []}
-            onPress={first.onPress}
-          />
+          {items.map((item) => (
+            <Button
+              key={item.label}
+              label={item.label.split(" ")[0]}
+              systemImage={sfSymbol(item.icon)}
+              modifiers={item.destructive ? [tint(destructive)] : []}
+              onPress={item.onPress}
+            />
+          ))}
         </SwipeActions.Actions>
       )}
     </SwipeActions>
@@ -155,7 +158,7 @@ export const ChapterItem = memo(function ChapterItem({
 });
 
 const STATUS_LABELS: Record<
-  Exclude<DownloadState, "none" | "running">,
+  Exclude<DownloadState, "none" | "running" | "paused">,
   string
 > = {
   queued: "Download queued",
@@ -174,11 +177,14 @@ function DownloadStatus({
 }) {
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
   if (state === "none") return null;
-  if (state === "running") {
+  if (state === "running" || state === "paused") {
     return (
       <Computed>
         {() => (
-          <ProgressRing value={downloadProgress$[progressKey].get() ?? 0} />
+          <ProgressRing
+            value={downloadFraction(progressKey)}
+            icon={state === "paused" ? Icons.pause : Icons.download}
+          />
         )}
       </Computed>
     );
@@ -187,7 +193,6 @@ function DownloadStatus({
   return (
     <Icon
       name={STATE_ICONS[state]}
-      size={16}
       color={
         state === "failed"
           ? destructive

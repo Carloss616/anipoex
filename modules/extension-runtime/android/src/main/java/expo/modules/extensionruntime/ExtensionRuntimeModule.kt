@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
@@ -77,7 +78,7 @@ class ExtensionRuntimeModule : Module() {
       Injekt.addSingleton<Application>(app)
       val network = NetworkHelper(app)
       Injekt.addSingleton(network)
-      // Covers (modules/native-image) load through the runtime's client, as
+      // Covers (modules/image) load through the runtime's client, as
       // Mihon's do: DNS over HTTPS, cookies, Cloudflare. expo-image's own views
       // keep their own model and loader.
       Glide.get(app).registry.replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(network.client))
@@ -208,6 +209,53 @@ class ExtensionRuntimeModule : Module() {
         }, dir)
         ChapterArchive.prune(unpacked, 3)
         files.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
+      }
+    }
+
+    // One query for a folder's children, names and types included, off the JS
+    // thread: expo-file-system's Directory.list() runs on it and looks up each
+    // child's type on its own (~10 ms each on SAF).
+    AsyncFunction("listFolder") Coroutine { uri: String ->
+      withContext(Dispatchers.IO) { listFolder(Uri.parse(uri)) }
+    }
+
+    // File.delete() on SAF blocks the JS thread too (~300 ms on an emulator).
+    AsyncFunction("deleteDocument") Coroutine { uri: String ->
+      withContext(Dispatchers.IO) {
+        if (!DocumentsContract.deleteDocument(app.contentResolver, Uri.parse(uri)))
+          throw IllegalStateException("Can't delete $uri")
+      }
+    }
+
+    AsyncFunction("unpacked") Coroutine { key: String ->
+      withContext(Dispatchers.IO) {
+        ChapterArchive.cached(File(unpacked, ChapterArchive.checkId(key)))
+          ?.mapIndexed { i, f -> mapOf("index" to i, "uri" to f.toPath().toUri().toString()) }
+      }
+    }
+  }
+
+  private fun listFolder(folder: Uri): List<Map<String, Any>> {
+    val id =
+      if (DocumentsContract.isDocumentUri(app, folder)) DocumentsContract.getDocumentId(folder)
+      else DocumentsContract.getTreeDocumentId(folder)
+    val columns = arrayOf(
+      DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+      DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+      DocumentsContract.Document.COLUMN_MIME_TYPE,
+    )
+    val children = DocumentsContract.buildChildDocumentsUriUsingTree(folder, id)
+    val cursor = app.contentResolver.query(children, columns, null, null, null)
+      ?: throw IllegalStateException("Can't list $folder")
+    return cursor.use { c ->
+      buildList {
+        while (c.moveToNext()) {
+          add(mapOf(
+            "uri" to DocumentsContract.buildDocumentUriUsingTree(folder, c.getString(0)).toString(),
+            "name" to c.getString(1),
+            "dir" to (c.getString(2) == DocumentsContract.Document.MIME_TYPE_DIR),
+          ))
+        }
       }
     }
   }

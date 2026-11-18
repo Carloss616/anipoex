@@ -42,17 +42,17 @@ type NativeProps = Omit<ImageProps, "onLoad" | "onError"> & {
   onError?: (event: { nativeEvent: ImageErrorEventData }) => void;
 };
 
-const NativeImage = requireNativeView<NativeProps>("NativeImage", "ImageView");
+const ImageView = requireNativeView<NativeProps>("Image", "ImageView");
 
 /**
  * A SwiftUI image that fills its frame, loaded and cached by SDWebImage
- * (expo-image's engine) from the local `modules/native-image`, and fades in.
+ * (expo-image's engine) from the local `modules/image`, and fades in.
  * Must sit inside a Host. Use it over an `RNHostView` image: `List.ForEach`
  * recycling can leave a hosted React Native view in a removed row.
  */
 export function Image({ modifiers, onLoad, onError, ...props }: ImageProps) {
   return (
-    <NativeImage
+    <ImageView
       {...props}
       onLoad={onLoad && ((event) => onLoad(event.nativeEvent))}
       onError={onError && ((event) => onError(event.nativeEvent))}

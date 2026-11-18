@@ -4,6 +4,11 @@ import { Icon } from "./icon";
 // `sf`/`md`) stay in their platform file.
 export const Icons = {
   // Actions
+  edit: Icon.select({
+    ios: "pencil",
+    android: require("@expo/material-symbols/edit.xml"),
+    web: "pencil",
+  }),
   add: Icon.select({
     ios: "plus",
     android: require("@expo/material-symbols/add.xml"),
@@ -195,11 +200,11 @@ export const Icons = {
     web: "hourglass",
   }),
   downloaded: Icon.select({
-    ios: "checkmark.circle.fill",
+    ios: "arrow.down.circle.fill",
     android: require("@expo/material-symbols/download_done.xml"),
-    web: "circle-check",
+    web: "check-line",
   }),
-  inCloud: Icon.select({
+  cloud: Icon.select({
     ios: "icloud",
     android: require("@expo/material-symbols/cloud.xml"),
     web: "cloud",
@@ -214,21 +219,21 @@ export const Icons = {
     android: require("@expo/material-symbols/cloud_upload.xml"),
     web: "cloud-upload",
   }),
-  downloadFailed: Icon.select({
-    ios: "exclamationmark.circle",
-    android: require("@expo/material-symbols/error.xml"),
-    web: "circle-alert",
-  }),
 
   info: Icon.select({
     ios: "info.circle",
     android: require("@expo/material-symbols/info.xml"),
     web: "info",
   }),
-  error: Icon.select({
+  warning: Icon.select({
     ios: "exclamationmark.triangle",
     android: require("@expo/material-symbols/warning.xml"),
     web: "triangle-alert",
+  }),
+  error: Icon.select({
+    ios: "exclamationmark.circle",
+    android: require("@expo/material-symbols/error.xml"),
+    web: "circle-alert",
   }),
 
   // Metadata
@@ -263,6 +268,11 @@ export const Icons = {
     ios: "list.bullet",
     android: require("@expo/material-symbols/list.xml"),
     web: "list",
+  }),
+  listEdit: Icon.select({
+    ios: "list.bullet.rectangle",
+    android: require("@expo/material-symbols/edit_note.xml"),
+    web: "list-plus",
   }),
   grid: Icon.select({
     ios: "square.grid.2x2",

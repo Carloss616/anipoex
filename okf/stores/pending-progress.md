@@ -14,7 +14,7 @@ and not sent yet. One record holds, any of:
 - the reader's **progress**, and the status that came with it (kept but not sent: the
   rules set the status when it is sent);
 - **hand edits**: the fields of the tracking sheet the user changed (status, progress,
-  score, dates), only those;
+  score, dates, custom lists), only those; the lists as the whole set picked;
 - a **removal** from the list;
 - the AniList entry it changes (none for a manga **added offline**), what the cache showed
   before the first change (to put back), when it was written and the last send error.
@@ -47,6 +47,7 @@ Default empty. Stays on the device; it is not synced.
   Each entry goes in turn, over AniList's entry as it is now, never a copy saved on the
   device, so a change made elsewhere stays:
   - edited fields win and the rest keep AniList's values;
+  - kept custom lists go out without any the account no longer has;
   - the reader's progress is sent only past AniList's, with the
     [tracking rules](../concepts/tracking-rules.md), which set the status: a pause made
     elsewhere stays;

@@ -47,12 +47,15 @@ export function syncDownloadActivity() {
       activity.update(view);
       return;
     }
+    // Only paused chapters left: it ends as paused, and a resume counts on.
+    const held =
+      !!view || Object.values(queue).some((e) => e.state === "paused");
     activity?.end({
       done: tally.done,
       failed: tally.failed.length,
-      paused: !!view,
+      paused: held,
     });
     activity = undefined;
-    if (!view) tally = undefined;
+    if (!held) tally = undefined;
   });
 }

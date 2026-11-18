@@ -21,3 +21,5 @@ relative. Anything off the scale (an older build, a hand edit) reads as the defa
 `below` puts the title and the progress caption (`c.N`) under the cover; `split`
 keeps the title under it and moves the caption onto the cover's foot, centered;
 `over` puts both on the cover. Home's rails always use `split`, whatever the setting.
+
+The list's filters and sort are not here: they live in `device.mangaList` of settings, per device.

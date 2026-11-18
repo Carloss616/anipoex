@@ -12,7 +12,7 @@ export function ChangesPreview({ changes }: ChangesPreviewProps) {
     <AnimatedVisibility visible={changes.length > 0}>
       <Column
         verticalArrangement={{ spacedBy: 4 }}
-        modifiers={[padding(16, 0, 16, 16)]}
+        modifiers={[padding(16, 16, 16, 0)]}
       >
         {changes.map((line) => (
           <Text

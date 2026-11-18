@@ -16,9 +16,11 @@ export const unsentIds = () => ids(true);
 /** Every pending AniList change: waiting and not sent. */
 export const pendingCount = () => Object.keys(pendingEntries$.get()).length;
 
-/** Whether a download is left to run: queued or running, not only failed ones. */
+/** Whether a download is left to run: queued or running, not only failed or paused ones. */
 export const downloadsPending = () =>
-  Object.values(downloadQueue$.get()).some((d) => d.state !== "failed");
+  Object.values(downloadQueue$.get()).some(
+    (d) => d.state === "queued" || d.state === "running",
+  );
 
 export const split = (ids: string) => (ids ? ids.split(",") : []);
 

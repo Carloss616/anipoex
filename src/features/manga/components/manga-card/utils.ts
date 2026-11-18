@@ -1,5 +1,7 @@
 import type { SemanticColor } from "@/components/ui/colors";
 import type { IconName } from "@/components/ui/icon";
+import type { BadgeSegment } from "@/components/ui/split-badge";
+import { downloadSegment } from "@/features/downloads/utils/download-segment";
 import type { MediaStatus } from "@/graphql/types.generated";
 import { STATUS_COLOR, STATUS_ICON } from "./constants";
 
@@ -18,3 +20,19 @@ export const cornerBadge = (
   (status
     ? { color: STATUS_COLOR[status], icon: STATUS_ICON[status] }
     : undefined);
+
+/** The top-right pill: downloaded chapters, then unread (green, neutral at 0). */
+export const countSegments = (
+  downloads: number,
+  unread: number | undefined,
+): BadgeSegment[] => [
+  ...(downloads > 0 ? [downloadSegment(downloads)] : []),
+  ...(unread == null
+    ? []
+    : [
+        {
+          color: unread > 0 ? ("success" as const) : ("secondary" as const),
+          label: String(unread),
+        },
+      ]),
+];

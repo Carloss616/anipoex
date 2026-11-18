@@ -22,18 +22,20 @@ import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
 import { Icon, Icons } from "@/components/ui/icon";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { Loader } from "@/components/ui/loader";
 import { ContextMenu } from "@/components/ui/menu";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useRowBackground } from "../../hooks/use-row-background";
 import {
   FOLDER_HINT,
+  HELP_HOW,
+  HELP_TITLE,
   INTERVAL_HINT,
   SYNC_FOOTER,
   SYNC_INTERVAL_OPTIONS,
 } from "./constants";
 import { useSyncSection } from "./hooks/use-sync-section";
-import { SyncHelp } from "./sync-help";
 
 const AVATAR = 40;
 
@@ -101,7 +103,12 @@ export function SyncSection() {
       header={
         <HStack spacing={2}>
           <Text>Sync</Text>
-          <SyncHelp moments={sync.moments} />
+          <InfoPopover
+            label={HELP_TITLE}
+            title={HELP_TITLE}
+            items={sync.moments}
+            note={HELP_HOW}
+          />
           {sync.connected && !gist.revoked ? (
             <>
               <Spacer />

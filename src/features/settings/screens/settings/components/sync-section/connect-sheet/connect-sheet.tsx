@@ -6,7 +6,7 @@ import { Input } from "panelui-web/input";
 import { Sheet } from "panelui-web/sheet";
 import { useState } from "react";
 import { View } from "react-native";
-import { BottomSheet, SHEET_INSET } from "@/components/ui/bottom-sheet";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import {
   closeConnect,
   connect$,
@@ -100,8 +100,8 @@ export function ConnectSheet() {
 
   return (
     <BottomSheet isPresented={open} onDismiss={closeConnect}>
-      <Sheet.Header title="Connect GitHub" className={SHEET_INSET.header} />
-      <Sheet.Body className={`${SHEET_INSET.body} pb-4`}>
+      <Sheet.Header title="Connect GitHub" className="p-4" />
+      <Sheet.Body className="px-4 pb-4">
         {canUseDeviceFlow ? <CodeStep /> : <TokenStep />}
       </Sheet.Body>
     </BottomSheet>

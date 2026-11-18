@@ -37,17 +37,21 @@ export function ConnectSheet() {
       onDismiss={closeConnect}
       contentKey={code ? 1 : 0}
     >
+      <Text
+        textStyle="title3"
+        weight="semibold"
+        modifiers={[padding({ all: 16 })]}
+      >
+        Connect GitHub
+      </Text>
       <VStack
         alignment="leading"
         spacing={14}
         modifiers={[
-          padding({ horizontal: 24, top: 20, bottom: 32 }),
+          padding({ horizontal: 16, bottom: 16 }),
           frame({ maxWidth: Infinity }),
         ]}
       >
-        <Text textStyle="title3" weight="semibold">
-          Connect GitHub
-        </Text>
         <Text textStyle="subheadline" modifiers={SECONDARY}>
           Enter this code on GitHub. It connects here by itself.
         </Text>

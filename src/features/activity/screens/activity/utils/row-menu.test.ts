@@ -8,7 +8,9 @@ mock.module("@/components/ui/icon", () => ({
 mock.module("./actions", () => ({
   cancelDownload() {},
   moveDownloadUp() {},
+  pauseDownload() {},
   removeFromQueue() {},
+  resumeDownload() {},
   retryDownload() {},
   retrySkipped() {},
   scanNext() {},
@@ -67,10 +69,13 @@ describe("a download's menu", () => {
     ).toEqual(["Cancel"]);
   });
 
-  test("running: Cancel", () => {
+  test("running: Pause, Cancel; paused: Resume, Cancel", () => {
     expect(
       labels(downloadRowMenu("k", { state: "running", canMoveUp: true })),
-    ).toEqual(["Cancel"]);
+    ).toEqual(["Pause", "Cancel"]);
+    expect(
+      labels(downloadRowMenu("k", { state: "paused", canMoveUp: true })),
+    ).toEqual(["Resume", "Cancel"]);
   });
 
   test("failed: Retry, Cancel", () => {

@@ -5,12 +5,14 @@ import { session$ } from "@/state/session";
 import { debouncer } from "@/utils/debouncer";
 import { MangaDetailDocument } from "../graphql/manga-detail.generated";
 import { MangaMediaFragmentDoc } from "../graphql/manga-fragments.generated";
+import { MangaListCountsDocument } from "../graphql/manga-list.generated";
 import {
   DeleteMangaTrackingDocument,
   SaveMangaTrackingDocument,
 } from "../graphql/manga-tracking.generated";
 import { fileDeleted, fileSaved, refileEntry } from "../utils/file-entry";
 import { pendingWrite } from "../utils/pending-write";
+import { accountNames } from "../utils/to-counts";
 import { flushPending, type PendingEntry } from "./pending-entries";
 
 const CONTEXT = {
@@ -46,12 +48,23 @@ async function send(mediaId: number, pending: PendingEntry) {
   const userId = session$.user.peek()?.id;
   if (media && userId != null) refileEntry(cache, userId, priorId, media);
 
+  // The account's lists now: one deleted since the edit is left out
+  const lists =
+    pending.edits?.customLists && userId != null
+      ? await client.query({
+          query: MangaListCountsDocument,
+          variables: { userId },
+          fetchPolicy: "network-only",
+          context: CONTEXT,
+        })
+      : undefined;
   const write = pendingWrite(
     mediaId,
     pending,
     media?.mediaListEntry,
     media?.chapters,
     new Date(),
+    accountNames(lists?.data),
   );
   if (!write) return;
   if (write.kind === "delete") {

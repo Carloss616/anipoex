@@ -21,11 +21,7 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
   const destructive = useThemeColor("destructive");
 
   return (
-    <VStack
-      alignment="leading"
-      spacing={0}
-      modifiers={[padding({ vertical: 16 })]}
-    >
+    <VStack alignment="leading" spacing={0}>
       <Header
         title={title}
         onCancel={onCancel}
@@ -36,7 +32,7 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
       <ScrollView
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
       >
-        <VStack modifiers={[padding({ all: 16 })]}>
+        <VStack modifiers={[padding({ horizontal: 16 })]}>
           <Calendar
             selected={date}
             onSelect={setDate}
@@ -54,7 +50,7 @@ export function DateView({ title, value, onCancel, onConfirm }: DateViewProps) {
           font,
           tint(destructive),
           disabled(!date),
-          padding({ horizontal: 16 }),
+          padding({ all: 16 }),
         ]}
       />
     </VStack>

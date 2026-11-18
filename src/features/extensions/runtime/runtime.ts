@@ -107,6 +107,8 @@ export interface RuntimeApi {
   dropStage(stage: string): Promise<void>;
   /** Extracts a CBZ's pages under `key`, as `local` pages. */
   unpack(cbzUri: string, key: string): Promise<SourcePage[]>;
+  /** The pages a finished `unpack` left under `key`, else null; opens no CBZ. */
+  unpacked(key: string): Promise<SourcePage[] | null>;
   getDns(): Promise<DnsId>;
   /** Applies to the next lookup of every source; the runtime stores it. */
   setDns(dns: DnsId): Promise<void>;

@@ -9,13 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu, Menu } from "@/components/ui/menu";
 import { ProgressRing } from "@/components/ui/progress-ring";
-import { type DownloadState, downloadProgress$ } from "@/features/downloads";
+import { type DownloadState, downloadFraction } from "@/features/downloads";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ChapterItemProps } from "./chapter-item";
 import { useChapterDownload } from "./hooks/use-chapter-download";
 import { useChapterRead } from "./hooks/use-chapter-read";
 import { useIsNext } from "./hooks/use-is-next";
-import { deleteItem, downloadLabel, STATE_ICONS } from "./utils/download-items";
+import { downloadLabel, STATE_ICONS } from "./utils/download-items";
 
 export const ChapterItem = memo(function ChapterItem({
   chapter,
@@ -33,6 +33,7 @@ export const ChapterItem = memo(function ChapterItem({
   const download = useChapterDownload(manga, source, chapter);
   const { state } = download;
   const label = downloadLabel(state, chapter.title);
+  const dim = read ? [alpha(0.64)] : [];
 
   const row = (
     <SegmentedListItem
@@ -45,9 +46,13 @@ export const ChapterItem = memo(function ChapterItem({
           params: { id: manga.id, chapter: chapter.id },
         })
       }
-      modifiers={read ? [alpha(0.64)] : []}
     >
-      <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 6 }}>
+      {/* The text dims when read, not the row: the download button stays full. */}
+      <Row
+        verticalAlignment="center"
+        horizontalArrangement={{ spacedBy: 6 }}
+        modifiers={dim}
+      >
         {read && (
           <Icon
             name={Icons.read}
@@ -64,16 +69,22 @@ export const ChapterItem = memo(function ChapterItem({
       {/* An empty slot still takes a line and lifts the title off center. */}
       {chapter.date !== "" && (
         <SegmentedListItem.Supporting>
-          <Text style={{ typography: "bodyMedium" }}>{chapter.date}</Text>
+          <Text style={{ typography: "bodyMedium" }} modifiers={dim}>
+            {chapter.date}
+          </Text>
         </SegmentedListItem.Supporting>
       )}
       <SegmentedListItem.Trailing>
         <Row verticalAlignment="center" horizontalArrangement={{ spacedBy: 4 }}>
           {next && <Badge color="primary">Next</Badge>}
           {source &&
-            (state === "local" || state === "cloud" ? (
-              <Menu items={[deleteItem(download.actions.remove)]}>
-                <DownloadButton state={state} label={label} />
+            (download.press === undefined ? (
+              <Menu items={download.items}>
+                <DownloadButton
+                  state={state}
+                  label={label}
+                  progressKey={download.key}
+                />
               </Menu>
             ) : (
               <DownloadButton
@@ -95,7 +106,10 @@ export const ChapterItem = memo(function ChapterItem({
   );
 });
 
-/** An icon per state; a ring of the pages downloaded while it runs. */
+/**
+ * An icon per state; while it runs or is paused, a ring of the pages
+ * downloaded with what a press does in the middle.
+ */
 function DownloadButton({
   state,
   label,
@@ -115,10 +129,14 @@ function DownloadButton({
       onClick={onPress}
       modifiers={[semantics({ contentDescription: label })]}
     >
-      {state === "running" ? (
+      {state === "running" || state === "paused" ? (
         <Computed>
           {() => (
-            <ProgressRing value={downloadProgress$[progressKey].get() ?? 0} />
+            <ProgressRing
+              value={downloadFraction(progressKey)}
+              icon={state === "running" ? Icons.pause : Icons.play}
+              paused={state === "paused"}
+            />
           )}
         </Computed>
       ) : (

@@ -20,6 +20,8 @@ export interface CachedFields {
   score: number | null;
   startedAt: FuzzyDateInput | null;
   completedAt: FuzzyDateInput | null;
+  /** Missing on a change kept before custom lists. */
+  customLists?: string[];
 }
 
 export interface PendingEntry {

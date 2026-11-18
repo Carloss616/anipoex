@@ -92,7 +92,7 @@ export function RepoList() {
             <Row
               verticalAlignment="center"
               horizontalArrangement={{ spacedBy: 8 }}
-              modifiers={[padding(GUTTER, 0, GUTTER, 16)]}
+              modifiers={[padding(GUTTER, GUTTER, GUTTER, GUTTER)]}
             >
               <Text style={{ typography: "titleLarge" }}>Repositories</Text>
               {/* M3's badge reads high against a centered title. */}
@@ -192,7 +192,11 @@ export function RepoList() {
         <Column modifiers={[fillMaxSize(), nestedScrollInteropConnection()]}>
           <LazyColumn
             modifiers={[weight(1)]}
-            contentPadding={{ start: insets.left, end: insets.right }}
+            contentPadding={{
+              start: insets.left,
+              end: insets.right,
+              bottom: GUTTER,
+            }}
           >
             <LazyColumn.Items
               data={repos}

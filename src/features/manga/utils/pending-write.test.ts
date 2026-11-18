@@ -16,6 +16,27 @@ const entry = (progress: number, status = MediaListStatus.Current) => ({
 const reader = (progress: number) => ({ progress, at: AT });
 
 describe("pendingWrite", () => {
+  it("sends a lists-only edit without the lists deleted since", () => {
+    const write = pendingWrite(
+      1,
+      { edits: { customLists: ["A", "Gone"] }, entryId: 7, at: AT },
+      { ...entry(3), customLists: { B: true } },
+      20,
+      today,
+      ["A", "B"],
+    );
+    expect(write).toMatchObject({
+      kind: "save",
+      variables: { id: 7, customLists: ["A"] },
+    });
+  });
+
+  it("drops a lists edit AniList already has", () => {
+    const pending = { edits: { customLists: ["A"] }, entryId: 7, at: AT };
+    const current = { ...entry(3), customLists: { A: true } };
+    expect(pendingWrite(1, pending, current, 20, today, ["A"])).toBeNull();
+  });
+
   it("reader progress past AniList's saves with the rules", () => {
     const write = pendingWrite(
       1,

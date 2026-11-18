@@ -22,11 +22,7 @@ export function Progress({
   );
 
   return (
-    <VStack
-      alignment="leading"
-      spacing={0}
-      modifiers={[padding({ vertical: 16 })]}
-    >
+    <VStack alignment="leading" spacing={0}>
       <Header
         title="Progress"
         onCancel={onCancel}
@@ -37,7 +33,7 @@ export function Progress({
       <ScrollView
         modifiers={isLandscape ? [] : [fixedSize({ vertical: true })]}
       >
-        <VStack modifiers={[padding({ all: 16 })]}>
+        <VStack modifiers={[padding({ horizontal: 16, bottom: 16 })]}>
           <NumberInput
             suffix={total ? `/${total}` : undefined}
             value={value}

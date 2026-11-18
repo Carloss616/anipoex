@@ -30,6 +30,9 @@ last time it was asked. Either failing makes it offline.
 - **No error toasts for lost connections**: a query that fails for want of a connection
   waits quietly, and so does a change that is kept for later. A change that can't be kept
   still says it failed.
+- **Custom lists can't be made, renamed or deleted**: AniList keeps membership by
+  position, so a late change could move manga between lists. See
+  [Custom list](custom-list.md).
 - **Scans don't start, and running ones stop**: a scan can't tell a dropped connection from
   a failing source, so it would exclude good sources.
 - **Downloads pause** and start again by themselves when the connection returns, apart from

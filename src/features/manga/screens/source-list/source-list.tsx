@@ -9,11 +9,7 @@ import { LinearTransition } from "react-native-reanimated";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
-import {
-  BottomSheet,
-  SHEET_CLOSE_MS,
-  SHEET_INSET,
-} from "@/components/ui/bottom-sheet";
+import { BottomSheet, SHEET_CLOSE_MS } from "@/components/ui/bottom-sheet";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
@@ -138,8 +134,8 @@ function ListBody({
       snapPoints={["half", "full"]}
       snapPointsDirection="bottom"
     >
-      <View className="flex-1 gap-4 pb-4">
-        <Sheet.Header className={SHEET_INSET.header}>
+      <View className="flex-1 pb-4">
+        <Sheet.Header className="p-4">
           <View className="flex-row items-center gap-2">
             <View>
               <Sheet.Title>
@@ -212,121 +208,124 @@ function ListBody({
           </View>
         </Sheet.Header>
 
-        <Computed>
-          {() => {
-            const progress = scanProgress$[key].get();
+        {/* Rows draw their own inset: the sticky headers span the sheet. */}
+        <View className="flex-1 gap-4">
+          <Computed>
+            {() => {
+              const progress = scanProgress$[key].get();
 
-            return progress ? (
-              <View className="px-4">
-                <Progress value={progress.done} maxValue={progress.total} />
-              </View>
-            ) : null;
-          }}
-        </Computed>
+              return progress ? (
+                <View className="px-4">
+                  <Progress value={progress.done} maxValue={progress.total} />
+                </View>
+              ) : null;
+            }}
+          </Computed>
 
-        <View className="px-4">
-          {title.searching ? (
-            <SearchBar
-              key={title.fieldKey}
-              defaultValue={title.query}
-              onChangeText={title.type}
-              onSubmit={title.submit}
-              placeholder="Title to search"
-              spellCheck={false}
-              accessory={
-                // The check follows the field: an edit unchecks the title.
-                <Computed>
-                  {() => (
-                    <Menu
-                      items={titleMenuItems(
-                        manga,
-                        title.fieldText(),
-                        title.pick,
-                        manualTitles(manga.id),
-                      )}
-                    >
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        shape="pill"
-                        aria-label="AniList titles"
+          <View className="px-4">
+            {title.searching ? (
+              <SearchBar
+                key={title.fieldKey}
+                defaultValue={title.query}
+                onChangeText={title.type}
+                onSubmit={title.submit}
+                placeholder="Title to search"
+                spellCheck={false}
+                accessory={
+                  // The check follows the field: an edit unchecks the title.
+                  <Computed>
+                    {() => (
+                      <Menu
+                        items={titleMenuItems(
+                          manga,
+                          title.fieldText(),
+                          title.pick,
+                          manualTitles(manga.id),
+                        )}
                       >
-                        <Icon name={Icons.swap} />
-                      </Button>
-                    </Menu>
-                  )}
-                </Computed>
-              }
-            />
-          ) : (
-            <SearchBar
-              defaultValue={query}
-              debounce={150}
-              onDebouncedChange={setQuery}
-              placeholder="Search sources"
-            />
-          )}
-        </View>
-
-        <LegendList
-          itemLayoutAnimation={LinearTransition}
-          data={items}
-          keyExtractor={sheetItemKey}
-          getItemType={(item: SheetItem) => item.kind}
-          extraData={selectedId}
-          stickyHeaderIndices={stickyIndices}
-          // Read once on open, so typing doesn't scroll; first rows need none.
-          initialScrollIndex={
-            selectedAt > 1
-              ? { index: selectedAt, viewPosition: 0.5 }
-              : undefined
-          }
-          ListEmptyComponent={<EmptyState {...empty} />}
-          renderItem={({ item }) =>
-            item.kind === "header" ? (
-              item.id === "available" ? (
-                <SectionHeader title="Available" count={available.length} />
-              ) : (
-                <SectionHeader
-                  title="Excluded"
-                  count={excluded.length}
-                  menu={excludedMenu}
-                  stuckVariant="destructive"
-                />
-              )
-            ) : item.kind === "no-sources" ? (
-              <Typography type="body-sm" muted className="px-4">
-                No sources
-              </Typography>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          shape="pill"
+                          aria-label="AniList titles"
+                        >
+                          <Icon name={Icons.swap} />
+                        </Button>
+                      </Menu>
+                    )}
+                  </Computed>
+                }
+              />
             ) : (
-              <>
-                {item.index > 0 && (
-                  <View role="separator" className="bg-border mx-4 h-px" />
-                )}
-                {item.kind === "available" ? (
-                  <AvailableItem
-                    source={item.row.source}
-                    mangaKey={key}
-                    sources={all}
-                    read={read}
-                    openedAt={openedAt}
-                    selected={item.row.source.id === selectedId}
-                    actions={actions}
-                    onSelect={onSelect}
-                  />
+              <SearchBar
+                defaultValue={query}
+                debounce={150}
+                onDebouncedChange={setQuery}
+                placeholder="Search sources"
+              />
+            )}
+          </View>
+
+          <LegendList
+            itemLayoutAnimation={LinearTransition}
+            data={items}
+            keyExtractor={sheetItemKey}
+            getItemType={(item: SheetItem) => item.kind}
+            extraData={selectedId}
+            stickyHeaderIndices={stickyIndices}
+            // Read once on open, so typing doesn't scroll; first rows need none.
+            initialScrollIndex={
+              selectedAt > 1
+                ? { index: selectedAt, viewPosition: 0.5 }
+                : undefined
+            }
+            ListEmptyComponent={<EmptyState {...empty} />}
+            renderItem={({ item }) =>
+              item.kind === "header" ? (
+                item.id === "available" ? (
+                  <SectionHeader title="Available" count={available.length} />
                 ) : (
-                  <ExcludedItem
-                    source={item.row.source}
-                    reason={item.row.reason}
-                    pinned={item.row.pinned}
-                    mangaKey={key}
-                    actions={actions}
+                  <SectionHeader
+                    title="Excluded"
+                    count={excluded.length}
+                    menu={excludedMenu}
+                    stuckVariant="destructive"
                   />
-                )}
-              </>
-            )
-          }
-        />
+                )
+              ) : item.kind === "no-sources" ? (
+                <Typography type="body-sm" muted className="px-4">
+                  No sources
+                </Typography>
+              ) : (
+                <>
+                  {item.index > 0 && (
+                    <View role="separator" className="bg-border mx-4 h-px" />
+                  )}
+                  {item.kind === "available" ? (
+                    <AvailableItem
+                      source={item.row.source}
+                      mangaKey={key}
+                      sources={all}
+                      read={read}
+                      openedAt={openedAt}
+                      selected={item.row.source.id === selectedId}
+                      actions={actions}
+                      onSelect={onSelect}
+                    />
+                  ) : (
+                    <ExcludedItem
+                      source={item.row.source}
+                      reason={item.row.reason}
+                      pinned={item.row.pinned}
+                      mangaKey={key}
+                      actions={actions}
+                    />
+                  )}
+                </>
+              )
+            }
+          />
+        </View>
       </View>
     </BottomSheet>
   );

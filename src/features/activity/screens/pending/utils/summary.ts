@@ -24,6 +24,7 @@ export function pendingSummary(p: PendingEntry, remoteProgress?: number) {
     edits?.score !== undefined && `Score ${edits.score}`,
     edits?.startedAt && "Start date",
     edits?.completedAt && "Finish date",
+    edits?.customLists && "Custom lists",
   ];
   return parts.filter(Boolean).join(" · ");
 }

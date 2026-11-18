@@ -10,3 +10,6 @@ export const LIST_SYMBOLS: Record<MediaListStatus, SFSymbol> = {
   [MediaListStatus.Dropped]: "xmark.circle",
   [MediaListStatus.Repeating]: "arrow.counterclockwise",
 };
+
+/** The same, for every custom list. */
+export const CUSTOM_LIST_SYMBOL: SFSymbol = "list.star";
