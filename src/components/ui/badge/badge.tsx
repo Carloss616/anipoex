@@ -50,7 +50,7 @@ export function Badge({
         className,
       )}
     >
-      {icon ? <Icon name={icon} size={12} /> : dot ? null : children}
+      {icon ? <Icon name={icon} size={12} inline /> : dot ? null : children}
     </span>
   );
 }

@@ -48,7 +48,7 @@ export function SplitBadge({
             ],
           )}
         >
-          {icon && <Icon name={icon} size={12} />}
+          {icon && <Icon name={icon} size={12} inline />}
           {label}
         </span>
       ))}
