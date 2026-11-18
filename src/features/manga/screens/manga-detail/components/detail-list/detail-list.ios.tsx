@@ -26,6 +26,8 @@ import type { DetailListProps } from "./detail-list";
 import { useDownloadTarget } from "./hooks/use-download-target";
 
 const NO_INSETS = listRowInsets({ top: 0, leading: 0, bottom: 0, trailing: 0 });
+// insetGrouped's margin above the first section, which the hero must cover.
+const LIST_TOP = 35;
 
 /**
  * An inset-grouped `List`: the header is a bare full-width row with the hero
@@ -83,11 +85,17 @@ export function DetailList({
             {/* A row's top edge can't move up, so the hero is only drawn
                 higher (layout unchanged) and the header pulled up by as
                 much. */}
-            <VStack modifiers={[offset({ y: -maxHeaderHeight })]}>
-              <Hero manga={manga} maxHeaderHeight={maxHeaderHeight} />
+            <VStack modifiers={[offset({ y: -(maxHeaderHeight + LIST_TOP) })]}>
+              <Hero
+                manga={manga}
+                maxHeaderHeight={maxHeaderHeight}
+                bleed={LIST_TOP}
+              />
             </VStack>
             <VStack
-              modifiers={[padding({ top: -(ART_HEIGHT + maxHeaderHeight) })]}
+              modifiers={[
+                padding({ top: -(ART_HEIGHT + maxHeaderHeight + LIST_TOP) }),
+              ]}
             >
               <DetailHeader
                 manga={manga}

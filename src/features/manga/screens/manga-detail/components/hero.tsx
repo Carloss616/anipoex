@@ -20,12 +20,15 @@ export const ART_HEIGHT = 200;
 export function Hero({
   manga,
   maxHeaderHeight,
+  bleed = 0,
 }: {
   manga: MangaDetail;
   maxHeaderHeight: number;
+  /** Extra art above the header. */
+  bleed?: number;
 }) {
   const headerHeight = useAnimatedHeaderHeight();
-  const height = maxHeaderHeight + ART_HEIGHT;
+  const height = maxHeaderHeight + bleed + ART_HEIGHT;
   // Grows from its bottom by as much as a pull stretches the large title, on
   // the native driver: a transform, so the list never relays out mid-pull.
   const scale = headerHeight.interpolate({
