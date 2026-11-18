@@ -50,6 +50,11 @@ Legend State gotchas:
 - LegendList pins a sticky header only at the scroller's edge and then jumps it to `stickyHeaderConfig.offset`, so under a floating web header it ran to the screen edge first. The same file's sticky cell lets the browser pin it, in a track that ends at the next header. Only lists with `itemLayoutAnimation` get that cell.
 - A dev-only "[legend-list] No unused container available" on a short list with `stickyHeaderIndices` (the source sheet) is not `estimatedItemSize`: the pool is capped at the item count and sticky headers can't take normal containers, so each first gets a new one. Leave it (still so in 3.7.2).
 - LegendList's web cells carry an inline `contain: paint`, which clips a card's shadow and lean past the cell: the grid drops it on hover from `contentContainerClassName` (`manga/components/manga-grid/manga-grid.tsx`).
+- A `LegendList` without `estimatedItemSize` sizes its pool from 100: about 15 containers on a phone, and with `recycleItems={false}` each keeps its item mounted. Lists of tall items pass a real estimate (the reader kept ~15 decoded pages, `chapter-reader.tsx`).
+
+# Images
+
+- On Android, expo-image with `contentFit` `fill` or `none` decodes at the file's full size, never the view's, and Glide stores a `file://` image in its disk cache re-encoded as a JPEG at quality 100 (1.5 MB for a 130 KB page). Reader pages, strips up to 900×16000 (58 MB each), are decoded in bands by `modules/bitmap-region-image` instead (`chapter-reader/components/page-image/page-image.android.tsx`).
 
 # Gestures and animation
 

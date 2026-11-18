@@ -4,6 +4,7 @@ import { useCallback, useRef } from "react";
 import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
@@ -23,14 +24,19 @@ import type { Chapter } from "@/features/manga/utils/to-chapters";
 import { useThemeM3Colors } from "@/hooks/use-theme";
 import { ChapterEnd } from "./components/chapter-end";
 import { PageCount } from "./components/page-count";
-import { PageImage } from "./components/page-image";
+import { PageImage, PLACEHOLDER_RATIO } from "./components/page-image";
 import { ReaderTitle } from "./components/reader-title";
 import { ZoomView } from "./components/zoom-view";
 import { useChapterPages } from "./hooks/use-chapter-pages";
 import { useReadingProgress } from "./hooks/use-reading-progress";
 
 // Desktop windows are far wider than a page is meant to be read.
-const COLUMN = { width: "100%", maxWidth: 800, marginInline: "auto" } as const;
+const MAX_COLUMN = 800;
+const COLUMN = {
+  width: "100%",
+  maxWidth: MAX_COLUMN,
+  marginInline: "auto",
+} as const;
 /** Scroll distance before the header hides: about its own height. */
 const HIDE_AFTER = 80;
 
@@ -70,6 +76,7 @@ export function ChapterReader() {
   // Where this run down began: the last turn up, or a tap showing the header.
   const runStart = useRef(0);
   const m3 = useThemeM3Colors();
+  const { width } = useWindowDimensions();
   // Android only: iOS keeps the blur, which a color would cover.
   const headerStyle = { backgroundColor: m3?.surfaceContainer };
   const page$ = useObservable(1);
@@ -159,6 +166,9 @@ export function ChapterReader() {
             // Each page keeps its measured ratio and failed state; a recycled
             // row would show another page's.
             recycleItems={false}
+            // A page not yet loaded is this tall. The default (100) makes ~15
+            // containers, each keeping its page decoded.
+            estimatedItemSize={Math.min(width, MAX_COLUMN) / PLACEHOLDER_RATIO}
             contentContainerStyle={COLUMN}
             ListFooterComponentStyle={{ paddingBottom: bottomSpace }}
             renderItem={renderItem}

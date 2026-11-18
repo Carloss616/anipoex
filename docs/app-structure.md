@@ -32,7 +32,7 @@ anipoex/
 │   │   │   │   ├── <component>.tsx
 │   │   │   │   └── index.ts         # export * from './<component>'
 │   │   │   └── <component>.tsx      # simple component — single file, no folder
-│   │   └── native/                  # native Text, Image, TopAppBar, ButtonGroup, DropdownMenu, SegmentedListItem and constants for SwiftUI / Compose
+│   │   └── native/                  # native Text, Image, TopAppBar, ButtonGroup, DropdownMenu, SegmentedListItem and constants for SwiftUI / Compose; plain Android views at its root (BitmapRegionImage)
 │   ├── hooks/                       # global hooks
 │   ├── providers/                   # global providers
 │   └── utils/                       # global helpers
