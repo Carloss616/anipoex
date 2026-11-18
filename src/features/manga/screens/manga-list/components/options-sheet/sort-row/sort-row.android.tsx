@@ -21,14 +21,17 @@ export const SortRow = memo(function SortRow({ by, index }: SortRowProps) {
   const active = ascending !== undefined;
 
   return (
+    // No `selected`: TalkBack can't press a chosen radio; this one reverses.
     <SegmentedListItem
       index={index}
       count={SORT_KEYS.length}
-      selected={active}
+      colors={active ? { containerColor: m3.secondaryContainer } : undefined}
       onPress={() => chooseSort(by)}
       modifiers={[semantics({ contentDescription: label })]}
     >
-      <Text>{SORT_LABELS[by]}</Text>
+      <Text color={active ? m3.onSecondaryContainer : undefined}>
+        {SORT_LABELS[by]}
+      </Text>
       <SegmentedListItem.Trailing>
         {active && (
           <Icon

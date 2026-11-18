@@ -17,10 +17,7 @@ export interface SortRowProps {
   index: number;
 }
 
-/**
- * One order: a press picks it, a second press reverses it. The web row sits
- * in a `RadioGroup` whose change calls `chooseSort`.
- */
+/** One order: a press picks it, a second press reverses it. */
 export const SortRow = memo(function SortRow({ by }: SortRowProps) {
   const label = useValue(() => sortA11y(by, listOptions$.sort.get()));
   const ascending = useValue(() => {
@@ -34,8 +31,7 @@ export const SortRow = memo(function SortRow({ by }: SortRowProps) {
         // biome-ignore lint/a11y/noLabelWithoutControl: the Radio below is its control.
         // biome-ignore lint/a11y/useKeyWithClickEvents: Space clicks the radio, which bubbles here.
         <label
-          // A chosen radio sends no change, so a second press reverses here.
-          // Its click on the hidden input never bubbles: this runs once.
+          // A chosen radio sends no change, so its second press reverses here.
           onClick={ascending === undefined ? undefined : () => chooseSort(by)}
         />
       }

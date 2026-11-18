@@ -10,16 +10,14 @@ import {
   onVisibilityChanged,
   padding,
 } from "@expo/ui/jetpack-compose/modifiers";
-import { useValue } from "@legendapp/state/react";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
 import { Loader } from "@/components/ui/loader";
-import { columnsFor } from "@/features/manga/utils/list-view";
-import { settings$ } from "@/state/settings";
+import { OVERSCAN_ROWS } from "./constants";
 import { GridItem } from "./grid-item";
+import { useGridData } from "./hooks/use-grid-data";
 import type { MangaGridProps } from "./manga-grid";
 import { cellWidth, toRows } from "./utils";
 
@@ -40,13 +38,12 @@ export function MangaGrid({
   refreshing = false,
   onEndReached,
 }: MangaGridProps) {
-  const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const manga = useValue(manga$);
-
-  const columns = columnsFor(current, useValue(settings$.mangaList.density));
-  const titlePosition = useValue(settings$.mangaList.title);
+  const { manga, settling, columns, titlePosition, listKey } = useGridData(
+    manga$,
+    scrollKey,
+  );
   const start = GUTTER + insets.left;
   const end = GUTTER + insets.right;
   const cell = cellWidth(width - start - end, columns, GAP);
@@ -66,7 +63,7 @@ export function MangaGrid({
       modifiers={[fillMaxSize()]}
     >
       <LazyColumn
-        key={scrollKey}
+        key={listKey}
         modifiers={[fillMaxSize()]}
         verticalArrangement={{ spacedBy: below ? 20 : 8 }}
         contentPadding={{
@@ -78,6 +75,7 @@ export function MangaGrid({
         <LazyColumn.Items
           data={rows}
           keyExtractor={(row) => row.map((m) => m.id).join()}
+          overscanCount={OVERSCAN_ROWS}
           // `below` puts two title lines and the caption under the cover.
           estimatedItemSize={cell * 1.5 + (below ? 68 : 0)}
         >
@@ -112,7 +110,7 @@ export function MangaGrid({
         )}
       </LazyColumn>
       {/* Over the list, not in it: a lazy item has no height to fill. */}
-      {rows.length === 0 && empty}
+      {rows.length === 0 && !settling && empty}
     </PullToRefreshBox>
   );
 }

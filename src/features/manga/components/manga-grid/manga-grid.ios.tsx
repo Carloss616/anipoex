@@ -5,16 +5,14 @@ import {
   padding,
   refreshable,
 } from "@expo/ui/swift-ui/modifiers";
-import { useValue } from "@legendapp/state/react";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { GUTTER } from "@/components/native/constants";
 import { Loader } from "@/components/ui/loader";
-import { columnsFor } from "@/features/manga/utils/list-view";
-import { settings$ } from "@/state/settings";
+import { OVERSCAN_ROWS } from "./constants";
 import { GridItem } from "./grid-item";
+import { useGridData } from "./hooks/use-grid-data";
 import type { MangaGridProps } from "./manga-grid";
 import { cellWidth, toRows } from "./utils";
 
@@ -31,13 +29,12 @@ export function MangaGrid({
   onRefresh,
   onEndReached,
 }: MangaGridProps) {
-  const { current } = useBreakpoint();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const manga = useValue(manga$);
-
-  const columns = columnsFor(current, useValue(settings$.mangaList.density));
-  const titlePosition = useValue(settings$.mangaList.title);
+  const { manga, settling, columns, titlePosition, listKey } = useGridData(
+    manga$,
+    scrollKey,
+  );
   // The Host already insets the safe area.
   const cell = cellWidth(
     width - insets.left - insets.right - 2 * GUTTER,
@@ -53,7 +50,7 @@ export function MangaGrid({
   return (
     <ZStack>
       <ScrollView
-        key={scrollKey}
+        key={listKey}
         modifiers={
           onRefresh
             ? // The error link toasts a failure; this just stops an unhandled
@@ -75,6 +72,7 @@ export function MangaGrid({
           <LazyVStack.ForEach
             data={rows}
             keyExtractor={(row) => row.map((m) => m.id).join()}
+            overscanCount={OVERSCAN_ROWS}
             // `below` puts two title lines and the caption under the cover.
             estimatedItemSize={cell * 1.5 + (titlePosition !== "over" ? 68 : 0)}
           >
@@ -109,7 +107,7 @@ export function MangaGrid({
         </LazyVStack>
       </ScrollView>
       {/* Over the grid, centred in view; a lazy row can't fill it. */}
-      {rows.length === 0 && empty}
+      {rows.length === 0 && !settling && empty}
     </ZStack>
   );
 }

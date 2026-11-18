@@ -37,11 +37,9 @@ export function ListGrid({
   scrollSync?: ReturnType<typeof useScrollSync>;
 }) {
   const client = useApolloClient();
-  // Android's lazy column keeps its scroll across genres and options.
+  // Android resets scroll per options; genre chips are only tapped at the top.
   const scrollKey = useValue(() =>
-    Platform.OS === "android"
-      ? genre$.get() + JSON.stringify(listOptions$.get())
-      : undefined,
+    Platform.OS === "android" ? JSON.stringify(listOptions$.get()) : undefined,
   );
 
   return (

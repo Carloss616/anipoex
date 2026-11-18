@@ -1,17 +1,14 @@
 import type { Selector } from "@legendapp/state";
-import { useValue } from "@legendapp/state/react";
-import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { cn } from "panelui-native/utils/cn";
 import type { ReactElement } from "react";
 import { LinearTransition } from "react-native-reanimated";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { LegendList } from "@/components/layout/legend-list";
-import { columnsFor } from "@/features/manga/utils/list-view";
 import type { MangaEntry } from "@/features/manga/utils/to-entries";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import type { useScrollSync } from "@/hooks/use-scroll-sync";
-import { settings$ } from "@/state/settings";
 import { GridItem } from "./grid-item";
+import { useGridData } from "./hooks/use-grid-data";
 
 export interface MangaGridProps {
   manga$: Selector<MangaEntry[]>;
@@ -62,12 +59,14 @@ export function MangaGrid({
   visibleWhenBlurred,
   scrollSync,
 }: MangaGridProps) {
-  const { current } = useBreakpoint();
   const headerScroll = useHeaderScroll();
-  const manga = useValue(manga$);
-
-  const numColumns = columnsFor(current, useValue(settings$.mangaList.density));
-  const titlePosition = useValue(settings$.mangaList.title);
+  const {
+    manga,
+    settling,
+    columns: numColumns,
+    titlePosition,
+    listKey,
+  } = useGridData(manga$, scrollKey);
 
   if (loading) {
     return <LoadingState />;
@@ -75,7 +74,7 @@ export function MangaGrid({
 
   return (
     <LegendList
-      key={scrollKey}
+      key={listKey}
       recycleItems
       itemLayoutAnimation={LinearTransition}
       visibleWhenBlurred={visibleWhenBlurred}
@@ -96,7 +95,7 @@ export function MangaGrid({
       renderItem={({ item }) => (
         <GridItem item={item} titlePosition={titlePosition} />
       )}
-      ListEmptyComponent={empty}
+      ListEmptyComponent={settling ? undefined : empty}
       onEndReached={onEndReached}
       {...headerScroll}
       refScrollView={scrollSync?.ref}

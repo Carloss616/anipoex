@@ -2,7 +2,6 @@ import { Column } from "@expo/ui/jetpack-compose";
 import {
   fillMaxWidth,
   padding,
-  selectableGroup,
   verticalScroll,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
@@ -20,12 +19,7 @@ import { open$, tab$ } from "./utils/sheet-state";
 
 export { openOptionsSheet } from "./utils/sheet-state";
 
-/**
- * Android: Filter, Sort and Display behind a connected button group, as
- * @expo/ui has no M3 tabs. Rendered once by the screen, outside the grid:
- * mounted inside the grid's header, the sheet's node resized the header and
- * the rows jumped as it opened.
- */
+/** Android: outside the grid; in its header the sheet made the rows jump. */
 export function OptionsSheet() {
   const isPresented = useValue(open$);
   const tab = useValue(tab$);
@@ -53,7 +47,7 @@ export function OptionsSheet() {
           </TabContent>
         )}
         {tab === "sort" && (
-          <TabContent selectable>
+          <TabContent>
             {SORT_KEYS.map((key, index) => (
               <SortRow key={key} by={key} index={index} />
             ))}
@@ -69,28 +63,13 @@ export function OptionsSheet() {
   );
 }
 
-/**
- * Scrolls under the fixed title and tabs: a Column measures each child in
- * the height left, so this one is bounded by the sheet.
- */
-function TabContent({
-  selectable = false,
-  children,
-}: {
-  /** One choice among the rows, for TalkBack. */
-  selectable?: boolean;
-  children: ReactNode;
-}) {
+/** Scrolls under the fixed tabs; a Column bounds it by the height left. */
+function TabContent({ children }: { children: ReactNode }) {
   return (
     <Column
       verticalArrangement={{ spacedBy: SEGMENTED_GAP }}
       // Padding after the scroll, so the bottom gap scrolls with the rows.
-      modifiers={[
-        fillMaxWidth(),
-        verticalScroll(),
-        padding(16, 0, 16, 16),
-        ...(selectable ? [selectableGroup()] : []),
-      ]}
+      modifiers={[fillMaxWidth(), verticalScroll(), padding(16, 0, 16, 16)]}
     >
       {children}
     </Column>

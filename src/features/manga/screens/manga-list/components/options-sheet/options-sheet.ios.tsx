@@ -22,11 +22,9 @@ import { type OptionsTab, open$, tab$ } from "./utils/sheet-state";
 
 export { openOptionsSheet } from "./utils/sheet-state";
 
-/**
- * iOS: Filter, Sort and Display behind a segmented picker, in a half sheet so
- * the grid stays in view and each pick shows as it is made. A `List` has no
- * height of its own, so the sheet can't fit its contents.
- */
+const SHEET_HEIGHT = 520;
+
+/** iOS: a fixed-height sheet, as a `List` has no height of its own to fit. */
 export function OptionsSheet() {
   const isPresented = useValue(open$);
   const tab = useValue(tab$);
@@ -35,7 +33,8 @@ export function OptionsSheet() {
     <BottomSheet
       isPresented={isPresented}
       onDismiss={() => open$.set(false)}
-      snapPoints={["half", "full"]}
+      // The six sorts at default text size; larger text scrolls them.
+      snapPoints={[{ height: SHEET_HEIGHT }, "full"]}
     >
       <VStack
         alignment="leading"
