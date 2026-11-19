@@ -1,6 +1,6 @@
+import { Typography } from "panelui-native/components/typography";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { View } from "react-native";
-import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import type { SettingsShellProps } from "./settings-shell";
 import { SettingsSidebar } from "./settings-sidebar";
 
@@ -12,9 +12,13 @@ export function SettingsShell({ children }: SettingsShellProps) {
 
   return (
     <View className="flex-1 flex-row">
-      <HeaderInsetView className="gutters pb-gb pl-gx box-content w-56 pt-4 pr-4">
+      {/* Outside the stack there is no header to inset from: its row instead. */}
+      <View className="gutters pb-gb pl-gx box-content w-56 py-3 pr-4">
+        <View className="h-14 justify-center px-4.25">
+          <Typography type="h3">Settings</Typography>
+        </View>
         <SettingsSidebar />
-      </HeaderInsetView>
+      </View>
       <View className="flex-1">{children}</View>
     </View>
   );

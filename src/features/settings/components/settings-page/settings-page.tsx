@@ -27,7 +27,8 @@ export function SettingsPage({
     <>
       <Stack.Title large={large}>{title}</Stack.Title>
       <ScrollView className="flex-1" {...headerScroll}>
-        <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-6 self-center pt-4">
+        {/* Beside the sidebar (lg) the column starts under the page title. */}
+        <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-6 self-center pt-4 lg:self-start">
           {children}
         </HeaderInsetView>
       </ScrollView>
