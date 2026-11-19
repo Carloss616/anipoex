@@ -3,6 +3,7 @@ import { useValue } from "@legendapp/state/react";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { useAllInstalledSources } from "@/features/extensions";
+import { useLivePosition } from "@/features/manga/hooks/use-live-position";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
 import {
   type ContinueReading,
@@ -11,6 +12,7 @@ import {
 import { effectiveProgress } from "@/features/manga/state/pending-entries";
 import type { ContinueKind } from "@/features/manga/utils/continue-label";
 import { continueChapter } from "@/features/manga/utils/next-chapter";
+import { resolvePosition } from "@/features/manga/utils/reading-position";
 import type { SourceMatch } from "@/features/manga/utils/source-match";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import type { MangaDetail } from "@/features/manga/utils/to-detail";
@@ -30,11 +32,23 @@ export function useContinue(
   match: SourceMatch | undefined,
   continue$: Continue$,
 ) {
-  const remote = useTrackingEntry(manga.mediaListEntry?.id)?.progress;
+  const entryId = manga.mediaListEntry?.id;
+  const entry = useTrackingEntry(entryId);
+  const remote = entry?.progress;
   const progress = useValue(() => effectiveProgress(remote, manga.id));
+  const live = useLivePosition(
+    manga.id,
+    // An entry without a status hasn't loaded.
+    entryId == null ? null : entry?.status ? progress : undefined,
+  );
   const source = useAllInstalledSources().find((s) => s.id === match?.sourceId);
-  const chapter = match ? continueChapter(chapters, progress) : undefined;
-  const started = progress > 0;
+  const reading = match
+    ? resolvePosition(live, match.sourceId, chapters)?.chapter
+    : undefined;
+  const chapter = match
+    ? (reading ?? continueChapter(chapters, progress))
+    : undefined;
+  const started = progress > 0 || !!reading;
   const kind = !match ? "pick" : started ? "continue" : "start";
 
   useEffect(() => {

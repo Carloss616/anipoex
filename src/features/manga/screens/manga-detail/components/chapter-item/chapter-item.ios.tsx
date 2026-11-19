@@ -29,6 +29,7 @@ import { type DownloadState, downloadFraction } from "@/features/downloads";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { ChapterItemProps } from "./chapter-item";
 import { useChapterDownload } from "./hooks/use-chapter-download";
+import { useChapterPage } from "./hooks/use-chapter-page";
 import { useChapterRead } from "./hooks/use-chapter-read";
 import { useIsNext } from "./hooks/use-is-next";
 import {
@@ -47,6 +48,7 @@ export const ChapterItem = memo(function ChapterItem({
 }: ChapterItemProps) {
   const router = useRouter();
   const read = useChapterRead(manga.id, entryId, chapter.number);
+  const page = useChapterPage(manga.id, source?.id, chapter.id);
   const next = useIsNext(continue$, chapter.id);
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
   const { state, key, actions } = useChapterDownload(manga, source, chapter);
@@ -111,7 +113,7 @@ export const ChapterItem = memo(function ChapterItem({
             textStyle="subheadline"
             modifiers={[foregroundStyle("secondary")]}
           >
-            {chapter.date}
+            {[chapter.date, page].filter(Boolean).join(" · ")}
           </Text>
         </VStack>
         <Spacer />

@@ -13,6 +13,7 @@ import { downloadFraction, type QueuedDownload } from "@/features/downloads";
 import type { Chapter } from "@/features/manga/utils/to-chapters";
 import type { Continue$ } from "../../hooks/use-continue";
 import { useChapterDownload } from "./hooks/use-chapter-download";
+import { useChapterPage } from "./hooks/use-chapter-page";
 import { useChapterRead } from "./hooks/use-chapter-read";
 import { useIsNext } from "./hooks/use-is-next";
 import { downloadLabel, STATE_ICONS } from "./utils/download-items";
@@ -45,6 +46,7 @@ export const ChapterItem = memo(function ChapterItem({
 }: ChapterItemProps) {
   const router = useRouter();
   const read = useChapterRead(manga.id, entryId, chapter.number);
+  const page = useChapterPage(manga.id, source?.id, chapter.id);
   const next = useIsNext(continue$, chapter.id);
   const download = useChapterDownload(manga, source, chapter);
   const { state } = download;
@@ -112,7 +114,9 @@ export const ChapterItem = memo(function ChapterItem({
               {chapter.title}
             </Frame.Title>
           </View>
-          <Frame.Description>{chapter.date}</Frame.Description>
+          <Frame.Description>
+            {[chapter.date, page].filter(Boolean).join(" · ")}
+          </Frame.Description>
         </Frame.Content>
       </Frame.Row>
       {/* Over the row, not in it: a <button> can't hold buttons. */}

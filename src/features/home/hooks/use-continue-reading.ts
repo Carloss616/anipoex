@@ -2,6 +2,10 @@ import { skipToken, useFragment, useQuery } from "@apollo/client/react";
 import { useValue } from "@legendapp/state/react";
 import { MangaMediaFragmentDoc } from "@/features/manga/graphql/manga-fragments.generated";
 import { chapters$, chaptersKey } from "@/features/manga/state/chapters";
+import {
+  type ReadingPosition,
+  readingPositions$,
+} from "@/features/manga/state/reading-positions";
 import { source$ } from "@/features/manga/state/source";
 import type { StoredChapters } from "@/features/manga/utils/chapter-storage";
 import {
@@ -11,7 +15,10 @@ import {
 import { ContinueMediaDocument } from "../graphql/continue-media.generated";
 import { type ContinueItem, continueItems } from "../utils/continue-items";
 
-/** Mangas with a selected source and chapters past their AniList progress. */
+/**
+ * Mangas with a selected source and chapters past their AniList progress, or
+ * a chapter being read.
+ */
 export function useContinueReading(): ContinueItem[] {
   // Only a matched page with its stored list can continue: progress is asked
   // for these alone, not for every manga a source was ever picked for.
@@ -54,12 +61,16 @@ export function useContinueReading(): ContinueItem[] {
   const itemsKey = useValue(() => {
     const matches: Record<number, SourceMatch | undefined> = {};
     const stored: Record<number, StoredChapters | undefined> = {};
+    const positions: Record<number, ReadingPosition | undefined> = {};
     for (const id of ids) {
+      positions[id] = readingPositions$[id].get();
       const match = readMatch(source$[id].get());
       matches[id] = match;
       if (match) stored[id] = chapters$[chaptersKey(id, match.sourceId)].get();
     }
-    return JSON.stringify(continueItems({ matches, stored, progress }));
+    return JSON.stringify(
+      continueItems({ matches, stored, progress, positions }),
+    );
   });
   return JSON.parse(itemsKey) as ContinueItem[];
 }

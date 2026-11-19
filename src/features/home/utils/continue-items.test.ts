@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { SourceChapter } from "@/features/extensions";
+import type { ReadingPosition } from "@/features/manga/state/reading-positions";
 import type { StoredChapters } from "@/features/manga/utils/chapter-storage/chapter-storage";
 import { continueItems } from "./continue-items";
 
@@ -26,6 +27,47 @@ const match = (url: string) => ({
 });
 
 describe("continueItems", () => {
+  const at = (number: number): ReadingPosition => ({
+    sourceId: "source-1",
+    chapterId: `/c${number}`,
+    number,
+    scanlator: null,
+    page: 5,
+    pages: 20,
+    offset: 0,
+    readAt: 1,
+  });
+
+  it("continues from a saved position", () => {
+    const items = continueItems({
+      matches: { 1: match("/m1") },
+      stored: { 1: stored("/m1", [9, 10, 11, 12, 13]) },
+      progress: { 1: 9 },
+      positions: { 1: at(12) },
+    });
+    expect(items[0].next.number).toBe(12);
+  });
+
+  it("lists a manga started only by a position", () => {
+    const items = continueItems({
+      matches: { 1: match("/m1") },
+      stored: { 1: stored("/m1", [1, 2]) },
+      progress: { 1: 0 },
+      positions: { 1: at(1) },
+    });
+    expect(items.map((item) => item.next.number)).toEqual([1]);
+  });
+
+  it("ignores a position its progress already read", () => {
+    const items = continueItems({
+      matches: { 1: match("/m1") },
+      stored: { 1: stored("/m1", [11, 12, 13]) },
+      progress: { 1: 12 },
+      positions: { 1: at(12) },
+    });
+    expect(items[0].next.number).toBe(13);
+  });
+
   it("includes a manga with chapters past its progress", () => {
     const items = continueItems({
       matches: { 1: match("/m1") },

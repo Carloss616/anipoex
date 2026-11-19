@@ -13,6 +13,7 @@ import { type DownloadState, downloadFraction } from "@/features/downloads";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { ChapterItemProps } from "./chapter-item";
 import { useChapterDownload } from "./hooks/use-chapter-download";
+import { useChapterPage } from "./hooks/use-chapter-page";
 import { useChapterRead } from "./hooks/use-chapter-read";
 import { useIsNext } from "./hooks/use-is-next";
 import { downloadLabel, STATE_ICONS } from "./utils/download-items";
@@ -28,6 +29,8 @@ export const ChapterItem = memo(function ChapterItem({
 }: ChapterItemProps) {
   const router = useRouter();
   const read = useChapterRead(manga.id, entryId, chapter.number);
+  const page = useChapterPage(manga.id, source?.id, chapter.id);
+  const supporting = [chapter.date, page].filter(Boolean).join(" · ");
   const next = useIsNext(continue$, chapter.id);
   const m3 = useThemeM3Colors();
   const download = useChapterDownload(manga, source, chapter);
@@ -67,10 +70,10 @@ export const ChapterItem = memo(function ChapterItem({
         </Text>
       </Row>
       {/* An empty slot still takes a line and lifts the title off center. */}
-      {chapter.date !== "" && (
+      {supporting !== "" && (
         <SegmentedListItem.Supporting>
           <Text style={{ typography: "bodyMedium" }} modifiers={dim}>
-            {chapter.date}
+            {supporting}
           </Text>
         </SegmentedListItem.Supporting>
       )}
