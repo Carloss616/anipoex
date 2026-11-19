@@ -20,9 +20,6 @@ export function SourcesSection() {
 
   return (
     <Frame>
-      <Frame.Header>
-        <Frame.Title>Sources</Frame.Title>
-      </Frame.Header>
       <Frame.Panel data-attached="column">
         <ActivityRow />
         <PendingRow />

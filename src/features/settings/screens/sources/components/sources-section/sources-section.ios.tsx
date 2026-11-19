@@ -33,7 +33,7 @@ export function SourcesSection() {
   const rowBackground = useRowBackground();
 
   return (
-    <Section modifiers={[rowBackground]} title="Sources">
+    <Section modifiers={[rowBackground]}>
       <ActivityRow />
       <PendingRow />
       <Memo>

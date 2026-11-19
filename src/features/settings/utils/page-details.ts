@@ -1,8 +1,8 @@
 import { type IconName, Icons } from "@/components/ui/icon";
 import { languageName, languageOrder$ } from "@/features/extensions";
 import { PRESET_LABELS } from "@/features/home/constants";
-import { SAVE_TO_OPTIONS } from "@/features/settings/screens/settings/components/downloads-section/constants";
-import { folderLabel } from "@/features/settings/screens/settings/components/downloads-section/utils";
+import { SAVE_TO_OPTIONS } from "@/features/settings/screens/downloads/components/downloads-section/constants";
+import { folderLabel } from "@/features/settings/screens/downloads/components/downloads-section/utils";
 import { github$ } from "@/features/sync/state/github";
 import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";

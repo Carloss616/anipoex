@@ -27,7 +27,7 @@ export function AppearanceSection() {
   const rowBackground = useRowBackground();
 
   return (
-    <Section modifiers={[rowBackground]} title="Appearance">
+    <Section modifiers={[rowBackground]}>
       <Computed>
         {() => (
           // A menu Picker keeps its first tint: rebuild it on a new one.

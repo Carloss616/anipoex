@@ -10,9 +10,6 @@ import { settings$ } from "@/state/settings";
 export function AppearanceSection() {
   return (
     <Frame>
-      <Frame.Header>
-        <Frame.Title>Appearance</Frame.Title>
-      </Frame.Header>
       <Frame.Panel data-attached="column">
         <Frame.Row className="flex-wrap">
           <Frame.Content className="basis-auto">

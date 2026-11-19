@@ -13,17 +13,17 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
 import { signOut } from "@/features/auth/utils/sign-out";
 import { useLoadInstalled } from "@/features/extensions";
+import { AccountSection } from "@/features/settings/screens/account/components/account-section";
+import { AppearanceSection } from "@/features/settings/screens/appearance/components/appearance-section";
+import { DownloadsSection } from "@/features/settings/screens/downloads/components/downloads-section";
+import { MoveDownloadsDialog } from "@/features/settings/screens/downloads/components/move-downloads-dialog";
+import { NetworkSection } from "@/features/settings/screens/sources/components/network-section";
+import { SourcesSection } from "@/features/settings/screens/sources/components/sources-section";
+import { SyncSection } from "@/features/settings/screens/sync/components/sync-section";
+import { ConnectSheet } from "@/features/settings/screens/sync/components/sync-section/connect-sheet";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { AccountSection } from "./components/account-section";
-import { AppearanceSection } from "./components/appearance-section";
-import { DownloadsSection } from "./components/downloads-section";
 import { HomeSection } from "./components/home-section";
-import { MoveDownloadsDialog } from "./components/move-downloads-dialog";
-import { NetworkSection } from "./components/network-section";
-import { SourcesSection } from "./components/sources-section";
-import { SyncSection } from "./components/sync-section";
-import { ConnectSheet } from "./components/sync-section/connect-sheet";
 
 /** M3 Expressive settings: labelled groups of segmented rows. */
 export function Settings() {

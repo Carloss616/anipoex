@@ -9,15 +9,15 @@ import { Host } from "@/components/ui/host";
 import { signOut } from "@/features/auth/utils/sign-out";
 import { useLoadInstalled } from "@/features/extensions";
 import { useRowBackground } from "@/features/settings/hooks/use-row-background";
-import { AccountSection } from "./components/account-section";
-import { AppearanceSection } from "./components/appearance-section";
-import { DownloadsSection } from "./components/downloads-section";
+import { AccountSection } from "@/features/settings/screens/account/components/account-section";
+import { AppearanceSection } from "@/features/settings/screens/appearance/components/appearance-section";
+import { DownloadsSection } from "@/features/settings/screens/downloads/components/downloads-section";
+import { MoveDownloadsDialog } from "@/features/settings/screens/downloads/components/move-downloads-dialog";
+import { NetworkSection } from "@/features/settings/screens/sources/components/network-section";
+import { SourcesSection } from "@/features/settings/screens/sources/components/sources-section";
+import { SyncSection } from "@/features/settings/screens/sync/components/sync-section";
+import { ConnectSheet } from "@/features/settings/screens/sync/components/sync-section/connect-sheet";
 import { HomeSection } from "./components/home-section";
-import { MoveDownloadsDialog } from "./components/move-downloads-dialog";
-import { NetworkSection } from "./components/network-section";
-import { SourcesSection } from "./components/sources-section";
-import { SyncSection } from "./components/sync-section";
-import { ConnectSheet } from "./components/sync-section/connect-sheet";
 
 export function Settings() {
   useLoadInstalled();

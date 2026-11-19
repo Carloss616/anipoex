@@ -12,6 +12,11 @@ export default function Layout() {
   return (
     <Stack screenOptions={{ ...stackTheme, header }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="account" />
+      <Stack.Screen name="appearance" />
+      <Stack.Screen name="sync" />
+      <Stack.Screen name="sources" />
+      <Stack.Screen name="downloads" />
       <Stack.Screen name="activity" />
       <Stack.Screen name="pending" />
       <Stack.Screen name="layout" />

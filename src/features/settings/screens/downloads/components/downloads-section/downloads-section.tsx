@@ -15,9 +15,6 @@ export function DownloadsSection() {
 
   return (
     <Frame>
-      <Frame.Header>
-        <Frame.Title>Downloads</Frame.Title>
-      </Frame.Header>
       <Frame.Panel data-attached="column">
         <Frame.Row>
           <Frame.Content>

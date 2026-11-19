@@ -31,7 +31,6 @@ export function DownloadsSection() {
   return (
     <Section
       modifiers={[rowBackground]}
-      title="Downloads"
       footer={<Text>{DOWNLOADS_FOOTER}</Text>}
     >
       <HStack>

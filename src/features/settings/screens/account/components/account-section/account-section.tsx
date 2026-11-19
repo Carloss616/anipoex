@@ -10,10 +10,7 @@ export function AccountSection() {
   const user = useValue(session$.user);
 
   return (
-    <Frame className="mt-4">
-      <Frame.Header>
-        <Frame.Title>Account</Frame.Title>
-      </Frame.Header>
+    <Frame>
       <Frame.Panel data-attached="column">
         <Frame.Row>
           <Frame.Media>

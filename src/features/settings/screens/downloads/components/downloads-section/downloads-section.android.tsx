@@ -4,7 +4,6 @@ import { ButtonGroup } from "@/components/native/jetpack-compose/button-group";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icons } from "@/components/ui/icon";
-import { Label } from "@/features/settings/components/label";
 import { LeadingIcon } from "@/features/settings/components/leading-icon";
 import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
@@ -18,7 +17,6 @@ export function DownloadsSection() {
 
   return (
     <>
-      <Label>Downloads</Label>
       <Text
         style={{ typography: "bodyMedium" }}
         color={m3.onSurfaceVariant}
