@@ -294,6 +294,12 @@ describe("resumeQueue", () => {
     expect(dropStage).toHaveBeenCalledWith(stageId(keyOf("a")));
   });
 
+  it("drops the stage a stop left on a queued chapter", async () => {
+    enqueue([item("a")]);
+    await resumeQueue();
+    expect(dropStage).toHaveBeenCalledWith(stageId(keyOf("a")));
+  });
+
   it("leaves the queue alone while downloads run", async () => {
     enqueue([item("a")]);
     startDownloads();
@@ -304,32 +310,58 @@ describe("resumeQueue", () => {
   });
 });
 
-describe("pauseDownload", () => {
-  const four = [0, 1, 2, 3].map((index) => ({ ...page, index }));
+const four = [0, 1, 2, 3].map((index) => ({ ...page, index }));
 
-  /** Runs chapter "a" with held page stages, pauses it after two pages. */
-  async function pausedAfterTwo() {
-    const stages = held<void>();
-    Object.assign(downloadDeps.runtime, { stagePage: stages.fn });
-    enqueue([item("a")]);
-    startDownloads();
-    await flush();
-    pages.calls[0].resolve(four);
-    await flush();
-    stages.calls[0].resolve();
-    await flush();
-    pauseDownload(keyOf("a"));
-    // The page in flight still lands before the run stops.
-    stages.calls[1].resolve();
-    await flush();
-    return stages;
-  }
+/** Runs chapter "a" with held page stages, stops it after two pages. */
+async function stoppedAfterTwo(stop: () => void) {
+  const stages = held<void>();
+  Object.assign(downloadDeps.runtime, { stagePage: stages.fn });
+  enqueue([item("a")]);
+  startDownloads();
+  await flush();
+  pages.calls[0].resolve(four);
+  await flush();
+  stages.calls[0].resolve();
+  await flush();
+  stop();
+  // The page in flight still lands before the run stops.
+  stages.calls[1].resolve();
+  await flush();
+  return stages;
+}
 
-  afterEach(() => {
-    // A paused chapter's staged pages outlive the queue reset otherwise.
-    cancelDownload(keyOf("a"));
-    Object.assign(downloadDeps.runtime, { stagePage: async () => {} });
+const dropStaged = () => {
+  // A stopped chapter's staged pages outlive the queue reset otherwise.
+  cancelDownload(keyOf("a"));
+  Object.assign(downloadDeps.runtime, { stagePage: async () => {} });
+};
+
+describe("suspended mid-chapter", () => {
+  afterEach(dropStaged);
+
+  it("resumes a suspended chapter after the pages it staged", async () => {
+    const stages = await stoppedAfterTwo(suspendDownloads);
+    expect(dropStage).not.toHaveBeenCalled();
+    unsuspendDownloads();
+    await flush();
+    pages.calls[1].resolve(four);
+    await flush();
+    expect(stages.calls[2].args[3]).toBe("003");
+    for (const call of stages.calls.slice(2)) call.reject(new Error("over"));
   });
+
+  it("drops a suspended chapter's stage when it is cancelled", async () => {
+    await stoppedAfterTwo(suspendDownloads);
+    cancelDownload(keyOf("a"));
+    await flush();
+    expect(dropStage).toHaveBeenCalledWith(stageId(keyOf("a")));
+  });
+});
+
+describe("pauseDownload", () => {
+  const pausedAfterTwo = () => stoppedAfterTwo(() => pauseDownload(keyOf("a")));
+
+  afterEach(dropStaged);
 
   it("keeps the ring where it stopped and the staged pages", async () => {
     const stages = await pausedAfterTwo();

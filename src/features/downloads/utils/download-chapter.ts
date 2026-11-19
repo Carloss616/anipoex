@@ -34,6 +34,7 @@ export async function downloadChapter(
   const stage = stageId(item.key);
   const load = () =>
     runtime.pages(source.id, chapter.url, chapter.memo ?? undefined);
+  let stored = false;
   try {
     let pages = await load();
     if (pages.length === 0) throw new Error("No pages");
@@ -73,7 +74,9 @@ export async function downloadChapter(
     const target = store();
     if (!target) throw new Error("Downloads need the app");
     await target.put(chapterPath(manga, source, chapter), uri);
+    stored = true;
   } finally {
-    if (signal.reason !== PAUSE) await runtime.dropStage(stage).catch(() => {});
+    if (stored || signal.reason !== PAUSE)
+      await runtime.dropStage(stage).catch(() => {});
   }
 }

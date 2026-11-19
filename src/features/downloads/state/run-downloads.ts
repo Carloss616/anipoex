@@ -27,7 +27,7 @@ export const downloadDeps: Pick<DownloadDeps, "runtime" | "store"> = {
 
 const loops = new Map<string, Promise<void>>();
 let runId = 0;
-/** Pages each paused chapter staged; the stage is a cache, so only this session's. */
+/** Pages each stopped chapter staged; the stage is a cache, so only this session's. */
 const staged = new Map<string, { done: number; count: number }>();
 
 const running = () =>
@@ -130,7 +130,7 @@ function stopDownloads(paused$: typeof downloadsPaused$) {
       downloadProgress$[key].delete();
     }
   });
-  for (const stop of downloadStops.values()) stop();
+  for (const stop of downloadStops.values()) stop(PAUSE);
 }
 
 export const pauseDownloads = () => stopDownloads(downloadsPaused$);
@@ -175,18 +175,19 @@ export function resumeDownload(key: string) {
   startDownloads();
 }
 
-/** Removes a chapter from the queue; a paused one also drops its staged pages. */
+/** Removes a chapter from the queue; a stopped one also drops its staged pages. */
 export function cancelDownload(key: string) {
-  const paused = downloadQueue$[key].state.peek() === "paused";
+  const stopped =
+    downloadQueue$[key].state.peek() === "paused" || staged.has(key);
   cancel(key);
-  if (!paused) return;
+  if (!stopped) return;
   staged.delete(key);
   void downloadDeps.runtime.dropStage(stageId(key)).catch(() => {});
 }
 
 /**
- * At app start: a chapter left running by a killed app starts over, and a
- * paused one's stage, in a cache, is dropped.
+ * At app start: a chapter left running by a killed app starts over, and every
+ * stage a stop left, in a cache, is dropped.
  */
 export async function resumeQueue() {
   // A running loop owns its "running" entry and its stage.
@@ -195,11 +196,8 @@ export async function resumeQueue() {
   batch(() => {
     for (const { key } of stale) downloadQueue$[key].state.set("queued");
   });
-  const paused = Object.values(downloadQueue$.peek()).filter(
-    (e) => e.state === "paused",
-  );
   await Promise.all(
-    [...stale, ...paused].map(({ key }) =>
+    Object.values(downloadQueue$.peek()).map(({ key }) =>
       downloadDeps.runtime.dropStage(stageId(key)).catch(() => {}),
     ),
   );
