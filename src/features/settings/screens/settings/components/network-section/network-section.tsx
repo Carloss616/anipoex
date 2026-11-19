@@ -2,8 +2,8 @@ import { Memo } from "@legendapp/state/react";
 import { Frame } from "panelui-web/frame";
 import { Select } from "panelui-web/select";
 import { DNS_OPTIONS, selectDns } from "@/features/extensions";
+import { DESCRIPTIONS } from "@/features/settings/constants";
 import { settings$ } from "@/state/settings";
-import { DESCRIPTIONS } from "../../constants";
 
 const DNS_ITEMS = DNS_OPTIONS.map(({ id, name }) => ({
   value: id,

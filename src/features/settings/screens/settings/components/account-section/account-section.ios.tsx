@@ -8,10 +8,10 @@ import {
 import { useValue } from "@legendapp/state/react";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
+import { useRowBackground } from "@/features/settings/hooks/use-row-background";
+import { greeting } from "@/features/settings/utils/greeting";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { session$ } from "@/state/session";
-import { useRowBackground } from "../../hooks/use-row-background";
-import { greeting } from "../../utils";
 
 const AVATAR = 40;
 

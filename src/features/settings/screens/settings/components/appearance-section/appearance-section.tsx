@@ -4,8 +4,8 @@ import { ButtonGroup } from "panelui-web/button-group";
 import { Frame } from "panelui-web/frame";
 import { PaletteRail } from "@/components/blocks/palette-rail";
 import { Icon } from "@/components/ui/icon";
+import { THEME_OPTIONS } from "@/features/settings/constants";
 import { settings$ } from "@/state/settings";
-import { THEME_OPTIONS } from "../../constants";
 
 export function AppearanceSection() {
   return (

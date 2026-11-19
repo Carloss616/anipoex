@@ -12,11 +12,11 @@ import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
 import { languageName, languageOrder$ } from "@/features/extensions";
+import { Label } from "@/features/settings/components/label";
+import { LeadingIcon } from "@/features/settings/components/leading-icon";
+import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "@/features/settings/constants";
+import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import { settings$ } from "@/state/settings";
-import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "../../constants";
-import { useRowProps } from "../../hooks/use-row-props";
-import { Label } from "../label";
-import { LeadingIcon } from "../leading-icon";
 import { ActivityRow } from "./activity-row";
 import { PendingRow } from "./pending-row";
 

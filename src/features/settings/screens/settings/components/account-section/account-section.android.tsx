@@ -10,10 +10,10 @@ import { useValue } from "@legendapp/state/react";
 import { Image } from "@/components/native/jetpack-compose/image";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { useRowProps } from "@/features/settings/hooks/use-row-props";
+import { greeting } from "@/features/settings/utils/greeting";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
-import { useRowProps } from "../../hooks/use-row-props";
-import { greeting } from "../../utils";
 
 export function AccountSection() {
   const user = useValue(session$.user);

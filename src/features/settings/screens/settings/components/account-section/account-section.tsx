@@ -3,8 +3,8 @@ import { Avatar } from "panelui-web/avatar";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { signOut } from "@/features/auth/utils/sign-out";
+import { greeting } from "@/features/settings/utils/greeting";
 import { session$ } from "@/state/session";
-import { greeting } from "../../utils";
 
 export function AccountSection() {
   const user = useValue(session$.user);

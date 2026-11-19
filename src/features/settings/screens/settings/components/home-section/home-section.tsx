@@ -3,8 +3,8 @@ import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { Frame } from "panelui-web/frame";
 import { PRESET_LABELS } from "@/features/home/constants";
+import { DESCRIPTIONS } from "@/features/settings/constants";
 import { settings$ } from "@/state/settings";
-import { DESCRIPTIONS } from "../../constants";
 
 export function HomeSection() {
   const router = useRouter();

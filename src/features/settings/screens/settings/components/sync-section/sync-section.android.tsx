@@ -26,10 +26,10 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { Loader } from "@/components/ui/loader";
 import { ContextMenu, Menu } from "@/components/ui/menu";
+import { Label } from "@/features/settings/components/label";
+import { LeadingIcon } from "@/features/settings/components/leading-icon";
+import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { useRowProps } from "../../hooks/use-row-props";
-import { Label } from "../label";
-import { LeadingIcon } from "../leading-icon";
 import {
   HELP_HOW,
   HELP_TITLE,

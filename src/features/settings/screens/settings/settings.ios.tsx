@@ -8,6 +8,7 @@ import { useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { signOut } from "@/features/auth/utils/sign-out";
 import { useLoadInstalled } from "@/features/extensions";
+import { useRowBackground } from "@/features/settings/hooks/use-row-background";
 import { AccountSection } from "./components/account-section";
 import { AppearanceSection } from "./components/appearance-section";
 import { DownloadsSection } from "./components/downloads-section";
@@ -17,7 +18,6 @@ import { NetworkSection } from "./components/network-section";
 import { SourcesSection } from "./components/sources-section";
 import { SyncSection } from "./components/sync-section";
 import { ConnectSheet } from "./components/sync-section/connect-sheet";
-import { useRowBackground } from "./hooks/use-row-background";
 
 export function Settings() {
   useLoadInstalled();

@@ -2,7 +2,7 @@ import { Memo } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { Frame } from "panelui-web/frame";
 import { Badge } from "@/components/ui/badge";
-import { DESCRIPTIONS } from "../../../constants";
+import { DESCRIPTIONS } from "@/features/settings/constants";
 import { countLabel } from "./utils";
 
 export interface PendingRowProps {

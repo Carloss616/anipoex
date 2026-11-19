@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Icon, Icons } from "@/components/ui/icon";
-import { DESCRIPTIONS } from "../../../constants";
+import { DESCRIPTIONS } from "@/features/settings/constants";
 import { runningLabel } from "./utils";
 
 export function ActivityRow() {

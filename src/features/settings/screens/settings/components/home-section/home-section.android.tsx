@@ -6,11 +6,11 @@ import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { PRESET_LABELS } from "@/features/home/constants";
+import { Label } from "@/features/settings/components/label";
+import { LeadingIcon } from "@/features/settings/components/leading-icon";
+import { DESCRIPTIONS } from "@/features/settings/constants";
+import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import { settings$ } from "@/state/settings";
-import { DESCRIPTIONS } from "../../constants";
-import { useRowProps } from "../../hooks/use-row-props";
-import { Label } from "../label";
-import { LeadingIcon } from "../leading-icon";
 
 export function HomeSection() {
   const router = useRouter();

@@ -16,11 +16,11 @@ import { Computed } from "@legendapp/state/react";
 import { PaletteRail } from "@/components/blocks/palette-rail";
 import { Text } from "@/components/native/swift-ui/text";
 import { sfSymbol } from "@/components/ui/icon";
+import { THEME_OPTIONS } from "@/features/settings/constants";
+import { useRowBackground } from "@/features/settings/hooks/use-row-background";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { settings$ } from "@/state/settings";
 import { THEME_FAMILIES, type ThemePreference } from "@/state/theme/constants";
-import { THEME_OPTIONS } from "../../constants";
-import { useRowBackground } from "../../hooks/use-row-background";
 
 export function AppearanceSection() {
   const primary = useThemeColor("primary");

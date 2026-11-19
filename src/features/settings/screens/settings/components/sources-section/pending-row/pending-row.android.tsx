@@ -5,9 +5,9 @@ import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
-import { DESCRIPTIONS } from "../../../constants";
-import { useRowProps } from "../../../hooks/use-row-props";
-import { LeadingIcon } from "../../leading-icon";
+import { LeadingIcon } from "@/features/settings/components/leading-icon";
+import { DESCRIPTIONS } from "@/features/settings/constants";
+import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import type { PendingRowProps } from "./pending-row";
 import { countLabel } from "./utils";
 

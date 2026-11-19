@@ -4,9 +4,9 @@ import { useRouter } from "expo-router";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
-import { DESCRIPTIONS } from "../../../constants";
-import { useRowProps } from "../../../hooks/use-row-props";
-import { LeadingIcon } from "../../leading-icon";
+import { LeadingIcon } from "@/features/settings/components/leading-icon";
+import { DESCRIPTIONS } from "@/features/settings/constants";
+import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import type { ActivityRowProps } from "./activity-row";
 import { runningLabel } from "./utils";
 

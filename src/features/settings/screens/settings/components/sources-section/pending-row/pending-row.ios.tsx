@@ -6,7 +6,7 @@ import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
-import { DESCRIPTIONS } from "../../../constants";
+import { DESCRIPTIONS } from "@/features/settings/constants";
 import { countLabel } from "./utils";
 
 export function PendingRow() {

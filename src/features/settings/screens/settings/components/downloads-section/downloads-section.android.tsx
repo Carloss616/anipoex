@@ -4,10 +4,10 @@ import { ButtonGroup } from "@/components/native/jetpack-compose/button-group";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icons } from "@/components/ui/icon";
+import { Label } from "@/features/settings/components/label";
+import { LeadingIcon } from "@/features/settings/components/leading-icon";
+import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { useRowProps } from "../../hooks/use-row-props";
-import { Label } from "../label";
-import { LeadingIcon } from "../leading-icon";
 import { DOWNLOADS_FOOTER, SAVE_TO_OPTIONS } from "./constants";
 import { useDownloadsSection } from "./hooks/use-downloads-section";
 

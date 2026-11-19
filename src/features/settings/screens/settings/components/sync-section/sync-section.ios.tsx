@@ -25,8 +25,8 @@ import { Icon, Icons } from "@/components/ui/icon";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { Loader } from "@/components/ui/loader";
 import { ContextMenu } from "@/components/ui/menu";
+import { useRowBackground } from "@/features/settings/hooks/use-row-background";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useRowBackground } from "../../hooks/use-row-background";
 import {
   FOLDER_HINT,
   HELP_HOW,

@@ -5,8 +5,8 @@ import { Frame } from "panelui-web/frame";
 import { Select } from "panelui-web/select";
 import { Switch } from "panelui-web/switch";
 import { languageName, languageOrder$ } from "@/features/extensions";
+import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "@/features/settings/constants";
 import { settings$ } from "@/state/settings";
-import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "../../constants";
 import { ActivityRow } from "./activity-row";
 import { PendingRow } from "./pending-row";
 

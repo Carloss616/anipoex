@@ -8,10 +8,10 @@ import {
 import { Computed } from "@legendapp/state/react";
 import { Text } from "@/components/native/swift-ui/text";
 import { DNS_OPTIONS, type DnsId, selectDns } from "@/features/extensions";
+import { DESCRIPTIONS } from "@/features/settings/constants";
+import { useRowBackground } from "@/features/settings/hooks/use-row-background";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { settings$ } from "@/state/settings";
-import { DESCRIPTIONS } from "../../constants";
-import { useRowBackground } from "../../hooks/use-row-background";
 
 export function NetworkSection() {
   const primary = useThemeColor("primary");

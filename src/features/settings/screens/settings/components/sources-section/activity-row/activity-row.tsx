@@ -2,7 +2,7 @@ import { Memo } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { Frame } from "panelui-web/frame";
-import { DESCRIPTIONS } from "../../../constants";
+import { DESCRIPTIONS } from "@/features/settings/constants";
 import { runningLabel } from "./utils";
 
 export interface ActivityRowProps {

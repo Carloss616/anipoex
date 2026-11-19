@@ -15,8 +15,8 @@ import {
 import { useReducer } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
+import { useRowBackground } from "@/features/settings/hooks/use-row-background";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useRowBackground } from "../../hooks/use-row-background";
 import { DOWNLOADS_FOOTER, SAVE_TO_OPTIONS } from "./constants";
 import { useDownloadsSection } from "./hooks/use-downloads-section";
 import type { SaveTo } from "./utils";

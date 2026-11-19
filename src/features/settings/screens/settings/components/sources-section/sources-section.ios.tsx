@@ -20,10 +20,10 @@ import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { languageName, languageOrder$ } from "@/features/extensions";
+import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "@/features/settings/constants";
+import { useRowBackground } from "@/features/settings/hooks/use-row-background";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { settings$ } from "@/state/settings";
-import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "../../constants";
-import { useRowBackground } from "../../hooks/use-row-background";
 import { ActivityRow } from "./activity-row";
 import { PendingRow } from "./pending-row";
 
