@@ -56,3 +56,16 @@ export function dropPosition(mangaId: number, chapterId?: string) {
 
 export const restorePosition = (mangaId: number, position: ReadingPosition) =>
   readingPositions$[mediaKey(mangaId)].set(position);
+
+/**
+ * Where a chapter opens: its saved page and offset when the position is this
+ * very chapter in this source, past the top.
+ */
+export function startAt(mangaId: number, sourceId: string, chapterId: string) {
+  const saved = readingPositions$[mediaKey(mangaId)].peek();
+  return saved?.sourceId === sourceId &&
+    saved.chapterId === chapterId &&
+    (saved.page > 1 || saved.offset > 0)
+    ? { page: saved.page, offset: saved.offset }
+    : undefined;
+}

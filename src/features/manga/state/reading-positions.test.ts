@@ -15,8 +15,13 @@ mock.module("@/state/observable-persist", () => ({
   },
 }));
 
-const { dropPosition, readingPositions$, restorePosition, savePosition } =
-  await import("./reading-positions");
+const {
+  dropPosition,
+  readingPositions$,
+  restorePosition,
+  savePosition,
+  startAt,
+} = await import("./reading-positions");
 
 const at = (chapterId: string, page = 3, offset = 0.25) => ({
   sourceId: "source-1",
@@ -58,5 +63,24 @@ describe("reading positions", () => {
     if (!dropped) throw new Error("nothing dropped");
     restorePosition(4, dropped);
     expect(readingPositions$[4].peek()).toEqual(dropped);
+  });
+
+  it("opens a chapter at its saved page only on the same source", () => {
+    savePosition(5, at("/ch-10", 7, 0.5));
+    expect(startAt(5, "source-1", "/ch-10")).toEqual({ page: 7, offset: 0.5 });
+    expect(startAt(5, "source-2", "/ch-10")).toBeUndefined();
+    expect(startAt(5, "source-1", "/ch-11")).toBeUndefined();
+  });
+
+  it("follows the saved position as it changes", () => {
+    savePosition(6, at("/ch-10", 7, 0.5));
+    savePosition(6, at("/ch-11", 2, 0));
+    expect(startAt(6, "source-1", "/ch-10")).toBeUndefined();
+    expect(startAt(6, "source-1", "/ch-11")).toEqual({ page: 2, offset: 0 });
+  });
+
+  it("opens at the top from page 1", () => {
+    savePosition(7, at("/ch-10", 1, 0));
+    expect(startAt(7, "source-1", "/ch-10")).toBeUndefined();
   });
 });

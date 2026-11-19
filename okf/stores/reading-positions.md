@@ -25,7 +25,7 @@ another chapter replaces it.
   - whenever the manga's [list entry](../concepts/list-entry.md) progress is at or above
     its chapter number, from any device or app (on the detail and in each sync, with the
     progress in the [Apollo cache](apollo-cache.md));
-  - for a manga not on the list, when it sits on its chapter's last page.
+  - for a manga not on the list, when it is near the end of its chapter's last page.
 
   A chapter without a number is only removed by reaching its end.
 - **Read** against the [chosen source](source-matches.md) as it is now:

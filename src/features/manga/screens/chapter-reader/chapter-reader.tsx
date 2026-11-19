@@ -96,7 +96,13 @@ export function ChapterReader() {
     finished: progress.finished,
   });
 
-  const start = useStartPosition(Number(mediaId), match?.sourceId, chapterUrl);
+  const start = useStartPosition({
+    mangaId: Number(mediaId),
+    sourceId: match?.sourceId,
+    chapterId: chapterUrl,
+    pages: pages.length,
+    listRef,
+  });
   const next = current && nextChapter(chapters, current);
   const name = chapterName(current);
 
@@ -118,7 +124,6 @@ export function ChapterReader() {
     },
     [visible$, savePositionOnScroll],
   );
-  const pageSize = Math.min(width, MAX_COLUMN) / PLACEHOLDER_RATIO;
   const sourceId = match?.sourceId;
   // Pages only come with a source, so the null is never drawn.
   const renderItem = useCallback(
@@ -182,13 +187,10 @@ export function ChapterReader() {
             recycleItems={false}
             // A page not yet loaded is this tall. The default (100) makes ~15
             // containers, each keeping its page decoded.
-            estimatedItemSize={pageSize}
-            initialScrollIndex={
-              start && {
-                index: start.page - 1,
-                viewOffset: -start.offset * pageSize,
-              }
-            }
+            estimatedItemSize={Math.min(width, MAX_COLUMN) / PLACEHOLDER_RATIO}
+            initialScrollIndex={start.initialScrollIndex}
+            onItemSizeChanged={start.onItemSizeChanged}
+            onScrollBeginDrag={start.onScrollBeginDrag}
             contentContainerStyle={COLUMN}
             ListFooterComponentStyle={{ paddingBottom: bottomSpace }}
             renderItem={renderItem}

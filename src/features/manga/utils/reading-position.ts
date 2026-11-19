@@ -1,9 +1,13 @@
 import type { ReadingPosition } from "../state/reading-positions";
 import { type Chapter, isRead } from "./to-chapters";
 
+/** How far down its last page a manga not on the list counts as read. */
+const END_OFFSET = 0.9;
+
 /**
  * The position while its chapter is unread. `progress` is null when the
- * manga isn't on the list: then only reaching the last page reads it.
+ * manga isn't on the list: then only the end of its last page reads it (a
+ * one-page strip is on its last page from the first scroll).
  */
 export function livePosition(
   position: ReadingPosition | undefined,
@@ -12,7 +16,7 @@ export function livePosition(
   if (!position) return undefined;
   const read =
     progress === null
-      ? position.page >= position.pages
+      ? position.page >= position.pages && position.offset >= END_OFFSET
       : isRead(progress, position.number);
   return read ? undefined : position;
 }

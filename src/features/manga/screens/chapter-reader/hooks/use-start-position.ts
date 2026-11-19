@@ -1,31 +1,54 @@
-import { useState } from "react";
-import { readingPositions$ } from "@/features/manga/state/reading-positions";
-import { mediaKey } from "@/features/manga/utils/msu";
+import { type RefObject, useRef, useState } from "react";
+import type { LegendListRef } from "@/components/layout/legend-list";
+import { startAt } from "@/features/manga/state/reading-positions";
 
-type Start = { page: number; offset: number } | undefined;
+type Start = ReturnType<typeof startAt>;
 
 /**
- * Where the chapter opens: its saved page when that is this very chapter in
- * this source. Read once per chapter, since the list takes it only at mount
- * and saving moves it on.
+ * Opens the chapter at its saved page. The list takes the page at mount and
+ * only knows the page's height once it loads, so the offset into it is
+ * applied as its size arrives, until the user drags.
  */
-export function useStartPosition(
-  mangaId: number,
-  sourceId: string | undefined,
-  chapterId: string,
-): Start {
-  const [start, setStart] = useState<{ key: string; at: Start }>();
+export function useStartPosition({
+  mangaId,
+  sourceId,
+  chapterId,
+  pages,
+  listRef,
+}: {
+  mangaId: number;
+  sourceId: string | undefined;
+  chapterId: string;
+  pages: number;
+  listRef: RefObject<LegendListRef | null>;
+}) {
+  // Read once per chapter: saving moves the position on while it's read.
+  const [snapshot, setSnapshot] = useState<{ key: string; at: Start }>();
   const key = `${sourceId}/${chapterId}`;
-  if (sourceId && start?.key !== key) {
-    const saved = readingPositions$[mediaKey(mangaId)].peek();
-    const at =
-      saved?.sourceId === sourceId &&
-      saved.chapterId === chapterId &&
-      (saved.page > 1 || saved.offset > 0)
-        ? { page: saved.page, offset: saved.offset }
-        : undefined;
-    setStart({ key, at });
-    return at;
+  let start = snapshot?.at;
+  if (sourceId && snapshot?.key !== key) {
+    start = startAt(mangaId, sourceId, chapterId);
+    setSnapshot({ key, at: start });
   }
-  return start?.at;
+  const dragged = useRef<string>(undefined);
+  // A source can re-upload a chapter with fewer pages.
+  const index = start && pages > 0 ? Math.min(start.page, pages) - 1 : 0;
+
+  return {
+    initialScrollIndex: start && pages > 0 ? index : undefined,
+    onItemSizeChanged: (item: { index: number; size: number }) => {
+      if (!start?.offset || item.index !== index || dragged.current === key)
+        return;
+      // shortcut: web has no drag event, so a page loading after a wheel
+      // scroll pulls it back; stop on wheel if that shows up.
+      void listRef.current?.scrollToIndex({
+        index,
+        viewOffset: -start.offset * item.size,
+        animated: false,
+      });
+    },
+    onScrollBeginDrag: () => {
+      dragged.current = key;
+    },
+  };
 }

@@ -37,8 +37,15 @@ describe("livePosition", () => {
     expect(livePosition(unnumbered, 50)).toBe(unnumbered);
   });
 
-  it("drops an unlisted manga at its last page", () => {
-    expect(livePosition({ ...position, page: 40 }, null)).toBeUndefined();
+  it("drops an unlisted manga at the end of its last page", () => {
+    const end = { ...position, page: 40, offset: 0.95 };
+    expect(livePosition(end, null)).toBeUndefined();
+  });
+
+  it("keeps an unlisted manga still reading its last page", () => {
+    // A one-page strip is on its last page from the first scroll.
+    const strip = { ...position, page: 1, pages: 1, offset: 0.3 };
+    expect(livePosition(strip, null)).toBe(strip);
   });
 
   it("keeps an unlisted manga mid-chapter", () => {
@@ -119,6 +126,9 @@ describe("deadPosition", () => {
   });
 
   it("drops an unlisted manga's finished chapter", () => {
-    expect(deadPosition({ ...position, page: 40 }, null)).toBe(true);
+    expect(deadPosition({ ...position, page: 40, offset: 0.95 }, null)).toBe(
+      true,
+    );
+    expect(deadPosition({ ...position, page: 40 }, null)).toBe(false);
   });
 });
