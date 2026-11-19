@@ -14,6 +14,7 @@
 @custom-variant sheet-next (*:has(> &) ~ * [data-nested][data-swipe-direction]);
 
 @theme {
+  --breakpoint-xs: 24.375rem;
   --spacing-gx: calc(var(--spacing) * 4);
   --spacing-gt: calc(var(--spacing) * 4);
   --spacing-gb: calc(var(--spacing) * 4);

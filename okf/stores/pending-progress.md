@@ -60,7 +60,7 @@ Default empty. Stays on the device; it is not synced.
 - **Offline**: a dropped connection keeps the entry and stops the run. Any other failure
   keeps it with the error message and goes on to the next.
 - **Turned down**: an entry with an error is not sent again until Retry clears it, or
-  the user changes that manga again. Settings › Pending lists these under "Not sent",
+  the user changes that manga again. Settings › Activity (To send) lists these under "Not sent",
   with Retry and Discard.
 - **Discard** drops the entry and puts the cache back to what it showed before the first
   change.

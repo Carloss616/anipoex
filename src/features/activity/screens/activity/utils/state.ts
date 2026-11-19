@@ -1,10 +1,8 @@
 import { observable } from "@legendapp/state";
+import { downloads } from "@/features/activity/utils/ids";
 import { downloadQueue$ } from "@/features/downloads";
 import { activeScans$ } from "@/features/manga/state/active-scans";
-import {
-  readingQueue$,
-  readingRun$,
-} from "@/features/manga/state/reading-queue";
+import { readingRun$ } from "@/features/manga/state/reading-queue";
 
 /** The running manga whose sources show, by manga id; not persisted. */
 export const expanded$ = observable<Record<string, boolean>>({});
@@ -17,21 +15,8 @@ export const hasScans = () =>
   Object.keys(activeScans$.get(true)).length > 0 ||
   readingRun$.get(true) != null;
 
-/** Whether anything shows: a scan or a queued download. */
-export const hasActivity = () =>
-  hasScans() || Object.keys(downloadQueue$.get(true)).length > 0;
-
-const downloads = () =>
-  Object.values(downloadQueue$.get()).sort((a, b) => a.order - b.order);
-
 export const downloadsFailed = () =>
   downloads().some((d) => d.state === "failed");
-
-/** Every download's key in order, joined. */
-export const downloadIds = () =>
-  downloads()
-    .map((d) => d.key)
-    .join();
 
 /** Whether a queued download comes before this queued one. */
 export const canMoveUp = (key: string) =>
@@ -50,18 +35,3 @@ export const downloadsView$ = observable({
     return first?.key ?? "";
   },
 });
-
-/** The running manga's ids, joined: changes only when one starts or ends. */
-export const runningIds = () => Object.keys(activeScans$.get(true)).join();
-
-/** The queued manga's ids in order, joined. */
-export const queuedIds = () =>
-  Object.values(readingQueue$.get())
-    .filter((m) => m.state === "queued")
-    .sort((a, b) => a.order - b.order)
-    .map((m) => m.id)
-    .join();
-
-/** The sources skipped as slow, joined. */
-export const skippedIds = () =>
-  Object.keys(readingRun$.skipped.get(true) ?? {}).join();

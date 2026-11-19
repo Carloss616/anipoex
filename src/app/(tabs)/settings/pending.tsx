@@ -1,5 +1,5 @@
-import { Pending } from "@/features/activity/screens/pending";
+import { Redirect } from "expo-router";
 
 export default function PendingScreen() {
-  return <Pending />;
+  return <Redirect href="/settings/activity?filter=send" />;
 }

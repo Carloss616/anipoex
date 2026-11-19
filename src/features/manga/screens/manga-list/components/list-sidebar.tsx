@@ -5,8 +5,9 @@ import { Button } from "panelui-web/button";
 import { Tabs } from "panelui-web/tabs";
 import { memo } from "react";
 import { View } from "react-native";
+import { FilterSidebar } from "@/components/blocks/filter-sidebar";
 import { Icon, Icons } from "@/components/ui/icon";
-import { MANGA_STATUS_ENTRIES } from "@/features/manga/constants";
+import { MANGA_STATUSES } from "@/features/manga/constants";
 import type { ListKey } from "@/features/manga/utils/parse-list";
 import type { CustomList, ListCounts } from "@/features/manga/utils/to-counts";
 
@@ -30,21 +31,13 @@ export const ListSidebar = memo(function ListSidebar({
 
   return (
     <View className={cn("gap-0.5", className)}>
-      <Typography type="body-sm" muted className="px-4.25 pb-2.5">
-        Lists
-      </Typography>
-      <Tabs orientation="vertical" value={status} onValueChange={select}>
-        <Tabs.List className="w-full">
-          {MANGA_STATUS_ENTRIES.map(([key, name]) => (
-            <Tabs.Trigger key={key} value={key} className="w-full">
-              {name}
-              {counts[key] != null && (
-                <Tabs.Badge className="ms-auto">{counts[key]}</Tabs.Badge>
-              )}
-            </Tabs.Trigger>
-          ))}
-        </Tabs.List>
-      </Tabs>
+      <FilterSidebar
+        title="Lists"
+        titles={MANGA_STATUSES}
+        counts={counts}
+        value={status}
+        onSelect={onSelect}
+      />
       <View className="flex-row items-center justify-between ps-4.25 pe-2 pt-4 pb-1">
         <Typography type="body-sm" muted>
           Custom lists

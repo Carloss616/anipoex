@@ -7,7 +7,10 @@ import { debounceNotice } from "./utils/notice";
 
 const change = debounceNotice(takeAnnounced, (text) =>
   toast(text, {
-    action: { label: "View", onAction: () => router.push("/settings/pending") },
+    action: {
+      label: "View",
+      onAction: () => router.push("/settings/activity?filter=send"),
+    },
   }),
 );
 

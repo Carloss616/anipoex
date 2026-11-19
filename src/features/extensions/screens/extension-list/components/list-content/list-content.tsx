@@ -15,6 +15,7 @@ import {
   EmptyState,
   type EmptyStateProps,
 } from "@/components/blocks/empty-state";
+import { FilterSidebar } from "@/components/blocks/filter-sidebar";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ import {
   type ExtensionFilter,
   type ExtensionSection,
   extensionCount,
+  FILTER_TITLES,
   headerIndices,
   type Language,
   toRows,
@@ -33,7 +35,6 @@ import {
 } from "@/features/extensions";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { ListItem } from "../list-item";
-import { ListSidebar } from "../list-sidebar";
 import { useSections } from "./hooks/use-sections";
 
 export interface ListContentProps {
@@ -83,9 +84,10 @@ export function ListContent({
     <View className="flex-1 flex-row">
       {wide && (
         <HeaderInsetView className="gutters pb-gb pl-gx box-content w-48 pr-4">
-          <ListSidebar
-            filter={filter}
+          <FilterSidebar
+            titles={FILTER_TITLES}
             counts={counts}
+            value={filter}
             onSelect={onFilterChange}
             className="pt-4"
           />

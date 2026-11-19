@@ -16,14 +16,10 @@ mock.module("@/state/observable-persist", () => ({
 }));
 
 const { downloadQueue$ } = await import("@/features/downloads");
-const {
-  canMoveUp,
-  downloadIds,
-  downloadsFailed,
-  downloadsView$,
-  hasActivity,
-  hasScans,
-} = await import("./state");
+const { canMoveUp, downloadsFailed, downloadsView$, hasScans } = await import(
+  "./state"
+);
+const { downloadIds } = await import("@/features/activity/utils/ids");
 
 type State = "queued" | "running" | "failed";
 const entry = (key: string, order: number, state: State) => ({
@@ -40,10 +36,8 @@ afterEach(() => {
 });
 
 describe("downloads", () => {
-  test("count as activity on their own, not as scans", () => {
-    expect(hasActivity()).toBe(false);
+  test("are not scans", () => {
     downloadQueue$.k1.set(entry("k1", 0, "queued"));
-    expect(hasActivity()).toBe(true);
     expect(hasScans()).toBe(false);
   });
 

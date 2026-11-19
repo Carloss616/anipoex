@@ -2,6 +2,7 @@
 
 ## 2026-11-18
 
+* **Pending folds into Activity**: the changes waiting to be sent, with Retry and Discard, are the To send filter of Settings › Activity; the Settings row shows the count as a badge and a status line. Updated [Offline](concepts/offline.md), [Pending entries](stores/pending-progress.md).
 * **A chapter read offline shows at once**: the reader's kept progress is written to the cache like a hand edit, so the manga list's and Home's unread badges drop before it is sent; Undo and Discard put AniList's back. A progress the device wrote to the cache is still sent, checked against AniList's entry. Updated [Pending entries](stores/pending-progress.md).
 * **A folder alone syncs 3 seconds after each change**: the once-a-minute limit for changes that keep coming applies only while a gist is connected, since it exists for GitHub's write limit. Updated [Sync state](stores/sync-state.md).
 * **Custom lists offline**: a change to a manga's custom lists made offline is kept with its other changes and sent later, without lists the account no longer has; making, renaming and deleting lists needs a connection. Updated [Offline](concepts/offline.md), [Pending entries](stores/pending-progress.md), [Custom list](concepts/custom-list.md).

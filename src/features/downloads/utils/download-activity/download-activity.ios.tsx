@@ -153,7 +153,10 @@ addUserInteractionListener(({ target }) => {
 
 const start = (props: Props) => {
   try {
-    return DownloadLiveActivity.start(props, "anipoex://settings/activity");
+    return DownloadLiveActivity.start(
+      props,
+      "anipoex://settings/activity?filter=downloads",
+    );
   } catch {
     // Live Activities turned off in Settings: Activity still shows the queue.
     return undefined;

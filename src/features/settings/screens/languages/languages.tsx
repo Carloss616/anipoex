@@ -43,7 +43,7 @@ export function Languages() {
     <>
       <Stack.Title>Languages</Stack.Title>
       <ScrollView className="flex-1" {...headerScroll}>
-        <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-4 self-center">
+        <HeaderInsetView className="gutters px-gx pb-gb w-full gap-4">
           <Frame className="mt-4">
             <Frame.Panel data-attached="column">
               {codes.map((code, index) => (

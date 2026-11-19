@@ -301,6 +301,16 @@ export const Icons = {
     android: require("@expo/material-symbols/folder.xml"),
     web: "folder",
   }),
+  palette: Icon.select({
+    ios: "paintpalette",
+    android: require("@expo/material-symbols/palette.xml"),
+    web: "palette",
+  }),
+  home: Icon.select({
+    ios: "house",
+    android: require("@expo/material-symbols/home.xml"),
+    web: "house",
+  }),
 
   // Devices
   device: Icon.select({

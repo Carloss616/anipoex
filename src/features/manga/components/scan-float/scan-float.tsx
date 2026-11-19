@@ -72,7 +72,9 @@ const ScanCard = memo(function ScanCard({
     <View className="w-full max-w-sm">
       <Pressable
         onPress={() =>
-          library ? router.push("/settings/activity") : onOpen(view.mangaId)
+          library
+            ? router.push("/settings/activity?filter=scans")
+            : onOpen(view.mangaId)
         }
         accessibilityRole="button"
         accessibilityLabel={`${view.name}, ${view.status}, ${library ? "show activity" : "show sources"}`}

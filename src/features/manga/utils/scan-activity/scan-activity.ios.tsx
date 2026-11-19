@@ -442,7 +442,9 @@ export function startLibraryActivity({
     live.push(props);
   };
   const image = imageLoader(render);
-  const live = updates(start(propsOfView(), "anipoex://settings/activity"));
+  const live = updates(
+    start(propsOfView(), "anipoex://settings/activity?filter=scans"),
+  );
   repaints.add(render);
   hold();
 

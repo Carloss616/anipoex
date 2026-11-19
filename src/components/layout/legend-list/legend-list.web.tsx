@@ -55,7 +55,9 @@ export function LegendList<T>({
           className,
         )}
         contentContainerClassName={cn(
-          horizontal ? "w-max" : "flex grow flex-col",
+          horizontal ? "w-max" : "grow flex-col",
+          // Its inline display: block would keep the empty state from filling it.
+          !horizontal && !props.data?.length && "flex!",
           contentContainerClassName,
         )}
         ListHeaderComponent={classedSlot(

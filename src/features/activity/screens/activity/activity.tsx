@@ -1,158 +1,196 @@
 import { useValue } from "@legendapp/state/react";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useHeaderHeight } from "expo-router/react-navigation";
+import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
+import { cn } from "panelui-native/utils/cn";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
-import { ScrollView, View } from "react-native";
+import { useMemo } from "react";
+import { View } from "react-native";
+import { LinearTransition } from "react-native-reanimated";
+import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
+import { FilterSidebar } from "@/components/blocks/filter-sidebar";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
-import { Toolbar } from "@/components/layout/toolbar";
-import { Icons } from "@/components/ui/icon";
-import { downloadsPending, split } from "@/features/activity/utils/state";
+import { LegendList } from "@/components/layout/legend-list";
+import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
+import {
+  type ActivityFilter,
+  type ActivitySection,
+  activityCount,
+  countsOf,
+  emptyKind,
+  FILTER_TITLES,
+  headerIndices,
+  parseFilter,
+  toRows,
+} from "@/features/activity/utils/filters";
+import { downloadsPending } from "@/features/activity/utils/state";
 import { downloadsPaused$ } from "@/features/downloads";
-import { askToNotify } from "@/features/manga/utils/scan-activity";
+import { useSettingsSplit } from "@/features/settings/components/settings-shell";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
-import { DownloadItem } from "./components/download-item";
-import { Overview } from "./components/overview";
-import { QueueItem } from "./components/queue-item";
-import { RunningItem } from "./components/running-item";
-import { SkippedItem } from "./components/skipped-item";
-import {
-  clearQueue,
-  retryAllSkipped,
-  startReadingScan,
-  stopAll,
-} from "./utils/actions";
-import { downloadActions } from "./utils/download-actions";
-import {
-  downloadIds,
-  downloadsFailed,
-  hasActivity,
-  hasScans,
-  queuedIds,
-  runningIds,
-  skippedIds,
-} from "./utils/state";
+import { ActivityToolbar } from "./components/activity-toolbar";
+import { SectionItem } from "./components/section-item";
+import { StatusCard } from "./components/status-card";
+import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
+import type { HeaderAction } from "./utils/download-actions";
+import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
+import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
+import { downloadsFailed } from "./utils/state";
+import { statusMode } from "./utils/status-mode";
 
-/** Up next and Downloads show this many; the rest are a count. */
-const SHOWN = 10;
-
-/** What runs now: each manga's scan, the Reading scan's queue, its slow sources. */
+/** Everything that runs or waits: scans, downloads, AniList changes, sync. */
 export function Activity() {
-  const active = useValue(hasActivity);
-  const scanning = useValue(hasScans);
+  const router = useRouter();
+  const params = useLocalSearchParams<{ filter?: string }>();
+  const ids = useActivityIds();
+  const mode = useValue(statusMode);
   const headerScroll = useHeaderScroll();
+  const headerHeight = useHeaderHeight();
+  const wide = useBreakpoint().isAtLeast("md");
+  // Beside the Settings sidebar, which lists the filters under Activity.
+  const split = useSettingsSplit();
+
+  const filter = parseFilter(params.filter);
+  const counts = useMemo(() => countsOf(ids), [ids]);
+  const rows = useMemo(() => toRows(ids, filter), [ids, filter]);
+  const stickyIndices = useMemo(() => headerIndices(rows), [rows]);
+  const empty = emptyKind(ids, filter, mode !== "");
+
+  // `all` is the default: keep it out of the URL.
+  const setFilter = (f: ActivityFilter) =>
+    router.setParams({ filter: f === "all" ? undefined : f });
 
   return (
     <>
       <Stack.Title>Activity</Stack.Title>
-      <Toolbar>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            hidden={!scanning}
-            icon={Icons.stop}
-            onPress={stopAll}
-            accessibilityLabel="Stop all"
-          />
-        </Stack.Toolbar>
-      </Toolbar>
-      {active ? (
-        <ScrollView className="flex-1" {...headerScroll}>
-          <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-5xl gap-4 self-center lg:flex-row lg:items-start">
-            <View className="min-w-0 gap-4 lg:flex-3">
-              <RunningSection />
-              <QueueSection />
-              <DownloadsSection />
-            </View>
-            <View className="min-w-0 gap-4 max-lg:order-first lg:flex-2">
-              <Overview />
-              <SkippedSection />
-            </View>
+      <ActivityToolbar
+        counts={counts}
+        filter={filter}
+        onFilterChange={setFilter}
+      />
+      <View className="flex-1 flex-row">
+        {wide && !split && (
+          <HeaderInsetView className="gutters pb-gb pl-gx box-content w-48 pr-4">
+            <FilterSidebar
+              titles={FILTER_TITLES}
+              counts={counts}
+              value={filter}
+              onSelect={setFilter}
+              className="pt-4"
+            />
           </HeaderInsetView>
-        </ScrollView>
-      ) : (
-        <EmptyState
-          title="Nothing running"
-          description="Scans show here while they run."
-          actions={[
-            {
-              label: "Scan Reading",
-              onPress: () => {
-                askToNotify();
-                startReadingScan();
-              },
-            },
-          ]}
-        />
-      )}
+        )}
+        <View className="flex-1">
+          <LegendList
+            itemLayoutAnimation={LinearTransition}
+            data={rows}
+            keyExtractor={(row) => row.key}
+            getItemType={(row) =>
+              row.kind === "header" ? "header" : row.section
+            }
+            stickyHeaderConfig={{ offset: headerHeight }}
+            stickyHeaderIndices={stickyIndices}
+            {...headerScroll}
+            contentContainerClassName="gutters pb-gb"
+            ListHeaderComponent={
+              <HeaderInsetView>
+                <View className="px-gx lg:pl-gx gap-3 py-4 md:pl-4">
+                  {mode !== "" && <StatusCard mode={mode} />}
+                  {!wide && filter !== "all" && (
+                    <View className="flex-row flex-wrap items-center gap-3">
+                      <ActiveFilters
+                        filters={[
+                          {
+                            label: FILTER_TITLES[filter],
+                            clear: () => setFilter("all"),
+                          },
+                        ]}
+                        total={activityCount(counts[filter])}
+                      />
+                    </View>
+                  )}
+                </View>
+              </HeaderInsetView>
+            }
+            ListEmptyComponent={
+              empty === "all" ? (
+                <EmptyState {...ALL_CAUGHT_UP} />
+              ) : (
+                <EmptyState title="Nothing here" />
+              )
+            }
+            renderItem={({ item: row }) =>
+              row.kind === "header" ? (
+                row.section === "downloads" ? (
+                  <DownloadsHeader count={row.count} />
+                ) : (
+                  <SectionHeader
+                    section={row.section}
+                    count={row.count}
+                    actions={headerActions(row.section, NO_DOWNLOADS)}
+                  />
+                )
+              ) : (
+                <Frame
+                  className={cn(
+                    "gutters mx-gx lg:ml-gx rounded-t-none border-t-0 md:ml-4",
+                    row.index === row.count - 1
+                      ? "mb-4"
+                      : "rounded-b-none border-b-0",
+                  )}
+                >
+                  <Frame.Panel
+                    data-attached="column"
+                    className={cn(row.index > 0 && "rounded-t-none!")}
+                  >
+                    <SectionItem section={row.section} id={row.id} />
+                  </Frame.Panel>
+                </Frame>
+              )
+            }
+          />
+        </View>
+      </View>
     </>
   );
 }
 
-function RunningSection() {
-  const ids = split(useValue(runningIds));
-  if (!ids.length) return null;
-
-  return (
-    <Frame>
-      <Frame.Header>
-        <Frame.Title>{`Running · ${ids.length}`}</Frame.Title>
-      </Frame.Header>
-      <Frame.Panel data-attached="column">
-        {ids.map((id) => (
-          <RunningItem key={id} mangaId={id} />
-        ))}
-      </Frame.Panel>
-    </Frame>
-  );
-}
-
-function QueueSection() {
-  const ids = split(useValue(queuedIds));
-  if (!ids.length) return null;
-  const more = ids.length - SHOWN;
-
-  return (
-    <Frame>
-      <Frame.Header>
-        <Frame.Title>{`Up next · ${ids.length}`}</Frame.Title>
-        <Frame.Description>
-          Each starts when the one before has 2 sources left
-        </Frame.Description>
-        <Frame.Action>
-          <Button variant="ghost" size="sm" onClick={clearQueue}>
-            Clear
-          </Button>
-        </Frame.Action>
-      </Frame.Header>
-      <Frame.Panel data-attached="column">
-        {ids.slice(0, SHOWN).map((id) => (
-          <QueueItem key={id} id={id} />
-        ))}
-        {more > 0 && (
-          <Frame.Row>
-            <Frame.Content>
-              <Frame.Description>{`${more} more`}</Frame.Description>
-            </Frame.Content>
-          </Frame.Row>
-        )}
-      </Frame.Panel>
-    </Frame>
-  );
-}
-
-function DownloadsSection() {
-  const ids = split(useValue(downloadIds));
+function DownloadsHeader({ count }: { count: number }) {
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
   const failed = useValue(downloadsFailed);
-  if (!ids.length) return null;
-  const more = ids.length - SHOWN;
-  const actions = downloadActions(paused, pending, failed);
 
   return (
-    <Frame>
+    <SectionHeader
+      section="downloads"
+      count={count}
+      actions={headerActions("downloads", { paused, pending, failed })}
+    />
+  );
+}
+
+function SectionHeader({
+  section,
+  count,
+  actions = [],
+}: {
+  section: ActivitySection;
+  count: number;
+  actions?: HeaderAction[];
+}) {
+  const description = SECTION_DESCRIPTIONS[section];
+
+  return (
+    <Frame
+      className={cn(
+        "gutters mx-gx lg:ml-gx rounded-b-none border-b-0 md:ml-4",
+        "stuck:glass-chrome! stuck:glass-muted stuck:rounded-full stuck:border stuck:shadow-lg",
+      )}
+    >
       <Frame.Header>
-        <Frame.Title>{`Downloads · ${ids.length}`}</Frame.Title>
+        <Frame.Title>{sectionTitle(section, count)}</Frame.Title>
+        {description && <Frame.Description>{description}</Frame.Description>}
         {actions.length > 0 && (
           <Frame.Action className="flex flex-row items-center gap-1">
             {actions.map(({ label, onPress }) => (
@@ -163,42 +201,6 @@ function DownloadsSection() {
           </Frame.Action>
         )}
       </Frame.Header>
-      <Frame.Panel data-attached="column">
-        {ids.slice(0, SHOWN).map((id) => (
-          <DownloadItem key={id} id={id} />
-        ))}
-        {more > 0 && (
-          <Frame.Row>
-            <Frame.Content>
-              <Frame.Description>{`${more} more`}</Frame.Description>
-            </Frame.Content>
-          </Frame.Row>
-        )}
-      </Frame.Panel>
-    </Frame>
-  );
-}
-
-function SkippedSection() {
-  const ids = split(useValue(skippedIds));
-  if (!ids.length) return null;
-
-  return (
-    <Frame>
-      <Frame.Header>
-        <Frame.Title>Skipped as slow</Frame.Title>
-        <Frame.Description>Left out of the rest of this scan</Frame.Description>
-        <Frame.Action>
-          <Button variant="ghost" size="sm" onClick={retryAllSkipped}>
-            Retry all
-          </Button>
-        </Frame.Action>
-      </Frame.Header>
-      <Frame.Panel data-attached="column">
-        {ids.map((id) => (
-          <SkippedItem key={id} sourceId={id} />
-        ))}
-      </Frame.Panel>
     </Frame>
   );
 }

@@ -1,208 +1,195 @@
-import { Box, Column, Row, Spacer, TextButton } from "@expo/ui/jetpack-compose";
+import {
+  Box,
+  Column,
+  LazyColumn,
+  Row,
+  Spacer,
+  TextButton,
+} from "@expo/ui/jetpack-compose";
 import {
   fillMaxSize,
   fillMaxWidth,
   padding,
-  verticalScroll,
   weight,
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useHeaderHeight } from "expo-router/react-navigation";
+import { useEffect, useMemo } from "react";
+import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
-import { Toolbar } from "@/components/layout/toolbar";
 import { GUTTER } from "@/components/native/constants";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
-import { Icons } from "@/components/ui/icon";
+import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
 import {
-  corners,
-  downloadsPending,
-  split,
-} from "@/features/activity/utils/state";
+  type ActivityFilter,
+  type ActivityRow,
+  type ActivitySection,
+  activityCount,
+  countsOf,
+  emptyKind,
+  FILTER_TITLES,
+  parseFilter,
+  toRows,
+} from "@/features/activity/utils/filters";
+import { corners, downloadsPending } from "@/features/activity/utils/state";
 import { downloadsPaused$ } from "@/features/downloads";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { DownloadItem } from "./components/download-item";
-import { Overview } from "./components/overview";
-import { QueueItem } from "./components/queue-item";
-import { RunningItem } from "./components/running-item";
-import { SkippedItem } from "./components/skipped-item";
-import {
-  clearQueue,
-  retryAllSkipped,
-  startReadingScan,
-  stopAll,
-} from "./utils/actions";
-import { downloadActions, type HeaderAction } from "./utils/download-actions";
-import {
-  downloadIds,
-  downloadsFailed,
-  hasActivity,
-  hasScans,
-  queuedIds,
-  runningIds,
-  skippedIds,
-} from "./utils/state";
+import { ActivityToolbar } from "./components/activity-toolbar";
+import { SectionItem } from "./components/section-item";
+import { StatusCard } from "./components/status-card";
+import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
+import type { HeaderAction } from "./utils/download-actions";
+import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
+import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
+import { downloadsFailed } from "./utils/state";
+import { statusMode } from "./utils/status-mode";
 
-/** Up next and Downloads show this many; the rest are a count. */
-const SHOWN = 10;
+const FOOTERS: Partial<Record<ActivitySection, string>> = {
+  ...SECTION_DESCRIPTIONS,
+  entries: "Long-press a change to discard it.",
+};
 
+/** Everything that runs or waits: scans, downloads, AniList changes, sync. */
 export function Activity() {
-  const active = useValue(hasActivity);
-  const scanning = useValue(hasScans);
-  const m3 = useThemeM3Colors();
+  const router = useRouter();
+  const params = useLocalSearchParams<{ filter?: string }>();
+  const ids = useActivityIds();
+  const statusShown = useValue(() => statusMode() !== "");
+  const setHeaderScrolled = useSetHeaderScrolled();
+
+  const filter = parseFilter(params.filter);
+  const counts = useMemo(() => countsOf(ids), [ids]);
+  const rows = useMemo(() => toRows(ids, filter), [ids, filter]);
+  const empty = emptyKind(ids, filter, statusShown);
+
+  // `all` is the default: keep it out of the URL.
+  const setFilter = (f: ActivityFilter) =>
+    router.setParams({ filter: f === "all" ? undefined : f });
+
+  // The scroll behavior leaves with the list: with nothing to scroll, the
+  // header rests.
+  useEffect(() => {
+    if (empty === "all") setHeaderScrolled(false);
+  }, [empty, setHeaderScrolled]);
 
   return (
     <>
       <Stack.Title>Activity</Stack.Title>
-      <Toolbar>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            hidden={!scanning}
-            icon={Icons.stop}
-            tintColor={m3.error}
-            onPress={stopAll}
-            accessibilityLabel="Stop all"
-          />
-        </Stack.Toolbar>
-      </Toolbar>
-      {active ? (
-        <ActivityList />
+      <ActivityToolbar
+        counts={counts}
+        filter={filter}
+        onFilterChange={setFilter}
+      />
+      {empty === "all" ? (
+        <EmptyState {...ALL_CAUGHT_UP} />
       ) : (
-        <EmptyState
-          title="Nothing running"
-          description="Scans show here while they run."
-          actions={[{ label: "Scan Reading", onPress: startReadingScan }]}
+        <ActivityList
+          rows={rows}
+          filter={filter}
+          total={activityCount(counts[filter])}
+          onClearFilter={() => setFilter("all")}
         />
       )}
     </>
   );
 }
 
-/** Reads nothing that changes: inside a Host, its re-render re-runs every row. */
-function ActivityList() {
+/** Takes plain props only: inside a Host, a re-render re-runs every row. */
+function ActivityList({
+  rows,
+  filter,
+  total,
+  onClearFilter,
+}: {
+  rows: ActivityRow[];
+  filter: ActivityFilter;
+  total: string;
+  onClearFilter: () => void;
+}) {
   const headerHeight = useHeaderHeight();
   const setHeaderScrolled = useSetHeaderScrolled();
+  const filters =
+    filter === "all"
+      ? []
+      : [{ label: FILTER_TITLES[filter], clear: onClearFilter }];
 
   return (
     <Host className="flex-1" style={{ marginTop: headerHeight }}>
-      <Box modifiers={[fillMaxSize(), pinnedScrollBehavior(setHeaderScrolled)]}>
-        <Column
-          modifiers={[
-            verticalScroll(),
-            fillMaxWidth(),
-            padding(0, 8, 0, GUTTER),
-          ]}
+      <Box
+        // Remount per filter, or Compose keeps the scroll on the old first
+        // key; the scroll behavior starts over with it.
+        key={filter}
+        modifiers={[fillMaxSize(), pinnedScrollBehavior(setHeaderScrolled)]}
+      >
+        <LazyColumn
+          modifiers={[fillMaxSize()]}
+          contentPadding={{ top: 8, bottom: GUTTER }}
         >
-          <Label title="Now" />
-          <Overview />
-          <RunningSection />
-          <QueueSection />
-          <DownloadsSection />
-          <SkippedSection />
-        </Column>
+          <StatusSection />
+          <ActiveFilters filters={filters} total={total} />
+          {rows.length === 0 && <EmptyState title="Nothing here" />}
+          <LazyColumn.Items
+            data={rows}
+            keyExtractor={(row) => row.key}
+            recycling={false}
+          >
+            {({ item: row }) =>
+              row.kind === "header" ? (
+                row.section === "downloads" ? (
+                  <DownloadsLabel
+                    title={sectionTitle("downloads", row.count)}
+                  />
+                ) : (
+                  <Label
+                    title={sectionTitle(row.section, row.count)}
+                    actions={headerActions(row.section, NO_DOWNLOADS)}
+                  />
+                )
+              ) : (
+                <Column>
+                  <SectionItem
+                    section={row.section}
+                    id={row.id}
+                    {...corners(row.index, row.count)}
+                  />
+                  {row.index === row.count - 1 && (
+                    <Footer section={row.section} />
+                  )}
+                </Column>
+              )
+            }
+          </LazyColumn.Items>
+        </LazyColumn>
       </Box>
     </Host>
   );
 }
 
-function RunningSection() {
-  const ids = split(useValue(runningIds));
-  if (!ids.length) return null;
+function StatusSection() {
+  const mode = useValue(statusMode);
+  if (mode === "") return null;
 
-  return (
-    <>
-      <Label title={`Running · ${ids.length}`} />
-      {ids.map((id, i) => (
-        <RunningItem key={id} mangaId={id} {...corners(i, ids.length)} />
-      ))}
-    </>
-  );
+  return <StatusCard mode={mode} />;
 }
 
-function QueueSection() {
-  const ids = split(useValue(queuedIds));
-  if (!ids.length) return null;
-  const shown = ids.slice(0, SHOWN);
-  const more = ids.length - shown.length;
-
-  return (
-    <>
-      <Label
-        title={`Up next · ${ids.length}`}
-        actions={[{ label: "Clear", onPress: clearQueue }]}
-      />
-      {shown.map((id, i) => (
-        <QueueItem key={id} id={id} {...corners(i, shown.length)} />
-      ))}
-      {more > 0 && (
-        <Text
-          style={{ typography: "bodyMedium" }}
-          modifiers={[padding(GUTTER + 16, 8, GUTTER, 0)]}
-        >
-          {`${more} more`}
-        </Text>
-      )}
-    </>
-  );
-}
-
-function DownloadsSection() {
-  const ids = split(useValue(downloadIds));
+function DownloadsLabel({ title }: { title: string }) {
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
   const failed = useValue(downloadsFailed);
-  if (!ids.length) return null;
-  const shown = ids.slice(0, SHOWN);
-  const more = ids.length - shown.length;
 
   return (
-    <>
-      <Label
-        title={`Downloads · ${ids.length}`}
-        actions={downloadActions(paused, pending, failed)}
-      />
-      {shown.map((id, i) => (
-        <DownloadItem key={id} id={id} {...corners(i, shown.length)} />
-      ))}
-      {more > 0 && (
-        <Text
-          style={{ typography: "bodyMedium" }}
-          modifiers={[padding(GUTTER + 16, 8, GUTTER, 0)]}
-        >
-          {`${more} more`}
-        </Text>
-      )}
-    </>
+    <Label
+      title={title}
+      actions={headerActions("downloads", { paused, pending, failed })}
+    />
   );
 }
 
-function SkippedSection() {
-  const ids = split(useValue(skippedIds));
-  if (!ids.length) return null;
-
-  return (
-    <>
-      <Label
-        title="Skipped as slow"
-        actions={[{ label: "Retry all", onPress: retryAllSkipped }]}
-      />
-      {ids.map((id, i) => (
-        <SkippedItem key={id} sourceId={id} {...corners(i, ids.length)} />
-      ))}
-    </>
-  );
-}
-
-function Label({
-  title,
-  actions = [],
-}: {
-  title: string;
-  actions?: HeaderAction[];
-}) {
+function Label({ title, actions }: { title: string; actions: HeaderAction[] }) {
   const m3 = useThemeM3Colors();
 
   return (
@@ -220,5 +207,21 @@ function Label({
         </TextButton>
       ))}
     </Row>
+  );
+}
+
+function Footer({ section }: { section: ActivitySection }) {
+  const m3 = useThemeM3Colors();
+  const text = FOOTERS[section];
+  if (!text) return null;
+
+  return (
+    <Text
+      style={{ typography: "bodySmall" }}
+      color={m3.onSurfaceVariant}
+      modifiers={[padding(GUTTER + 16, 8, GUTTER, 0)]}
+    >
+      {text}
+    </Text>
   );
 }

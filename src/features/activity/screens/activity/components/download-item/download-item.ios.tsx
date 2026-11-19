@@ -30,7 +30,7 @@ import { useDownloadItem } from "./hooks/use-download-item";
 export const DownloadItem = memo(function DownloadItem({
   id,
 }: DownloadItemProps) {
-  const { title, cover, source, state, line, canMoveUp } = useDownloadItem(id);
+  const { title, cover, chapter, state, line, canMoveUp } = useDownloadItem(id);
   const [primary, destructive] = useThemeColor(["primary", "destructive"]);
 
   return (
@@ -59,7 +59,7 @@ export const DownloadItem = memo(function DownloadItem({
                         textStyle="subheadline"
                         modifiers={[foregroundStyle("secondary")]}
                       >
-                        {`${source} · ${Math.round(value * 100)}%`}
+                        {`${chapter} · ${Math.round(value * 100)}%`}
                       </Text>
                     </VStack>
                   );

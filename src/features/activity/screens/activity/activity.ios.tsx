@@ -7,76 +7,83 @@ import {
   scrollContentBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { memo, useMemo } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
-import { Toolbar } from "@/components/layout/toolbar";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
-import { Icons } from "@/components/ui/icon";
+import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
+import {
+  type ActivityFilter,
+  type ActivitySection,
+  countsOf,
+  emptyKind,
+  parseFilter,
+  visibleSections,
+} from "@/features/activity/utils/filters";
+import { SECTION_IDS } from "@/features/activity/utils/section-ids";
 import { downloadsPending, split } from "@/features/activity/utils/state";
 import { downloadsPaused$ } from "@/features/downloads";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { DownloadItem } from "./components/download-item";
-import { Overview } from "./components/overview";
-import { QueueItem } from "./components/queue-item";
-import { RunningItem } from "./components/running-item";
-import { SkippedItem } from "./components/skipped-item";
-import {
-  clearQueue,
-  retryAllSkipped,
-  startReadingScan,
-  stopAll,
-} from "./utils/actions";
-import { downloadActions, type HeaderAction } from "./utils/download-actions";
-import {
-  downloadIds,
-  downloadsFailed,
-  hasActivity,
-  hasScans,
-  queuedIds,
-  runningIds,
-  skippedIds,
-} from "./utils/state";
+import { ActivityToolbar } from "./components/activity-toolbar";
+import { SectionItem } from "./components/section-item";
+import { StatusCard } from "./components/status-card";
+import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
+import type { HeaderAction } from "./utils/download-actions";
+import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
+import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
+import { downloadsFailed } from "./utils/state";
+import { statusMode } from "./utils/status-mode";
 
-/** Downloads shows this many; the rest are a count. */
-const SHOWN = 10;
+const FOOTERS: Partial<Record<ActivitySection, string>> = {
+  ...SECTION_DESCRIPTIONS,
+  entries: "Swipe a change to discard it.",
+};
 
 type Row = { modifiers: ReturnType<typeof listRowBackground>[] };
 
+/** Everything that runs or waits: scans, downloads, AniList changes, sync. */
 export function Activity() {
-  const active = useValue(hasActivity);
-  const scanning = useValue(hasScans);
-  const destructive = useThemeColor("destructive");
+  const router = useRouter();
+  const params = useLocalSearchParams<{ filter?: string }>();
+  const ids = useActivityIds();
+  const statusShown = useValue(() => statusMode() !== "");
+
+  const filter = parseFilter(params.filter);
+  const counts = useMemo(() => countsOf(ids), [ids]);
+  const empty = emptyKind(ids, filter, statusShown);
+
+  // `all` is the default: keep it out of the URL.
+  const setFilter = (f: ActivityFilter) =>
+    router.setParams({ filter: f === "all" ? undefined : f });
 
   return (
     <>
       <Stack.Title>Activity</Stack.Title>
-      <Toolbar>
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
-            hidden={!scanning}
-            icon={Icons.stop}
-            tintColor={destructive}
-            onPress={stopAll}
-            accessibilityLabel="Stop all"
-          />
-        </Stack.Toolbar>
-      </Toolbar>
-      {active ? (
-        <ActivityList />
+      <ActivityToolbar
+        counts={counts}
+        filter={filter}
+        onFilterChange={setFilter}
+      />
+      {empty === "all" ? (
+        <EmptyState {...ALL_CAUGHT_UP} />
       ) : (
-        <EmptyState
-          title="Nothing running"
-          description="Scans show here while they run."
-          actions={[{ label: "Scan Reading", onPress: startReadingScan }]}
-        />
+        // Joined, so the list re-renders only when a section comes or goes.
+        <ActivityList sections={visibleSections(ids, filter).join()} />
       )}
     </>
   );
 }
 
-/** Reads nothing that changes: inside a Host, its re-render re-runs every row. */
-function ActivityList() {
+/**
+ * Reads only the joined section names: inside a Host, its re-render re-runs
+ * every row.
+ */
+const ActivityList = memo(function ActivityList({
+  sections,
+}: {
+  sections: string;
+}) {
   const modifiers = [listRowBackground(useThemeColor("surface-secondary"))];
 
   return (
@@ -88,109 +95,82 @@ function ActivityList() {
           useFont(),
         ]}
       >
-        <Overview modifiers={modifiers} />
-        <RunningSection modifiers={modifiers} />
-        <QueueSection modifiers={modifiers} />
-        <DownloadsSection modifiers={modifiers} />
-        <SkippedSection modifiers={modifiers} />
+        <StatusSection modifiers={modifiers} />
+        {sections ? (
+          (split(sections) as ActivitySection[]).map((section) => (
+            <SectionView
+              key={section}
+              section={section}
+              modifiers={modifiers}
+            />
+          ))
+        ) : (
+          <Section modifiers={[listRowBackground("clear")]}>
+            <EmptyState title="Nothing here" />
+          </Section>
+        )}
       </List>
     </Host>
   );
+});
+
+function StatusSection({ modifiers }: Row) {
+  const mode = useValue(statusMode);
+  if (mode === "") return null;
+
+  return <StatusCard mode={mode} modifiers={modifiers} />;
 }
 
-function RunningSection({ modifiers }: Row) {
-  const ids = split(useValue(runningIds));
+const SectionView = memo(function SectionView({
+  section,
+  modifiers,
+}: Row & { section: ActivitySection }) {
+  const ids = split(useValue(SECTION_IDS[section]));
   if (!ids.length) return null;
-
-  return (
-    <Section title={`Running · ${ids.length}`} modifiers={modifiers}>
-      <List.ForEach data={ids} keyExtractor={(id) => id} recycling={false}>
-        {({ item }) => <RunningItem mangaId={item} />}
-      </List.ForEach>
-    </Section>
-  );
-}
-
-function QueueSection({ modifiers }: Row) {
-  const ids = split(useValue(queuedIds));
-  if (!ids.length) return null;
+  const title = sectionTitle(section, ids.length);
+  const footer = FOOTERS[section];
 
   return (
     <Section
       modifiers={modifiers}
       header={
-        <SectionHeader
-          title={`Up next · ${ids.length}`}
-          actions={[{ label: "Clear", onPress: clearQueue }]}
-        />
+        section === "downloads" ? (
+          <DownloadsHeader title={title} />
+        ) : (
+          <SectionHeader
+            title={title}
+            actions={headerActions(section, NO_DOWNLOADS)}
+          />
+        )
       }
-      footer={<Text>Each starts when the one before has 2 sources left</Text>}
+      footer={footer ? <Text>{footer}</Text> : undefined}
     >
       <List.ForEach data={ids} keyExtractor={(id) => id} recycling={false}>
-        {({ item }) => <QueueItem id={item} />}
+        {({ item }) => <SectionItem section={section} id={item} />}
       </List.ForEach>
     </Section>
   );
-}
+});
 
-function DownloadsSection({ modifiers }: Row) {
-  const ids = split(useValue(downloadIds));
+function DownloadsHeader({ title }: { title: string }) {
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
   const failed = useValue(downloadsFailed);
-  if (!ids.length) return null;
-  const more = ids.length - SHOWN;
 
   return (
-    <Section
-      modifiers={modifiers}
-      header={
-        <SectionHeader
-          title={`Downloads · ${ids.length}`}
-          actions={downloadActions(paused, pending, failed)}
-        />
-      }
-      footer={more > 0 ? <Text>{`${more} more`}</Text> : undefined}
-    >
-      <List.ForEach
-        data={ids.slice(0, SHOWN)}
-        keyExtractor={(id) => id}
-        recycling={false}
-      >
-        {({ item }) => <DownloadItem id={item} />}
-      </List.ForEach>
-    </Section>
-  );
-}
-
-function SkippedSection({ modifiers }: Row) {
-  const ids = split(useValue(skippedIds));
-  if (!ids.length) return null;
-
-  return (
-    <Section
-      modifiers={modifiers}
-      header={
-        <SectionHeader
-          title="Skipped as slow"
-          actions={[{ label: "Retry all", onPress: retryAllSkipped }]}
-        />
-      }
-      footer={<Text>Left out of the rest of this scan</Text>}
-    >
-      <List.ForEach data={ids} keyExtractor={(id) => id} recycling={false}>
-        {({ item }) => <SkippedItem sourceId={item} />}
-      </List.ForEach>
-    </Section>
+    <SectionHeader
+      title={title}
+      actions={headerActions("downloads", { paused, pending, failed })}
+    />
   );
 }
 
 function SectionHeader({
   title,
-  actions = [],
+  actions,
 }: {
   title: string;
-  actions?: HeaderAction[];
+  actions: HeaderAction[];
 }) {
   const font = useFont("subheadline", "medium");
 
