@@ -463,21 +463,23 @@ export function startLibraryActivity({
     },
     end: (summary) => {
       ended = true;
-      awake();
       scanStops.delete("library");
-      void endCovers(summary.withNew).then((covers) => {
-        if (run !== libraryRun) return;
-        void notification.end({
-          name: "Reading",
-          status: libraryStatus(summary),
-          progress: 1,
-          ended: true,
-          trackHeight: TRACK_HEIGHT.md,
-          marks: [],
-          more: 0,
-          ...covers,
-        });
-      });
+      // Held until the end is sent: its covers download first.
+      void endCovers(summary.withNew)
+        .then((covers) => {
+          if (run !== libraryRun) return;
+          return notification.end({
+            name: "Reading",
+            status: libraryStatus(summary),
+            progress: 1,
+            ended: true,
+            trackHeight: TRACK_HEIGHT.md,
+            marks: [],
+            more: 0,
+            ...covers,
+          });
+        })
+        .finally(awake);
     },
   };
 }

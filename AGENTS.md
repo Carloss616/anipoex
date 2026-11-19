@@ -127,7 +127,7 @@ Legend State gotchas:
 # Background work
 
 - Work that must keep running off screen, the phone locked included (scans, downloads), holds `backgroundWork` (`src/utils/background-time/`) while it runs, and reports `progress`: iOS 26 ends a continued processing task that stalls. Short work as the app leaves (a due sync, pending changes) goes through `finishOffScreen`.
-- On Android, JS timers stop as soon as the app leaves the screen (`JavaTimerManager.onHostPause`) unless a headless JS task runs, so off screen a `setTimeout` (a debounce, the notification limiter) never fires: the Android `backgroundWork` runs one beside its dataSync foreground service. Android won't start that service from the background, so downloads hold it through an offline gap (`download-activity.android.tsx`).
+- On Android, JS timers stop as soon as the app leaves the screen (`JavaTimerManager.onHostPause`) unless a headless JS task runs, so off screen a `setTimeout` (a debounce, the notification limiter, a scan's slow-source skip) never fires: the Android `backgroundWork` runs one beside its dataSync foreground service. Even then timers fire only on vsync frames, which stop with the screen off on a real phone (an emulator keeps them, so test this on a device): the module runs React Native's frame callback once a second while held (`BackgroundTimeModule.kt`). Android won't start that service from the background, so downloads hold it through an offline gap (`download-activity.android.tsx`).
 - iOS's `BGContinuedProcessingTask` is `unavailable` in the Simulator: there `backgroundWork` falls back to `beginBackgroundTask`, about 30s, then pauses the work until the app is back. Test the long run on a device.
 
 # Tests

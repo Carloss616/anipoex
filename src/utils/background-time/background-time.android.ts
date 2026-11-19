@@ -11,6 +11,7 @@ declare class BackgroundTimeModule extends NativeModule<{
 
 const backgroundTime =
   requireNativeModule<BackgroundTimeModule>("BackgroundTime");
+const LINGER_MS = 2_000;
 
 // Native ends it with finishTask when the last hold goes; it only has to run.
 AppRegistry.registerHeadlessTask(
@@ -29,6 +30,7 @@ export function backgroundWork(
 ): BackgroundWork {
   let held = false;
   let expired = false;
+  let ending: ReturnType<typeof setTimeout> | undefined;
 
   backgroundTime.addListener("onExpire", () => {
     if (!held) return;
@@ -46,6 +48,7 @@ export function backgroundWork(
 
   return {
     hold: () => {
+      clearTimeout(ending);
       if (held) return;
       held = true;
       // Refused from the background: the work runs on as it can, and the
@@ -57,7 +60,9 @@ export function backgroundWork(
     release: () => {
       if (!held) return;
       held = false;
-      void backgroundTime.end(name);
+      // Off screen, timers run only while the hold pumps frames: the notification
+      // limiter still has the work's last update to send.
+      ending = setTimeout(() => void backgroundTime.end(name), LINGER_MS);
     },
     progress: () => {},
   };
