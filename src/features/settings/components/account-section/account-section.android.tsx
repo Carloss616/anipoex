@@ -14,14 +14,15 @@ import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import { greeting } from "@/features/settings/utils/greeting";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { session$ } from "@/state/session";
+import type { AccountSectionProps } from "./account-section";
 
-export function AccountSection() {
+export function AccountSection({ onPress }: AccountSectionProps) {
   const user = useValue(session$.user);
   const m3 = useThemeM3Colors();
   const row = useRowProps();
 
   return (
-    <SegmentedListItem index={0} count={1} {...row}>
+    <SegmentedListItem index={0} count={1} {...row} onPress={onPress}>
       <SegmentedListItem.Leading>
         <Box
           contentAlignment="center"

@@ -7,8 +7,6 @@ import { Switch } from "panelui-web/switch";
 import { languageName, languageOrder$ } from "@/features/extensions";
 import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "@/features/settings/constants";
 import { settings$ } from "@/state/settings";
-import { ActivityRow } from "./activity-row";
-import { PendingRow } from "./pending-row";
 
 const SLOW_SKIP_ITEMS = SLOW_SKIP_OPTIONS.map(({ seconds, label }) => ({
   value: String(seconds),
@@ -21,8 +19,6 @@ export function SourcesSection() {
   return (
     <Frame>
       <Frame.Panel data-attached="column">
-        <ActivityRow />
-        <PendingRow />
         {/* A label hands its click to the switch inside. */}
         <Frame.Row
           // biome-ignore lint/a11y/noLabelWithoutControl: the Switch below is its control.

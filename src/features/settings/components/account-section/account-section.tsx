@@ -6,13 +6,18 @@ import { signOut } from "@/features/auth/utils/sign-out";
 import { greeting } from "@/features/settings/utils/greeting";
 import { session$ } from "@/state/session";
 
-export function AccountSection() {
+export interface AccountSectionProps {
+  /** Makes the card a link (the index's header) instead of holding Sign out. */
+  onPress?: () => void;
+}
+
+export function AccountSection({ onPress }: AccountSectionProps) {
   const user = useValue(session$.user);
 
   return (
     <Frame>
       <Frame.Panel data-attached="column">
-        <Frame.Row>
+        <Frame.Row chevron={!!onPress} onClick={onPress}>
           <Frame.Media>
             <Avatar src={user?.avatarUrl ?? undefined} name={user?.name} />
           </Frame.Media>
@@ -20,11 +25,13 @@ export function AccountSection() {
             <Frame.Title as="p">{greeting(user?.name)}</Frame.Title>
             <Frame.Description>Signed in with AniList</Frame.Description>
           </Frame.Content>
-          <Frame.Actions>
-            <Button variant="ghost" onClick={signOut}>
-              Sign out
-            </Button>
-          </Frame.Actions>
+          {!onPress && (
+            <Frame.Actions>
+              <Button variant="ghost" onClick={signOut}>
+                Sign out
+              </Button>
+            </Frame.Actions>
+          )}
         </Frame.Row>
       </Frame.Panel>
     </Frame>

@@ -10,15 +10,22 @@ export interface SettingsPageProps {
   children: ReactNode;
   /** Sheets and dialogs the sections open, outside the scroller. */
   overlays?: ReactNode;
+  /** A large title, for the index. */
+  large?: boolean;
 }
 
 /** A settings page: its sections as Frames in a narrow column. */
-export function SettingsPage({ title, children, overlays }: SettingsPageProps) {
+export function SettingsPage({
+  title,
+  children,
+  overlays,
+  large,
+}: SettingsPageProps) {
   const headerScroll = useHeaderScroll();
 
   return (
     <>
-      <Stack.Title>{title}</Stack.Title>
+      <Stack.Title large={large}>{title}</Stack.Title>
       <ScrollView className="flex-1" {...headerScroll}>
         <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-6 self-center pt-4">
           {children}

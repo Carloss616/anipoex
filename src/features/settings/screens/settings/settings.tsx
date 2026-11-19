@@ -1,38 +1,43 @@
-import { Stack } from "expo-router";
-import { ScrollView } from "react-native";
-import { HeaderInsetView } from "@/components/layout/header-inset-view";
+import { useRouter } from "expo-router";
+import { Frame } from "panelui-web/frame";
 import { isRuntimeAvailable, useLoadInstalled } from "@/features/extensions";
-import { AccountSection } from "@/features/settings/screens/account/components/account-section";
-import { AppearanceSection } from "@/features/settings/screens/appearance/components/appearance-section";
-import { DownloadsSection } from "@/features/settings/screens/downloads/components/downloads-section";
-import { MoveDownloadsDialog } from "@/features/settings/screens/downloads/components/move-downloads-dialog";
-import { NetworkSection } from "@/features/settings/screens/sources/components/network-section";
-import { SourcesSection } from "@/features/settings/screens/sources/components/sources-section";
-import { SyncSection } from "@/features/settings/screens/sync/components/sync-section";
-import { useHeaderScroll } from "@/hooks/use-header-scroll";
-import { HomeSection } from "./components/home-section";
+import { AccountSection } from "@/features/settings/components/account-section";
+import { SettingsPage } from "@/features/settings/components/settings-page";
+import {
+  groupPages,
+  visiblePages,
+} from "@/features/settings/utils/settings-pages";
+import { ActivityRow } from "./components/activity-row";
+import { PageRow } from "./components/page-row";
+import { PendingRow } from "./components/pending-row";
 
-/** The settings as Frames in a narrow column under the header. */
+const GROUPS = groupPages(visiblePages(isRuntimeAvailable));
+
+/** The index: the account, then each page with its current value. */
 export function Settings() {
   useLoadInstalled();
-  const headerScroll = useHeaderScroll();
+  const router = useRouter();
 
   return (
-    <>
-      <Stack.Title large>Settings</Stack.Title>
-      <ScrollView className="flex-1" {...headerScroll}>
-        <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-6 self-center">
-          <AccountSection />
-          <SyncSection />
-          <HomeSection />
-          <AppearanceSection />
-          {/* A plain browser runs no extensions: nothing to pick or resolve. */}
-          {isRuntimeAvailable && <SourcesSection />}
-          {isRuntimeAvailable && <NetworkSection />}
-          {isRuntimeAvailable && <DownloadsSection />}
-        </HeaderInsetView>
-      </ScrollView>
-      {isRuntimeAvailable && <MoveDownloadsDialog />}
-    </>
+    <SettingsPage title="Settings" large>
+      <AccountSection onPress={() => router.push("/settings/account")} />
+      {GROUPS.map(({ group, title, pages }) => (
+        <Frame key={group}>
+          <Frame.Header>
+            <Frame.Title>{title}</Frame.Title>
+          </Frame.Header>
+          <Frame.Panel data-attached="column">
+            {group === "status" ? (
+              <>
+                <ActivityRow />
+                <PendingRow />
+              </>
+            ) : (
+              pages.map((page) => <PageRow key={page.id} page={page} />)
+            )}
+          </Frame.Panel>
+        </Frame>
+      ))}
+    </SettingsPage>
   );
 }

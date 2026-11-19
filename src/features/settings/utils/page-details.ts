@@ -13,7 +13,7 @@ import type { SettingsPageId } from "./settings-pages";
 
 export const PAGE_ICONS: Record<SettingsPageId, IconName> = {
   account: Icons.person,
-  activity: Icons.history,
+  activity: Icons.update,
   appearance: Icons.palette,
   home: Icons.home,
   sync: Icons.cloud,

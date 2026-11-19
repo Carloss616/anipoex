@@ -8,10 +8,15 @@ import { useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import type { SettingsPageProps } from "./settings-page";
 
-export function SettingsPage({ title, children, overlays }: SettingsPageProps) {
+export function SettingsPage({
+  title,
+  children,
+  overlays,
+  large,
+}: SettingsPageProps) {
   return (
     <>
-      <Stack.Title>{title}</Stack.Title>
+      <Stack.Title large={large}>{title}</Stack.Title>
       <Host className="flex-1">
         <List
           modifiers={[
