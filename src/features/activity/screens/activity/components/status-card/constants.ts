@@ -10,6 +10,10 @@ export const COPY = {
   sending: {
     icon: Icons.uploading,
     title: "Back online",
-    description: "Sending…",
+  },
+  paused: {
+    icon: Icons.pause,
+    title: "Downloads paused",
+    description: "Paused by you",
   },
 } as const;

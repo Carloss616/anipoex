@@ -22,11 +22,11 @@ import {
 import type { TargetKey } from "@/features/sync/state/engine";
 import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { EntryItem } from "../activity/components/entry-item";
+import { StatusCard } from "../activity/components/status-card";
+import { SyncItem } from "../activity/components/sync-item";
+import { UnsentItem } from "../activity/components/unsent-item";
 import { DownloadsRow } from "./components/downloads-row";
-import { EntryItem } from "./components/entry-item";
-import { StatusCard } from "./components/status-card";
-import { SyncItem } from "./components/sync-item";
-import { UnsentItem } from "./components/unsent-item";
 import {
   downloadsWait,
   hasPending,
