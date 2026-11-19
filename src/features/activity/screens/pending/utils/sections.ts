@@ -1,25 +1,14 @@
+import { syncKeys } from "@/features/activity/screens/activity/utils/sync-keys";
 import {
   downloadsPending,
   pendingCount,
   waitingIds,
 } from "@/features/activity/utils/state";
-import {
-  syncing$,
-  syncState$,
-  type TargetKey,
-} from "@/features/sync/state/engine";
-import { unsyncedSummary } from "@/features/sync/state/unsynced";
 import { network$ } from "@/state/network";
 
-const targets = () => Object.keys(syncState$.targets.get(true)) as TargetKey[];
+export { syncKeys };
 
-const waits = (key: TargetKey) =>
-  !!syncing$[key].get() || unsyncedSummary(key) !== "";
-
-/** The sync targets with something to send or a sync running, joined. */
-export const syncKeys = () => targets().filter(waits).join();
-
-const syncWaits = () => targets().some(waits);
+const syncWaits = () => syncKeys() !== "";
 
 /** Downloads wait only offline: online they run, and Activity shows them. */
 export const downloadsWait = () => !network$.online.get() && downloadsPending();
