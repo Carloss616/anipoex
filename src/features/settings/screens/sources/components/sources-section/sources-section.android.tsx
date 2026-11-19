@@ -11,10 +11,10 @@ import {
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icon, Icons } from "@/components/ui/icon";
 import { Menu } from "@/components/ui/menu";
-import { languageName, languageOrder$ } from "@/features/extensions";
 import { LeadingIcon } from "@/features/settings/components/leading-icon";
 import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "@/features/settings/constants";
 import { useRowProps } from "@/features/settings/hooks/use-row-props";
+import { languagesLabel } from "@/features/settings/utils/languages-label";
 import { settings$ } from "@/state/settings";
 
 const toggleAutoPick = () => settings$.sources.autoPick.set((on) => !on);
@@ -95,11 +95,7 @@ export function SourcesSection() {
         <Text>Languages</Text>
         <SegmentedListItem.Trailing>
           <Row verticalAlignment="center">
-            <Memo>
-              {() => (
-                <Text>{languageOrder$.get().map(languageName).join(", ")}</Text>
-              )}
-            </Memo>
+            <Memo>{() => <Text>{languagesLabel()}</Text>}</Memo>
             <Icon name={Icons.chevronRight} muted />
           </Row>
         </SegmentedListItem.Trailing>

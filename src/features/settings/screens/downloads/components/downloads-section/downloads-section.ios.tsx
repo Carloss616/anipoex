@@ -15,11 +15,12 @@ import {
 import { useReducer } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
+import type { SaveTo } from "@/features/settings/constants";
+import { SAVE_TO_OPTIONS } from "@/features/settings/constants";
 import { useRowBackground } from "@/features/settings/hooks/use-row-background";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { DOWNLOADS_FOOTER, SAVE_TO_OPTIONS } from "./constants";
+import { DOWNLOADS_FOOTER } from "./constants";
 import { useDownloadsSection } from "./hooks/use-downloads-section";
-import type { SaveTo } from "./utils";
 
 export function DownloadsSection() {
   const downloads = useDownloadsSection();

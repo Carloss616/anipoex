@@ -19,9 +19,9 @@ import { useRouter } from "expo-router";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
 import { Icon, Icons } from "@/components/ui/icon";
-import { languageName, languageOrder$ } from "@/features/extensions";
 import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "@/features/settings/constants";
 import { useRowBackground } from "@/features/settings/hooks/use-row-background";
+import { languagesLabel } from "@/features/settings/utils/languages-label";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { settings$ } from "@/state/settings";
 
@@ -91,7 +91,7 @@ export function SourcesSection() {
           <Memo>
             {() => (
               <Text modifiers={[foregroundStyle("secondary")]}>
-                {languageOrder$.get().map(languageName).join(", ")}
+                {languagesLabel()}
               </Text>
             )}
           </Memo>

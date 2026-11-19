@@ -57,7 +57,7 @@ export function Activity() {
       </Toolbar>
       {active ? (
         <ScrollView className="flex-1" {...headerScroll}>
-          <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-5xl gap-4 self-center lg:flex-row lg:items-start">
+          <HeaderInsetView className="gutters px-gx pb-gb w-full gap-4 lg:flex-row lg:items-start">
             <View className="min-w-0 gap-4 lg:flex-3">
               <RunningSection />
               <QueueSection />

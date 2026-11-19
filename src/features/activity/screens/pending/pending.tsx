@@ -30,7 +30,7 @@ export function Pending() {
       <Stack.Title>Pending</Stack.Title>
       {pending ? (
         <ScrollView className="flex-1" {...headerScroll}>
-          <HeaderInsetView className="gutters px-gx pb-gb w-full max-w-2xl gap-4 self-center">
+          <HeaderInsetView className="gutters px-gx pb-gb w-full gap-4">
             {mode !== "" && <StatusCard mode={mode} />}
             <EntriesSection />
             <UnsentSection />

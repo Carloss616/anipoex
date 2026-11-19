@@ -4,8 +4,8 @@ import { Typography } from "panelui-native/components/typography";
 import { Frame } from "panelui-web/frame";
 import { Select } from "panelui-web/select";
 import { Switch } from "panelui-web/switch";
-import { languageName, languageOrder$ } from "@/features/extensions";
 import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "@/features/settings/constants";
+import { languagesLabel } from "@/features/settings/utils/languages-label";
 import { settings$ } from "@/state/settings";
 
 const SLOW_SKIP_ITEMS = SLOW_SKIP_OPTIONS.map(({ seconds, label }) => ({
@@ -80,9 +80,7 @@ export function SourcesSection() {
           </Frame.Content>
           <Frame.Actions className="max-w-1/2">
             <Typography type="body-sm" muted numberOfLines={1}>
-              <Memo>
-                {() => languageOrder$.get().map(languageName).join(", ")}
-              </Memo>
+              <Memo>{languagesLabel}</Memo>
             </Typography>
           </Frame.Actions>
         </Frame.Row>

@@ -1,14 +1,11 @@
 import { type IconName, Icons } from "@/components/ui/icon";
-import { languageName, languageOrder$ } from "@/features/extensions";
 import { PRESET_LABELS } from "@/features/home/constants";
-import { SAVE_TO_OPTIONS } from "@/features/settings/screens/downloads/components/downloads-section/constants";
-import { folderLabel } from "@/features/settings/screens/downloads/components/downloads-section/utils";
 import { github$ } from "@/features/sync/state/github";
-import { session$ } from "@/state/session";
 import { settings$ } from "@/state/settings";
 import { THEME_FAMILIES } from "@/state/theme/constants";
-import { THEME_OPTIONS } from "../constants";
-import { greeting } from "./greeting";
+import { SAVE_TO_OPTIONS, THEME_OPTIONS } from "../constants";
+import { folderLabel } from "./folder-label";
+import { languagesLabel } from "./languages-label";
 import type { SettingsPageId } from "./settings-pages";
 
 export const PAGE_ICONS: Record<SettingsPageId, IconName> = {
@@ -23,10 +20,10 @@ export const PAGE_ICONS: Record<SettingsPageId, IconName> = {
 
 /**
  * Each page's current value for its index row. They read with `get()`, so a
- * `Memo` around one re-renders on that value only. Activity's row is its own.
+ * `Memo` around one re-renders on that value only. Account and Activity draw
+ * their own rows.
  */
 export const PAGE_SUMMARIES: Partial<Record<SettingsPageId, () => string>> = {
-  account: () => greeting(session$.user.get()?.name),
   appearance: () => {
     const { preference, family } = settings$.theme.get();
     const mode = THEME_OPTIONS.find((option) => option.id === preference);
@@ -41,7 +38,7 @@ export const PAGE_SUMMARIES: Partial<Record<SettingsPageId, () => string>> = {
     ]
       .filter(Boolean)
       .join(" · ") || "Off",
-  sources: () => languageOrder$.get().map(languageName).join(", "),
+  sources: languagesLabel,
   downloads: () => {
     const option = settings$.device.downloadsIn.get() ?? "sync";
     return option === "folder"

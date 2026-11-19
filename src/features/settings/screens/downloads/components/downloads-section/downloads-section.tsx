@@ -1,9 +1,10 @@
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { Select } from "panelui-web/select";
-import { DOWNLOADS_FOOTER, SAVE_TO_OPTIONS } from "./constants";
+import type { SaveTo } from "@/features/settings/constants";
+import { SAVE_TO_OPTIONS } from "@/features/settings/constants";
+import { DOWNLOADS_FOOTER } from "./constants";
 import { useDownloadsSection } from "./hooks/use-downloads-section";
-import type { SaveTo } from "./utils";
 
 const SAVE_TO_ITEMS = SAVE_TO_OPTIONS.map(({ id, label }) => ({
   value: id,

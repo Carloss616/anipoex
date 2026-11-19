@@ -19,7 +19,7 @@ export function SignOut() {
           contentColor: m3.onErrorContainer,
         }}
       >
-        <Text>Sign out</Text>
+        <Text style={{ typography: "labelLarge" }}>Sign out</Text>
       </FilledTonalButton>
     </Box>
   );

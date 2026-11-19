@@ -5,9 +5,10 @@ import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Icons } from "@/components/ui/icon";
 import { LeadingIcon } from "@/features/settings/components/leading-icon";
+import { SAVE_TO_OPTIONS } from "@/features/settings/constants";
 import { useRowProps } from "@/features/settings/hooks/use-row-props";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { DOWNLOADS_FOOTER, SAVE_TO_OPTIONS } from "./constants";
+import { DOWNLOADS_FOOTER } from "./constants";
 import { useDownloadsSection } from "./hooks/use-downloads-section";
 
 export function DownloadsSection() {

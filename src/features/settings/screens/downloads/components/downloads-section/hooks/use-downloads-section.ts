@@ -1,9 +1,11 @@
 import { useValue } from "@legendapp/state/react";
 import { toast } from "@/components/ui/toast";
+import type { SaveTo } from "@/features/settings/constants";
+import { folderLabel } from "@/features/settings/utils/folder-label";
 import { settings$ } from "@/state/settings";
 import { pickFolder } from "@/utils/picked-folder";
 import { NO_SYNC_FOLDER } from "../constants";
-import { changeFolder, folderLabel, type SaveTo, saveTo } from "../utils";
+import { changeFolder, saveTo } from "../utils";
 
 const device$ = settings$.device;
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { observable } from "@legendapp/state";
 import type { Settings } from "@/state/settings/utils/migrate";
-import { changeFolder, folderLabel, saveTo } from "./utils";
+import { changeFolder, saveTo } from "./utils";
 
 const device = (value: Settings["device"] = {}) =>
   observable<Settings["device"]>(value);
@@ -64,12 +64,5 @@ describe("changeFolder", () => {
 
     await changeFolder(device$, picks("/b"));
     expect(device$.downloadsFolder.peek()).toBe("/b");
-  });
-});
-
-describe("folderLabel", () => {
-  it("names the folder, or says none is chosen", () => {
-    expect(folderLabel("/Users/me/Comics/")).toBe("Comics");
-    expect(folderLabel(undefined)).toBe("None chosen");
   });
 });

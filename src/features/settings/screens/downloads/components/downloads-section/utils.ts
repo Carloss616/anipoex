@@ -1,9 +1,8 @@
 import type { Observable } from "@legendapp/state";
+import type { SaveTo } from "@/features/settings/constants";
 import type { Settings } from "@/state/settings/utils/migrate";
-import { folderName } from "@/utils/picked-folder";
 
 type Device = Settings["device"];
-export type SaveTo = NonNullable<Device["downloadsIn"]>;
 type Pick = () => Promise<string | undefined>;
 
 /** Asks for the downloads folder; a dismissed picker keeps the one there. */
@@ -27,7 +26,3 @@ export async function saveTo(
   device$.downloadsIn.set(option);
   return true;
 }
-
-// A name that comes out empty still means a folder is chosen.
-export const folderLabel = (location: string | undefined) =>
-  location ? folderName(location) || "Folder" : "None chosen";
