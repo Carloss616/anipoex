@@ -61,7 +61,7 @@ function PageTabs({
         if (page) openPage(page.href);
       }}
     >
-      <Tabs.List className="w-full">
+      <Tabs.List className="w-full!">
         {pages.map((page) => (
           <Tabs.Trigger key={page.id} value={page.id} className="w-full">
             <Icon name={PAGE_ICONS[page.id]} size={16} />
