@@ -3,6 +3,8 @@ import { Frame } from "panelui-web/frame";
 import { isRuntimeAvailable, useLoadInstalled } from "@/features/extensions";
 import { AccountSection } from "@/features/settings/components/account-section";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { useSettingsSplit } from "@/features/settings/components/settings-shell";
+import { Account } from "@/features/settings/screens/account";
 import {
   groupPages,
   visiblePages,
@@ -17,6 +19,9 @@ const GROUPS = groupPages(visiblePages(isRuntimeAvailable));
 export function Settings() {
   useLoadInstalled();
   const router = useRouter();
+
+  // Beside the sidebar, which lists the pages, the index is Account.
+  if (useSettingsSplit()) return <Account />;
 
   return (
     <SettingsPage title="Settings" large>

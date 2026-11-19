@@ -1,4 +1,3 @@
-import { useValue } from "@legendapp/state/react";
 import type Lucide from "@react-native-vector-icons/lucide";
 import { router, usePathname } from "expo-router";
 import {
@@ -16,9 +15,8 @@ import { Tabs as PanelTabs } from "panelui-web/tabs";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import { withUniwind } from "uniwind";
-import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
-import { badgeCount } from "@/features/activity/utils/badge-count";
+import { PendingBadge } from "@/features/activity/components/pending-badge";
 
 const TabSlot = withUniwind(TabSlotBase);
 
@@ -127,22 +125,8 @@ function PanelTabTrigger({
           </Typography>
         </View>
       </View>
-      {item.name === "settings" && <PendingBadge />}
+      {item.name === "settings" && <PendingBadge className="ms-2" />}
     </PanelTabs.Trigger>
-  );
-}
-
-function PendingBadge() {
-  const count = useValue(badgeCount);
-  if (!count) return null;
-
-  return (
-    // An image role so the label reads in the tab's name.
-    <View role="img" aria-label={`${count} pending`} className="ms-2">
-      <Badge color="destructive" solid>
-        {count}
-      </Badge>
-    </View>
   );
 }
 
