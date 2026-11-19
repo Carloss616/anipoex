@@ -2,9 +2,12 @@ import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icons } from "@/components/ui/icon";
+import {
+  ACTIVITY_FILTERS,
+  FILTER_TITLES,
+} from "@/features/activity/utils/filters";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { stopAll } from "../../utils/actions";
-import { ACTIVITY_FILTERS, FILTER_TITLES } from "../../utils/filters";
 import { hasScans } from "../../utils/state";
 import type { ActivityToolbarProps } from "./activity-toolbar";
 

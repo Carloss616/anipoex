@@ -1,6 +1,6 @@
-import { unsentIds, waitingIds } from "@/features/activity/utils/state";
 import type { ActivitySection } from "./filters";
-import { downloadIds, queuedIds, runningIds, skippedIds } from "./state";
+import { downloadIds, queuedIds, runningIds, skippedIds } from "./ids";
+import { unsentIds, waitingIds } from "./state";
 import { syncKeys } from "./sync-keys";
 
 /** Each section's ids, joined. */

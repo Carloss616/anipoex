@@ -2,13 +2,13 @@ import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
 import type { SFSymbol } from "expo-symbols";
 import { Icons } from "@/components/ui/icon";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { stopAll } from "../../utils/actions";
 import {
   ACTIVITY_FILTERS,
   type ActivityFilter,
   FILTER_TITLES,
-} from "../../utils/filters";
+} from "@/features/activity/utils/filters";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { stopAll } from "../../utils/actions";
 import { hasScans } from "../../utils/state";
 import type { ActivityToolbarProps } from "./activity-toolbar";
 

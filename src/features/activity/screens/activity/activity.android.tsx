@@ -22,16 +22,7 @@ import { GUTTER } from "@/components/native/constants";
 import { pinnedScrollBehavior } from "@/components/native/jetpack-compose/pinned-scroll-behavior";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { Host } from "@/components/ui/host";
-import { corners, downloadsPending } from "@/features/activity/utils/state";
-import { downloadsPaused$ } from "@/features/downloads";
-import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
-import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { ActivityToolbar } from "./components/activity-toolbar";
-import { SectionItem } from "./components/section-item";
-import { StatusCard } from "./components/status-card";
-import { useActivityIds } from "./hooks/use-activity-ids";
-import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
-import type { HeaderAction } from "./utils/download-actions";
+import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
 import {
   type ActivityFilter,
   type ActivityRow,
@@ -42,7 +33,16 @@ import {
   itemCount,
   parseFilter,
   toRows,
-} from "./utils/filters";
+} from "@/features/activity/utils/filters";
+import { corners, downloadsPending } from "@/features/activity/utils/state";
+import { downloadsPaused$ } from "@/features/downloads";
+import { useSetHeaderScrolled } from "@/hooks/use-header-scroll";
+import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
+import { ActivityToolbar } from "./components/activity-toolbar";
+import { SectionItem } from "./components/section-item";
+import { StatusCard } from "./components/status-card";
+import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
+import type { HeaderAction } from "./utils/download-actions";
 import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
 import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
 import { downloadsFailed } from "./utils/state";

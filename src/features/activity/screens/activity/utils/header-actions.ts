@@ -1,5 +1,5 @@
+import type { ActivitySection } from "@/features/activity/utils/filters";
 import { clearQueue, retryAllSkipped } from "./actions";
-import type { ActivitySection } from "./filters";
 import { type DownloadsState, toHeaderActions } from "./section-header";
 
 /** Each section header's buttons. */

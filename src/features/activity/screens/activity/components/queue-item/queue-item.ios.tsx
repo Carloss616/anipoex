@@ -15,12 +15,12 @@ import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
 import { Icons, sfSymbol } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
+import { queuedIds } from "@/features/activity/utils/ids";
 import { split } from "@/features/activity/utils/state";
 import { readingQueue$ } from "@/features/manga/state/reading-queue";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { removeFromQueue, scanNext } from "../../utils/actions";
 import { queuedMenu } from "../../utils/row-menu";
-import { queuedIds } from "../../utils/state";
 import type { QueueItemProps } from "./queue-item";
 
 export const QueueItem = memo(function QueueItem({ id }: QueueItemProps) {

@@ -2,6 +2,7 @@ import { usePathname } from "expo-router";
 import { Typography } from "panelui-native/components/typography";
 import { Tabs } from "panelui-web/tabs";
 import { View } from "react-native";
+import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Icon } from "@/components/ui/icon";
 import { PendingBadge } from "@/features/activity/components/pending-badge";
 import { isRuntimeAvailable } from "@/features/extensions";
@@ -13,6 +14,7 @@ import {
   type SettingsPage,
   visiblePages,
 } from "@/features/settings/utils/settings-pages";
+import { ActivityFilters } from "./activity-filters";
 import { openPage } from "./utils";
 
 const LISTS = [
@@ -39,6 +41,12 @@ export function SettingsSidebar() {
             </Typography>
           )}
           <PageTabs pages={pages} active={active} />
+          {group === "status" && (
+            // Mounted throughout: it measures its height to open and close.
+            <AnimatedVisibility visible={active === "activity"}>
+              {active === "activity" && <ActivityFilters />}
+            </AnimatedVisibility>
+          )}
         </View>
       ))}
     </View>

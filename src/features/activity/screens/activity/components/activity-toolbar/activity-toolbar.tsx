@@ -3,14 +3,14 @@ import { Stack } from "expo-router";
 import { useBreakpoint } from "panelui-native/hooks/use-breakpoint";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Icons } from "@/components/ui/icon";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { stopAll } from "../../utils/actions";
 import {
   ACTIVITY_FILTERS,
   type ActivityCounts,
   type ActivityFilter,
   FILTER_TITLES,
-} from "../../utils/filters";
+} from "@/features/activity/utils/filters";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { stopAll } from "../../utils/actions";
 import { hasScans } from "../../utils/state";
 
 export interface ActivityToolbarProps {
@@ -19,7 +19,7 @@ export interface ActivityToolbarProps {
   onFilterChange: (filter: ActivityFilter) => void;
 }
 
-/** Web: below `md` the filter is a menu here; from `md` the sidebar has it. */
+/** Web: below `md` the filter is a menu here; from `md` a sidebar has it. */
 export function ActivityToolbar({
   filter,
   onFilterChange,

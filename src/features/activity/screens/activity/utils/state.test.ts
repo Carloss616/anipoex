@@ -16,8 +16,10 @@ mock.module("@/state/observable-persist", () => ({
 }));
 
 const { downloadQueue$ } = await import("@/features/downloads");
-const { canMoveUp, downloadIds, downloadsFailed, downloadsView$, hasScans } =
-  await import("./state");
+const { canMoveUp, downloadsFailed, downloadsView$, hasScans } = await import(
+  "./state"
+);
+const { downloadIds } = await import("@/features/activity/utils/ids");
 
 type State = "queued" | "running" | "failed";
 const entry = (key: string, order: number, state: State) => ({

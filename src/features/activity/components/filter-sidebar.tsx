@@ -31,7 +31,7 @@ export function FilterSidebar({
         value={filter}
         onValueChange={(value) => onSelect(value as ActivityFilter)}
       >
-        <Tabs.List className="w-full">
+        <Tabs.List className="w-full!">
           {ACTIVITY_FILTERS.map((f) => (
             <Tabs.Trigger key={f} value={f} className="w-full">
               {FILTER_TITLES[f]}

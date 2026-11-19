@@ -1,6 +1,6 @@
 import { memo } from "react";
+import type { ActivitySection } from "@/features/activity/utils/filters";
 import type { TargetKey } from "@/features/sync/state/engine";
-import type { ActivitySection } from "../../utils/filters";
 import { DownloadItem } from "../download-item";
 import { EntryItem } from "../entry-item";
 import { QueueItem } from "../queue-item";

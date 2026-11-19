@@ -1,5 +1,5 @@
+import type { ActivitySection } from "@/features/activity/utils/filters";
 import { downloadActions, type HeaderAction } from "./download-actions";
-import type { ActivitySection } from "./filters";
 
 export interface DownloadsState {
   paused: boolean;

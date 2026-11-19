@@ -12,15 +12,7 @@ import { memo, useMemo } from "react";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
-import { downloadsPending, split } from "@/features/activity/utils/state";
-import { downloadsPaused$ } from "@/features/downloads";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { ActivityToolbar } from "./components/activity-toolbar";
-import { SectionItem } from "./components/section-item";
-import { StatusCard } from "./components/status-card";
-import { useActivityIds } from "./hooks/use-activity-ids";
-import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
-import type { HeaderAction } from "./utils/download-actions";
+import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
 import {
   type ActivityFilter,
   type ActivitySection,
@@ -28,10 +20,18 @@ import {
   emptyKind,
   parseFilter,
   visibleSections,
-} from "./utils/filters";
+} from "@/features/activity/utils/filters";
+import { SECTION_IDS } from "@/features/activity/utils/section-ids";
+import { downloadsPending, split } from "@/features/activity/utils/state";
+import { downloadsPaused$ } from "@/features/downloads";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { ActivityToolbar } from "./components/activity-toolbar";
+import { SectionItem } from "./components/section-item";
+import { StatusCard } from "./components/status-card";
+import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
+import type { HeaderAction } from "./utils/download-actions";
 import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
 import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
-import { SECTION_IDS } from "./utils/section-ids";
 import { downloadsFailed } from "./utils/state";
 import { statusMode } from "./utils/status-mode";
 

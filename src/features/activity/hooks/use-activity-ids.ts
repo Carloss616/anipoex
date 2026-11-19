@@ -1,7 +1,7 @@
 import { useValue } from "@legendapp/state/react";
 import { useMemo } from "react";
-import type { ActivityIds } from "@/features/activity/screens/activity/utils/filters";
-import { SECTION_IDS } from "@/features/activity/screens/activity/utils/section-ids";
+import type { ActivityIds } from "@/features/activity/utils/filters";
+import { SECTION_IDS } from "@/features/activity/utils/section-ids";
 import { split } from "@/features/activity/utils/state";
 
 /** Each section's ids; changes only when a section's ids change. */

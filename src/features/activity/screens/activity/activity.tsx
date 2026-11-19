@@ -12,16 +12,8 @@ import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
-import { downloadsPending } from "@/features/activity/utils/state";
-import { downloadsPaused$ } from "@/features/downloads";
-import { useHeaderScroll } from "@/hooks/use-header-scroll";
-import { ActivityToolbar } from "./components/activity-toolbar";
-import { FilterSidebar } from "./components/filter-sidebar";
-import { SectionItem } from "./components/section-item";
-import { StatusCard } from "./components/status-card";
-import { useActivityIds } from "./hooks/use-activity-ids";
-import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
-import type { HeaderAction } from "./utils/download-actions";
+import { FilterSidebar } from "@/features/activity/components/filter-sidebar";
+import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
 import {
   type ActivityFilter,
   type ActivitySection,
@@ -32,7 +24,16 @@ import {
   itemCount,
   parseFilter,
   toRows,
-} from "./utils/filters";
+} from "@/features/activity/utils/filters";
+import { downloadsPending } from "@/features/activity/utils/state";
+import { downloadsPaused$ } from "@/features/downloads";
+import { useSettingsSplit } from "@/features/settings/components/settings-shell";
+import { useHeaderScroll } from "@/hooks/use-header-scroll";
+import { ActivityToolbar } from "./components/activity-toolbar";
+import { SectionItem } from "./components/section-item";
+import { StatusCard } from "./components/status-card";
+import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
+import type { HeaderAction } from "./utils/download-actions";
 import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
 import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
 import { downloadsFailed } from "./utils/state";
@@ -47,6 +48,8 @@ export function Activity() {
   const headerScroll = useHeaderScroll();
   const headerHeight = useHeaderHeight();
   const wide = useBreakpoint().isAtLeast("md");
+  // Beside the Settings sidebar, which lists the filters under Activity.
+  const split = useSettingsSplit();
 
   const filter = parseFilter(params.filter);
   const counts = useMemo(() => countsOf(ids), [ids]);
@@ -67,7 +70,7 @@ export function Activity() {
         onFilterChange={setFilter}
       />
       <View className="flex-1 flex-row">
-        {wide && (
+        {wide && !split && (
           <HeaderInsetView className="gutters pb-gb pl-gx box-content w-48 pr-4">
             <FilterSidebar
               filter={filter}
@@ -91,7 +94,7 @@ export function Activity() {
             contentContainerClassName="gutters pb-gb"
             ListHeaderComponent={
               <HeaderInsetView>
-                <View className="px-gx gap-3 py-4 md:pl-4">
+                <View className="px-gx lg:pl-gx gap-3 py-4 md:pl-4">
                   {mode !== "" && <StatusCard mode={mode} />}
                   {!wide && filter !== "all" && (
                     <View className="flex-row flex-wrap items-center gap-3">
@@ -130,7 +133,7 @@ export function Activity() {
               ) : (
                 <Frame
                   className={cn(
-                    "gutters mx-gx rounded-t-none border-t-0 md:ml-4",
+                    "gutters mx-gx lg:ml-gx rounded-t-none border-t-0 md:ml-4",
                     row.index === row.count - 1
                       ? "mb-4"
                       : "rounded-b-none border-b-0",
@@ -180,7 +183,7 @@ function SectionHeader({
   return (
     <Frame
       className={cn(
-        "gutters mx-gx rounded-b-none border-b-0 md:ml-4",
+        "gutters mx-gx lg:ml-gx rounded-b-none border-b-0 md:ml-4",
         "stuck:glass-chrome! stuck:glass-muted stuck:rounded-full stuck:border stuck:shadow-lg",
       )}
     >
