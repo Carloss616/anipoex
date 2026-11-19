@@ -3,6 +3,7 @@ import { Memo } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { DESCRIPTIONS } from "../../../constants";
 import { useRowProps } from "../../../hooks/use-row-props";
@@ -30,7 +31,12 @@ export function PendingRow({ index = 0, count = 1 }: PendingRowProps) {
       </SegmentedListItem.Supporting>
       <SegmentedListItem.Trailing>
         <Row verticalAlignment="center">
-          <Memo>{() => <Text>{countLabel()}</Text>}</Memo>
+          <Memo>
+            {() => {
+              const count = countLabel();
+              return count ? <Badge color="inherit">{count}</Badge> : null;
+            }}
+          </Memo>
           <Icon name={Icons.chevronRight} color="inherit" />
         </Row>
       </SegmentedListItem.Trailing>

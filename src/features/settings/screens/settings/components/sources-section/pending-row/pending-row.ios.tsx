@@ -4,6 +4,7 @@ import { Memo } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
 import { DESCRIPTIONS } from "../../../constants";
 import { countLabel } from "./utils";
@@ -25,11 +26,10 @@ export function PendingRow() {
         </VStack>
         <Spacer />
         <Memo>
-          {() => (
-            <Text modifiers={[foregroundStyle("secondary")]}>
-              {countLabel()}
-            </Text>
-          )}
+          {() => {
+            const count = countLabel();
+            return count ? <Badge color="inherit">{count}</Badge> : null;
+          }}
         </Memo>
         <Icon name={Icons.chevronRight} size={13} muted />
       </HStack>

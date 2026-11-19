@@ -1,4 +1,4 @@
-import { Memo } from "@legendapp/state/react";
+import { useValue } from "@legendapp/state/react";
 import type Lucide from "@react-native-vector-icons/lucide";
 import { router, usePathname } from "expo-router";
 import {
@@ -18,7 +18,7 @@ import { View } from "react-native";
 import { withUniwind } from "uniwind";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
-import { pendingCount } from "@/features/activity/utils/state";
+import { badgeCount } from "@/features/activity/utils/badge-count";
 
 const TabSlot = withUniwind(TabSlotBase);
 
@@ -114,7 +114,6 @@ function PanelTabTrigger({
       disabled={disabled ?? false}
     >
       <Icon name={isFocused ? item.icon.selected : item.icon.default} />
-      {item.name === "settings" && <PendingBadge />}
       {/* Below sm only the active label shows; 0fr→1fr animates width. */}
       <View className="ease-sheet grid grid-cols-[0fr] opacity-0 transition-[grid-template-columns,opacity] duration-300 in-data-active:grid-cols-[1fr] in-data-active:opacity-100 motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
         <View className="overflow-hidden">
@@ -128,31 +127,22 @@ function PanelTabTrigger({
           </Typography>
         </View>
       </View>
+      {item.name === "settings" && <PendingBadge />}
     </PanelTabs.Trigger>
   );
 }
 
 function PendingBadge() {
+  const count = useValue(badgeCount);
+  if (!count) return null;
+
   return (
-    <Memo>
-      {() => {
-        const count = pendingCount();
-        return (
-          count > 0 && (
-            // An image role so the label reads in the tab's name.
-            <View
-              role="img"
-              aria-label={`${count} pending`}
-              className="absolute end-0 top-0"
-            >
-              <Badge color="destructive" solid>
-                {count}
-              </Badge>
-            </View>
-          )
-        );
-      }}
-    </Memo>
+    // An image role so the label reads in the tab's name.
+    <View role="img" aria-label={`${count} pending`} className="ms-2">
+      <Badge color="destructive" solid>
+        {count}
+      </Badge>
+    </View>
   );
 }
 

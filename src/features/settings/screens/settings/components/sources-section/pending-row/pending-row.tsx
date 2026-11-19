@@ -1,7 +1,7 @@
 import { Memo } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
-import { Typography } from "panelui-native/components/typography";
 import { Frame } from "panelui-web/frame";
+import { Badge } from "@/components/ui/badge";
 import { DESCRIPTIONS } from "../../../constants";
 import { countLabel } from "./utils";
 
@@ -26,9 +26,12 @@ export function PendingRow(_: PendingRowProps) {
         <Frame.Description>{DESCRIPTIONS.pending}</Frame.Description>
       </Frame.Content>
       <Frame.Actions>
-        <Typography type="body-sm" muted>
-          <Memo>{countLabel}</Memo>
-        </Typography>
+        <Memo>
+          {() => {
+            const count = countLabel();
+            return count ? <Badge color="inherit">{count}</Badge> : null;
+          }}
+        </Memo>
       </Frame.Actions>
     </Frame.Row>
   );

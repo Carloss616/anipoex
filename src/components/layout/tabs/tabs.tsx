@@ -2,7 +2,7 @@ import { useValue } from "@legendapp/state/react";
 import { usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/native-tabs";
 import { Platform } from "react-native";
-import { pendingCount } from "@/features/activity/utils/state";
+import { badgeCount } from "@/features/activity/utils/badge-count";
 import { ContinueAccessory } from "@/features/manga/components/continue-accessory";
 import { HAS_ACCESSORY } from "@/features/manga/components/continue-accessory/constants";
 import { openOptionsSheet } from "@/features/manga/screens/manga-list/components/options-sheet";
@@ -14,7 +14,7 @@ export function Tabs() {
   const pathname = usePathname();
   const continuing = useValue(() => !!continueReading$.get());
   // A string, so Tabs re-renders only when the count changes.
-  const pending = useValue(() => String(pendingCount()));
+  const pending = useValue(() => String(badgeCount()));
 
   return (
     <NativeTabs
