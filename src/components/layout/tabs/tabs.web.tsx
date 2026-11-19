@@ -108,12 +108,12 @@ function PanelTabTrigger({
     <PanelTabs.Trigger
       value={item.name}
       onClick={popToRoot}
-      className="ease-sheet max-sm:data-active:bg-primary max-sm:data-active:hover:bg-primary relative gap-0 transition-[color,background-color] duration-300"
+      className="ease-sheet xs:max-sm:data-active:bg-primary xs:max-sm:data-active:hover:bg-primary relative gap-0 transition-[color,background-color] duration-300"
       disabled={disabled ?? false}
     >
       <Icon name={isFocused ? item.icon.selected : item.icon.default} />
-      {/* Below sm only the active label shows; 0fr→1fr animates width. */}
-      <View className="ease-sheet grid grid-cols-[0fr] opacity-0 transition-[grid-template-columns,opacity] duration-300 in-data-active:grid-cols-[1fr] in-data-active:opacity-100 motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
+      {/* 0fr→1fr animates the label's width. */}
+      <View className="ease-sheet max-xs:sr-only grid grid-cols-[0fr] opacity-0 transition-[grid-template-columns,opacity] duration-300 in-data-active:grid-cols-[1fr] in-data-active:opacity-100 motion-reduce:transition-none sm:grid-cols-[1fr] sm:opacity-100">
         <View className="overflow-hidden">
           <Typography
             type="body-sm"
@@ -138,7 +138,7 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
     <View
       className={cn(
         className,
-        "glass-chrome absolute bottom-4 left-1/2 -translate-x-1/2 flex-row items-center gap-2 rounded-full border p-1.5 shadow-lg",
+        "glass-chrome absolute bottom-4 left-1/2 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-row items-center gap-2 rounded-full border p-1.5 shadow-lg",
       )}
       {...props}
     >
@@ -147,7 +147,7 @@ function PanelTabList({ children, className, ...props }: TabListProps) {
         onValueChange={(name) => switchTab(String(name), {})}
         variant="pills"
       >
-        <PanelTabs.List className="max-sm:*:data-[slot=tabs-indicator]:hidden">
+        <PanelTabs.List className="xs:max-sm:*:data-[slot=tabs-indicator]:hidden">
           {children}
         </PanelTabs.List>
       </PanelTabs>
