@@ -34,7 +34,8 @@ export const DownloadItem = memo(function DownloadItem({
   index = 0,
   count = 1,
 }: DownloadItemProps) {
-  const { title, cover, source, state, line, canMoveUp } = useDownloadItem(id);
+  const { title, label, cover, chapter, state, line, canMoveUp } =
+    useDownloadItem(id);
   const m3 = useThemeM3Colors();
   const failed = state === "failed";
   // One button: the state's own action, else Cancel (also in the menu).
@@ -90,7 +91,7 @@ export const DownloadItem = memo(function DownloadItem({
                   return (
                     <Column verticalArrangement={{ spacedBy: 4 }}>
                       <Text style={{ typography: "bodyMedium" }}>
-                        {`${source} · ${Math.round(value * 100)}%`}
+                        {`${chapter} · ${Math.round(value * 100)}%`}
                       </Text>
                       <Progress value={value} maxValue={1} size="sm" />
                     </Column>
@@ -113,7 +114,7 @@ export const DownloadItem = memo(function DownloadItem({
             <IconButton onClick={button.onPress}>
               <Icon
                 name={button.icon}
-                accessibilityLabel={`${button.label} ${title}`}
+                accessibilityLabel={`${button.label} ${label}`}
                 color="inherit"
               />
             </IconButton>

@@ -34,7 +34,8 @@ export interface DownloadItemProps {
 export const DownloadItem = memo(function DownloadItem({
   id,
 }: DownloadItemProps) {
-  const { title, cover, source, state, line, canMoveUp } = useDownloadItem(id);
+  const { title, label, cover, chapter, state, line, canMoveUp } =
+    useDownloadItem(id);
   const moves = state === "queued" && canMoveUp;
   const pausable = state === "running" || state === "paused";
 
@@ -61,7 +62,7 @@ export const DownloadItem = memo(function DownloadItem({
                   const value = downloadProgress$[id].get() ?? 0;
                   return (
                     <Progress
-                      label={`${source} · ${Math.round(value * 100)}%`}
+                      label={`${chapter} · ${Math.round(value * 100)}%`}
                       value={value}
                       maxValue={1}
                       size="sm"
@@ -85,7 +86,7 @@ export const DownloadItem = memo(function DownloadItem({
             size="icon"
             variant="ghost"
             onClick={() => moveDownloadUp(id)}
-            aria-label={`Move ${title} up`}
+            aria-label={`Move ${label} up`}
           >
             <Icon name={Icons.moveUp} />
           </Button>
@@ -97,7 +98,7 @@ export const DownloadItem = memo(function DownloadItem({
             onClick={() =>
               state === "running" ? pauseDownload(id) : resumeDownload(id)
             }
-            aria-label={`${state === "running" ? "Pause" : "Resume"} ${title}`}
+            aria-label={`${state === "running" ? "Pause" : "Resume"} ${label}`}
           >
             <Icon name={state === "running" ? Icons.pause : Icons.play} />
           </Button>
@@ -107,7 +108,7 @@ export const DownloadItem = memo(function DownloadItem({
             size="icon"
             variant="ghost"
             onClick={() => retryDownload(id)}
-            aria-label={`Retry ${title}`}
+            aria-label={`Retry ${label}`}
           >
             <Icon name={Icons.refresh} />
           </Button>
@@ -116,7 +117,7 @@ export const DownloadItem = memo(function DownloadItem({
           size="icon"
           variant="ghost"
           onClick={() => cancelDownload(id)}
-          aria-label={`Cancel ${title}`}
+          aria-label={`Cancel ${label}`}
         >
           <Icon name={Icons.close} />
         </Button>

@@ -5,7 +5,7 @@ import {
   downloadTitle,
 } from "@/features/downloads";
 import { canMoveUp } from "../../../utils/state";
-import { downloadLine } from "../utils";
+import { chapterLabel, downloadLine } from "../utils";
 
 /** A download's leaves, so a row re-renders only when what it shows changes. */
 export function useDownloadItem(id: string) {
@@ -14,18 +14,21 @@ export function useDownloadItem(id: string) {
   const number = useValue(item$.chapter.number) ?? -1;
   const name = useValue(item$.chapter.name) ?? "";
   const cover = useValue(item$.manga.cover);
-  const source = useValue(item$.source.name) ?? "";
   const state = useValue(item$.state) ?? "queued";
   const error = useValue(item$.error);
   const paused = useValue(downloadsPaused$);
   const movable = useValue(() => canMoveUp(id));
 
+  const chapter = chapterLabel(number, name);
+
   return {
-    title: downloadTitle(manga, { number, name }),
+    title: manga,
+    /** Names the chapter too, for the row's buttons. */
+    label: downloadTitle(manga, { number, name }),
     cover,
-    source,
+    chapter,
     state,
-    line: downloadLine(source, state, error, paused),
+    line: downloadLine(chapter, state, error, paused),
     canMoveUp: movable,
   };
 }
