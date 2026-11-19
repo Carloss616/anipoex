@@ -34,7 +34,7 @@ export function StatusCard({ mode }: StatusCardProps) {
           </Frame.Media>
           <Frame.Content>
             <Frame.Title as="p">{title}</Frame.Title>
-            <Frame.Description>
+            <Frame.Description className="whitespace-normal!">
               {mode === "sending" ? (
                 <Memo>{() => sendingLine(waitingIds())}</Memo>
               ) : (
