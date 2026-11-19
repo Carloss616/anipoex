@@ -1,4 +1,5 @@
 import { Frame } from "panelui-web/frame";
+import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { useSyncDevices } from "../../hooks/use-sync-devices";
 
@@ -18,7 +19,10 @@ export function DevicesSection() {
               <Icon name={device.icon} size={18} muted />
             </Frame.Media>
             <Frame.Content>
-              <Frame.Title as="p">{device.title}</Frame.Title>
+              <Frame.Title as="p">
+                {device.title}{" "}
+                {device.current && <Badge color="primary">This device</Badge>}
+              </Frame.Title>
               {device.detail && (
                 <Frame.Description>{device.detail}</Frame.Description>
               )}

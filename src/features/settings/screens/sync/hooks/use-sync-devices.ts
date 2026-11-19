@@ -30,15 +30,14 @@ export function useSyncDevices() {
     )
     .map((device) => ({
       id: device.id,
+      /** The row shows a "This device" badge. */
+      current: device.id === me,
       // A build from before kinds writes none: the generic icon until it updates.
       icon: device.kind ? KIND_ICONS[device.kind] : Icons.device,
       title:
-        device.id === me ? "This device" : (device.name ?? "Another device"),
-      detail:
-        device.id === me
-          ? device.name
-          : device.lastChange
-            ? `Changed ${ago(device.lastChange)}`
-            : undefined,
+        device.name ?? (device.id === me ? "This device" : "Another device"),
+      detail: device.lastChange
+        ? `Changed ${ago(device.lastChange)}`
+        : undefined,
     }));
 }

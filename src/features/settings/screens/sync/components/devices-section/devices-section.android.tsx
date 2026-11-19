@@ -4,6 +4,7 @@ import {
   SegmentedListItem,
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/features/settings/components/label";
 import { LeadingIcon } from "@/features/settings/components/leading-icon";
 import { useRowProps } from "@/features/settings/hooks/use-row-props";
@@ -35,6 +36,12 @@ export function DevicesSection() {
                   {device.detail}
                 </Text>
               </SegmentedListItem.Supporting>
+            ) : null}
+            {/* Rows key by id, so the current one never gains this slot later. */}
+            {device.current ? (
+              <SegmentedListItem.Trailing>
+                <Badge color="primary">This device</Badge>
+              </SegmentedListItem.Trailing>
             ) : null}
           </SegmentedListItem>
         ))}

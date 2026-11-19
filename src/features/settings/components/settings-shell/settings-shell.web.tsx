@@ -15,7 +15,7 @@ export function SettingsShell({ children }: SettingsShellProps) {
     <View className="flex-1 flex-row">
       {split && (
         // Outside the stack there is no header to inset from: its row instead.
-        <View className="gutters pb-gb border-border bg-surface-secondary box-content w-56 border-e px-3 pt-3">
+        <View className="gutters pb-gb border-border bg-surface-secondary box-content w-56 border-e p-4">
           <View className="h-14 justify-center px-4.25">
             <Typography type="h3">Settings</Typography>
           </View>
