@@ -15,6 +15,7 @@ import {
   SegmentedListItem,
 } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
@@ -96,7 +97,9 @@ export const RunningItem = memo(function RunningItem({
           </SegmentedListItem>
         </ContextMenu>
       </Box>
-      {expanded && <SourceRows mangaId={mangaId} />}
+      <AnimatedVisibility visible={expanded}>
+        {expanded && <SourceRows mangaId={mangaId} />}
+      </AnimatedVisibility>
     </Column>
   );
 });
@@ -108,13 +111,17 @@ function SourceRows({ mangaId }: RunningItemProps) {
     ),
   );
 
-  return ids.map((sourceId, i) => (
-    <SourceItem
-      key={sourceId}
-      mangaId={mangaId}
-      sourceId={sourceId}
-      index={i}
-      count={ids.length}
-    />
-  ));
+  return (
+    <Column>
+      {ids.map((sourceId, i) => (
+        <SourceItem
+          key={sourceId}
+          mangaId={mangaId}
+          sourceId={sourceId}
+          index={i}
+          count={ids.length}
+        />
+      ))}
+    </Column>
+  );
 }

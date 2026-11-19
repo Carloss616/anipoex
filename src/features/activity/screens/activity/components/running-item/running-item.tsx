@@ -5,6 +5,7 @@ import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { memo } from "react";
 import { View } from "react-native";
+import { AnimatedVisibility } from "@/components/ui/animated-visibility";
 import { Icon, Icons } from "@/components/ui/icon";
 import { ContextMenu } from "@/components/ui/menu";
 import { Progress } from "@/components/ui/progress";
@@ -98,7 +99,9 @@ export const RunningItem = memo(function RunningItem({
           </Button>
         </Frame.Actions>
       </View>
-      {expanded && <SourceList mangaId={mangaId} />}
+      <AnimatedVisibility visible={expanded}>
+        {expanded && <SourceList mangaId={mangaId} />}
+      </AnimatedVisibility>
     </View>
   );
 });
