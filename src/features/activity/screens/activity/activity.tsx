@@ -14,24 +14,15 @@ import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
 import { downloadsPending } from "@/features/activity/utils/state";
 import { downloadsPaused$ } from "@/features/downloads";
-import { askToNotify } from "@/features/manga/utils/scan-activity";
-import type { TargetKey } from "@/features/sync/state/engine";
 import { useHeaderScroll } from "@/hooks/use-header-scroll";
 import { ActivityToolbar } from "./components/activity-toolbar";
-import { DownloadItem } from "./components/download-item";
-import { EntryItem } from "./components/entry-item";
 import { FilterSidebar } from "./components/filter-sidebar";
-import { QueueItem } from "./components/queue-item";
-import { RunningItem } from "./components/running-item";
-import { SkippedItem } from "./components/skipped-item";
+import { SectionItem } from "./components/section-item";
 import { StatusCard } from "./components/status-card";
-import { SyncItem } from "./components/sync-item";
-import { UnsentItem } from "./components/unsent-item";
 import { useActivityIds } from "./hooks/use-activity-ids";
-import { startReadingScan } from "./utils/actions";
+import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
 import {
   type ActivityFilter,
-  type ActivityRow,
   type ActivitySection,
   countsOf,
   emptyKind,
@@ -44,20 +35,6 @@ import { headerActions } from "./utils/header-actions";
 import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
 import { downloadsFailed } from "./utils/state";
 import { statusMode } from "./utils/status-mode";
-
-const ALL_CAUGHT_UP = {
-  title: "All caught up",
-  description: "Scans, downloads and changes waiting to be sent show up here.",
-  actions: [
-    {
-      label: "Scan Reading",
-      onPress: () => {
-        askToNotify();
-        startReadingScan();
-      },
-    },
-  ],
-};
 
 /** Everything that runs or waits: scans, downloads, AniList changes, sync. */
 export function Activity() {
@@ -152,7 +129,7 @@ export function Activity() {
                     data-attached="column"
                     className={cn(row.index > 0 && "rounded-t-none!")}
                   >
-                    <SectionItem row={row} />
+                    <SectionItem section={row.section} id={row.id} />
                   </Frame.Panel>
                 </Frame>
               )
@@ -164,26 +141,6 @@ export function Activity() {
   );
 }
 
-function SectionItem({ row }: { row: Extract<ActivityRow, { kind: "item" }> }) {
-  switch (row.section) {
-    case "running":
-      return <RunningItem mangaId={row.id} />;
-    case "queue":
-      return <QueueItem id={row.id} />;
-    case "downloads":
-      return <DownloadItem id={row.id} />;
-    case "skipped":
-      return <SkippedItem sourceId={row.id} />;
-    case "entries":
-      return <EntryItem id={row.id} />;
-    case "unsent":
-      return <UnsentItem id={row.id} />;
-    case "sync":
-      return <SyncItem id={row.id as TargetKey} />;
-  }
-}
-
-/** The top of its section's card; pinned, a glass pill over the rows. */
 function SectionHeader({
   section,
   count,

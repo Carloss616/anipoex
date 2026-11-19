@@ -1,24 +1,18 @@
 import { useValue } from "@legendapp/state/react";
 import { useMemo } from "react";
 import type { ActivityIds } from "@/features/activity/screens/activity/utils/filters";
-import {
-  downloadIds,
-  queuedIds,
-  runningIds,
-  skippedIds,
-} from "@/features/activity/screens/activity/utils/state";
-import { syncKeys } from "@/features/activity/screens/activity/utils/sync-keys";
-import { split, unsentIds, waitingIds } from "@/features/activity/utils/state";
+import { SECTION_IDS } from "@/features/activity/screens/activity/utils/section-ids";
+import { split } from "@/features/activity/utils/state";
 
 /** Each section's ids; changes only when a section's ids change. */
 export function useActivityIds(): ActivityIds {
-  const running = useValue(runningIds);
-  const queue = useValue(queuedIds);
-  const downloads = useValue(downloadIds);
-  const skipped = useValue(skippedIds);
-  const entries = useValue(waitingIds);
-  const unsent = useValue(unsentIds);
-  const sync = useValue(syncKeys);
+  const running = useValue(SECTION_IDS.running);
+  const queue = useValue(SECTION_IDS.queue);
+  const downloads = useValue(SECTION_IDS.downloads);
+  const skipped = useValue(SECTION_IDS.skipped);
+  const entries = useValue(SECTION_IDS.entries);
+  const unsent = useValue(SECTION_IDS.unsent);
+  const sync = useValue(SECTION_IDS.sync);
   return useMemo(
     () => ({
       running: split(running),
