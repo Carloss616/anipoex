@@ -2,7 +2,8 @@ import { useValue } from "@legendapp/state/react";
 import { Avatar } from "panelui-web/avatar";
 import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
-import { signOut } from "@/features/auth/utils/sign-out";
+import { Dialog } from "@/components/ui/dialog";
+import { useSignOut } from "@/features/auth/hooks/use-sign-out";
 import { greeting } from "@/features/settings/utils/greeting";
 import { session$ } from "@/state/session";
 
@@ -13,6 +14,7 @@ export interface AccountSectionProps {
 
 export function AccountSection({ onPress }: AccountSectionProps) {
   const user = useValue(session$.user);
+  const { start, dialog } = useSignOut();
 
   return (
     <Frame>
@@ -27,9 +29,10 @@ export function AccountSection({ onPress }: AccountSectionProps) {
           </Frame.Content>
           {!onPress && (
             <Frame.Actions>
-              <Button variant="ghost" onClick={signOut}>
+              <Button variant="ghost" onClick={start}>
                 Sign out
               </Button>
+              <Dialog {...dialog} />
             </Frame.Actions>
           )}
         </Frame.Row>
