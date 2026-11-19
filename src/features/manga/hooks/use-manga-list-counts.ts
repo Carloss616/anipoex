@@ -8,10 +8,14 @@ import { MangaListCountsDocument } from "../graphql/manga-list.generated";
 import { toCounts, toCustomLists } from "../utils/to-counts";
 
 // Counts and custom lists change on other devices too: refresh them on return.
+// Filtered from the active queries: by name, Apollo warns while none is watched.
 AppState.addEventListener("change", (state) => {
   if (state === "active") {
     void client
-      .refetchQueries({ include: ["MangaListCounts"] })
+      .refetchQueries({
+        include: "active",
+        onQueryUpdated: (query) => query.queryName === "MangaListCounts",
+      })
       .catch(() => {});
   }
 });
