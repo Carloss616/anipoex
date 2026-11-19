@@ -21,7 +21,6 @@ const {
   effectiveProgress,
   flushPending,
   keepEdits,
-  keepIfOffline,
   keepPending,
   keepRemoval,
   pendingEntries$,
@@ -40,6 +39,12 @@ const BEFORE = {
 beforeEach(() => pendingEntries$.set({}));
 
 describe("keepPending", () => {
+  it("keeps the cache's fields from the first change", () => {
+    keepPending(1, { progress: 4 }, BEFORE);
+    keepPending(1, { progress: 5 }, { ...BEFORE, progress: 4 });
+    expect(pendingEntries$[1].get()?.before).toEqual(BEFORE);
+  });
+
   it("keeps the higher progress", () => {
     keepPending(1, { progress: 12, status: MediaListStatus.Current });
     keepPending(1, { progress: 10, status: MediaListStatus.Paused });
@@ -229,6 +234,13 @@ describe("flushPending", () => {
     expect(pendingEntries$.get()).toEqual({});
   });
 
+  it("a progress shown in the cache by this device is still sent", async () => {
+    keepPending(1, { progress: 12 }, BEFORE);
+    const send = mock(async () => {});
+    await flushPending(() => 12, send);
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
   it("a record with edits survives the shortcut", async () => {
     keepPending(1, { progress: 12 });
     keepEdits(1, 5, { score: 9 });
@@ -361,27 +373,5 @@ describe("flushPending", () => {
     expect(second).toBe(first);
     await first;
     expect(send).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("keepIfOffline", () => {
-  it("keeps a save that failed for want of a connection", () => {
-    const kept = keepIfOffline(new TypeError("Failed to fetch"), 1, {
-      progress: 7,
-      status: MediaListStatus.Current,
-    });
-    expect(kept?.kept.progress).toBe(7);
-    expect(pendingEntries$[1].get()).toMatchObject({
-      progress: 7,
-      status: MediaListStatus.Current,
-    });
-  });
-
-  it("leaves any other failure alone", () => {
-    const error = new CombinedGraphQLErrors({
-      errors: [{ message: "Denied" }],
-    });
-    expect(keepIfOffline(error, 1, { progress: 7 })).toBeUndefined();
-    expect(pendingEntries$[1].get()).toBeUndefined();
   });
 });

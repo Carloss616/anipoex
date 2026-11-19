@@ -74,13 +74,17 @@ function keep(
 /**
  * The reader's progress: the higher one wins, and a progress that isn't lower
  * also brings its status. Over a progress set by hand, it only raises that one.
+ * `before` is kept from the first change, as in {@link keepEdits}.
  */
 export function keepPending(
   mediaId: number,
   next: { progress: number; status?: MediaListStatus },
+  before?: CachedFields,
 ): Kept {
   return keep(mediaId, (previous) => {
     const kept = { ...previous };
+    const first = previous?.before ?? before;
+    if (first) kept.before = first;
     const edits = previous?.edits;
     if (edits?.progress !== undefined) {
       if (edits.progress < next.progress)
@@ -159,9 +163,10 @@ export function restorePending(mediaId: number, { previous, kept }: Kept) {
     now.status !== kept.status ||
     now.error !== kept.error
   )
-    return;
+    return false;
   if (previous) pendingEntries$[mediaId].set(previous);
   else pendingEntries$[mediaId].delete();
+  return true;
 }
 
 export function effectiveProgress(
@@ -173,16 +178,6 @@ export function effectiveProgress(
   return (
     pending?.edits?.progress ?? Math.max(remote ?? 0, pending?.progress ?? 0)
   );
-}
-
-/** Keeps a save that failed for want of a connection; undefined for any other failure. */
-export function keepIfOffline(
-  error: unknown,
-  mediaId: number,
-  next: { progress: number; status?: MediaListStatus },
-): Kept | undefined {
-  if (!isNetworkError(error)) return undefined;
-  return keepPending(mediaId, next);
 }
 
 let running: Promise<void> | undefined;
@@ -208,9 +203,11 @@ async function run(
     const pending = pendingEntries$[mediaId].peek();
     if (!pending) continue;
     const remote = remoteOf(mediaId);
-    // Only the reader's progress can be judged from the cache alone
+    // Only the reader's progress can be judged from the cache alone, and only
+    // while the cache holds AniList's: with `before`, it shows the kept one
     if (
       remote !== undefined &&
+      !pending.before &&
       pending.progress !== undefined &&
       !pending.edits &&
       !pending.remove &&

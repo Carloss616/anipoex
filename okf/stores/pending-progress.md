@@ -24,8 +24,8 @@ Default empty. Stays on the device; it is not synced.
 - **Kept offline**: a save that fails for want of a connection lands here, from the
   reader or from the tracking sheet, with a notice that it will be sent. Other failures
   don't. With no connection the sheet doesn't try: it keeps the change at once.
-- **Shown at once**: a kept edit or removal is written to the cache, so the entry, its
-  list and the counts show it before it is sent. Shown progress is the higher of
+- **Shown at once**: a kept edit, removal or read is written to the cache, so the entry,
+  its list, the counts and the unread badges show it before it is sent. Shown progress is the higher of
   AniList's and the pending one; a progress set by hand is shown as it is.
 - **Reader's progress**: the higher wins, and a lower one never replaces the kept one.
   Over a progress set by hand it only raises that one. Reading a manga queued for removal

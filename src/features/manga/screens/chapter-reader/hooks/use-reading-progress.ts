@@ -2,13 +2,12 @@ import { useRef, useState } from "react";
 import { toast } from "@/components/ui/toast";
 import { useSaveTracking } from "@/features/manga/hooks/use-save-tracking";
 import { useTrackingEntry } from "@/features/manga/hooks/use-tracking-entry";
+import type { Kept } from "@/features/manga/state/pending-entries";
 import {
-  type Kept,
-  keepIfOffline,
-  keepPending,
-  restorePending,
-} from "@/features/manga/state/pending-entries";
-import { queueEdit } from "@/features/manga/state/queue-entry";
+  queueEdit,
+  queueProgress,
+  undoKept,
+} from "@/features/manga/state/queue-entry";
 import {
   type ReadingSave,
   readingSave,
@@ -86,7 +85,7 @@ export function useReadingProgress(
     setNotice(saving);
     // Offline already: the network notice says so, so no request or toast.
     if (!network$.online.peek()) {
-      const kept = keepPending(manga.id, result.after);
+      const kept = queueProgress(manga.id, entryId, result.after);
       return settle(saving, { ...saving, state: "saved", kept });
     }
     save(toSaveVariables(result.before, result.after, ids), {
@@ -95,7 +94,9 @@ export function useReadingProgress(
       () => settle(saving, { ...saving, state: "saved" }),
       (error) => {
         // Any other failure: useSaveTracking already toasted it.
-        const kept = keepIfOffline(error, manga.id, result.after);
+        const kept = isNetworkError(error)
+          ? queueProgress(manga.id, entryId, result.after)
+          : undefined;
         if (!kept) return settle(saving);
         markOfflineAnnounced();
         toast(OFFLINE);
@@ -138,7 +139,7 @@ export function useReadingProgress(
   const undo = () => {
     if (notice?.state !== "saved" || busy.current) return;
     if (notice.kept) {
-      restorePending(manga.id, notice.kept);
+      undoKept(manga.id, notice.kept);
       settle(notice);
       return;
     }
