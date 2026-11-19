@@ -29,6 +29,7 @@ import { ReaderTitle } from "./components/reader-title";
 import { ZoomView } from "./components/zoom-view";
 import { useChapterPages } from "./hooks/use-chapter-pages";
 import { useReadingProgress } from "./hooks/use-reading-progress";
+import { useSavePosition } from "./hooks/use-save-position";
 
 // Desktop windows are far wider than a page is meant to be read.
 const MAX_COLUMN = 800;
@@ -85,6 +86,15 @@ export function ChapterReader() {
     chapterUrl,
   );
 
+  const savePositionOnScroll = useSavePosition({
+    mangaId: Number(mediaId),
+    sourceId: match?.sourceId,
+    chapter: current,
+    pages: pages.length,
+    listRef,
+    finished: progress.finished,
+  });
+
   const next = current && nextChapter(chapters, current);
   const name = chapterName(current);
 
@@ -102,8 +112,9 @@ export function ChapterReader() {
       else if (y < lastScroll.current) runStart.current = y;
       else if (y - runStart.current > HIDE_AFTER) visible$.set(false);
       lastScroll.current = y;
+      savePositionOnScroll();
     },
-    [visible$],
+    [visible$, savePositionOnScroll],
   );
   const sourceId = match?.sourceId;
   // Pages only come with a source, so the null is never drawn.

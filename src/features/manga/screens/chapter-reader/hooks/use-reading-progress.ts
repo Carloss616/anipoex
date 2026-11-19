@@ -160,6 +160,8 @@ export function useReadingProgress(
 
   return {
     reached,
+    /** Whether this chapter reached its end in this reader session. */
+    finished: (id: string) => done.current.has(id),
     save:
       notice && notice.chapterId === chapterId
         ? {
