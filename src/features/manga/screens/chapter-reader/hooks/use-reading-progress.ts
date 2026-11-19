@@ -9,6 +9,11 @@ import {
   undoKept,
 } from "@/features/manga/state/queue-entry";
 import {
+  dropPosition,
+  type ReadingPosition,
+  restorePosition,
+} from "@/features/manga/state/reading-positions";
+import {
   type ReadingSave,
   readingSave,
 } from "@/features/manga/utils/reading-save";
@@ -26,6 +31,8 @@ interface Notice {
   createdId?: number;
   /** Set when the save was kept on the device: Undo restores that, not AniList. */
   kept?: Kept;
+  /** The reading position the save removed, which Undo puts back. */
+  position?: ReadingPosition;
 }
 
 const NONE: ChapterEndProps["save"] = { state: "none", changes: [] };
@@ -73,9 +80,16 @@ export function useReadingProgress(
       manga.chapters,
       new Date(),
     );
-    if (!result?.changes.length) return;
+    // The chapter is read once its progress is saved, or when there's none to
+    // save (a re-read, a manga not on the list): its position goes.
+    const finish = () => dropPosition(manga.id, chapter.id);
+    if (!result?.changes.length) {
+      finish();
+      return;
+    }
 
     if (!result.listed) {
+      finish();
       if (!notNow.current)
         setNotice({ chapterId: chapter.id, state: "confirm", result });
       return;
@@ -86,12 +100,13 @@ export function useReadingProgress(
     // Offline already: the network notice says so, so no request or toast.
     if (!network$.online.peek()) {
       const kept = queueProgress(manga.id, entryId, result.after);
-      return settle(saving, { ...saving, state: "saved", kept });
+      const position = finish();
+      return settle(saving, { ...saving, state: "saved", kept, position });
     }
     save(toSaveVariables(result.before, result.after, ids), {
       queueOffline: true,
     }).then(
-      () => settle(saving, { ...saving, state: "saved" }),
+      () => settle(saving, { ...saving, state: "saved", position: finish() }),
       (error) => {
         // Any other failure: useSaveTracking already toasted it.
         const kept = isNetworkError(error)
@@ -100,7 +115,7 @@ export function useReadingProgress(
         if (!kept) return settle(saving);
         markOfflineAnnounced();
         toast(OFFLINE);
-        settle(saving, { ...saving, state: "saved", kept });
+        settle(saving, { ...saving, state: "saved", kept, position: finish() });
       },
     );
   };
@@ -138,8 +153,10 @@ export function useReadingProgress(
 
   const undo = () => {
     if (notice?.state !== "saved" || busy.current) return;
+    const { position } = notice;
     if (notice.kept) {
       undoKept(manga.id, notice.kept);
+      if (position) restorePosition(manga.id, position);
       settle(notice);
       return;
     }
@@ -150,7 +167,10 @@ export function useReadingProgress(
       : save(toSaveVariables(after, before, ids))
     )
       .then(
-        () => settle(notice),
+        () => {
+          if (position) restorePosition(manga.id, position);
+          settle(notice);
+        },
         () => {},
       )
       .finally(() => {
