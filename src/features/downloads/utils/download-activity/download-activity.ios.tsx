@@ -181,6 +181,7 @@ export function startDownloadActivity(onPause: () => void): DownloadActivity {
   return {
     update: ({ title, done, total, fraction }) => {
       if (current !== self) return;
+      work.progress(total ? (done + fraction) / total : 0);
       const next: Props = {
         title,
         status: countStatus({ done, total }),

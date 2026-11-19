@@ -22,6 +22,7 @@ import {
   createCustomNotification,
 } from "expo-widgets";
 import { TRACK_HEIGHT } from "@/components/ui/progress/constants";
+import { backgroundWork } from "@/utils/background-time";
 import {
   notificationUpdates,
   postNotification,
@@ -266,6 +267,26 @@ const post = (props: Props, options: CustomNotificationOptions) =>
 
 const updates = notificationUpdates<Props>;
 
+/** Scans running, which keep the app alive off screen. */
+let active = 0;
+// A scan has no suspend: when Android takes the time back it runs on until frozen.
+const work = backgroundWork("Scan sources", {
+  running: () => active > 0,
+  expire: () => {},
+  back: () => {},
+});
+/** Holds the app awake until the returned end runs, once. */
+const keepAwake = () => {
+  active++;
+  work.hold();
+  let ended = false;
+  return () => {
+    if (ended) return;
+    ended = true;
+    if (--active === 0) work.release();
+  };
+};
+
 interface Group {
   key: string;
   name: string;
@@ -340,6 +361,7 @@ export function startScanActivity({
     );
 
   const tracked = trackScan(scan, () => render(group));
+  const awake = keepAwake();
 
   return {
     progress: tracked.progress,
@@ -349,6 +371,7 @@ export function startScanActivity({
     },
     end: (found) => {
       tracked.end(found);
+      awake();
       if (!isRunning(group.scans)) scanStops.delete(group.key);
     },
   };
@@ -367,6 +390,7 @@ export function startLibraryActivity({
 }: LibraryActivityArgs): LibraryActivity {
   const run = ++libraryRun;
   scanStops.set("library", onStop);
+  const awake = keepAwake();
   let view: {
     name: string;
     cover?: string;
@@ -439,6 +463,7 @@ export function startLibraryActivity({
     },
     end: (summary) => {
       ended = true;
+      awake();
       scanStops.delete("library");
       void endCovers(summary.withNew).then((covers) => {
         if (run !== libraryRun) return;

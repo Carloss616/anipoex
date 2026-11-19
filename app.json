@@ -10,7 +10,10 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "supportsTablet": true,
-      "bundleIdentifier": "com.anipoex.app"
+      "bundleIdentifier": "com.anipoex.app",
+      "infoPlist": {
+        "BGTaskSchedulerPermittedIdentifiers": ["com.anipoex.app.work.*"]
+      }
     },
     "android": {
       "adaptiveIcon": {

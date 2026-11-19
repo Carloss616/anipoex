@@ -12,16 +12,27 @@ import {
   height,
   padding,
 } from "@expo/ui/jetpack-compose/modifiers";
+import { observe } from "@legendapp/state";
 import {
   addUserInteractionListener,
   createCustomNotification,
 } from "expo-widgets";
 import { TRACK_HEIGHT } from "@/components/ui/progress/constants";
+import { backgroundWork } from "@/utils/background-time";
 import {
   notificationUpdates,
   postNotification,
 } from "@/utils/post-notification";
 import type { WidgetUpdates } from "@/utils/widget-updates";
+import {
+  downloadQueue$,
+  downloadsPaused$,
+  downloadsSuspended$,
+} from "../../state/download-queue";
+import {
+  suspendDownloads,
+  unsuspendDownloads,
+} from "../../state/run-downloads";
 import { countStatus, endStatus } from "../activity-view";
 import type { DownloadActivity } from "./download-activity";
 
@@ -106,6 +117,26 @@ const DownloadNotification = createCustomNotification<Props>(
 
 // Left behind by a run that was killed mid-queue.
 void DownloadNotification.cancelAll().catch(() => {});
+
+const waiting = (queue = downloadQueue$.peek()) =>
+  Object.values(queue).some(
+    (e) => e.state === "queued" || e.state === "running",
+  );
+
+const work = backgroundWork("Downloads", {
+  running: () => waiting(),
+  expire: suspendDownloads,
+  back: unsuspendDownloads,
+});
+
+// Held through an offline gap too: Android won't start the service again
+// from the background once the network is back.
+observe(() => {
+  const queue = downloadQueue$.get();
+  if (waiting(queue) && !downloadsPaused$.get() && !downloadsSuspended$.get())
+    work.hold();
+  else work.release();
+});
 
 /** The running notification's Pause; one at a time. */
 let current: { onPause: () => void } | undefined;

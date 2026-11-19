@@ -2,6 +2,7 @@ import { AppState } from "react-native";
 import { cache, cacheRestored, client, onAnswered } from "@/graphql/client";
 import { network$, onReconnect } from "@/state/network";
 import { session$ } from "@/state/session";
+import { finishOffScreen } from "@/utils/background-time";
 import { debouncer } from "@/utils/debouncer";
 import { MangaDetailDocument } from "../graphql/manga-detail.generated";
 import { MangaMediaFragmentDoc } from "../graphql/manga-fragments.generated";
@@ -105,6 +106,8 @@ const later = debouncer<void>(() => void sendPending(), 2_000);
 void cacheRestored.then(sendPending);
 AppState.addEventListener("change", (state) => {
   if (state === "active") void sendPending();
+  else if (state === "background")
+    void finishOffScreen("Send changes", sendPending);
 });
 onAnswered(() => later.run());
 onReconnect(() => void sendPending());

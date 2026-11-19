@@ -6,6 +6,7 @@ import { toast } from "@/components/ui/toast";
 import { network$, onReconnect } from "@/state/network";
 import { ObservablePersist } from "@/state/observable-persist";
 import { settings$ } from "@/state/settings";
+import { finishOffScreen } from "@/utils/background-time";
 import { desktop } from "@/utils/desktop";
 import { SyncError } from "../utils/github";
 import { serial } from "../utils/serial";
@@ -241,6 +242,11 @@ syncMeta$.onChange(({ isFromPersist }) => {
 
 AppState.addEventListener("change", (state) => {
   if (state === "active") void requestSync();
+  // A due sync goes now, before its gap: off screen its timer never fires.
+  else if (state === "background" && nextSync$.peek() !== null) {
+    clearTimeout(debounce);
+    void finishOffScreen("Sync", requestSync);
+  }
 });
 
 // Brings other devices' changes into an app left open; 0 leaves it to the

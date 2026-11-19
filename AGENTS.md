@@ -121,6 +121,12 @@ Legend State gotchas:
 
 - Fast Refresh of a module under `src/features/sync` leaves the old engine running beside the new one, with the same device id: fully reload every app that runs it. With a flag of its own, the old copy stamped each pull as a local change and the two rewrote the gist every 3 s until GitHub refused writes with a 403 "API rate limit exceeded"; `applying` now lives on `globalThis` (`utils/watch-table.ts`).
 
+# Background work
+
+- Work that must keep running off screen, the phone locked included (scans, downloads), holds `backgroundWork` (`src/utils/background-time/`) while it runs, and reports `progress`: iOS 26 ends a continued processing task that stalls. Short work as the app leaves (a due sync, pending changes) goes through `finishOffScreen`.
+- On Android, JS timers stop as soon as the app leaves the screen (`JavaTimerManager.onHostPause`) unless a headless JS task runs, so off screen a `setTimeout` (a debounce, the notification limiter) never fires: the Android `backgroundWork` runs one beside its dataSync foreground service. Android won't start that service from the background, so downloads hold it through an offline gap (`download-activity.android.tsx`).
+- iOS's `BGContinuedProcessingTask` is `unavailable` in the Simulator: there `backgroundWork` falls back to `beginBackgroundTask`, about 30s, then pauses the work until the app is back. Test the long run on a device.
+
 # Tests
 
 - Bun's `mock.module` lasts the whole run, not one file, and file order differs by OS (Windows alphabetical, macOS not): never mock a module that has its own test file. Mock what it depends on and set its real state, resetting it in `afterAll` (`extensions/state/extensions.test.ts` with `repos$`).

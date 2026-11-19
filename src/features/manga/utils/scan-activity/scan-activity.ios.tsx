@@ -333,6 +333,7 @@ const propsOf = (group: Group): Props => {
 
 const render = (group: Group) => {
   const next = propsOf(group);
+  if (next.progress !== null) work.progress(next.progress);
   if (isRunning(group.scans)) group.updates.push(next);
   else void group.updates.end(next);
 };
@@ -435,7 +436,10 @@ export function startLibraryActivity({
     };
   };
   const render = () => {
-    if (!ended) live.push(propsOfView());
+    if (ended) return;
+    const props = propsOfView();
+    if (props.progress !== null) work.progress(props.progress);
+    live.push(props);
   };
   const image = imageLoader(render);
   const live = updates(start(propsOfView(), "anipoex://settings/activity"));
