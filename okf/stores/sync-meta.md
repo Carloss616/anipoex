@@ -39,4 +39,7 @@ When two copies of a record meet, the newer stamp wins; on a tie, the one alread
 beats this device's, so a device that joins adopts what is there and adds only what it alone
 has. Tombstones older than 90 days are dropped when a table is written out.
 
-Survives sign-out. The chapter lists, cookies, the session and extension DNS never sync.
+Survives sign-out. Sync isn't tied to the AniList account: its files carry no user, and
+none of its records belongs to one (settings, extensions, search history, and data per manga
+kept by its AniList id, the same for every user), so signing in with another account keeps
+them all. The chapter lists, cookies, the session and extension DNS never sync.

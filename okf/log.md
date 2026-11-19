@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-19
+
+* **What sync shares across accounts**: it isn't tied to the AniList account (signing in with another keeps every synced record), and connecting another GitHub account merges this device's data into that account's gist. Manual matches and source pins sync, which their pages still denied. Updated [Sync stamps](stores/sync-meta.md), [GitHub account](stores/github-account.md), [Manual matches](stores/manual-matches.md), [Source pins](stores/source-pins.md).
+
 ## 2026-11-18
 
 * **History**: the viewer's list activity, a page of 50 at a time and filterable by manga; `mediaId` is left out without a filter, since AniList reads null as one. Added [MangaHistory](operations/manga-history.md).

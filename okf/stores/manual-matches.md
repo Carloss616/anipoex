@@ -24,7 +24,7 @@ as automatic, if it is outdated, failing, or has no chapters. On a source that i
 nothing, pin included. Excluding or including the source later, by hand or by a scan, leaves the
 manual match alone. A new pick on the same source replaces it; removing it
 sends the source back to matching by title. Reset all keeps it. One record per manga and
-source. Survives sign-out and doesn't sync.
+source. Survives sign-out and [syncs](sync-meta.md).
 
 Its title also teaches the manga's other sources: a scan, a pick and a search by title on them
 take a page equal to it ([chosen source](source-matches.md)), since sources often list a manga

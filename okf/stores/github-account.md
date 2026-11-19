@@ -41,4 +41,5 @@ account here and stops syncing. This device's files leave the gist when every re
 is already, as new or newer, in another device's file, or when no other device is there:
 nothing is lost (the data stays on this device), and the other devices stop listing it. Otherwise (another device hasn't synced its last changes yet) they stay, and
 the notice says so. The gist itself and the other devices' files stay on GitHub; reconnecting
-finds the gist again and writes this device's files back.
+finds the gist again and writes this device's files back. Connecting another GitHub account
+merges: this device's data goes into that account's gist and the gist's comes here.

@@ -9,6 +9,6 @@ generated: { by: claude-code/claude-sonnet-5-5, at: 2026-10-20T00:00:00Z }
 
 Key `source-pins`: `{ [anilistId]: { [sourceId]: { updatedAt, deletedAt? } } }`. A live record
 means the user chose to exclude or include that source by hand, so a scan never excludes it
-by itself. Mirrors the plugin's `pins` map and its gist file `seanime-msu-pins.json`. Survives sign-out and doesn't sync yet.
+by itself. Mirrors the plugin's `pins` map and its gist file `seanime-msu-pins.json`. Survives sign-out and [syncs](sync-meta.md).
 
 Meaning: [source exclusion](../concepts/source-exclusion.md).
