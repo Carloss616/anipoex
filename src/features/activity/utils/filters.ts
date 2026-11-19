@@ -15,8 +15,8 @@ export const FILTER_TITLES: Record<ActivityFilter, string> = {
   sync: "Sync",
 };
 
-export const itemCount = (count: number) =>
-  `${count} ${count === 1 ? "item" : "items"}`;
+export const activityCount = (count: number) =>
+  `${count} ${count === 1 ? "activity" : "activities"}`;
 
 export function parseFilter(param: string | undefined): ActivityFilter {
   return ACTIVITY_FILTERS.find((filter) => filter === param) ?? "all";

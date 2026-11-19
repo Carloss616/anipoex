@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
   type ActivityIds,
+  activityCount,
   countsOf,
   emptyKind,
   headerIndices,
-  itemCount,
   parseFilter,
   toRows,
   visibleSections,
@@ -88,8 +88,12 @@ describe("activity filters", () => {
   });
 });
 
-describe("itemCount", () => {
+describe("activityCount", () => {
   test("pluralizes", () => {
-    expect([0, 1, 2].map(itemCount)).toEqual(["0 items", "1 item", "2 items"]);
+    expect([0, 1, 2].map(activityCount)).toEqual([
+      "0 activities",
+      "1 activity",
+      "2 activities",
+    ]);
   });
 });

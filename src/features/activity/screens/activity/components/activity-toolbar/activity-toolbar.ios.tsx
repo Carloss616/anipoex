@@ -5,6 +5,7 @@ import { Icons } from "@/components/ui/icon";
 import {
   ACTIVITY_FILTERS,
   type ActivityFilter,
+  activityCount,
   FILTER_TITLES,
 } from "@/features/activity/utils/filters";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -46,7 +47,7 @@ export function ActivityToolbar({
               key={f}
               icon={FILTER_SYMBOLS[f]}
               isOn={f === filter}
-              subtitle={String(counts[f])}
+              subtitle={activityCount(counts[f])}
               onPress={() => onFilterChange(f)}
             >
               {FILTER_TITLES[f]}

@@ -27,10 +27,10 @@ import {
   type ActivityFilter,
   type ActivityRow,
   type ActivitySection,
+  activityCount,
   countsOf,
   emptyKind,
   FILTER_TITLES,
-  itemCount,
   parseFilter,
   toRows,
 } from "@/features/activity/utils/filters";
@@ -90,7 +90,7 @@ export function Activity() {
         <ActivityList
           rows={rows}
           filter={filter}
-          total={itemCount(counts[filter])}
+          total={activityCount(counts[filter])}
           onClearFilter={() => setFilter("all")}
         />
       )}

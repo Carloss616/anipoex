@@ -17,11 +17,11 @@ import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
 import {
   type ActivityFilter,
   type ActivitySection,
+  activityCount,
   countsOf,
   emptyKind,
   FILTER_TITLES,
   headerIndices,
-  itemCount,
   parseFilter,
   toRows,
 } from "@/features/activity/utils/filters";
@@ -105,7 +105,7 @@ export function Activity() {
                             clear: () => setFilter("all"),
                           },
                         ]}
-                        total={itemCount(counts[filter])}
+                        total={activityCount(counts[filter])}
                       />
                     </View>
                   )}
