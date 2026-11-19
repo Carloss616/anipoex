@@ -23,7 +23,7 @@ export const SyncItem = memo(function SyncItem({ id }: SyncItemProps) {
   const { title, icon } = TARGETS[id];
 
   return (
-    <Frame.Row onClick={() => router.navigate("/settings")}>
+    <Frame.Row onClick={() => router.navigate("/settings/sync")}>
       <Frame.Media>
         <Icon name={icon} size={20} />
       </Frame.Media>

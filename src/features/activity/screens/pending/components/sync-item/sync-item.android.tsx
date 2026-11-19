@@ -31,7 +31,7 @@ export const SyncItem = memo(function SyncItem({
         index={index}
         count={count}
         colors={{ containerColor: m3.surfaceContainerHigh }}
-        onPress={() => router.navigate("/settings")}
+        onPress={() => router.navigate("/settings/sync")}
       >
         <SegmentedListItem.Leading>
           <Icon name={icon} color="inherit" />
