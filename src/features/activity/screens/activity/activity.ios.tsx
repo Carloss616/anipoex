@@ -29,12 +29,8 @@ import {
   parseFilter,
   visibleSections,
 } from "./utils/filters";
-import { headerActions } from "./utils/header-actions";
-import {
-  type DownloadsState,
-  SECTION_DESCRIPTIONS,
-  sectionTitle,
-} from "./utils/section-header";
+import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
+import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
 import { SECTION_IDS } from "./utils/section-ids";
 import { downloadsFailed } from "./utils/state";
 import { statusMode } from "./utils/status-mode";
@@ -42,13 +38,6 @@ import { statusMode } from "./utils/status-mode";
 const FOOTERS: Partial<Record<ActivitySection, string>> = {
   ...SECTION_DESCRIPTIONS,
   entries: "Swipe a change to discard it.",
-};
-
-// Only the Downloads header has buttons that depend on the downloads.
-const NO_DOWNLOADS: DownloadsState = {
-  paused: false,
-  pending: false,
-  failed: false,
 };
 
 type Row = { modifiers: ReturnType<typeof listRowBackground>[] };
