@@ -1,6 +1,6 @@
 import { useValue } from "@legendapp/state/react";
 import { Platform } from "react-native";
-import { type IconName, Icons } from "@/components/ui/icon";
+import { Icons } from "@/components/ui/icon";
 import type { MenuItem } from "@/components/ui/menu";
 import { openConnect } from "@/features/sync/state/connect-sheet";
 import {
@@ -17,7 +17,6 @@ import {
 } from "@/features/sync/state/engine";
 import { github$ } from "@/features/sync/state/github";
 import { unsyncedSummary } from "@/features/sync/state/unsynced";
-import type { DeviceKind } from "@/features/sync/utils/sync-file";
 import { network$ } from "@/state/network";
 import { settings$ } from "@/state/settings";
 import { desktop } from "@/utils/desktop";
@@ -27,13 +26,6 @@ import { timeAgo } from "@/utils/time-ago";
 
 const ago = (ms: number) => timeAgo(ms / 1000);
 const syncNow = () => void requestSync();
-
-const KIND_ICONS: Record<DeviceKind, IconName> = {
-  phone: Icons.devicePhone,
-  tablet: Icons.deviceTablet,
-  computer: Icons.deviceComputer,
-  browser: Icons.deviceBrowser,
-};
 
 /** The moments a sync runs on this platform, beyond the timer. */
 const MOMENTS = [
@@ -78,32 +70,12 @@ function useTargetStatus(key: TargetKey) {
 /** What every platform's Sync section shows, and its actions. */
 export function useSyncSection() {
   const account = useValue(github$.account);
-  const devices = useValue(syncState$.devices);
-  const me = useValue(settings$.device.id);
   const location = useValue(settings$.device.folder);
   const interval = useValue(
     () => settings$.device.syncInterval.get() ?? DEFAULT_SYNC_MINUTES,
   );
   const gistStatus = useTargetStatus("gist");
   const folderStatus = useTargetStatus("folder");
-
-  const rows = [...devices]
-    .sort((a, b) =>
-      a.id === me ? -1 : b.id === me ? 1 : b.lastChange - a.lastChange,
-    )
-    .map((device) => ({
-      id: device.id,
-      // A build from before kinds writes none: the generic icon until it updates.
-      icon: device.kind ? KIND_ICONS[device.kind] : Icons.device,
-      title:
-        device.id === me ? "This device" : (device.name ?? "Another device"),
-      detail:
-        device.id === me
-          ? device.name
-          : device.lastChange
-            ? `Changed ${ago(device.lastChange)}`
-            : undefined,
-    }));
 
   const gistUrl =
     account?.gistId &&
@@ -168,7 +140,6 @@ export function useSyncSection() {
     moments: interval
       ? [...MOMENTS, `Every ${interval} min while it's open`]
       : MOMENTS,
-    devices: rows,
     syncNow,
     connect: () => void openConnect(),
   };

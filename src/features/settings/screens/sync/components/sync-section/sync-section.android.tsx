@@ -50,8 +50,7 @@ export function SyncSection() {
   const { account, gist, folder } = sync;
   const m3 = useThemeM3Colors();
   const row = useRowProps();
-  const devices = sync.connected ? sync.devices : [];
-  const count = (sync.connected ? 3 : 2) + devices.length;
+  const count = sync.connected ? 3 : 2;
 
   return (
     <>
@@ -201,26 +200,6 @@ export function SyncSection() {
             </SegmentedListItem>
           </Menu>
         ) : null}
-        {devices.map((device, i) => (
-          <SegmentedListItem
-            key={device.id}
-            index={i + 3}
-            count={count}
-            {...row}
-          >
-            <SegmentedListItem.Leading>
-              <LeadingIcon name={device.icon} />
-            </SegmentedListItem.Leading>
-            <Text>{device.title}</Text>
-            {device.detail ? (
-              <SegmentedListItem.Supporting>
-                <Text style={{ typography: "bodyMedium" }}>
-                  {device.detail}
-                </Text>
-              </SegmentedListItem.Supporting>
-            ) : null}
-          </SegmentedListItem>
-        ))}
       </Column>
       <Row
         verticalAlignment="center"
