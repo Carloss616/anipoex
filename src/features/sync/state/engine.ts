@@ -235,6 +235,13 @@ syncMeta$.onChange(({ isFromPersist }) => {
   if (isFromPersist || applying.current || !targets.size) return;
   clearTimeout(debounce);
   const gap = targets.has("gist") ? lastRun + MIN_GAP_MS - Date.now() : 0;
+  // A change made as the app leaves (the reader saving its page) comes after
+  // the background listener below, and off screen a timer never fires. A
+  // scan running off screen still keeps the gist's gap.
+  if (AppState.currentState === "background" && gap <= 0) {
+    void finishOffScreen("Sync", requestSync);
+    return;
+  }
   const wait = Math.max(DEBOUNCE_MS, gap);
   nextSync$.set(Date.now() + wait);
   debounce = setTimeout(() => void requestSync(), wait);

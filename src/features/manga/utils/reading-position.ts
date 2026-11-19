@@ -58,3 +58,15 @@ export const pageLabel = (
   position && exact(position, sourceId, chapterId)
     ? `Page ${position.page} of ${position.pages}`
     : undefined;
+
+/**
+ * For a sync: whether a stored position is read by `progress` (as in
+ * `livePosition`; undefined when the manga's entry isn't known here).
+ */
+export const deadPosition = (
+  value: unknown,
+  progress: number | null | undefined,
+) =>
+  progress !== undefined &&
+  !!value &&
+  !livePosition(value as ReadingPosition, progress);

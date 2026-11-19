@@ -21,6 +21,7 @@ The synced stores and what one record of each is:
 | `probes` | [Source probes](source-probes.md) | one manga on one source |
 | `search-history` | [Search history](search-history.md) | the whole list |
 | `extensions` | [Extension installs](extension-installs.md) | one extension |
+| `reading-positions` | [Reading positions](reading-positions.md) | one manga |
 
 A source can fail on one device and work on another (its runtime, its network or DNS), so
 what a device finds about reading a source stays on it, and only what it finds about the
@@ -37,7 +38,10 @@ Loading a store from storage and a sync writing what it pulled stamp nothing.
 
 When two copies of a record meet, the newer stamp wins; on a tie, the one already synced
 beats this device's, so a device that joins adopts what is there and adds only what it alone
-has. Tombstones older than 90 days are dropped when a table is written out.
+has. Tombstones older than 90 days are dropped when a table is written out;
+`reading-positions` drops its own after one day, and in every sync turns a record whose
+chapter the manga's cached progress already reads into a removal stamped then, which the
+other devices apply.
 
 Survives sign-out. Sync isn't tied to the AniList account: its files carry no user, and
 none of its records belongs to one (settings, extensions, search history, and data per manga

@@ -28,7 +28,9 @@ back as a change of its own. Syncs never overlap: one asked for while another ru
 right after it, once. They run on launch, when the app comes to the foreground, every few
 minutes while it's open (each device picks 1, 5 or 15, or none; 5 until it picks), 3 seconds
 after a change to a synced store (with a gist connected, at most once a minute while
-changes keep coming, as in a scan), when the connection returns, and on desktop a second after a sync file in the folder changes. A failure keeps everything for the next one: nothing counts as
+changes keep coming, as in a scan; at once while the app is in the background and that
+minute has passed, so the page just read reaches the other devices before the app is
+suspended), when the connection returns, and on desktop a second after a sync file in the folder changes. A failure keeps everything for the next one: nothing counts as
 pushed until the target took it. GitHub limits writes per user, across every device: when it
 asks to wait, the gist isn't tried again until the time it gives (a few minutes when it gives
 none), and a folder keeps syncing meanwhile.

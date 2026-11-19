@@ -13,13 +13,17 @@ is built on the device, not asked of AniList. A manga shows when all of these ho
 1. It has a [chosen source](../stores/source-matches.md) with a match, and that source's
    [stored chapters](../stores/source-chapters.md) are for the matched page (a list stored
    for a page the match pointed to before doesn't count).
-2. It has a [list entry](list-entry.md) with progress above 0.
-3. At least one stored chapter is past that progress.
+2. It has a [list entry](list-entry.md) with progress above 0, or a
+   [reading position](../stores/reading-positions.md) for a chapter still unread.
+3. At least one stored chapter is past that progress, or the position's chapter is in the
+   stored list.
 
 Items are sorted by their newest chapter's upload date, newest first. Each shows how many
 stored chapters are past the progress (counted over the list, unlike a probe's
 [unread chapters](../metrics/unread-chapters.md)), and tapping it opens the reader at the
-first unread [chapter](chapter.md): the lowest unread number.
+chapter being read when there is a [reading position](../stores/reading-positions.md),
+otherwise at the first unread [chapter](chapter.md): the lowest unread number. The
+manga detail's Continue picks its chapter the same way.
 
 ## Where it comes from
 

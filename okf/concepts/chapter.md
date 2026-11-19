@@ -35,6 +35,9 @@ failed refresh keeps the rows and says so); an excluded source loses its list.
 
   A negative number the source gives on purpose (like -2) is kept. With no number at all
   the row stays `-1`; a row with a negative number is never dimmed as read.
+- **Being read**: the row of the chapter a [reading position](../stores/reading-positions.md)
+  saved, in the same source, shows "Page N of M" beside its date, and opening it starts
+  at that page.
 - **Read**: a row whose number is at or below the [list entry](list-entry.md)'s
   progress (AniList progress counts the last chapter read) is dimmed; with progress 0
   nothing is read.

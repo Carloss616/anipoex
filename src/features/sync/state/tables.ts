@@ -1,10 +1,13 @@
 import type { ObservableParam } from "@legendapp/state";
 import { installs$ } from "@/features/extensions/state/installs";
+import { cachedProgress } from "@/features/manga/state/cached-progress";
 import { exclusions$, pins$ } from "@/features/manga/state/exclusions";
 import { manualMatches$ } from "@/features/manga/state/manual-matches";
 import { probes$ } from "@/features/manga/state/probes";
+import { readingPositions$ } from "@/features/manga/state/reading-positions";
 import { searchHistory$ } from "@/features/manga/state/search-history";
 import { source$ } from "@/features/manga/state/source";
+import { deadPosition } from "@/features/manga/utils/reading-position";
 import { settings$ } from "@/state/settings";
 import { normalizeSettings } from "@/state/settings/utils/migrate";
 import type { SyncTable } from "../utils/watch-table";
@@ -12,11 +15,16 @@ import type { SyncTable } from "../utils/watch-table";
 /** `version` and `device` stay on each device. */
 const SETTINGS_LOCAL = new Set(["version", "device"]);
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const table = (
   name: string,
   obs$: ObservableParam,
   depth: number,
-  options?: Pick<SyncTable, "synced" | "normalize" | "local" | "localYields">,
+  options?: Pick<
+    SyncTable,
+    "synced" | "normalize" | "local" | "localYields" | "purgeAfterMs" | "prune"
+  >,
 ): SyncTable => ({ name, obs$, depth, ...options });
 
 // A source can fail on one device and work on another (its runtime, network
@@ -48,4 +56,11 @@ export const TABLES: SyncTable[] = [
   }),
   table("search-history", searchHistory$, 0),
   table("extensions", installs$, 1),
+  // Not a history: a read chapter's position goes, and so does its tombstone
+  // a day later. One a late device brings back is read by the cache's
+  // progress and removed again in that sync.
+  table("reading-positions", readingPositions$, 1, {
+    purgeAfterMs: DAY_MS,
+    prune: (key, value) => deadPosition(value, cachedProgress(Number(key))),
+  }),
 ];

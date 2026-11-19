@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import type { ReadingPosition } from "../state/reading-positions";
-import { livePosition, pageLabel, resolvePosition } from "./reading-position";
+import {
+  deadPosition,
+  livePosition,
+  pageLabel,
+  resolvePosition,
+} from "./reading-position";
 import type { Chapter } from "./to-chapters";
 
 const position: ReadingPosition = {
@@ -100,5 +105,20 @@ describe("pageLabel", () => {
     expect(pageLabel(position, "source-1", "/ch-10")).toBe("Page 8 of 40");
     expect(pageLabel(position, "source-2", "/ch-10")).toBeUndefined();
     expect(pageLabel(position, "source-1", "/ch-11")).toBeUndefined();
+  });
+});
+
+describe("deadPosition", () => {
+  it("keeps a manga missing from the cache", () => {
+    expect(deadPosition(position, undefined)).toBe(false);
+  });
+
+  it("drops a chapter its progress read", () => {
+    expect(deadPosition(position, 10)).toBe(true);
+    expect(deadPosition(position, 9)).toBe(false);
+  });
+
+  it("drops an unlisted manga's finished chapter", () => {
+    expect(deadPosition({ ...position, page: 40 }, null)).toBe(true);
   });
 });
