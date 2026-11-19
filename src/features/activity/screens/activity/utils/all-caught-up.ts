@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { askToNotify } from "@/features/manga/utils/scan-activity";
 import { startReadingScan } from "./actions";
 
@@ -9,7 +10,8 @@ export const ALL_CAUGHT_UP = {
     {
       label: "Scan Reading",
       onPress: () => {
-        askToNotify();
+        // Web only: native builds don't export it
+        if (Platform.OS === "web") askToNotify();
         startReadingScan();
       },
     },
