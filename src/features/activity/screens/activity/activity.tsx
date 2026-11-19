@@ -21,6 +21,7 @@ import { SectionItem } from "./components/section-item";
 import { StatusCard } from "./components/status-card";
 import { useActivityIds } from "./hooks/use-activity-ids";
 import { ALL_CAUGHT_UP } from "./utils/all-caught-up";
+import type { HeaderAction } from "./utils/download-actions";
 import {
   type ActivityFilter,
   type ActivitySection,
@@ -28,10 +29,11 @@ import {
   emptyKind,
   FILTER_TITLES,
   headerIndices,
+  itemCount,
   parseFilter,
   toRows,
 } from "./utils/filters";
-import { headerActions } from "./utils/header-actions";
+import { headerActions, NO_DOWNLOADS } from "./utils/header-actions";
 import { SECTION_DESCRIPTIONS, sectionTitle } from "./utils/section-header";
 import { downloadsFailed } from "./utils/state";
 import { statusMode } from "./utils/status-mode";
@@ -100,6 +102,7 @@ export function Activity() {
                             clear: () => setFilter("all"),
                           },
                         ]}
+                        total={itemCount(counts[filter])}
                       />
                     </View>
                   )}
@@ -115,7 +118,15 @@ export function Activity() {
             }
             renderItem={({ item: row }) =>
               row.kind === "header" ? (
-                <SectionHeader section={row.section} count={row.count} />
+                row.section === "downloads" ? (
+                  <DownloadsHeader count={row.count} />
+                ) : (
+                  <SectionHeader
+                    section={row.section}
+                    count={row.count}
+                    actions={headerActions(row.section, NO_DOWNLOADS)}
+                  />
+                )
               ) : (
                 <Frame
                   className={cn(
@@ -141,18 +152,30 @@ export function Activity() {
   );
 }
 
-function SectionHeader({
-  section,
-  count,
-}: {
-  section: ActivitySection;
-  count: number;
-}) {
+function DownloadsHeader({ count }: { count: number }) {
   const paused = useValue(downloadsPaused$);
   const pending = useValue(downloadsPending);
   const failed = useValue(downloadsFailed);
+
+  return (
+    <SectionHeader
+      section="downloads"
+      count={count}
+      actions={headerActions("downloads", { paused, pending, failed })}
+    />
+  );
+}
+
+function SectionHeader({
+  section,
+  count,
+  actions = [],
+}: {
+  section: ActivitySection;
+  count: number;
+  actions?: HeaderAction[];
+}) {
   const description = SECTION_DESCRIPTIONS[section];
-  const actions = headerActions(section, { paused, pending, failed });
 
   return (
     <Frame

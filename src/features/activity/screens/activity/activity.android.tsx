@@ -39,6 +39,7 @@ import {
   countsOf,
   emptyKind,
   FILTER_TITLES,
+  itemCount,
   parseFilter,
   toRows,
 } from "./utils/filters";
@@ -89,6 +90,7 @@ export function Activity() {
         <ActivityList
           rows={rows}
           filter={filter}
+          total={itemCount(counts[filter])}
           onClearFilter={() => setFilter("all")}
         />
       )}
@@ -96,14 +98,16 @@ export function Activity() {
   );
 }
 
-/** Takes only the rows: inside a Host, its re-render re-runs every row. */
+/** Takes plain props only: inside a Host, a re-render re-runs every row. */
 function ActivityList({
   rows,
   filter,
+  total,
   onClearFilter,
 }: {
   rows: ActivityRow[];
   filter: ActivityFilter;
+  total: string;
   onClearFilter: () => void;
 }) {
   const headerHeight = useHeaderHeight();
@@ -126,7 +130,7 @@ function ActivityList({
           contentPadding={{ top: 8, bottom: GUTTER }}
         >
           <StatusSection />
-          <ActiveFilters filters={filters} />
+          <ActiveFilters filters={filters} total={total} />
           {rows.length === 0 && <EmptyState title="Nothing here" />}
           <LazyColumn.Items
             data={rows}

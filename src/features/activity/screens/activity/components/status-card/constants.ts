@@ -4,8 +4,7 @@ export const COPY = {
   offline: {
     icon: Icons.offline,
     title: "You're offline",
-    description:
-      "These changes are kept on this device and go out when you're back online.",
+    description: "Scans, downloads and changes wait until you're back online.",
   },
   sending: {
     icon: Icons.uploading,

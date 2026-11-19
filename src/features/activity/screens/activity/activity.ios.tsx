@@ -79,7 +79,11 @@ export function Activity() {
  * Reads only the joined section names: inside a Host, its re-render re-runs
  * every row.
  */
-function ActivityList({ sections }: { sections: string }) {
+const ActivityList = memo(function ActivityList({
+  sections,
+}: {
+  sections: string;
+}) {
   const modifiers = [listRowBackground(useThemeColor("surface-secondary"))];
 
   return (
@@ -108,7 +112,7 @@ function ActivityList({ sections }: { sections: string }) {
       </List>
     </Host>
   );
-}
+});
 
 function StatusSection({ modifiers }: Row) {
   const mode = useValue(statusMode);

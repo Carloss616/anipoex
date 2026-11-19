@@ -1,11 +1,24 @@
 import { useValue } from "@legendapp/state/react";
 import { Stack } from "expo-router";
+import type { SFSymbol } from "expo-symbols";
 import { Icons } from "@/components/ui/icon";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { stopAll } from "../../utils/actions";
-import { ACTIVITY_FILTERS, FILTER_TITLES } from "../../utils/filters";
+import {
+  ACTIVITY_FILTERS,
+  type ActivityFilter,
+  FILTER_TITLES,
+} from "../../utils/filters";
 import { hasScans } from "../../utils/state";
 import type { ActivityToolbarProps } from "./activity-toolbar";
+
+const FILTER_SYMBOLS: Record<ActivityFilter, SFSymbol> = {
+  all: "tray.full",
+  scans: "arrow.triangle.2.circlepath",
+  downloads: "arrow.down.circle",
+  send: "icloud.and.arrow.up",
+  sync: "arrow.triangle.2.circlepath.icloud",
+};
 
 /**
  * The filter menu and, while scans run, Stop all. The menus sit inline:
@@ -31,6 +44,7 @@ export function ActivityToolbar({
           {ACTIVITY_FILTERS.map((f) => (
             <Stack.Toolbar.MenuAction
               key={f}
+              icon={FILTER_SYMBOLS[f]}
               isOn={f === filter}
               subtitle={String(counts[f])}
               onPress={() => onFilterChange(f)}

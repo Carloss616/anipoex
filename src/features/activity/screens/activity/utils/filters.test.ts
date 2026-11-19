@@ -4,6 +4,7 @@ import {
   countsOf,
   emptyKind,
   headerIndices,
+  itemCount,
   parseFilter,
   toRows,
   visibleSections,
@@ -84,5 +85,11 @@ describe("activity filters", () => {
     const skipped = ids({ skipped: ["s"] });
     expect(emptyKind(skipped, "all", false)).toBeNull();
     expect(emptyKind(skipped, "downloads", false)).toBe("filter");
+  });
+});
+
+describe("itemCount", () => {
+  test("pluralizes", () => {
+    expect([0, 1, 2].map(itemCount)).toEqual(["0 items", "1 item", "2 items"]);
   });
 });

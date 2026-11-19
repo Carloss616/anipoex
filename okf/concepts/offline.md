@@ -44,9 +44,9 @@ last time it was asked. Either failing makes it offline.
   stay on this device" and, on return, "Back online" (with the number of changes being sent
   when there are some). A connection that flaps in less than that says nothing, and an
   offline already announced is not repeated. The notice's "View" opens Settings › Activity (To send).
-- **Settings › Activity (To send)** lists what waits: changes to the list, sync, and downloads, with
-  Retry and Discard for what AniList turned down. The Settings tab shows the count as a
-  badge.
+- **Settings › Activity (To send)** lists the changes to the list that wait, with Retry and
+  Discard for what AniList turned down. Sync and downloads are their own filters there. The
+  Settings tab shows the count as a badge.
 
 # When it returns
 
