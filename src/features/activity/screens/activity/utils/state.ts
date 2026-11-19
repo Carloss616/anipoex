@@ -17,10 +17,6 @@ export const hasScans = () =>
   Object.keys(activeScans$.get(true)).length > 0 ||
   readingRun$.get(true) != null;
 
-/** Whether anything shows: a scan or a queued download. */
-export const hasActivity = () =>
-  hasScans() || Object.keys(downloadQueue$.get(true)).length > 0;
-
 const downloads = () =>
   Object.values(downloadQueue$.get()).sort((a, b) => a.order - b.order);
 

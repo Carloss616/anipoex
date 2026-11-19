@@ -31,7 +31,7 @@ import { MediaListStatus } from "@/graphql/types.generated";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { openOptionsSheet } from "../options-sheet";
 
-const openActivity = () => router.push("/settings/activity");
+const openActivity = () => router.push("/settings/activity?filter=scans");
 const openCustomLists = () => router.push("/manga/custom-lists");
 
 const scanWithNotice = (everything: boolean) => {

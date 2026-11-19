@@ -3,12 +3,14 @@ import { Memo } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { SegmentedListItem } from "@/components/native/jetpack-compose/segmented-list-item";
 import { Text } from "@/components/native/jetpack-compose/text";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
+import { badgeCount } from "@/features/activity/utils/badge-count";
 import { DESCRIPTIONS } from "../../../constants";
 import { useRowProps } from "../../../hooks/use-row-props";
 import { LeadingIcon } from "../../leading-icon";
 import type { ActivityRowProps } from "./activity-row";
-import { runningLabel } from "./utils";
+import { activityLabel } from "./utils/activity-label";
 
 export function ActivityRow({ index = 0, count = 1 }: ActivityRowProps) {
   const router = useRouter();
@@ -32,7 +34,13 @@ export function ActivityRow({ index = 0, count = 1 }: ActivityRowProps) {
       </SegmentedListItem.Supporting>
       <SegmentedListItem.Trailing>
         <Row verticalAlignment="center">
-          <Memo>{() => <Text>{runningLabel()}</Text>}</Memo>
+          <Memo>{() => <Text>{activityLabel()}</Text>}</Memo>
+          <Memo>
+            {() => {
+              const count = badgeCount();
+              return count ? <Badge color="inherit">{count}</Badge> : null;
+            }}
+          </Memo>
           <Icon name={Icons.chevronRight} color="inherit" />
         </Row>
       </SegmentedListItem.Trailing>

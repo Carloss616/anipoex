@@ -20,7 +20,7 @@ import { CUSTOM_LIST_SYMBOL, LIST_SYMBOLS } from "../../constants";
 import { openOptionsSheet } from "../options-sheet";
 import type { ListToolbarProps } from "./list-toolbar";
 
-const openActivity = () => router.push("/settings/activity");
+const openActivity = () => router.push("/settings/activity?filter=scans");
 const openCustomLists = () => router.push("/manga/custom-lists");
 
 /**

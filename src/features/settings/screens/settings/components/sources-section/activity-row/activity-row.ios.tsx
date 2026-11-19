@@ -4,9 +4,11 @@ import { Memo } from "@legendapp/state/react";
 import { useRouter } from "expo-router";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Text } from "@/components/native/swift-ui/text";
+import { Badge } from "@/components/ui/badge";
 import { Icon, Icons } from "@/components/ui/icon";
+import { badgeCount } from "@/features/activity/utils/badge-count";
 import { DESCRIPTIONS } from "../../../constants";
-import { runningLabel } from "./utils";
+import { activityLabel } from "./utils/activity-label";
 
 export function ActivityRow() {
   const router = useRouter();
@@ -27,9 +29,15 @@ export function ActivityRow() {
         <Memo>
           {() => (
             <Text modifiers={[foregroundStyle("secondary")]}>
-              {runningLabel()}
+              {activityLabel()}
             </Text>
           )}
+        </Memo>
+        <Memo>
+          {() => {
+            const count = badgeCount();
+            return count ? <Badge color="inherit">{count}</Badge> : null;
+          }}
         </Memo>
         <Icon name={Icons.chevronRight} size={13} muted />
       </HStack>

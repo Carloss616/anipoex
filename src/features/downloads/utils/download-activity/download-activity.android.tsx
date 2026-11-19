@@ -141,7 +141,7 @@ export function startDownloadActivity(onPause: () => void): DownloadActivity {
           postNotification(DownloadNotification, next, {
             id: "downloads",
             ongoing: true,
-            url: "anipoex://settings/activity",
+            url: "anipoex://settings/activity?filter=downloads",
           }),
         );
       last = next;

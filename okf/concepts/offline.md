@@ -43,8 +43,8 @@ last time it was asked. Either failing makes it offline.
 - A notice, once the connection has stayed changed for 3 seconds: "You're offline · Changes
   stay on this device" and, on return, "Back online" (with the number of changes being sent
   when there are some). A connection that flaps in less than that says nothing, and an
-  offline already announced is not repeated. The notice's "View" opens Settings › Pending.
-- **Settings › Pending** lists what waits: changes to the list, sync, and downloads, with
+  offline already announced is not repeated. The notice's "View" opens Settings › Activity (To send).
+- **Settings › Activity (To send)** lists what waits: changes to the list, sync, and downloads, with
   Retry and Discard for what AniList turned down. The Settings tab shows the count as a
   badge.
 

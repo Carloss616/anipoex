@@ -37,7 +37,7 @@ const openCustomLists = () => router.push("/manga/custom-lists");
 
 const ACTIVITY_ITEM = {
   label: "Activity",
-  onPress: () => router.push("/settings/activity"),
+  onPress: () => router.push("/settings/activity?filter=scans"),
 };
 const SCAN_ITEMS = [
   { label: "Scan for new chapters", onPress: () => void scanReading() },

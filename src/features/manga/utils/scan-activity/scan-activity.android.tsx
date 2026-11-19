@@ -403,7 +403,7 @@ export function startLibraryActivity({
     post(propsOfView(), {
       id: "scan-library",
       ongoing: true,
-      url: "anipoex://settings/activity",
+      url: "anipoex://settings/activity?filter=scans",
     }),
   );
 

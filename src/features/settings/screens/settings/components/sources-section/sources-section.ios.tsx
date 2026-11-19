@@ -25,7 +25,6 @@ import { settings$ } from "@/state/settings";
 import { DESCRIPTIONS, SLOW_SKIP_OPTIONS } from "../../constants";
 import { useRowBackground } from "../../hooks/use-row-background";
 import { ActivityRow } from "./activity-row";
-import { PendingRow } from "./pending-row";
 
 export function SourcesSection() {
   const router = useRouter();
@@ -35,7 +34,6 @@ export function SourcesSection() {
   return (
     <Section modifiers={[rowBackground]} title="Sources">
       <ActivityRow />
-      <PendingRow />
       <Memo>
         {() => (
           <Toggle
