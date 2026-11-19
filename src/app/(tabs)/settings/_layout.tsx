@@ -27,9 +27,9 @@ export default function Layout() {
         <Stack.Screen name="sources" />
         <Stack.Screen name="downloads" />
         <Stack.Screen name="activity" />
-        <Stack.Screen name="pending" />
+        {/* Pushed even beside the sidebar: from Sources, from a toast. */}
+        <Stack.Screen name="pending" options={{ headerBackVisible: true }} />
         <Stack.Screen name="layout" />
-        {/* Pushed from Sources, even beside the sidebar. */}
         <Stack.Screen name="languages" options={{ headerBackVisible: true }} />
       </Stack>
     </SettingsShell>

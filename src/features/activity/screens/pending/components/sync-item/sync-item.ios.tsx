@@ -14,7 +14,7 @@ export const SyncItem = memo(function SyncItem({ id }: SyncItemProps) {
   const { title, icon } = TARGETS[id];
 
   return (
-    <Button onPress={() => router.navigate("/settings")}>
+    <Button onPress={() => router.navigate("/settings/sync")}>
       <HStack spacing={12} modifiers={ROW_FILL}>
         <Icon name={icon} size={20} />
         <VStack alignment="leading" spacing={2}>
