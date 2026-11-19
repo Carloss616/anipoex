@@ -120,11 +120,15 @@ export function mergeRecords(
 }
 
 /** Without tombstones old enough that every device has applied them. */
-export function purge(records: Records, now: number): Records {
+export function purge(
+  records: Records,
+  now: number,
+  after = PURGE_AFTER_MS,
+): Records {
   return Object.fromEntries(
     Object.entries(records).filter(
       ([, record]) =>
-        record.deletedAt == null || record.deletedAt > now - PURGE_AFTER_MS,
+        record.deletedAt == null || record.deletedAt > now - after,
     ),
   );
 }

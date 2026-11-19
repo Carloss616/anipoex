@@ -164,7 +164,13 @@ export async function syncTables({
       ? without(mine, (record, key) => isLocal(record) && elsewhere.has(key))
       : mine;
     const merged = mergeRecords(local, remote);
-    const kept = purge(merged, now());
+    if (table.prune) {
+      const at = now();
+      for (const [key, record] of Object.entries(merged))
+        if (record.deletedAt == null && table.prune(key, record.value))
+          merged[key] = { updatedAt: at, deletedAt: at };
+    }
+    const kept = purge(merged, now(), table.purgeAfterMs);
 
     applying.current = true;
     try {
@@ -236,7 +242,7 @@ export async function retireDevice({
     // stays on this one.
     if (!mine || !rest.length) continue;
     const others = mergeRecords({}, rest);
-    const purged = now() - PURGE_AFTER_MS;
+    const purged = now() - (table.purgeAfterMs ?? PURGE_AFTER_MS);
     const carried = Object.entries(mine.records).every(([key, record]) => {
       // Every device has applied a removal this old and may have dropped it.
       if (record.deletedAt != null && record.deletedAt <= purged) return true;

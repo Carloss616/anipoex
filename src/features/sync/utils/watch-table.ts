@@ -19,6 +19,10 @@ export interface SyncTable {
   local?: (value: unknown) => boolean;
   /** Whether another device's record replaces a local one, however old. */
   localYields?: boolean;
+  /** Tombstones older than this are dropped; `PURGE_AFTER_MS` when absent. */
+  purgeAfterMs?: number;
+  /** A live record this calls dead is removed and tombstoned in the sync. */
+  prune?: (key: string, value: unknown) => boolean;
 }
 
 /**

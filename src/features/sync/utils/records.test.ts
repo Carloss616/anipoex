@@ -164,4 +164,19 @@ describe("purge", () => {
 
     expect(Object.keys(records).sort()).toEqual(["live", "recent"]);
   });
+
+  it("honors a shorter window", () => {
+    const day = 24 * 60 * 60 * 1000;
+    const now = 20 * day;
+    const records = { gone: { updatedAt: 0, deletedAt: now - 15 * day } };
+
+    expect(purge(records, now, 14 * day)).toEqual({});
+    expect(Object.keys(purge(records, now))).toEqual(["gone"]);
+  });
+
+  it("keeps live records with any window", () => {
+    expect(purge({ live: { value: 1, updatedAt: 0 } }, 1e9, 1)).toEqual({
+      live: { value: 1, updatedAt: 0 },
+    });
+  });
 });

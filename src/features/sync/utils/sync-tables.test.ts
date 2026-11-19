@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { observable } from "@legendapp/state";
 import type { Stamp } from "./records";
+import { syncFileName } from "./sync-file";
 import { retireDevice, type SyncTarget, syncTables } from "./sync-tables";
 import { type SyncTable, watchTable } from "./watch-table";
 
@@ -35,7 +36,10 @@ const device = (
   id: string,
   target: SyncTarget,
   initial: Exclusions = {},
-  options: Pick<SyncTable, "local" | "localYields"> = {},
+  options: Pick<
+    SyncTable,
+    "local" | "localYields" | "purgeAfterMs" | "prune"
+  > = {},
 ) => {
   const store$ = observable<Exclusions>(initial);
   const meta$ = observable<Record<string, Record<string, Stamp>>>({});
@@ -63,6 +67,55 @@ const device = (
 };
 
 describe("syncTables", () => {
+  it("deletes and tombstones a record the table prunes", async () => {
+    const { target, files } = memoryTarget();
+    const mac = device("mac", target);
+    const phone = device(
+      "phone",
+      target,
+      {},
+      {
+        prune: (key) => key === "21/source-1",
+      },
+    );
+
+    mac.store$[21]["source-1"].set({ reason: "outdated" });
+    await mac.sync();
+    phone.tick(5000);
+    await phone.sync();
+
+    expect(phone.store$.peek()[21]?.["source-1"]).toBeUndefined();
+    expect(phone.meta$.exclusions["21/source-1"].peek()).toEqual({
+      updatedAt: 5000,
+      deletedAt: 5000,
+    });
+    expect(files.get(syncFileName("exclusions", "phone"))).toContain(
+      '"deletedAt": 5000',
+    );
+
+    mac.tick(6000);
+    await mac.sync();
+    expect(mac.store$.peek()[21]?.["source-1"]).toBeUndefined();
+  });
+
+  it("drops a table's tombstones after its purgeAfterMs", async () => {
+    const { target, files } = memoryTarget();
+    const phone = device("phone", target, {}, { purgeAfterMs: 1000 });
+
+    phone.store$[21]["source-1"].set({ reason: "outdated" });
+    phone.store$[21]["source-1"].delete();
+    await phone.sync();
+    expect(files.get(syncFileName("exclusions", "phone"))).toContain(
+      "21/source-1",
+    );
+
+    phone.tick(3000);
+    await phone.sync();
+    expect(files.get(syncFileName("exclusions", "phone"))).not.toContain(
+      "21/source-1",
+    );
+  });
+
   it("brings one device's change to another", async () => {
     const { target } = memoryTarget();
     const mac = device("mac", target);
