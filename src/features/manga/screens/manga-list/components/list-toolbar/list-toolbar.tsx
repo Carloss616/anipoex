@@ -32,6 +32,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { openOptionsSheet } from "../options-sheet";
 
 const openActivity = () => router.push("/settings/activity?filter=scans");
+const openHistory = () => router.push("/manga/history");
 const openCustomLists = () => router.push("/manga/custom-lists");
 
 const scanWithNotice = (everything: boolean) => {
@@ -122,6 +123,11 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
             </Stack.Toolbar.MenuAction>
           ))}
         </Stack.Toolbar.Menu>
+        <Stack.Toolbar.Button
+          icon={Icons.history}
+          onPress={openHistory}
+          accessibilityLabel="History"
+        />
         <Stack.Toolbar.Button
           icon={Icons.filter}
           onPress={openOptionsSheet}

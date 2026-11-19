@@ -10,6 +10,7 @@ import { DETAIL_ROUTE } from "./source-list-href";
 export function mangaStackScreens(m3: ReturnType<typeof useThemeM3Colors>) {
   return [
     <Stack.Screen key="detail" name={DETAIL_ROUTE} />,
+    <Stack.Screen key="history" name="manga/history" />,
     <Stack.Screen
       key="reader"
       name="manga/[id]/reader"

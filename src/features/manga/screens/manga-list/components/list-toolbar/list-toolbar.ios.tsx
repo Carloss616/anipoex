@@ -21,6 +21,7 @@ import { openOptionsSheet } from "../options-sheet";
 import type { ListToolbarProps } from "./list-toolbar";
 
 const openActivity = () => router.push("/settings/activity?filter=scans");
+const openHistory = () => router.push("/manga/history");
 const openCustomLists = () => router.push("/manga/custom-lists");
 
 /**
@@ -92,6 +93,11 @@ export function ListToolbar({ status, list$, onSelect }: ListToolbarProps) {
           ))}
         </Stack.Toolbar.Menu>
       </Stack.Toolbar.Menu>
+      <Stack.Toolbar.Button
+        icon={Icons.history}
+        onPress={openHistory}
+        accessibilityLabel="History"
+      />
       <Stack.Toolbar.Button
         icon={Icons.filter}
         onPress={openOptionsSheet}

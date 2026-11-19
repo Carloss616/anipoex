@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useState } from "react";
 import { Toolbar } from "@/components/layout/toolbar";
 import { Dialog } from "@/components/ui/dialog";
@@ -77,6 +77,17 @@ export function DetailToolbar({
                 ))}
               </Stack.Toolbar.Menu>
             )}
+            <Stack.Toolbar.MenuAction
+              icon={Icons.history}
+              onPress={() =>
+                router.push({
+                  pathname: "/manga/history",
+                  params: { mediaId: id },
+                })
+              }
+            >
+              History
+            </Stack.Toolbar.MenuAction>
             <Stack.Toolbar.MenuAction
               icon={Icons.openExternal}
               onPress={() => openExternal(url)}

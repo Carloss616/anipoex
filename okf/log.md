@@ -2,6 +2,7 @@
 
 ## 2026-11-18
 
+* **History**: the viewer's list activity, a page of 50 at a time and filterable by manga; `mediaId` is left out without a filter, since AniList reads null as one. Added [MangaHistory](operations/manga-history.md).
 * **Pending folds into Activity**: the changes waiting to be sent, with Retry and Discard, are the To send filter of Settings › Activity; the Settings row shows the count as a badge and a status line. Updated [Offline](concepts/offline.md), [Pending entries](stores/pending-progress.md).
 * **A chapter read offline shows at once**: the reader's kept progress is written to the cache like a hand edit, so the manga list's and Home's unread badges drop before it is sent; Undo and Discard put AniList's back. A progress the device wrote to the cache is still sent, checked against AniList's entry. Updated [Pending entries](stores/pending-progress.md).
 * **A folder alone syncs 3 seconds after each change**: the once-a-minute limit for changes that keep coming applies only while a gist is connected, since it exists for GitHub's write limit. Updated [Sync state](stores/sync-state.md).

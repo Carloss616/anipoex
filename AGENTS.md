@@ -51,6 +51,7 @@ Legend State gotchas:
 - A dev-only "[legend-list] No unused container available" on a short list with `stickyHeaderIndices` (the source sheet) is not `estimatedItemSize`: the pool is capped at the item count and sticky headers can't take normal containers, so each first gets a new one. Leave it (still so in 3.7.2).
 - LegendList's web cells carry an inline `contain: paint`, which clips a card's shadow and lean past the cell: the grid drops it on hover from `contentContainerClassName` (`manga/components/manga-grid/manga-grid.tsx`).
 - A `LegendList` without `estimatedItemSize` sizes its pool from 100: about 15 containers on a phone, and with `recycleItems={false}` each keeps its item mounted. Lists of tall items pass a real estimate (the reader kept ~15 decoded pages, `chapter-reader.tsx`).
+- `@expo/ui`'s lists have no end-reached event: the next page loads from a footer item after the rows, `onAppear` on iOS and `onVisibilityChanged` on Android, each firing once per time it comes into view (`manga-history/components/list-footer/`, `manga-grid.ios.tsx`).
 
 # Images
 

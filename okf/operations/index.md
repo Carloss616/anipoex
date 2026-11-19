@@ -19,6 +19,7 @@ all of them:
 * [HomeSections](home-sections.md) - Every visible Home section in one request.
 * [MangaSearch](manga-search.md) - One page of AniList manga matching a submitted search.
 * [MangaReadDates](manga-read-dates.md) - The viewer's list activity for one manga, to date a late Completed.
+* [MangaHistory](manga-history.md) - The viewer's list activity, a page at a time, for every manga or one.
 
 # Mutations
 

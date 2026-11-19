@@ -1,0 +1,30 @@
+fragment HistoryActivity on ListActivity {
+  id
+  status
+  progress
+  createdAt
+  media {
+    id
+    ...MangaMedia @nonreactive
+  }
+}
+
+query MangaHistory($userId: Int!, $mediaId: Int, $page: Int!) {
+  Page(page: $page, perPage: 50) {
+    pageInfo {
+      currentPage
+      hasNextPage
+    }
+    activities(
+      userId: $userId
+      mediaId: $mediaId
+      type: MANGA_LIST
+      sort: ID_DESC
+    ) {
+      ... on ListActivity {
+        id
+        ...HistoryActivity
+      }
+    }
+  }
+}
