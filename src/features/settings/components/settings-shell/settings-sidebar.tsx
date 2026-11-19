@@ -26,7 +26,7 @@ const LISTS = [
   ...groupPages(visiblePages(isRuntimeAvailable)),
 ];
 
-/** The pages as Extensions' `ListSidebar` draws its filters. */
+/** The pages as `FilterSidebar` draws a list's filters. */
 export function SettingsSidebar() {
   // The index shows Account beside the sidebar.
   const active = pageForPath(usePathname()) ?? "account";

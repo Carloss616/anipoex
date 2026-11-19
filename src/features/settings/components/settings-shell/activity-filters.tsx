@@ -1,9 +1,10 @@
 import { router, useGlobalSearchParams } from "expo-router";
-import { FilterSidebar } from "@/features/activity/components/filter-sidebar";
+import { FilterSidebar } from "@/components/blocks/filter-sidebar";
 import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
 import {
   type ActivityFilter,
   countsOf,
+  FILTER_TITLES,
   parseFilter,
 } from "@/features/activity/utils/filters";
 
@@ -18,8 +19,9 @@ export function ActivityFilters() {
 
   return (
     <FilterSidebar
-      filter={parseFilter(filter)}
+      titles={FILTER_TITLES}
       counts={counts}
+      value={parseFilter(filter)}
       onSelect={setFilter}
       className="border-border ms-4 mt-3 border-s ps-2"
     />

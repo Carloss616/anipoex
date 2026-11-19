@@ -10,9 +10,9 @@ import { View } from "react-native";
 import { LinearTransition } from "react-native-reanimated";
 import { ActiveFilters } from "@/components/blocks/active-filters";
 import { EmptyState } from "@/components/blocks/empty-state";
+import { FilterSidebar } from "@/components/blocks/filter-sidebar";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
 import { LegendList } from "@/components/layout/legend-list";
-import { FilterSidebar } from "@/features/activity/components/filter-sidebar";
 import { useActivityIds } from "@/features/activity/hooks/use-activity-ids";
 import {
   type ActivityFilter,
@@ -73,8 +73,9 @@ export function Activity() {
         {wide && !split && (
           <HeaderInsetView className="gutters pb-gb pl-gx box-content w-48 pr-4">
             <FilterSidebar
-              filter={filter}
+              titles={FILTER_TITLES}
               counts={counts}
+              value={filter}
               onSelect={setFilter}
               className="pt-4"
             />
