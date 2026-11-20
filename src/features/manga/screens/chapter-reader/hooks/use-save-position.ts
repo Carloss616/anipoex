@@ -68,9 +68,8 @@ export function useSavePosition({
     timer.current = setTimeout(flush, SETTLE_MS);
   };
 
-  // Another chapter or leaving saves the one being left.
-  const chapterId = chapter?.id;
-  useEffect(() => flush, [chapterId, flush]);
+  // Leaving saves the page; a chapter change only follows a finished one.
+  useEffect(() => flush, [flush]);
   useEffect(() => {
     const sub = AppState.addEventListener("change", (state) => {
       if (state === "background") flush();
