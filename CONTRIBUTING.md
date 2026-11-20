@@ -1,0 +1,94 @@
+# Contributing
+
+Thanks for helping with Anipoex. This page covers building the app, the stack it uses and how to send a change. For what the app does, see the [README](README.md).
+
+## 🚀 Build and run
+
+Needs [Bun](https://bun.sh), Xcode for iOS and Android Studio for Android. Anipoex runs as an Expo [development build](https://docs.expo.dev/develop/development-builds/introduction/), not Expo Go.
+
+```bash
+bun install
+bun run ios        # or: bun run android
+bun start          # Metro, for later runs
+```
+
+<details>
+<summary>Environment variables (<code>.env.local</code>)</summary>
+
+```bash
+EXPO_PUBLIC_ANILIST_GRAPHQL_URL=https://graphql.anilist.co
+EXPO_PUBLIC_ANILIST_AUTHORIZE_URL=https://anilist.co/api/v2/oauth/authorize
+EXPO_PUBLIC_ANILIST_CLIENT_ID_NATIVE=12345   # AniList API client for the apps
+EXPO_PUBLIC_ANILIST_CLIENT_ID_WEB=12345      # AniList API client for the web
+EXPO_PUBLIC_GITHUB_CLIENT_ID=Iv1.0000000000  # GitHub OAuth app, for sync
+```
+
+Create the AniList clients at [anilist.co/settings/developer](https://anilist.co/settings/developer) and the GitHub OAuth app (device flow enabled) in your GitHub developer settings.
+
+</details>
+
+<details>
+<summary>Web and desktop</summary>
+
+- **Web**: `bun run web`.
+- **Desktop (macOS, Windows)**: start Metro, then `bun run desktop`. See [desktop/README.md](desktop/README.md) for building the JVM sidecar.
+
+</details>
+
+<details>
+<summary>Checks</summary>
+
+```bash
+bun run typecheck
+bun run check      # Biome
+bun test
+bun run codegen    # after changing a .gql operation
+```
+
+</details>
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| App | Expo SDK 58, React Native 0.88, React 19, Expo Router |
+| Native UI | `@expo/ui` (SwiftUI, Jetpack Compose) and local Expo modules |
+| Web UI | PanelUI, Uniwind (Tailwind CSS 4) |
+| State | Legend State v3 (persisted to MMKV / localStorage) |
+| Data | Apollo Client 4 against AniList's GraphQL API, with codegen |
+| Extensions | Kotlin host on Android (ART); a shared JVM core on desktop and iOS (OpenJDK Zero on iOS) |
+| Desktop | Electron with a JVM sidecar, on macOS and Windows |
+| Tooling | Bun, Biome, TypeScript 7 |
+
+<details>
+<summary>Project structure</summary>
+
+```
+anipoex/
+├── src/
+│   ├── app/              # Expo Router routes (thin wrappers)
+│   ├── features/         # screens and logic by feature (manga, extensions, sync, settings…)
+│   ├── components/       # ui, layout, blocks, native
+│   ├── state/            # app-wide stores (settings, theme)
+│   └── utils/
+├── modules/              # local Expo modules, incl. the extension runtime
+├── desktop/              # Electron app and JVM sidecar
+├── okf/                  # domain knowledge (what each record and rule means)
+├── docs/                 # guides with diagrams
+└── scripts/              # app icon generator
+```
+
+</details>
+
+---
+
+## 🤝 Sending a change
+
+1. Fork the repo
+2. Create a branch: `git checkout -b feature/your-feature`
+3. Run `bun run typecheck`, `bun run check` and `bun test`
+4. Open a pull request
+
+Code conventions live in [AGENTS.md](AGENTS.md) and [docs/app-structure.md](docs/app-structure.md); what each record and rule means lives in [okf/](okf/index.md).

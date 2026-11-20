@@ -67,7 +67,7 @@ The same features ship on iOS (SwiftUI), Android (Jetpack Compose) and a desktop
 
 - `bun install`, then `bun run ios` or `bun run android` (Expo development build), `bun start` for Metro.
 - `bun run web` for the web app; `bun run desktop` for the desktop app on macOS or Windows (see `desktop/README.md`).
-- `bun run extensions:ios-runtime` packages the embedded JDK before the first iOS build.
+- `bun run ios` also packages the embedded JDK and the extension runtime's jars, skipping what hasn't changed.
 - `.env.local` holds `EXPO_PUBLIC_ANILIST_GRAPHQL_URL`, `EXPO_PUBLIC_ANILIST_AUTHORIZE_URL`, `EXPO_PUBLIC_ANILIST_CLIENT_ID_NATIVE`, `EXPO_PUBLIC_ANILIST_CLIENT_ID_WEB` and `EXPO_PUBLIC_GITHUB_CLIENT_ID`.
 - Checks: `bun run typecheck`, `bun run check`, `bun test`; `bun run codegen` after changing a `.gql` operation.
 
