@@ -1,6 +1,6 @@
 # Anipoex — full reference
 
-> An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, web, macOS and Windows.
+> An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, macOS and Windows.
 
 - Author: Carlos Espinoza (https://github.com/Carloss616)
 - URL: https://github.com/Carloss616/anipoex
@@ -12,7 +12,7 @@ Anipoex is a manga tracker for one person. It signs in to AniList, shows the man
 
 To find chapters, it runs Mihon extensions (extensions-lib 1.4 and 1.6) inside the app, with no server. The user adds extension repos, trusts each repo's signing key and installs extensions; each manga then reads from one source. A scan compares every installed source for a manga and shows how many chapters are past the user's progress (`+N`).
 
-The same features ship on iOS (SwiftUI), Android (Jetpack Compose), the web (PanelUI) and a desktop app for macOS and Windows (Electron). A plain browser can show the list and the extension catalog but cannot run extensions.
+The same features ship on iOS (SwiftUI), Android (Jetpack Compose) and a desktop app for macOS and Windows (Electron, with PanelUI).
 
 ## Compared with other apps
 

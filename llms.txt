@@ -1,6 +1,6 @@
 # Anipoex
 
-> An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, web, macOS and Windows.
+> An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, macOS and Windows.
 
 ## About
 

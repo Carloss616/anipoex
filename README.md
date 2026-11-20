@@ -7,10 +7,10 @@
 ![Expo](https://img.shields.io/badge/Expo-SDK_58-000020?style=for-the-badge&logo=expo&logoColor=white)
 ![React Native](https://img.shields.io/badge/React_Native-0.88-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Platforms](https://img.shields.io/badge/iOS_·_Android_·_Web_·_macOS_·_Windows-555555?style=for-the-badge)
+![Platforms](https://img.shields.io/badge/iOS_·_Android_·_macOS_·_Windows-555555?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)
 
-**An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, web, macOS and Windows.**
+**An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, macOS and Windows.**
 
 </div>
 
@@ -40,7 +40,7 @@
 
 ### 🔐 Private sync
 
-**One setup on iOS, Android, web, macOS and Windows.**
+**One setup on iOS, Android, macOS and Windows.**
 
 - Your own GitHub gist or synced folder
 - No Anipoex account, no server
@@ -78,7 +78,7 @@ How it decides, step by step: [Sync and source picking](docs/sync-and-sources.md
 
 ## 🔐 Private sync, on every platform
 
-iOS, Android, the web, macOS and Windows share one setup: your source picks, scan results, exclusions, settings and installed extensions.
+iOS, Android, macOS and Windows share one setup: your source picks, scan results, exclusions, settings and installed extensions.
 
 - **Storage you own**: a private GitHub gist, a folder kept in sync by iCloud Drive, OneDrive or Syncthing, or both. Anipoex runs no server and has no account of its own.
 - **Extensions follow you**: install one on your phone and your computer installs it too.
@@ -93,7 +93,7 @@ What travels and what stays: [Sync and source picking](docs/sync-and-sources.md#
 
 | | Anipoex | [Mihon](https://github.com/mihonapp/mihon) | [Seanime](https://github.com/5rahim/seanime) | [AnymeX](https://github.com/RyanYuuki/AnymeX) |
 |---|---|---|---|---|
-| Platforms | iOS, Android, web, macOS, Windows | Android | Server with web and desktop clients; iOS and Android companion | Android, iOS, Windows, macOS, Linux |
+| Platforms | iOS, Android, macOS, Windows | Android | Server with web and desktop clients; iOS and Android companion | Android, iOS, Windows, macOS, Linux |
 | Your list lives in | Your tracker: AniList today, more planned | Its own library; trackers get your progress one way | AniList, plus a local file library | AniList, MyAnimeList or Simkl |
 | Chapters come from | Mihon extensions | Mihon extensions | Its extension marketplace | A tracking client, not a reader |
 | Sync between devices | Private gist or folder, every platform | Backups, local or to a cloud service | Your server holds it | Through the tracker |
@@ -119,12 +119,12 @@ What Anipoex adds:
 | 🧩 Mihon extensions | Add repos, install extensions (checked against the repo's signing key) and read from their sources |
 | 📖 Reader | Chapter pages from the chosen source, with progress saved back to AniList |
 | 🏠 Home | Continue reading, trending, recommendations; sections you can reorder |
-| 📱 Native UI | SwiftUI on iOS and Jetpack Compose on Android through `@expo/ui`; PanelUI on the web; theme families |
+| 📱 Native UI | SwiftUI on iOS and Jetpack Compose on Android through `@expo/ui`; PanelUI in the desktop app; theme families |
 | 🔔 Scan activity | Scan progress as a Live Activity on iOS and a notification on Android |
 | 🖥️ Desktop | A macOS and Windows app (Electron) that runs extensions in a JVM sidecar |
 
 > [!NOTE]
-> Extensions download code at runtime, which app stores don't allow: the iOS build is sideloaded and the Android build ships outside Google Play. A plain browser shows your list and the catalog but can't run extensions.
+> Extensions download code at runtime, which app stores don't allow: the iOS build is sideloaded and the Android build ships outside Google Play.
 
 ---
 
