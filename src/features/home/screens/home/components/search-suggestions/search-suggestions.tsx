@@ -4,13 +4,13 @@ import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { ScrollView } from "react-native";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
+import { SuggestionsOverlay } from "@/components/layout/suggestions-overlay";
 import { Icon, Icons } from "@/components/ui/icon";
 import {
   clearSearchHistory,
   matchingHistory,
   searchHistory$,
 } from "@/features/manga/state/search-history";
-import { SuggestionsOverlay } from "./suggestions-overlay";
 
 export interface SearchSuggestionsProps {
   /** What the Home field holds; the suggestions follow it. */

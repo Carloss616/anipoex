@@ -6,6 +6,7 @@ import {
 } from "@expo/ui/jetpack-compose/modifiers";
 import { useValue } from "@legendapp/state/react";
 import { useHeaderHeight } from "expo-router/react-navigation";
+import { SuggestionsOverlay } from "@/components/layout/suggestions-overlay";
 import { GUTTER } from "@/components/native/constants";
 import {
   SEGMENTED_GAP,
@@ -21,7 +22,6 @@ import {
 } from "@/features/manga/state/search-history";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import type { SearchSuggestionsProps } from "./search-suggestions";
-import { SuggestionsOverlay } from "./suggestions-overlay";
 
 /** Search the draft first, then the matching recent searches. */
 export function SearchSuggestions({

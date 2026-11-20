@@ -34,6 +34,7 @@ import { ListRedirect } from "./components/list-redirect";
 import { OptionsSheet, openOptionsSheet } from "./components/options-sheet";
 
 const openCustomLists = () => router.push("/manga/custom-lists");
+const openHistory = () => router.push("/manga/history");
 
 const ACTIVITY_ITEM = {
   label: "Activity",
@@ -170,6 +171,13 @@ export function MangaList() {
               <Icon
                 name={Icons.listEdit}
                 accessibilityLabel="Manage lists"
+                color="inherit"
+              />
+            </IconButton>
+            <IconButton onClick={openHistory}>
+              <Icon
+                name={Icons.history}
+                accessibilityLabel="History"
                 color="inherit"
               />
             </IconButton>

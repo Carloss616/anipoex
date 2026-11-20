@@ -5,12 +5,14 @@ import {
   foregroundStyle,
   frame,
   lineLimit,
+  listRowBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { memo } from "react";
 import { ROW_FILL } from "@/components/native/swift-ui/constants";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text } from "@/components/native/swift-ui/text";
 import { Icon, Icons } from "@/components/ui/icon";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { openManga } from "../../utils/row-menu";
 import { usePendingIds } from "./hooks/use-pending-ids";
 import { usePendingRow } from "./hooks/use-pending-row";
@@ -19,10 +21,11 @@ import type { PendingRowsProps } from "./pending-rows";
 /** Changes made offline that AniList doesn't have yet, as the list's first section. */
 export function PendingRows({ mediaId }: PendingRowsProps) {
   const ids = usePendingIds(mediaId);
+  const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
   if (ids.length === 0) return null;
 
   return (
-    <Section header={<Text>Waiting to sync</Text>}>
+    <Section modifiers={[rowBackground]} header={<Text>Waiting to sync</Text>}>
       {ids.map((id) => (
         <PendingRow key={id} mediaId={id} />
       ))}

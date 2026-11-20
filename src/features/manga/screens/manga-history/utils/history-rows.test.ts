@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { HistoryActivityFragment } from "@/features/manga/graphql/manga-history.generated";
-import { dayLabel, historyRows } from "./history-rows";
+import { dayLabel, daySections, historyRows } from "./history-rows";
 
 const now = new Date(2026, 10, 18, 15, 0);
 const at = (day: number, hour: number) =>
@@ -49,6 +49,21 @@ describe("historyRows", () => {
     expect(next[2]).toBe(first[2]);
     // `b` is no longer the last of its day.
     expect(next[3]).not.toBe(first[3]);
+  });
+});
+
+describe("daySections", () => {
+  test("each day's activities under its label", () => {
+    const [a, b, c] = [
+      activity(3, at(18, 14)),
+      activity(2, at(18, 9)),
+      activity(1, at(17, 8)),
+    ];
+    const sections = daySections(historyRows([a, b, c], now));
+    expect(sections.map((s) => [s.label, s.activities])).toEqual([
+      ["Today", [a, b]],
+      ["Yesterday", [c]],
+    ]);
   });
 });
 

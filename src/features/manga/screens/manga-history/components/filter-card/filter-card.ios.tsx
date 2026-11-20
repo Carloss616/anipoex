@@ -7,9 +7,11 @@ import {
   foregroundStyle,
   frame,
   lineLimit,
+  listRowBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { Image } from "@/components/native/swift-ui/image";
 import { Text, useFont } from "@/components/native/swift-ui/text";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { filterBy, openManga } from "../../utils/row-menu";
 import type { FilterCardProps } from "./filter-card";
 import { useFilterCard } from "./hooks/use-filter-card";
@@ -18,9 +20,11 @@ import { useFilterCard } from "./hooks/use-filter-card";
 export function FilterCard({ mediaId }: FilterCardProps) {
   const { title, cover, detail } = useFilterCard(mediaId);
   const buttonFont = useFont("subheadline", "medium");
+  const rowBackground = listRowBackground(useThemeColor("surface-secondary"));
 
   return (
     <Section
+      modifiers={[rowBackground]}
       header={
         <HStack>
           <Text>Showing one manga</Text>

@@ -6,6 +6,7 @@ import { ScrollView } from "react-native";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
 import { HeaderInsetView } from "@/components/layout/header-inset-view";
+import { SuggestionsOverlay } from "@/components/layout/suggestions-overlay";
 import { COVER_ROUNDED } from "@/features/manga/components/manga-card";
 import { useLibraryMatches } from "../../hooks/use-library-matches";
 import { libraryDetail } from "../../utils/library-detail";
@@ -15,8 +16,19 @@ export interface LibraryMatchesProps {
   onPick: (mediaId: number) => void;
 }
 
-/** The manga in your lists matching the search, in place of the activity. */
-export function LibraryMatches({ query$, onPick }: LibraryMatchesProps) {
+/**
+ * The manga in your lists matching the search; it fades in over the
+ * activity while the search has text.
+ */
+export function LibraryMatches(props: LibraryMatchesProps) {
+  return (
+    <SuggestionsOverlay>
+      <Matches {...props} />
+    </SuggestionsOverlay>
+  );
+}
+
+function Matches({ query$, onPick }: LibraryMatchesProps) {
   const { matches, loading } = useLibraryMatches(query$);
   if (loading) return <LoadingState />;
   if (matches.length === 0)

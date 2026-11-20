@@ -9,6 +9,7 @@ import {
 import { useHeaderHeight } from "expo-router/react-navigation";
 import { EmptyState } from "@/components/blocks/empty-state";
 import { LoadingState } from "@/components/blocks/loading-state";
+import { SuggestionsOverlay } from "@/components/layout/suggestions-overlay";
 import { GUTTER } from "@/components/native/constants";
 import { Image } from "@/components/native/jetpack-compose/image";
 import {
@@ -22,17 +23,31 @@ import { useLibraryMatches } from "../../hooks/use-library-matches";
 import { libraryDetail } from "../../utils/library-detail";
 import type { LibraryMatchesProps } from "./library-matches";
 
-/** The manga in your lists matching the search, in place of the activity. */
-export function LibraryMatches({ query$, onPick }: LibraryMatchesProps) {
-  const { matches, loading } = useLibraryMatches(query$);
+/**
+ * The manga in your lists matching the search; it fades in over the
+ * activity while the search has text.
+ */
+export function LibraryMatches(props: LibraryMatchesProps) {
   const headerHeight = useHeaderHeight();
+  const m3 = useThemeM3Colors();
+  return (
+    <SuggestionsOverlay
+      style={{ top: headerHeight, backgroundColor: m3.background }}
+    >
+      <Matches {...props} />
+    </SuggestionsOverlay>
+  );
+}
+
+function Matches({ query$, onPick }: LibraryMatchesProps) {
+  const { matches, loading } = useLibraryMatches(query$);
   const m3 = useThemeM3Colors();
   if (loading) return <LoadingState />;
   if (matches.length === 0)
     return <EmptyState title="No manga in your lists match" />;
 
   return (
-    <Host className="flex-1" style={{ marginTop: headerHeight }}>
+    <Host className="flex-1">
       <LazyColumn modifiers={[fillMaxSize()]}>
         <Text
           style={{ typography: "titleSmall" }}

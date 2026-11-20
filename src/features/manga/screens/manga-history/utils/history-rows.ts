@@ -82,3 +82,18 @@ export function historyRows(
       : row;
   });
 }
+
+/** The rows as one section per day, for a list that groups them itself. */
+export function daySections(rows: HistoryRow[]) {
+  const sections: {
+    key: string;
+    label: string;
+    activities: HistoryActivityFragment[];
+  }[] = [];
+  for (const row of rows) {
+    if (row.type === "day")
+      sections.push({ key: row.key, label: row.label, activities: [] });
+    else sections.at(-1)?.activities.push(row.activity);
+  }
+  return sections;
+}

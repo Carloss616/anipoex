@@ -8,6 +8,7 @@ import {
   scrollContentBackground,
 } from "@expo/ui/swift-ui/modifiers";
 import { useValue } from "@legendapp/state/react";
+import { SuggestionsOverlay } from "@/components/layout/suggestions-overlay";
 import { Text, useFont } from "@/components/native/swift-ui/text";
 import { Host } from "@/components/ui/host";
 import { Icon, type IconName, Icons } from "@/components/ui/icon";
@@ -18,7 +19,6 @@ import {
 } from "@/features/manga/state/search-history";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { SearchSuggestionsProps } from "./search-suggestions";
-import { SuggestionsOverlay } from "./suggestions-overlay";
 
 /** Over Home's sections while the field has text. */
 export function SearchSuggestions({

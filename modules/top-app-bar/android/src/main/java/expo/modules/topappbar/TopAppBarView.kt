@@ -365,9 +365,16 @@ private fun FunctionalComposableScope.Bar(
         }
       )
     }
+    // Focused, the actions step aside too and the field takes the whole row.
     if (hasSlot("actions")) {
-      Row(Modifier.padding(end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) { actions() }
+      AnimatedVisibility(
+        visible = !focused,
+        enter = fadeIn() + expandHorizontally(),
+        exit = fadeOut() + shrinkHorizontally()
+      ) {
+        Row(Modifier.padding(end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+          CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) { actions() }
+        }
       }
     }
   }

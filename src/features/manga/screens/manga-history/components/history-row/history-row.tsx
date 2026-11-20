@@ -18,9 +18,12 @@ import { openManga, rowMenu } from "../../utils/row-menu";
 
 export interface HistoryRowProps {
   activity: HistoryActivityFragment;
-  /** First and last of its day, for the group's corners. */
-  first: boolean;
-  last: boolean;
+  /**
+   * First and last of its day, for the group's corners; iOS's sections draw
+   * their own.
+   */
+  first?: boolean;
+  last?: boolean;
   /** The list shows one manga, so the menu drops its filter item. */
   filtered: boolean;
 }

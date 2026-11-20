@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import type { RefObject } from "react";
+import { View } from "react-native";
 import type { SearchBarCommands } from "react-native-screens";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { HistoryList } from "./components/history-list";
@@ -28,10 +29,11 @@ export function MangaHistory() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
-      {filter.showMatches ? (
-        <LibraryMatches query$={filter.query$} onPick={filter.pick} />
-      ) : (
+      <View className="flex-1" aria-hidden={filter.showMatches}>
         <HistoryList history={history} mediaId={filter.mediaId} />
+      </View>
+      {filter.showMatches && (
+        <LibraryMatches query$={filter.query$} onPick={filter.pick} />
       )}
     </>
   );
