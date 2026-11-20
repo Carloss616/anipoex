@@ -4,6 +4,7 @@ import { View } from "react-native";
 import type { SearchBarCommands } from "react-native-screens";
 import { useStackSearchBarTheme } from "@/hooks/use-theme";
 import { HistoryList } from "./components/history-list";
+import { HistoryToolbar } from "./components/history-toolbar";
 import { LibraryMatches } from "./components/library-matches";
 import { useHistoryFilter } from "./hooks/use-history-filter";
 import { useMangaHistory } from "./hooks/use-manga-history";
@@ -29,6 +30,7 @@ export function MangaHistory() {
         shouldShowHintSearchIcon={false}
         {...searchBarTheme}
       />
+      <HistoryToolbar onRefresh={history.refresh} />
       <View className="flex-1" aria-hidden={filter.showMatches}>
         <HistoryList history={history} mediaId={filter.mediaId} />
       </View>
