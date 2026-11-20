@@ -3,7 +3,7 @@
 > An AniList manga tracker that compares every source for each manga and syncs privately across iOS, Android, macOS and Windows.
 
 - Author: Carlos Espinoza (https://github.com/Carloss616)
-- URL: https://github.com/Carloss616/anipoex
+- URL: https://github.com/anipoex/anipoex
 - License: MIT
 
 ## Overview
