@@ -71,3 +71,66 @@ jobs:
           gh release upload "$RELEASE_TAG" "$apk" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
+
+  # An IPA for SideStore and AltStore, which sign it on the device: no Apple
+  # account here.
+  ios:
+    # shortcut: Xcode 27 is only on this preview image, so builds can queue;
+    # move to the GA macOS image once it ships Xcode 27.
+    runs-on: xcode-27
+    timeout-minutes: 90
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          package-manager-cache: false
+      # The extension runtime's jars build with Gradle.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: zulu
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+
+      - run: bun install --frozen-lockfile
+      - name: Write .env.local
+        run: printf '%s\n' "$ENV_LOCAL" > .env.local
+        env:
+          ENV_LOCAL: ${{ secrets.ENV_LOCAL }}
+      # Android too: the runtime script builds the jars with android/gradlew.
+      - run: bunx expo prebuild --no-install
+      - run: bun run extensions:ios-runtime
+      - run: pod install
+        working-directory: ios
+
+      - name: Build the app
+        run: |
+          xcodebuild -workspace ios/anipoex.xcworkspace -scheme anipoex \
+            -configuration Release -destination generic/platform=iOS \
+            -derivedDataPath "$RUNNER_TEMP/build" CODE_SIGNING_ALLOWED=NO build
+
+      # SideStore and AltStore read the entitlements from the binaries to
+      # register the App Group, and an unsigned build carries none.
+      - name: Sign ad hoc with the entitlements and upload
+        run: |
+          app="$RUNNER_TEMP/build/Build/Products/Release-iphoneos/anipoex.app"
+          widget="$app/PlugIns/ExpoWidgetsTarget.appex"
+          for code in "$app"/Frameworks/* "$widget"/Frameworks/*; do
+            if [ -e "$code" ]; then codesign -f -s - "$code"; fi
+          done
+          codesign -f -s - --entitlements ios/ExpoWidgetsTarget/ExpoWidgetsTarget.entitlements "$widget"
+          codesign -f -s - --entitlements ios/anipoex/anipoex.entitlements "$app"
+          codesign -d --entitlements - "$app" | grep -q group.com.anipoex.app
+
+          ipa="anipoex-$RELEASE_TAG.ipa"
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$app" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/$ipa" Payload)
+          gh release upload "$RELEASE_TAG" "$ipa" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
