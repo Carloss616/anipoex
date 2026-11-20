@@ -45,6 +45,11 @@ example
 /ios
 /android
 
+# local release builds
+/build
+*.ipa
+*.apk
+
 # local native modules: their sources are tracked, their build output is not
 modules/*/android/build/
 modules/*/android/.gradle/

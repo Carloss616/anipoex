@@ -83,6 +83,7 @@
     "desktop": "bun run --cwd desktop start --remote-debugging-port=9222",
     "android:release": "expo run:android --variant release --no-bundler",
     "ios:release": "bun run extensions:ios-runtime && expo run:ios --configuration Release --no-bundler",
+    "ios:ipa": "bun run extensions:ios-runtime && scripts/ipa/build.sh",
     "desktop:release": "bun run --cwd desktop dist",
     "web:release": "expo export -p web",
     "release:notes": "bunx git-cliff@2.14.2 --unreleased",

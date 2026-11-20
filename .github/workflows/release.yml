@@ -108,29 +108,17 @@ jobs:
       - run: pod install
         working-directory: ios
 
-      - name: Build the app
-        run: |
-          xcodebuild -workspace ios/anipoex.xcworkspace -scheme anipoex \
-            -configuration Release -destination generic/platform=iOS \
-            -derivedDataPath "$RUNNER_TEMP/build" CODE_SIGNING_ALLOWED=NO build
+      - run: scripts/ipa/build.sh
 
-      # SideStore and AltStore read the entitlements from the binaries to
-      # register the App Group, and an unsigned build carries none.
-      - name: Sign ad hoc with the entitlements and upload
+      # source.json is what users add to SideStore or AltStore, always from
+      # releases/latest/download/source.json.
+      - name: Write the SideStore source and upload
         run: |
-          app="$RUNNER_TEMP/build/Build/Products/Release-iphoneos/anipoex.app"
-          widget="$app/PlugIns/ExpoWidgetsTarget.appex"
-          for code in "$app"/Frameworks/* "$widget"/Frameworks/*; do
-            if [ -e "$code" ]; then codesign -f -s - "$code"; fi
-          done
-          codesign -f -s - --entitlements ios/ExpoWidgetsTarget/ExpoWidgetsTarget.entitlements "$widget"
-          codesign -f -s - --entitlements ios/anipoex/anipoex.entitlements "$app"
-          codesign -d --entitlements - "$app" | grep -q group.com.anipoex.app
-
           ipa="anipoex-$RELEASE_TAG.ipa"
-          mkdir -p "$RUNNER_TEMP/ipa/Payload"
-          cp -R "$app" "$RUNNER_TEMP/ipa/Payload/"
-          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/$ipa" Payload)
-          gh release upload "$RELEASE_TAG" "$ipa" --clobber
+          mv build/ipa/anipoex.ipa "$ipa"
+          gh release view "$RELEASE_TAG" --json tagName,body,publishedAt > "$RUNNER_TEMP/release.json"
+          bun scripts/ipa/source.ts build/ipa/Build/Products/Release-iphoneos/anipoex.app \
+            "$ipa" "$RUNNER_TEMP/release.json" > source.json
+          gh release upload "$RELEASE_TAG" "$ipa" source.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
