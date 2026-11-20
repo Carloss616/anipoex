@@ -2,6 +2,7 @@
 
 ## 2026-11-19
 
+* **The list search matches words, not the whole phrase**: a manga matches when one of its titles or synonyms holds every word searched, in any order, in the manga list and History's search. Updated [Manga](concepts/manga.md).
 * **What sync shares across accounts**: it isn't tied to the AniList account (signing in with another keeps every synced record), and connecting another GitHub account merges this device's data into that account's gist. Manual matches and source pins sync, which their pages still denied. Updated [Sync stamps](stores/sync-meta.md), [GitHub account](stores/github-account.md), [Manual matches](stores/manual-matches.md), [Source pins](stores/source-pins.md).
 
 ## 2026-11-18

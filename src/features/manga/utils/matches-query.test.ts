@@ -25,6 +25,17 @@ describe("matchesQuery", () => {
     expect(matchesQuery(berserk, "denki")).toBe(true);
   });
 
+  it("matches the words of a search in any order, skipping the ones between", () => {
+    expect(matchesQuery(berserk, "kenpuu denki")).toBe(true);
+    expect(matchesQuery(berserk, "denki kenpuu")).toBe(true);
+    expect(matchesQuery(berserk, "kenpuu  ki")).toBe(true);
+  });
+
+  it("needs every word in the same title", () => {
+    expect(matchesQuery(berserk, "berserk denki")).toBe(false);
+    expect(matchesQuery(berserk, "kenpuu guts")).toBe(false);
+  });
+
   it("keeps every manga for an empty search", () => {
     expect(matchesQuery(berserk, "")).toBe(true);
   });

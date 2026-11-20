@@ -21,7 +21,9 @@ The app never writes it; it reads two shapes of it:
   ends. Everything that divides by it handles null (see
   [reading progress](../metrics/reading-progress.md)).
 - **Titles**: `userPreferred` is what's shown; `english`, `romaji`, `native` and
-  every synonym are matched by the list search.
+  every synonym are matched by the list search, which finds a manga when one of
+  them holds every word searched, in any order ("the supreme" finds "The Former
+  Supreme").
 - **`status`** is the *publication* status (Releasing, Finished, Hiatus, Not yet
   released, Cancelled), unrelated to the [list status](list-status.md).
 - **`description`** is light HTML. It is flattened to plain text (`<br>` to newlines,
