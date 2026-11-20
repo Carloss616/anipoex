@@ -1,0 +1,73 @@
+# Builds the apps for a release published with `gh release create vX.Y.Z` and
+# uploads them to it. To rebuild a tag's assets, run it on that tag:
+# `gh workflow run release.yml --ref vX.Y.Z`.
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: ${{ github.ref_name }}
+
+concurrency:
+  group: release-${{ github.ref_name }}
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      # SHA-256 of the release key's certificate: an APK signed by anything else fails the job.
+      SIGNING_CERT_SHA256: 3f14029f2326727b91496550d62c35c6e3f2160eb6bdfec23a32a72008b62479
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          package-manager-cache: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: zulu
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+
+      - run: bun install --frozen-lockfile
+      - name: Write .env.local
+        run: printf '%s\n' "$ENV_LOCAL" > .env.local
+        env:
+          ENV_LOCAL: ${{ secrets.ENV_LOCAL }}
+      - run: bunx expo prebuild --platform android --no-install
+
+      - name: Build the signed APK
+        working-directory: android
+        run: |
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          ./gradlew assembleRelease \
+            -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.jks" \
+            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEYSTORE_PASSWORD"
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+
+      - name: Check the signature and upload
+        run: |
+          apk="anipoex-$RELEASE_TAG.apk"
+          mv android/app/build/outputs/apk/release/app-release.apk "$apk"
+          apksigner="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)"
+          certs="$("$apksigner" verify --print-certs "$apk")"
+          grep -q "SHA-256 digest: $SIGNING_CERT_SHA256" <<< "$certs"
+          gh release upload "$RELEASE_TAG" "$apk" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

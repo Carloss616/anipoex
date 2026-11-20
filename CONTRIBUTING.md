@@ -47,6 +47,21 @@ bun run codegen    # after changing a .gql operation
 
 </details>
 
+<details>
+<summary>Releasing</summary>
+
+The release tag is the version: `app.config.ts` turns `vX.Y.Z` into the app version and the build number, so no file changes for a release.
+
+```bash
+bun run release:notes -- --bumped-version           # next version from the commits
+bun run release:notes -- --tag vX.Y.Z -o notes.md   # edit it before publishing
+gh release create vX.Y.Z --notes-file notes.md
+```
+
+Publishing the release starts `.github/workflows/release.yml`, which builds the signed APK and uploads it to the release. To rebuild an existing tag, run the workflow on it (`gh workflow run release.yml --ref vX.Y.Z`). The signing key and `.env.local` come from the repo secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ENV_LOCAL`.
+
+</details>
+
 ---
 
 ## 🏗️ Tech Stack
