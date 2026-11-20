@@ -58,6 +58,10 @@ export interface Settings {
      * downloads differ by device.
      */
     mangaList?: ListOptions;
+    /** Look for an app update once a day; on unless turned off. */
+    updateCheck?: boolean;
+    /** When the app last looked for an update, in epoch ms. */
+    updateCheckedAt?: number;
   };
 }
 
@@ -104,6 +108,12 @@ export function normalizeSettings(raw: unknown): Settings {
       ? device.downloadsFolder
       : undefined;
   const listOptions = normalizeListOptions(device?.mangaList);
+  const updateCheck =
+    typeof device?.updateCheck === "boolean" ? device.updateCheck : undefined;
+  const updateCheckedAt =
+    typeof device?.updateCheckedAt === "number"
+      ? device.updateCheckedAt
+      : undefined;
   return {
     version: typeof root?.version === "number" ? root.version : 0,
     theme: {
@@ -142,6 +152,8 @@ export function normalizeSettings(raw: unknown): Settings {
       ...(downloadsIn && { downloadsIn }),
       ...(downloadsFolder && { downloadsFolder }),
       ...(listOptions && { mangaList: listOptions }),
+      ...(updateCheck !== undefined && { updateCheck }),
+      ...(updateCheckedAt !== undefined && { updateCheckedAt }),
     },
   };
 }

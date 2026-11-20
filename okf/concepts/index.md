@@ -22,6 +22,10 @@ Domain ideas and rules. Read these before the [operations](../operations/) and
 
 * [Offline](offline.md) - When the app counts as offline, what that changes, and what waits until it is back.
 
+# The app
+
+* [App updates](app-updates.md) - The app's version, where newer ones come from, and when the Android app offers to install one.
+
 # Reading (scaffolding)
 
 * [Source](source.md) - A site chapters come from, from an installed extension in any language; each manga remembers one.

@@ -1,5 +1,9 @@
 # Bundle Update Log
 
+## 2026-11-20
+
+* **The Android app updates itself**: it looks at the GitHub repo's latest release once a day (setting `updateCheck`, on by default) and offers a newer one, with its notes, once its APK is attached; prereleases are skipped. Settings → About shows the version on every platform. Added [App updates](concepts/app-updates.md). Updated [Settings](stores/settings.md).
+
 ## 2026-11-19
 
 * **The list refreshes on open**: opening the app or coming back to it fetches the whole AniList list, quietly, when it's online and the last such fetch is older than the chosen minutes (Settings → Sync → AniList list: on, 15 minutes by default; 5, 15, 30 or 60), so progress read on another device shows. Updated [MangaList](operations/manga-list.md), [Settings](stores/settings.md).

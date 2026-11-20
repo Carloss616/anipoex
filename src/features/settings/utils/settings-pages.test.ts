@@ -12,6 +12,7 @@ describe("visiblePages", () => {
       "appearance",
       "home",
       "sync",
+      "about",
       "sources",
       "downloads",
     ]);

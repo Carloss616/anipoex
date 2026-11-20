@@ -1,6 +1,7 @@
 import { type IconName, Icons } from "@/components/ui/icon";
 import { PRESET_LABELS } from "@/features/home/constants";
 import { github$ } from "@/features/sync/state/github";
+import { APP_VERSION, updates$ } from "@/features/updates/state/updates";
 import { settings$ } from "@/state/settings";
 import { THEME_FAMILIES } from "@/state/theme/constants";
 import { SAVE_TO_OPTIONS, THEME_OPTIONS } from "../constants";
@@ -16,6 +17,7 @@ export const PAGE_ICONS: Record<SettingsPageId, IconName> = {
   sync: Icons.cloud,
   sources: Icons.language,
   downloads: Icons.download,
+  about: Icons.info,
 };
 
 /**
@@ -38,6 +40,8 @@ export const PAGE_SUMMARIES: Partial<Record<SettingsPageId, () => string>> = {
     ]
       .filter(Boolean)
       .join(" · ") || "Off",
+  about: () =>
+    updates$.available.get() ? "Update available" : `Version ${APP_VERSION}`,
   sources: languagesLabel,
   downloads: () => {
     const option = settings$.device.downloadsIn.get() ?? "sync";

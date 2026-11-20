@@ -129,3 +129,15 @@ test("normalizeSettings keeps a stored list refresh and drops a bad one", () => 
   expect(bad.mangaList.refresh).toEqual({ onOpen: true, minutes: 15 });
   expect(bad.device.listRefreshedAt).toBeUndefined();
 });
+
+test("normalizeSettings keeps the update check and drops a bad one", () => {
+  const stored = normalizeSettings({
+    device: { updateCheck: false, updateCheckedAt: 1000 },
+  });
+  expect(stored.device).toEqual({ updateCheck: false, updateCheckedAt: 1000 });
+
+  const bad = normalizeSettings({
+    device: { updateCheck: "no", updateCheckedAt: "today" },
+  });
+  expect(bad.device).toEqual({});
+});

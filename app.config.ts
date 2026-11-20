@@ -17,5 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version,
     android: { ...config.android, versionCode: buildNumber },
     ios: { ...config.ios, buildNumber: String(buildNumber) },
+    // Settings → About shows it; CI sets GITHUB_SHA.
+    extra: { ...config.extra, commit: process.env.GITHUB_SHA?.slice(0, 7) },
   };
 };

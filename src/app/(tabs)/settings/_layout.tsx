@@ -24,6 +24,7 @@ export default function Layout() {
         <Stack.Screen name="account" />
         <Stack.Screen name="appearance" />
         <Stack.Screen name="sync" />
+        <Stack.Screen name="about" />
         <Stack.Screen name="sources" />
         <Stack.Screen name="downloads" />
         <Stack.Screen name="activity" />

@@ -7,7 +7,8 @@ export type SettingsPageId =
   | "home"
   | "sync"
   | "sources"
-  | "downloads";
+  | "downloads"
+  | "about";
 
 export type SettingsGroup = "status" | "general" | "sources";
 
@@ -44,6 +45,7 @@ export const SETTINGS_PAGES: SettingsPage[] = [
   },
   { id: "home", title: "Home", href: "/settings/layout", group: "general" },
   { id: "sync", title: "Sync", href: "/settings/sync", group: "general" },
+  { id: "about", title: "About", href: "/settings/about", group: "general" },
   {
     id: "sources",
     title: "Sources",

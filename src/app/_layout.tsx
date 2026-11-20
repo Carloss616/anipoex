@@ -7,6 +7,8 @@ import "@/features/activity/state/network-notices";
 import "@/state/network/system";
 // Stamps synced stores from launch, and syncs once GitHub is connected.
 import "@/features/sync/state/connection";
+// Looks for an app update once a day (Android).
+import "@/features/updates/state/updates";
 
 import { ApolloProvider } from "@apollo/client/react";
 import { useValue } from "@legendapp/state/react";
@@ -19,6 +21,7 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ToastHost, ToastProvider } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
+import { UpdateSheet } from "@/features/updates/components/update-sheet";
 import { client } from "@/graphql/client";
 import { useCacheRestored } from "@/graphql/use-cache-restored";
 import { useNavigationTheme } from "@/hooks/use-theme";
@@ -54,6 +57,7 @@ export default function RootLayout() {
         <ApolloProvider client={client}>
           <ThemeProvider value={theme}>
             <Layout />
+            <UpdateSheet />
             <ToastHost />
             <StatusBar style={theme.dark ? "light" : "dark"} />
           </ThemeProvider>

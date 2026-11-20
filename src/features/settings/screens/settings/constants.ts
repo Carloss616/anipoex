@@ -9,4 +9,5 @@ export const ICON_TINTS: Record<SettingsPageId, string> = {
   sync: "#5856D6",
   sources: "#FF2D55",
   downloads: "#FF9500",
+  about: "#8E8E93",
 };
