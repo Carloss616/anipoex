@@ -82,6 +82,7 @@
     "web": "expo start --dev-client --web",
     "desktop": "bun run --cwd desktop start --remote-debugging-port=9222",
     "android:release": "expo run:android --variant release --no-bundler",
+    "android:apk": "scripts/apk/build.sh",
     "ios:release": "bun run extensions:ios-runtime && expo run:ios --configuration Release --no-bundler",
     "ios:ipa": "bun run extensions:ios-runtime && scripts/ipa/build.sh",
     "desktop:release": "bun run --cwd desktop dist",

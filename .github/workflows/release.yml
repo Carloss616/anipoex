@@ -21,9 +21,6 @@ jobs:
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    env:
-      # SHA-256 of the release key's certificate: an APK signed by anything else fails the job.
-      SIGNING_CERT_SHA256: 3f14029f2326727b91496550d62c35c6e3f2160eb6bdfec23a32a72008b62479
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -46,28 +43,20 @@ jobs:
           ENV_LOCAL: ${{ secrets.ENV_LOCAL }}
       - run: bunx expo prebuild --platform android --no-install
 
-      - name: Build the signed APK
-        working-directory: android
+      - name: Write keystore.properties
         run: |
-          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
-          ./gradlew assembleRelease \
-            -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
-            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.jks" \
-            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$KEYSTORE_PASSWORD"
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > release.jks
+          printf 'storeFile=release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEYSTORE_PASSWORD" > keystore.properties
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-
-      - name: Check the signature and upload
+      - run: scripts/apk/build.sh
+      - name: Upload
         run: |
           apk="anipoex-$RELEASE_TAG.apk"
-          mv android/app/build/outputs/apk/release/app-release.apk "$apk"
-          apksigner="$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)"
-          certs="$("$apksigner" verify --print-certs "$apk")"
-          grep -q "SHA-256 digest: $SIGNING_CERT_SHA256" <<< "$certs"
+          mv build/apk/anipoex.apk "$apk"
           gh release upload "$RELEASE_TAG" "$apk" --clobber
         env:
           GH_TOKEN: ${{ github.token }}

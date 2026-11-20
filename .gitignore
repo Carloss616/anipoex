@@ -50,6 +50,10 @@ example
 *.ipa
 *.apk
 
+# the Android release key, beside its keystore.properties
+keystore.properties
+*.jks
+
 # local native modules: their sources are tracked, their build output is not
 modules/*/android/build/
 modules/*/android/.gradle/
