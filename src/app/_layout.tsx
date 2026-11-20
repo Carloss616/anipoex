@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ToastHost, ToastProvider } from "@/components/ui/toast";
 import { useRefreshViewer } from "@/features/auth/hooks/use-refresh-viewer";
 import "@/features/downloads/state/lifecycle";
+import "@/features/manga/state/list-refresh";
 import "@/features/manga/state/send-pending";
 import "@/features/manga/state/offline-scans";
 import "@/features/activity/state/network-notices";

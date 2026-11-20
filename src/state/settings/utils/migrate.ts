@@ -25,7 +25,12 @@ export interface Settings {
   version: number;
   theme: { family: ThemeFamilyId; preference: ThemePreference };
   home: HomeLayout;
-  mangaList: { density: Density; title: TitlePosition };
+  mangaList: {
+    density: Density;
+    title: TitlePosition;
+    /** Fetch the whole list on open or return, when older than `minutes`. */
+    refresh: { onOpen: boolean; minutes: number };
+  };
   extensions: { repos: Repo[] };
   sources: {
     autoPick: boolean;
@@ -42,6 +47,8 @@ export interface Settings {
     folder?: string;
     /** Minutes between syncs while the app is open; 0 never polls. */
     syncInterval?: number;
+    /** When the whole manga list was last fetched, in epoch ms. */
+    listRefreshedAt?: number;
     /** Where chapter downloads go; "sync" follows `folder`. */
     downloadsIn?: "sync" | "folder" | "device";
     /** Same format as `folder`; used when `downloadsIn` is "folder". */
@@ -82,6 +89,11 @@ export function normalizeSettings(raw: unknown): Settings {
   const folder = typeof device?.folder === "string" ? device.folder : undefined;
   const syncInterval =
     typeof device?.syncInterval === "number" ? device.syncInterval : undefined;
+  const listRefreshedAt =
+    typeof device?.listRefreshedAt === "number"
+      ? device.listRefreshedAt
+      : undefined;
+  const refresh = section(mangaList?.refresh);
   const downloadsIn = ["sync", "folder", "device"].includes(
     device?.downloadsIn as string,
   )
@@ -102,6 +114,13 @@ export function normalizeSettings(raw: unknown): Settings {
     mangaList: {
       density: (mangaList?.density as Density) ?? DEFAULT_DENSITY,
       title: (mangaList?.title as TitlePosition) ?? "split",
+      refresh: {
+        onOpen: typeof refresh?.onOpen === "boolean" ? refresh.onOpen : true,
+        minutes:
+          typeof refresh?.minutes === "number" && refresh.minutes > 0
+            ? refresh.minutes
+            : 15,
+      },
     },
     extensions: {
       repos: Array.isArray(repos) ? repos.map(storedRepo) : [],
@@ -119,6 +138,7 @@ export function normalizeSettings(raw: unknown): Settings {
       ...(id && { id }),
       ...(folder && { folder }),
       ...(syncInterval !== undefined && { syncInterval }),
+      ...(listRefreshedAt !== undefined && { listRefreshedAt }),
       ...(downloadsIn && { downloadsIn }),
       ...(downloadsFolder && { downloadsFolder }),
       ...(listOptions && { mangaList: listOptions }),

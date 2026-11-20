@@ -36,4 +36,11 @@ query MangaList($userId: Int!, $status: MediaListStatus, $forceSingleCompletedLi
 - A save or delete edits the cached results instead of refetching them, the whole
   collection's custom groups included, and deleting a list drops its group; a pull to
   refresh refetches it together with [MangaListCounts](manga-list-counts.md).
+- **Refresh on open**: the list is read from the cache first, so progress saved on another
+  device stays old until it's fetched. When the app opens or comes back, signed in and
+  online, and the last such fetch is older than the [setting](../stores/settings.md)'s
+  minutes (15 by default; off skips it), the whole collection is fetched from AniList
+  without a toast, so every entry's progress in the cache is current, whichever list
+  shows it. Which list an entry is filed under still changes only with the list's own
+  fetch. A failure waits for the next open or return.
 - Error toast: "Couldn't load this list".

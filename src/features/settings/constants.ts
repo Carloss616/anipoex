@@ -26,7 +26,22 @@ export const DESCRIPTIONS = {
   autoPick: "After a scan, the one with the most new chapters",
   slowSkip: "A source slower than this is left out of a Reading scan",
   dns: "The resolver extensions use",
+  listRefreshOnOpen: "Fetch your whole list when you open the app",
+  listRefreshAfter: "Only when the last refresh is older than this",
 };
+
+/** How old the list must be before opening the app fetches it, in minutes. */
+export const LIST_REFRESH_OPTIONS = [
+  { minutes: 5, label: "5 min" },
+  { minutes: 15, label: "15 min" },
+  { minutes: 30, label: "30 min" },
+  { minutes: 60, label: "1 hour" },
+];
+
+/** The option's label; a value another build stored shows as minutes. */
+export const listRefreshLabel = (minutes: number) =>
+  LIST_REFRESH_OPTIONS.find((option) => option.minutes === minutes)?.label ??
+  `${minutes} min`;
 
 export type SaveTo = NonNullable<Settings["device"]["downloadsIn"]>;
 

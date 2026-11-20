@@ -106,3 +106,26 @@ test("moveLegacyIn moves the old tables in once and deletes them", () => {
   expect(settings$.theme.family.peek()).toBe("grass");
   expect(deleted).toHaveLength(4);
 });
+
+test("normalizeSettings refreshes the list on open every 15 minutes by default", () => {
+  expect(normalizeSettings(undefined).mangaList.refresh).toEqual({
+    onOpen: true,
+    minutes: 15,
+  });
+});
+
+test("normalizeSettings keeps a stored list refresh and drops a bad one", () => {
+  const stored = normalizeSettings({
+    mangaList: { refresh: { onOpen: false, minutes: 60 } },
+    device: { listRefreshedAt: 1000 },
+  });
+  expect(stored.mangaList.refresh).toEqual({ onOpen: false, minutes: 60 });
+  expect(stored.device.listRefreshedAt).toBe(1000);
+
+  const bad = normalizeSettings({
+    mangaList: { refresh: { onOpen: "yes", minutes: -5 } },
+    device: { listRefreshedAt: "now" },
+  });
+  expect(bad.mangaList.refresh).toEqual({ onOpen: true, minutes: 15 });
+  expect(bad.device.listRefreshedAt).toBeUndefined();
+});
