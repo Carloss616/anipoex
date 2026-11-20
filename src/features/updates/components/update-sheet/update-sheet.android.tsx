@@ -12,8 +12,8 @@ import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
 import { openExternal } from "@/utils/open-external";
 import { installUpdate, isUpdateReady, updates$ } from "../../state/updates";
 import { ReleaseNotes } from "./release-notes";
+import { megabytes } from "./utils";
 
-const megabytes = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 const close = () => updates$.open.set(false);
 
 export function UpdateSheet() {
@@ -37,7 +37,7 @@ export function UpdateSheet() {
               style={{ typography: "bodyMedium" }}
               color={m3.onSurfaceVariant}
             >
-              {`Anipoex ${update.version} · ${megabytes(update.apkSize)}`}
+              {`Anipoex ${update.version} · ${megabytes(update.fileSize)}`}
             </Text>
           </Column>
           {progress === undefined ? (

@@ -1,7 +1,7 @@
 ---
 type: Concept
 title: App updates
-description: Which version the app runs, where newer ones come from, and when the Android app offers to install one.
+description: Which version the app runs, where newer ones come from, and when the Android and iOS apps offer one.
 resource: ../../src/features/updates/state/updates.ts
 tags: [updates, releases, version]
 generated: { by: claude-code, at: 2026-11-20T00:00:00Z }
@@ -15,21 +15,24 @@ keeps the version in the app config.
 CI attaches the built apps to each one. The newest **published, non-prerelease** release is
 the one offered. Prereleases and drafts are never offered.
 
-**When the Android app offers one.** Only the Android app installs its own updates. It
-offers a release when:
+**When the app offers one.** The Android and iOS apps offer a release when:
 
 - its version is newer than the running one, comparing major, minor and patch as numbers
   (`0.10.0` is newer than `0.9.9`);
-- its APK is already attached: right after publishing, CI is still building it, and the
-  release is skipped until the APK is there.
+- its file for that platform is already attached (the APK on Android, the IPA on iOS):
+  right after publishing, CI is still building them, and the release is skipped until
+  the file is there.
 
-It looks by itself at most **once a day**, when the app opens or comes back, while the
-device setting `updateCheck` is on (the default) and the app is online
+They look by themselves at most **once a day**, when the app opens or comes back, while
+the device setting `updateCheck` is on (the default) and the app is online
 ([Settings](../stores/settings.md)). Development builds never look by themselves. The user
 can always look from Settings → About.
 
-An update shows its release notes and installs through Android's package installer, which
-asks the user to confirm (and, the first time, to allow installs from the app).
+An update shows its release notes. On Android it installs through the package installer,
+which asks the user to confirm (and, the first time, to allow installs from the app). On
+iOS, the store on the device installs it over the app, keeping its data: SideStore if it
+has it, else AltStore; with neither, the release page offers the IPA. SideStore and AltStore also find new versions by themselves through
+the source each release carries.
 
-On iOS and the desktop app, About shows the version and links to the release, without
-offering to install.
+The desktop app's About shows the version and links to the release, without offering to
+install.

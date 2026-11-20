@@ -19,8 +19,11 @@ export const APP_VERSION = Constants.expoConfig?.version ?? "0.0.0";
 export const APP_COMMIT: string | undefined =
   Constants.expoConfig?.extra?.commit;
 
-/** Only the Android app installs its own updates. */
-const canUpdate = Platform.OS === "android";
+/**
+ * The release file this app updates from: Android installs the APK itself,
+ * iOS hands the IPA to SideStore. None on web and desktop.
+ */
+const UPDATE_FILE = Platform.select({ android: ".apk", ios: ".ipa" });
 
 export const updates$ = observable({
   checking: false,
@@ -44,10 +47,10 @@ export const isUpdateReady = () => {
 
 /** Looks for a newer release; a manual check also says when there's none. */
 export async function checkForUpdates({ manual = false } = {}) {
-  if (updates$.checking.peek()) return;
+  if (!UPDATE_FILE || updates$.checking.peek()) return;
   updates$.checking.set(true);
   try {
-    const update = await fetchUpdate(APP_VERSION);
+    const update = await fetchUpdate(APP_VERSION, UPDATE_FILE);
     settings$.device.updateCheckedAt.set(Date.now());
     updates$.available.set(update);
     if (update) updates$.open.set(true);
@@ -109,7 +112,7 @@ async function install() {
 }
 
 function checkIfDue() {
-  if (!canUpdate || __DEV__ || !network$.online.peek()) return;
+  if (!UPDATE_FILE || __DEV__ || !network$.online.peek()) return;
   if (isCheckDue(settings$.device.peek(), Date.now())) void checkForUpdates();
 }
 

@@ -7,9 +7,10 @@ export interface Update {
   notes: string;
   /** The release's page on GitHub. */
   url: string;
-  apkUrl: string;
+  /** The app file for this platform: the APK, or the IPA SideStore installs. */
+  fileUrl: string;
   /** In bytes. */
-  apkSize: number;
+  fileSize: number;
 }
 
 /** The fields of GitHub's release object the app reads. */
@@ -36,21 +37,22 @@ export function isNewer(version: string, current: string) {
 
 /**
  * The update a release offers: none while it's a prerelease or isn't newer,
- * nor while CI is still uploading its APK.
+ * nor while CI is still uploading its file for this platform (`.apk`, `.ipa`).
  */
 export function updateFrom(
   release: GitHubRelease,
   current: string,
+  extension: string,
 ): Update | undefined {
-  const apk = release.assets.find((asset) => asset.name.endsWith(".apk"));
-  if (release.draft || release.prerelease || !apk) return;
+  const file = release.assets.find((asset) => asset.name.endsWith(extension));
+  if (release.draft || release.prerelease || !file) return;
   if (!isNewer(release.tag_name, current)) return;
   return {
     version: release.tag_name.replace(/^v/, ""),
     notes: release.body ?? "",
     url: release.html_url,
-    apkUrl: apk.browser_download_url,
-    apkSize: apk.size,
+    fileUrl: file.browser_download_url,
+    fileSize: file.size,
   };
 }
 
@@ -60,7 +62,7 @@ export function updateFrom(
  *
  * @see https://github.com/mihonapp/mihon/blob/main/domain/src/main/java/tachiyomi/domain/release/interactor/GetApplicationRelease.kt
  */
-export async function fetchUpdate(current: string) {
+export async function fetchUpdate(current: string, extension: string) {
   const response = await fetch(
     `https://api.github.com/repos/${REPO}/releases/latest`,
     { headers: { Accept: "application/vnd.github+json" } },
@@ -71,5 +73,5 @@ export async function fetchUpdate(current: string) {
   const release = (await response.json()) as GitHubRelease;
   if (typeof release?.tag_name !== "string" || !Array.isArray(release.assets))
     throw new Error("GitHub sent an unexpected release");
-  return updateFrom(release, current);
+  return updateFrom(release, current, extension);
 }

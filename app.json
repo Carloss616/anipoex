@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anipoex.app",
       "infoPlist": {
-        "BGTaskSchedulerPermittedIdentifiers": ["com.anipoex.app.work.*"]
+        "BGTaskSchedulerPermittedIdentifiers": ["com.anipoex.app.work.*"],
+        "LSApplicationQueriesSchemes": ["sidestore", "altstore"]
       }
     },
     "android": {

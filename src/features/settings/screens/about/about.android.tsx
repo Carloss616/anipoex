@@ -12,35 +12,10 @@ import { Label } from "@/features/settings/components/label";
 import { LeadingIcon } from "@/features/settings/components/leading-icon";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { useRowProps } from "@/features/settings/hooks/use-row-props";
-import {
-  checkForUpdates,
-  isUpdateReady,
-  updates$,
-} from "@/features/updates/state/updates";
-import { settings$ } from "@/state/settings";
+import { updates$ } from "@/features/updates/state/updates";
 import { openExternal } from "@/utils/open-external";
 import { LINKS, VERSION_LABEL } from "./constants";
-
-const updateCheck$ = settings$.device.updateCheck;
-// Unset counts as on.
-const toggleUpdateCheck = () => updateCheck$.set((on) => on === false);
-
-function onCheck() {
-  if (updates$.available.peek()) updates$.open.set(true);
-  else void checkForUpdates({ manual: true });
-}
-
-function checkStatus() {
-  if (updates$.checking.get()) return "Checking…";
-  const update = updates$.available.get();
-  const progress = updates$.progress.get();
-  if (update && progress !== undefined)
-    return `Downloading ${update.version}… ${Math.round(progress * 100)}%`;
-  if (!update) return "Look for a newer version on GitHub";
-  return isUpdateReady()
-    ? `Version ${update.version} is ready to install`
-    : `Version ${update.version} is available`;
-}
+import { checkStatus, onCheck, toggleUpdateCheck, updateCheck$ } from "./utils";
 
 export function About() {
   const row = useRowProps();

@@ -37,29 +37,49 @@ describe("isNewer", () => {
 
 describe("updateFrom", () => {
   test("offers a newer release with its APK", () => {
-    expect(updateFrom(release(), "0.1.0")).toEqual({
+    expect(updateFrom(release(), "0.1.0", ".apk")).toEqual({
       version: "0.2.0",
       notes: "### Features",
       url: "https://example.com/releases/v0.2.0",
-      apkUrl: "https://example.com/anipoex-v0.2.0.apk",
-      apkSize: 42,
+      fileUrl: "https://example.com/anipoex-v0.2.0.apk",
+      fileSize: 42,
     });
   });
 
   test("skips a release that isn't newer", () => {
-    expect(updateFrom(release(), "0.2.0")).toBeUndefined();
+    expect(updateFrom(release(), "0.2.0", ".apk")).toBeUndefined();
   });
 
   test("waits until the APK is uploaded", () => {
-    expect(updateFrom(release({ assets: [] }), "0.1.0")).toBeUndefined();
+    expect(
+      updateFrom(release({ assets: [] }), "0.1.0", ".apk"),
+    ).toBeUndefined();
   });
 
   test("skips prereleases and drafts", () => {
-    expect(updateFrom(release({ prerelease: true }), "0.1.0")).toBeUndefined();
-    expect(updateFrom(release({ draft: true }), "0.1.0")).toBeUndefined();
+    expect(
+      updateFrom(release({ prerelease: true }), "0.1.0", ".apk"),
+    ).toBeUndefined();
+    expect(
+      updateFrom(release({ draft: true }), "0.1.0", ".apk"),
+    ).toBeUndefined();
+  });
+
+  test("offers this platform's file only", () => {
+    const ipa = {
+      name: "anipoex-v0.2.0.ipa",
+      browser_download_url: "https://example.com/anipoex-v0.2.0.ipa",
+      size: 7,
+    };
+    expect(updateFrom(release(), "0.1.0", ".ipa")).toBeUndefined();
+    expect(
+      updateFrom(release({ assets: [ipa] }), "0.1.0", ".ipa")?.fileUrl,
+    ).toBe(ipa.browser_download_url);
   });
 
   test("reads missing notes as empty", () => {
-    expect(updateFrom(release({ body: null }), "0.1.0")?.notes).toBe("");
+    expect(updateFrom(release({ body: null }), "0.1.0", ".apk")?.notes).toBe(
+      "",
+    );
   });
 });

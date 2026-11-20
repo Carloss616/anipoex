@@ -16,10 +16,12 @@ export async function downloadApk(
   onProgress: (fraction: number) => void,
 ) {
   const file = apkFile();
-  await File.downloadFileAsync(update.apkUrl, file, {
+  await File.downloadFileAsync(update.fileUrl, file, {
     idempotent: true,
     onProgress: ({ bytesWritten, totalBytes }) =>
-      onProgress(bytesWritten / (totalBytes > 0 ? totalBytes : update.apkSize)),
+      onProgress(
+        bytesWritten / (totalBytes > 0 ? totalBytes : update.fileSize),
+      ),
   });
 }
 

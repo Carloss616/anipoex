@@ -4,10 +4,11 @@ import { padding, weight } from "@expo/ui/jetpack-compose/modifiers";
 import { Text } from "@/components/native/jetpack-compose/text";
 import { useFontFamily } from "@/hooks/use-font";
 import { useThemeM3Colors } from "@/hooks/use-theme/use-theme.android";
-import { type Block, parseNotes } from "../../utils/release-notes";
+import { type Block, parseNotes } from "../../../utils/release-notes";
+import type { ReleaseNotesProps } from "./release-notes";
 
 /** A release's Markdown notes as Compose text: headings, bullets, bold. */
-export function ReleaseNotes({ markdown }: { markdown: string }) {
+export function ReleaseNotes({ markdown }: ReleaseNotesProps) {
   const m3 = useThemeM3Colors();
   const bold = useFontFamily("bold");
 
