@@ -14,6 +14,12 @@ A device syncs with every target it has: the [GitHub gist](github-account.md), a
 (below), or both, one after the other, each with its own state. Stopping a target forgets
 its state; `devices` is everyone seen on any of them.
 
+A reinstall gets a new device id, so the old install stays in `devices`, its files still
+on the targets. Forgetting another device (Settings → Sync → Devices) syncs first, then
+takes its files off every target once each of its records is, as new or newer, in another
+device's file: nothing is lost. A device still in use writes its files again on its next
+sync and comes back.
+
 - `pushed`: per target and synced table, a hash of the file this device last wrote. A sync writes only
   the files whose content changed since, plus any of this device's files the target no
   longer has (a new gist or an empty folder gets them all on the first sync).

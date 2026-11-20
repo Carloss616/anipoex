@@ -2,6 +2,7 @@
 
 ## 2026-11-20
 
+* **Forget a device**: another device's row in Settings → Sync → Devices can be forgotten, which takes its files off the gist and the folder once this device's carry all its records (a reinstall's old id). Updated [Sync state](stores/sync-state.md).
 * **The Android app updates itself**: it looks at the GitHub repo's latest release once a day (setting `updateCheck`, on by default) and offers a newer one, with its notes, once its APK is attached; prereleases are skipped. Settings → About shows the version on every platform. Added [App updates](concepts/app-updates.md). Updated [Settings](stores/settings.md).
 
 ## 2026-11-19

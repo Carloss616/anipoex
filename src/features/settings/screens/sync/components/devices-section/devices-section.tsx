@@ -1,6 +1,8 @@
+import { Button } from "panelui-web/button";
 import { Frame } from "panelui-web/frame";
 import { Badge } from "@/components/ui/badge";
-import { Icon } from "@/components/ui/icon";
+import { Icon, Icons } from "@/components/ui/icon";
+import { Menu } from "@/components/ui/menu";
 import { useSyncDevices } from "../../hooks/use-sync-devices";
 
 export function DevicesSection() {
@@ -27,6 +29,15 @@ export function DevicesSection() {
                 <Frame.Description>{device.detail}</Frame.Description>
               )}
             </Frame.Content>
+            {device.menu && (
+              <Frame.Actions>
+                <Menu items={device.menu} align="end">
+                  <Button size="icon" variant="ghost" aria-label="More">
+                    <Icon name={Icons.more} />
+                  </Button>
+                </Menu>
+              </Frame.Actions>
+            )}
           </Frame.Row>
         ))}
       </Frame.Panel>

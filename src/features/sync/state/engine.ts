@@ -230,6 +230,31 @@ export async function leaveTarget(key: TargetKey) {
   }
 }
 
+/**
+ * Takes another device's files off every target, once a sync has carried all
+ * its records into this device's, so it leaves the list (a reinstall's old
+ * id). A device still in use writes them again on its next sync, losing
+ * nothing. Resolves to whether every target let them go.
+ */
+export async function forgetDevice(id: string) {
+  await requestSync();
+  let removed = true;
+  for (const target of targets.values()) {
+    try {
+      removed =
+        (await retireDevice({ tables: TABLES, device: id, target })) && removed;
+    } catch {
+      removed = false;
+    }
+  }
+  if (removed) {
+    syncState$.devices.set(
+      syncState$.devices.peek().filter((device) => device.id !== id),
+    );
+  }
+  return removed;
+}
+
 let debounce: ReturnType<typeof setTimeout> | undefined;
 syncMeta$.onChange(({ isFromPersist }) => {
   if (isFromPersist || applying.current || !targets.size) return;

@@ -244,6 +244,27 @@ describe("syncTables", () => {
     expect([...files.keys()]).toEqual(["anipoex-exclusions.phone.json"]);
   });
 
+  it("another device forgets one whose records it carries", async () => {
+    const { target, files } = memoryTarget();
+    const old = device("old", target);
+    const phone = device("phone", target);
+    old.store$[21]["source-1"].set({ reason: "outdated" });
+    await old.sync();
+    await phone.sync();
+
+    expect(
+      await retireDevice({
+        tables: [{ name: "exclusions", obs$: phone.store$, depth: 2 }],
+        device: "old",
+        target,
+      }),
+    ).toBe(true);
+    expect([...files.keys()]).toEqual(["anipoex-exclusions.phone.json"]);
+    expect(phone.store$.peek()).toEqual({
+      21: { "source-1": { reason: "outdated" } },
+    });
+  });
+
   it("leaving keeps the files while another device lacks a change", async () => {
     const { target, files } = memoryTarget();
     const mac = device("mac", target);
