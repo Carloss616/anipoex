@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds build/apk/anipoex.apk, signed with the release key, from the prebuilt
+# Builds android/dist/anipoex.apk, signed with the release key, from the prebuilt
 # android/ project. The key is the one keystore.properties names at the repo
 # root (storeFile, storePassword, keyAlias, keyPassword); CI writes both.
 set -euo pipefail
@@ -26,8 +26,8 @@ key_password="$(prop keyPassword)"
   -Pandroid.injected.signing.key.alias="$key_alias" \
   -Pandroid.injected.signing.key.password="$key_password")
 
-apk=build/apk/anipoex.apk
-mkdir -p build/apk
+apk=android/dist/anipoex.apk
+mkdir -p android/dist
 cp android/app/build/outputs/apk/release/app-release.apk "$apk"
 sdk="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 apksigner="$(find "$sdk/build-tools" -name apksigner | sort -V | tail -1)"

@@ -45,11 +45,6 @@ example
 /ios
 /android
 
-# local release builds
-/build
-*.ipa
-*.apk
-
 # the Android release key, beside its keystore.properties
 keystore.properties
 *.jks

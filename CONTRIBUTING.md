@@ -50,14 +50,15 @@ bun run codegen    # after changing a .gql operation
 <details>
 <summary>Release builds on your machine</summary>
 
-Each one builds from the native project `bun run ios` or `bun run android` (or `bunx expo prebuild`) generated, with the version in `app.json`. For another version, prebuild with the tag: `RELEASE_TAG=vX.Y.Z bunx expo prebuild --no-install`.
+Each one builds from the native project `bun run ios` or `bun run android` (or `bunx expo prebuild`) generated, with the version in `app.json`. For another version, prebuild with the tag: `RELEASE_TAG=vX.Y.Z bunx expo prebuild --no-install`. The files land in each platform's `dist/`; `ios/` and `android/` are generated, so `bun run prebuild` (`--clean`) deletes them too.
 
 | Command | Builds | Signed with | For |
 |---|---|---|---|
 | `bun run ios:release` | Release app on a simulator or a cabled iPhone | your Xcode team | trying a release build, no Metro |
 | `bun run android:release` | Release app on an emulator or a cabled phone | the debug key | trying a release build, no Metro |
-| `bun run ios:ipa` | `build/ipa/anipoex.ipa` | ad hoc, with the app's entitlements | installing through SideStore or AltStore |
-| `bun run android:apk` | `build/apk/anipoex.apk` | the release key | the same APK as a GitHub release |
+| `bun run ios:ipa` | `ios/dist/anipoex.ipa` | ad hoc, with the app's entitlements | installing through SideStore or AltStore |
+| `bun run android:apk` | `android/dist/anipoex.apk` | the release key | the same APK as a GitHub release |
+| `bun run desktop:dmg` | `desktop/dist/anipoex-<version>-arm64.dmg` | ad hoc | the macOS app, see [desktop/README.md](desktop/README.md#packaged-app) |
 
 - **`android:release`** is signed with the debug key, so it doesn't install over a release APK: uninstall first.
 - **`android:apk`** needs `keystore.properties` at the repo root, next to its `.jks`. Both are ignored by git:
@@ -69,7 +70,7 @@ Each one builds from the native project `bun run ios` or `bun run android` (or `
   keyPassword=…
   ```
 
-  It fails if the APK isn't signed by the release certificate. Install it with `adb install -r build/apk/anipoex.apk`.
+  It fails if the APK isn't signed by the release certificate. Install it with `adb install -r android/dist/anipoex.apk`.
 - **`ios:ipa`** carries no Apple signature: SideStore or AltStore sign it on the device.
 
 </details>
@@ -85,7 +86,7 @@ bun run release:notes -- --tag vX.Y.Z -o notes.md   # edit it before publishing
 gh release create vX.Y.Z --notes-file notes.md
 ```
 
-Publishing the release starts `.github/workflows/release.yml`, which builds the signed APK and an IPA for SideStore and AltStore, and uploads them to the release. The IPA carries no Apple signature: SideStore or AltStore sign it on the device, and find new versions through the `source.json` uploaded beside it, at `https://github.com/anipoex/anipoex/releases/latest/download/source.json`. To rebuild an existing tag, run the workflow on it (`gh workflow run release.yml --ref vX.Y.Z`). The signing key and `.env.local` come from the repo secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ENV_LOCAL`.
+Publishing the release starts `.github/workflows/release.yml`, which builds the signed APK, an IPA for SideStore and AltStore, and an unsigned DMG for Apple Silicon Macs, and uploads them to the release. The IPA carries no Apple signature: SideStore or AltStore sign it on the device, and find new versions through the `source.json` uploaded beside it, at `https://github.com/anipoex/anipoex/releases/latest/download/source.json`. To rebuild an existing tag, run the workflow on it (`gh workflow run release.yml --ref vX.Y.Z`). The signing key and `.env.local` come from the repo secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ENV_LOCAL`.
 
 </details>
 

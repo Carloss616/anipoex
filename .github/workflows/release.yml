@@ -56,7 +56,7 @@ jobs:
       - name: Upload
         run: |
           apk="anipoex-$RELEASE_TAG.apk"
-          mv build/apk/anipoex.apk "$apk"
+          mv android/dist/anipoex.apk "$apk"
           gh release upload "$RELEASE_TAG" "$apk" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
@@ -104,10 +104,49 @@ jobs:
       - name: Write the SideStore source and upload
         run: |
           ipa="anipoex-$RELEASE_TAG.ipa"
-          mv build/ipa/anipoex.ipa "$ipa"
+          mv ios/dist/anipoex.ipa "$ipa"
           gh release view "$RELEASE_TAG" --json tagName,body,publishedAt > "$RUNNER_TEMP/release.json"
-          bun scripts/ipa/source.ts build/ipa/Build/Products/Release-iphoneos/anipoex.app \
+          bun scripts/ipa/source.ts ios/build/derived/Build/Products/Release-iphoneos/anipoex.app \
             "$ipa" "$RUNNER_TEMP/release.json" > source.json
           gh release upload "$RELEASE_TAG" "$ipa" source.json --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  # An unsigned DMG for Apple Silicon Macs: macOS blocks a downloaded copy's
+  # first open until it's allowed (desktop/README.md, Packaged app).
+  macos:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          package-manager-cache: false
+      # The extension server's toolchain and the JVM it bundles.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+
+      - run: bun install --frozen-lockfile
+      - run: bun install --cwd desktop --frozen-lockfile
+      - name: Write .env.local
+        run: printf '%s\n' "$ENV_LOCAL" > .env.local
+        env:
+          ENV_LOCAL: ${{ secrets.ENV_LOCAL }}
+      # The server builds with android/gradlew.
+      - run: bunx expo prebuild --platform android --no-install
+      - run: bun run desktop:dmg --publish never -c.extraMetadata.version="${RELEASE_TAG#v}"
+
+      - name: Upload
+        run: |
+          dmg="anipoex-$RELEASE_TAG-arm64.dmg"
+          mv "desktop/dist/anipoex-${RELEASE_TAG#v}-arm64.dmg" "$dmg"
+          gh release upload "$RELEASE_TAG" "$dmg" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
